@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,19 +19,22 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafAppEnum.h"
+#include "cvfBase.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
+#include "RimReservoirCellResultsStorage.h"
+
 #include <QString>
 
-#include "cvfBase.h"
-#include "cvfColor3.h"
-
-#include "RimFault.h"
-
+class RimFault;
 class RimReservoirView;
-
+class RimNoCommonAreaNncCollection;
 
 //==================================================================================================
 ///  
@@ -54,15 +58,15 @@ public:
     void                                setReservoirView(RimReservoirView* ownerReservoirView);
     void                                syncronizeFaults();
 
-    bool                                isGridVisualizationMode() const;
+    void                                addMockData();
 
-    caf::PdmField<bool>                 showGeometryDetectedFaults; // Obsolete, to be removed
+    bool                                isGridVisualizationMode() const;
+    
+    bool                                showFaultsOutsideFilters() const;
+    void                                setShowFaultsOutsideFilters(bool enableState);
 
     caf::PdmField<bool>                 showFaultFaces;
     caf::PdmField<bool>                 showOppositeFaultFaces;
-    caf::PdmField<bool>                 showFaultsOutsideFilters;
-    caf::PdmField<bool>                 showNNCs;
-    caf::PdmField<bool>                 showResultsOnFaults;
     
     caf::PdmField<caf::AppEnum< FaultFaceCullingMode > > faultResult;
 
@@ -71,18 +75,22 @@ public:
     caf::PdmField<cvf::Color3f>         faultLabelColor;
 
     caf::PdmField<bool>                 showFaultCollection;
+    caf::PdmField<bool>                 showNNCs;
+    caf::PdmField<bool>                 hideNncsWhenNoResultIsAvailable;
 
     caf::PdmPointersField<RimFault*>    faults;
+    RimFault*                           findFaultByName(QString name);
+
+    caf::PdmField<RimNoCommonAreaNncCollection*> noCommonAreaNnncCollection;
 
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*        objectToggleField();
 
 private:
-    RimFault*                           findFaultByName(QString name);
-
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 private:
-    RimReservoirView* m_reservoirView;
+    caf::PdmField<bool>     m_showFaultsOutsideFilters;
+    RimReservoirView*       m_reservoirView;
 
 };

@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,20 +19,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimCellEdgeResultSlot.h"
-#include "RimReservoirCellResultsCacher.h"
 
-#include "RimLegendConfig.h"
-#include "RimReservoirView.h"
 #include "RigCaseCellResultsData.h"
-#include "cafPdmUiListEditor.h"
+#include "RimLegendConfig.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirView.h"
 
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
+#include "cafPdmUiListEditor.h"
+#include "cvfMath.h"
+
 
 CAF_PDM_SOURCE_INIT(RimCellEdgeResultSlot, "CellEdgeResultSlot");
 
@@ -149,12 +146,12 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
 
             QList<caf::PdmOptionItemInfo> optionList;
 
-            std::map<QString, caf::fvector<QString, 6> > varBaseNameToVarsMap;
+            std::map<QString, caf::FixedArray<QString, 6> > varBaseNameToVarsMap;
 
             int i;
             for (i = 0; i < varList.size(); ++i)
             {
-                if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0) continue;
+                if (RimDefines::isPerCellFaceResult(varList[i])) continue;
 
                 size_t cubeFaceIdx;
                 for (cubeFaceIdx = 0; cubeFaceIdx < EdgeFaceEnum::size(); ++cubeFaceIdx)
@@ -169,7 +166,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
                 }
             }
 
-            std::map<QString, caf::fvector<QString, 6> >::iterator it;
+            std::map<QString, caf::FixedArray<QString, 6> >::iterator it;
 
             for (it = varBaseNameToVarsMap.begin(); it != varBaseNameToVarsMap.end(); ++it)
             {
@@ -179,16 +176,16 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
                 bool firstText = true;
                 for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
                 {
-                    if (!it->second.v[cubeFaceIdx].isEmpty())
+                    if (!it->second[cubeFaceIdx].isEmpty())
                     {
                         if (firstText)
                         {
-                            optionUiName += it->second.v[cubeFaceIdx];
+                            optionUiName += it->second[cubeFaceIdx];
                             firstText = false;
                         }
                         else
                         {
-                            optionUiName += QString(", ") + it->second.v[cubeFaceIdx];
+                            optionUiName += QString(", ") + it->second[cubeFaceIdx];
                         }
                     }
                 }
@@ -225,9 +222,9 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
         int i;
         for (i = 0; i < varList.size(); ++i)
         {
-            if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0) continue;
+            if (RimDefines::isPerCellFaceResult(varList[i])) continue;
 
-            if (varList[i].contains(resultVariable))
+            if (varList[i].startsWith(resultVariable))
             {               
                 varNames.append(varList[i]);
             }
@@ -297,7 +294,7 @@ bool RimCellEdgeResultSlot::hasResult() const
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeResultSlot::updateIgnoredScalarValue()
 {
-    if (resultVariable == "MULT")
+    if (resultVariable == "MULT" || resultVariable == "riMULT")
     {
         m_ignoredResultScalar = 1.0;
     }

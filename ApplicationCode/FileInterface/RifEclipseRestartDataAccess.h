@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -54,4 +56,5 @@ public:
     virtual bool                results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values) = 0;
 
     virtual void                readWellData(well_info_type * well_info) = 0;
+    virtual int                 readUnitsType() = 0;
 };

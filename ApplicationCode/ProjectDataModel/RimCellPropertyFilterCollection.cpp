@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,13 +23,6 @@
 #include "RimReservoirView.h"
 #include "RimResultDefinition.h"
 #include "RimResultSlot.h"
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimCellRangeFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
-#include "RimCellEdgeResultSlot.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCellPropertyFilterCollection, "CellPropertyFilters");
@@ -83,7 +78,7 @@ RimReservoirView* RimCellPropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimCellPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    this->updateUiIconFromState(active);
+    this->updateUiIconFromToggleField();
 
     m_reservoirView->fieldChangedByUi(&(m_reservoirView->propertyFilterCollection), oldValue, newValue);
 }
@@ -138,6 +133,8 @@ void RimCellPropertyFilterCollection::loadAndInitializePropertyFilters()
 void RimCellPropertyFilterCollection::initAfterRead()
 {
     loadAndInitializePropertyFilters();
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -66,12 +68,16 @@ public:
     void                        updateCellResultColor    (ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
                                                           RimResultSlot* cellResultSlot);
     void                        updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
-                                                          RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
+														  RimResultSlot* cellResultSlot,
+														  RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     // Faults
     void                        appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
     void                        appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
     void                        updateFaultColors(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot);
+	void                        updateFaultCellEdgeResultColor(	ReservoirGeometryCacheType geometryType, size_t timeStepIndex,
+															RimResultSlot* cellResultSlot,
+															RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     // Fault labels
     ReservoirGeometryCacheType  geometryTypeForFaultLabels(const std::vector<ReservoirGeometryCacheType>& geometryTypes) const;

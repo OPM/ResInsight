@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -59,11 +61,13 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimWellCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimProject.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RimInputProperty.h"
+#include "RigSingleWellResultsData.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -538,29 +542,14 @@ void RimUiTreeView::slotExecuteScript()
         QString octavePath = app->octavePath();
         if (!octavePath.isEmpty())
         {
-            // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
-
-            // -p path
-            // Add path to the head of the search path for function files. The value of path specified on the command line
-            // will override any value of OCTAVE_PATH found in the environment, but not any commands in the system or
-            // user startup files that set the internal load path through one of the path functions.
-
-            // -q
-            // Don't print the usual greeting and version message at startup.
-
-
             // TODO: Must rename RimCalcScript::absolutePath to absoluteFileName, as the code below is confusing
             // absolutePath() is a function in QFileInfo
             QFileInfo fi(calcScript->absolutePath());
             QString octaveFunctionSearchPath = fi.absolutePath();
 
-            QStringList arguments;
+            QStringList arguments = app->octaveArguments();
             arguments.append("--path");
             arguments << octaveFunctionSearchPath;
-            arguments.append("--path");
-            arguments << QApplication::applicationDirPath();
-
-            arguments.append("-q");
             arguments << calcScript->absolutePath();
 
             RiaApplication::instance()->launchProcess(octavePath, arguments);
@@ -593,29 +582,14 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
         QString octavePath = app->octavePath();
         if (!octavePath.isEmpty())
         {
-            // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
-
-            // -p path
-            // Add path to the head of the search path for function files. The value of path specified on the command line
-            // will override any value of OCTAVE_PATH found in the environment, but not any commands in the system or
-            // user startup files that set the internal load path through one of the path functions.
-
-            // -q
-            // Don't print the usual greeting and version message at startup.
-
-
             // TODO: Must rename RimCalcScript::absolutePath to absoluteFileName, as the code below is confusing
             // absolutePath() is a function in QFileInfo
             QFileInfo fi(calcScript->absolutePath());
             QString octaveFunctionSearchPath = fi.absolutePath();
 
-            QStringList arguments;
+            QStringList arguments = app->octaveArguments();
             arguments.append("--path");
             arguments << octaveFunctionSearchPath;
-            arguments.append("--path");
-            arguments << QApplication::applicationDirPath();
-
-            arguments.append("-q");
             arguments << calcScript->absolutePath();
 
             // Get case ID from selected cases in selection model

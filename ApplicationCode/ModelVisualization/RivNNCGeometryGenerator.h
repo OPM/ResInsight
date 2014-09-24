@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -44,7 +45,7 @@ public:
     void setCellVisibility( const cvf::UByteArray* cellVisibilities, const RigGridBase * grid);
     
     void textureCoordinates(cvf::Vec2fArray* textureCoords,  
-        const cvf::ScalarMapper* mapper) const;
+        const cvf::ScalarMapper* mapper, size_t scalarResultIndex) const;
 
     // Mapping between cells and geometry
     cvf::ref<cvf::Array<size_t> >   triangleToNNCIndex() const;

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,9 +26,11 @@
 #include "RimReservoirView.h"
 
 #include "RivTernarySaturationOverlayItem.h"
+#include "RivTernaryScalarMapper.h"
+
+#include "cvfqtUtils.h"
 
 #include <cmath>
-#include "cvfqtUtils.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
@@ -92,6 +95,8 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     m_globalAutoMax.resize(3, 1.0);
     m_localAutoMin.resize(3, 0.0);
     m_localAutoMax.resize(3, 1.0);
+
+	m_scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
     recreateLegend();
     updateLegend();
@@ -163,6 +168,7 @@ void RimTernaryLegendConfig::updateLegend()
     double swatUpper = 1.0;
 
     ternaryRanges(soilLower, soilUpper, sgasLower, sgasUpper, swatLower, swatUpper);
+	m_scalarMapper->setTernaryRanges(soilLower, soilUpper, sgasLower, sgasUpper);
 
     cvf::String soilRange;
     cvf::String sgasRange;
@@ -265,12 +271,6 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     {
         caf::PdmUiOrdering* ternaryGroupContainer = uiOrdering.addNewGroup("Ternary ");
         {
-            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup("SOIL");
-            ternaryGroup->add(&userDefinedMinValueSoil);
-            ternaryGroup->add(&userDefinedMaxValueSoil);
-        }
-
-        {
             caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup("SGAS");
             ternaryGroup->add(&userDefinedMinValueSgas);
             ternaryGroup->add(&userDefinedMaxValueSgas);
@@ -280,6 +280,12 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
             caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup("SWAT");
             ternaryGroup->add(&userDefinedMinValueSwat);
             ternaryGroup->add(&userDefinedMaxValueSwat);
+        }
+
+        {
+            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup("SOIL");
+            ternaryGroup->add(&userDefinedMinValueSoil);
+            ternaryGroup->add(&userDefinedMaxValueSoil);
         }
 
         ternaryGroupContainer->add(&applyLocalMinMax);
@@ -298,7 +304,7 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::OverlayItem* RimTernaryLegendConfig::legend()
+RivTernarySaturationOverlayItem* RimTernaryLegendConfig::legend()
 {
     return m_legend.p();
 }
@@ -436,5 +442,13 @@ void RimTernaryLegendConfig::updateLabelText()
 
         ternaryRangeSummary = tmpString;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper()
+{
+	return m_scalarMapper.p();
 }
 

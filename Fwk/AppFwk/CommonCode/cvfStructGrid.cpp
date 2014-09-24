@@ -44,12 +44,12 @@ namespace caf
     template<>
     void cvf::StructGridInterface::FaceEnum::setUp()
     {
-        addItem(cvf::StructGridInterface::POS_I,   "X",    "");
-        addItem(cvf::StructGridInterface::NEG_I,   "X-",   "");
-        addItem(cvf::StructGridInterface::POS_J,   "Y",    "");
-        addItem(cvf::StructGridInterface::NEG_J,   "Y-",   "");
-        addItem(cvf::StructGridInterface::POS_K,   "Z",    "");
-        addItem(cvf::StructGridInterface::NEG_K,   "Z-",   "");
+        addItem(cvf::StructGridInterface::POS_I,   "POS I",    "");
+        addItem(cvf::StructGridInterface::NEG_I,   "NEG I",   "");
+        addItem(cvf::StructGridInterface::POS_J,   "POS J",    "");
+        addItem(cvf::StructGridInterface::NEG_J,   "NEG J",   "");
+        addItem(cvf::StructGridInterface::POS_K,   "POS K",    "");
+        addItem(cvf::StructGridInterface::NEG_K,   "NEG K",   "");
         addItem(cvf::StructGridInterface::NO_FACE, "UnDef",   "");
     }
 }
@@ -220,7 +220,7 @@ cvf::Vec3d StructGridInterface::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, double* kSize)
+void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, double* kSize) const
 {
     CVF_ASSERT(iSize && jSize && kSize);
 

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,6 +28,7 @@
 
 class RimReservoirView;
 class RivTernarySaturationOverlayItem;
+class RivTernaryScalarMapper;
 
 namespace cvf
 {
@@ -69,7 +71,9 @@ public:
     void                ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const;
 
     void                recreateLegend();
-    cvf::OverlayItem*   legend();
+    
+    RivTernarySaturationOverlayItem*	legend();
+	RivTernaryScalarMapper*				scalarMapper();
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -105,4 +109,5 @@ private:
 
     caf::PdmPointer<RimReservoirView>           m_reservoirView;
     cvf::ref<RivTernarySaturationOverlayItem>   m_legend;
+	cvf::ref<RivTernaryScalarMapper>			m_scalarMapper;
 };

@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,12 +24,16 @@
 #include "cvfObject.h"
 #include "cvfLibCore.h"
 
+#include "cafPdmPointer.h"
+
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
 
 
 class RigCaseData;
+class RifReaderSettings;
+
 
 //==================================================================================================
 //
@@ -44,11 +50,14 @@ public:
     };
 
 public:
-    RifReaderInterface()            { m_readFaultData = false; }
-    virtual ~RifReaderInterface()   {}
+    RifReaderInterface()            { }
+    virtual ~RifReaderInterface()   { }
 
-    void                        readFaultData(bool readFaultData) { m_readFaultData = readFaultData; }
-    bool                        isFaultImportEnabled()            { return m_readFaultData; }
+    void                        setReaderSetting(RifReaderSettings* settings);
+
+    bool                        isFaultImportEnabled();
+    bool                        isSimulationWellDataEnabled();
+    bool                        isNNCsEnabled();
 
     virtual bool                open(const QString& fileName, RigCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
@@ -63,6 +72,6 @@ public:
 
 
 private:
-    std::vector<QString>    m_filenamesWithFaults;
-    bool                    m_readFaultData;
+    std::vector<QString>                m_filenamesWithFaults;
+    caf::PdmPointer<RifReaderSettings>  m_settings;
 };

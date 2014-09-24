@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,8 +25,8 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::RigActiveCellInfo()
-    :   m_globalActiveCellCount(0),
-        m_globalCellResultCount(0),
+    :   m_reservoirActiveCellCount(0),
+        m_reservoirCellResultCount(0),
         m_activeCellPositionMin(cvf::Vec3d::ZERO),
         m_activeCellPositionMax(cvf::Vec3d::ZERO)
 {
@@ -34,15 +36,15 @@ RigActiveCellInfo::RigActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
+void RigActiveCellInfo::setReservoirCellCount(size_t reservoirCellCount)
 {
-    m_cellIndexToResultIndex.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
+    m_cellIndexToResultIndex.resize(reservoirCellCount, cvf::UNDEFINED_SIZE_T);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::globalCellCount() const
+size_t RigActiveCellInfo::reservoirCellCount() const
 {
     return m_cellIndexToResultIndex.size();
 }
@@ -50,53 +52,53 @@ size_t RigActiveCellInfo::globalCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::globalCellResultCount() const
+size_t RigActiveCellInfo::reservoirCellResultCount() const
 {
-    return m_globalCellResultCount;
+    return m_reservoirCellResultCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigActiveCellInfo::isActive(size_t globalCellIndex) const
+bool RigActiveCellInfo::isActive(size_t reservoirCellIndex) const
 {
     if (m_cellIndexToResultIndex.size() == 0)
     {
         return true;
     }
 
-    CVF_TIGHT_ASSERT(globalCellIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT(reservoirCellIndex < m_cellIndexToResultIndex.size());
 
-    return m_cellIndexToResultIndex[globalCellIndex] != cvf::UNDEFINED_SIZE_T;
+    return m_cellIndexToResultIndex[reservoirCellIndex] != cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::cellResultIndex(size_t globalCellIndex) const
+size_t RigActiveCellInfo::cellResultIndex(size_t reservoirCellIndex) const
 {
     if (m_cellIndexToResultIndex.size() == 0)
     {
-        return globalCellIndex;
+        return reservoirCellIndex;
     }
 
-    CVF_TIGHT_ASSERT(globalCellIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT(reservoirCellIndex < m_cellIndexToResultIndex.size());
 
-    return m_cellIndexToResultIndex[globalCellIndex];
+    return m_cellIndexToResultIndex[reservoirCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setCellResultIndex(size_t globalCellIndex, size_t globalCellResultIndex)
+void RigActiveCellInfo::setCellResultIndex(size_t reservoirCellIndex, size_t reservoirCellResultIndex)
 {
-    CVF_TIGHT_ASSERT(globalCellResultIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT(reservoirCellResultIndex < m_cellIndexToResultIndex.size());
 
-    m_cellIndexToResultIndex[globalCellIndex] = globalCellResultIndex;
+    m_cellIndexToResultIndex[reservoirCellIndex] = reservoirCellResultIndex;
 
-    if (globalCellResultIndex >= m_globalCellResultCount)
+    if (reservoirCellResultIndex >= m_reservoirCellResultCount)
     {
-        m_globalCellResultCount = globalCellResultIndex + 1;
+        m_reservoirCellResultCount = reservoirCellResultIndex + 1;
     }
 }
 
@@ -123,20 +125,20 @@ void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t activeC
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::computeDerivedData()
 {
-    m_globalActiveCellCount = 0;
+    m_reservoirActiveCellCount = 0;
 
     for (size_t i = 0; i < m_perGridActiveCellInfo.size(); i++)
     {
-        m_globalActiveCellCount += m_perGridActiveCellInfo[i].activeCellCount();
+        m_reservoirActiveCellCount += m_perGridActiveCellInfo[i].activeCellCount();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::globalActiveCellCount() const
+size_t RigActiveCellInfo::reservoirActiveCellCount() const
 {
-    return m_globalActiveCellCount;
+    return m_reservoirActiveCellCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,7 +189,7 @@ void RigActiveCellInfo::clear()
 {
     m_perGridActiveCellInfo.clear();
     m_cellIndexToResultIndex.clear();
-    m_globalActiveCellCount = 0;
+    m_reservoirActiveCellCount = 0;
     m_activeCellPositionMin = cvf::Vec3st(0,0,0);
     m_activeCellPositionMax = cvf::Vec3st(0,0,0);
     m_activeCellsBoundingBox.reset();
@@ -198,7 +200,7 @@ void RigActiveCellInfo::clear()
 //--------------------------------------------------------------------------------------------------
 bool RigActiveCellInfo::isCoarseningActive() const
 {
-    return m_globalCellResultCount != m_globalActiveCellCount;
+    return m_reservoirCellResultCount != m_reservoirActiveCellCount;
 }
 
 //--------------------------------------------------------------------------------------------------

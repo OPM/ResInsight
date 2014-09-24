@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,10 +20,11 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "RimDefines.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
-#include "RimDefines.h"
+#include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 
@@ -48,10 +51,9 @@ public:
     void                            setPorosityModel(RimDefines::PorosityModelType val);
     QString                         resultVariable() const { return m_resultVariable(); }
     virtual void                    setResultVariable(const QString& val);
-    void                            setPorosityModelUiFieldHidden(bool hide);
 
     void                            loadResult();
-    size_t                          gridScalarIndex() const;
+    size_t                          scalarResultIndex() const;
     bool                            hasStaticResult() const;
     bool                            hasDynamicResult() const;
     bool                            hasResult() const;
@@ -59,8 +61,7 @@ public:
 
     RimReservoirCellResultsStorage* currentGridCellResults() const;
 
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void initAfterRead();
 
@@ -70,15 +71,19 @@ protected:
     caf::PdmField<QString>                                          m_resultVariable;
 
     friend class RimCellPropertyFilter;
+    friend class RimFaultResultSlot;
+
     // User interface only fields, to support "filtering"-like behaviour etc.
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
-
-    //mutable size_t                                                  m_gridScalarResultIndex;
-
     caf::PdmPointer<RimReservoirView>                               m_reservoirView;
+
+protected:
+    void updateFieldVisibility();
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 private:
     QStringList getResultVariableListForCurrentUIFieldSettings();

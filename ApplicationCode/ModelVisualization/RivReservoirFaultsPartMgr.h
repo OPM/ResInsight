@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -31,7 +32,7 @@ namespace cvf
 
 class RimResultSlot;
 class RimCellEdgeResultSlot;
-class RimFaultCollection;
+class RimReservoirView;
 
 //==================================================================================================
 ///
@@ -39,7 +40,7 @@ class RimFaultCollection;
 class RivReservoirFaultsPartMgr : public cvf::Object
 {
 public:
-    RivReservoirFaultsPartMgr(const RigMainGrid* grid, const RimFaultCollection* faultCollection);
+    RivReservoirFaultsPartMgr(const RigMainGrid* grid, RimReservoirView* reservoirView);
     ~RivReservoirFaultsPartMgr();
 
     void setTransform(cvf::Transform* scaleTransform);
@@ -59,7 +60,7 @@ public:
 
 private:
     cvf::ref<cvf::Transform>            m_scaleTransform;
-    const RimFaultCollection*           m_faultCollection;
+    caf::PdmPointer<RimReservoirView>   m_reservoirView;
     cvf::Collection<RivFaultPartMgr>    m_faultParts;
     bool                                m_forceVisibility;
 };

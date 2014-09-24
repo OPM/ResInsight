@@ -15,6 +15,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.h
 ${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.h
 ${CEE_CURRENT_LIST_DIR}RifReaderInterface.h
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.h
+${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -26,7 +27,9 @@ ${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.cpp
 ${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.cpp
+${CEE_CURRENT_LIST_DIR}RifReaderInterface.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.cpp
+${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

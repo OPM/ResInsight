@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,34 +19,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimCommandObject.h"
+
 #include "RiaApplication.h"
 #include "RimCalcScript.h"
 #include "RimProject.h"
-
-#include "cafPdmUiTextEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmDocument.h"
-
-#include <QFile>
 #include "RimStatisticsCase.h"
 
-// Included due to template use in pdm fields
-#include "RimReservoirView.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimOilField.h"
-#include "RimScriptCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimAnalysisModels.h"
-#include "RimWellPathCollection.h"
-#include "RimCaseCollection.h"
+#include "cafPdmDocument.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTextEditor.h"
 
-
+#include <QFile>
 
 
 CAF_PDM_SOURCE_INIT(RimCommandObject, "RimCommandObject");
@@ -106,13 +91,7 @@ void RimCommandExecuteScript::redo()
     QString octavePath = app->octavePath();
     if (!octavePath.isEmpty())
     {
-        // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
-
-        QStringList arguments;
-        arguments.append("--path");
-        arguments << QApplication::applicationDirPath();
-
-        arguments.append("-q");
+        QStringList arguments = app->octaveArguments();
         
         arguments.append("--eval");
         arguments << this->scriptText();

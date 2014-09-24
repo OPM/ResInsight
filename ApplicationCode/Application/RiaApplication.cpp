@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -39,6 +41,8 @@
 #include "RimWellPathCollection.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RimFaultCollection.h"
+#include "RimFaultResultSlot.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
@@ -67,7 +71,7 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCellPropertyFilterCollection.h"
@@ -78,6 +82,7 @@
 
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
+#include "RimCommandObject.h"
 
 
 namespace caf
@@ -834,7 +839,7 @@ bool RiaApplication::parseArguments()
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
     m_helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
-    m_helpText += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
+    m_helpText += "Copyright Statoil ASA, Ceetron Solution AS, Ceetron AS\n\n";
 
     const cvf::String usageText = progOpt.usageText(110, 30);
     m_helpText += cvfqt::Utils::toQString(usageText);
@@ -1069,6 +1074,34 @@ QString RiaApplication::octavePath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QStringList RiaApplication::octaveArguments() const
+{
+    // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
+
+    // -p path
+    // Add path to the head of the search path for function files. The value of path specified on the command line
+    // will override any value of OCTAVE_PATH found in the environment, but not any commands in the system or
+    // user startup files that set the internal load path through one of the path functions.
+
+
+    QStringList arguments;
+    arguments.append("--path");
+    arguments << QApplication::applicationDirPath();
+
+    if (!m_preferences->octaveShowHeaderInfoWhenExecutingScripts)
+    {
+        // -q
+        // Don't print the usual greeting and version message at startup.
+
+        arguments.append("-q");
+    }
+
+    return arguments;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     RiuMainWindow::instance()->processMonitor()->stopMonitorWorkProcess();
@@ -1202,7 +1235,7 @@ bool RiaApplication::launchProcessForMultipleCases(const QString& program, const
 //--------------------------------------------------------------------------------------------------
 /// Read fields of a Pdm object using QSettings
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object)
+void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, const QString context)
 {
     QSettings settings;
     std::vector<caf::PdmFieldHandle*> fields;
@@ -1213,10 +1246,24 @@ void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object)
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
 
-        if (settings.contains(fieldHandle->keyword()))
+        std::vector<caf::PdmObject*> children;
+        fieldHandle->childObjects(&children);
+        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
         {
-            QVariant val = settings.value(fieldHandle->keyword());
-            fieldHandle->setValueFromUi(val);
+            caf::PdmObject* child = children[childIdx];
+            QString subContext = context + child->classKeyword() + "/";
+            readFieldsFromApplicationStore(child, subContext);
+        }
+        
+        
+        if (children.size() == 0)
+        {
+            QString key = context + fieldHandle->keyword();
+            if (settings.contains(key))
+            {
+                QVariant val = settings.value(key);
+                fieldHandle->setValueFromUi(val);
+            }
         }
     }
 }
@@ -1224,7 +1271,7 @@ void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object)
 //--------------------------------------------------------------------------------------------------
 /// Write fields of a Pdm object using QSettings
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object)
+void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context)
 {
     CVF_ASSERT(object);
 
@@ -1238,7 +1285,24 @@ void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object)
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
 
-        settings.setValue(fieldHandle->keyword(), fieldHandle->uiValue());
+        std::vector<caf::PdmObject*> children;
+        fieldHandle->childObjects(&children);
+        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
+        {
+            caf::PdmObject* child = children[childIdx];
+            QString subContext;
+            if (context.isEmpty())
+            {
+                subContext = context + child->classKeyword() + "/";
+            }
+
+            writeFieldsToApplicationStore(child, subContext);
+        }
+
+        if (children.size() == 0)
+        {
+            settings.setValue(context + fieldHandle->keyword(), fieldHandle->uiValue());
+        }
     }
 }
 
@@ -2000,8 +2064,8 @@ void RiaApplication::regressionTestConfigureProject()
                 riv->viewer()->setFixedSize(1000, 745);
             }
 
-            riv->faultCollection->showFaultsOutsideFilters.setValueFromUi(false);
-            riv->faultCollection->showResultsOnFaults.setValueFromUi(true);
+            riv->faultCollection->setShowFaultsOutsideFilters(false);
+            riv->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
         }
     }
 }

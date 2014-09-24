@@ -89,31 +89,6 @@ void PdmObjectGroup::addObject(PdmObject * obj)
     objects.push_back(obj);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmObjectGroup::initAfterReadTraversal(PdmObject* object)
-{
-    if (object == NULL) return;
-
-    std::vector<PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    std::vector<PdmObject*> children;
-    size_t fIdx;
-    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
-    {
-        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
-    }
-
-    size_t cIdx;
-    for (cIdx = 0; cIdx < children.size(); ++cIdx)
-    {
-        PdmObjectGroup::initAfterReadTraversal(children[cIdx]);
-    }
-
-    object->initAfterRead();
-}
 
 
 
@@ -166,6 +141,7 @@ void PdmDocument::readFile(QIODevice* xmlFile)
     // after everything is read from file
 
     PdmDocument::initAfterReadTraversal(this);
+    PdmDocument::updateUiIconStateRecursively(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,7 +177,9 @@ void PdmDocument::writeFile(QIODevice* xmlFile)
     xmlStream.writeEndDocument();
 }
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmDocument::setupBeforeSaveTraversal(PdmObject * object)
 {
     if (object == NULL) return;
@@ -223,6 +201,58 @@ void PdmDocument::setupBeforeSaveTraversal(PdmObject * object)
     }
 
     object->setupBeforeSave();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmDocument::initAfterReadTraversal(PdmObject* object)
+{
+    if (object == NULL) return;
+
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    std::vector<PdmObject*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        PdmDocument::initAfterReadTraversal(children[cIdx]);
+    }
+
+    object->initAfterRead();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmDocument::updateUiIconStateRecursively(PdmObject* object)
+{
+    if (object == NULL) return;
+
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    std::vector<PdmObject*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        PdmDocument::updateUiIconStateRecursively(children[cIdx]);
+    }
+
+    object->updateUiIconFromToggleField();
 }
 
 } //End of namespace caf

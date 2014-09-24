@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -69,7 +70,6 @@ private:
 
     void updateNNCColors(RimResultSlot* cellResultSlot);
 
-    cvf::ref<cvf::Effect> cellResultEffect(const cvf::ScalarMapper* mapper, caf::PolygonOffset polygonOffset) const;
     caf::FaceCulling faceCullingMode() const;
     
     void createLabelWithAnchorLine(const cvf::Part* part);

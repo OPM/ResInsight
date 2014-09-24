@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -41,8 +43,8 @@ public:
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
 
-    size_t                  cellIndex() const                                   { return m_cellIndex; }
-    void                    setCellIndex(size_t val)                            { m_cellIndex = val; }
+    size_t                  gridLocalCellIndex() const                                   { return m_gridLocalCellIndex; }
+    void                    setGridLocalCellIndex(size_t val)                            { m_gridLocalCellIndex = val; }
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
@@ -63,14 +65,14 @@ public:
 
     cvf::Vec3d              center() const;
     cvf::Vec3d              faceCenter(cvf::StructGridInterface::FaceType face) const;
-    cvf::Vec3d              faceNormal(cvf::StructGridInterface::FaceType face) const;
+    cvf::Vec3d              faceNormalWithAreaLenght(cvf::StructGridInterface::FaceType face) const;
 
     int                     firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectionPoint) const;
     bool                    isLongPyramidCell(double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;
 private:
     caf::SizeTArray8        m_cornerIndices;
 
-    size_t                  m_cellIndex;                ///< This cells index in the grid it belongs to.
+    size_t                  m_gridLocalCellIndex;                ///< This cells index in the grid it belongs to.
     RigGridBase*            m_hostGrid;
     RigLocalGrid*           m_subGrid;
 

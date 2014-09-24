@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,27 +19,19 @@
 
 #include "RimFaultCollection.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+#include "RigCaseData.h"
+#include "RimCase.h"
+#include "RimNoCommonAreaNNC.h"
+#include "RimNoCommonAreaNncCollection.h"
+#include "RimReservoirView.h"
+#include "RiuMainWindow.h"
+#include "RivColorTableArray.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirView.h"
-
-#include "RimResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
-
-#include "RimCase.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RigCaseData.h"
-#include "RivColorTableArray.h"
-#include "RiuMainWindow.h"
-
 
 namespace caf
 {
@@ -67,22 +60,23 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showFaultCollection,     "Active",        true,   "Active", "", "", "");
     showFaultCollection.setUiHidden(true);
 
-    CAF_PDM_InitField(&showGeometryDetectedFaults,  "ShowGeometryDetectedFaults",    false,   "Show geometry detected faults", "", "", "");
-    showGeometryDetectedFaults.setUiHidden(true);
-
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
-    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
-    CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      true,   "Show results on faults", "", "", "");
-    CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", true,    "Show faults outside filters", "", "", "");
+    CAF_PDM_InitField(&m_showFaultsOutsideFilters,"ShowFaultsOutsideFilters", true,    "Show faults outside filters", "", "", "");
 
     CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
 
     CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    false,   "Show labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Label color",  "", "", "");
+    
+    CAF_PDM_InitField(&showNNCs, "ShowNNCs", true, "Show NNCs", "", "", "");
+    CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC geometry if no NNC result is available", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&noCommonAreaNnncCollection, "NoCommonAreaNnncCollection", "NNCs With No Common Area", "", "", "");
+    noCommonAreaNnncCollection = new RimNoCommonAreaNncCollection;
+
+    CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
 
     m_reservoirView = NULL;
 }
@@ -93,6 +87,8 @@ RimFaultCollection::RimFaultCollection()
 RimFaultCollection::~RimFaultCollection()
 {
    faults.deleteAllChildObjects();
+
+   delete noCommonAreaNnncCollection();
 }
 
 
@@ -101,26 +97,22 @@ RimFaultCollection::~RimFaultCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showFaultCollection == changedField)
-    {
-        this->updateUiIconFromState(showFaultCollection);
-    }
-
+    this->updateUiIconFromToggleField();
+    
     if (&faultLabelColor == changedField)
     {
         m_reservoirView->scheduleReservoirGridGeometryRegen();
     }
 
-    if (&showGeometryDetectedFaults == changedField ||
-        &showFaultFaces == changedField ||
+    if (&showFaultFaces == changedField ||
         &showOppositeFaultFaces == changedField ||
-        &showNNCs == changedField ||
         &showFaultCollection == changedField ||
         &showFaultLabel == changedField ||
-        &showFaultsOutsideFilters == changedField ||
+        &m_showFaultsOutsideFilters == changedField ||
         &faultLabelColor == changedField ||
         &faultResult == changedField ||
-        &showResultsOnFaults == changedField
+        &showNNCs == changedField ||
+        &hideNncsWhenNoResultIsAvailable == changedField
         )
     {
         if (m_reservoirView) 
@@ -247,6 +239,73 @@ void RimFaultCollection::syncronizeFaults()
 
     QString toolTip = QString("Fault count (%1)").arg(newFaults.size());
     setUiToolTip(toolTip);
+
+    // NNCs
+    this->noCommonAreaNnncCollection()->noCommonAreaNncs().deleteAllChildObjects();
+
+    RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+    std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
+    for (size_t i = 0; i < nncConnections.size(); i++)
+    {
+        if (!nncConnections[i].hasCommonArea())
+        {
+            RimNoCommonAreaNNC* noCommonAreaNnc = new RimNoCommonAreaNNC();
+
+            QString firstConnectionText;
+            QString secondConnectionText;
+            
+            {
+                const RigCell& cell = mainGrid->cells()[nncConnections[i].m_c1GlobIdx];
+
+                RigGridBase* hostGrid = cell.hostGrid();
+                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
+
+                size_t i, j, k;
+                if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
+                     
+                    if (!hostGrid->isMainGrid())
+                    {
+                        QString gridName = QString::fromStdString(hostGrid->gridName());
+                        firstConnectionText = gridName + " ";
+                    }
+                    firstConnectionText += QString("[%1 %2 %3] - ").arg(i).arg(j).arg(k);
+                }
+            }
+
+            {
+                const RigCell& cell = mainGrid->cells()[nncConnections[i].m_c2GlobIdx];
+
+                RigGridBase* hostGrid = cell.hostGrid();
+                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
+
+                size_t i, j, k;
+                if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
+
+                    if (!hostGrid->isMainGrid())
+                    {
+                        QString gridName = QString::fromStdString(hostGrid->gridName());
+                        secondConnectionText = gridName + " ";
+                    }
+                    secondConnectionText += QString("[%1 %2 %3]").arg(i).arg(j).arg(k);
+                }
+            }
+
+            noCommonAreaNnc->name = firstConnectionText + secondConnectionText;
+            this->noCommonAreaNnncCollection()->noCommonAreaNncs().push_back(noCommonAreaNnc);
+        }
+
+        this->noCommonAreaNnncCollection()->updateName();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,13 +334,43 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     labs->add(&faultLabelColor);
 
     caf::PdmUiGroup* adv = uiOrdering.addNewGroup("Fault Options");
-    adv->add(&showFaultsOutsideFilters);
-    adv->add(&showResultsOnFaults);
-    adv->add(&showNNCs);
+    adv->add(&m_showFaultsOutsideFilters);
 
     caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup("Fault Face Visibility");
     ffviz->add(&showFaultFaces);
     ffviz->add(&showOppositeFaultFaces);
     ffviz->add(&faultResult);
+
+    caf::PdmUiGroup* nncViz = uiOrdering.addNewGroup("NNC Visibility");
+    nncViz->add(&showNNCs);
+    nncViz->add(&hideNncsWhenNoResultIsAvailable);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFaultCollection::showFaultsOutsideFilters() const
+{
+    if (!showFaultCollection) return false;
+
+    return m_showFaultsOutsideFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultCollection::setShowFaultsOutsideFilters(bool enableState)
+{
+    m_showFaultsOutsideFilters = enableState;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultCollection::addMockData()
+{
+    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid())) return;
+
 }
 

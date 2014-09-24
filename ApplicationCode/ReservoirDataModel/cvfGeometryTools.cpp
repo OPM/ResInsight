@@ -1,3 +1,22 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #include "cvfGeometryTools.h"
 
 #pragma warning (disable : 4503)
@@ -517,6 +536,60 @@ void GeometryTools::addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* poly
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Based on http://geomalgorithms.com/a01-_area.html
+/// This method returns the polygon normal with length equal to the polygon area.
+/// The components of the normal is thus the size of projected area into each of the main axis planes
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d GeometryTools::polygonAreaNormal3D(const std::vector<cvf::Vec3d>& polygon)
+{
+    size_t pSize = polygon.size();
+    switch (pSize)
+    {
+    case 0:
+    case 1:
+    case 2:
+        {
+            return cvf::Vec3d::ZERO;
+        }
+        break;
+    case 3:
+        {
+            return 0.5 * ((polygon[1]-polygon[0]) ^ (polygon[2] - polygon[0]));
+        }
+        break;
+    case 4:
+        {
+            // Cross product of diagonal = 2*A
+            return 0.5* ((polygon[2]-polygon[0]) ^ (polygon[3] - polygon[1]));
+        }
+        break;
+    default:
+        {
+            /// JJS:
+            // This is possibly not the fastest approach with large polygons, where a scaled projections approach would be better, 
+            // but I suspect this (simpler) approach is faster for small polygons, as long as we do not have the polygon normal up front.
+            //
+            cvf::Vec3d areaNormal(cvf::Vec3d::ZERO);
+            size_t h = (pSize - 1)/2;
+            size_t k = (pSize % 2) ? 0 : pSize - 1;
+
+            // First quads
+            for (size_t i = 1; i < h; ++i)
+            {
+                areaNormal += ( (polygon[2*i] - polygon[0]) ^ (polygon[2*i + 1] - polygon[2*i-1] ) );
+            }
+
+            // Last triangle or quad
+            areaNormal += ( (polygon[2*h] - polygon[0]) ^ (polygon[k] - polygon[2*h-1] ) );
+
+            areaNormal *= 0.5;
+
+            return areaNormal;
+        }
+    }
+}
+
 
 
 
@@ -599,7 +672,7 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
 
     // We want m_polygonIndices to be a counter-clockwise polygon to make the validation test work
 
-	if (calculatePolygonArea() < 0 )
+	if (calculateProjectedPolygonArea() < 0 )
 	{
 		m_polygonIndices.reverse();
 	}
@@ -732,7 +805,7 @@ bool EarClipTesselator::isPointInsideTriangle(const cvf::Vec3d& A, const cvf::Ve
 /// Computes area of the currently stored 2D polygon/contour
 //--------------------------------------------------------------------------------------------------
 
-double EarClipTesselator::calculatePolygonArea() const
+double EarClipTesselator::calculateProjectedPolygonArea() const
 {
     CVF_ASSERT(m_X > -1 && m_Y > -1);
 
@@ -834,7 +907,7 @@ bool FanEarClipTesselator::calculateTriangles(std::vector<size_t>* triangles)
 
     // We want m_polygonIndices to be a counter-clockwise polygon to make the validation test work
 
-    if (calculatePolygonArea() < 0 )
+    if (calculateProjectedPolygonArea() < 0 )
     {
         m_polygonIndices.reverse();
     }

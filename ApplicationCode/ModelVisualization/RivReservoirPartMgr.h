@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -33,7 +35,7 @@ class RimResultSlot;
 class RimCellEdgeResultSlot;
 class RivGridPartMgr;
 class RigCaseData;
-class RimFaultCollection;
+class RimReservoirView;
 
 //==================================================================================================
 ///
@@ -45,7 +47,7 @@ class RimFaultCollection;
 class RivReservoirPartMgr: public cvf::Object
 {
 public:
-    void   clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection);
+    void   clearAndSetReservoir(const RigCaseData* eclipseCase, RimReservoirView* reservoirView);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
     void   setFaultForceVisibility(bool isGeneratedByFilter);
@@ -64,7 +66,9 @@ public:
 
     // Faults
     void   updateFaultColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-    void   appendFaultPartsToModel(cvf::ModelBasicList* model);
+	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot,
+		RimCellEdgeResultSlot* cellEdgeResultSlot);
+	void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:
 

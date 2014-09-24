@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -115,16 +116,16 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
                         }
 
                         // Do not need to compute global grid cell index as for a maingrid localIndex == globalIndex
-                        //size_t globalCellIndex = grid->globalGridCellIndex(localCellIndex);
+                        //size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
 
                         size_t ni, nj, nk;
                         mainGrid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
                         if (ni < mainGrid->cellCountI() && nj < mainGrid->cellCountJ() && nk < mainGrid->cellCountK())
                         {
-                            size_t localCellIndex = mainGrid->cellIndexFromIJK(i, j, k);
+                            size_t gridLocalCellIndex = mainGrid->cellIndexFromIJK(i, j, k);
                             size_t oppositeCellIndex = mainGrid->cellIndexFromIJK(ni, nj, nk);
 
-                            m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum, oppositeCellIndex));
+                            m_faultFaces.push_back(FaultFace(gridLocalCellIndex, faceEnum, oppositeCellIndex));
                         }
                         else
                         {
@@ -145,10 +146,10 @@ void  RigFault::accumulateFaultsPrCell(RigFaultsPrCellAccumulator* faultsPrCellA
     {
         const FaultFace& ff = m_faultFaces[ffIdx];
 
-        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeGlobalCellIndex, ff.m_nativeFace) >= 0)
+        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace) >= 0)
 
-        faultsPrCellAcc->setFaultIdx(ff.m_nativeGlobalCellIndex, ff.m_nativeFace, faultIdx);
-        faultsPrCellAcc->setFaultIdx(ff.m_oppositeGlobalCellIndex, cvf::StructGridInterface::oppositeFace(ff.m_nativeFace), faultIdx);
+        faultsPrCellAcc->setFaultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace, faultIdx);
+        faultsPrCellAcc->setFaultIdx(ff.m_oppositeReservoirCellIndex, cvf::StructGridInterface::oppositeFace(ff.m_nativeFace), faultIdx);
 
     }
 }

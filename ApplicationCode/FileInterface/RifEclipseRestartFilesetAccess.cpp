@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -238,5 +240,21 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
 
         m_ecl_files[timeStep] = ecl_file;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RifEclipseRestartFilesetAccess::readUnitsType()
+{
+    ecl_file_type* ecl_file = NULL;
+
+    if (m_ecl_files.size() > 0)
+    {
+        openTimeStep(0);
+        ecl_file = m_ecl_files[0];
+    }
+
+    return RifEclipseOutputFileTools::readUnitsType(ecl_file);
 }
 

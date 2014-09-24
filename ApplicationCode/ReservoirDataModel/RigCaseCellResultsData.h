@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,14 +20,19 @@
 
 #pragma once
 
+#include "RifReaderInterface.h"
+
 #include "RimDefines.h"
+
 #include <QDateTime>
+
 #include <vector>
 #include <cmath>
-#include "RifReaderInterface.h"
 
 class RifReaderInterface;
 class RigMainGrid;
+class RigStatisticsDataCache;
+class RigActiveCellInfo;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -36,9 +43,12 @@ public:
     RigCaseCellResultsData(RigMainGrid* ownerGrid);
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
+    void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}
+    RigActiveCellInfo*                                 activeCellInfo() { return m_activeCellInfo;}
+    const RigActiveCellInfo*                           activeCellInfo() const { return m_activeCellInfo;}
 
     // Max and min values of the results
-    void                                               recalculateMinMax(size_t scalarResultIndex);
+    void                                               recalculateStatistics(size_t scalarResultIndex);
     void                                               minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
     void                                               minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
     void                                               posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg);
@@ -66,7 +76,7 @@ public:
     size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
-    void                                               createCombinedTransmissibilityResult();
+    void                                               createPlaceholderResultEntries();
 
     void                                               removeResult(const QString& resultName);
     void                                               clearAllResults();
@@ -113,20 +123,12 @@ public:
 
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
-    std::vector< std::pair<double, double> >                m_maxMinValues;      ///< Max min values for each Result index
-    std::vector< std::pair<double, double> >                m_posNegClosestToZero;
-    std::vector< std::vector<size_t> >                      m_histograms;        ///< Histogram for each Result Index
-    std::vector< std::pair<double, double> >                m_p10p90;            ///< P10 and p90 values for each Result Index
-    std::vector< double >                                   m_meanValues;        ///< Mean value for each Result Index
-
-    std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs;  ///< Max min values for each Result index and timestep
-    std::vector< std::vector< std::pair<double, double> > > m_posNegClosestToZeroPrTs;
-
-    size_t                                                  m_combinedTransmissibilityResultIndex;
+    cvf::Collection<RigStatisticsDataCache>                 m_statisticsDataCache;
 
 private:
     std::vector<ResultInfo>                                 m_resultInfos;
 
     RigMainGrid*                                            m_ownerMainGrid;
+    RigActiveCellInfo*                                      m_activeCellInfo;
 
 };

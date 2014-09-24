@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,38 +18,22 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimProject.h"
-#include "cafAppEnum.h"
-
-#include "RimOilField.h"
-#include "RimAnalysisModels.h"
-
-#include "RimReservoirView.h"
-#include "RimScriptCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
 
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
-
-#include "RigGridManager.h"
 #include "RigCaseData.h"
-#include "RimResultCase.h"
-#include "RimWellPathCollection.h"
-
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
+#include "RimAnalysisModels.h"
+#include "RimCase.h"
 #include "RimCaseCollection.h"
-#include "RimResultSlot.h"
-#include "RimStatisticsCase.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimOilField.h"
+#include "RimReservoirView.h"
+#include "RimScriptCollection.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathImport.h"
+
+#include <QDir>
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------

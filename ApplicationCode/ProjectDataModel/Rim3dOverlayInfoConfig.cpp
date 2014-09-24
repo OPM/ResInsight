@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,20 +20,18 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
-#include "RimReservoirView.h"
-#include "RiuViewer.h"
-#include "RimCase.h"
-#include "RigCaseData.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimReservoirCellResultsCacher.h"
-
-#include "RimCellPropertyFilterCollection.h"
-#include "RimCellRangeFilterCollection.h"
-
-#include "RimWellCollection.h"
-#include "cafPdmFieldCvfMat4d.h"
 #include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RimCase.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimFaultCollection.h"
+#include "RimFaultResultSlot.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimWellCollection.h"
+#include "RiuViewer.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 
@@ -84,7 +84,7 @@ void Rim3dOverlayInfoConfig::setPosition(cvf::Vec2ui position)
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfo()
 {
-    this->updateUiIconFromState(active);
+    this->updateUiIconFromToggleField();
 
     if (!m_reservoirView) return;
     if (!m_reservoirView->viewer()) return;
@@ -119,8 +119,8 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         {
             caseName = m_reservoirView->eclipseCase()->caseUserDescription();
             totCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
-            size_t mxActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalActiveCellCount();
-            size_t frActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount();
+            size_t mxActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount();
+            size_t frActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount();
             if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
             activeCellCountText += QString::number(mxActCellCount);
             if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);
@@ -152,7 +152,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             double min, max;
             double p10, p90;
             double mean;
-            size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
+            size_t scalarIndex = m_reservoirView->cellResult()->scalarResultIndex();
             m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
             m_reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
             m_reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
@@ -162,7 +162,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>" 
                                        "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
 
-            if (m_reservoirView->faultCollection()->showResultsOnFaults())
+            if (m_reservoirView->faultResultSettings()->hasValidCustomResult())
             {
                 QString faultMapping;
                 bool isShowingGrid = m_reservoirView->faultCollection()->isGridVisualizationMode();
@@ -187,6 +187,8 @@ void Rim3dOverlayInfoConfig::update3DInfo()
                 }
 
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
+
+                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(m_reservoirView->faultResultSettings()->customFaultResult()->resultVariable());
             }
         }
         else
@@ -224,7 +226,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             double p10, p90;
             double mean;
 
-            size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
+            size_t scalarIndex = m_reservoirView->cellResult()->scalarResultIndex();
             m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
             m_reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
             m_reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);

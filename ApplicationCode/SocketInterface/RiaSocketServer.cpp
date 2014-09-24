@@ -1,5 +1,8 @@
+/////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -41,7 +44,7 @@
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
@@ -86,7 +89,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
         return;
     }
 
-    connect(m_nextPendingConnectionTimer, SIGNAL(timeout()), this, SLOT(handleNextPendingConnection()));
+    connect(m_nextPendingConnectionTimer, SIGNAL(timeout()), this, SLOT(slotNewClientConnection()));
     connect(m_tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewClientConnection()));
 }
 
@@ -114,7 +117,7 @@ void RiaSocketServer::slotNewClientConnection()
 {
     // If we are currently handling a connection, just ignore the new one until the current one is disconnected. 
 
-    if (m_currentClient && (m_currentClient->state() == QAbstractSocket::ConnectedState) )
+    if (m_currentClient && (m_currentClient->state() != QAbstractSocket::UnconnectedState) )
     {
         //PMonLog("Starting Timer");
         m_nextPendingConnectionTimer->start(); // Reset and start again
@@ -318,7 +321,7 @@ void RiaSocketServer::terminateCurrentConnection()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::handleNextPendingConnection()
 {
-    if (m_currentClient && (m_currentClient->state() == QAbstractSocket::ConnectedState) )
+    if (m_currentClient && (m_currentClient->state() != QAbstractSocket::UnconnectedState) )
     {
         //PMonLog("Starting Timer");
         m_nextPendingConnectionTimer->start(); // Reset and start again

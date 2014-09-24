@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -328,4 +330,27 @@ void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, 
     ecl_grid_free( grid );
     stringlist_free( lgr_names );
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the following integer values from the first INTEHEAD keyword found
+///  1  : METRIC
+///  2  : FIELD
+///  3  : LAB
+///  -1 : No INTEHEAD keyword found
+//--------------------------------------------------------------------------------------------------
+int RifEclipseOutputFileTools::readUnitsType(ecl_file_type* ecl_file)
+{
+    int unitsType = -1;
+
+    if (ecl_file)
+    {
+        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
+        if (kwINTEHEAD)
+        {
+            unitsType = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_UNIT_INDEX);
+        }
+    }
+
+    return unitsType;
 }

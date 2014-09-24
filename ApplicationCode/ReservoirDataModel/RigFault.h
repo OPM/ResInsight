@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,22 +39,22 @@ public:
     enum { NO_FAULT = -1, UNKNOWN_FAULT = -2 };
 
 public:
-    RigFaultsPrCellAccumulator(size_t globalCellCount) 
+    RigFaultsPrCellAccumulator(size_t reservoirCellCount) 
     { 
         const int  initVals[6] = { NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT}; 
         caf::IntArray6 initVal;
         initVal = initVals; 
-        m_faultIdxForCellFace.resize(globalCellCount, initVal);
+        m_faultIdxForCellFace.resize(reservoirCellCount, initVal);
     }
 
-    inline int faultIdx(size_t globalCellIdx, cvf::StructGridInterface::FaceType face) 
+    inline int faultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
     {
-        return m_faultIdxForCellFace[globalCellIdx][face];
+        return m_faultIdxForCellFace[reservoirCellIndex][face];
     }
 
-    inline void setFaultIdx(size_t globalCellIdx, cvf::StructGridInterface::FaceType face, int faultIdx)
+    inline void setFaultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face, int faultIdx)
     {
-        m_faultIdxForCellFace[globalCellIdx][face] = faultIdx;
+        m_faultIdxForCellFace[reservoirCellIndex][face] = faultIdx;
     }
 
 private:
@@ -66,15 +67,15 @@ public:
    
     struct FaultFace
     {
-        FaultFace(size_t nativeGlobalCellIndex, cvf::StructGridInterface::FaceType nativeFace, size_t oppositeGlobalCellIndex) :
-            m_nativeGlobalCellIndex(nativeGlobalCellIndex),
+        FaultFace(size_t nativeReservoirCellIndex, cvf::StructGridInterface::FaceType nativeFace, size_t oppositeReservoirCellIndex) :
+            m_nativeReservoirCellIndex(nativeReservoirCellIndex),
             m_nativeFace(nativeFace),
-            m_oppositeGlobalCellIndex(oppositeGlobalCellIndex)
+            m_oppositeReservoirCellIndex(oppositeReservoirCellIndex)
             { }
 
-        size_t                              m_nativeGlobalCellIndex;
+        size_t                              m_nativeReservoirCellIndex;
         cvf::StructGridInterface::FaceType  m_nativeFace;
-        size_t                              m_oppositeGlobalCellIndex;
+        size_t                              m_oppositeReservoirCellIndex;
     };
 
 public:
@@ -93,9 +94,6 @@ public:
 
     std::vector<size_t>&         connectionIndices()       { return m_connectionIndices; }
     const std::vector<size_t>&   connectionIndices() const { return m_connectionIndices; }
-
-    static RigFaultsPrCellAccumulator* faultsPrCellAccumulator()    { CVF_ASSERT(m_faultsPrCellAcc.notNull()); return m_faultsPrCellAcc.p();}
-    static void initFaultsPrCellAccumulator(size_t globalCellCount) { m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(globalCellCount); }
 
 private:
     QString m_name;

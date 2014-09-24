@@ -1,6 +1,7 @@
 ### The case with caseid 1 has to be selected/active in ResInsight when running this test-script
 ### Coarsening and Dual porosity is not exercised by this tes yet. We need models
 
+
 ### CaseInfo riGetCurrentCase()
 %!test
 %! printf ("===== Testing ====> riGetCurrentCase\n");
@@ -113,7 +114,6 @@
 %! PropertyInfos2 = riGetPropertyNames(1);
 %! PropertyInfos3 = riGetPropertyNames("Matrix");
 %! PropertyInfos4 = riGetPropertyNames(1, "Matrix");
-%! assert(rows(PropertyInfos1) == 26)
 %! assert(PropertyInfos1(1).PropName == "PRESSURE");
 %! assert(PropertyInfos1(1).PropType == "DynamicNative");
 %! assert(PropertyInfos1(26).PropType == "StaticNative");
@@ -121,29 +121,29 @@
 ### Matrix[numActiveCells][numTimestepsRequested] riGetActiveCellProperty([CaseId], PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"])
 %!test
 %! printf ("===== Testing ====> riGetActiveCellProperty\n");
-%! ActivePropData1  = riGetActiveCellProperty("SOIL");
+%! ActivePropData1  = riGetActiveCellProperty("SWAT");
 %! assert (rows(ActivePropData1) == rows(riGetActiveCellInfo()));
 %! assert (columns(ActivePropData1) == rows(riGetTimeStepDays()));
-%! ActivePropData2  = riGetActiveCellProperty("SOIL", "Matrix");
+%! ActivePropData2  = riGetActiveCellProperty("SWAT", "Matrix");
 %! assert (ActivePropData2 == ActivePropData1);
-%! ActivePropData3  = riGetActiveCellProperty("SOIL", [1,3]);
+%! ActivePropData3  = riGetActiveCellProperty("SWAT", [1,3]);
 %! assert (columns(ActivePropData3) == 2);
 %! assert (ActivePropData3(:,2) == ActivePropData1(:,3));
-%! ActivePropData4  = riGetActiveCellProperty("SOIL", [1,3], "Matrix");
+%! ActivePropData4  = riGetActiveCellProperty("SWAT", [1,3], "Matrix");
 %! assert (ActivePropData3 == ActivePropData4);
-%! ActivePropData5  = riGetActiveCellProperty(1, "SOIL");
+%! ActivePropData5  = riGetActiveCellProperty(1, "SWAT");
 %! assert (ActivePropData5 == ActivePropData1);
-%! ActivePropData6  = riGetActiveCellProperty(1, "SOIL", [1,3]);
+%! ActivePropData6  = riGetActiveCellProperty(1, "SWAT", [1,3]);
 %! assert (ActivePropData6 == ActivePropData3);
-%! ActivePropData7  = riGetActiveCellProperty(1, "SOIL", [1,3], "Matrix");
+%! ActivePropData7  = riGetActiveCellProperty(1, "SWAT", [1,3], "Matrix");
 %! assert (ActivePropData7 == ActivePropData3);
-%! ActivePropData8  = riGetActiveCellProperty(1, "SOIL", "Matrix");
+%! ActivePropData8  = riGetActiveCellProperty(1, "SWAT", "Matrix");
 %! assert (ActivePropData8 == ActivePropData1);
 
 ### Matrix[numI][numJ][numK][numTimestepsRequested] riGetGridProperty([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"])
 %!test
 %! printf ("===== Testing ====> riGetGridProperty\n");
-%! GridProps1 =  riGetGridProperty(   0 , "SOIL" );
+%! GridProps1 =  riGetGridProperty(   0 , "SWAT" );
 %! assert( ndims (GridProps1) == 4);
 %! [ni, nj, nk, nts ] = size(GridProps1);
 %! disp(nts);
@@ -151,23 +151,23 @@
 %! assert(ni == 139);
 %! assert(nj == 48);
 %! assert(nk == 9);
-%! assert(GridProps1(62,30,1,3), 0.59058, 0.00001);
+%! assert(GridProps1(62,30,1,3), 0.40942, 0.00001);
 
-%! GridProps2 =  riGetGridProperty(   0 , "SOIL", [1,3]);
+%! GridProps2 =  riGetGridProperty(   0 , "SWAT", [1,3]);
 %! assert( ndims (GridProps2) == 4);
 %! [ni, nj, nk, nts ] = size(GridProps2);
 %! assert(nts == 2);
 %! assert(ni == 139);
 %! assert(nj == 48);
 %! assert(nk == 9);
-%! assert(GridProps2(62,30,1,2), 0.59058, 0.00001);
+%! assert(GridProps2(62,30,1,2), 0.40942, 0.00001);
 
-%! GridProps3 =  riGetGridProperty(   0 , "SOIL", [1,3], "Matrix");
-%! GridProps4 =  riGetGridProperty(   0 , "SOIL",  "Matrix");
-%! GridProps5 =  riGetGridProperty(1, 0 , "SOIL" );
-%! GridProps6 =  riGetGridProperty(1, 0 , "SOIL", [1,3]);
-%! GridProps7 =  riGetGridProperty(1, 0 , "SOIL", [1,3], "Matrix");
-%! GridProps8 =  riGetGridProperty(1, 0 , "SOIL",  "Matrix");
+%! GridProps3 =  riGetGridProperty(   0 , "SWAT", [1,3], "Matrix");
+%! GridProps4 =  riGetGridProperty(   0 , "SWAT",  "Matrix");
+%! GridProps5 =  riGetGridProperty(1, 0 , "SWAT" );
+%! GridProps6 =  riGetGridProperty(1, 0 , "SWAT", [1,3]);
+%! GridProps7 =  riGetGridProperty(1, 0 , "SWAT", [1,3], "Matrix");
+%! GridProps8 =  riGetGridProperty(1, 0 , "SWAT",  "Matrix");
 
 %! assert(GridProps3 == GridProps2);
 %! assert(GridProps4 == GridProps1);
@@ -180,8 +180,8 @@
  ### riSetActiveCellProperty( Matrix[numActiveCells][numTimeSteps], [CaseId], PropertyName, [TimeStepIndices], [PorosityModel = "Matrix"|"Fracture"])
 %!test
 %! printf ("===== Testing ====> riSetActiveCellProperty\n");
-%! ActivePropData1  = riGetActiveCellProperty("SOIL");
-%! ActivePropData3  = riGetActiveCellProperty("SOIL", [1,3]);
+%! ActivePropData1  = riGetActiveCellProperty("SWAT");
+%! ActivePropData3  = riGetActiveCellProperty("SWAT", [1,3]);
 
 %! riSetActiveCellProperty( ActivePropData1,     "PropertyName1" );
 %! riSetActiveCellProperty( ActivePropData3,     "PropertyName2", [1,3]);
@@ -204,8 +204,8 @@
 ### riSetGridProperty( Matrix[numI][numJ][numK][numTimeSteps], [CaseId], GridIndex, PropertyName, [TimeStepIndices], [PorosityModel = "Matrix"|"Fracture"])
 %!test
 %! printf ("===== Testing ====> riSetGridProperty\n");
-%! GridProps1 =  riGetGridProperty(   0 , "SOIL" );
-%! GridProps2 =  riGetGridProperty(   0 , "SOIL", [1,3]);
+%! GridProps1 =  riGetGridProperty(   0 , "SWAT" );
+%! GridProps2 =  riGetGridProperty(   0 , "SWAT", [1,3]);
 
 %! riSetGridProperty( GridProps1,     0, "PropertyName11" );
 %! riSetGridProperty( GridProps2,     0, "PropertyName12", [1,3]);
@@ -309,7 +309,7 @@
 %! assert (WellNames2{113}, "P20-03");
 
 ### Vector[WellCellInfo] riGetWellCells([CaseId], WellName, TimeStep)
-%!xtest
+%!test
 %! printf ("===== Testing ====> riGetWellCells\n");
 %! WellNames1 = riGetWellNames();
 %! WellCellInfos1 = riGetWellCells(1, WellNames1{1}, 3);
@@ -317,7 +317,7 @@
 
 
 ### Vector[WellStatus] riGetWellStatus ([CaseId], WellName, [RequestedTimeSteps])
-%!xtest
+%!test
 %! printf ("===== Testing ====> riGetWellStatus\n");
 %! WellNames1 = riGetWellNames();
 %! WellStatuses1 = riGetWellStatus(1, WellNames1{1}, [1,3]);

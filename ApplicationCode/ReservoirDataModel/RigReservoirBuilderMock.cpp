@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -146,7 +148,7 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
         RigCell& riCell = cells[cellIndexStart + i];
 
         riCell.setHostGrid(hostGrid);
-        riCell.setCellIndex(i);
+        riCell.setGridLocalCellIndex(i);
 
         riCell.cornerIndices()[0] = nodeStartIndex + i * 8 + 0;
         riCell.cornerIndices()[1] = nodeStartIndex + i * 8 + 1;
@@ -247,7 +249,7 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
 
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-    activeCellInfo->setGlobalCellCount(eclipseCase->mainGrid()->cells().size());
+    activeCellInfo->setReservoirCellCount(eclipseCase->mainGrid()->cells().size());
     for (size_t i = 0; i < eclipseCase->mainGrid()->cells().size(); i++)
     {
         activeCellInfo->setCellResultIndex(i, i);
@@ -499,7 +501,7 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
         if (cellDimension().x() > 5)
         {
             min.x() = cellDimension().x() / 2;
-            max.x() = min.x() + 1;
+            max.x() = min.x() + 2;
         }
         
         if (cellDimension().y() > 5)
@@ -515,6 +517,39 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
     }
 
     grid->setFaults(faults);
+
+    // NNCs
+    std::vector<RigConnection>& nncConnections = grid->nncData()->connections();
+    {
+        size_t i1 = 2;
+        size_t j1 = 2;
+        size_t k1 = 3;
+        
+        size_t i2 = 2;
+        size_t j2 = 3;
+        size_t k2 = 4;
+
+        addNnc(grid, i1, j1, k1, i2, j2, k2, nncConnections);
+    }
+
+    {
+        size_t i1 = 2;
+        size_t j1 = 2;
+        size_t k1 = 3;
+
+        size_t i2 = 2;
+        size_t j2 = 5;
+        size_t k2 = 4;
+
+        addNnc(grid, i1, j1, k1, i2, j2, k2, nncConnections);
+    }
+
+    std::vector<double>& tranVals = grid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
+    for (size_t cIdx = 0; cIdx < tranVals.size(); ++cIdx)
+    {
+        tranVals[cIdx] = 0.2;
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -523,5 +558,20 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
 void RigReservoirBuilderMock::enableWellData(bool enableWellData)
 {
     m_enableWellData = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirBuilderMock::addNnc(RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, std::vector<RigConnection> &nncConnections)
+{
+    size_t c1GlobalIndex = grid->cellIndexFromIJK(i1, j1, k1);
+    size_t c2GlobalIndex = grid->cellIndexFromIJK(i2, j2, k2);
+
+    RigConnection conn;
+    conn.m_c1GlobIdx = c1GlobalIndex;
+    conn.m_c2GlobIdx = c2GlobalIndex;
+
+    nncConnections.push_back(conn);
 }
 

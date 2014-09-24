@@ -19,6 +19,7 @@ include_directories(
 
 set( MODEL_VISUALIZATION_CPP_SOURCES
     ../RivPipeGeometryGenerator.cpp
+    ../RivTernaryScalarMapper.cpp
 )
 
 
@@ -29,6 +30,7 @@ set( CPP_SOURCES
 set( UNIT_TEST_CPP_SOURCES
     main.cpp
     RivPipeGeometryGenerator-Test.cpp
+	RivTernaryScalarMapper-Test.cpp
 )
 
 
@@ -37,10 +39,13 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
+    LibGuiQt
 
     CommonCode
 
     ${OPENGL_LIBRARIES}
+    ${QT_LIBRARIES}
+
 )
 
 

@@ -1,5 +1,8 @@
+/////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,7 +33,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimCase.h"
 
 #include "RigCaseData.h"
@@ -158,7 +161,7 @@ public:
         }
 
         RigActiveCellInfo* actCellInfo = reservoirCase->reservoirData()->activeCellInfo(porosityModel);
-        size_t numMatrixModelActiveCells = actCellInfo->globalActiveCellCount();
+        size_t numMatrixModelActiveCells = actCellInfo->reservoirActiveCellCount();
 
         gridNumber.reserve(numMatrixModelActiveCells);
         cellI.reserve(numMatrixModelActiveCells);
@@ -170,7 +173,7 @@ public:
         hostCellK.reserve(numMatrixModelActiveCells);
         globalCoarseningBoxIdx.reserve(numMatrixModelActiveCells);
 
-        const std::vector<RigCell>& globalCells = reservoirCase->reservoirData()->mainGrid()->cells();
+        const std::vector<RigCell>& reservoirCells = reservoirCase->reservoirData()->mainGrid()->cells();
 
 
         std::vector<size_t> globalCoarseningBoxIndexStart;
@@ -190,13 +193,13 @@ public:
         }
 
 
-        for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
+        for (size_t cIdx = 0; cIdx < reservoirCells.size(); ++cIdx)
         {
             if (actCellInfo->isActive(cIdx))
             {
-                RigGridBase* grid = globalCells[cIdx].hostGrid();
+                RigGridBase* grid = reservoirCells[cIdx].hostGrid();
                 CVF_ASSERT(grid != NULL);
-                size_t cellIndex = globalCells[cIdx].cellIndex();
+                size_t cellIndex = reservoirCells[cIdx].gridLocalCellIndex();
 
                 size_t i, j, k;
                 grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
@@ -213,7 +216,7 @@ public:
                 }
                 else
                 {
-                    size_t parentCellIdx = globalCells[cIdx].parentCellIndex();
+                    size_t parentCellIdx = reservoirCells[cIdx].parentCellIndex();
                     parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
                     CVF_ASSERT(parentGrid != NULL);
                     parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
@@ -229,7 +232,7 @@ public:
                 hostCellJ.push_back(static_cast<qint32>(pj + 1));   // NB: 1-based index in Octave
                 hostCellK.push_back(static_cast<qint32>(pk + 1));   // NB: 1-based index in Octave
 
-                size_t coarseningIdx = globalCells[cIdx].coarseningBoxIndex();
+                size_t coarseningIdx = reservoirCells[cIdx].coarseningBoxIndex();
                 if (coarseningIdx != cvf::UNDEFINED_SIZE_T)
                 {
                     size_t globalCoarseningIdx = globalCoarseningBoxIndexStart[grid->gridIndex()] + coarseningIdx;

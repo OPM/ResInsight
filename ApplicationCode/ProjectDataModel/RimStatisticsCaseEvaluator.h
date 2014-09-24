@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,15 +20,12 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfCollection.h"
+#include "RimDefines.h"
+#include "RimStatisticsCase.h"
+
 #include <vector>
 #include <math.h>
 
-#include <QPair>
-#include "RimDefines.h"
-#include "RimStatisticsCase.h"
 
 class RimCase;
 class RigCaseData;
@@ -76,8 +75,6 @@ public:
 
     void evaluateForResults(const QList<ResSpec >& resultSpecification);
 
-    void debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx);
-
 private:
     void addNamedResult(RigCaseCellResultsData* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
     void buildSourceMetaData(RifReaderInterface::PorosityModelResultType poroModel, RimDefines::ResultCatType resultType, const QString& resultName);
@@ -88,7 +85,7 @@ private:
     std::vector<RimCase*>  m_sourceCases;
     std::vector<size_t>    m_timeStepIndices;
 
-    size_t                 m_globalCellCount;
+    size_t                 m_reservoirCellCount;
     RimStatisticsConfig    m_statisticsConfig;
     RigCaseData*           m_destinationCase;
 };

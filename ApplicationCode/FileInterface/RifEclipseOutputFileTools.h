@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -56,4 +58,6 @@ public:
     static QStringList  filterFileNamesOfType(const QStringList& fileSet, ecl_file_enum fileType);
 
     static void         readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions);
+
+    static int          readUnitsType(ecl_file_type* ecl_file);
 };

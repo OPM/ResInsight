@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -28,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection)
+void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, RimReservoirView* reservoirView)
 {
     m_allGrids.clear();
 
@@ -38,13 +40,13 @@ void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, c
         eclipseCase->allGrids(&grids);
         for (size_t i = 0; i < grids.size() ; ++i)
         {
-            m_allGrids.push_back(new RivGridPartMgr(grids[i], i, faultCollection));
+            m_allGrids.push_back(new RivGridPartMgr(grids[i], i));
         }
 
         if (eclipseCase->mainGrid())
         {
             // Faults read from file are present only on main grid
-            m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), faultCollection);
+            m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), reservoirView);
         }
     }
 }
@@ -195,5 +197,17 @@ void RivReservoirPartMgr::setFaultForceVisibility(bool isGeneratedByFilter)
     {
         m_faultsPartMgr->setFaultForceVisibility(isGeneratedByFilter);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+{
+	if (m_faultsPartMgr.notNull())
+	{
+		m_faultsPartMgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+	}
+
 }
 

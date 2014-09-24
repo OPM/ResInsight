@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -39,11 +41,28 @@ public:
         FRACTURE_MODEL
     };
 
-    static QString undefinedResultName() { return "None"; }
-    static QString undefinedGridFaultName() { return "Undefined grid faults"; }
-    static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
-    static QString ternarySaturationResultName()        { return "TERNARY"; }
+    static bool isPerCellFaceResult(const QString& resultName);
 
+    static QString undefinedResultName()                { return "None"; }
+    static QString undefinedGridFaultName()             { return "Undefined grid faults"; }
+    static QString combinedTransmissibilityResultName() { return "TRANXYZ"; }
+    static QString ternarySaturationResultName()        { return "TERNARY"; }
+    static QString combinedMultResultName()             { return "MULTXYZ"; }
+
+    static QString riTranXResultName()                 { return "riTRANX"; }
+    static QString riTranYResultName()                 { return "riTRANY"; }
+    static QString riTranZResultName()                 { return "riTRANZ"; }
+    static QString combinedRiTranResultName()          { return "riTRANXYZ"; }
+
+    static QString riMultXResultName()                  { return "riMULTX"; }
+    static QString riMultYResultName()                  { return "riMULTY"; }
+    static QString riMultZResultName()                  { return "riMULTZ"; }
+    static QString combinedRiMultResultName()           { return "riMULTXYZ"; }
+
+    static QString riAreaNormTranXResultName()         { return "riTRANXbyArea"; }
+    static QString riAreaNormTranYResultName()         { return "riTRANYbyArea"; }
+    static QString riAreaNormTranZResultName()         { return "riTRANZbyArea"; }
+    static QString combinedRiAreaNormTranResultName()  { return "riTRANXYZbyArea"; }
 
     // Mock model text identifiers
     static QString mockModelBasic()                 { return "Result Mock Debug Model Simple"; }

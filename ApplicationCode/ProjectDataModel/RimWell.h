@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,11 +24,15 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
-#include "cafPdmFieldCvfColor.h"
 
-#include "RigSingleWellResultsData.h"
+#include "cvfObject.h"
 
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
+class RigSingleWellResultsData;
 class RimReservoirView;
+
 //==================================================================================================
 ///  
 ///  

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,12 +22,6 @@
 #include "RigFault.h"
 
 #include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimWellCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimFault, "Fault");
 
@@ -69,20 +64,9 @@ caf::PdmFieldHandle* RimFault::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showFault == changedField)
-    {
-        this->updateUiIconFromState(showFault);
+    this->updateUiIconFromToggleField();
 
-        RimReservoirView* reservoirView = NULL;
-        this->firstAncestorOfType(reservoirView);
-
-        if (reservoirView) 
-        {
-            reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-
-    if (&faultColor == changedField)
+    if (&faultColor == changedField || &showFault == changedField)
     {
         RimReservoirView* reservoirView = NULL;
         this->firstAncestorOfType(reservoirView);

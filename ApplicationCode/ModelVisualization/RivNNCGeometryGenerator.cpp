@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -98,13 +99,13 @@ void RivNNCGeometryGenerator::computeArrays()
 
                 if ((*allCells)[conn.m_c1GlobIdx].hostGrid() == m_grid.p())
                 {
-                    size_t cell1GridLocalIdx = (*allCells)[conn.m_c1GlobIdx].cellIndex();
+                    size_t cell1GridLocalIdx = (*allCells)[conn.m_c1GlobIdx].gridLocalCellIndex();
                     cell1Visible = (*m_cellVisibility)[cell1GridLocalIdx];
                 }
 
                 if ((*allCells)[conn.m_c2GlobIdx].hostGrid() == m_grid.p())
                 {
-                    size_t cell2GridLocalIdx = (*allCells)[conn.m_c2GlobIdx].cellIndex();
+                    size_t cell2GridLocalIdx = (*allCells)[conn.m_c2GlobIdx].gridLocalCellIndex();
                     cell2Visible = (*m_cellVisibility)[cell2GridLocalIdx];
                 }
 
@@ -144,12 +145,19 @@ void RivNNCGeometryGenerator::computeArrays()
 /// Calculates the texture coordinates in a "nearly" one dimensional texture. 
 /// Undefined values are coded with a y-texture coordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
-void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper) const
+void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, size_t scalarResultIndex) const
 {
     size_t numVertices = m_vertices->size();
 
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
+   
+    const std::vector<double>* nncResultVals = m_nncData->connectionScalarResult(scalarResultIndex);
+    if (!nncResultVals)
+    {
+        textureCoords->setAll(cvf::Vec2f(0.0f, 1.0f));
+        return;
+    }
 
     double cellScalarValue;
     cvf::Vec2f texCoord;
@@ -157,7 +165,7 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
 #pragma omp parallel for private(texCoord, cellScalarValue)
     for (int tIdx = 0; tIdx < static_cast<int>(m_triangleIndexToNNCIndex->size()); tIdx++)
     {
-        cellScalarValue = m_nncData->connections()[(*m_triangleIndexToNNCIndex)[tIdx]].m_transmissibility;
+        cellScalarValue = (*nncResultVals)[(*m_triangleIndexToNNCIndex)[tIdx]];
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {

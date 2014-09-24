@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -41,7 +42,7 @@
 RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font)
     :    m_textColor(cvf::Color3::BLACK),
     m_font(font),
-    m_size(100, 120)
+    m_size(100, 140)
 {
 }
 
@@ -121,24 +122,48 @@ void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, con
     cvf::TextDrawer textDrawer(m_font.p());
     textDrawer.setTextColor(m_textColor);
 
+    float lineHeightInPixels = 10;
+
+    float textPosY = static_cast<float>(size.y() - 10);
+    for (size_t it = 0; it < m_titleStrings.size(); it++)
+    {
+        cvf::Vec2f pos(5, textPosY);
+        textDrawer.addText(m_titleStrings[it], pos);
+
+        textPosY -= lineHeightInPixels;
+    }
+
+    cvf::Vec2f pos(5, textPosY);
+    textDrawer.addText("TERNARY", pos);
+    textPosY -= lineHeightInPixels;
+    textPosY -= 2;
+
+    {
+        cvf::uint sgasTextWidth = m_font->textExtent("SGAS").x();
+        textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasTextWidth / 2 ), textPosY));
+
+        cvf::uint sgasRangeTextWidth = m_font->textExtent(m_sgasRange).x();
+        textPosY -= lineHeightInPixels;
+        textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasRangeTextWidth / 2 ), textPosY));
+    }
+
     textDrawer.addText("SWAT", cvf::Vec2f(0.0, 10.0));
     textDrawer.addText(m_swatRange, cvf::Vec2f(0.0, 0.0));
 
-    textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - 25), 10.0));
-    
-    float soilRangePos = static_cast<float>(size.x() - 40);
-    if (m_soilRange.size() < 6)
     {
-        soilRangePos += 15;
-    }
-    textDrawer.addText(m_soilRange, cvf::Vec2f(soilRangePos, 0.0));
+        cvf::uint soilTextWidth = m_font->textExtent("SOIL").x();
+        textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - soilTextWidth), 10.0));
 
-    textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - 17 ), static_cast<float>(size.y() - 10)));
-    textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - 17 ), static_cast<float>(size.y() - 20)));
+        cvf::uint soilRangeTextWidth = m_font->textExtent(m_soilRange).x();
+        float soilRangePos = static_cast<float>(size.x()) - soilRangeTextWidth;
+
+        textDrawer.addText(m_soilRange, cvf::Vec2f(soilRangePos, 0.0));
+    }
 
     textDrawer.renderSoftware(oglContext, camera);
 
-    renderAxisImmediateMode(oglContext);
+    textPosY -= 3;
+    renderAxisImmediateMode(textPosY, oglContext);
 
     CVF_CHECK_OGL(oglContext);
 }
@@ -148,7 +173,7 @@ void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, con
 //--------------------------------------------------------------------------------------------------
 /// Draw the axis using immediate mode OpenGL
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::renderAxisImmediateMode(cvf::OpenGLContext* oglContext)
+void RivTernarySaturationOverlayItem::renderAxisImmediateMode(float upperBoundY, cvf::OpenGLContext* oglContext)
 {
 #ifdef CVF_OPENGL_ES
     CVF_UNUSED(layout);
@@ -166,7 +191,7 @@ void RivTernarySaturationOverlayItem::renderAxisImmediateMode(cvf::OpenGLContext
     cvf::Color3ub colC(cvf::Color3::RED);
 
     float lowerBoundY = 20;
-    float upperBoundY = static_cast<float>(m_size.y() - 20);
+    //float upperBoundY = static_cast<float>(m_size.y() - 20);
 
     cvf::Vec3f a(0, lowerBoundY, 0);
     cvf::Vec3f b(static_cast<float>(m_size.x()), lowerBoundY, 0);
@@ -217,6 +242,22 @@ void RivTernarySaturationOverlayItem::setRangeText(const cvf::String& soilRange,
     m_soilRange = soilRange;
     m_sgasRange = sgasRange;
     m_swatRange = swatRange;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivTernarySaturationOverlayItem::setTitle(const cvf::String& title)
+{
+    // Title
+    if (title.isEmpty())
+    {
+        m_titleStrings.clear();
+    }
+    else
+    {
+        m_titleStrings = title.split("\n");
+    }
 }
 
 

@@ -1,8 +1,8 @@
-
-
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,23 +27,81 @@
 #include "ecl_file.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RigCaseCellResultsData.h"
-
-
-
+#include "RifEclipseUnifiedRestartFileAccess.h"
+#include "RifReaderSettings.h"
 
 
 #if 0
 
 
-TEST(RigReservoirTest, FileOutputToolsTest)
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigReservoirTest, DISABLED_BasicTest)
 {
+
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-    cvf::ref<RigReservoir> reservoir = new RigReservoir;
+    cvf::ref<RigCaseData> reservoir = new RigCaseData;
+
+    QString filename("d:/Models/Statoil/troll_MSW/T07-4A-W2012-16-F3.EGRID");
+
+    RifReaderSettings readerSettings;
+    readerInterfaceEcl->setReaderSetting(&readerSettings);
+
+    bool result = readerInterfaceEcl->open(filename, reservoir.p());
+    EXPECT_TRUE(result);
+
+    {
+//         QStringList staticResults = readerInterfaceEcl->staticResults();
+//         EXPECT_EQ(42, staticResults.size());
+//         qDebug() << "Static results\n" << staticResults;
+// 
+//         QStringList dynamicResults = readerInterfaceEcl->dynamicResults();
+//         EXPECT_EQ(23, dynamicResults.size());
+//         qDebug() << "Dynamic results\n" << dynamicResults;
+// 
+//         int numTimeSteps = static_cast<int>(readerInterfaceEcl->numTimeSteps());
+//         EXPECT_EQ(9, numTimeSteps);
+// 
+//         QStringList timeStepText = readerInterfaceEcl->timeStepText();
+//         EXPECT_EQ(numTimeSteps, timeStepText.size());
+//         qDebug() << "Time step texts\n" << timeStepText;
+    }
+
+
+    readerInterfaceEcl->close();
+
+    {
+//         QStringList staticResults = readerInterfaceEcl->staticResults();
+//         EXPECT_EQ(0, staticResults.size());
+// 
+//         QStringList dynamicResults = readerInterfaceEcl->dynamicResults();
+//         EXPECT_EQ(0, dynamicResults.size());
+// 
+//         int numTimeSteps = static_cast<int>(readerInterfaceEcl->numTimeSteps());
+//         EXPECT_EQ(0, numTimeSteps);
+// 
+//         QStringList timeStepText = readerInterfaceEcl->timeStepText();
+//         EXPECT_EQ(numTimeSteps, timeStepText.size());
+    }
+
+}
+
+
+
+TEST(RigReservoirTest, DISABLED_FileOutputToolsTest)
+{
+    cvf::DebugTimer timer("test");
+
 
 //    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID");
-    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+//    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+//    QString filename("d:/Models/Statoil/troll_MSW/T07-4A-W2012-16-F3.UNRST");
+    QString filename("c:/tmp/troll_MSW/T07-4A-W2012-16-F3.UNRST");
+    
 
-    ecl_file_type* ertFile = ecl_file_open(filename.toAscii().data());
+    ecl_file_type* ertFile = ecl_file_open(filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
     EXPECT_TRUE(ertFile);
 
 
@@ -52,7 +110,6 @@ TEST(RigReservoirTest, FileOutputToolsTest)
     RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ertFile, &keywords, &keywordDataItemCounts);
 
     EXPECT_TRUE(keywords.size() == keywordDataItemCounts.size());
-
 
     qDebug() << "Keyword - Number of data items";
     for (int i = 0; i < keywords.size(); i++)
@@ -63,7 +120,58 @@ TEST(RigReservoirTest, FileOutputToolsTest)
 
     ecl_file_close(ertFile);
     ertFile = NULL;
+
+    timer.reportTime();
+    //qDebug() << timer.lapt;
 }
+
+
+TEST(RigReservoirTest, UnifiedTestFile)
+{
+    //QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+    QString filename("d:/Models/Statoil/troll_MSW/T07-4A-W2012-16-F3.UNRST");
+
+    {
+        cvf::ref<RifEclipseUnifiedRestartFileAccess> restartFile = new RifEclipseUnifiedRestartFileAccess();
+
+        QStringList fileNameList;
+        fileNameList << filename;
+        restartFile->setRestartFiles(fileNameList);
+        restartFile->open();
+
+        QStringList resultNames;
+        std::vector<size_t> resultDataItemCounts;
+        restartFile->resultNames(&resultNames, &resultDataItemCounts);
+
+        qDebug() << "Result names\n";
+        for (int i = 0; i < resultNames.size(); i++)
+        {
+            qDebug() << resultNames[i] << "\t" << resultDataItemCounts[i];
+        }
+
+        std::vector<QDateTime> tsteps = restartFile->timeSteps();
+
+        qDebug() << "Time step texts\n";
+        for (int i = 0; i < tsteps.size(); i++)
+        {
+            qDebug() << tsteps[i].toString();
+        }
+
+        /*
+        std::vector<double> resultValues;
+        size_t timeStep = 0;
+        restartFile->results(resultNames[0], timeStep, &resultValues);
+
+        size_t i;
+        for (i = 0; i < 500; i++)
+        {
+            qDebug() <<  resultValues[i];
+        }
+        */
+    }
+
+}
+
 
 
 void buildResultInfoString(RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, RimDefines::ResultCatType resultType)

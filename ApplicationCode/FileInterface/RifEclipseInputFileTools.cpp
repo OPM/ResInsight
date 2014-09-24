@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,6 +23,7 @@
 #include "RifReaderEclipseOutput.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigResultAccessorFactory.h"
 
 #include "cafProgressInfo.h"
 
@@ -73,6 +76,8 @@ bool readDoubleValues(RigCaseData* reservoir, size_t resultIndex, ecl_kw_type* e
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
     ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,17 +91,17 @@ bool readDoubleValuesForActiveCells(RigCaseData* reservoir, size_t resultIndex, 
     newPropertyData.push_back(std::vector<double>());
 
     RigActiveCellInfo* activeCellInfo = reservoir->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-    if (activeCellInfo->globalCellCount() > 0 && activeCellInfo->globalCellCount() != activeCellInfo->globalActiveCellCount())
+    if (activeCellInfo->reservoirCellCount() > 0 && activeCellInfo->reservoirCellCount() != activeCellInfo->reservoirActiveCellCount())
     {
         std::vector<double> valuesAllCells;
         valuesAllCells.resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
         ecl_kw_get_data_as_double(eclKeyWordData, valuesAllCells.data());
 
-        newPropertyData[0].resize(activeCellInfo->globalActiveCellCount(), HUGE_VAL);
+        newPropertyData[0].resize(activeCellInfo->reservoirActiveCellCount(), HUGE_VAL);
         std::vector<double>& valuesActiveCells = newPropertyData[0];
 
         size_t acIdx = 0;
-        for (size_t gcIdx = 0; gcIdx < activeCellInfo->globalCellCount(); gcIdx++)
+        for (size_t gcIdx = 0; gcIdx < activeCellInfo->reservoirCellCount(); gcIdx++)
         {
             size_t activeCellResultIndex = activeCellInfo->cellResultIndex(gcIdx);
             if (activeCellResultIndex != cvf::UNDEFINED_SIZE_T)
@@ -110,6 +115,8 @@ bool readDoubleValuesForActiveCells(RigCaseData* reservoir, size_t resultIndex, 
         newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
         ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
     }
+
+    return true;
 }
 
 
@@ -496,8 +503,8 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(eclipseCase->mainGrid(), porosityModel, timeStep, resultIndex);
-    if (dataAccessObject.isNull())
+	cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, eclipseCase->mainGrid()->gridIndex(), porosityModel, timeStep, resultName);
+	if (resultAccessor.isNull())
     {
         return false;
     }
@@ -510,7 +517,7 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         {
             for (i = 0; i < eclipseCase->mainGrid()->cellCountI(); i++)
             {
-                double resultValue = dataAccessObject->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
+				double resultValue = resultAccessor->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
                 if (resultValue == HUGE_VAL)
                 {
                     resultValue = undefinedValue;
@@ -819,9 +826,11 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
         }
         else if (line.startsWith(faultsKeyword, Qt::CaseInsensitive))
         {
-            readFaults(file, file.pos(), faults, isEditKeywordDetected);
-
-            filenamesWithFaults.push_back(file.fileName());
+            if (!line.contains("/"))
+            {
+                readFaults(file, file.pos(), faults, isEditKeywordDetected);
+                filenamesWithFaults.push_back(file.fileName());
+            }
         }
 
         if (isEditKeywordDetected && *isEditKeywordDetected)
@@ -837,6 +846,18 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
     } while (continueParsing);
     
     return true;
+}
+
+cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(const QString& faceString)
+{
+    if (faceString == "X" ) return cvf::StructGridInterface::POS_I;
+    if (faceString == "X-") return cvf::StructGridInterface::NEG_I;
+    if (faceString == "Y" ) return cvf::StructGridInterface::POS_J;
+    if (faceString == "Y-") return cvf::StructGridInterface::NEG_J;
+    if (faceString == "Z" ) return cvf::StructGridInterface::POS_K;
+    if (faceString == "Z-") return cvf::StructGridInterface::NEG_K;
+
+    return cvf::StructGridInterface::NO_FACE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -905,9 +926,11 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         QString faceString = entries[7];
         faceString.remove("'");
 
-        cvf::StructGridInterface::FaceEnum cellFaceEnum = cvf::StructGridInterface::FaceEnum::fromText(faceString);
+        cvf::StructGridInterface::FaceEnum cellFaceEnum = RifEclipseInputFileTools::faceEnumFromText(faceString);
 
-        cvf::CellRange cellrange(i1 - 1, j1 - 1, k1 - 1, i2 - 1, j2 - 1, k2 - 1); // Adjust from 1-based to 0-based cell indices
+        // Adjust from 1-based to 0-based cell indices
+        // Guard against invalid cell ranges by limiting lowest possible range value to zero
+        cvf::CellRange cellrange(CVF_MAX(i1 - 1, 0), CVF_MAX(j1 - 1, 0), CVF_MAX(k1 - 1, 0), CVF_MAX(i2 - 1, 0), CVF_MAX(j2 - 1, 0), CVF_MAX(k2 - 1, 0));
 
         if (!(fault && fault->name() == name))
         {

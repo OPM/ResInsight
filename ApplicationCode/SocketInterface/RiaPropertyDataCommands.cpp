@@ -1,5 +1,8 @@
+/////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,33 +19,32 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+
 #include "RiaSocketCommand.h"
+#include "RiaSocketDataTransfer.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RiuMainWindow.h"
-#include "RiuProcessMonitor.h"
+#include "RifReaderInterface.h"
 
-#include "RigCaseData.h"
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RigResultModifier.h"
+#include "RigResultModifierFactory.h"
 
-#include "RimReservoirCellResultsCacher.h"
 #include "RimCase.h"
 #include "RimInputCase.h"
+#include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"
-#include "RimUiTreeModelPdm.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "RimUiTreeModelPdm.h"
 
-#include <QTcpSocket>
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
-#include "RiaSocketDataTransfer.h"
+#include "RiuMainWindow.h"
+#include "RiuProcessMonitor.h"
+#include "RigResultAccessorFactory.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -140,7 +142,7 @@ public:
             // then the byte-size of the result values in one timestep
 
             const RigActiveCellInfo* activeInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
-            size_t  timestepResultCount = activeInfo->globalActiveCellCount();
+            size_t  timestepResultCount = activeInfo->reservoirActiveCellCount();
 
             quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
             socketStream << timestepByteCount ;
@@ -150,18 +152,18 @@ public:
             std::vector<double> values(valueCount);
             size_t valueIndex = 0;
 
-            size_t globalCellCount = activeInfo->globalCellCount();
+            size_t reservoirCellCount = activeInfo->reservoirCellCount();
             for (size_t tIdx = 0; tIdx < requestedTimesteps.size(); ++tIdx)
             {
                 std::vector<double>& doubleValues = scalarResultFrames->at(requestedTimesteps[tIdx]);
-                for (size_t gcIdx = 0; gcIdx < globalCellCount; ++gcIdx)
+                for (size_t gcIdx = 0; gcIdx < reservoirCellCount; ++gcIdx)
                 {
                     size_t resultIdx = activeInfo->cellResultIndex(gcIdx);
                     if (resultIdx == cvf::UNDEFINED_SIZE_T) continue;
 
                     if (resultIdx < doubleValues.size())
                     {
-                        if (doubleValues.size() == activeInfo->globalCellCount())
+                        if (doubleValues.size() == activeInfo->reservoirCellCount())
                         {
                             // When reading data from input text files, result data is read for all grid cells
                             // Read out values from data vector using global cell index instead of active cell result index
@@ -321,8 +323,9 @@ public:
 
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
-            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
-            if (cellCenterDataAccessObject.isNull())
+			cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(rimCase->reservoirData(), gridIdx, porosityModelEnum, requestedTimesteps[tsIdx], propertyName);
+
+            if (resultAccessor.isNull())
             {
                 continue;
             }
@@ -332,7 +335,7 @@ public:
             size_t valueIndex = 0;
             for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)
             {
-                double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
+                double cellValue = resultAccessor->cellScalar(cellIdx);
                 if (cellValue == HUGE_VAL)
                 {
                     cellValue = 0.0;
@@ -416,6 +419,9 @@ public:
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
                 scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
+                size_t timeStepCount = rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount();
+                scalarResultFrames->resize(timeStepCount);
+
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
@@ -484,17 +490,6 @@ public:
             return true;
         }
 
-        // Resize the result container to be able to receive timesteps at the specified timestep idices
-
-        std::vector<size_t>::iterator maxTimeStepIt = std::max_element(m_requestedTimesteps.begin(), m_requestedTimesteps.end());
-        CVF_ASSERT(maxTimeStepIt != m_requestedTimesteps.end());
-
-        size_t maxTimeStepIdx = (*maxTimeStepIt);
-        if (scalarResultFrames->size() <= maxTimeStepIdx)
-        {
-            scalarResultFrames->resize(maxTimeStepIdx+1);
-        }
-
         m_currentReservoir = rimCase;
         m_scalarResultsToAdd = scalarResultFrames;
 
@@ -530,18 +525,18 @@ public:
 
         RigActiveCellInfo* activeCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum);
 
-        size_t globalActiveCellCount    = activeCellInfo->globalActiveCellCount();
-        size_t totalCellCount           = activeCellInfo->globalCellCount();
-        size_t globalCellResultCount    = activeCellInfo->globalCellResultCount();
+        size_t activeCellCountReservoir    = activeCellInfo->reservoirActiveCellCount();
+        size_t totalCellCount           = activeCellInfo->reservoirCellCount();
+        size_t reservoirCellResultCount    = activeCellInfo->reservoirCellResultCount();
 
-        bool isCoarseningActive = globalCellResultCount != globalActiveCellCount;
+        bool isCoarseningActive = reservoirCellResultCount != activeCellCountReservoir;
 
-        if (cellCountFromOctave != globalActiveCellCount )
+        if (cellCountFromOctave != activeCellCountReservoir )
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                                               RiaSocketServer::tr("The number of cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseUserDescription() + "\"\n"
                                               "   Octave: " + QString::number(cellCountFromOctave) + "\n"
-                                              "  " + m_currentReservoir->caseUserDescription() + ": Active cell count: " + QString::number(globalActiveCellCount) + " Total cell count: " +  QString::number(totalCellCount)) ;
+                                              "  " + m_currentReservoir->caseUserDescription() + ": Active cell count: " + QString::number(activeCellCountReservoir) + " Total cell count: " +  QString::number(totalCellCount)) ;
 
             cellCountFromOctave = 0;
             m_invalidActiveCellCountDetected = true;
@@ -556,7 +551,7 @@ public:
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
         {
             size_t tsId = m_requestedTimesteps[tIdx];
-            m_scalarResultsToAdd->at(tsId).resize(globalCellResultCount, HUGE_VAL);
+            m_scalarResultsToAdd->at(tsId).resize(reservoirCellResultCount, HUGE_VAL);
         }
 
         std::vector<double> readBuffer;
@@ -640,7 +635,7 @@ public:
                         m_currentReservoir->reservoirData() &&
                         m_currentReservoir->reservoirData()->results(m_porosityModelEnum) )
                 {
-                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateMinMax(m_currentScalarIndex);
+                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)
@@ -778,6 +773,9 @@ public:
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
                 scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
+                size_t timeStepCount = rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount();
+                scalarResultFrames->resize(timeStepCount);
+
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
@@ -832,17 +830,6 @@ public:
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified").arg(porosityModelName).arg(propertyName));
 
             return true;
-        }
-
-        // Resize the result container to be able to receive time steps at the specified time step indices
-
-        std::vector<size_t>::iterator maxTimeStepIt = std::max_element(m_requestedTimesteps.begin(), m_requestedTimesteps.end());
-        CVF_ASSERT(maxTimeStepIt != m_requestedTimesteps.end());
-
-        size_t maxTimeStepIdx = (*maxTimeStepIt);
-        if (scalarResultFrames->size() <= maxTimeStepIdx)
-        {
-            scalarResultFrames->resize(maxTimeStepIdx+1);
         }
 
         m_currentReservoir = rimCase;
@@ -933,14 +920,12 @@ public:
                 return true;
             }
 
-            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = 
-                m_currentReservoir->reservoirData()->dataAccessObject(grid, m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
-
-            if (!cellCenterDataAccessObject.isNull())
+            cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_currentReservoir->reservoirData(), grid->gridIndex(), m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
+            if (!resultModifier.isNull())
             {
                 for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < cellCountFromOctave; cellIdx++)
                 {
-                    cellCenterDataAccessObject->setCellScalar(cellIdx, doubleValues[cellIdx]);
+                    resultModifier->setCellScalar(cellIdx, doubleValues[cellIdx]);
                 }
             }
 
@@ -976,7 +961,7 @@ public:
                     m_currentReservoir->reservoirData() &&
                     m_currentReservoir->reservoirData()->results(m_porosityModelEnum) )
                 {
-                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateMinMax(m_currentScalarIndex);
+                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)

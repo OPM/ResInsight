@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,7 +26,6 @@
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
-#include "cvfStructGridScalarDataAccess.h"
 
 #include "cafFixedArray.h"
 
@@ -37,7 +38,6 @@
 
 class RigMainGrid;
 class RigCell;
-class RigGridScalarDataAccess;
 class RigActiveCellInfo;
 
 class RigGridBase : public cvf::StructGridInterface
@@ -53,7 +53,7 @@ public:
     RigCell&                    cell(size_t gridCellIndex);
     const RigCell&              cell(size_t gridCellIndex) const;
     
-    size_t                      globalGridCellIndex(size_t localGridCellIndex) const;
+    size_t                      reservoirCellIndex(size_t gridLocalCellIndex) const;
     void                        setIndexToStartOfCells(size_t indexToStartOfCells) { m_indexToStartOfCells = indexToStartOfCells; }
     
     void                        setGridIndex(size_t index) { m_gridIndex = index; }
@@ -62,7 +62,7 @@ public:
     void                        setGridId(int id) { m_gridId = id; }
     int                         gridId() const { return m_gridId; }
 
-    double                      characteristicIJCellSize();
+    double                      characteristicIJCellSize() const;
 
     std::string                 gridName() const;
     void                        setGridName(const std::string& gridName);
@@ -126,20 +126,6 @@ class RigGridCellFaceVisibilityFilter : public cvf::CellFaceVisibilityFilter
 {
 public:
     RigGridCellFaceVisibilityFilter(const RigGridBase* grid)
-        :   m_grid(grid)
-    {
-    }
-
-    virtual bool isFaceVisible( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const;
-
-private:
-    const RigGridBase* m_grid;
-};
-
-class RigFaultFaceVisibilityFilter : public cvf::CellFaceVisibilityFilter
-{
-public:
-    RigFaultFaceVisibilityFilter(const RigGridBase* grid)
         :   m_grid(grid)
     {
     }

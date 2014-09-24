@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,22 +18,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-//#include "RiaStdInclude.h"
 #include "RimWell.h"
 
-
-#include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "RivReservoirViewPartMgr.h"
+#include "RigSingleWellResultsData.h"
 #include "RimReservoirView.h"
 #include "RimWellCollection.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimCellRangeFilterCollection.h"
+
+#include "cvfMath.h"
 
 CAF_PDM_SOURCE_INIT(RimWell, "Well");
 

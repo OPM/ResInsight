@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,6 +22,8 @@
 
 #include "cvfAssert.h"
 #include "RimDefines.h"
+#include "RigFault.h"
+
 
 RigMainGrid::RigMainGrid(void)
     : RigGridBase(this)
@@ -213,13 +217,12 @@ void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::calculateFaults()
 {
-    //RigFault::initFaultsPrCellAccumulator(m_cells.size());
-    cvf::ref<RigFaultsPrCellAccumulator> faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
+    m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
 
     // Spread fault idx'es on the cells from the faults
     for (size_t fIdx = 0 ; fIdx < m_faults.size(); ++fIdx)
     {
-        m_faults[fIdx]->accumulateFaultsPrCell(faultsPrCellAcc.p(), static_cast<int>(fIdx));
+        m_faults[fIdx]->accumulateFaultsPrCell(m_faultsPrCellAcc.p(), static_cast<int>(fIdx));
     }
 
     // Find the geometrical faults that is in addition
@@ -234,7 +237,7 @@ void RigMainGrid::calculateFaults()
             continue;
         }
 
-        size_t neighborGlobalCellIdx;
+        size_t neighborReservoirCellIdx;
         size_t neighborGridCellIdx;
         size_t i, j, k;
         RigGridBase* hostGrid = NULL; 
@@ -244,13 +247,13 @@ void RigMainGrid::calculateFaults()
         {
             cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType(faceIdx);
 
-            if (faultsPrCellAcc->faultIdx(gcIdx, face) == RigFaultsPrCellAccumulator::NO_FAULT)
+            if (m_faultsPrCellAcc->faultIdx(gcIdx, face) == RigFaultsPrCellAccumulator::NO_FAULT)
             {
                 // Find neighbor cell
                 if (firstNO_FAULTFaceForCell) // To avoid doing this for every face, and only when detecting a NO_FAULT
                 {
                     hostGrid = m_cells[gcIdx].hostGrid();
-                    hostGrid->ijkFromCellIndex(m_cells[gcIdx].cellIndex(), &i,&j, &k);
+                    hostGrid->ijkFromCellIndex(m_cells[gcIdx].gridLocalCellIndex(), &i,&j, &k);
                     firstNO_FAULTFaceForCell = false;
                 }
 
@@ -259,8 +262,8 @@ void RigMainGrid::calculateFaults()
                     continue;
                 }
 
-                neighborGlobalCellIdx = hostGrid->globalGridCellIndex(neighborGridCellIdx);
-                if (m_cells[neighborGlobalCellIdx].isInvalid())
+                neighborReservoirCellIdx = hostGrid->reservoirCellIndex(neighborGridCellIdx);
+                if (m_cells[neighborReservoirCellIdx].isInvalid())
                 {
                     continue;
                 }
@@ -271,7 +274,7 @@ void RigMainGrid::calculateFaults()
                 caf::SizeTArray4 faceIdxs;
                 m_cells[gcIdx].faceIndices(face, &faceIdxs);
                 caf::SizeTArray4 nbFaceIdxs;
-                m_cells[neighborGlobalCellIdx].faceIndices(StructGridInterface::oppositeFace(face), &nbFaceIdxs);
+                m_cells[neighborReservoirCellIdx].faceIndices(StructGridInterface::oppositeFace(face), &nbFaceIdxs);
 
                 const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
@@ -288,18 +291,15 @@ void RigMainGrid::calculateFaults()
 
                 // To avoid doing this calculation for the opposite face
 
-                faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
-                faultsPrCellAcc->setFaultIdx(neighborGlobalCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
-
-                //m_cells[gcIdx].setCellFaceFault(face);
-                //m_cells[neighborGlobalCellIdx].setCellFaceFault(StructGridInterface::oppositeFace(face));
+                m_faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
+                m_faultsPrCellAcc->setFaultIdx(neighborReservoirCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
 
                 // Add as fault face only if the grid index is less than the neighbors
 
-                if (gcIdx < neighborGlobalCellIdx)
+                if (static_cast<size_t>(gcIdx) < neighborReservoirCellIdx)
                 {
                     {
-                        RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborGlobalCellIdx);
+                        RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborReservoirCellIdx);
                         unNamedFault->faultFaces().push_back(ff);
                     }
 
@@ -330,8 +330,8 @@ void RigMainGrid::calculateFaults()
 
         if (conn.m_c1Face != StructGridInterface::NO_FACE)
         {
-            fIdx1 = faultsPrCellAcc->faultIdx(conn.m_c1GlobIdx, conn.m_c1Face);
-            fIdx2 = faultsPrCellAcc->faultIdx(conn.m_c2GlobIdx, StructGridInterface::oppositeFace(conn.m_c1Face));
+            fIdx1 = m_faultsPrCellAcc->faultIdx(conn.m_c1GlobIdx, conn.m_c1Face);
+            fIdx2 = m_faultsPrCellAcc->faultIdx(conn.m_c2GlobIdx, StructGridInterface::oppositeFace(conn.m_c1Face));
         }
 
         if (fIdx1 < 0 && fIdx2 < 0)
@@ -363,9 +363,79 @@ void RigMainGrid::calculateFaults()
 
 //--------------------------------------------------------------------------------------------------
 /// The cell is normally inverted due to Depth becoming -Z at import, 
-/// but if (only) one of the flipX/Y is done, the cell is back to nomal
+/// but if (only) one of the flipX/Y is done, the cell is back to normal
 //--------------------------------------------------------------------------------------------------
-bool RigMainGrid::faceNormalsIsOutwards() const
+bool RigMainGrid::isFaceNormalsOutwards() const
 {
-    return  m_flipXAxis ^ m_flipYAxis;
+   
+    for (int gcIdx = 0 ; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
+    {
+        if (!m_cells[gcIdx].isInvalid())
+        {
+            cvf::Vec3d cellCenter = m_cells[gcIdx].center();
+            cvf::Vec3d faceCenter = m_cells[gcIdx].faceCenter(StructGridInterface::POS_I);
+            cvf::Vec3d faceNormal = m_cells[gcIdx].faceNormalWithAreaLenght(StructGridInterface::POS_I);
+
+            double typicalIJCellSize =  characteristicIJCellSize();
+            double dummy, dummy2, typicalKSize;
+            characteristicCellSizes(&dummy, &dummy2, &typicalKSize);
+
+            if (   (faceCenter - cellCenter).length() > 0.2 * typicalIJCellSize
+                && (faceNormal.length() > (0.2 * typicalIJCellSize * 0.2* typicalKSize)))
+            {
+                // Cell is assumed ok to use, so calculate whether the normals are outwards or inwards
+
+                if ((faceCenter - cellCenter) * faceNormal >= 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
+{
+    int faultIdx = m_faultsPrCellAcc->faultIdx(reservoirCellIndex, face);
+    if (faultIdx !=  RigFaultsPrCellAccumulator::NO_FAULT )
+    {
+        return m_faults.at(faultIdx);
+    }
+
+#if 0
+    for (size_t i = 0; i < m_faults.size(); i++)
+    {
+        const RigFault* rigFault = m_faults.at(i);
+        const std::vector<RigFault::FaultFace>& faultFaces = rigFault->faultFaces();
+
+        for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+        {
+            if (faultFaces[fIdx].m_nativeReservoirCellIndex == cellIndex)
+            {
+                if (face == faultFaces[fIdx].m_nativeFace )
+                {
+                    return rigFault;
+                }
+            }
+
+            if (faultFaces[fIdx].m_oppositeReservoirCellIndex == cellIndex)
+            {
+                if (face == cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace))
+                {
+                    return rigFault;
+                }
+            }
+        }
+    }
+#endif
+    return NULL;
 }

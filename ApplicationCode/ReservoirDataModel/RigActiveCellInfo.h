@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -32,15 +34,15 @@ class RigActiveCellInfo : public cvf::Object
 public:
     RigActiveCellInfo();
 
-    void                setGlobalCellCount(size_t globalCellCount);
-    size_t              globalCellCount() const;
-    size_t              globalActiveCellCount() const;
-    size_t              globalCellResultCount() const;
+    void                setReservoirCellCount(size_t reservoirCellCount);
+    size_t              reservoirCellCount() const;
+    size_t              reservoirActiveCellCount() const;
+    size_t              reservoirCellResultCount() const;
     bool                isCoarseningActive() const;
 
-    bool                isActive(size_t globalCellIndex) const;
-    size_t              cellResultIndex(size_t globalCellIndex) const;
-    void                setCellResultIndex(size_t globalCellIndex, size_t globalResultCellIndex);
+    bool                isActive(size_t reservoirCellIndex) const;
+    size_t              cellResultIndex(size_t reservoirCellIndex) const;
+    void                setCellResultIndex(size_t reservoirCellIndex, size_t globalResultCellIndex);
 
     void                setGridCount(size_t gridCount);
     void                setGridActiveCellCounts(size_t gridIndex, size_t activeCellCount);
@@ -72,8 +74,8 @@ private:
 
     std::vector<size_t>                 m_cellIndexToResultIndex;
 
-    size_t                              m_globalActiveCellCount;
-    size_t                              m_globalCellResultCount;
+    size_t                              m_reservoirActiveCellCount;
+    size_t                              m_reservoirCellResultCount;
 
     cvf::Vec3st                         m_activeCellPositionMin;
     cvf::Vec3st                         m_activeCellPositionMax;

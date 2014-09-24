@@ -1,7 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,33 +19,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimCaseCollection.h"
 
-#include "RimCase.h"
-#include "RimReservoirView.h"
-#include "RigCaseData.h"
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-
-#include "RimResultSlot.h"
+#include "RigCaseData.h"
+#include "RigGridManager.h"
+#include "RimCase.h"
+#include "RimCaseCollection.h"
 #include "RimCellEdgeResultSlot.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirView.h"
+#include "RimResultCase.h"
+#include "RimResultSlot.h"
 #include "RimStatisticsCase.h"
 
-#include "RimResultCase.h"
 #include "cafProgressInfo.h"
-#include "RigActiveCellInfo.h"
-#include "RigActiveCellInfo.h"
-
-#include "RigGridManager.h"
-#include "RimReservoirCellResultsCacher.h"
-
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
-
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
 
@@ -235,7 +224,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 {
-    if (m_unionOfMatrixActiveCells->globalActiveCellCount() > 0)
+    if (m_unionOfMatrixActiveCells->reservoirActiveCellCount() > 0)
     {
         return;
     }
@@ -247,8 +236,8 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         return;
     }
 
-    m_unionOfMatrixActiveCells->setGlobalCellCount(m_mainGrid->cells().size());
-    m_unionOfFractureActiveCells->setGlobalCellCount(m_mainGrid->cells().size());
+    m_unionOfMatrixActiveCells->setReservoirCellCount(m_mainGrid->cells().size());
+    m_unionOfFractureActiveCells->setReservoirCellCount(m_mainGrid->cells().size());
     m_unionOfMatrixActiveCells->setGridCount(m_mainGrid->gridCount());
     m_unionOfFractureActiveCells->setGridCount(m_mainGrid->gridCount());
 
@@ -262,25 +251,25 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         std::vector<char> activeM(grid->cellCount(), 0);
         std::vector<char> activeF(grid->cellCount(), 0);
 
-        for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
+        for (size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++)
         {
             for (size_t caseIdx = 0; caseIdx < caseCollection->reservoirs.size(); caseIdx++)
             {
-                size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
+                size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
 
-                if (activeM[localGridCellIdx] == 0)
+                if (activeM[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(globalCellIdx))
+                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(reservoirCellIndex))
                     {
-                        activeM[localGridCellIdx] = 1;
+                        activeM[gridLocalCellIndex] = 1;
                     }
                 }
 
-                if (activeF[localGridCellIdx] == 0)
+                if (activeF[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(globalCellIdx))
+                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(reservoirCellIndex))
                     {
-                        activeF[localGridCellIdx] = 1;
+                        activeF[gridLocalCellIndex] = 1;
                     }
                 }
             }
@@ -289,19 +278,19 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         size_t activeMatrixIndex = 0;
         size_t activeFractureIndex = 0;
 
-        for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
+        for (size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++)
         {
-            size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
+            size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
 
-            if (activeM[localGridCellIdx] != 0)
+            if (activeM[gridLocalCellIndex] != 0)
             {
-                m_unionOfMatrixActiveCells->setCellResultIndex(globalCellIdx, globalActiveMatrixIndex++);
+                m_unionOfMatrixActiveCells->setCellResultIndex(reservoirCellIndex, globalActiveMatrixIndex++);
                 activeMatrixIndex++;
             }
 
-            if (activeF[localGridCellIdx] != 0)
+            if (activeF[gridLocalCellIndex] != 0)
             {
-                m_unionOfFractureActiveCells->setCellResultIndex(globalCellIdx, globalActiveFractureIndex++);
+                m_unionOfFractureActiveCells->setCellResultIndex(reservoirCellIndex, globalActiveFractureIndex++);
                 activeFractureIndex++;
             }
         }

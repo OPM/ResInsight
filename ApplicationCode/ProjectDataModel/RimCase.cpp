@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,51 +18,30 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-//#include "RiaStdInclude.h"
 #include "RimCase.h"
+
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+
+#include "RimCaseCollection.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellPropertyFilter.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+
+#include "cafPdmDocument.h"
+#include "cafProgressInfo.h"
 
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
 
-#include "RifReaderEclipseOutput.h"
-#include "RifReaderMockModel.h"
-
-#include "RimReservoirView.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilter.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimWellCollection.h"
-#include "RimWellPathCollection.h"
-
-#include "RimScriptCollection.h"
-
-#include "RigCaseData.h"
-#include "RigMainGrid.h"
-#include "RigCaseCellResultsData.h"
-
-#include "cvfAssert.h"
-
-#include "cafPdmFieldCvfColor.h"
-
-#include "cafPdmUiPushButtonEditor.h"
-
-#include <QString>
-#include "RimProject.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimResultSlot.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCaseCollection.h"
-#include "RimOilField.h"
-#include "RimAnalysisModels.h"
-#include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 
@@ -158,6 +139,8 @@ RimReservoirView* RimCase::createAndAddReservoirView()
 {
     RimReservoirView* riv = new RimReservoirView();
     riv->setEclipseCase(this);
+
+    caf::PdmDocument::updateUiIconStateRecursively(riv);
 
     size_t i = reservoirViews().size();
     riv->name = QString("View %1").arg(i + 1);
@@ -324,9 +307,13 @@ void RimCase::computeCachedData()
         rigEclipseCase->mainGrid()->computeCachedData();
         pInf.incrementProgress();
 
-        pInf.setProgressDescription("Calculating faults");
-        rigEclipseCase->mainGrid()->calculateFaults();
-        pInf.incrementProgress();
+        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+        if (prefs->autocomputeGridFaults)
+        {
+            pInf.setProgressDescription("Calculating faults");
+            rigEclipseCase->mainGrid()->calculateFaults();
+            pInf.incrementProgress();
+        }
     }
 }
 
@@ -553,4 +540,41 @@ QString RimCase::relocateFile(const QString& orgFileName,  const QString& orgNew
     if (foundFile) *foundFile = false;
 
     return fileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCase::openReserviorCase()
+{
+    // If read already, return
+
+    if (this->reservoirData() != NULL) return true;
+    
+    if (!openEclipseGridFile())
+    {
+        return false;
+    }
+
+    {
+        RimReservoirCellResultsStorage* results = this->results(RifReaderInterface::MATRIX_RESULTS);
+        if (results->cellResults())
+        {
+            results->cellResults()->createPlaceholderResultEntries();
+            // After the placeholder result for combined transmissibility is created, 
+            // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
+            size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
+            if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
+            {
+                reservoirData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
+            }
+        }
+
+    }
+    {
+        RimReservoirCellResultsStorage* results = this->results(RifReaderInterface::FRACTURE_RESULTS);
+        if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
+    }
+
+    return true;
 }

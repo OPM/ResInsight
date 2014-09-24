@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,20 +18,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-//#include "RiaStdInclude.h"
-
 #include "RimCellRangeFilterCollection.h"
+
 #include "RimCase.h"
+#include "RigGridBase.h"
 #include "RimReservoirView.h"
 #include "RigCaseData.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimWellCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
@@ -146,7 +140,7 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    updateUiIconFromState(isActive);
+    this->updateUiIconFromToggleField();
 
     CVF_ASSERT(m_reservoirView);
 
@@ -192,8 +186,9 @@ void RimCellRangeFilterCollection::initAfterRead()
         RimCellRangeFilter* rangeFilter = *it;
         rangeFilter->setParentContainer(this);
         rangeFilter->updateIconState();
-
     }
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

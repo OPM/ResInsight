@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -47,16 +48,10 @@ public:
 
     void setCellVisibility(const cvf::UByteArray* cellVisibilities );
     
-    void textureCoordinates(cvf::Vec2fArray* textureCoords, 
-        const cvf::StructGridScalarDataAccess* dataAccessObject, 
-        const cvf::ScalarMapper* mapper) const;
-
     // Mapping between cells and geometry
-    cvf::ref<cvf::Array<size_t> >                               triangleToSourceGridCellMap() const;
-    cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> >   triangleToFaceType() const;
 
-    const std::vector<size_t>&                                  quadToGridCellIndices() const;
-    const std::vector<cvf::StructGridInterface::FaceType>&      quadToFace() const;
+    const cvf::StructGridQuadToCellFaceMapper*		quadToCellFaceMapper()     { return m_quadMapper.p(); }
+    const cvf::StuctGridTriangleToCellFaceMapper*	triangleToCellFaceMapper() { return m_triangleMapper.p(); }
 
     // Generated geometry
     cvf::ref<cvf::DrawableGeo>    generateSurface();
@@ -70,18 +65,19 @@ private:
 
 private:
     // Input
-    cvf::cref<cvf::StructGridInterface> m_grid;
-    cvf::cref<RigFault>                 m_fault;
-    cvf::cref<cvf::UByteArray>          m_cellVisibility;
+    cvf::cref<cvf::StructGridInterface>     m_grid;
+    cvf::cref<RigFault>                     m_fault;
+    cvf::cref<cvf::UByteArray>              m_cellVisibility;
     
-    bool                                m_computeNativeFaultFaces;
+    bool                                    m_computeNativeFaultFaces;
 
     // Created arrays
-    cvf::ref<cvf::Vec3fArray>           m_vertices;
+    cvf::ref<cvf::Vec3fArray>               m_vertices;
     
     // Mappings
-    std::vector<size_t>                 m_triangleIndexToGridCellIndex;
-    std::vector<size_t>                 m_quadsToGridCells;
+    std::vector<size_t>                     m_quadsToGridCells;
     std::vector<cvf::StructGridInterface::FaceType>   m_quadsToFace;
-    std::vector<cvf::StructGridInterface::FaceType>   m_triangleToFace;
+
+    cvf::ref<cvf::StructGridQuadToCellFaceMapper>     m_quadMapper;
+    cvf::ref<cvf::StuctGridTriangleToCellFaceMapper>  m_triangleMapper;
 };

@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,47 +18,34 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimUiTreeModelPdm.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
 
-#include "cafPdmObject.h"
-#include "RimCellPropertyFilter.h"
-#include "RimCellPropertyFilterCollection.h"
-
-#include "RimReservoirView.h"
-#include "RiuViewer.h"
-#include "RimCalcScript.h"
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
+#include "RigGridManager.h"
+#include "RimAnalysisModels.h"
+#include "RimCase.h"
+#include "RimCaseCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimInputCase.h"
 #include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"
-#include "cafPdmField.h"
-#include "RimInputCase.h"
-#include "RimStatisticsCase.h"
-#include "RimResultCase.h"
-#include "RigGridManager.h"
-#include "RimCase.h"
-#include "RigCaseData.h"
 #include "RimMimeData.h"
-#include "RimCaseCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimProject.h"
-#include "RimScriptCollection.h"
-#include "RimWellCollection.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimWellPathCollection.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
+#include "RimProject.h"
+#include "RimReservoirView.h"
+#include "RimResultCase.h"
+#include "RimScriptCollection.h"
+#include "RimStatisticsCase.h"
 #include "RimUiTreeView.h"
+#include "RimWellCollection.h"
+#include "RimWellPathCollection.h"
 
+#include "cvfAssert.h"
+
+#include <QClipboard>
+#include <QFileSystemWatcher>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -623,7 +612,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects)
+void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmObjectGroup& pdmObjects)
 {
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
@@ -651,6 +640,8 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             mainResultCase->readGridDimensions(mainCaseGridDimensions);
         }
 
+        std::vector<RimResultCase*> insertedCases;
+
         // Add cases to case group
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
@@ -663,6 +654,22 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 continue;
             }
 
+            insertedCases.push_back(rimResultReservoir);
+        }
+
+        // Initialize the new objects
+        for (size_t i = 0; i < insertedCases.size(); i++)
+        {
+            RimResultCase* rimResultReservoir = insertedCases[i];
+            caf::PdmDocument::initAfterReadTraversal(rimResultReservoir);
+        }
+
+        // Load stuff 
+        for (size_t i = 0; i < insertedCases.size(); i++)
+        {
+            RimResultCase* rimResultReservoir = insertedCases[i];
+
+ 
             if (!mainResultCase)
             {
                 rimResultReservoir->openEclipseGridFile();
@@ -691,7 +698,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
             if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
 
-            caf::PdmObjectGroup::initAfterReadTraversal(rimResultReservoir);
+            caf::PdmDocument::updateUiIconStateRecursively(rimResultReservoir);
 
             {
                 QModelIndex rootIndex = getModelIndexFromPdmObject(gridCaseGroup->caseCollection());
@@ -703,9 +710,9 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 endInsertRows();
             }
 
-            for (size_t i = 0; i < rimResultReservoir->reservoirViews.size(); i++)
+            for (size_t rvIdx = 0; rvIdx < rimResultReservoir->reservoirViews.size(); rvIdx++)
             {
-                RimReservoirView* riv = rimResultReservoir->reservoirViews()[i];
+                RimReservoirView* riv = rimResultReservoir->reservoirViews()[rvIdx];
                 riv->loadDataAndUpdate();
             }
         }
@@ -730,16 +737,17 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             RimReservoirView* rimReservoirView = typedObjects[i];
             QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
             rimReservoirView->name = nameOfCopy;
-
-            rimReservoirView->setEclipseCase(rimCase);
-
+            rimCase->reservoirViews().push_back(rimReservoirView);
+ 
             // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
             rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
 
-            caf::PdmObjectGroup::initAfterReadTraversal(rimReservoirView);
+            caf::PdmDocument::initAfterReadTraversal(rimReservoirView);
+            rimReservoirView->setEclipseCase(rimCase);
+
+            caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
 
             rimReservoirView->loadDataAndUpdate(); 
-            rimCase->reservoirViews().push_back(rimReservoirView);
 
             int position = static_cast<int>(rimCase->reservoirViews().size());
             beginInsertRows(collectionIndex, position, position);

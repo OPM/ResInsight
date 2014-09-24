@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -123,15 +125,17 @@ public:
     RINavigationPolicy  navigationPolicy() const;
     QString             scriptDirectories() const;
     QString             scriptEditorPath() const;
+    
     QString             octavePath() const;
+    QStringList         octaveArguments() const;
 
     bool                launchProcess(const QString& program, const QStringList& arguments);
     bool                launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
     void                terminateProcess();
     
     RiaPreferences*     preferences();
-    void                readFieldsFromApplicationStore(caf::PdmObject* object);
-    void                writeFieldsToApplicationStore(const caf::PdmObject* object);
+    void                readFieldsFromApplicationStore(caf::PdmObject* object, const QString context = "");
+    void                writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context = "");
     void                applyPreferences();
 
     cvf::Font*          standardFont();

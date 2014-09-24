@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,66 +18,50 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-//#include "RiaStdInclude.h"
 #include "RimReservoirView.h"
-#include "RiuViewer.h"
-#include "cvfViewport.h" 
-#include "cvfModelBasicList.h"
-#include "cvfPart.h"
-#include "cvfDrawable.h"
-#include "cvfScene.h"
 
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include <QMessageBox>
-
-
-#include "RimProject.h"
-#include "RimCase.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilter.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellPathCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimScriptCollection.h"
-#include "RimCaseCollection.h"
-#include "RimOilField.h"
-#include "RimAnalysisModels.h"
-#include "RimTernaryLegendConfig.h"
-
-#include "RiuMainWindow.h"
-#include "RigGridBase.h"
-#include "RigCaseData.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-
-#include "cafEffectGenerator.h"
-#include "cafFrameAnimationControl.h"
-
-#include "cvfStructGridGeometryGenerator.h"
 #include "RigCaseCellResultsData.h"
-#include "RivCellEdgeEffectGenerator.h"
-#include "cvfqtUtils.h"
-#include "RivReservoirViewPartMgr.h"
+#include "RigCaseData.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCase.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimFaultCollection.h"
+#include "RimFaultResultSlot.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimResultSlot.h"
+#include "RimTernaryLegendConfig.h"
+#include "RimWell.h"
+#include "RimWellCollection.h"
+#include "RimWellPathCollection.h"
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
 #include "RivReservoirPipesPartMgr.h"
+#include "RivTernarySaturationOverlayItem.h"
+#include "RivWellPathCollectionPartMgr.h"
 
 #include "cafCadNavigation.h"
-#include "cafCeetronNavigation.h"
-#include "RimCase.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RigGridScalarDataAccess.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RivWellPathCollectionPartMgr.h"
+#include "cafCeetronPlusNavigation.h"
+#include "cafFrameAnimationControl.h"
+
+#include "cvfDrawable.h"
+#include "cvfModelBasicList.h"
 #include "cvfOverlayScalarMapperLegend.h"
+#include "cvfPart.h"
+#include "cvfScene.h"
+#include "cvfViewport.h" 
+#include "cvfqtUtils.h"
+
+#include <QMessageBox>
 
 #include <limits.h>
-#include "cafCeetronPlusNavigation.h"
-#include "RimFaultCollection.h"
-#include "RivTernarySaturationOverlayItem.h"
+
 
 namespace caf {
 
@@ -120,6 +106,9 @@ RimReservoirView::RimReservoirView()
 
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
+
+    CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Separate Fault Result", "", "", "");
+    faultResultSettings = new RimFaultResultSlot();
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
@@ -181,6 +170,8 @@ RimReservoirView::RimReservoirView()
     this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
+    this->faultResultSettings()->setReservoirView(this);
+
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
 
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
@@ -194,6 +185,7 @@ RimReservoirView::RimReservoirView()
 //--------------------------------------------------------------------------------------------------
 RimReservoirView::~RimReservoirView()
 {
+    delete this->faultResultSettings();
     delete this->cellResult();
     delete this->cellEdgeResult();
     delete this->overlayInfoConfig();
@@ -235,8 +227,10 @@ void RimReservoirView::updateViewerWidget()
             this->cellResult()->legendConfig->recreateLegend();
             this->cellResult()->ternaryLegendConfig->recreateLegend();
             this->cellEdgeResult()->legendConfig->recreateLegend();
-            m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
-            m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
+
+            m_viewer->removeAllColorLegends();
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
 
             if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
             {
@@ -425,7 +419,7 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
             }
         }
 
-        this->updateUiIconFromState(showWindow);
+        this->updateUiIconFromToggleField();
     }
     else if (changedField == &backgroundColor ) 
     {
@@ -530,10 +524,7 @@ void RimReservoirView::createDisplayModel()
 
     // Find the number of time frames the animation needs to show the requested data.
 
-    if (this->cellResult()->hasDynamicResult() 
-        || this->propertyFilterCollection()->hasActiveDynamicFilters() 
-        || this->wellCollection->hasVisibleWellPipes()
-        || this->cellResult()->isTernarySaturationSelected())
+    if (isTimeStepDependentDataVisible())
     {
         CVF_ASSERT(currentGridCellResults());
 
@@ -633,9 +624,11 @@ void RimReservoirView::createDisplayModel()
         m_visibleGridParts = geometryTypesToAdd;
     }
 
-    if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters)
+    if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters())
     {
-        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultParts();
+        updateFaultForcedVisibility();
+
+        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
         RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
 
@@ -648,8 +641,6 @@ void RimReservoirView::createDisplayModel()
 
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
         }
-
-        updateFaultForcedVisibility();
 
     }
 
@@ -697,7 +688,7 @@ void RimReservoirView::createDisplayModel()
 
     // If the animation was active before recreating everything, make viewer view current frame
 
-    if (isAnimationActive)
+    if (isAnimationActive || cellResult->hasResult())
     {
         m_viewer->slotSetCurrentFrame(m_currentTimeStep);
     }
@@ -727,9 +718,9 @@ void RimReservoirView::updateCurrentTimeStep()
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
 
-        if (faultCollection()->showFaultsOutsideFilters)
+        if (faultCollection()->showFaultsOutsideFilters())
         {
-            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultParts();
+            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
             for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
             {
@@ -761,7 +752,7 @@ void RimReservoirView::updateCurrentTimeStep()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
 
-                if (!faultCollection()->showFaultsOutsideFilters)
+                if (!faultCollection()->showFaultsOutsideFilters())
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE); 
                 }
@@ -770,7 +761,7 @@ void RimReservoirView::updateCurrentTimeStep()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
 
-                if (!faultCollection()->showFaultsOutsideFilters)
+                if (!faultCollection()->showFaultsOutsideFilters())
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE);
                 }
@@ -817,7 +808,7 @@ void RimReservoirView::updateCurrentTimeStep()
     {
         if (this->animationMode() && this->cellEdgeResult()->hasResult())
         {
-            m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
+			m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
         } 
         else if ((this->animationMode() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
         {
@@ -916,7 +907,7 @@ void RimReservoirView::loadDataAndUpdate()
 
     if (m_reservoir)
     {
-        if (!m_reservoir->openEclipseGridFile())
+        if (!m_reservoir->openReserviorCase())
         {
             QMessageBox::warning(RiuMainWindow::instance(), 
                                 "Error when opening project file", 
@@ -924,35 +915,16 @@ void RimReservoirView::loadDataAndUpdate()
             m_reservoir = NULL;
             return;
         }
-        else
-        {
-            RiaApplication* app = RiaApplication::instance();
-            if (app->preferences()->autocomputeSOIL)
-            {
-                {
-                    RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::MATRIX_RESULTS);
-                    results->loadOrComputeSOIL();
-                    results->createCombinedTransmissibilityResults();
-                }
-                {
-                    RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::FRACTURE_RESULTS);
-                    results->loadOrComputeSOIL();
-                    results->createCombinedTransmissibilityResults();
-                }
-            }
-        }
     }
 
     CVF_ASSERT(this->cellResult() != NULL);
     this->cellResult()->loadResult();
 
-    if (m_reservoir->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount() == 0)
-    {
-        this->cellResult->setPorosityModelUiFieldHidden(true);
-    }
-
     CVF_ASSERT(this->cellEdgeResult() != NULL);
     this->cellEdgeResult()->loadResult();
+
+    this->faultResultSettings()->customFaultResult()->loadResult();
+    this->faultResultSettings()->updateFieldVisibility();
 
     updateViewerWidget();
 
@@ -981,11 +953,13 @@ void RimReservoirView::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::initAfterRead()
 {
+    this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);
     this->rangeFilterCollection()->setReservoirView(this);
     this->propertyFilterCollection()->setReservoirView(this);
 
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,180 +1032,6 @@ RiuViewer* RimReservoirView::viewer()
 {
     return m_viewer;
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// Get pick info text for given part ID, face index, and intersection point
-//--------------------------------------------------------------------------------------------------
-bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const
-{
-    CVF_ASSERT(pickInfoText);
-
-    if (m_reservoir)
-    {
-        const RigCaseData* eclipseCase = m_reservoir->reservoirData();
-        if (eclipseCase)
-        {
-            size_t i = 0;
-            size_t j = 0;
-            size_t k = 0;
-            if (eclipseCase->grid(gridIndex)->ijkFromCellIndex(cellIndex, &i, &j, &k))
-            {
-                // Adjust to 1-based Eclipse indexing
-                i++;
-                j++;
-                k++;
-
-                cvf::Vec3d domainCoord = point + eclipseCase->grid(gridIndex)->displayModelOffset();
-
-                cvf::StructGridInterface::FaceEnum faceEnum(face);
-                
-                QString faceText = faceEnum.text();
-
-                *pickInfoText = QString("Hit grid %1, cell [%2, %3, %4] face %5, ").arg(gridIndex).arg(i).arg(j).arg(k).arg(faceText);
-
-                QString formattedText;
-                formattedText.sprintf("intersection point: [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
-
-                *pickInfoText += formattedText;
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Append fault name and result value for the given cell to the string
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face,  QString* resultInfoText) 
-{
-    CVF_ASSERT(resultInfoText);
-
-    if (m_reservoir && m_reservoir->reservoirData())
-    {
-        RigCaseData* eclipseCase = m_reservoir->reservoirData();
-        RigGridBase* grid = eclipseCase->grid(gridIndex);
-
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;
-
-        if (this->cellResult()->isTernarySaturationSelected())
-        {
-            RimReservoirCellResultsStorage* gridCellResults = this->cellResult()->currentGridCellResults();
-            if (gridCellResults)
-            {
-                size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-                size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-                size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
-
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, soilScalarSetIndex);
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, sgasScalarSetIndex);
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, swatScalarSetIndex);
-
-                double scalarValue = 0.0;
-                
-                if (dataAccessObjectX.notNull()) scalarValue = dataAccessObjectX->cellScalar(cellIndex);
-                else scalarValue = 0.0;
-                resultInfoText->append(QString("SOIL : %1\n").arg(scalarValue));
-
-                if (dataAccessObjectY.notNull()) scalarValue = dataAccessObjectY->cellScalar(cellIndex);
-                else scalarValue = 0.0;
-                resultInfoText->append(QString("SGAS : %1\n").arg(scalarValue));
-
-                if (dataAccessObjectZ.notNull()) scalarValue = dataAccessObjectZ->cellScalar(cellIndex);
-                else scalarValue = 0.0;
-                resultInfoText->append(QString("SWAT : %1\n").arg(scalarValue));
-            }
-        }
-        else if (this->cellResult()->hasResult())
-        {
-            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;
-            
-            if (cellResult->hasStaticResult())
-            {
-                if (this->cellResult()->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
-                {
-                    size_t tranX, tranY, tranZ;
-                    if (eclipseCase->results(porosityModel)->findTransmissibilityResults(tranX, tranY, tranZ))
-                    {
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranX);
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranY);
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranZ);
-
-                        double scalarValue = dataAccessObjectX->cellScalar(cellIndex);
-                        resultInfoText->append(QString("Tran X : %1\n").arg(scalarValue));
-
-                        scalarValue = dataAccessObjectY->cellScalar(cellIndex);
-                        resultInfoText->append(QString("Tran Y : %1\n").arg(scalarValue));
-
-                        scalarValue = dataAccessObjectZ->cellScalar(cellIndex);
-                        resultInfoText->append(QString("Tran Z : %1\n").arg(scalarValue));
-                    }
-                }
-                else
-                {
-                    dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
-                }
-            }
-            else
-            {
-                dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
-            }
-
-            if (dataAccessObject.notNull())
-            {
-                double scalarValue = dataAccessObject->cellScalar(cellIndex);
-                resultInfoText->append(QString("Cell result : %1\n").arg(scalarValue));
-            }
-        }
-
-        if (this->cellEdgeResult()->hasResult())
-        {
-            size_t resultIndices[6];
-            QStringList resultNames;
-            this->cellEdgeResult()->gridScalarIndices(resultIndices);
-            this->cellEdgeResult()->gridScalarResultNames(&resultNames);
-
-            for (int idx = 0; idx < 6; idx++)
-            {
-                if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
-
-                // Cell edge results are static, results are loaded for first time step only
-                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, resultIndices[idx]);
-                if (dataAccessObject.notNull())
-                {
-                    double scalarValue = dataAccessObject->cellScalar(cellIndex);
-                    resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
-                }
-            }
-        }
-
-        cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
-        for (size_t i = 0; i < wellResults.size(); i++)
-        {
-            RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
-
-            if (m_currentTimeStep < static_cast<int>(singleWellResultData->firstResultTimeStep()))
-            {
-                continue;
-            }
-
-            const RigWellResultFrame& wellResultFrame = singleWellResultData->wellResultFrame(m_currentTimeStep);
-            const RigWellResultPoint* wellResultCell = wellResultFrame.findResultCell(gridIndex, cellIndex);
-            if (wellResultCell)
-            {
-                resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
-            }
-        }
-        
-        appendFaultName(grid, cellIndex, face, resultInfoText);
-    }
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1384,6 +1184,11 @@ void RimReservoirView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateLegends()
 {
+    if (m_viewer)
+    {
+        m_viewer->removeAllColorLegends();
+    }
+
     if (!m_reservoir || !m_viewer || !m_reservoir->reservoirData() )
     {
         return;
@@ -1396,40 +1201,10 @@ void RimReservoirView::updateLegends()
     RigCaseCellResultsData* results = eclipseCase->results(porosityModel);
     CVF_ASSERT(results);
 
-    if (this->cellResult()->hasResult())
+    updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
+    if (this->faultResultSettings()->showCustomFaultResult() && this->faultResultSettings()->hasValidCustomResult())
     {
-        double globalMin, globalMax;
-        double globalPosClosestToZero, globalNegClosestToZero;
-        results->minMaxCellScalarValues(this->cellResult()->gridScalarIndex(), globalMin, globalMax);
-        results->posNegClosestToZero(this->cellResult()->gridScalarIndex(), globalPosClosestToZero, globalNegClosestToZero);
-
-        double localMin, localMax;
-        double localPosClosestToZero, localNegClosestToZero;
-        if (this->cellResult()->hasDynamicResult())
-        {
-            results->minMaxCellScalarValues(this->cellResult()->gridScalarIndex(), m_currentTimeStep, localMin, localMax);
-            results->posNegClosestToZero(this->cellResult()->gridScalarIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
-        }
-        else
-        {
-             localMin = globalMin;
-             localMax = globalMax;
-
-             localPosClosestToZero = globalPosClosestToZero;
-             localNegClosestToZero = globalNegClosestToZero;
-        }
-
-        this->cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        this->cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-
-        m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
-        this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Cell Results: \n") + this->cellResult()->resultVariable()));
-    }
-    else
-    {
-        this->cellResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        this->cellResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
-        m_viewer->setColorLegend1(NULL);
+        updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->currentFaultResultSlot(), results);
     }
 
     if (this->cellEdgeResult()->hasResult())
@@ -1442,24 +1217,60 @@ void RimReservoirView::updateLegends()
         this->cellEdgeResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
 
-        m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
+        m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
         this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
-
     }
     else
     {
-        m_viewer->setColorLegend2(NULL);
         this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
+}
 
-    
-    viewer()->removeOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
-
-    size_t maxTimeStepCount = results->maxTimeStepCount();
-    if (this->cellResult()->isTernarySaturationSelected() && maxTimeStepCount > 1)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData)
+{
+    if (resultSlot->hasResult())
     {
-        RimReservoirCellResultsStorage* gridCellResults = this->cellResult()->currentGridCellResults();
+        double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
+        cellResultsData->minMaxCellScalarValues(resultSlot->scalarResultIndex(), globalMin, globalMax);
+        cellResultsData->posNegClosestToZero(resultSlot->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
+
+        double localMin, localMax;
+        double localPosClosestToZero, localNegClosestToZero;
+        if (resultSlot->hasDynamicResult())
+        {
+            cellResultsData->minMaxCellScalarValues(resultSlot->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
+            cellResultsData->posNegClosestToZero(resultSlot->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+        }
+        else
+        {
+            localMin = globalMin;
+            localMax = globalMax;
+
+            localPosClosestToZero = globalPosClosestToZero;
+            localNegClosestToZero = globalNegClosestToZero;
+        }
+
+        resultSlot->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        resultSlot->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+        m_viewer->addColorLegendToBottomLeftCorner(resultSlot->legendConfig->legend());
+        resultSlot->legendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultSlot->resultVariable()));
+    }
+    else
+    {
+        resultSlot->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
+        resultSlot->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+    }
+
+    size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
+    if (resultSlot->isTernarySaturationSelected() && maxTimeStepCount > 1)
+    {
+        RimReservoirCellResultsStorage* gridCellResults = resultSlot->currentGridCellResults();
         {
             double globalMin = 0.0;
             double globalMax = 1.0;
@@ -1469,10 +1280,10 @@ void RimReservoirView::updateLegends()
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
-                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
+                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
             }
         }
 
@@ -1485,10 +1296,10 @@ void RimReservoirView::updateLegends()
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
-                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
             }
         }
 
@@ -1501,16 +1312,17 @@ void RimReservoirView::updateLegends()
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
-                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
             }
         }
 
-        if (this->cellResult()->ternaryLegendConfig->legend())
+        if (resultSlot->ternaryLegendConfig->legend())
         {
-            viewer()->addOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
+            resultSlot->ternaryLegendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel));
+            m_viewer->addColorLegendToBottomLeftCorner(resultSlot->ternaryLegendConfig->legend());
         }
     }
 }
@@ -1639,9 +1451,9 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                 if (wellResFrames[wfIdx].m_wellHead.m_gridIndex == grid->gridIndex())
                 {
                     size_t gridCellIndex = wellResFrames[wfIdx].m_wellHead.m_gridCellIndex;
-                    size_t globalGridCellIndex = grid->globalGridCellIndex(gridCellIndex);
+                    size_t reservoirCellIndex = grid->reservoirCellIndex(gridCellIndex);
 
-                    if (activeCellInfo->isActive(globalGridCellIndex))
+                    if (activeCellInfo->isActive(reservoirCellIndex))
                     {
                         (*visibleCells)[gridCellIndex] = true;
                     }
@@ -1696,9 +1508,9 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                                 for ( fIdx = 0; fIdx < cellCountFenceDirection; ++fIdx)
                                 {
                                     size_t fenceCellIndex = grid->cellIndexFromIJK(*pI,*pJ,*pK);
-                                    size_t globalGridCellIndex = grid->globalGridCellIndex(fenceCellIndex);
+                                    size_t reservoirCellIndex = grid->reservoirCellIndex(fenceCellIndex);
 
-                                    if (activeCellInfo && activeCellInfo->isActive(globalGridCellIndex))
+                                    if (activeCellInfo && activeCellInfo->isActive(reservoirCellIndex))
                                     {
                                         (*visibleCells)[fenceCellIndex] = true;
                                     }
@@ -1868,91 +1680,6 @@ void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
-{
-    CVF_ASSERT(resultInfo);
-
-    if (m_reservoir && m_reservoir->reservoirData())
-    {
-        RigCaseData* eclipseCase = m_reservoir->reservoirData();
-
-        RigMainGrid* grid = eclipseCase->mainGrid();
-        CVF_ASSERT(grid);
-        
-        RigNNCData* nncData = grid->nncData();
-        CVF_ASSERT(nncData);
-
-        if (nncData)
-        {
-            const RigConnection& conn = nncData->connections()[nncIndex];
-            cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
-
-            QString faultName;
-        
-            resultInfo->append(QString("NNC Transmissibility : %1\n").arg(conn.m_transmissibility));
-            {
-                CVF_ASSERT(conn.m_c1GlobIdx < grid->cells().size());
-                const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
-
-                RigGridBase* hostGrid = cell.hostGrid();
-                size_t localCellIndex = cell.cellIndex();
-
-                size_t i, j, k;
-                if (hostGrid->ijkFromCellIndex(localCellIndex, &i, &j, &k))
-                {
-                    // Adjust to 1-based Eclipse indexing
-                    i++;
-                    j++;
-                    k++;
-
-                    QString gridName = QString::fromStdString(hostGrid->gridName());
-                    resultInfo->append(QString("NNC 1 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(face.text()).arg(gridName));
-
-                    appendFaultName(hostGrid, conn.m_c1GlobIdx, conn.m_c1Face, &faultName);
-                }
-            }
-
-            {
-                CVF_ASSERT(conn.m_c2GlobIdx < grid->cells().size());
-                const RigCell& cell = grid->cells()[conn.m_c2GlobIdx];
-
-                RigGridBase* hostGrid = cell.hostGrid();
-                size_t localCellIndex = cell.cellIndex();
-
-                size_t i, j, k;
-                if (hostGrid->ijkFromCellIndex(localCellIndex, &i, &j, &k))
-                {
-                    // Adjust to 1-based Eclipse indexing
-                    i++;
-                    j++;
-                    k++;
-
-                    QString gridName = QString::fromStdString(hostGrid->gridName());
-                    cvf::StructGridInterface::FaceEnum oppositeFaceEnum(cvf::StructGridInterface::oppositeFace(face));
-                    QString faceText = oppositeFaceEnum.text();
-
-                    resultInfo->append(QString("NNC 2 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(faceText).arg(gridName));
-
-                    if (faultName.isEmpty())
-                    {
-                        appendFaultName(hostGrid, conn.m_c2GlobIdx, cvf::StructGridInterface::oppositeFace(conn.m_c1Face), &faultName);
-                    }
-                }
-            }
-
-            resultInfo->append(QString("Face: %2\n").arg(face.text()));
-
-            if (!faultName.isEmpty())
-            {
-                resultInfo->append(faultName);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 ///     
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateFaultForcedVisibility()
@@ -1961,35 +1688,24 @@ void RimReservoirView::updateFaultForcedVisibility()
     // As fault geometry is visible in grid visualization mode, fault geometry must be forced visible
     // even if the fault item is disabled in project tree view
 
-    caf::FixedArray<bool, RivReservoirViewPartMgr::PROPERTY_FILTERED> forceOn;
-
-    for (size_t i = 0; i < RivReservoirViewPartMgr::PROPERTY_FILTERED; i++)
+    if (!faultCollection->showFaultCollection)
     {
-        forceOn[i] = false;
+        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::ALL_WELL_CELLS, true);
     }
 
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts = visibleFaultParts();
-    for (size_t i = 0; i < faultParts.size(); i++)
-    {
-        forceOn[faultParts[i]];
-    }
-
-    for (size_t i = 0; i < RivReservoirViewPartMgr::PROPERTY_FILTERED; i++)
-    {
-        RivReservoirViewPartMgr::ReservoirGeometryCacheType cacheType = (RivReservoirViewPartMgr::ReservoirGeometryCacheType)i;
-
-        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(cacheType, forceOn[i]);
-    }
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::RANGE_FILTERED, true);
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS, true);
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirView::visibleFaultParts() const
+std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirView::visibleFaultGeometryTypes() const
 {
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts;
 
-    if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters)
+    if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
     {
         faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED);
         faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
@@ -2063,50 +1779,60 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirVie
 void RimReservoirView::updateFaultColors()
 {
     // Update all fault geometry
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultParts();
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
+
+    RimResultSlot* faultResultSlot = currentFaultResultSlot();
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
-        m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
+		if (this->animationMode() && this->cellEdgeResult()->hasResult())
+		{
+			m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot, this->cellEdgeResult());
+		}
+		else
+		{
+			m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot);
+		}
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText)
+bool RimReservoirView::isTimeStepDependentDataVisible() const
 {
-    if (grid->isMainGrid())
+    if (this->cellResult()->hasDynamicResult()) return true;
+
+    if (this->propertyFilterCollection()->hasActiveDynamicFilters()) return true;
+        
+    if (this->wellCollection->hasVisibleWellPipes()) return true;
+
+    if (this->cellResult()->isTernarySaturationSelected()) return true;
+    
+    if (this->faultResultSettings->showCustomFaultResult())
     {
-        RigMainGrid* mainGrid = grid->mainGrid();
+        if (this->faultResultSettings->customFaultResult()->hasDynamicResult()) return true;
 
-        for (size_t i = 0; i < mainGrid->faults().size(); i++)
-        {
-            const RigFault* rigFault = mainGrid->faults().at(i);
-            const std::vector<RigFault::FaultFace>& faultFaces = rigFault->faultFaces();
-
-            for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
-            {
-                if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex)
-                {
-                    if (face == faultFaces[fIdx].m_nativeFace )
-                    {
-                        resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
-                    }
-
-                    return;
-                }
-
-                if (faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
-                {
-                    if (face == cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace))
-                    {
-                        resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
-                    }
-
-                    return;
-                }
-            }
-        }
+        if (this->faultResultSettings->customFaultResult()->isTernarySaturationSelected()) return true;
     }
+
+    return false;
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimResultSlot* RimReservoirView::currentFaultResultSlot()
+{
+    RimResultSlot* faultResultSlot = this->cellResult();
+
+    if (this->faultResultSettings()->showCustomFaultResult())
+    {
+        faultResultSlot = this->faultResultSettings()->customFaultResult();
+    }
+
+    return faultResultSlot;
+}
+

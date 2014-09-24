@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,7 +21,7 @@
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 #include "RigCaseCellResultsData.h"
-#include "RigGridScalarDataAccess.h"
+#include "RigResultAccessorFactory.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -33,6 +35,11 @@ RigCaseData::RigCaseData()
 
     m_activeCellInfo = new RigActiveCellInfo;
     m_fractureActiveCellInfo = new RigActiveCellInfo;
+
+    m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
+    m_fractureModelResults->setActiveCellInfo(m_fractureActiveCellInfo.p());
+
+    m_unitsType = UNITS_METRIC;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,9 +173,9 @@ void RigCaseData::computeWellCellsPrGrid()
 
             if (gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
             {
-                size_t globalGridCellIndex = grids[gridIndex]->globalGridCellIndex(gridCellIndex);
-                if (m_activeCellInfo->isActive(globalGridCellIndex) 
-                    || m_fractureActiveCellInfo->isActive(globalGridCellIndex))
+                size_t reservoirCellIndex = grids[gridIndex]->reservoirCellIndex(gridCellIndex);
+                if (m_activeCellInfo->isActive(reservoirCellIndex) 
+                    || m_fractureActiveCellInfo->isActive(reservoirCellIndex))
                 {
                     m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
                     m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
@@ -397,10 +404,12 @@ void RigCaseData::setActiveCellInfo(RifReaderInterface::PorosityModelResultType 
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {
         m_activeCellInfo = activeCellInfo;
+        m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
     }
     else
     {
         m_fractureActiveCellInfo = activeCellInfo;
+        m_fractureModelResults->setActiveCellInfo(m_fractureActiveCellInfo.p());
     }
 }
 
@@ -484,26 +493,6 @@ const RigCaseCellResultsData* RigCaseData::results(RifReaderInterface::PorosityM
 
     return m_fractureModelResults.p();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigCaseData::dataAccessObject(const RigGridBase* grid, 
-                                                                           RifReaderInterface::PorosityModelResultType porosityModel, 
-                                                                           size_t timeStepIndex, 
-                                                                           size_t scalarSetIndex)
-{
-    if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
-        scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-    {
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigGridScalarDataAccessFactory::createPerGridDataAccessObject( this, grid->gridIndex(), porosityModel, timeStepIndex, scalarSetIndex);
-        return dataAccess;
-    }
-
-    return NULL;
-
-}
-
 
 /*
 //--------------------------------------------------------------------------------------------------

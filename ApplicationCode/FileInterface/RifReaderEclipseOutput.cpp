@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,28 +18,29 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "cvfBase.h"
-
-#include "RigMainGrid.h"
-#include "RigCaseData.h"
-#include "RigCaseCellResultsData.h"
-
 #include "RifReaderEclipseOutput.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RigMainGrid.h"
+
+#include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifEclipseRestartFilesetAccess.h"
+#include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderInterface.h"
 
-#include <iostream>
+#include "cafProgressInfo.h"
 
 #include "ecl_grid.h"
 #include "well_state.h"
 #include "ecl_kw_magic.h"
 #include "ecl_nnc_export.h"
 
-#include "cafProgressInfo.h"
+#include <iostream>
 #include <map>
-#include "RifEclipseInputFileTools.h"
+#include <cmath> // Needed for HUGE_VAL on Linux
+
 
 //--------------------------------------------------------------------------------------------------
 ///     ECLIPSE cell numbering layout:
@@ -112,29 +115,29 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
     // Loop over cells and fill them with data
 
 #pragma omp parallel for
-    for (int localCellIdx = 0; localCellIdx < cellCount; ++localCellIdx)
+    for (int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex)
     {
-        RigCell& cell = mainGrid->cells()[cellStartIndex + localCellIdx];
+        RigCell& cell = mainGrid->cells()[cellStartIndex + gridLocalCellIndex];
 
-        cell.setCellIndex(localCellIdx);
+        cell.setGridLocalCellIndex(gridLocalCellIndex);
 
         // Active cell index
 
-        int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, localCellIdx);
+        int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, gridLocalCellIndex);
         if (matrixActiveIndex != -1)
         {
-            activeCellInfo->setCellResultIndex(cellStartIndex + localCellIdx, matrixActiveStartIndex + matrixActiveIndex);
+            activeCellInfo->setCellResultIndex(cellStartIndex + gridLocalCellIndex, matrixActiveStartIndex + matrixActiveIndex);
         }
 
-        int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, localCellIdx);
+        int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, gridLocalCellIndex);
         if (fractureActiveIndex != -1)
         {
-            fractureActiveCellInfo->setCellResultIndex(cellStartIndex + localCellIdx, fractureActiveStartIndex + fractureActiveIndex);
+            fractureActiveCellInfo->setCellResultIndex(cellStartIndex + gridLocalCellIndex, fractureActiveStartIndex + fractureActiveIndex);
         }
 
         // Parent cell index
 
-        int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, localCellIdx);
+        int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, gridLocalCellIndex);
         if (parentCellIndex == -1)
         {
             cell.setParentCellIndex(cvf::UNDEFINED_SIZE_T);
@@ -148,14 +151,14 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         int cIdx;
         for (cIdx = 0; cIdx < 8; ++cIdx)
         {
-            double * point = mainGrid->nodes()[nodeStartIndex + localCellIdx * 8 + cellMappingECLRi[cIdx]].ptr();
-            ecl_grid_get_corner_xyz1(localEclGrid, localCellIdx, cIdx, &(point[0]), &(point[1]), &(point[2]));
+            double * point = mainGrid->nodes()[nodeStartIndex + gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+            ecl_grid_get_corner_xyz1(localEclGrid, gridLocalCellIndex, cIdx, &(point[0]), &(point[1]), &(point[2]));
             point[2] = -point[2]; // Flipping Z making depth become negative z values
-            cell.cornerIndices()[cIdx] = nodeStartIndex + localCellIdx*8 + cIdx;
+            cell.cornerIndices()[cIdx] = nodeStartIndex + gridLocalCellIndex*8 + cIdx;
         }
 
         // Sub grid in cell
-        const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, localCellIdx);
+        const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, gridLocalCellIndex);
         if (subGrid != NULL)
         {
             int subGridId = ecl_grid_get_lgr_nr(subGrid);
@@ -287,8 +290,8 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         totalCellCount += ecl_grid_get_global_size(localEclGrid);
     }
     
-    activeCellInfo->setGlobalCellCount(totalCellCount);
-    fractureActiveCellInfo->setGlobalCellCount(totalCellCount);
+    activeCellInfo->setReservoirCellCount(totalCellCount);
+    fractureActiveCellInfo->setReservoirCellCount(totalCellCount);
 
     // Reserve room for the cells and nodes and fill them with data
 
@@ -434,17 +437,26 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     progInfo.setProgressDescription("Reading NNC data");
     progInfo.setNextProgressIncrement(5);
-    transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+    if (isNNCsEnabled())
+    {
+        transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+    }
     progInfo.incrementProgress();
 
     progInfo.setProgressDescription("Processing NNC data");
     progInfo.setNextProgressIncrement(20);
-    eclipseCase->mainGrid()->nncData()->processConnections( *(eclipseCase->mainGrid()));
+    if (isNNCsEnabled())
+    {
+        eclipseCase->mainGrid()->nncData()->processConnections( *(eclipseCase->mainGrid()));
+    }
     progInfo.incrementProgress();
 
     progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
-    readWellCells(mainEclGrid);
+    if (isSimulationWellDataEnabled())
+    {
+        readWellCells(mainEclGrid);
+    }
 
     progInfo.setProgressDescription("Releasing reader memory");
     ecl_grid_free( mainEclGrid );
@@ -470,13 +482,14 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
     //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
 
     mainGrid->nncData()->connections().resize(numNNC);
+    std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
     for (int nIdx = 0; nIdx < numNNC; ++nIdx)
     {
         RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
-        mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->globalGridCellIndex(eclNNCData[nIdx].global_index1);
+        mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(eclNNCData[nIdx].global_index1);
         RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
-        mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->globalGridCellIndex(eclNNCData[nIdx].global_index2);
-        mainGrid->nncData()->connections()[nIdx].m_transmissibility = eclNNCData[nIdx].trans;
+        mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(eclNNCData[nIdx].global_index2);
+        transmissibilityValues[nIdx] = eclNNCData[nIdx].trans;
     }
 
 
@@ -544,16 +557,16 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             std::vector<std::vector<int> > actnumValuesPerGrid;
             actnumValuesPerGrid.resize(actnumKeywordCount);
 
-            size_t globalCellCount = 0;
+            size_t reservoirCellCount = 0;
             for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
             {
                 RifEclipseOutputFileTools::keywordData(ecl_file, ACTNUM_KW, gridIdx, &actnumValuesPerGrid[gridIdx]);
 
-                globalCellCount += actnumValuesPerGrid[gridIdx].size();
+                reservoirCellCount += actnumValuesPerGrid[gridIdx].size();
             }
 
             // Check if number of cells is matching
-            if (m_eclipseCase->mainGrid()->cells().size() != globalCellCount)
+            if (m_eclipseCase->mainGrid()->cells().size() != reservoirCellCount)
             {
                 return false;
             }
@@ -561,8 +574,8 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
             RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS);
 
-            activeCellInfo->setGlobalCellCount(globalCellCount);
-            fractureActiveCellInfo->setGlobalCellCount(globalCellCount);
+            activeCellInfo->setReservoirCellCount(reservoirCellCount);
+            fractureActiveCellInfo->setReservoirCellCount(reservoirCellCount);
             activeCellInfo->setGridCount(actnumKeywordCount);
             fractureActiveCellInfo->setGridCount(actnumKeywordCount);
 
@@ -666,6 +679,22 @@ void RifReaderEclipseOutput::buildMetaData()
                 fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
             }
         }
+
+        // Default units type is METRIC
+        RigCaseData::UnitsType unitsType = RigCaseData::UNITS_METRIC;
+        {
+            int unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
+            if (unitsTypeValue == 2)
+            {
+                unitsType = RigCaseData::UNITS_FIELD;
+            }
+            else if (unitsTypeValue == 3)
+            {
+                unitsType = RigCaseData::UNITS_LAB;
+            }
+        }
+
+        m_eclipseCase->setUnitsType(unitsType);
     }
 
     progInfo.incrementProgress();
@@ -764,7 +793,7 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
     if (result.compare("ACTNUM", Qt::CaseInsensitive) == 0)
     {
         RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(matrixOrFracture);
-        values->resize(activeCellInfo->globalActiveCellCount(), 1.0);
+        values->resize(activeCellInfo->reservoirActiveCellCount(), 1.0);
 
         return true;
     }
@@ -1542,7 +1571,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 
     if (matrixOrFracture == RifReaderInterface::FRACTURE_RESULTS)
     {
-        if (fractureActiveCellInfo->globalActiveCellCount() == 0)
+        if (fractureActiveCellInfo->reservoirActiveCellCount() == 0)
         {
             return QStringList();
         }
@@ -1555,16 +1584,16 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         QString keyword = keywords[i];
         size_t keywordDataCount = keywordDataItemCounts[i];
 
-        if (activeCellInfo->globalActiveCellCount() > 0)
+        if (activeCellInfo->reservoirActiveCellCount() > 0)
         {
-            size_t timeStepsAllCells     = keywordDataItemCounts[i] / activeCellInfo->globalCellCount();
-            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->globalCellCount();
+            size_t timeStepsAllCells     = keywordDataItemCounts[i] / activeCellInfo->reservoirCellCount();
+            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->reservoirCellCount();
 
-            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->globalActiveCellCount();
-            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->globalActiveCellCount();
+            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->reservoirActiveCellCount();
+            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->reservoirActiveCellCount();
         
-            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->globalActiveCellCount() + fractureActiveCellInfo->globalActiveCellCount());
-            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->globalActiveCellCount() + fractureActiveCellInfo->globalActiveCellCount());
+            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
+            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
 
             if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
             {
@@ -1611,7 +1640,7 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityMod
     RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
 
 
-    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->globalActiveCellCount() == 0)
+    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->reservoirActiveCellCount() == 0)
     {
         destinationResultValues->insert(destinationResultValues->end(), sourceResultValues.begin(), sourceResultValues.end());
     }

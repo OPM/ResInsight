@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,14 +20,7 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafPdmDocument.h"
-#include "cafAppEnum.h"
-
-#include "RimDefines.h"
 #include "RimCellFilter.h"
-//#include "cvfStructGridGeometryGenerator.h"
 
 class RimReservoirView;
 class RimCellPropertyFilterCollection;
@@ -34,10 +29,6 @@ class RimResultDefinition;
 class RigGridBase;
 class RigCaseCellResultsData;
 
-namespace cvf
-{
-    //enum CellRangeFilter::CellStateType;
-}
 
 //==================================================================================================
 ///  
@@ -80,6 +71,4 @@ private:
     RimCellPropertyFilterCollection* m_parentContainer;
     double m_minimumResultValue, m_maximumResultValue;
 };
-
-
 

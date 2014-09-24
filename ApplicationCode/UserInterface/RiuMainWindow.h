@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -97,7 +99,8 @@ public:
 
     void            appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu);
     void            refreshDrawStyleActions();
-
+    
+    void            setExpanded(const caf::PdmObject* pdmObject, bool expanded);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
@@ -111,7 +114,9 @@ private:
 
     bool            checkForDocumentModifications();
 
-    void            updateMRUList(const QString &fileName, bool remove = false);
+    void            updateRecentFileActions();
+    void            addRecentFiles(const QString& file);
+    void            removeRecentFiles(const QString& file);
     
     QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
 
@@ -136,6 +141,13 @@ private:
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeProjectAction;
     QAction*		    m_exitAction;
+
+    // Recent files
+    enum { MaxRecentFiles = 5 };
+    QAction*            m_recentFilesSeparatorAction;
+    QMenu*              m_recentFilesMenu;
+    QAction*            m_recentFileActions[MaxRecentFiles];
+
 
     // Edit actions
     QAction*		    m_editPreferences;
@@ -202,6 +214,8 @@ private slots:
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();
+
+    void    slotOpenRecentFile();
 
     void    slotRefreshFileActions();
 

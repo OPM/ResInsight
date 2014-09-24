@@ -22,6 +22,14 @@ ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivResultToTextureMapper.h
+${CEE_CURRENT_LIST_DIR}RivTernaryResultToTextureMapper.h
+${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.h
+${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.h
+${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.h
+${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.h
+${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.h
+${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -42,6 +50,12 @@ ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.cpp
+${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.cpp
+${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.cpp
+${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.cpp
+${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.cpp
+${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

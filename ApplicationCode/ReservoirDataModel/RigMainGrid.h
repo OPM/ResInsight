@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -51,7 +53,8 @@ public:
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
     const cvf::Collection<RigFault>&        faults() { return m_faults; }
     void                                    calculateFaults();
-    bool                                    faceNormalsIsOutwards() const;
+    const RigFault*                         findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const;
+    bool                                    isFaceNormalsOutwards() const;
 
     void                                    computeCachedData();
 
@@ -75,6 +78,7 @@ private:
 
     cvf::Collection<RigFault>               m_faults;
     cvf::ref<RigNNCData>                    m_nncData;
+    cvf::ref<RigFaultsPrCellAccumulator>    m_faultsPrCellAcc;
 
     cvf::Vec3d                              m_displayModelOffset;
 

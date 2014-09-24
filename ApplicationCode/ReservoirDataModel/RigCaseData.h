@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,8 +32,16 @@
 class RigCaseCellResultsData;
 
 
-class RigCaseData: public cvf::Object
+class RigCaseData : public cvf::Object
 {
+public:
+    enum UnitsType
+    {
+        UNITS_METRIC,
+        UNITS_FIELD,
+        UNITS_LAB
+    };
+
 public:
     RigCaseData();
     ~RigCaseData();
@@ -53,12 +63,6 @@ public:
     const RigActiveCellInfo*                    activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const;
     void                                        setActiveCellInfo(RifReaderInterface::PorosityModelResultType porosityModel, RigActiveCellInfo* activeCellInfo);
     
-
-    cvf::ref<cvf::StructGridScalarDataAccess>   dataAccessObject(const RigGridBase* grid, 
-                                                               RifReaderInterface::PorosityModelResultType porosityModel, 
-                                                               size_t timeStepIndex, 
-                                                               size_t scalarSetIndex);
-
     void                                        setWellResults(const cvf::Collection<RigSingleWellResultsData>& data);
     const cvf::Collection<RigSingleWellResultsData>&      wellResults() { return m_wellResults; }
 
@@ -69,6 +73,9 @@ public:
     bool                                        findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultPoint& sourceWellCellResult, const RigWellResultPoint& otherWellCellResult) const;
 
     void                                        computeActiveCellBoundingBoxes();
+
+    UnitsType                                   unitsType() const                   { return m_unitsType; }
+    void                                        setUnitsType(UnitsType unitsType)   { m_unitsType = unitsType; }
 
 private:
     void                                        computeActiveCellIJKBBox();
@@ -86,4 +93,6 @@ private:
     cvf::Collection<RigSingleWellResultsData>   m_wellResults;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
     cvf::Collection<cvf::UIntArray>             m_gridCellToWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
+
+    UnitsType                                   m_unitsType;
 };

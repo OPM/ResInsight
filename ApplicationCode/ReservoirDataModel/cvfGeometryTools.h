@@ -1,3 +1,22 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #include "cvfBase.h"
 #include "cvfArray.h"
@@ -26,6 +45,8 @@ public:
     static int        findClosestAxis(const cvf::Vec3d& vec );
     static double     getAngle(const cvf::Vec3d& positiveNormalAxis, const cvf::Vec3d& v1, const cvf::Vec3d& v2);
     static double     getAngle(const cvf::Vec3d& v1, const cvf::Vec3d& v2);
+
+    static cvf::Vec3d polygonAreaNormal3D(const std::vector<cvf::Vec3d>& polygon);
 
     enum IntersectionStatus
     {
@@ -138,7 +159,7 @@ public:
 protected:
     bool    isTriangleValid( std::list<size_t>::const_iterator u, std::list<size_t>::const_iterator v, std::list<size_t>::const_iterator w) const;
     bool    isPointInsideTriangle(const cvf::Vec3d& A, const cvf::Vec3d& B, const cvf::Vec3d& C, const cvf::Vec3d& P) const;
-    double  calculatePolygonArea() const;
+    double  calculateProjectedPolygonArea() const;
 
 protected:
     std::list<size_t>       m_polygonIndices;

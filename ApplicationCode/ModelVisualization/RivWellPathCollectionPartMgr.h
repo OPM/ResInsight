@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,13 +20,24 @@
 
 #pragma once
 
-
+#include "cvfBase.h"
 #include "cvfCollection.h"
+#include "cafPdmPointer.h"
+#include "cvfVector3.h"
+#include "cvfBoundingBox.h"
+#include "cvfTransform.h"
+
 #include "cafPdmPointer.h"
 
 class RimWellPathCollection;
 class RimProject;
 class RivWellPathPartMgr;
+
+namespace cvf
+{
+    class ModelBasicList;
+}
+
 
 class RivWellPathCollectionPartMgr : public cvf::Object
 {

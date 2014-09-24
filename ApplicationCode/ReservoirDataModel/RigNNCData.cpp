@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA, Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -50,9 +51,9 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
         if (c1.hostGrid() == c2.hostGrid())
         {
             size_t i1, j1, k1;
-            c1.hostGrid()->ijkFromCellIndex(c1.cellIndex(), &i1, &j1, &k1);
+            c1.hostGrid()->ijkFromCellIndex(c1.gridLocalCellIndex(), &i1, &j1, &k1);
             size_t i2, j2, k2;
-            c2.hostGrid()->ijkFromCellIndex(c2.cellIndex(), &i2, &j2, &k2);
+            c2.hostGrid()->ijkFromCellIndex(c2.gridLocalCellIndex(), &i2, &j2, &k2);
 
           
             isPossibleNeighborInDirection[cvf::StructGridInterface::POS_I] = ((i1 + 1) == i2);
@@ -95,7 +96,7 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
                 cvf::Vec3d fc1 = c1.faceCenter((cvf::StructGridInterface::FaceType)(fIdx));
                 cvf::Vec3d fc2 = c2.faceCenter(cvf::StructGridInterface::oppositeFace((cvf::StructGridInterface::FaceType)(fIdx)));
                 cvf::Vec3d fc1ToFc2 = fc2 - fc1;
-                normal = c1.faceNormal((cvf::StructGridInterface::FaceType)(fIdx));
+                normal = c1.faceNormalWithAreaLenght((cvf::StructGridInterface::FaceType)(fIdx));
                 normal.normalize();
                 // Check that face centers are approx in the face plane
                 if (normal.dot(fc1ToFc2) < 0.01*fc1ToFc2.length()) 
@@ -160,16 +161,63 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double>& RigNNCData::makeConnectionScalarResult(size_t scalarResultIndex)
+{
+    std::vector<double>& results = m_connectionResults[scalarResultIndex];
+    results.resize(m_connections.size(), HUGE_VAL);
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>* RigNNCData::connectionScalarResult(size_t scalarResultIndex) const
+{
+    std::map<size_t, std::vector<double> >::const_iterator it = m_connectionResults.find(scalarResultIndex);
+    if (it != m_connectionResults.end())
+        return &(it->second);
+    else
+        return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex)
+{
+    std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(cvf::UNDEFINED_SIZE_T);
+    if (it != m_connectionResults.end())
+    {
+        std::vector<double>& emptyData = m_connectionResults[scalarResultIndex];
+        std::vector<double>& realData = m_connectionResults[cvf::UNDEFINED_SIZE_T];
+        emptyData.swap(realData);
+        m_connectionResults.erase(cvf::UNDEFINED_SIZE_T);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigNNCData::hasScalarValues(size_t scalarResultIndex)
+{
+    std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(scalarResultIndex);
+    return (it != m_connectionResults.end());
+}
+
 /*
 //--------------------------------------------------------------------------------------------------
 /// TODO: Possibly not needed !
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigNNCData::findConnectionIndices( size_t globalCellIndex, cvf::StructGridInterface::FaceType face) const
+const std::vector<size_t>& RigNNCData::findConnectionIndices( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
 {
     ConnectionSearchMap::const_iterator it;
     static std::vector<size_t> empty;
 
-    it = m_cellIdxToFaceToConnectionIdxMap.find(globalCellIndex);
+    it = m_cellIdxToFaceToConnectionIdxMap.find(reservoirCellIndex);
     if (it != m_cellIdxToFaceToConnectionIdxMap.end())
     {
         return it->second[face];

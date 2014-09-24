@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -28,6 +30,8 @@ namespace cvf
     class ModelBasicList;
     class Transform;
     class Effect;
+    class DrawableGeo;
+    class ScalarMapper;
 }
 
 class RivPipeGeometryGenerator;

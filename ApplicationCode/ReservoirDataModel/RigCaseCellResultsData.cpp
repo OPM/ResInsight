@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,10 +19,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigCaseCellResultsData.h"
-#include "RifReaderInterface.h"
-#include "RigMainGrid.h"
 
+#include "RigMainGrid.h"
+#include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
+#include "RigStatisticsCalculator.h"
 
 #include <QDateTime>
 #include <math.h>
@@ -33,10 +36,7 @@ RigCaseCellResultsData::RigCaseCellResultsData(RigMainGrid* ownerGrid)
 {
     CVF_ASSERT(ownerGrid != NULL);
     m_ownerMainGrid = ownerGrid;
-
-    m_combinedTransmissibilityResultIndex = cvf::UNDEFINED_SIZE_T;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -49,39 +49,9 @@ void RigCaseCellResultsData::setMainGrid(RigMainGrid* ownerGrid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::minMaxCellScalarValues( size_t scalarResultIndex, double& min, double& max )
+void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max)
 {
-    min = HUGE_VAL;
-    max = -HUGE_VAL;
-	
-    CVF_ASSERT(scalarResultIndex < resultCount());
-
-    // Extend array and cache vars
-
-    if (scalarResultIndex >= m_maxMinValues.size() )
-    {
-        m_maxMinValues.resize(scalarResultIndex+1, std::make_pair(HUGE_VAL, -HUGE_VAL));
-    }
-
-    if (m_maxMinValues[scalarResultIndex].first != HUGE_VAL)
-    {
-        min = m_maxMinValues[scalarResultIndex].first;
-        max = m_maxMinValues[scalarResultIndex].second;
-
-        return;
-    }
-
-    size_t i;
-    for (i = 0; i < timeStepCount(scalarResultIndex); i++)
-    {
-        double tsmin, tsmax;
-        minMaxCellScalarValues(scalarResultIndex, i, tsmin, tsmax);
-        if (tsmin < min) min = tsmin;
-        if (tsmax > max) max = tsmax;
-    }
-
-    m_maxMinValues[scalarResultIndex].first = min;
-    m_maxMinValues[scalarResultIndex].second= max;
+    m_statisticsDataCache[scalarResultIndex]->minMaxCellScalarValues(min, max);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,80 +59,23 @@ void RigCaseCellResultsData::minMaxCellScalarValues( size_t scalarResultIndex, d
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max)
 {
-    min = HUGE_VAL;
-    max = -HUGE_VAL;
+    m_statisticsDataCache[scalarResultIndex]->minMaxCellScalarValues(timeStepIndex, min, max);
+}
 
-    CVF_ASSERT(scalarResultIndex < resultCount());
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg)
+{
+    m_statisticsDataCache[scalarResultIndex]->posNegClosestToZero(pos, neg);
+}
 
-    if (timeStepIndex >= m_cellScalarResults[scalarResultIndex].size())
-    {
-        return;
-    }
-
-    if (scalarResultIndex >= m_maxMinValuesPrTs.size())
-    {
-        m_maxMinValuesPrTs.resize(scalarResultIndex+1);
-    }
-
-    if (timeStepIndex >= m_maxMinValuesPrTs[scalarResultIndex].size())
-    {
-        m_maxMinValuesPrTs[scalarResultIndex].resize(timeStepIndex+1, std::make_pair(HUGE_VAL, -HUGE_VAL));
-    }
-
-    if (m_maxMinValuesPrTs[scalarResultIndex][timeStepIndex].first != HUGE_VAL)
-    {
-        min = m_maxMinValuesPrTs[scalarResultIndex][timeStepIndex].first;
-        max = m_maxMinValuesPrTs[scalarResultIndex][timeStepIndex].second;
-
-        return;
-    }
-
-    if (scalarResultIndex == m_combinedTransmissibilityResultIndex)
-    {
-        size_t tranX, tranY, tranZ;
-        if (!findTransmissibilityResults(tranX, tranY, tranZ)) return;
-
-        double tranMin; 
-        double tranMax; 
-
-        minMaxCellScalarValues(tranX, timeStepIndex, tranMin, tranMax);
-        min = CVF_MIN(tranMin, min);
-        max = CVF_MAX(tranMax, max);
-
-        minMaxCellScalarValues(tranY, timeStepIndex, tranMin, tranMax);
-        min = CVF_MIN(tranMin, min);
-        max = CVF_MAX(tranMax, max);
-
-        minMaxCellScalarValues(tranZ, timeStepIndex, tranMin, tranMax);
-        min = CVF_MIN(tranMin, min);
-        max = CVF_MAX(tranMax, max);
-
-        return;
-    }
-
-    std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
-
-    size_t i;
-    for (i = 0; i < values.size(); i++)
-    {
-        if (values[i] == HUGE_VAL)
-        {
-            continue;
-        }
-
-        if (values[i] < min)
-        {
-            min = values[i];
-        }
-
-        if (values[i] > max)
-        {
-            max = values[i];
-        }
-    }
-
-    m_maxMinValuesPrTs[scalarResultIndex][timeStepIndex].first = min;
-    m_maxMinValuesPrTs[scalarResultIndex][timeStepIndex].second= max;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, size_t timeStepIndex, double& pos, double& neg)
+{
+    m_statisticsDataCache[scalarResultIndex]->posNegClosestToZero(timeStepIndex, pos, neg);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,68 +83,15 @@ void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, si
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(size_t scalarResultIndex)
 {
-    CVF_ASSERT(scalarResultIndex < resultCount());
-
-    // Extend array and cache vars
-
-    if (scalarResultIndex >= m_histograms.size() )
-    {
-        m_histograms.resize(resultCount());
-        m_p10p90.resize(resultCount(), std::make_pair(HUGE_VAL, HUGE_VAL));
-    }
-
-    if (m_histograms[scalarResultIndex].size())
-    {
-        return m_histograms[scalarResultIndex];
-
-    }
-
-    double min;
-    double max;
-    size_t nBins = 100;
-    this->minMaxCellScalarValues( scalarResultIndex, min, max );
-    RigHistogramCalculator histCalc(min, max, nBins, &m_histograms[scalarResultIndex]);
-
-    if (scalarResultIndex == m_combinedTransmissibilityResultIndex)
-    {
-        size_t tranX, tranY, tranZ;
-        if (findTransmissibilityResults(tranX, tranY, tranZ))
-        {
-            for (size_t tsIdx = 0; tsIdx < this->timeStepCount(scalarResultIndex); tsIdx++)
-            {
-                histCalc.addData(m_cellScalarResults[tranX][tsIdx]);
-                histCalc.addData(m_cellScalarResults[tranY][tsIdx]);
-                histCalc.addData(m_cellScalarResults[tranZ][tsIdx]);
-            } 
-        }
-    }
-    else
-    {
-        for (size_t tsIdx = 0; tsIdx < this->timeStepCount(scalarResultIndex); tsIdx++)
-        {
-            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][tsIdx];
-
-            histCalc.addData(values);
-        } 
-    }
-
-    m_p10p90[scalarResultIndex].first = histCalc.calculatePercentil(0.1);
-    m_p10p90[scalarResultIndex].second = histCalc.calculatePercentil(0.9);
-
-    return m_histograms[scalarResultIndex];
+    return m_statisticsDataCache[scalarResultIndex]->cellScalarValuesHistogram();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
 {
-    // First make sure they are calculated
-    const std::vector<size_t>& histogr = cellScalarValuesHistogram( scalarResultIndex); 
-    // Then return them
-    p10 = m_p10p90[scalarResultIndex].first;
-    p90 = m_p10p90[scalarResultIndex].second;
+    m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(p10, p90);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,73 +99,7 @@ void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, do
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, double& meanValue)
 {
-    CVF_ASSERT(scalarResultIndex < resultCount());
-
-    // Extend array and cache vars
-
-    if (scalarResultIndex >= m_meanValues.size() )
-    {
-        m_meanValues.resize(scalarResultIndex+1, HUGE_VAL);
-    }
-
-    if (m_meanValues[scalarResultIndex] != HUGE_VAL)
-    {
-        meanValue = m_meanValues[scalarResultIndex];
-        return;
-    }
-
-    double valueSum = 0.0;
-    size_t count = 0;
-
-    if (scalarResultIndex == m_combinedTransmissibilityResultIndex)
-    {
-        size_t tranX, tranY, tranZ;
-        if (findTransmissibilityResults(tranX, tranY, tranZ))
-        {
-            for (size_t tIdx = 0; tIdx < timeStepCount(tranX); tIdx++)
-            {
-                {
-                    std::vector<double>& values = m_cellScalarResults[tranX][tIdx];
-                    for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
-                    {
-                        valueSum += values[cIdx];
-                    }
-                    count += values.size();
-                }
-                {
-                    std::vector<double>& values = m_cellScalarResults[tranY][tIdx];
-                    for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
-                    {
-                        valueSum += values[cIdx];
-                    }
-                    count += values.size();
-                }
-                {
-                    std::vector<double>& values = m_cellScalarResults[tranZ][tIdx];
-                    for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
-                    {
-                        valueSum += values[cIdx];
-                    }
-                    count += values.size();
-                }
-            }
-        }
-    }
-    else
-    {
-        for (size_t tIdx = 0; tIdx < timeStepCount(scalarResultIndex); tIdx++)
-        {
-            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][tIdx];
-            for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
-            {
-                valueSum += values[cIdx];
-            }
-            count += values.size();
-        }
-    }
-
-    m_meanValues[scalarResultIndex] = valueSum/count;
-    meanValue = m_meanValues[scalarResultIndex];
+    m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -422,20 +216,86 @@ size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) 
 
 //--------------------------------------------------------------------------------------------------
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
-/// if resultName already exists, it returns the scalarResultIndex to the existing result.
+/// if resultName already exists, it just returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
 {
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+    size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
 
-    scalarResultIndex = this->findScalarResultIndex(type, resultName);
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    // If the result exists, do nothing
+
+    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
     {
-        scalarResultIndex = this->resultCount();
-        m_cellScalarResults.push_back(std::vector<std::vector<double> >());
-        ResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
-        m_resultInfos.push_back(resInfo);
+        return scalarResultIndex;
     }
+
+    // Create the new empty result with metadata
+
+    scalarResultIndex = this->resultCount();
+    m_cellScalarResults.push_back(std::vector<std::vector<double> >());
+    ResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
+    m_resultInfos.push_back(resInfo);
+
+    // Create statistics calculator and add statistics cache object
+    // Todo: Move to a "factory" method
+
+    cvf::ref<RigStatisticsCalculator> statisticsCalculator;
+
+    if (resultName == RimDefines::combinedTransmissibilityResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ"));
+
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RimDefines::combinedMultResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX-"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTY"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTY-"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTZ"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTZ-"));
+
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RimDefines::combinedRiTranResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranXResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranYResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranZResultName()));
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RimDefines::combinedRiMultResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultXResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultYResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultZResultName()));
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RimDefines::combinedRiAreaNormTranResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranXResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranYResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranZResultName()));
+        statisticsCalculator = calc;
+    }
+    else
+    {
+        statisticsCalculator = new RigNativeStatCalc(this, scalarResultIndex);
+    }
+
+    cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(statisticsCalculator.p());
+    m_statisticsDataCache.push_back(dataCache.p());
+
 
     return scalarResultIndex;
 }
@@ -460,20 +320,9 @@ QStringList RigCaseCellResultsData::resultNames(RimDefines::ResultCatType resTyp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::recalculateMinMax(size_t scalarResultIndex)
+void RigCaseCellResultsData::recalculateStatistics(size_t scalarResultIndex)
 {
-    // Make sure cached max min values are recalculated next time asked for, since
-    // the data could be changed.
-
-    if (scalarResultIndex < m_maxMinValues.size())
-    {
-        m_maxMinValues[scalarResultIndex] = std::make_pair(HUGE_VAL, -HUGE_VAL);
-    }
-
-    if (scalarResultIndex < m_maxMinValuesPrTs.size())
-    {
-        m_maxMinValuesPrTs[scalarResultIndex].clear();
-    }
+    m_statisticsDataCache[scalarResultIndex]->clearAllStatistics();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -592,14 +441,8 @@ void RigCaseCellResultsData::removeResult(const QString& resultName)
 void RigCaseCellResultsData::clearAllResults()
 {
     m_cellScalarResults.clear();
-    m_maxMinValues.clear();
-    m_histograms.clear();
-    m_p10p90.clear();
-    m_meanValues.clear();   
-    m_maxMinValuesPrTs.clear();
     m_resultInfos.clear();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Removes all the actual numbers put into this object, and frees up the memory. 
@@ -619,13 +462,14 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Add a result with given type and name, and allocate one result vector for the static result values
+/// Make sure we have a result with given type and name, and make sure one "timestep" result vector 
+// for the static result values are allocated
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount)
 {
     size_t resultIdx = addEmptyScalarResult(type, resultName, needsToBeStored);
     
-    m_cellScalarResults[resultIdx].push_back(std::vector<double>());
+    m_cellScalarResults[resultIdx].resize(1, std::vector<double>());
     m_cellScalarResults[resultIdx][0].resize(resultValueCount, HUGE_VAL);
 
     return resultIdx;
@@ -676,132 +520,90 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg)
+void RigCaseCellResultsData::createPlaceholderResultEntries()
 {
-    pos = HUGE_VAL;
-    neg = -HUGE_VAL;
-
-    CVF_ASSERT(scalarResultIndex < resultCount());
-
-    // Extend array and cache vars
-
-    if (scalarResultIndex >= m_posNegClosestToZero.size() )
+    // SOIL
     {
-        m_posNegClosestToZero.resize(scalarResultIndex+1, std::make_pair(HUGE_VAL, -HUGE_VAL));
+        size_t soilIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SOIL");
+        if (soilIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            size_t swatIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            size_t sgasIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SGAS");
+
+            if (swatIndex != cvf::UNDEFINED_SIZE_T || sgasIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                soilIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
+                this->setMustBeCalculated(soilIndex);
+            }
+        }
     }
 
-    if (m_posNegClosestToZero[scalarResultIndex].first != HUGE_VAL)
-    {
-        pos = m_posNegClosestToZero[scalarResultIndex].first;
-        neg = m_posNegClosestToZero[scalarResultIndex].second;
-
-        return;
-    }
-
-    size_t i;
-    for (i = 0; i < timeStepCount(scalarResultIndex); i++)
-    {
-        double tsNeg, tsPos;
-        posNegClosestToZero(scalarResultIndex, i, tsPos, tsNeg);
-        if (tsNeg > neg && tsNeg < 0) neg = tsNeg;
-        if (tsPos < pos && tsPos > 0) pos = tsPos;
-    }
-
-    m_posNegClosestToZero[scalarResultIndex].first = pos;
-    m_posNegClosestToZero[scalarResultIndex].second= neg;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, size_t timeStepIndex, double& pos, double& neg)
-{
-    pos = HUGE_VAL;
-    neg = -HUGE_VAL;
-
-    CVF_ASSERT(scalarResultIndex < resultCount());
-
-    if (timeStepIndex >= m_cellScalarResults[scalarResultIndex].size())
-    {
-        return;
-    }
-
-    if (scalarResultIndex >= m_posNegClosestToZeroPrTs.size())
-    {
-        m_posNegClosestToZeroPrTs.resize(scalarResultIndex+1);
-    }
-
-    if (timeStepIndex >= m_posNegClosestToZeroPrTs[scalarResultIndex].size())
-    {
-        m_posNegClosestToZeroPrTs[scalarResultIndex].resize(timeStepIndex+1, std::make_pair(HUGE_VAL, -HUGE_VAL));
-    }
-
-    if (m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].first != HUGE_VAL)
-    {
-        pos = m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].first;
-        neg = m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].second;
-
-        return;
-    }
-
-    if (scalarResultIndex == m_combinedTransmissibilityResultIndex)
+    // TRANSXYZ
     {
         size_t tranX, tranY, tranZ;
         if (findTransmissibilityResults(tranX, tranY, tranZ))
         {
-            double traPos, traNeg;
-            posNegClosestToZero(tranX, timeStepIndex, traPos, traNeg);
-            if ( 0   < traPos && traPos < pos ) pos = traPos;
-            if ( neg < traNeg && traNeg < 0   ) neg = traNeg;
-            posNegClosestToZero(tranY, timeStepIndex, traPos, traNeg);
-            if ( 0   < traPos && traPos < pos ) pos = traPos;
-            if ( neg < traNeg && traNeg < 0   ) neg = traNeg;
-            posNegClosestToZero(tranZ, timeStepIndex, traPos, traNeg);
-            if ( 0   < traPos && traPos < pos ) pos = traPos;
-            if ( neg < traNeg && traNeg < 0   ) neg = traNeg;
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName(), false, 0);
         }
-
-        return;
     }
-
-    std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
-
-    size_t i;
-    for (i = 0; i < values.size(); i++)
+    // MULTXYZ
     {
-        if (values[i] == HUGE_VAL)
-        {
-            continue;
-        }
+        addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedMultResultName(), false, 0);
+    }
 
-        if (values[i] < pos && values[i] > 0)
+    // riTRANSXYZ and X,Y,Z
+    {
+        size_t ntgResIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "NTG");
+        if (   findScalarResultIndex(RimDefines::STATIC_NATIVE, "NTG") != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMX") != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMY") != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMZ") != cvf::UNDEFINED_SIZE_T)
         {
-            pos = values[i];
-        }
-
-        if (values[i] > neg && values[i] < 0)
-        {
-            neg = values[i];
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTranXResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTranYResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTranZResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTranResultName(), false, 0);
         }
     }
 
-    m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].first = pos;
-    m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].second= neg;
-}
+    // riMULTXYZ and X, Y, Z
+    {
+        size_t tranX, tranY, tranZ;
+        if (findTransmissibilityResults(tranX, tranY, tranZ)
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranXResultName()) != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranYResultName()) != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranZResultName()) != cvf::UNDEFINED_SIZE_T)
+        {
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultXResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultYResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultZResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiMultResultName(), false, 0);
+        }
+    }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::createCombinedTransmissibilityResult()
-{
-    size_t combinedTransmissibilityIndex = findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
-    if (combinedTransmissibilityIndex != cvf::UNDEFINED_SIZE_T) return;
+    // riTRANSXYZbyArea and X, Y, Z
+    {
+        if (findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX") != cvf::UNDEFINED_SIZE_T)
+        {
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranXResultName(), false, 0);
+        }
 
-    size_t tranX, tranY, tranZ;
-    if (!findTransmissibilityResults(tranX, tranY, tranZ)) return;
+        if (findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY") != cvf::UNDEFINED_SIZE_T)
+        {
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranYResultName(), false, 0);
+        }
 
+        if (findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ") != cvf::UNDEFINED_SIZE_T)
+        {
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranZResultName(), false, 0);
+        }
 
-    m_combinedTransmissibilityResultIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName(), false, 0);
+        size_t tranX, tranY, tranZ;
+        if (findTransmissibilityResults(tranX, tranY, tranZ))
+        {
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiAreaNormTranResultName(), false, 0);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

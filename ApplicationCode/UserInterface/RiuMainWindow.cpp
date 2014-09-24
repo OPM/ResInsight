@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,51 +21,42 @@
 #include "RiaStdInclude.h"
 
 #include "RiuMainWindow.h"
+
 #include "RiaApplication.h"
-
-#include "RimProject.h"
-#include "RimAnalysisModels.h"
-#include "RimOilField.h"
-#include "RimReservoirView.h"
-#include "RimUiTreeView.h"
-#include "RimCase.h"
-#include "RimResultSlot.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimCaseCollection.h"
-#include "RimWellPathCollection.h"
-
-#include "RimUiTreeModelPdm.h"
-
 #include "RiaBaseDefs.h"
-#include "RiuViewer.h"
-#include "RiuResultInfoPanel.h"
-#include "RiuProcessMonitor.h"
-#include "RiuMultiCaseImportDialog.h"
-
 #include "RiaPreferences.h"
-
-#include "RigCaseCellResultsData.h"
-
-#include "cafAnimationToolBar.h"
-#include "cafPdmUiPropertyView.h"
-#include "cafAboutDialog.h"
-#include "cvfTimer.h"
-
-#include "cafPdmFieldCvfMat4d.h"
-
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimScriptCollection.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RiuWellImportWizard.h"
-#include "RimCalcScript.h"
-#include "RimTools.h"
 #include "RiaRegressionTest.h"
-#include "cafPdmUiPropertyDialog.h"
+#include "RigCaseCellResultsData.h"
+#include "RimAnalysisModels.h"
+#include "RimCase.h"
+#include "RimCaseCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCommandObject.h"
+#include "RimFaultCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimTools.h"
+#include "RimUiTreeModelPdm.h"
+#include "RimUiTreeView.h"
+#include "RimWellCollection.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathImport.h"
+#include "RiuMultiCaseImportDialog.h"
+#include "RiuProcessMonitor.h"
+#include "RiuResultInfoPanel.h"
+#include "RiuViewer.h"
+#include "RiuWellImportWizard.h"
 
+#include "cafAboutDialog.h"
+#include "cafAnimationToolBar.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmUiPropertyDialog.h"
+#include "cafPdmUiPropertyView.h"
+
+#include "cvfTimer.h"
 
 
 //==================================================================================================
@@ -214,7 +207,15 @@ void RiuMainWindow::createActions()
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
 
     m_closeProjectAction               = new QAction("&Close Project", this);
-    m_exitAction		        = new QAction("E&xit", this);
+
+    for (int i = 0; i < MaxRecentFiles; ++i)
+    {
+        m_recentFileActions[i] = new QAction(this);
+        m_recentFileActions[i]->setVisible(false);
+        connect(m_recentFileActions[i], SIGNAL(triggered()), this, SLOT(slotOpenRecentFile()));
+    }
+
+    m_exitAction = new QAction("E&xit", this);
 
     connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
@@ -327,10 +328,50 @@ void RiuMainWindow::createActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+class ToolTipableMenu : public QMenu
+{
+public:
+    ToolTipableMenu( QWidget * parent ) : QMenu( parent ) {};
+    
+    bool event(QEvent* e)
+    {
+        if (e->type() == QEvent::ToolTip)
+        {
+            QHelpEvent* he = dynamic_cast<QHelpEvent*>(e);
+            QAction* act = actionAt(he->pos());
+            if (act)
+            {
+                // Remove ampersand as this is used to define shortcut key
+                QString actionTextWithoutAmpersand = act->text().remove("&");
+
+                if (actionTextWithoutAmpersand != act->toolTip())
+                {
+                    QToolTip::showText(he->globalPos(), act->toolTip(), this);
+                }
+                
+                return true;
+            }
+        }
+        else if (e->type() == QEvent::Paint && QToolTip::isVisible())
+        {
+            QToolTip::hideText();
+        }
+
+        return QMenu::event(e);
+    }
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createMenus()
 {
     // File menu
-    QMenu* fileMenu = menuBar()->addMenu("&File");
+    QMenu* fileMenu = new ToolTipableMenu(menuBar());
+    fileMenu->setTitle("&File");
+
+    menuBar()->addMenu(fileMenu);
   
     fileMenu->addAction(m_openProjectAction);
     fileMenu->addAction(m_openLastUsedProjectAction);
@@ -351,6 +392,12 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(m_saveProjectAction);
     fileMenu->addAction(m_saveProjectAsAction);
+
+    m_recentFilesSeparatorAction = fileMenu->addSeparator();
+    for (int i = 0; i < MaxRecentFiles; ++i)
+        fileMenu->addAction(m_recentFileActions[i]);
+    
+    updateRecentFileActions();
 
     fileMenu->addSeparator();
     QMenu* testMenu = fileMenu->addMenu("&Testing");
@@ -661,10 +708,7 @@ void RiuMainWindow::refreshAnimationActions()
 
         if (app->activeReservoirView()->currentGridCellResults())
         {
-            if (app->activeReservoirView()->cellResult()->hasDynamicResult() 
-            || app->activeReservoirView()->propertyFilterCollection()->hasActiveDynamicFilters() 
-            || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes()
-            || app->activeReservoirView()->cellResult()->isTernarySaturationSelected())
+            if (app->activeReservoirView()->isTimeStepDependentDataVisible())
             {
                 std::vector<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->cellResults()->timeStepDates(0);
                 bool showHoursAndMinutes = false;
@@ -719,7 +763,7 @@ void RiuMainWindow::slotAbout()
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
-    dlg.setCopyright("Copyright 2011-2013 Statoil ASA, Ceetron AS");
+    dlg.setCopyright("Copyright Statoil ASA, Ceetron Solutions AS, Ceetron AS");
     dlg.showQtVersion(false);
 #ifdef _DEBUG
     dlg.setIsDebugBuild(true);
@@ -763,7 +807,10 @@ void RiuMainWindow::slotImportEclipseCase()
 
             if (!fileNames.isEmpty())
             {
-                app->openEclipseCaseFromFile(fileName);
+                if (app->openEclipseCaseFromFile(fileName))
+                {
+                    addRecentFiles(fileName);
+                }
             }
         }
     }
@@ -807,7 +854,10 @@ void RiuMainWindow::slotOpenProject()
         // Remember the path to next time
         app->setDefaultFileDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
 
-        app->loadProject(fileName);
+        if (app->loadProject(fileName))
+        {
+            addRecentFiles(fileName);
+        }
     }
 
 }
@@ -819,8 +869,11 @@ void RiuMainWindow::slotOpenLastUsedProject()
 {
     RiaApplication* app = RiaApplication::instance();
     QString fileName = app->preferences()->lastUsedProjectFileName;
-    app->loadProject(fileName);
-
+    
+    if (app->loadProject(fileName))
+    {
+        addRecentFiles(fileName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -935,6 +988,92 @@ void RiuMainWindow::slotCloseProject()
 {
     RiaApplication* app = RiaApplication::instance();
     bool ret = app->closeProject(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotOpenRecentFile()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+    {
+        QString filename = action->data().toString();
+        bool loadingSucceded = false;
+
+        if (filename.contains(".rsp", Qt::CaseInsensitive) || filename.contains(".rip", Qt::CaseInsensitive) )
+        {
+            loadingSucceded = RiaApplication::instance()->loadProject(action->data().toString());
+        }
+        else if ( filename.contains(".egrid", Qt::CaseInsensitive) || filename.contains(".grid", Qt::CaseInsensitive) )
+        {
+            loadingSucceded = RiaApplication::instance()->openEclipseCaseFromFile(filename);
+        }
+
+        if (loadingSucceded)
+        {
+            addRecentFiles(filename);
+        }
+        else
+        {
+            removeRecentFiles(filename);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::updateRecentFileActions()
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+
+    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
+
+    for (int i = 0; i < numRecentFiles; ++i) {
+        QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
+        m_recentFileActions[i]->setText(text);
+        m_recentFileActions[i]->setData(files[i]);
+        m_recentFileActions[i]->setToolTip(files[i]);
+        m_recentFileActions[i]->setVisible(true);
+    }
+    for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
+        m_recentFileActions[j]->setVisible(false);
+
+    m_recentFilesSeparatorAction->setVisible(numRecentFiles > 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::addRecentFiles(const QString& file)
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.removeAll(file);
+    files.prepend(file);
+    while (files.size() > MaxRecentFiles)
+        files.removeLast();
+
+    settings.setValue("recentFileList", files);
+
+    updateRecentFileActions();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::removeRecentFiles(const QString& file)
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.removeAll(file);
+
+    settings.setValue("recentFileList", files);
+
+    updateRecentFileActions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1842,7 +1981,7 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
 {
-    QString usersGuideUrl = "https://github.com/OPM/ResInsight/wiki";
+    QString usersGuideUrl = "http://resinsight.org/";
     
     if (!QDesktopServices::openUrl(usersGuideUrl))
     {
@@ -1871,5 +2010,17 @@ void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObje
         menu->addAction(m_importEclipseCaseAction);
         menu->addAction(m_importInputEclipseFileAction);
         menu->addAction(m_openMultipleEclipseCasesAction);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setExpanded(const caf::PdmObject* pdmObject, bool expanded)
+{
+    QModelIndex mi = m_treeModelPdm->getModelIndexFromPdmObject(pdmObject);
+    if (m_treeView && mi.isValid())
+    {
+        m_treeView->setExpanded(mi, expanded);
     }
 }

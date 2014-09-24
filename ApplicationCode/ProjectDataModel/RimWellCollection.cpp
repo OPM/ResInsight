@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,19 +20,13 @@
 
 #include "RimWellCollection.h"
 
-#include "cafAppEnum.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirView.h"
-
-#include "RimResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellEdgeResultSlot.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RigSingleWellResultsData.h"
+#include "RimReservoirView.h"
+#include "RimWell.h"
+#include "RivReservoirViewPartMgr.h"
+
 
 namespace caf
 {
@@ -196,7 +192,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (&showWellLabel == changedField || &isActive == changedField)
     {
-        this->updateUiIconFromState(isActive);
+        this->updateUiIconFromToggleField();
 
         if (m_reservoirView) 
         {

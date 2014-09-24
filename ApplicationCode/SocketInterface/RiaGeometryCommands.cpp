@@ -1,5 +1,8 @@
+/////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,7 +30,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "RimCase.h"
 #include "RigCaseData.h"
@@ -101,8 +104,8 @@ public:
                 {
                     for (size_t i = 0; i < cellCountI; i++)
                     {
-                        size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                        cvf::Vec3d center = rigGrid->cell(localCellIdx).center();
+                        size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK(i, j, k);
+                        cvf::Vec3d center = rigGrid->cell(gridLocalCellIndex).center();
 
                         doubleValues[valueIndex++] = center[coordIdx];
                     }
@@ -152,7 +155,7 @@ public:
         RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
         RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
 
-        size_t activeCellCount = actCellInfo->globalActiveCellCount();
+        size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3;
 
         socketStream << (quint64)activeCellCount;
@@ -177,11 +180,11 @@ public:
         {
             quint64 valueIndex = 0;
 
-            for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
+            for (size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->cells().size(); reservoirCellIndex++)
             {
-                if (!actCellInfo->isActive(globalCellIdx)) continue;
+                if (!actCellInfo->isActive(reservoirCellIndex)) continue;
 
-                cvf::Vec3d center = mainGrid->cells()[globalCellIdx].center();
+                cvf::Vec3d center = mainGrid->cells()[reservoirCellIndex].center();
 
                 doubleValues[valueIndex++] = center[coordIdx];
             }
@@ -268,8 +271,8 @@ public:
                     {
                         for (size_t i = 0; i < cellCountI; i++)
                         {
-                            size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                            rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
+                            size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK(i, j, k);
+                            rigGrid->cellCornerVertices(gridLocalCellIndex, cornerVerts);
 
                             doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
                         }
@@ -321,7 +324,7 @@ public:
         RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
         RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
 
-        size_t activeCellCount = actCellInfo->globalActiveCellCount();
+        size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3 * 8;
 
         socketStream << (quint64)activeCellCount;
@@ -351,11 +354,11 @@ public:
 
                 quint64 valueIndex = 0;
 
-                for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
+                for (size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->cells().size(); reservoirCellIndex++)
                 {
-                    if (!actCellInfo->isActive(globalCellIdx)) continue;
+                    if (!actCellInfo->isActive(reservoirCellIndex)) continue;
 
-                    mainGrid->cellCornerVertices(globalCellIdx, cornerVerts);
+                    mainGrid->cellCornerVertices(reservoirCellIndex, cornerVerts);
 
                     doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
                 }

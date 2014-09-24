@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,13 +20,10 @@
 
 #pragma once
 
-#include "cafPdmDocument.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 
-class RimCase;
-class RigGridManager;
-class RimIdenticalGridCaseGroup;
-class RigMainGrid;
-class RigCaseData;
 class RimWellPathCollection;
 class RimAnalysisModels;
 
@@ -40,7 +39,6 @@ public:
     RimOilField(void);
     virtual ~RimOilField(void);
 
-    caf::PdmField<RimAnalysisModels*>                   analysisModels;
-	caf::PdmField<RimWellPathCollection*>               wellPathCollection;
-
+    caf::PdmField<RimAnalysisModels*>       analysisModels;
+	caf::PdmField<RimWellPathCollection*>   wellPathCollection;
 };

@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,6 +26,10 @@
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
 
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
+class RifReaderSettings;
 
 class RiaPreferences : public caf::PdmObject
 {
@@ -40,7 +46,10 @@ public: // Pdm Fields
 
     caf::PdmField<QString>  scriptDirectories;
     caf::PdmField<QString>  scriptEditorExecutable;
+
     caf::PdmField<QString>  octaveExecutable;
+    caf::PdmField<bool>     octaveShowHeaderInfoWhenExecutingScripts;
+    
     caf::PdmField<QString>  ssihubAddress;
 
     caf::PdmField<int>      defaultScaleFactorZ;
@@ -55,10 +64,10 @@ public: // Pdm Fields
 
     caf::PdmField<QString>  lastUsedProjectFileName;
 
-    caf::PdmField<bool>     autocomputeSOIL;
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
+    caf::PdmField<bool>     autocomputeGridFaults;
 
-    caf::PdmField<bool>     readFaultData;
+    caf::PdmField<RifReaderSettings*> readerSettings;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

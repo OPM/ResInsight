@@ -392,6 +392,7 @@ void UiTreeModelPdm::updateUiSubTree(PdmObject* pdmRoot)
     // Build the new "Correct" Tree
 
     PdmUiTreeItem* tempUpdatedPdmTree = UiTreeItemBuilderPdm::buildViewItems(NULL, -1, pdmRoot);
+    if (!tempUpdatedPdmTree) return;
 
     // Find the corresponding entry for "root" in the existing Ui tree
 

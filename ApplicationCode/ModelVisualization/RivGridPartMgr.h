@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,31 +36,6 @@ namespace cvf
 
 class RimResultSlot;
 class RimCellEdgeResultSlot;
-class RimFaultCollection;
-
-
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RivTransmissibilityColorMapper 
-{
-public:
-    static void updateCombinedTransmissibilityTextureCoordinates(
-        RimResultSlot* cellResultSlot,
-        const RigGridBase* grid,
-        cvf::Vec2fArray* textureCoords, 
-        const std::vector<cvf::StructGridInterface::FaceType>&  quadsToFaceTypes,
-        const std::vector<size_t>&                              quadsToGridCells);
-
-    static void updateTernarySaturationColorArray(
-        size_t timeStepIndex,
-        RimResultSlot* cellResultSlot,
-        const RigGridBase* grid,
-        cvf::Color3ubArray* colorArray, 
-        const std::vector<size_t>&                              quadsToGridCells);
-};
 
 
 
@@ -73,7 +50,7 @@ public:
 class RivGridPartMgr: public cvf::Object
 {
 public:
-    RivGridPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* rimFaultCollection);
+    RivGridPartMgr(const RigGridBase* grid, size_t gridIdx);
     ~RivGridPartMgr();
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities );
@@ -87,10 +64,8 @@ public:
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
-    static cvf::ref<cvf::Effect>   createPerVertexColoringEffect(float opacity);
-
 private:
-    void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
+    void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
 
 private:
     size_t                                      m_gridIdx;
@@ -108,15 +83,5 @@ private:
 
     cvf::ref<cvf::Part>                         m_surfaceGridLines;
 
-    // Fault visualization
-    cvf::StructGridGeometryGenerator            m_faultGenerator;
-    RigFaultFaceVisibilityFilter                m_faultFaceFilter;
-    cvf::ref<cvf::Part>                         m_faultFaces;
-    cvf::ref<cvf::Vec2fArray>                   m_faultFacesTextureCoords;
-
-    cvf::ref<cvf::Part>                         m_faultGridLines;
-
     cvf::ref<cvf::UByteArray>                   m_cellVisibility;
-
-    const RimFaultCollection*                   m_rimFaultCollection;
 };

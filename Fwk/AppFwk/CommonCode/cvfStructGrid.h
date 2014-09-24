@@ -84,7 +84,7 @@ public:
 
     virtual cvf::Vec3d  minCoordinate() const = 0;
     virtual cvf::Vec3d  maxCoordinate() const = 0;
-    void                characteristicCellSizes(double* iSize, double* jSize, double* kSize);
+    void                characteristicCellSizes(double* iSize, double* jSize, double* kSize) const;
 
     virtual cvf::Vec3d  displayModelOffset() const;
 
@@ -109,9 +109,9 @@ public:
     static void neighborIJKAtCellFace(size_t i, size_t j, size_t k, StructGridInterface::FaceType face, size_t* ni, size_t* nj, size_t* nk);
 
 private:
-    double m_characteristicCellSizeI;
-    double m_characteristicCellSizeJ;
-    double m_characteristicCellSizeK;
+    mutable double m_characteristicCellSizeI;
+    mutable double m_characteristicCellSizeJ;
+    mutable double m_characteristicCellSizeK;
 };
 
 } // namespace cvf

@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -41,7 +43,7 @@ RigCell::RigCell() :
     m_subGrid(NULL),
     m_hostGrid(NULL),
     m_isInvalid(false),
-    m_cellIndex(cvf::UNDEFINED_SIZE_T),
+    m_gridLocalCellIndex(cvf::UNDEFINED_SIZE_T),
     m_coarseningBoxIndex(cvf::UNDEFINED_SIZE_T)
 {
     memcpy(m_cornerIndices.data(), undefinedCornersArray, 8*sizeof(size_t));
@@ -243,16 +245,20 @@ cvf::Vec3d RigCell::faceCenter(cvf::StructGridInterface::FaceType face) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns an area vector for the cell face. The direction is the face normal, and the length is 
+/// equal to the face area (projected to the plane represented by the diagonal in case of warp)
+/// The components of this area vector are equal to the area of the face projection onto 
+/// the corresponding plane.
+/// See http://geomalgorithms.com/a01-_area.html
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigCell::faceNormal(cvf::StructGridInterface::FaceType face) const
+cvf::Vec3d RigCell::faceNormalWithAreaLenght(cvf::StructGridInterface::FaceType face) const
 {
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
     const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
 
-    return ( nodeCoords[m_cornerIndices[faceVertexIndices[2]]] - nodeCoords[m_cornerIndices[faceVertexIndices[0]]]) ^  
-           ( nodeCoords[m_cornerIndices[faceVertexIndices[3]]] - nodeCoords[m_cornerIndices[faceVertexIndices[1]]]); 
+    return 0.5*( nodeCoords[m_cornerIndices[faceVertexIndices[2]]] - nodeCoords[m_cornerIndices[faceVertexIndices[0]]]) ^  
+               ( nodeCoords[m_cornerIndices[faceVertexIndices[3]]] - nodeCoords[m_cornerIndices[faceVertexIndices[1]]]); 
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -59,6 +59,7 @@ set( UNIT_TEST_CPP_SOURCES
 )
 
 set( LINK_LIBRARIES
+    cafProjectDataModel
     CommonCode
 
     LibViewing

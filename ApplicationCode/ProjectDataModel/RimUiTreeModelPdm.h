@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -65,7 +67,7 @@ public:
     void                        addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* pdmObject);
     
     void                        populateObjectGroupFromModelIndexList(const QModelIndexList& modelIndexList, caf::PdmObjectGroup* objectGroup);
-    void                        addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
+    void                        addObjects(const QModelIndex& itemIndex, const caf::PdmObjectGroup& pdmObjects);
     void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
     RimStatisticsCase*          addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);

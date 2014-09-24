@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,41 +18,26 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
-#include "cafProgressInfo.h"
-#include "cafPdmSettings.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmUiPropertyDialog.h"
-
 #include "RimResultCase.h"
-#include "RigCaseData.h"
-#include "RifReaderEclipseOutput.h"
-#include "RigCaseCellResultsData.h"
-#include "RimReservoirView.h"
-#include "RifReaderMockModel.h"
-#include "RifReaderEclipseInput.h"
 
-#include "RimProject.h"
-#include "RifEclipseOutputFileTools.h"
-#include "RiaApplication.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimScriptCollection.h"
-#include "RimCaseCollection.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimWellPathCollection.h"
-
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimOilField.h"
-#include "RimAnalysisModels.h"
 #include "RiaPreferences.h"
+#include "RifEclipseOutputFileTools.h"
+#include "RifReaderEclipseOutput.h"
+#include "RifReaderMockModel.h"
+#include "RifReaderSettings.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 #include "RimMockModelSettings.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+
+#include "cafPdmSettings.h"
+#include "cafPdmUiPropertyDialog.h"
+#include "cafProgressInfo.h"
+
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +93,7 @@ bool RimResultCase::openEclipseGridFile()
 
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
         readerInterface = new RifReaderEclipseOutput;
-        readerInterface->readFaultData(prefs->readFaultData());
+        readerInterface->setReaderSetting(prefs->readerSettings());
         readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
 
         cvf::ref<RigCaseData> eclipseCase = new RigCaseData;

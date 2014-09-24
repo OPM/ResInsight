@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,29 +17,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-//#include "RiaStdInclude.h"
 
 #include "RimStatisticsCaseEvaluator.h"
+
 #include "RigCaseCellResultsData.h"
-#include "RimReservoirView.h"
-#include "RimCase.h"
 #include "RigCaseData.h"
+#include "RigResultAccessorFactory.h"
+#include "RigResultModifier.h"
+#include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
-#include "RimReservoirCellResultsCacher.h"
 
+#include "RimReservoirCellResultsStorage.h"
 
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-
-//#include "RigCaseData.h"
-#include <QDebug>
 #include "cafProgressInfo.h"
+
+#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -112,7 +106,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
         RimDefines::ResultCatType resultType = resultSpecification[i].m_resType;
         QString resultName = resultSpecification[i].m_resVarName;
 
-        size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->globalActiveCellCount();
+        size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->reservoirActiveCellCount();
         RigCaseCellResultsData* destCellResultsData = m_destinationCase->results(poroModel);
 
         // Special handling if SOIL is asked for
@@ -181,7 +175,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 RimDefines::ResultCatType resultType = resultSpecification[resSpecIdx].m_resType;
                 QString resultName = resultSpecification[resSpecIdx].m_resVarName;
 
-                size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->globalActiveCellCount();
+                size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->reservoirActiveCellCount();
 
                 if (activeCellCount == 0) continue;
 
@@ -199,24 +193,25 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 
                 // Build data access objects for source scalar results
 
-                cvf::Collection<cvf::StructGridScalarDataAccess> sourceDataAccessList;
+				cvf::Collection<RigResultAccessor> sourceDataAccessList;
                 for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                 {
                     RimCase* sourceCase = m_sourceCases.at(caseIdx);
 
-                    size_t scalarResultIndex = sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
+					// Trigger loading of dataset
+					sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = sourceCase->reservoirData()->dataAccessObject(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex);
-                    if (dataAccessObject.notNull())
+					cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(sourceCase->reservoirData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
+                    if (resultAccessor.notNull())
                     {
-                        sourceDataAccessList.push_back(dataAccessObject.p());
+                        sourceDataAccessList.push_back(resultAccessor.p());
                     }
                 }
 
                 // Build data access objects for destination scalar results
-                // Find the created result container, if any, and put its dataAccessObject into the enum indexed destination collection
+                // Find the created result container, if any, and put its resultAccessor into the enum indexed destination collection
 
-                cvf::Collection<cvf::StructGridScalarDataAccess> destinationDataAccessList;
+                cvf::Collection<RigResultModifier> destinationDataAccessList;
                 std::vector<QString> statisticalResultNames(STAT_PARAM_COUNT);
 
                 statisticalResultNames[MIN] = createResultNameMin(resultName);
@@ -231,14 +226,9 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 for (size_t stIdx = 0; stIdx < statisticalResultNames.size(); ++stIdx)
                 {
                     size_t scalarResultIndex = destCellResultsData->findScalarResultIndex(resultType, statisticalResultNames[stIdx]);
-                    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
-                    {
-                        destinationDataAccessList.push_back(m_destinationCase->dataAccessObject(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex).p());
-                    }
-                    else
-                    {
-                        destinationDataAccessList.push_back(NULL);
-                    }
+
+                    cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_destinationCase, grid->gridIndex(), poroModel, dataAccessTimeStepIndex, scalarResultIndex);
+                    destinationDataAccessList.push_back(resultModifier.p());
                 }
 
                  std::vector<double> statParams(STAT_PARAM_COUNT, HUGE_VAL);
@@ -248,8 +238,8 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 for (int cellIdx = 0; static_cast<size_t>(cellIdx) < grid->cellCount(); cellIdx++)
                 {
 
-                    size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
-                    if (m_destinationCase->activeCellInfo(poroModel)->isActive(globalGridCellIdx))
+                    size_t reservoirCellIndex = grid->reservoirCellIndex(cellIdx);
+                    if (m_destinationCase->activeCellInfo(poroModel)->isActive(reservoirCellIndex))
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector
 
@@ -352,25 +342,6 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStatisticsCaseEvaluator::debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx)
-{
-    CVF_ASSERT(m_destinationCase);
-
-    qDebug() << resultName << "timeIdx : " << timeStepIdx;
-
-    size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, resultName);
-
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = m_destinationCase->dataAccessObject(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
-    if (dataAccessObject.isNull()) return;
-
-    for (size_t cellIdx = 0; cellIdx < m_globalCellCount; cellIdx++)
-    {
-        qDebug() << dataAccessObject->cellScalar(cellIdx);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -379,12 +350,12 @@ RimStatisticsCaseEvaluator::RimStatisticsCaseEvaluator(const std::vector<RimCase
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),
-    m_globalCellCount(0),
+    m_reservoirCellCount(0),
     m_timeStepIndices(timeStepIndices)
 {
     if (sourceCases.size() > 0)
     {
-        m_globalCellCount = sourceCases[0]->reservoirData()->mainGrid()->cells().size();
+        m_reservoirCellCount = sourceCases[0]->reservoirData()->mainGrid()->cells().size();
     }
 
     CVF_ASSERT(m_destinationCase);

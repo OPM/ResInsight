@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,13 +19,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimCellPropertyFilter.h"
-#include "RimResultDefinition.h"
-#include "cvfMath.h"
 
-#include "RimCellPropertyFilterCollection.h"
 #include "RigCaseCellResultsData.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimResultDefinition.h"
+
 #include "cafPdmUiDoubleSliderEditor.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "cvfAssert.h"
+#include "cvfMath.h"
 
 
 namespace caf
@@ -126,21 +130,23 @@ QList<caf::PdmOptionItemInfo> RimCellPropertyFilter::calculateValueOptions(const
 {
     QList<caf::PdmOptionItemInfo> optionItems = resultDefinition->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
-    // Remove ternary from list, as it is not supported to perform filtering on a ternary result
-    int ternaryIndex = -1;
+    std::vector<int> indicesToRemove;
     for (int i = 0; i < optionItems.size(); i++)
     {
         QString text = optionItems[i].optionUiText;
 
-        if (text.compare(RimDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0)
+        if (RimDefines::isPerCellFaceResult(text))
         {
-            ternaryIndex = i;
+            indicesToRemove.push_back(i);
         }
     }
 
-    if (ternaryIndex != -1)
+    std::sort(indicesToRemove.begin(), indicesToRemove.end());
+    
+    std::vector<int>::reverse_iterator rit;
+    for (rit = indicesToRemove.rbegin(); rit != indicesToRemove.rend(); ++rit)
     {
-        optionItems.takeAt(ternaryIndex);
+        optionItems.takeAt(*rit);
     }
 
     return optionItems;
@@ -232,7 +238,7 @@ void RimCellPropertyFilter::computeResultValueRange()
     double min = 0.0;
     double max = 0.0;
 
-    size_t scalarIndex = resultDefinition->gridScalarIndex();
+    size_t scalarIndex = resultDefinition->scalarResultIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
     {
         RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();

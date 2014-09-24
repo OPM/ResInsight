@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -46,3 +48,36 @@ namespace caf
 
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimDefines::isPerCellFaceResult(const QString& resultName)
+{
+    if (resultName.compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::combinedRiTranResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::combinedRiMultResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+
+    return false;
+}

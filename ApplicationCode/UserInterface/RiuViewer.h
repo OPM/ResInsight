@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,6 +26,7 @@
 #include "cafPdmPointer.h"
 
 #include "cafMouseState.h"
+#include "cvfStructGrid.h"
 
 class RimReservoirView;
 class QLabel;
@@ -50,8 +53,6 @@ public:
     RiuViewer(const QGLFormat& format, QWidget* parent);
     ~RiuViewer();
 
-    void            setColorLegend1(cvf::OverlayScalarMapperLegend* legend);
-    void            setColorLegend2(cvf::OverlayScalarMapperLegend* legend);
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
@@ -66,8 +67,8 @@ public:
 
     void            showAnimationProgress(bool enable);
     
-    void            addOverlayItem(cvf::OverlayItem* overlayItem);
-    void            removeOverlayItem(cvf::OverlayItem* overlayItem);
+    void            removeAllColorLegends();
+    void            addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend);
 
  
 public slots:
@@ -81,15 +82,15 @@ protected:
     void            mousePressEvent(QMouseEvent* event);
 
     void            handlePickAction(int winPosX, int winPosY);
-    cvf::Part*      pickPointAndFace(int winPosX, int winPosY, uint* faceHit, cvf::Vec3d* localIntersectionPoint);
+    void            pickPointAndFace(int winPosX, int winPosY, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
 
 private slots:
     void            slotRangeFilterI();
     void            slotRangeFilterJ();
     void            slotRangeFilterK();
+    void            slotHideFault();
 
 private:
-    void            updateLegends();
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
 
 private:
@@ -106,14 +107,13 @@ private:
     QCDEStyle*      m_progressBarStyle;
 
 
-    cvf::ref<cvf::OverlayScalarMapperLegend> m_legend1;
-    cvf::ref<cvf::OverlayScalarMapperLegend> m_legend2;
-
+    cvf::Collection<cvf::OverlayItem> m_visibleLegends;
 
     caf::PdmPointer<RimReservoirView> m_reservoirView;
 
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;
+    cvf::StructGridInterface::FaceType m_currentFaceIndex;
 
     QPoint m_lastMousePressPosition;
 };

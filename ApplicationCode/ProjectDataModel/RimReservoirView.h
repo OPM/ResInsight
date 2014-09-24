@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,40 +19,40 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafAppEnum.h"
 
+#include "cafAppEnum.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+
+#include "cvfArray.h"
 #include "cvfBase.h"
 #include "cvfObject.h"
 
+// Includes to make Pdm work for cvf::Color and cvf:Mat
+#include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-
-#include <QPointer>
-#include <QString>
-
-#include "RimFaultCollection.h"
-
-class RimCase;
-class RimResultSlot;
-class RimCellEdgeResultSlot;
-class RimCellRangeFilter;
-class RimCellRangeFilterCollection;
-class RimCellPropertyFilter;
-class RimCellPropertyFilterCollection;
-class Rim3dOverlayInfoConfig;
-class RimReservoirCellResultsStorage;
-class RimWellCollection;
-class RigActiveCellInfo;
 
 #include "RivReservoirViewPartMgr.h"
-class RivReservoirPipesPartMgr;
 
-class RiuViewer;
+class RigActiveCellInfo;
+class RigCaseCellResultsData;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
+class Rim3dOverlayInfoConfig;
+class RimCase;
+class RimCellEdgeResultSlot;
+class RimCellPropertyFilter;
+class RimCellPropertyFilterCollection;
+class RimCellRangeFilter;
+class RimCellRangeFilterCollection;
+class RimFaultCollection;
+class RimFaultResultSlot;
 class RimReservoirCellResultsStorage;
+class RimReservoirCellResultsStorage;
+class RimResultSlot;
+class RimWellCollection;
+class RiuViewer;
+class RivReservoirPipesPartMgr;
 
 namespace cvf
 {
@@ -98,6 +100,7 @@ public:
 
     caf::PdmField<RimResultSlot*>                       cellResult;
     caf::PdmField<RimCellEdgeResultSlot*>               cellEdgeResult;
+    caf::PdmField<RimFaultResultSlot*>                  faultResultSettings;
 
     caf::PdmField<RimCellRangeFilterCollection*>        rangeFilterCollection;
     caf::PdmField<RimCellPropertyFilterCollection*>     propertyFilterCollection;
@@ -132,6 +135,8 @@ public:
     // Access internal objects
     RimReservoirCellResultsStorage*         currentGridCellResults();
     RigActiveCellInfo*                      currentActiveCellInfo();
+    RimResultSlot*                          currentFaultResultSlot();
+
 
     void                                    setEclipseCase(RimCase* reservoir);
     RimCase*                                eclipseCase();
@@ -156,12 +161,6 @@ public:
     void                                    setShowFaultsOnly(bool showFaults);
     bool                                    isGridVisualizationMode() const;
 
-
-    // Picking info
-    bool                                    pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const;
-    void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText) ;
-    void                                    appendNNCResultInfo(size_t nncIndex, QString* resultInfo);
-
     // Does this belong here, really ?
     void                                    calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
 
@@ -170,6 +169,7 @@ public:
     void                                    loadDataAndUpdate();
     void                                    createDisplayModelAndRedraw();
     void                                    scheduleCreateDisplayModelAndRedraw();
+    bool                                    isTimeStepDependentDataVisible() const;
 
     void                                    scheduleGeometryRegen(unsigned short geometryType);
     void                                    scheduleReservoirGridGeometryRegen();
@@ -182,8 +182,6 @@ public:
 
     // Display model generation
 private:
-    void                                    appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText);
-
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();
     void                                    updateCurrentTimeStep();
@@ -192,11 +190,11 @@ private:
     void                                    updateStaticCellColors();
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
+    void                                    updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData);
 
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultParts() const;
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultGeometryTypes() const;
     void                                    updateFaultForcedVisibility();
     void                                    updateFaultColors();
-
 
     cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
