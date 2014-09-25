@@ -31,6 +31,9 @@ All the detected cell faces are compared to the faults imported from the `*.DATA
 ### Fault color
 Each named Fault is given a color on import. This color can be controlled by selecting the fault and edit its  **Fault color** in the **Property Editor.**
 
+### Separate Fault Result
+Default result mapping on faults is using the result specified in **Cell Result**. If a different result mapping is wanted, enable the checkbox at **Separate Fault Result** and select the result from the result selection dialog in the **Property Editor**. A second legend for the fault result is added to the view.
+
 ### Fault visibility
 Faults can be disabled from the context menu in the 3D view. Also unchecking the checkbox in front of the fault will hide the fault. Visibility for multiple faults can be controlled from the context menu of the **Faults** tree item. 
 
