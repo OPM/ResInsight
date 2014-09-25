@@ -1,7 +1,7 @@
 ---
 layout: docs
-prev_section: faults
-next_section: regressiontestsystem
+prev_section: octaveinterface
+next_section: modelnavigation
 title: Batch Commands
 permalink: /docs/batchcommands/
 published: true

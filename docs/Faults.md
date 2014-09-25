@@ -1,25 +1,28 @@
 ---
 layout: docs
-prev_section: wellpaths
-next_section: batchcommands
+prev_section: simulationwells
+next_section: filters
 title: Faults
 permalink: /docs/faults/
 published: true
 ---
 
-ResInsight will detect all the cell faces with no geometrically matching neighbours, and display them as *Faults*. 
-This means that the are drawn in special ways, and that their visual appearance can be controlled separately from the rest of the grid.
+Faults are organized in a folder named **Faults**. Overall settings can be controlled from the **Faults** item in the **Project Tree**.
 
 ## Fault Names and NNC
 
 ### Import of Fault info from `*.DATA`-files
-If enabled, ResInsight will also import fault information from the `*.DATA` files and use this information to group the detected faces into named items which is available in the ![]({{ site.baseurl }}/images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**. The imported faults are ordered in ascending order based on their name.
+If enabled in **Preferences**, ResInsight will import fault information from the `*.DATA` files and use this information to group the detected faces into named items. The imported faults are ordered in ascending order based on their name.
 
->
+<div class="note info">
+<h5>Technical Functionality</h5>
+The <b>DATA</b> file is parsed for the <b>FAULT</b> keyword. Also <b>INCLUDE</b> keywords are read, and included files are parsed for the <b>FAULTS</b> keyword.<br>
+Currently the <b>PATH</b> keyword is NOT supported.
+</div>
 
-<div class="note warning">
+<div class="note info">
 <h5>Reduce case loading time</h5>
-As import of faults can be time consuming, reading of faults can be disabled from <b>Preferences -> Read fault data</b>
+As import of faults can be time consuming, reading of faults can be disabled from <b>Preferences ->Import faults</b>
 </div>
 
 ### Undefined grid faults
@@ -28,12 +31,13 @@ All the detected cell faces are compared to the faults imported from the `*.DATA
 ### Fault color
 Each named Fault is given a color on import. This color can be controlled by selecting the fault and edit its  **Fault color** in the **Property Editor.**
 
+### Fault visibility
+Faults can be disabled from the context menu in the 3D view. Also unchecking the checkbox in front of the fault will hide the fault. Visibility for multiple faults can be controlled from the context menu of the **Faults** tree item. 
+
 ### NNC visualization
-ResInsight will read Non Neighbor Connections from the Eclipse output file (`*.INIT`), and create explicit visualizations of those witch have a common surface area. These NNC's are then sorted onto the Fault's and their visibility is controlled from the **Property Editor** of the **Faults** Item in the **Project Tree**.
+If enabled in **Preferences**, ResInsight will read Non Neighbor Connections from the Eclipse output file (`*.INIT`), and create explicit visualizations of those witch have a common surface area. These NNC's are then sorted onto the Fault's and their visibility is controlled from the **Property Editor** of the **Faults** Item in the **Project Tree**.
 
 The color of the NNC faces are set to be a bit lighter than their corresponding named fault, and can not be controlled directly.
-
-Currently the only result property that is mapped onto the NNC is the static TRANSXYZ property which displays the transmissibility associated to each face.
 
 ### Picking info
 
@@ -66,7 +70,6 @@ By clicking the ![]({{ site.baseurl }}/images/draw_style_faults_24x24.png) **Fau
 #### Fault options
 - **Show faults outside filters**: Turning this option on, will display faults outside the filter region, making the fault visualization completely ignore the Range and Property filters in action.
 - **Show results on faults**: This toggle controls whether to show the selected result property on the faults or not. This should normally be left on.
-- **Show NNCs**: Toggles whether to display the Non Neighbor Connections, or not.
 
 #### Fault Face Visibility
 This group of options controls the visibility of the fault faces. Since they work together, and in some cases are overridden by the system, they can be a bit confusing. 
@@ -79,6 +82,11 @@ Secondly: The option you would normally want to adjust is **Dynamic Face Selecti
 - **Show opposite faces**: Displays the opposite fault cell faces from what is defined on the input file, based on IJK neighbors.
  <br> *These two options should normally be left **On***. <br>They are useful when investigating the exact faults information provided on the `*.DATA` file. 
  <br>If you need to use them, it is normally wise to set the **Dynamic Face Selection** to "Show Both"
+
+#### NNC Visibility
+ 
+- **Show NNCs**: Toggles whether to display the Non Neighbor Connections, or not.
+- **Hide NNC geometry if no NNC result is available**: Automatically hides NNC geometry if no NNC results are available
 
 ##### Dynamic Face Selection
 

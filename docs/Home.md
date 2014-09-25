@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: ResInsight 1.2 Users Guide
+title: ResInsight 1.3 Users Guide
 next_section: gettingstarted
 permalink: /docs/home/
 published: true

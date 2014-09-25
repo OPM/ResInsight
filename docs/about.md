@@ -11,7 +11,7 @@ published: true
 <p/>
 
 ### Project organization
-The project was initiated by Statoil ASA in 2009. Ceetron AS developed the initial solution, and the development responsibility was handed over to Ceetron Solutions AS in 2013.
+The project was initiated by Statoil ASA in 2011. ResInsight was initially developed by Ceetron AS, and the development responsibility was handed over to Ceetron Solutions AS in 2013.
 
 ### Web site programming and design
 The programming and design of this site is based on work by [Tom Preston-Werner](http://tom.preston-werner.com/). This is also the current theme of [Jekyll](http://jekyllrb.com/).

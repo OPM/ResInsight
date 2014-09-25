@@ -1,6 +1,6 @@
 ---
 layout: docs
-prev_section: reservoirviews
+prev_section: derivedresults
 next_section: octaveinterface
 title: Grid Case Groups and Statistics
 permalink: /docs/casegroupsandstatistics/
@@ -49,7 +49,7 @@ To reduce memory usage, project loading time etc. remember to delete the 3D View
 After creating a grid case group, an empty **Statistics Case** is created for you in the **Derived Statistics** folder of the **Grid Case Group**. 
 
 ### Setting up and Calculate
-The properties of an uncalculated and a calculated  **Statistics Case** is shown below:
+The properties of non-calculated and calculated **Statistics Case** is shown below:
 
 ![]({{ site.baseurl }}/images/StatisticsCaseProperties.png)  ![]({{ site.baseurl }}/images/StatisticsCasePropertiesCalculated.png)
 

@@ -1,7 +1,7 @@
 ---
 layout: docs
 prev_section: casegroupsandstatistics
-next_section: wellpaths
+next_section: batchcommands
 title: Octave Interface
 permalink: /docs/octaveinterface/
 published: true

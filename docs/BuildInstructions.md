@@ -1,8 +1,8 @@
 ---
 layout: docs
-prev_section: batchcommands
+prev_section: modelnavigation
 next_section: octaveinterfacereference
-title: Build instructions
+title: Build Instructions
 permalink: /docs/buildinstructions/
 published: true
 ---
@@ -16,12 +16,12 @@ If you check the button 'Grouped' in the GUI, the CMake variables are grouped by
 
 | CMake Name   | Description |
 |--------------|---------|
-| `RESINSIGHT_USE_OPENMP`               | Enable OpenMP multi-core parallel building |
-| `RESINSIGHT_PRIVATE_INSTALL`          | Install as an independent bundle including the necessary Qt libraries |
 | `RESINSIGHT_BUILD_DOCUMENTATION`      | Use Doxygen to create the HTML based API documentation |
+| `RESINSIGHT_OCTAVE_PLUGIN_32_BIT`     | Windows 64-bit: Flag used to control if Octave plugins will be compiled using 32-bit build environment |
 | `RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE`  | Location of Octave tool mkoctfile used to compile Octave plugins |
 | `RESINSIGHT_OCTAVE_PLUGIN_QMAKE`      | Location of qmake to find Qt include files and libraries used to compile Octave plugins |
-| `RESINSIGHT_OCTAVE_PLUGIN_32_BIT`     | Windows 64-bit: Flag used to control if Octave plugins will be compiled using 32-bit build environment |
+| `RESINSIGHT_PRIVATE_INSTALL`          | Install as an independent bundle including the necessary Qt libraries |
+| `RESINSIGHT_USE_OPENMP`               | Enable OpenMP multi-core parallel building |
 
 ### Build without Octave plugins
 It is possible to compile ResInsight without compiling the Octave plugins. This can be done by specifying blank for the Octave CMake variables. The Octave plugin module will not be build, and CMake will show warnings like 'Failed to find mkoctfile'. This will not break the build or compilation of ResInsight.
@@ -38,13 +38,6 @@ It is possible to compile ResInsight without compiling the Octave plugins. This 
 ### Optional - build instructions Octave plugins 
 To be able to compile the Octave plugins, the path to the Octave development tool `mkoctfile` must be provided. In addition, if you compile x64, you must specify the location of 32-bit version of Qt, as the Octave plugins on Windows are currently only supported for x86.
 See description for `RESINSIGHT_OCTAVE_PLUGIN_QMAKE` and `RESINSIGHT_OCTAVE_PLUGIN_32_BIT` above.
-
-#### Octave installation
-Currently tested and verified version on Windows is Octave 3.6.1. NB! Version 3.6.2 has compile issues using VS2010, this version will not be able to compile the Octave plugins.
- 
-- Download and install Octave 3.6.1 for VS2010 from [SourceForge](http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/Octave%203.6.1%20for%20Windows%20Microsoft%20Visual%20Studio/octave-3.6.1-vs2010-setup-1.exe/download)
-- Download a [missing library file](http://dl.dropbox.com/u/45539519/dirent-vs2010.lib), rename to **dirent.lib** and copy it into Octave lib folder, typically **c:/Octave-3.6.1/lib/dirent.lib** See details on [SourceForge](http://sourceforge.net/mailarchive/message.php?msg_id=28933804)
-
 
 ## Linux
 

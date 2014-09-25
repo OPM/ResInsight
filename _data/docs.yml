@@ -7,14 +7,19 @@
 - title: Application
   docs:
   - reservoirviews
+  - gridimportexport
+  - simulationwells
+  - faults
+  - filters
+  - wellpaths
+  - derivedresults
   - casegroupsandstatistics
   - octaveinterface
-  - wellpaths
-  - faults
   - batchcommands
 
 - title: Appendix
   docs:
+  - modelnavigation
   - buildinstructions
   - octaveinterfacereference
   - regressiontestsystem

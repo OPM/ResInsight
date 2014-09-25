@@ -35,7 +35,7 @@ A selected subset of actions are presented as controls in the toolbar. The diffe
 
 #### 3D Views 
 
-In the main area of the application, several 3D views can be open at the same time.  One of them will be active and the active view can be either maximized to use the whole main area, or normalized so that you can see all the open 3D views.
+In the main area of the application, several 3D views can be open at the same time. One of them will be active and the active view can be either maximized to use the whole main area, or normalized so that you can see all the open 3D views.
 
 <div class="note">
 <h5>Docking window management</h5>
@@ -51,13 +51,16 @@ Toggling a checkbox next to an item in the **Project Tree** will toggle visibili
 
 Context menu commands are also available to do special operations on a selected set of items.
 
+How to interact and manipulate the 3D model is described in [Model Navigation]({{ site.baseurl }}/docs/modelnavigation)
+
+
 ### Cases and their types
 
 A *Case* in ResInsight means a Grid model with a particular set of results or property data. There are  
 three different Case types: 
 
 ##### Result case ![]({{ site.baseurl }}/images/Case24x24.png) 
-This is a Case based on the results of an Eclipse analysis, read from a grid file together with restart data.
+This is a Case based on the results of an Eclipse simulation, read from a grid file together with static and restart data. Multiple Cases can be selected and read from a folder.
 
 ##### Input case ![]({{ site.baseurl }}/images/EclipseInput24x24.png) 
 This Case type is based on a `*.GRDECL` file, or a part of an Eclipse *Input* file. This Case type supports loading single ASCII files defining Eclipse Cell Properties, and also to export modified property sets to ASCII files.
@@ -73,68 +76,6 @@ A **Grid Case Group** is a group of **Result Cases** with identical grids, but g
 The purpose of a Grid Case group is to make it easy to calculate statistics across the source cases both for static and dynamic Eclipse Properties. 
 
 See [ Multiple realizations and statistics ]({{ site.baseurl }}/docs/casegroupsandstatistics) for more on this.
-
-### Importing data
-
-#### Input data support ###
-
-ResInsight supports the following type of Eclipse input data:
-- `*.GRID` and `*.EGRID` files along with their `*.INIT` and restart files `*.XNNN` and `*.UNRST`. 
-- Grid and Property data from  `*.GRDECL` files.
-
-#### Importing Eclipse cases 
-
-##### Eclipse Results
-1. Select **File->Import->Import Eclipse Case** and select an `*.EGRID` or `*.GRID` Eclipse file for import.
-2. The case is imported, and a view of the case is created
-
-*TIP:* You can select several grid files in one go by multiple selection of files( Ctrl + left mouse button, Shift + left mouse button). 
-
-##### Eclipse ASCII input data
-1. Select **File->Import->Import Input Eclipse Case** and select a `*.GRDECL` file.
-2. The case is imported, and a view of the case is created
-3. Right click the **Input Properties** in the generated **Input Case** and use the context menu to import additional Eclipse Property data files.
-
-##### Handling missing or wrong MAPAXES
-
-The X and Y grid data can be negated in order to make the Grid model appear correctly in ResInsight. This functionality is accessible in the **Property Editor** for all Case types as the toggle buttons **Flip X Axis** and **Flip Y Axis** as shown in the example below.
- 
-![]({{ site.baseurl }}/images/CaseProperties.png)
-
-
-### Model navigation 
-
-ResInsight comes with two 3D navigation modes. The active mode can be selected in the **Preferences** dialog (**Edit -> Preferences**).
-
-|Abbreviation | Meaning |
-|-------------|---------|
-|LMB          | Pressing left mouse button |
-|MMB          | Pressing Middle mouse button or scroll wheel button |
-|RMB          | Pressing Right mouse button |
-
-
-#### Ceetron navigation mode
-
-|Mouse interaction | Action |
-|------------------|---------|
-|LMB               | Pan model |
-|MMB               | Zoom to mouse pointer location |
-|Scroll wheel      | Zoom to mouse pointer location |
-|RMB               | Rotate model |
-|                  | |                    
-|RMB single click  | Context menu |
-|LMB single click  | Update status bar and **Result Info** |
-
-#### CAD navigation mode
-
-|Mouse interaction | Action |
-|------------------|--------|
-|MMB               | Rotate model |
-|MMB + Shift       | Pan model |
-|Scroll wheel      | Zoom to mouse pointer location |
-|                  | |
-|RMB single click  | Context menu |
-|LMB single click  | Update status bar and **Result Info** |
 
 
 ### Project files and Cache directory
@@ -156,14 +97,4 @@ Image export of current 3D view can be launched from **File -> Export -> Snapsho
 ##### All Views ![]({{ site.baseurl }}/images/SnapShotSaveViews.png)
 If a project contains multiple views, all views can be exported using **File -> Export -> Snapshot All Views To File**. 
 
-It is also possible to snapshot all views from the command line. See  [ Command Line Arguments]      (CommandLineParameters.md)
-
-#### Export of Eclipse Properties as ASCII data
-Eclipse Properties can be exported to Eclipse ASCII files by activating the context menu for a **Cell Result**. ![]({{ site.baseurl }}/images/ExportProperty.png) 
-
-The command will export the property set currently loaded and shown in the 3D View to a file with the following format:
-
-    -- Exported from ResInsight
-    <keyword>
-    <One number per cell separated by spaces>
-    /
+It is also possible to snapshot all views from the command line. See [ Command Line Arguments ]({{ site.baseurl }}/docs/commandlineparameters)
