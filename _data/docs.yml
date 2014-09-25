@@ -20,6 +20,7 @@
 - title: Appendix
   docs:
   - modelnavigation
+  - preferences
   - buildinstructions
   - octaveinterfacereference
   - regressiontestsystem
