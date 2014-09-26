@@ -17,7 +17,7 @@ User defined preferences are store for each user of ResInsight.
 - **Script configuration** Defines where scripts are stored and what text editor to use for editing scripts
 - **Octave** Defines the binary file of octave. Usually without path on Linux, and including path on Windows.
 -  **Default settings** The user can define a set of visual settings that will be used when creating new views.
--  **Compute when loading new case**
+-  **Compute when loading new case** If not present, compute DEPTH, DX, DY, DZ, TOP, BOTTOM when loading new case
 -  **Reader settings** Defines entities to import in addition to grid and grid properties.
 -  **ssihub Address** Statoil internal web service used to import well paths.
 -  **Use shaders** In some settings hardware accelerated methods are not possible to use(ie. remote desktop on Windows). This setting can disable shaders to be able to test behaviour without shaders.
