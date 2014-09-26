@@ -65,7 +65,6 @@ public: // Pdm Fields
     caf::PdmField<QString>  lastUsedProjectFileName;
 
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
-    caf::PdmField<bool>     autocomputeGridFaults;
 
     caf::PdmField<RifReaderSettings*> readerSettings;
 

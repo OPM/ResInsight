@@ -65,10 +65,8 @@ RiaPreferences::RiaPreferences(void)
     lastUsedProjectFileName.setUiHidden(true);
 
     CAF_PDM_InitField(&autocomputeDepthRelatedProperties,   "autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
-    CAF_PDM_InitField(&autocomputeGridFaults,               "autocomputeGridFaults", true, "Grid faults", "", "Detect all fault faces geometrically", "");
 
     autocomputeDepthRelatedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    autocomputeGridFaults.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     readerSettings = new RifReaderSettings;
     CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader settings", "", "", "");
@@ -99,8 +97,7 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
         }
     }
     else if (field == &octaveShowHeaderInfoWhenExecutingScripts ||
-             field == &autocomputeDepthRelatedProperties ||
-             field == &autocomputeGridFaults)
+             field == &autocomputeDepthRelatedProperties)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -135,8 +132,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
     autoComputeGroup->add(&autocomputeDepthRelatedProperties);
-    autoComputeGroup->add(&autocomputeGridFaults);
-
     
     caf::PdmUiGroup* readerSettingsGroup = uiOrdering.addNewGroup("Reader settings");
     std::vector<caf::PdmFieldHandle*> readerSettingsFields;
