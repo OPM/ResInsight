@@ -13,7 +13,7 @@ published: true
 The application has a main area and several docking windows. The different docking 
 windows can be managed from the **Windows** menu or directly using the local menu bar of the docking window.
 
-![ResInsight User Interface]({{ site.baseurl }}/images/ResInsightUIFullSizeWindows.png)
+![ResInsight User Interface]({{ site.baseurl }}/images/ResInsightUIMediumSize.png)
 
 
 #### Docking Windows
