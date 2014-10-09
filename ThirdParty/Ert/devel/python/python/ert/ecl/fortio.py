@@ -36,122 +36,93 @@ python module is a minimal wrapping of this datastructure; mainly to
 support passing of FortIO handles to the underlying C functions. A
 more extensive wrapping of the fortio implementation would be easy.
 """
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace, CFILE
+import ctypes
+import os
+import sys
+from ert.cwrap import BaseCClass, CWrapper
 from ert.ecl import ECL_LIB
 
 
-class FortIO(CClass):
-    """
-    Class to support binary IO of files created by the Fortran runtime.
+class FortIO(BaseCClass):
+    READ_MODE = 1
+    WRITE_MODE = 2
+    READ_AND_WRITE_MODE = 3
+    APPEND_MODE = 4
 
-    The FortIO class is a thin wrapper around the C struct fortio. The
-    FortIO class is created to facilitate reading and writing binary
-    fortran files. The python implementation (currently) only supports
-    instantiation and subsequent use in a C function, but it would be
-    simple to wrap the low level read/write functions for Python
-    access as well.
-    """
+    def __init__(self, file_name, mode=READ_MODE, fmt_file=False, endian_flip_header=True):
 
-    #def __init__(self , filename , mode , fmt_file = False , endian_flip = True):
-    #    """
-    #    Create a FortIO handle connected to file @filename. @mode as in fopen()
-    #
-    #    Will create a FortIO handle connected to the file
-    #    @filename. The @mode flag is passed directly to the final
-    #    fopen() call and should be "r" to open the file for reading
-    #    and "w" for writing.
-    #    
-    #    The point of the FortIO class is to work with binary files,
-    #    but you can set the @fmt_file parameter to True if you want to
-    #    read/write formatted ECLIPSE files in restart format. 
-    #
-    #    By default the FortIO instances will be opened with
-    #    endian_flip set to True (this is the correct behaviour for the
-    #    ECLIPSE/x86 combination) - but other values are in principle
-    #    possible. Observe that the endian flipping only applies to the
-    #    header/footer inserted by the Fortran runtime, the actual data
-    #    is not touched by the FortIO instance.
-    #    """
+        if mode == FortIO.READ_MODE or mode == FortIO.APPEND_MODE or mode == FortIO.READ_AND_WRITE_MODE:
+            if not os.path.exists(file_name):
+                raise IOError("File '%s' does not exist!" % file_name)
 
+        if mode == FortIO.READ_MODE:
+            c_pointer = FortIO.cNamespace().open_reader(file_name, fmt_file, endian_flip_header)
+        elif mode == FortIO.WRITE_MODE:
+            c_pointer = FortIO.cNamespace().open_writer(file_name, fmt_file, endian_flip_header)
+        elif mode == FortIO.READ_AND_WRITE_MODE:
+            c_pointer = FortIO.cNamespace().open_readwrite(file_name, fmt_file, endian_flip_header)
+        elif mode == FortIO.APPEND_MODE:
+            c_pointer = FortIO.cNamespace().open_append(file_name, fmt_file, endian_flip_header)
+        else:
+            raise UserWarning("Unknown mode: %d" % mode)
 
-    # The fundamental open functions use a normal Python open() call
-    # and pass the filehandle to the C layer, instead of letting the C
-    # layer open the file. This way normal Python exception handling
-    # will be invoked if there are problems with opening the file.
+        self.__mode = mode
 
-    @classmethod
-    def __wrap(cls , filename, pyfile , fmt_file , endian_flip ):
-        obj = cls( )
+        super(FortIO, self).__init__(c_pointer)
+        self.__open = True
 
-        obj.pyfile = pyfile
-        c_ptr = cfunc.fortio_wrap_FILE( filename , endian_flip , fmt_file , CFILE(obj.pyfile))
-        obj.init_cobj( c_ptr , None )
-        return obj
+    def close(self):
+        if self.__open:
+            FortIO.cNamespace().close(self)
+            self.__open = False
 
-
-    @classmethod
-    def open(cls , filename, mode = "r" , fmt_file = False , endian_flip = True):
+    def writeRecord(self, data):
         """
-        Will open of FortIO instance. 
+        Not a good way of implementing this. ;-)
+        @type data: bytearray
         """
-        pyfile = open( filename , mode)
-        return cls.__wrap( filename , pyfile , fmt_file , endian_flip )
-    
-        
-    @classmethod
-    def reader(cls , filename , fmt_file = False , endian_flip = True):
-        """
-        Will open a FortIO handle for reading.
-        """
-        return cls.open( filename , "r" , fmt_file , endian_flip )
-    
-
-    @classmethod
-    def writer(cls , filename , fmt_file = False , endian_flip = True):
-        """
-        Will open a FortIO handle for writing.
-        """
-        return cls.open( filename , "w" , fmt_file , endian_flip )
+        buffer = (ctypes.c_char * len(data)).from_buffer(data)
+        FortIO.cNamespace().write_record(self, buffer, len(data))
 
 
-    # Implements normal Python semantics - close on delete.
-    # Because the __del__() operator, i.e. the close(), involves
-    # more than just a cfree() function we must override the
-    # __del__ operator of the base class.
-    def __del__(self):
-        """
-        Desctructor - will close the filehandle.
-        """
-        if self.c_ptr:
-            self.close( )
+    def readRecordAsString(self, record_size):
+        """ @rtype: str """
+        chars = ctypes.create_string_buffer(record_size)
+        count = FortIO.cNamespace().read_record(self, chars)
+        return ctypes.string_at(chars, count)
 
 
-    def close( self ):
-        """
-        Close the filehandle.
-        """
+    def getPosition(self):
+        """ @rtype: long """
+        return FortIO.cNamespace().get_position(self)
 
-        # Seems Python itself allows close() calls on already closed file handles,
-        # so we take care to ensure that also the FortIO class supports that.
-        if self.pyfile:
-            self.pyfile.close()
-            cfunc.free_wrapper( self )
+    def seek(self, position):
+        # SEEK_SET = 0
+        # SEEK_CUR = 1
+        # SEEK_END = 2
+        FortIO.cNamespace().seek(self, position, 0)
 
-        self.pyfile = None
-        self.c_ptr = None
+
+    def free(self):
+        self.close()
 
 
 
-# 2. Creating a wrapper object around the libecl library, 
-#    registering the type map : fortio <-> FortIO
 cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerType("fortio" , FortIO )
+cwrapper.registerObjectType("fortio", FortIO)
+
+FortIO.cNamespace().open_reader = cwrapper.prototype("c_void_p fortio_open_reader(char*, bool, bool)")
+FortIO.cNamespace().open_writer = cwrapper.prototype("c_void_p fortio_open_writer(char*, bool, bool)")
+FortIO.cNamespace().open_readwrite = cwrapper.prototype("c_void_p fortio_open_readwrite(char*, bool, bool)")
+FortIO.cNamespace().open_append = cwrapper.prototype("c_void_p fortio_open_append(char*, bool, bool)")
+
+FortIO.cNamespace().write_record = cwrapper.prototype("void fortio_fwrite_record(fortio, char*, int)")
+FortIO.cNamespace().read_record = cwrapper.prototype("int fortio_fread_record(fortio, char*)")
+
+FortIO.cNamespace().get_position = cwrapper.prototype("long fortio_ftell(fortio)")
+FortIO.cNamespace().seek = cwrapper.prototype("void fortio_fseek(fortio, int)")
+
+FortIO.cNamespace().close = cwrapper.prototype("bool fortio_fclose(fortio)")
 
 
-# 3. Installing the c-functions used to manipulate fortio instances.
-#    These functions are used when implementing the FortIO class, not
-#    used outside this scope.
-cfunc = CWrapperNameSpace("fortio")
-cfunc.fortio_wrap_FILE    = cwrapper.prototype("c_void_p fortio_alloc_FILE_wrapper( char* , bool , bool , FILE )")
-cfunc.free_wrapper        = cwrapper.prototype("void     fortio_free_FILE_wrapper( fortio )")
 

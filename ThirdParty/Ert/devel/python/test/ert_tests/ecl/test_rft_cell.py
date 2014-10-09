@@ -18,7 +18,7 @@
 
 import warnings
 from ert.ecl import EclRFTCell, EclPLTCell
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 # def out_of_range():
@@ -45,11 +45,11 @@ class RFTCellTest(ExtendedTestCase):
         self.assertEqual(j, cell.get_j())
         self.assertEqual(k, cell.get_k())
 
-        self.assertAlmostEqualScaled(pressure, cell.pressure)
-        self.assertAlmostEqualScaled(depth, cell.depth)
-        self.assertAlmostEqualScaled(swat, cell.swat)
-        self.assertAlmostEqualScaled(sgas, cell.sgas)
-        self.assertAlmostEqualScaled(1 - (sgas + swat), cell.soil)
+        self.assertFloatEqual(pressure, cell.pressure)
+        self.assertFloatEqual(depth, cell.depth)
+        self.assertFloatEqual(swat, cell.swat)
+        self.assertFloatEqual(sgas, cell.sgas)
+        self.assertFloatEqual(1 - (sgas + swat), cell.soil)
 
 
     def test_PLT_cell(self):
@@ -82,18 +82,18 @@ class RFTCellTest(ExtendedTestCase):
             self.assertTrue(cell.get_j() + 1 == cell.j)
             self.assertTrue(cell.get_k() + 1 == cell.k)
 
-        self.assertAlmostEqualScaled(pressure, cell.pressure)
-        self.assertAlmostEqualScaled(depth, cell.depth)
-        self.assertAlmostEqualScaled(orat, cell.orat)
-        self.assertAlmostEqualScaled(grat, cell.grat)
-        self.assertAlmostEqualScaled(wrat, cell.wrat)
+        self.assertFloatEqual(pressure, cell.pressure)
+        self.assertFloatEqual(depth, cell.depth)
+        self.assertFloatEqual(orat, cell.orat)
+        self.assertFloatEqual(grat, cell.grat)
+        self.assertFloatEqual(wrat, cell.wrat)
 
-        self.assertAlmostEqualScaled(conn_start, cell.conn_start)
-        self.assertAlmostEqualScaled(conn_end, cell.conn_end)
-        self.assertAlmostEqualScaled(flowrate, cell.flowrate)
-        self.assertAlmostEqualScaled(oil_flowrate, cell.oil_flowrate)
-        self.assertAlmostEqualScaled(gas_flowrate, cell.gas_flowrate)
-        self.assertAlmostEqualScaled(water_flowrate, cell.water_flowrate)
+        self.assertFloatEqual(conn_start, cell.conn_start)
+        self.assertFloatEqual(conn_end, cell.conn_end)
+        self.assertFloatEqual(flowrate, cell.flowrate)
+        self.assertFloatEqual(oil_flowrate, cell.oil_flowrate)
+        self.assertFloatEqual(gas_flowrate, cell.gas_flowrate)
+        self.assertFloatEqual(water_flowrate, cell.water_flowrate)
     
         
 

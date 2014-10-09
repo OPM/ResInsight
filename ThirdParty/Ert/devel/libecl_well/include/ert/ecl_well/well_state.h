@@ -62,7 +62,6 @@ extern "C" {
   const char           * well_state_get_name( const well_state_type * well );
   int                    well_state_get_report_nr( const well_state_type * well_state );
   time_t                 well_state_get_sim_time( const well_state_type * well_state );
-  well_conn_type       * well_state_iget_connection( const well_state_type * well_state , int index);
   well_type_enum         well_state_get_type( const well_state_type * well_state);
   bool                   well_state_is_open( const well_state_type * well_state );   
   int                    well_state_get_well_nr( const well_state_type * well_state );

@@ -39,9 +39,10 @@ extern "C" {
   void         point_inplace_sub(point_type * point , const point_type * sub);
   void         point_inplace_add(point_type * point , const point_type * add);
   void         point_inplace_scale(point_type * point , double scale_factor);
+  bool         point_equal( const point_type *p1 , const point_type * p2);
   void         point_compare( const point_type *p1 , const point_type * p2, bool * equal);
   void         point_dump( const point_type * p , FILE * stream);
-  void         point_dump_ascii( const point_type * p , FILE * stream);
+  void         point_dump_ascii( const point_type * p , FILE * stream , const double * offset);
   void         point_fprintf( const point_type * p , FILE * stream );
   void         point_free( point_type * p);
   void         point_set( point_type *p , double x , double y , double z);
@@ -53,6 +54,7 @@ extern "C" {
   double       point_dot_product( const point_type * v1 , const point_type * v2);
   void         point_normal_vector(point_type * n, const point_type * p0, const point_type * p1 , const point_type * p2);
   double       point_plane_distance(const point_type * p , const point_type * n , const point_type * plane_point);
+  double       point3_plane_distance(const point_type * p0 , const point_type * p1 , const point_type * p2 , const point_type * x);
 
 #ifdef __cplusplus
 }

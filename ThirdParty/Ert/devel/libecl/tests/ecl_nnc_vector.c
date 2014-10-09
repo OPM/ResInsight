@@ -23,8 +23,7 @@
 
 #include <ert/ecl/nnc_vector.h>
  
-
-int main(int argc , char ** argv) {
+void test_basic() {
   int lgr_nr = 100;
   nnc_vector_type * vector = nnc_vector_alloc( lgr_nr );
   
@@ -56,5 +55,44 @@ int main(int argc , char ** argv) {
   }
   
   nnc_vector_free( vector );
+}
+
+void test_copy() {
+  int lgr_nr = 100;
+  nnc_vector_type * vector1 = nnc_vector_alloc( lgr_nr );
+  nnc_vector_type * vector2 = nnc_vector_alloc( lgr_nr );
+  nnc_vector_type * vector3 = NULL;
+  
+  test_assert_true( nnc_vector_equal( vector1 , vector2 ));
+  test_assert_false( nnc_vector_equal( vector1 , vector3 ));
+  test_assert_false( nnc_vector_equal( vector3 , vector1 ));
+  test_assert_true( nnc_vector_equal( vector3 , vector3 ));
+
+
+  nnc_vector_add_nnc( vector1 , 100 , 1);
+  nnc_vector_add_nnc( vector1 , 200 , 2);
+  test_assert_false( nnc_vector_equal( vector1 , vector2 ));
+
+  nnc_vector_add_nnc( vector2 , 100 , 1);
+  nnc_vector_add_nnc( vector2 , 200 , 2);
+  test_assert_true( nnc_vector_equal( vector1 , vector2 ));
+
+  nnc_vector_add_nnc( vector1 , 300 , 3);
+  nnc_vector_add_nnc( vector2 , 300 , 30);
+  test_assert_false( nnc_vector_equal( vector1 , vector2 ));
+
+  vector3 = nnc_vector_alloc_copy( vector1 );
+  test_assert_true( nnc_vector_is_instance( vector3 ));
+  test_assert_true( nnc_vector_equal( vector1 , vector3 ));
+
+  nnc_vector_free( vector1 );
+  nnc_vector_free( vector2 );
+  nnc_vector_free( vector3 );
+}
+
+
+int main(int argc , char ** argv) {
+  test_basic();
+  test_copy();
   exit(0);
 }

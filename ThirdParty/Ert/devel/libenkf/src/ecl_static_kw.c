@@ -26,7 +26,7 @@
 #include <ert/enkf/ecl_static_kw.h>
 #include <ert/enkf/enkf_util.h>
 #include <ert/enkf/enkf_macros.h>
-
+#include <ert/enkf/enkf_fs.h>
 
 
 struct ecl_static_kw_struct {
@@ -85,7 +85,7 @@ void ecl_static_kw_init(ecl_static_kw_type * ecl_static_kw, const ecl_kw_type * 
 
 
 
-void ecl_static_kw_read_from_buffer(ecl_static_kw_type * ecl_static_kw , buffer_type * buffer, int report_step, state_enum state) {
+void ecl_static_kw_read_from_buffer(ecl_static_kw_type * ecl_static_kw , buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {
   enkf_util_assert_buffer_type( buffer , STATIC );
   if (ecl_static_kw->ecl_kw != NULL)
     util_abort("%s: internal error: trying to assign ecl_kw to ecl_static_kw which is already set.\n",__func__);
@@ -100,7 +100,7 @@ static void ecl_static_kw_free_data(ecl_static_kw_type * kw) {
 
 
 /**
-   The ecl_kw instance is discarded immediately after writing to disk·
+   The ecl_kw instance is discarded immediately after writing to diskï¿½
    For both ecl_write and internal storage.
 */
 

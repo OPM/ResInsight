@@ -28,6 +28,7 @@ extern "C" {
 #include <stdbool.h>
 
 #include <ert/util/stringlist.h>
+#include <ert/util/subst_list.h>
 #include <ert/util/hash.h>
 
 #include <ert/config/config_schema_item.h>
@@ -104,6 +105,7 @@ typedef struct config_struct              config_type;
   const char *            config_get_config_file( const config_type * config , bool abs_path);
   void                    config_fprintf_errors( const config_type * config , bool add_count , FILE * stream );
   
+  const subst_list_type * config_get_define_list( const config_type * config);
   int                     config_get_schema_size( const config_type * config );
   int                     config_get_content_size( const config_type * config );
   const config_content_node_type * config_iget_content_node( const config_type * config , int index );

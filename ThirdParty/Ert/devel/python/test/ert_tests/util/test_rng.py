@@ -1,6 +1,6 @@
 from ert.util.enums import RngAlgTypeEnum, RngInitModeEnum
 from ert.util.rng import RandomNumberGenerator
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class RngTest(ExtendedTestCase):

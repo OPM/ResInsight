@@ -32,6 +32,7 @@ struct pca_plot_data_struct {
   UTIL_TYPE_ID_DECLARATION;
   char * name;
   vector_type * pca_vectors;
+  double_vector_type * singular_values;
   int ens_size;
 };
 
@@ -39,10 +40,10 @@ struct pca_plot_data_struct {
 UTIL_IS_INSTANCE_FUNCTION( pca_plot_data , PCA_PLOT_DATA_TYPE_ID )
 static UTIL_SAFE_CAST_FUNCTION( pca_plot_data , PCA_PLOT_DATA_TYPE_ID )
 
-static void pca_plot_data_add_vectors(pca_plot_data_type * plot_data , const matrix_type * PC , const matrix_type * PC_obs) {
+static void pca_plot_data_add_vectors(pca_plot_data_type * plot_data , const matrix_type * PC , const matrix_type * PC_obs, const double_vector_type * singular_values) {
   int component;
   for (component = 0; component < matrix_get_rows( PC ); component++) {
-    pca_plot_vector_type * vector = pca_plot_vector_alloc( component , PC , PC_obs );
+    pca_plot_vector_type * vector = pca_plot_vector_alloc( component , PC , PC_obs , singular_values);
     vector_append_owned_ref( plot_data->pca_vectors , vector , pca_plot_vector_free__);
   }
 }
@@ -50,16 +51,18 @@ static void pca_plot_data_add_vectors(pca_plot_data_type * plot_data , const mat
 
 pca_plot_data_type * pca_plot_data_alloc( const char * name, 
                                           const matrix_type * PC , 
-                                          const matrix_type * PC_obs) {
+                                          const matrix_type * PC_obs,
+                                          const double_vector_type * singular_values) {
   pca_plot_data_type * plot_data = NULL;
 
-  if (pca_plot_assert_input( PC , PC_obs)) {    
+  if (pca_plot_assert_input( PC , PC_obs , singular_values)) {    
     plot_data = util_malloc( sizeof * plot_data );
     UTIL_TYPE_ID_INIT( plot_data , PCA_PLOT_DATA_TYPE_ID );
     plot_data->name = util_alloc_string_copy( name );
     plot_data->pca_vectors = vector_alloc_new();
     plot_data->ens_size = matrix_get_columns( PC );
-    pca_plot_data_add_vectors( plot_data , PC , PC_obs );
+    plot_data->singular_values = double_vector_alloc_copy( singular_values );
+    pca_plot_data_add_vectors( plot_data , PC , PC_obs , singular_values);
   }
   return plot_data;
 }
@@ -70,6 +73,7 @@ pca_plot_data_type * pca_plot_data_alloc( const char * name,
 
 void pca_plot_data_free( pca_plot_data_type * plot_data ) {
   vector_free( plot_data->pca_vectors );
+  double_vector_free( plot_data->singular_values );
   free( plot_data->name );
   free( plot_data );
 }
@@ -95,4 +99,9 @@ const pca_plot_vector_type * pca_plot_data_iget_vector( const pca_plot_data_type
 
 const char * pca_plot_data_get_name( const pca_plot_data_type * plot_data ) {
   return plot_data->name;
+}
+
+
+const double_vector_type * pca_plot_data_get_singular_values( const pca_plot_data_type * plot_data ) {
+  return plot_data->singular_values;
 }

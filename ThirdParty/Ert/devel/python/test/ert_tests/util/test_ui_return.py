@@ -1,6 +1,6 @@
 from ert.util import UIReturn
 from ert.util.enums import UIReturnStatusEnum
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 class UIReturnTest(ExtendedTestCase):
 

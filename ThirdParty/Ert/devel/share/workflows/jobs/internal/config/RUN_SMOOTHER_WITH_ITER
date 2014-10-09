@@ -1,0 +1,8 @@
+INTERNAL    True
+FUNCTION    enkf_main_smoother_with_iter_JOB
+MIN_ARG     1
+MAX_ARG     3
+ARG_TYPE    0  INT
+ARG_TYPE    1  STRING
+ARG_TYPE    2  BOOL
+

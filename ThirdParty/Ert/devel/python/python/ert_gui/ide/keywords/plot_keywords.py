@@ -24,7 +24,7 @@ class PlotKeywords(object):
     def addImageViewer(self):
         image_viewer = ConfigurationLineDefinition(keyword=KeywordDefinition("IMAGE_VIEWER"),
                                                     arguments=[PathArgument()],
-                                                    documentation_link="plot/image_viewer",
+                                                    documentation_link="keywords/image_viewer",
                                                     required=False,
                                                     group=self.group)
         return image_viewer
@@ -33,7 +33,7 @@ class PlotKeywords(object):
     def addImageType(self):
         image_type = ConfigurationLineDefinition(keyword=KeywordDefinition("IMAGE_TYPE"),
                                                  arguments=[StringArgument(built_in=True)],
-                                                 documentation_link="plot/image_type",
+                                                 documentation_link="keywords/image_type",
                                                  required=False,
                                                  group=self.group)
         return image_type
@@ -42,7 +42,7 @@ class PlotKeywords(object):
     def addPlotDriver(self):
         plot_driver = ConfigurationLineDefinition(keyword=KeywordDefinition("PLOT_DRIVER"),
                                                   arguments=[StringArgument(built_in=True)],
-                                                  documentation_link="plot/plot_driver",
+                                                  documentation_link="keywords/plot_driver",
                                                   required=False,
                                                   group=self.group)
         return plot_driver
@@ -51,7 +51,7 @@ class PlotKeywords(object):
     def addPlotErrorbar(self):
         plot_errorbar = ConfigurationLineDefinition(keyword=KeywordDefinition("PLOT_ERRORBAR"),
                                                      arguments=[BoolArgument()],
-                                                     documentation_link="plot/plot_errorbar",
+                                                     documentation_link="keywords/plot_errorbar",
                                                      required=False,
                                                      group=self.group)
         return plot_errorbar
@@ -61,7 +61,7 @@ class PlotKeywords(object):
     def addPlotErrorbarMax(self):
         plot_errorbar_max = ConfigurationLineDefinition(keyword=KeywordDefinition("PLOT_ERRORBAR_MAX"),
                                                         arguments=[IntegerArgument()],
-                                                        documentation_link="plot/plot_errorbar_max",
+                                                        documentation_link="keywords/plot_errorbar_max",
                                                         required=False,
                                                         group=self.group)
         return plot_errorbar_max
@@ -71,7 +71,7 @@ class PlotKeywords(object):
     def addPlotWidth(self):
         plot_width = ConfigurationLineDefinition(keyword=KeywordDefinition("PLOT_WIDTH"),
                                                  arguments=[IntegerArgument()],
-                                                 documentation_link="plot/plot_width",
+                                                 documentation_link="keywords/plot_width",
                                                  required=False,
                                                  group=self.group)
         return plot_width
@@ -80,7 +80,7 @@ class PlotKeywords(object):
     def addPlotHeight(self):
         plot_height = ConfigurationLineDefinition(keyword=KeywordDefinition("PLOT_HEIGHT"),
                                                   arguments=[IntegerArgument()],
-                                                  documentation_link="plot/plot_height",
+                                                  documentation_link="keywords/plot_height",
                                                   required=False,
                                                   group=self.group)
         return plot_height
@@ -90,7 +90,7 @@ class PlotKeywords(object):
     def addPlotRefcase(self):
         plot_refcase = ConfigurationLineDefinition(keyword=KeywordDefinition("PLOT_REFCASE"),
                                                    arguments=[BoolArgument()],
-                                                   documentation_link="plot/plot_refcase",
+                                                   documentation_link="keywords/plot_refcase",
                                                    required=False,
                                                    group=self.group)
         return plot_refcase
@@ -100,7 +100,7 @@ class PlotKeywords(object):
     def addPlotRefcaseList(self):
         plot_refcase_list = ConfigurationLineDefinition(keyword=KeywordDefinition("PLOT_REFCASE_LIST"),
                                                         arguments=[StringArgument(rest_of_line=True,allow_space=True)],
-                                                        documentation_link="plot/plot_refcase_list",
+                                                        documentation_link="keywords/plot_refcase_list",
                                                         required=False,
                                                         group=self.group)
         return plot_refcase_list
@@ -108,8 +108,8 @@ class PlotKeywords(object):
 
     def addPlotPath(self):
         plot_path = ConfigurationLineDefinition(keyword=KeywordDefinition("PLOT_PATH"),
-                                                arguments=[PathArgument()],
-                                                documentation_link="plot/plot_path",
+                                                arguments=[PathArgument(must_exist=False)],
+                                                documentation_link="keywords/plot_path",
                                                 required=False,
                                                 group=self.group)
         return plot_path
@@ -119,7 +119,7 @@ class PlotKeywords(object):
     def addRftConfig(self):
         rft_config = ConfigurationLineDefinition(keyword=KeywordDefinition("RFT_CONFIG"),
                                                  arguments=[PathArgument()],
-                                                 documentation_link="plot/rft_config",
+                                                 documentation_link="keywords/rft_config",
                                                  required=False,
                                                  group=self.group)
         return rft_config
@@ -128,7 +128,7 @@ class PlotKeywords(object):
     def addRftPath(self):
         rft_path = ConfigurationLineDefinition(keyword=KeywordDefinition("RFTPATH"),
                                                  arguments=[PathArgument()],
-                                                 documentation_link="plot/rftpath",
+                                                 documentation_link="keywords/rftpath",
                                                  required=False,
                                                  group=self.group)
         return rft_path

@@ -1,5 +1,5 @@
 from ert.cwrap import BaseCClass
-from ert_tests import ExtendedTestCase
+from ert.test  import ExtendedTestCase
 
 
 class BaseCClassTest(ExtendedTestCase):

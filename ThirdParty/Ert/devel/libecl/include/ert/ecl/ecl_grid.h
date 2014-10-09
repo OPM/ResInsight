@@ -50,9 +50,11 @@ extern "C" {
   void            ecl_grid_get_column_property(const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , int i , int j, double_vector_type * column);
   int             ecl_grid_get_global_index_from_xy_top( const ecl_grid_type * ecl_grid , double x , double y);
   int             ecl_grid_get_global_index_from_xy_bottom( const ecl_grid_type * ecl_grid , double x , double y);
-  
-  void            ecl_grid_get_corner_xyz3(const ecl_grid_type * grid , int i , int j , int k, int corner_nr , double * xpos , double * ypos , double * zpos );
-  void            ecl_grid_get_corner_xyz1(const ecl_grid_type * grid , int global_index , int corner_nr , double * xpos , double * ypos , double * zpos );
+  ecl_grid_type * ecl_grid_alloc_dx_dy_dz_tops( int nx, int ny , int nz , const double * dx , const double * dy , const double * dz , const double * tops , const int * actnum);
+
+  void            ecl_grid_get_cell_corner_xyz3(const ecl_grid_type * grid , int i , int j , int k, int corner_nr , double * xpos , double * ypos , double * zpos );
+  void            ecl_grid_get_cell_corner_xyz1(const ecl_grid_type * grid , int global_index , int corner_nr , double * xpos , double * ypos , double * zpos );
+  void            ecl_grid_get_corner_xyz(const ecl_grid_type * grid , int i , int j , int k, double * xpos , double * ypos , double * zpos );
   
   double          ecl_grid_get_cell_thickness3( const ecl_grid_type * grid , int i , int j , int k);
   double          ecl_grid_get_cell_thickness1( const ecl_grid_type * grid , int global_index );
@@ -63,6 +65,7 @@ extern "C" {
   bool            ecl_grid_cell_contains_xyz1( const ecl_grid_type * ecl_grid , int global_index , double x , double y , double z);
   bool            ecl_grid_cell_contains_xyz3( const ecl_grid_type * ecl_grid , int i , int j , int k, double x , double y , double z );
   double          ecl_grid_get_cell_volume1( const ecl_grid_type * ecl_grid, int global_index );
+  double          ecl_grid_get_cell_volume1_tskille( const ecl_grid_type * ecl_grid, int global_index );
   double          ecl_grid_get_cell_volume3( const ecl_grid_type * ecl_grid, int i , int j , int k);
   bool            ecl_grid_cell_contains1(const ecl_grid_type * grid , int global_index , double x , double y , double z);
   bool            ecl_grid_cell_contains3(const ecl_grid_type * grid , int i , int j ,int k , double x , double y , double z);
@@ -90,6 +93,7 @@ extern "C" {
   ecl_grid_type * ecl_grid_alloc_rectangular( int nx , int ny , int nz , double dx , double dy , double dz , const int * actnum);
   ecl_grid_type * ecl_grid_alloc_regular( int nx, int ny , int nz , const double * ivec, const double * jvec , const double * kvec , const int * actnum);
   ecl_grid_type * ecl_grid_alloc_dxv_dyv_dzv( int nx, int ny , int nz , const double * dxv , const double * dyv , const double * dzv , const int * actnum);
+  ecl_grid_type * ecl_grid_alloc_dxv_dyv_dzv_depthz( int nx, int ny , int nz , const double * dxv , const double * dyv , const double * dzv , const double * depthz , const int * actnum);
     
   bool            ecl_grid_exists( const char * case_input );
   char          * ecl_grid_alloc_case_filename( const char * case_input );
@@ -112,7 +116,7 @@ extern "C" {
   void            ecl_grid_get_xyz1(const ecl_grid_type * grid , int global_index , double *xpos , double *ypos , double *zpos);
   void            ecl_grid_get_xyz1A(const ecl_grid_type * grid , int active_index , double *xpos , double *ypos , double *zpos);
   int             ecl_grid_get_global_size( const ecl_grid_type * ecl_grid );
-  bool            ecl_grid_compare(const ecl_grid_type * g1 , const ecl_grid_type * g2 , bool include_lgr, bool verbose);
+  bool            ecl_grid_compare(const ecl_grid_type * g1 , const ecl_grid_type * g2 , bool include_lgr, bool include_nnc , bool verbose);
   int             ecl_grid_get_active_size( const ecl_grid_type * ecl_grid );
   
   double          ecl_grid_get_bottom1(const ecl_grid_type * grid , int global_index);
@@ -136,8 +140,10 @@ extern "C" {
   double          ecl_grid_cell_invalid1A(const ecl_grid_type * grid , int active_index);
   
   void            ecl_grid_dump(const ecl_grid_type * grid , FILE * stream);
-  void            ecl_grid_dump_ascii(const ecl_grid_type * grid , bool active_only , FILE * stream);
-    
+  void            ecl_grid_dump_ascii(ecl_grid_type * grid , bool active_only , FILE * stream);
+  void ecl_grid_dump_ascii_cell1(ecl_grid_type * grid , int global_index , FILE * stream, const double * offset);
+  void ecl_grid_dump_ascii_cell3(ecl_grid_type * grid , int i , int j , int k , FILE * stream , const double * offset);
+
   /* lgr related functions */
   const ecl_grid_type   * ecl_grid_get_cell_lgr3(const ecl_grid_type * grid , int i, int j , int k);
   const ecl_grid_type   * ecl_grid_get_cell_lgr1A(const ecl_grid_type * grid , int active_index);
@@ -177,14 +183,32 @@ extern "C" {
   ecl_kw_type    * ecl_grid_alloc_actnum_kw( const ecl_grid_type * grid );
   ecl_kw_type    * ecl_grid_alloc_hostnum_kw( const ecl_grid_type * grid );
   ecl_kw_type    * ecl_grid_alloc_gridhead_kw( int nx, int ny , int nz , int grid_nr);
-  
+  ecl_grid_type  * ecl_grid_alloc_copy( const ecl_grid_type * src_grid );
+
   void             ecl_grid_ri_export( const ecl_grid_type * ecl_grid , double * ri_points);
   void             ecl_grid_cell_ri_export( const ecl_grid_type * ecl_grid , int global_index , double * ri_points);
 
   bool             ecl_grid_dual_grid( const ecl_grid_type * ecl_grid );
   int              ecl_grid_get_num_nnc( const ecl_grid_type * grid );
 
+  bool ecl_grid_cell_regular3( const ecl_grid_type * ecl_grid, int i,int j,int k);
+  bool ecl_grid_cell_regular1( const ecl_grid_type * ecl_grid, int global_index);
+
+  void ecl_grid_init_zcorn_data( const ecl_grid_type * grid , float * zcorn );
+  void ecl_grid_init_zcorn_data_double( const ecl_grid_type * grid , double * zcorn );
+  int ecl_grid_get_zcorn_size( const ecl_grid_type * grid );
+  
+  void ecl_grid_init_coord_data( const ecl_grid_type * grid , float * coord );
+  void ecl_grid_init_coord_data_double( const ecl_grid_type * grid , double * coord );
+  int  ecl_grid_get_coord_size( const ecl_grid_type * ecl_grid);
+
+  void ecl_grid_init_actnum_data( const ecl_grid_type * grid , int * actnum );
+  bool ecl_grid_use_mapaxes( const ecl_grid_type * grid );
+  void ecl_grid_init_mapaxes_data_double( const ecl_grid_type * grid , double * mapaxes);
+  void ecl_grid_reset_actnum( ecl_grid_type * grid , const int * actnum );
+
   UTIL_IS_INSTANCE_HEADER( ecl_grid );
+  UTIL_SAFE_CAST_HEADER( ecl_grid );
   
 #ifdef __cplusplus
 }

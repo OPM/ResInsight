@@ -17,7 +17,7 @@
 
 import os
 from ert.ecl import EclKW
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 

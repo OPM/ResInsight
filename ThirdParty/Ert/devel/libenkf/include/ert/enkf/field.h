@@ -47,15 +47,17 @@ extern "C" {
   bool         field_ijk_valid(const field_type * , int , int , int );
   void         field_ijk_get_if_valid(const field_type * , int  , int  , int , void * , bool *);
   void         field_ecl_write1D_fortio(const field_type * , fortio_type *);
-  void         field_ecl_write3D_fortio(const field_type * , fortio_type *);
-  void         field_ROFF_export(const field_type * , const char * );
+  void         field_ecl_write3D_fortio(const field_type * , fortio_type *,  const char *);
+  void         field_ROFF_export(const field_type * , const char * , const char *);
   void         field_copy_ecl_kw_data(field_type * , const ecl_kw_type * );
   field_type * field_alloc_shared(const field_config_type * , void * , int );
   void         field_free(field_type *);
   void         field_get_dims(const field_type *, int *, int *, int *);
-  bool         field_fload_auto(field_type * , const char * );
-  void         field_export3D(const field_type * , void *, bool , ecl_type_enum , void *);
-  void         field_export(const field_type * , const char * , fortio_type * , field_file_format_type , bool);
+  bool         field_fload_keep_inactive(field_type * field , const char * filename);
+  bool         field_fload_auto(field_type * , const char * , bool);
+  bool         field_fload_rms(field_type * field , const char * filename, bool keep_inactive);
+  void         field_export3D(const field_type * , void *, bool, ecl_type_enum , void *, const char *);
+  void         field_export(const field_type * , const char * , fortio_type * , field_file_format_type , bool, const char *);
   field_type * field_copyc(const field_type *);
   bool         field_cmp(const field_type *  , const field_type * );
   

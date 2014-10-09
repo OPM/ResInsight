@@ -40,15 +40,20 @@ typedef enum { GEN_DATA_UNDEFINED = 0,
   gen_data_file_format_type;
 
   bool                         gen_data_config_is_dynamic( const gen_data_config_type * config );
-  void                         gen_data_config_set_dynamic( gen_data_config_type * config , enkf_fs_type * fs);
-  void                         gen_data_config_load_active( gen_data_config_type * config , int report_step , bool force_load);
-    
+  void                         gen_data_config_load_active( gen_data_config_type * config , enkf_fs_type * fs, int report_step , bool force_load);
+  bool                         gen_data_config_valid_result_format(const char * result_file_fmt);
+  bool                         gen_data_config_set_template( gen_data_config_type * config , const char * template_ecl_file , const char * template_data_key );
+
+  bool gen_data_config_has_active_mask( const gen_data_config_type * config , enkf_fs_type * fs , int report_step);
+  
   /* 
      Observe that the format ASCII_template can *NOT* be used for
      loading files.
   */
-  gen_data_config_type       * gen_data_config_alloc_empty( const char * key );
-  
+  gen_data_config_type       * gen_data_config_alloc_GEN_PARAM( const char * key , gen_data_file_format_type output_format , gen_data_file_format_type input_format);
+  gen_data_config_type       * gen_data_config_alloc_GEN_DATA_result( const char * key , gen_data_file_format_type input_format);
+  gen_data_config_type       * gen_data_config_alloc_GEN_DATA_state( const char * key , gen_data_file_format_type output_format , gen_data_file_format_type input_format);
+  void                         gen_data_config_set_write_fs( gen_data_config_type * config, enkf_fs_type * write_fs);
   void                         gen_data_config_set_ens_size( gen_data_config_type * config , int ens_size );
   gen_data_file_format_type    gen_data_config_get_input_format ( const gen_data_config_type * );
   gen_data_file_format_type    gen_data_config_get_output_format ( const gen_data_config_type * );
@@ -67,19 +72,19 @@ typedef enum { GEN_DATA_UNDEFINED = 0,
   int                          gen_data_config_get_byte_size( const gen_data_config_type * config , int report_step);
   int                          gen_data_config_get_data_size( const gen_data_config_type * config , int report_step);
   gen_data_file_format_type    gen_data_config_check_format( const void * format_string );
-  bool gen_data_config_is_valid( const gen_data_config_type * gen_data_config );
-  void gen_data_config_update(gen_data_config_type * config           , 
-                              enkf_var_type var_type                  ,
-                              gen_data_file_format_type input_format  ,
-                              gen_data_file_format_type output_format ,
-                              const char * template_ecl_file          , 
-                              const char * template_data_key          );
-  
+
+  void                        gen_data_config_set_active_report_steps_from_string( gen_data_config_type *config , const char * range_string);
+  const int_vector_type     * gen_data_config_get_active_report_steps( const gen_data_config_type *config);
+  int                         gen_data_config_iget_report_step( const gen_data_config_type *config , int index);
+  void                        gen_data_config_add_report_step( gen_data_config_type * config , int report_step);
+  bool                        gen_data_config_has_report_step( const gen_data_config_type * config , int report_step);
+  int                         gen_data_config_num_report_step( const gen_data_config_type * config );
   const char * gen_data_config_get_template_file( const gen_data_config_type * config );
   const char * gen_data_config_get_template_key( const gen_data_config_type * config );
   void gen_data_config_fprintf_config( const gen_data_config_type * config , enkf_var_type var_type , const char * outfile , const char * infile , 
                                        const char * min_std_file , FILE * stream);
-  
+
+  UTIL_IS_INSTANCE_HEADER(gen_data_config);
   UTIL_SAFE_CAST_HEADER(gen_data_config);
   UTIL_SAFE_CAST_HEADER_CONST(gen_data_config);
   VOID_FREE_HEADER(gen_data_config)

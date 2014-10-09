@@ -43,6 +43,7 @@ const char                * gen_kw_config_get_key(const gen_kw_config_type * con
 const char                * gen_kw_config_get_template_file(const gen_kw_config_type * );
 void                        gen_kw_config_free(gen_kw_config_type *);
 double                      gen_kw_config_transform(const gen_kw_config_type * , int index, double x);
+bool                        gen_kw_config_should_use_log_scale(const gen_kw_config_type * config, int index);
 int                         gen_kw_config_get_data_size(const gen_kw_config_type * );
 const char                * gen_kw_config_iget_name(const gen_kw_config_type * , int );
 const char                * gen_kw_config_get_tagged_name(const gen_kw_config_type * , int );

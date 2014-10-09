@@ -41,7 +41,7 @@ void               trans_func_iset_double_param(trans_func_type  * trans_func , 
 bool               trans_func_set_double_param( trans_func_type  * trans_func , const char * param_name , double value );
 void               trans_func_iset_int_param(trans_func_type  * trans_func , int param_index , int value );
 bool               trans_func_set_int_param( trans_func_type  * trans_func , const char * param_name , int value );
-
+bool               trans_func_use_log_scale(const trans_func_type  * trans_func );
 
 #ifdef __cplusplus
 }

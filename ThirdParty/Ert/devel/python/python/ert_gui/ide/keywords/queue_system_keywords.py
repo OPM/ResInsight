@@ -31,7 +31,7 @@ class QueueSystemKeywords(object):
                                                        StringArgument(built_in=True),
                                                        StringArgument(allow_space=True, rest_of_line=True)
                                                    ],
-                                                   documentation_link="queue_system/queue_option",
+                                                   documentation_link="keywords/queue_option",
                                                    group=self.group)
 
         return queue_option
@@ -41,7 +41,7 @@ class QueueSystemKeywords(object):
     def addQueueSystem(self):
         queue_system = ConfigurationLineDefinition(keyword = KeywordDefinition("QUEUE_SYSTEM"),
                                                    arguments=[StringArgument(built_in=True)],
-                                                   documentation_link="queue_system/queue_system",
+                                                   documentation_link="keywords/queue_system",
                                                    group=self.group)
         return queue_system
 
@@ -49,7 +49,7 @@ class QueueSystemKeywords(object):
     def addLsfServer(self):
         lsf_server = ConfigurationLineDefinition(keyword = KeywordDefinition("LSF_SERVER"),
                                                  arguments=[StringArgument(built_in=True)],
-                                                 documentation_link="queue_system/lsf_server",
+                                                 documentation_link="keywords/lsf_server",
                                                  group=self.group)
         return lsf_server
 
@@ -58,7 +58,7 @@ class QueueSystemKeywords(object):
     def addLsfQueue(self):
         lsf_queue = ConfigurationLineDefinition(keyword = KeywordDefinition("LSF_QUEUE"),
                                                 arguments=[StringArgument()],
-                                                documentation_link="queue_system/lsf_queue",
+                                                documentation_link="keywords/lsf_queue",
                                                 group=self.group)
         return lsf_queue
 
@@ -66,7 +66,7 @@ class QueueSystemKeywords(object):
     def addMaxRunningLsf(self):
         max_running_lsf = ConfigurationLineDefinition(keyword = KeywordDefinition("MAX_RUNNING_LSF"),
                                                       arguments=[IntegerArgument(from_value=1)],
-                                                      documentation_link="queue_system/max_running_lsf",
+                                                      documentation_link="keywords/max_running_lsf",
                                                       group=self.group)
         return max_running_lsf
 
@@ -74,7 +74,7 @@ class QueueSystemKeywords(object):
     def addLsfResources(self):
         lsf_resources = ConfigurationLineDefinition(keyword = KeywordDefinition("LSF_RESOURCES"),
                                                       arguments=[StringArgument(rest_of_line=True,allow_space=True)],
-                                                      documentation_link="queue_system/lsf_resources",
+                                                      documentation_link="keywords/lsf_resources",
                                                       group=self.group)
         return lsf_resources
 
@@ -82,7 +82,7 @@ class QueueSystemKeywords(object):
     def addTorqueQueue(self):
         torque_queue = ConfigurationLineDefinition(keyword = KeywordDefinition("TORQUE_QUEUE"),
                                                       arguments=[StringArgument()],
-                                                      documentation_link="queue_system/torque_queue",
+                                                      documentation_link="keywords/torque_queue",
                                                       group=self.group)
         return torque_queue
 
@@ -90,7 +90,7 @@ class QueueSystemKeywords(object):
     def addMaxRunningLocal(self):
         max_running_local = ConfigurationLineDefinition(keyword = KeywordDefinition("MAX_RUNNING_LOCAL"),
                                                         arguments=[IntegerArgument(from_value=1)],
-                                                        documentation_link="queue_system/max_running_local",
+                                                        documentation_link="keywords/max_running_local",
                                                         group=self.group)
         return max_running_local
 
@@ -98,7 +98,7 @@ class QueueSystemKeywords(object):
     def addRshHost(self):
         rsh_host = ConfigurationLineDefinition(keyword = KeywordDefinition("RSH_HOST"),
                                                arguments=[StringArgument(), StringArgument(rest_of_line=True, allow_space=True)],
-                                               documentation_link="queue_system/rsh_host",
+                                               documentation_link="keywords/rsh_host",
                                                group=self.group)
         return rsh_host
 
@@ -106,7 +106,7 @@ class QueueSystemKeywords(object):
     def addRshCommand(self):
         rsh_command = ConfigurationLineDefinition(keyword = KeywordDefinition("RSH_COMMAND"),
                                                   arguments=[PathArgument()],
-                                                  documentation_link="queue_system/rsh_command",
+                                                  documentation_link="keywords/rsh_command",
                                                   group=self.group)
         return rsh_command
 
@@ -114,7 +114,7 @@ class QueueSystemKeywords(object):
     def addMaxRunningRsh(self):
         max_running_rsh = ConfigurationLineDefinition(keyword = KeywordDefinition("MAX_RUNNING_RSH"),
                                                       arguments=[IntegerArgument()],
-                                                      documentation_link="queue_system/max_running_rsh",
+                                                      documentation_link="keywords/max_running_rsh",
                                                       group=self.group)
         return max_running_rsh
 
@@ -123,6 +123,6 @@ class QueueSystemKeywords(object):
     def addHostType(self):
         host_type = ConfigurationLineDefinition(keyword = KeywordDefinition("HOST_TYPE"),
                                                arguments=[StringArgument(rest_of_line=True, allow_space=True)],
-                                               documentation_link="queue_system/host_type",
+                                               documentation_link="keywords/host_type",
                                                group=self.group)
         return host_type

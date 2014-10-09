@@ -21,7 +21,7 @@ import types
 import warnings
 from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
 from ert.ecl import EclRFTCell, EclPLTCell, ECL_LIB
-from ert.util import ctime
+from ert.util import CTime
 
 
 class EclRFTFile(CClass):
@@ -50,21 +50,20 @@ class EclRFTFile(CClass):
         
 
     def __len__(self):
-        return cfunc_file.get_size( self , None , -1)
+        return cfunc_file.get_size( self , None , CTime(-1))
 
 
-    def __getitem__(self , index):
-        if isinstance( index , types.IntType):
-            length = self.__len__()
-            if index < 0 or index >= length:
-                raise IndexError
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            if 0 <= index < len(self):
+                return EclRFT( cfunc_file.iget(self, index), self)
             else:
-                return EclRFT( cfunc_file.iget( self , index ) , self )
+                raise IndexError("Index '%d' must be in range: [0, %d]" % (index, len(self) - 1))
         else:
-            raise TypeError("Index should be integer type")
+            raise TypeError("Index must be integer type")
 
     
-    def size( self , well = None , date = None):
+    def size(self, well=None, date=None):
         """
         The number of elements in EclRFTFile container. 
 
@@ -81,9 +80,9 @@ class EclRFTFile(CClass):
 
         """
         if date:
-            cdate = ctime( date )
+            cdate = CTime( date )
         else:
-            cdate = -1
+            cdate = CTime( -1 )
 
         return cfunc_file.get_size( self , well , cdate)
 
@@ -101,7 +100,7 @@ class EclRFTFile(CClass):
         Returns a list of two tuples (well_name , date) for the whole file.
         """
         header_list = []
-        for i in (range(cfunc_file.get_size( self , None , -1))):
+        for i in (range(cfunc_file.get_size( self , None , CTime(-1)))):
             rft = self.iget( i )
             header_list.append( (rft.well , rft.date) )
         return header_list
@@ -120,7 +119,7 @@ class EclRFTFile(CClass):
 
         Returns None if no matching RFT can be found.
         """
-        c_ptr = cfunc_file.get_rft( self , well_name , ctime( date )) 
+        c_ptr = cfunc_file.get_rft( self , well_name , CTime( date )) 
         if c_ptr:
             return EclRFT( c_ptr , self)
         else:
@@ -207,7 +206,8 @@ class EclRFT(CClass):
         """
         The date when this RFT/PLT/... was recorded.
         """
-        return cfunc_rft.get_date( self )
+        ct = CTime(cfunc_rft.get_date( self ))
+        return ct.date()
 
     @property
     def size(self):

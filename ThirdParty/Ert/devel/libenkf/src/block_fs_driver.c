@@ -43,6 +43,7 @@ struct bfs_config_struct {
   bool            preload;
   int             block_size;
   int             max_cache_size;
+  bool            bfs_lock;
 };
 
 
@@ -72,7 +73,7 @@ struct block_fs_driver_struct {
 
 /*****************************************************************/
 
-bfs_config_type * bfs_config_alloc( fs_driver_enum driver_type , bool read_only) {
+bfs_config_type * bfs_config_alloc( fs_driver_enum driver_type , bool read_only, bool bfs_lock) {
   const int STATIC_blocksize       = 64;
   const int PARAMETER_blocksize    = 64;
   const int DYNAMIC_blocksize      = 64;
@@ -93,6 +94,7 @@ bfs_config_type * bfs_config_alloc( fs_driver_enum driver_type , bool read_only)
     config->fsync_interval      = fsync_interval;
     config->fragmentation_limit = fragmentation_limit;
     config->read_only           = read_only;
+    config->bfs_lock            = bfs_lock;
     
     switch (driver_type) {
     case( DRIVER_PARAMETER ):
@@ -127,6 +129,7 @@ static UTIL_SAFE_CAST_FUNCTION(bfs , BFS_TYPE_ID);
 static void bfs_close( bfs_type * bfs ) {
   if (bfs->block_fs != NULL)
     block_fs_close( bfs->block_fs , false);
+  free( bfs->mountfile );
   free( bfs );
 }
 
@@ -158,7 +161,7 @@ static bfs_type * bfs_alloc_new( const bfs_config_type * config , char * mountfi
 }
 
 
-static void bfs_mount( bfs_type * bfs ) {
+static void bfs_mount( bfs_type * bfs) {
   const bfs_config_type * config = bfs->config;
   bfs->block_fs = block_fs_mount( bfs->mountfile , 
                                   config->block_size , 
@@ -166,7 +169,8 @@ static void bfs_mount( bfs_type * bfs ) {
                                   config->fragmentation_limit , 
                                   config->fsync_interval , 
                                   config->preload , 
-                                  config->read_only );
+                                  config->read_only,
+                                  config->bfs_lock);
 }
 
 
@@ -422,16 +426,16 @@ static block_fs_driver_type * block_fs_driver_alloc(int num_fs) {
   driver->__id          = BLOCK_FS_DRIVER_ID;
   driver->num_fs        = num_fs;
 
-  driver->fs_list       = util_calloc( driver->num_fs , sizeof * driver->fs_list ); 
+  driver->fs_list       = util_calloc( driver->num_fs , sizeof * driver->fs_list );
   return driver;
 }
 
 
 
 
-static void * block_fs_driver_alloc_new( fs_driver_enum driver_type , bool read_only , int num_fs , const char * mountfile_fmt ) {
-  block_fs_driver_type * driver = block_fs_driver_alloc( num_fs );
-  driver->config = bfs_config_alloc( driver_type , read_only );
+static void * block_fs_driver_alloc_new( fs_driver_enum driver_type , bool read_only , int num_fs , const char * mountfile_fmt, bool block_level_lock ) {
+  block_fs_driver_type * driver = block_fs_driver_alloc( num_fs);
+  driver->config = bfs_config_alloc( driver_type , read_only, block_level_lock );
   {
     for (int ifs = 0; ifs < driver->num_fs; ifs++) 
       driver->fs_list[ifs] = bfs_alloc_new( driver->config , util_alloc_sprintf( mountfile_fmt , ifs) );
@@ -443,7 +447,7 @@ static void * block_fs_driver_alloc_new( fs_driver_enum driver_type , bool read_
 static void block_fs_driver_mount( block_fs_driver_type * driver ) {
   thread_pool_type * tp = thread_pool_alloc( 4 , true ); 
 
-  for (int ifs = 0; ifs < driver->num_fs; ifs++) 
+  for (int ifs = 0; ifs < driver->num_fs; ifs++)
     thread_pool_add_job( tp , bfs_mount__ , driver->fs_list[ ifs ]);
 
   thread_pool_join( tp );
@@ -490,11 +494,12 @@ void block_fs_driver_create_fs( FILE * stream ,
 */
 
 void * block_fs_driver_open(FILE * fstab_stream , const char * mount_point , fs_driver_enum driver_type , bool read_only) {
-  int num_fs           = util_fread_int( fstab_stream ); 
-  char * tmp_fmt       = util_fread_alloc_string( fstab_stream );
-  char * mountfile_fmt = util_alloc_sprintf("%s%c%s" , mount_point , UTIL_PATH_SEP_CHAR , tmp_fmt );
+  int num_fs                  = util_fread_int( fstab_stream );
+  char * tmp_fmt              = util_fread_alloc_string( fstab_stream );
+  char * mountfile_fmt        = util_alloc_sprintf("%s%c%s" , mount_point , UTIL_PATH_SEP_CHAR , tmp_fmt );
+  const bool block_level_lock = false;
   
-  block_fs_driver_type * driver = block_fs_driver_alloc_new( driver_type , read_only , num_fs , mountfile_fmt );
+  block_fs_driver_type * driver = block_fs_driver_alloc_new( driver_type , read_only , num_fs , mountfile_fmt, block_level_lock );
   
   block_fs_driver_mount( driver );
   

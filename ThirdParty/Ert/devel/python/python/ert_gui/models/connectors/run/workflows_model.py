@@ -2,6 +2,8 @@ from ert_gui.models import ErtConnector
 from ert_gui.models.mixins import ChoiceModelMixin
 from ert_gui.models.mixins.list_model import ListModelMixin
 
+from ert.job_queue import WorkflowRunner, Workflow
+
 
 class WorkflowsModel(ErtConnector, ListModelMixin, ChoiceModelMixin):
 
@@ -25,18 +27,11 @@ class WorkflowsModel(ErtConnector, ListModelMixin, ChoiceModelMixin):
         self.observable().notify(self.CURRENT_CHOICE_CHANGED_EVENT)
 
 
-    def startWorkflow(self):
-        # self.ert().getWorkflowList().setVerbose(True)
+    def createWorkflowRunner(self):
+        """ @rtype: WorkflowRunner """
         workflow_name = self.getCurrentChoice()
-        return self.ert().getWorkflowList().runWorkflow(workflow_name)
+        workflow_list = self.ert().getWorkflowList()
 
-
-    def getError(self):
-        error = self.ert().getWorkflowList().getLastError()
-
-        error_message = ""
-
-        for error_line in error:
-            error_message += error_line + "\n"
-
-        return error_message
+        workflow = workflow_list[workflow_name]
+        context = workflow_list.getContext()
+        return WorkflowRunner(workflow, self.ert(), context)

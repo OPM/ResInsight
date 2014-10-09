@@ -30,7 +30,7 @@ extern "C" {
   
 
   void                 misfit_ts_fwrite( const misfit_ts_type * misfit_ts , FILE * stream );
-  double               misfit_ts_eval( const misfit_ts_type * ts , int step1 , int step2 );
+  double               misfit_ts_eval( const misfit_ts_type * ts , const int_vector_type * steps );
   misfit_ts_type     * misfit_ts_alloc(int history_length);
   misfit_ts_type     * misfit_ts_fread_alloc( FILE * stream );
   void                 misfit_ts_free__( void * vector );

@@ -152,7 +152,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         for (cIdx = 0; cIdx < 8; ++cIdx)
         {
             double * point = mainGrid->nodes()[nodeStartIndex + gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
-            ecl_grid_get_corner_xyz1(localEclGrid, gridLocalCellIndex, cIdx, &(point[0]), &(point[1]), &(point[2]));
+            ecl_grid_get_cell_corner_xyz1(localEclGrid, gridLocalCellIndex, cIdx, &(point[0]), &(point[1]), &(point[2]));
             point[2] = -point[2]; // Flipping Z making depth become negative z values
             cell.cornerIndices()[cIdx] = nodeStartIndex + gridLocalCellIndex*8 + cIdx;
         }

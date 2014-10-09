@@ -19,21 +19,215 @@
 
 
 #include <stdlib.h>
+#include <math.h>
 
 #include <ert/util/test_util.h>
+#include <ert/util/statistics.h>
+#include <ert/util/test_work_area.h>
 #include <ert/util/matrix.h>
+#include <ert/util/rng.h>
+#include <ert/util/mzran.h>
+#include <ert/util/matrix_lapack.h>
 
 
 
-int main( int argc , char ** argv) {
+void test_resize() {
+  matrix_type * m1 = matrix_alloc(5,5);
+  matrix_type * m2 = matrix_alloc(5,5);
+  rng_type * rng = rng_alloc( MZRAN , INIT_DEFAULT ); 
+
+  matrix_random_init( m1 , rng );
+  matrix_assign( m2 , m1 );
+  
+  test_assert_true( matrix_equal( m1 , m2 ));
+  matrix_resize( m1 , 5 , 5 , false );
+  test_assert_true( matrix_equal( m1 , m2 ));
+  matrix_resize( m1 , 5 , 5 , true );
+  test_assert_true( matrix_equal( m1 , m2 ));
+  
+  rng_free( rng );
+  matrix_free( m1 );
+  matrix_free( m2 );
+}
+
+
+void test_column_equal() {
+  matrix_type * m1 = matrix_alloc(5,5);
+  matrix_type * m2 = matrix_alloc(5,5);
+  matrix_type * m3 = matrix_alloc(6,5);
+  rng_type * rng = rng_alloc( MZRAN , INIT_DEFAULT ); 
+
+  matrix_random_init( m1 , rng );
+  matrix_assign( m2 , m1 );
+
+  test_assert_true( matrix_columns_equal( m1 , 2 , m2 , 2 ));
+  test_assert_false( matrix_columns_equal( m1 , 2 , m2 , 3 ));
+  test_assert_false( matrix_columns_equal( m1 , 2 , m3 , 3 ));
+  
+  rng_free( rng );
+  matrix_free( m1 );
+  matrix_free( m2 );
+  matrix_free( m3 );
+}
+
+
+
+
+void test_create_invalid() {
+  test_assert_NULL( matrix_alloc(0, 100));
+  test_assert_NULL( matrix_alloc(100, 0));
+  test_assert_NULL( matrix_alloc(0, 0));
+  test_assert_NULL( matrix_alloc(-1, -1));
+}
+
+
+
+void test_dims() {
   const int rows = 10;
   const int columns = 13;
   matrix_type * m = matrix_alloc(rows , columns);
 
-  test_assert_true( matrix_check_dims(m , rows , columns));
+  test_assert_true(  matrix_check_dims(m , rows , columns));
   test_assert_false( matrix_check_dims(m , rows + 1 , columns));
   test_assert_false( matrix_check_dims(m , rows , columns + 1));
 
   matrix_free( m );
+}
+
+
+void test_det4() {
+  matrix_type * m = matrix_alloc(4  , 4 );
+  rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM ); 
+  for (int i=0; i < 10; i++) {
+    matrix_random_init( m , rng );
+    {
+      double det4 = matrix_det4( m );
+      double det = matrix_det( m );
+   
+      test_assert_double_equal( det , det4 );
+    }
+  }
+
+  matrix_free( m );
+  rng_free( rng );
+}
+
+
+void test_det3() {
+  matrix_type * m = matrix_alloc(3  , 3 );
+  rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM ); 
+  matrix_random_init( m , rng );
+
+  {
+    double det3 = matrix_det3( m );
+    double det = matrix_det( m );
+
+    test_assert_double_equal( det , det3 );
+  }
+
+  matrix_free( m );
+  rng_free( rng );
+}
+
+
+void test_det2() {
+  matrix_type * m = matrix_alloc(2,2);
+  rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM ); 
+  matrix_random_init( m , rng );
+  {
+    double det2 = matrix_det2( m );
+    double det = matrix_det( m );
+
+    test_assert_double_equal( det , det2 );
+  }
+  matrix_free( m );
+  rng_free( rng );
+}
+
+
+void test_readwrite() {
+  test_work_area_type * test_area = test_work_area_alloc("matrix-test");
+  {
+    rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM ); 
+    matrix_type * m1 = matrix_alloc(3  , 3);
+    matrix_type * m2 = matrix_alloc(3  , 3);
+    matrix_random_init( m1 , rng );
+    matrix_assign(m2 , m1);
+
+    test_assert_true( matrix_equal( m1 , m2 ) );
+    {
+      FILE * stream = util_fopen("m1" , "w");
+      matrix_fwrite( m1 , stream );
+      fclose( stream );
+    }
+    matrix_random_init( m1 , rng );
+    test_assert_false( matrix_equal( m1 , m2 ) );
+    {
+      FILE * stream = util_fopen("m1" , "r");
+      matrix_free( m1 );
+      m1 = matrix_alloc(1,1);
+      printf("-----------------------------------------------------------------\n");
+      matrix_fread( m1 , stream );
+      test_assert_int_equal( matrix_get_rows(m1) , matrix_get_rows( m2));
+      test_assert_int_equal( matrix_get_columns(m1) , matrix_get_columns( m2));
+      util_fseek( stream , 0 , SEEK_SET);
+      {
+        matrix_type * m3 = matrix_fread_alloc( stream );
+        test_assert_true( matrix_equal( m2 , m3 ));
+        matrix_free( m3 );
+      }
+      fclose( stream );
+    }
+    test_assert_true( matrix_equal( m1 , m2 ) );
+
+    matrix_free( m2 );
+    matrix_free( m1 );
+    rng_free( rng );
+  }
+  test_work_area_free( test_area );
+}
+
+
+void test_diag_std() {
+  const int N = 25;
+  double_vector_type * data = double_vector_alloc( 0,0);
+  rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM ); 
+  matrix_type * m = matrix_alloc( N , N );
+  double sum1 = 0;
+  double sum2 = 0;
+  int i;
+
+  for (i=0; i < N; i++) {
+    double R = rng_get_double( rng ); 
+    matrix_iset(m , i , i , R);
+    double_vector_iset( data , i , R );
+    
+    sum1 += R;
+    sum2 += R*R;
+  }
+  {
+    double mean = sum1 / N;
+    double std = sqrt( sum2 / N - mean * mean );
+
+    test_assert_double_equal( std , matrix_diag_std( m , mean ));
+    test_assert_double_equal( statistics_std( data ) , matrix_diag_std( m , mean ));
+    test_assert_double_equal( statistics_mean( data ) , mean );
+  }
+  matrix_free( m );
+  rng_free( rng );
+}
+
+
+
+int main( int argc , char ** argv) {
+  test_create_invalid();
+  test_resize();
+  test_column_equal();
+  test_dims();
+  test_det2();
+  test_det3();
+  test_det4();
+  test_readwrite();
+  test_diag_std();
   exit(0);
 }

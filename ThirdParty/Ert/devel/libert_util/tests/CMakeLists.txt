@@ -18,9 +18,25 @@ add_executable( ert_util_matrix ert_util_matrix.c )
 target_link_libraries( ert_util_matrix ert_util test_util )
 add_test( ert_util_matrix ${EXECUTABLE_OUTPUT_PATH}/ert_util_matrix )
 
+add_executable( ert_util_statistics ert_util_statistics.c )
+target_link_libraries( ert_util_statistics ert_util test_util )
+add_test( ert_util_statistics ${EXECUTABLE_OUTPUT_PATH}/ert_util_statistics )
+
+add_executable( ert_util_struct_vector ert_util_struct_vector.c )
+target_link_libraries( ert_util_struct_vector ert_util test_util )
+add_test( ert_util_struct_vector ${EXECUTABLE_OUTPUT_PATH}/ert_util_struct_vector )
+
+add_executable( ert_util_copy_file ert_util_copy_file.c )
+target_link_libraries( ert_util_copy_file ert_util test_util )
+add_test( ert_util_copy_file ${EXECUTABLE_OUTPUT_PATH}/ert_util_copy_file ${EXECUTABLE_OUTPUT_PATH}/ert_util_copy_file )
+
 add_executable( ert_util_filename ert_util_filename.c )
 target_link_libraries( ert_util_filename ert_util test_util )
 add_test( ert_util_filename ${EXECUTABLE_OUTPUT_PATH}/ert_util_filename )
+
+add_executable( ert_util_sscan_test ert_util_sscan_test.c )
+target_link_libraries( ert_util_sscan_test ert_util test_util )
+add_test( ert_util_sscan_test ${EXECUTABLE_OUTPUT_PATH}/ert_util_sscan_test )
 
 add_executable( ert_util_string_util ert_util_string_util.c )
 target_link_libraries( ert_util_string_util ert_util test_util )
@@ -147,3 +163,9 @@ add_test( ert_util_arg_pack ${EXECUTABLE_OUTPUT_PATH}/ert_util_arg_pack)
 add_executable( ert_util_abort_gnu_tests ert_util_abort_gnu_tests.c)
 target_link_libraries( ert_util_abort_gnu_tests ert_util test_util)
 add_test( ert_util_abort_gnu_tests ${EXECUTABLE_OUTPUT_PATH}/ert_util_abort_gnu_tests)
+
+if (WITH_PTHREAD)
+   add_executable( ert_util_block_fs ert_util_block_fs.c)
+   target_link_libraries( ert_util_block_fs ert_util test_util)
+   add_test( ert_util_block_fs ${EXECUTABLE_OUTPUT_PATH}/ert_util_block_fs)
+endif()   

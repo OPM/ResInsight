@@ -38,6 +38,7 @@
 #include <ert/enkf/field.h>
 #include <ert/enkf/field_config.h>
 #include <ert/enkf/enkf_serialize.h>
+#include <ert/enkf/enkf_fs.h>
 
 
 GET_DATA_SIZE_HEADER(field);
@@ -72,39 +73,72 @@ struct field_struct {
 
 
 
-#define EXPORT_MACRO                                                                                      \
-{                                                                                                         \
-  int nx,ny,nz;                                                                                           \
-  field_config_get_dims(field->config , &nx , &ny , &nz);                                                 \
-  int i,j,k;                                                                                              \
-   for (k=0; k < nz; k++) {                                                                               \
-     for (j=0; j < ny; j++) {                                                                             \
-       for (i=0; i < nx; i++) {                                                                           \
-         int index1D = field_config_active_index(config , i , j , k);                                     \
-         int index3D;                                                                                     \
-         if (rms_index_order)                                                                             \
-           index3D = rms_util_global_index_from_eclipse_ijk(nx,ny,nz,i,j,k);                              \
-         else                                                                                             \
-           index3D = i + j * nx + k* nx*ny;                                                               \
-         if (index1D >= 0)                                                                                \
-           target_data[index3D] = src_data[index1D];                                                      \
-         else                                                                                             \
-           memcpy(&target_data[index3D] , fill_value , sizeof_ctype_target);                              \
-        }                                                                                                 \
-     }                                                                                                    \
-   }                                                                                                      \
-}                                                                                                         
+#define EXPORT_MACRO                                                                                    \
+{                                                                                                       \
+  int nx,ny,nz;                                                                                         \
+  field_config_get_dims(field->config , &nx , &ny , &nz);                                               \
+  int i,j,k;                                                                                            \
+  for (k=0; k < nz; k++) {                                                                              \
+    for (j=0; j < ny; j++) {                                                                            \
+      for (i=0; i < nx; i++) {                                                                          \
+        bool active_cell          = field_config_active_cell(config, i, j, k);                          \
+        bool use_initial_value    = false;                                                              \
+                                                                                                        \
+        if (init_file && !active_cell)                                                                  \
+          use_initial_value = true;                                                                     \
+                                                                                                        \
+        int source_index = 0;                                                                           \
+        if (use_initial_value)                                                                          \
+          source_index = field_config_global_index(config , i , j , k);                                 \
+        else                                                                                            \
+          source_index = field_config_active_index(config, i, j, k);                                    \
+                                                                                                        \
+        int target_index;                                                                               \
+        if (rms_index_order)                                                                            \
+          target_index = rms_util_global_index_from_eclipse_ijk(nx,ny,nz,i,j,k);                        \
+        else                                                                                            \
+          target_index = i + j * nx + k* nx*ny;                                                         \
+                                                                                                        \
+        if (use_initial_value)                                                                          \
+          target_data[target_index] = initial_src_data[source_index];                                   \
+        else if (active_cell)                                                                           \
+          target_data[target_index] = src_data[source_index];                                           \
+        else                                                                                            \
+          memcpy(&target_data[target_index] , fill_value , sizeof_ctype_target);                        \
+      }                                                                                                 \
+    }                                                                                                   \
+  }                                                                                                     \
+}                                                                                                       \
 
 
-void field_export3D(const field_type * field , void *_target_data , bool rms_index_order , ecl_type_enum target_type , void *fill_value) {
+void field_export3D(const field_type * field ,
+                    void *_target_data ,
+                    bool rms_index_order ,
+                    ecl_type_enum target_type ,
+                    void *fill_value,
+                    const char * init_file) {
+
   const field_config_type * config = field->config;
   ecl_type_enum ecl_type = field_config_get_ecl_type( config );
   int   sizeof_ctype_target = ecl_util_get_sizeof_ctype(target_type);
-  
+
+  field_type * initial_field               = NULL;
+  field_config_type * initial_field_config = NULL;
+  if (init_file) {
+    ecl_grid_type * grid        = field_config_get_grid(config);
+    bool global_size            = true;
+    initial_field_config        = field_config_alloc_empty(field_config_get_key(config), grid, NULL, global_size);
+    initial_field               = field_alloc(initial_field_config);
+
+    field_fload_keep_inactive(initial_field, init_file);
+  }
+
   switch(ecl_type) {
   case(ECL_DOUBLE_TYPE):
     {
-      const double * src_data = (const double *) field->data;
+      const double * src_data         = (const double *) field->data;
+      const double * initial_src_data = initial_field ? (const double *) initial_field->data : NULL;
+
       if (target_type == ECL_FLOAT_TYPE) {
         float *target_data = (float *) _target_data;
         EXPORT_MACRO;
@@ -119,7 +153,8 @@ void field_export3D(const field_type * field , void *_target_data , bool rms_ind
     break;
   case(ECL_FLOAT_TYPE):
     {
-      const float * src_data = (const float *) field->data;
+      const float * src_data          = (const float *) field->data;
+      const float * initial_src_data = initial_field ? (const float *) initial_field->data : NULL;
       if (target_type == ECL_FLOAT_TYPE) {
         float *target_data = (float *) _target_data;
         EXPORT_MACRO;
@@ -134,7 +169,8 @@ void field_export3D(const field_type * field , void *_target_data , bool rms_ind
     break;
   case(ECL_INT_TYPE):
     {
-      const int * src_data = (const int *) field->data;
+      const int * src_data         = (const int *) field->data;
+      const int * initial_src_data = initial_field ? (const int *) initial_field->data : NULL;
       if (target_type == ECL_FLOAT_TYPE) {
         float *target_data = (float *) _target_data;
         EXPORT_MACRO;
@@ -154,48 +190,67 @@ void field_export3D(const field_type * field , void *_target_data , bool rms_ind
     fprintf(stderr,"%s: Sorry field has unexportable type ... \n",__func__);
     break;
   }
+
+  if (initial_field) {
+    field_config_free(initial_field_config);
+    field_free(initial_field);
+  }
 }
 #undef EXPORT_MACRO
   
 
 /*****************************************************************/
-#define IMPORT_MACRO                                                                                        \
-{                                                                                                           \
-  int i,j,k;                                                                                                \
-  int nx,ny,nz;                                                                                             \
-  field_config_get_dims(field->config , &nx , &ny , &nz);                                                   \
-  for (k=0; k < nz; k++) {                                                                                  \
-     for (j=0; j < ny; j++) {                                                                               \
-       for (i=0; i < nx; i++) {                                                                             \
-         int index1D = field_config_active_index(config , i , j , k);                                       \
-         int index3D;                                                                                       \
-         if (index1D >= 0) {                                                                                \
-           if (rms_index_order)                                                                             \
-             index3D = rms_util_global_index_from_eclipse_ijk(nx,ny,nz,i,j,k);                              \
-           else                                                                                             \
-             index3D = i + j * nx + k* nx*ny;                                                               \
-           target_data[index1D] = src_data[index3D] ;                                                       \
-         }                                                                                                  \
-      }                                                                                                     \
-     }                                                                                                      \
-   }                                                                                                        \
-}
+#define IMPORT_MACRO                                                                                                                      \
+{                                                                                                                                         \
+  int i,j,k;                                                                                                                              \
+  int nx,ny,nz;                                                                                                                           \
+  field_config_get_dims(field->config , &nx , &ny , &nz);                                                                                 \
+  for (k=0; k < nz; k++) {                                                                                                                \
+    for (j=0; j < ny; j++) {                                                                                                              \
+      for (i=0; i < nx; i++) {                                                                                                            \
+        int target_index = keep_inactive_cells ? field_config_global_index(config, i, j, k) : field_config_active_index(config, i, j, k); \
+                                                                                                                                          \
+        if (target_index >= 0) {                                                                                                          \
+          int source_index;                                                                                                               \
+          if (rms_index_order)                                                                                                            \
+            source_index = rms_util_global_index_from_eclipse_ijk(nx,ny,nz,i,j,k);                                                        \
+          else                                                                                                                            \
+            source_index = i + j * nx + k* nx*ny;                                                                                         \
+                                                                                                                                          \
+          target_data[target_index] = src_data[source_index] ;                                                                            \
+        }                                                                                                                                 \
+      }                                                                                                                                   \
+    }                                                                                                                                     \
+  }                                                                                                                                       \
+}                                                                                                                                         \
 
 
 
 /**
    The main function of the field_import3D and field_export3D
    functions are to skip the inactive cells (field_import3D) and
-   distribute inactive cells (field_export3D). In addition we can
-   reorganize input/output according to the RMS Roff index convention,
-   and also perform float <-> double conversions.
+   distribute inactive cells (field_export3D).
+   When the flag keep_inactive_cells is set for field_import3D,
+   the values for the inactive cells are kept. The field argument
+   must have been allocated with flag global_size = true for this
+   to work.
+   When field_export3D is called with argument INIT_FILE, the
+   exported values for inactive cells are read from the INIT_FILE.
+
+   In addition we can reorganize input/output according to the
+   RMS Roff index convention, and also perform float <-> double
+   conversions.
 
    Observe that these functions only import/export onto memory
    buffers, the actual reading and writing of files is done in other
    functions (calling these).
 */
 
-static void field_import3D(field_type * field , const void *_src_data , bool rms_index_order , ecl_type_enum src_type) {
+static void field_import3D(field_type * field ,
+                           const void *_src_data ,
+                           bool rms_index_order ,
+                           bool keep_inactive_cells,
+                           ecl_type_enum src_type) {
   const field_config_type * config = field->config;
   ecl_type_enum ecl_type = field_config_get_ecl_type(config);
   
@@ -333,10 +388,7 @@ void field_copy(const field_type *src , field_type * target ) {
 
 
 
-
-
-
-void field_read_from_buffer(field_type * field , buffer_type * buffer, int report_step, state_enum state) {
+void field_read_from_buffer(field_type * field , buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {
   int byte_size = field_config_get_byte_size( field->config );
   enkf_util_assert_buffer_type(buffer , FIELD);
   buffer_fread_compressed(buffer , buffer_get_remaining_size( buffer ) , field->data , byte_size);
@@ -344,9 +396,12 @@ void field_read_from_buffer(field_type * field , buffer_type * buffer, int repor
 
 
 
-
-
-static void * __field_alloc_3D_data(const field_type * field , int data_size , bool rms_index_order , ecl_type_enum ecl_type , ecl_type_enum target_type) {
+static void * __field_alloc_3D_data(const field_type * field ,
+                                    int data_size ,
+                                    bool rms_index_order ,
+                                    ecl_type_enum ecl_type ,
+                                    ecl_type_enum target_type,
+                                    const char * init_file) {
   void * data = util_calloc(data_size , ecl_util_get_sizeof_ctype(target_type) );
   if (ecl_type == ECL_DOUBLE_TYPE) {
     double fill;
@@ -354,21 +409,21 @@ static void * __field_alloc_3D_data(const field_type * field , int data_size , b
       fill = RMS_INACTIVE_DOUBLE;
     else
       fill = 0;
-    field_export3D(field , data , rms_index_order , target_type , &fill);
+    field_export3D(field , data , rms_index_order , target_type , &fill, init_file);
   } else if (ecl_type == ECL_FLOAT_TYPE) {
     float fill;
     if (rms_index_order)
       fill = RMS_INACTIVE_FLOAT;
     else
       fill = 0;
-    field_export3D(field , data , rms_index_order , target_type , &fill);
+    field_export3D(field , data , rms_index_order , target_type , &fill, init_file);
   } else if (ecl_type == ECL_INT_TYPE) {
     int fill;
     if (rms_index_order)
       fill = RMS_INACTIVE_INT;
     else
       fill = 0;
-    field_export3D(field , data , rms_index_order , target_type , &fill);
+    field_export3D(field , data , rms_index_order , target_type , &fill, init_file);
   } else 
     util_abort("%s: trying to export type != int/float/double - aborting \n",__func__);
   return data;
@@ -391,7 +446,8 @@ static void * __field_alloc_3D_data(const field_type * field , int data_size , b
      * The function field_ecl_grdecl_export() will write the field to
        disk in a format suitable for ECLIPSE INCLUDE statements. This
        means that both active and inactive cells are written, with a
-       zero fill for the inactive.
+       zero fill for the inactive. If the argument init_file is set,
+       the value for the inactive cells are read from this file.
 
      * The functions field_xxxx_fortio() writes the field in the
        ECLIPSE restart format. The function field_ecl_write3D_fortio()
@@ -417,12 +473,12 @@ static void * __field_alloc_3D_data(const field_type * field , int data_size , b
     function to initialize and close down the rms_file instance. 
 */
 
-static void field_ROFF_export__(const field_type * field , rms_file_type * rms_file) {
+static void field_ROFF_export__(const field_type * field , rms_file_type * rms_file, const char * init_file) {
   const int data_size             = field_config_get_volume(field->config);
   const ecl_type_enum target_type = field_config_get_ecl_type(field->config); /* Could/should in principle be input */
   const ecl_type_enum ecl_type    = field_config_get_ecl_type(field->config);
   
-  void *data  = __field_alloc_3D_data(field , data_size , true ,ecl_type , target_type);
+  void *data  = __field_alloc_3D_data(field , data_size , true , ecl_type , target_type, init_file);
   rms_tagkey_type * data_key = rms_tagkey_alloc_complete("data" , data_size , rms_util_convert_ecl_type(target_type) , data , true);
   rms_tag_fwrite_parameter(field_config_get_ecl_kw_name(field->config) , data_key , rms_file_get_FILE(rms_file));
   rms_tagkey_free(data_key);
@@ -467,9 +523,9 @@ static void field_complete_ROFF_export(const field_type * field , rms_file_type 
     implemented.
 */
     
-void field_ROFF_export(const field_type * field , const char * filename) {
-  rms_file_type * rms_file = field_init_ROFF_export(field , filename);
-  field_ROFF_export__(field , rms_file);             /* Should now be possible to several calls to field_ROFF_export__() */
+void field_ROFF_export(const field_type * field , const char * export_filename, const char * init_file) {
+  rms_file_type * rms_file = field_init_ROFF_export(field , export_filename);
+  field_ROFF_export__(field , rms_file, init_file);             /* Should now be possible to several calls to field_ROFF_export__() */
   field_complete_ROFF_export(field , rms_file);
 }
 
@@ -492,11 +548,11 @@ void field_ecl_write1D_fortio(const field_type * field , fortio_type * fortio) {
 }
 
 
-void field_ecl_write3D_fortio(const field_type * field , fortio_type * fortio ) {
+void field_ecl_write3D_fortio(const field_type * field , fortio_type * fortio, const char * init_file ) {
   const int data_size             = field_config_get_volume(field->config);
   const ecl_type_enum target_type = field_config_get_ecl_type(field->config); /* Could/should in principle be input */
   const ecl_type_enum ecl_type    = field_config_get_ecl_type(field->config);
-  void *data = __field_alloc_3D_data(field , data_size , false ,ecl_type , target_type);
+  void *data = __field_alloc_3D_data(field , data_size , false ,ecl_type , target_type, init_file);
 
   ecl_kw_fwrite_param_fortio(fortio , field_config_get_ecl_kw_name(field->config), ecl_type , data_size , data);
   free(data);
@@ -513,11 +569,11 @@ static ecl_kw_type * field_alloc_ecl_kw_wrapper__(const field_type * field, void
 }
 
 
-void field_ecl_grdecl_export(const field_type * field , FILE * stream) {
+void field_ecl_grdecl_export(const field_type * field , FILE * stream, const char * init_file) {
   const int data_size             = field_config_get_volume(field->config);
   const ecl_type_enum target_type = field_config_get_ecl_type(field->config); /* Could/should in principle be input */
   const ecl_type_enum ecl_type    = field_config_get_ecl_type(field->config);
-  void *data                      = __field_alloc_3D_data(field , data_size , false , ecl_type , target_type );
+  void *data                      = __field_alloc_3D_data(field , data_size , false , ecl_type , target_type, init_file );
   ecl_kw_type * ecl_kw = field_alloc_ecl_kw_wrapper__(field , data);
   ecl_kw_fprintf_grdecl(ecl_kw , stream);
   ecl_kw_free(ecl_kw);
@@ -577,8 +633,6 @@ static bool field_check_finite( const field_type * field) {
   } 
   return ok;
 }
-
-
 
 
 
@@ -664,12 +718,17 @@ static void field_revert_output_transform(field_type * field) {
   transform will *NOT* be applied.
 */  
 
-void field_export(const field_type * __field, const char * file , fortio_type * restart_fortio , field_file_format_type file_type, bool output_transform) {
+void field_export(const field_type * __field,
+                  const char * file ,
+                  fortio_type * restart_fortio ,
+                  field_file_format_type file_type,
+                  bool output_transform,
+                  const char * init_file) {
   field_type * field = (field_type *) __field;  /* Net effect is no change ... but */
 
   if (output_transform) field_output_transform(field);
   {
-    
+  
     /*  Writes the field to in ecl_kw format to a new file.  */
     if ((file_type == ECL_KW_FILE_ALL_CELLS) || (file_type == ECL_KW_FILE_ACTIVE_CELLS)) {
       fortio_type * fortio;
@@ -678,19 +737,19 @@ void field_export(const field_type * __field, const char * file , fortio_type * 
       fortio = fortio_open_writer(file , fmt_file , ECL_ENDIAN_FLIP);
 
       if (file_type == ECL_KW_FILE_ALL_CELLS)
-        field_ecl_write3D_fortio(field , fortio);
+        field_ecl_write3D_fortio(field , fortio, init_file);
       else
         field_ecl_write1D_fortio(field , fortio);
       
       fortio_fclose(fortio);
     } else if (file_type == ECL_GRDECL_FILE) {
       /* Writes the field to a new grdecl file. */
-      FILE * stream = util_fopen(file , "w");
-      field_ecl_grdecl_export(field , stream);
+      FILE * stream = util_mkdir_fopen(file , "w");
+      field_ecl_grdecl_export(field , stream, init_file);
       fclose(stream);
     } else if (file_type == RMS_ROFF_FILE) 
       /* Roff export */
-      field_ROFF_export(field , file);
+      field_ROFF_export(field , file, init_file);
     else if (file_type == ECL_FILE) 
       /* This entry point is used by the ecl_write() function to write to an ALREADY OPENED eclipse restart file. */
       field_ecl_write1D_fortio( field , restart_fortio);
@@ -711,24 +770,25 @@ void field_export(const field_type * __field, const char * file , fortio_type * 
    unchanged.
 */
 
-void field_ecl_write(const field_type * field , const char * run_path , const char * file , fortio_type * restart_fortio) {
+void field_ecl_write(const field_type * field , const char * run_path , const char * file , void * filestream) {
   field_file_format_type export_format = field_config_get_export_format(field->config);
-  
-  if (export_format == ECL_FILE)
-    field_export(field , NULL , restart_fortio , export_format , true); 
+
+  if (export_format == ECL_FILE) {
+    fortio_type * restart_fortio = fortio_safe_cast(filestream);
+    field_export(field , NULL , restart_fortio , export_format , true, NULL);
+  }
   else {
     char * full_path = util_alloc_filename( run_path , file  , NULL);
-    field_export(field , full_path , NULL , export_format , true);
+    field_export(field , full_path , NULL , export_format , true, NULL);
     free( full_path );
   }
 }
 
 
 
-
-
 bool field_initialize(field_type *field , int iens , const char * init_file , rng_type * rng) {
-  if (init_file != NULL) {
+  bool ret = false; 
+  if (init_file) {
     if (field_fload(field , init_file )) {
       field_func_type * init_transform   = field_config_get_init_transform(field->config);
       /* 
@@ -736,16 +796,16 @@ bool field_initialize(field_type *field , int iens , const char * init_file , rn
          the data, not as the output transform which is done on a copy of
          prior to export.
       */
-      if (init_transform != NULL) {
+      if (init_transform) {
         field_apply(field , init_transform);
         if (!field_check_finite( field ))
           util_exit("Sorry: after applying the init transform field:%s contains nan/inf or similar malformed values.\n" , field_config_get_key( field->config ));
       }
-      return true; 
+      ret = true;  
     }
-  } 
-  
-  return false;  /* The field is initialized as part of the forward model. */
+  }
+
+  return ret;  
 } 
 
 
@@ -756,8 +816,6 @@ void field_free(field_type *field) {
   }
   free(field);
 }
-
-
 
 
 
@@ -778,38 +836,39 @@ void field_deserialize(field_type * field , node_id_type node_id , const active_
   enkf_matrix_deserialize( field->data , data_size , ecl_type , active_list , A , row_offset , column);
 }
 
-
+static int __get_index(const field_type * field, int i, int j, int k) {
+  return field_config_keep_inactive_cells(field->config) ? field_config_global_index(field->config , i , j , k) : field_config_active_index(field->config , i , j , k);
+}
 
 
 void field_ijk_get(const field_type * field , int i , int j , int k , void * value) {
-  int active_index = field_config_active_index(field->config , i , j , k);
+  int index = __get_index(field, i, j, k);
   int sizeof_ctype = field_config_get_sizeof_ctype(field->config);
-  memcpy(value , &field->data[active_index * sizeof_ctype] , sizeof_ctype);
+  memcpy(value , &field->data[index * sizeof_ctype] , sizeof_ctype);
 }
 
 
 
 double field_ijk_get_double(const field_type * field, int i , int j , int k) {
-  int active_index = field_config_active_index(field->config , i , j , k);
-  return field_iget_double( field , active_index );
+  int index = __get_index(field, i, j, k);
+  return field_iget_double( field , index );
 }
 
 
 float field_ijk_get_float(const field_type * field, int i , int j , int k) {
-  int active_index = field_config_active_index(field->config , i , j , k);
-  return field_iget_float( field , active_index );
+  int index = __get_index(field, i, j, k);
+  return field_iget_float( field , index );
 }
 
 
-
 /**
-   Takes an active index as input, and returns a double.
+   Takes an active or global index as input, and returns a double.
 */
-double field_iget_double(const field_type * field , int active_index) {
+double field_iget_double(const field_type * field , int index) {
   ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
   int sizeof_ctype       = field_config_get_sizeof_ctype(field->config);
   char buffer[8]; /* Enough to hold one double */
-  memcpy(buffer , &field->data[active_index * sizeof_ctype] , sizeof_ctype);
+  memcpy(buffer , &field->data[index * sizeof_ctype] , sizeof_ctype);
   if ( ecl_type == ECL_DOUBLE_TYPE ) 
     return *((double *) buffer);
   else if (ecl_type == ECL_FLOAT_TYPE) {
@@ -828,13 +887,13 @@ double field_iget_double(const field_type * field , int active_index) {
 
 
 /**
-   Takes an active index as input, and returns a double.
+   Takes an active or global index as input, and returns a double.
 */
-float field_iget_float(const field_type * field , int active_index) {
+float field_iget_float(const field_type * field , int index) {
   ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
   int sizeof_ctype       = field_config_get_sizeof_ctype(field->config);
   char buffer[8];          /* Enough to hold one double */
-  memcpy(buffer , &field->data[active_index * sizeof_ctype] , sizeof_ctype);
+  memcpy(buffer , &field->data[index * sizeof_ctype] , sizeof_ctype);
   if ( ecl_type == ECL_FLOAT_TYPE ) 
     return *((float *) buffer);
   else if (ecl_type == ECL_DOUBLE_TYPE) {
@@ -854,17 +913,16 @@ float field_iget_float(const field_type * field , int active_index) {
 
 
 
-double field_iget(const field_type * field, int active_index) {
-  return field_iget_double(field , active_index);
+double field_iget(const field_type * field, int index) {
+  return field_iget_double(field , index);
 }
 
 
 
-
 void field_ijk_set(field_type * field , int i , int j , int k , const void * value) {
-  int active_index = field_config_active_index(field->config , i , j , k);
+  int index = __get_index(field, i, j, k);
   int sizeof_ctype = field_config_get_sizeof_ctype(field->config);
-  memcpy(&field->data[active_index * sizeof_ctype] , value , sizeof_ctype);
+  memcpy(&field->data[index * sizeof_ctype] , value , sizeof_ctype);
 }
 
 
@@ -952,8 +1010,8 @@ double * field_indexed_get_alloc(const field_type * field, int len, const int * 
 
 
 bool field_ijk_valid(const field_type * field , int i , int j , int k) {
-  int active_index = field_config_active_index(field->config , i , j , k);
-  if (active_index >=0)
+  int index = __get_index(field, i, j, k);
+  if (index >=0)
     return true;
   else
     return false;
@@ -961,8 +1019,8 @@ bool field_ijk_valid(const field_type * field , int i , int j , int k) {
 
 
 void field_ijk_get_if_valid(const field_type * field , int i , int j , int k , void * value , bool * valid) {
-  int active_index = field_config_active_index(field->config , i , j , k);
-  if (active_index >=0) {
+  int index = __get_index(field, i, j, k);
+  if (index >=0) {
     *valid = true;
     field_ijk_get(field , i , j , k , value);
   } else 
@@ -974,6 +1032,9 @@ int field_get_active_index(const field_type * field , int i , int j  , int k) {
   return field_config_active_index(field->config , i , j , k);
 }
 
+int field_get_global_index(const field_type * field , int i , int j  , int k) {
+  return field_config_global_index(field->config , i , j , k);
+}
 
 
 
@@ -1003,7 +1064,7 @@ void field_copy_ecl_kw_data(field_type * field , const ecl_kw_type * ecl_kw) {
 
 /*****************************************************************/
 
-bool field_fload_rms(field_type * field , const char * filename) {
+bool field_fload_rms(field_type * field , const char * filename, bool keep_inactive) {
   {
     FILE * stream = util_fopen__( filename , "r");
     if (!stream)
@@ -1037,7 +1098,7 @@ bool field_fload_rms(field_type * field , const char * filename) {
     if (rms_tagkey_get_size(data_tag) != field_config_get_volume(field->config)) 
       util_abort("%s: trying to import rms_data_tag from:%s with wrong size - aborting \n",__func__ , filename);
     
-    field_import3D(field , rms_tagkey_get_data_ref(data_tag) , true , ecl_type);
+    field_import3D(field , rms_tagkey_get_data_ref(data_tag) , true , keep_inactive, ecl_type);
     rms_tagkey_free(data_tag);
     rms_file_free(rms_file);
   }
@@ -1046,7 +1107,7 @@ bool field_fload_rms(field_type * field , const char * filename) {
 
 
 
-bool field_fload_ecl_kw(field_type * field , const char * filename ) {
+static bool field_fload_ecl_kw(field_type * field , const char * filename, bool keep_inactive) {
   const char * key = field_config_get_ecl_kw_name(field->config);
   ecl_kw_type * ecl_kw = NULL;
   
@@ -1061,7 +1122,7 @@ bool field_fload_ecl_kw(field_type * field , const char * filename ) {
         fortio_fclose(fortio);
         
         if (field_config_get_volume(field->config) == ecl_kw_get_size(ecl_kw)) 
-          field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , ecl_kw_get_type(ecl_kw));
+          field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , keep_inactive, ecl_kw_get_type(ecl_kw));
         else 
           /* Keyword is already packed - e.g. from a restart file. Size is
              verified in the _copy function.*/
@@ -1079,7 +1140,7 @@ bool field_fload_ecl_kw(field_type * field , const char * filename ) {
 
 
 /* No type translation possible */
-bool field_fload_ecl_grdecl(field_type * field , const char * filename ) {
+static bool field_fload_ecl_grdecl(field_type * field , const char * filename, bool keep_inactive ) {
   const char * key = field_config_get_ecl_kw_name(field->config);
   int size = field_config_get_volume(field->config);
   ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
@@ -1093,7 +1154,7 @@ bool field_fload_ecl_grdecl(field_type * field , const char * filename ) {
         util_exit("%s: Can not locate %s keyword in %s \n",__func__ , key , filename);
       fclose(stream);
       
-      field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , ecl_kw_get_type(ecl_kw));
+      field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , keep_inactive, ecl_kw_get_type(ecl_kw));
       ecl_kw_free(ecl_kw);
       return true;
     }
@@ -1104,17 +1165,17 @@ bool field_fload_ecl_grdecl(field_type * field , const char * filename ) {
 
 
 
-bool field_fload_typed(field_type * field , const char * filename ,  field_file_format_type file_type) {
+bool field_fload_typed(field_type * field , const char * filename ,  field_file_format_type file_type, bool keep_inactive) {
   bool loadOK = false;
   switch (file_type) {
   case(RMS_ROFF_FILE):
-    loadOK = field_fload_rms(field , filename );
+    loadOK = field_fload_rms(field , filename, keep_inactive );
     break;
   case(ECL_KW_FILE):
-    loadOK = field_fload_ecl_kw(field , filename  );
+    loadOK = field_fload_ecl_kw(field , filename, keep_inactive  );
     break;
   case(ECL_GRDECL_FILE):
-    loadOK = field_fload_ecl_grdecl(field , filename);
+    loadOK = field_fload_ecl_grdecl(field , filename, keep_inactive);
     break;
   default:
     util_abort("%s: file_type:%d not recognized - aborting \n",__func__ , file_type);
@@ -1123,24 +1184,33 @@ bool field_fload_typed(field_type * field , const char * filename ,  field_file_
 }
 
 
-
-
-bool field_fload(field_type * field , const char * filename ) {
+static bool field_fload_custom__(field_type * field , const char * filename , bool keep_inactive) {
   if (util_file_readable( filename )) {
     field_file_format_type file_type = field_config_guess_file_type( filename );
-    if (file_type == UNDEFINED_FORMAT) 
+    if (file_type == UNDEFINED_FORMAT)
       file_type = field_config_manual_file_type(filename , true);
-    
-    return field_fload_typed(field , filename , file_type);
+
+    return field_fload_typed(field , filename , file_type, keep_inactive);
   } else
     return false;
 }
 
 
+bool field_fload(field_type * field , const char * filename) {
+  bool keep_inactive = false;
+  return field_fload_custom__(field, filename, keep_inactive);
+}
 
-bool field_fload_auto(field_type * field , const char * filename ) {
+
+bool field_fload_keep_inactive(field_type * field , const char * filename) {
+  bool keep_inactive = true;
+  return field_fload_custom__(field , filename , keep_inactive);
+}
+
+
+bool field_fload_auto(field_type * field , const char * filename, bool keep_inactive ) {
   field_file_format_type file_type = field_config_guess_file_type(filename);
-  return field_fload_typed(field , filename , file_type);
+  return field_fload_typed(field , filename , file_type, keep_inactive);
 }
 
 
@@ -1185,8 +1255,13 @@ bool field_cmp(const field_type * f1 , const field_type * f2) {
 */
 
 
-bool field_forward_load(field_type * field , const char * ecl_file_name , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_file , int report_step) {
-  bool loadOK                          = true;
+static bool field_forward_load(field_type * field ,
+                               const char * ecl_file_name ,
+                               const ecl_sum_type * ecl_sum,
+                               const ecl_file_type * restart_file ,
+                               int report_step) {
+  bool keep_inactive = false;
+  bool loadOK = true;
   field_file_format_type import_format = field_config_get_import_format(field->config);
     
   if (import_format == ECL_FILE) {
@@ -1198,7 +1273,7 @@ bool field_forward_load(field_type * field , const char * ecl_file_name , const 
     //util_abort("%s: fatal error when loading: %s - no restart information has been loaded \n",__func__ , field_config_get_key( field->config ));
   } else 
     /* Loading from unique file - currently this only applies to the modelerror implementation. */
-    field_fload_typed(field , ecl_file_name , import_format);
+    field_fload_typed(field , ecl_file_name , import_format, keep_inactive);
   
   
   if (loadOK) {

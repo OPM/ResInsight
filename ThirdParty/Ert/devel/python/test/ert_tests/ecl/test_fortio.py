@@ -15,9 +15,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 import os
+from random import randint
 from ert.ecl import FortIO, EclTypeEnum, EclKW
-from ert_tests import ExtendedTestCase
-from ert.util.test_area import TestAreaContext
+from ert.test import ExtendedTestCase, TestAreaContext
 
 
 
@@ -28,19 +28,18 @@ class FortIOTest(ExtendedTestCase):
 
 
     def test_open_read(self):
-        f = FortIO.reader(self.unrst_file)
-        self.assertTrue(f)
+        f = FortIO(self.unrst_file, FortIO.READ_MODE)
+        self.assertIsNotNone(f)
 
 
     def test_open_write(self):
         with TestAreaContext("python/fortio/write"):
-            f = FortIO.writer("newfile")
-            f.close()
-            self.assertTrue(True)
+            f = FortIO("newfile", FortIO.WRITE_MODE)
+            self.assertTrue(os.path.exists("newfile"))
 
     def test_noex(self):
         with self.assertRaises(IOError):
-            f = FortIO.reader("/tmp/does/notExist")
+            f = FortIO("odes_not_exist", FortIO.READ_MODE)
 
     def test_kw(self):
         kw1 = EclKW.create("KW1", 2, EclTypeEnum.ECL_INT_TYPE)
@@ -52,21 +51,75 @@ class FortIOTest(ExtendedTestCase):
         kw2[1] = 335
 
         with TestAreaContext("python/fortio/write-kw"):
-            f = FortIO.writer("test", fmt_file=False)
+            f = FortIO("test", FortIO.WRITE_MODE, fmt_file=False)
             kw1.fwrite(f)
-            f.close()
 
-            f = FortIO.open("test", mode="a")
+            f = FortIO("test", FortIO.APPEND_MODE)
             kw2.fwrite(f)
-            f.close()
 
-            f = FortIO.open("test", fmt_file=False)
+            f = FortIO("test", fmt_file=False)
             k1 = EclKW.fread(f)
             k2 = EclKW.fread(f)
-            f.close()
 
             self.assertTrue(k1.equal(kw1))
             self.assertTrue(k2.equal(kw2))
 
 
+    def test_fortio_creation(self):
+        with TestAreaContext("python/fortio/create"):
+            w = FortIO("test", FortIO.WRITE_MODE)
+            rw = FortIO("test", FortIO.READ_AND_WRITE_MODE)
+            r = FortIO("test", FortIO.READ_MODE)
+            a = FortIO("test", FortIO.APPEND_MODE)
 
+            w.close()
+            w.close() # should not fail
+
+    def test_fortio_read_and_write(self):
+        with TestAreaContext("python/fortio/read_and_write"):
+            f = FortIO("test", FortIO.WRITE_MODE)
+
+            record_size = 4000
+
+            for i, c in enumerate("abcdefghijklmnopqrstuvwxyz"):
+                data = bytearray(c * record_size)
+                f.writeRecord(data)
+                position = f.getPosition()
+                self.assertEqual(position, (i + 1) * (record_size + 8))
+
+            f = FortIO("test", FortIO.READ_MODE)
+
+            for c in "abcdefghijklmnopqrstuvwxyz":
+                record = f.readRecordAsString(record_size)
+                self.assertEqual(record, c * record_size)
+
+
+    def test_fortio_read_and_write_and_rewrite(self):
+        with TestAreaContext("python/fortio/read_and_write_and_rewrite"):
+            record_size = 4000
+
+            f = FortIO("complete", FortIO.WRITE_MODE)
+            for c in "abcdefghijklmnopqrstuvwxyz":
+                data = bytearray(c * record_size)
+                f.writeRecord(data)
+
+
+            f = FortIO("test", FortIO.WRITE_MODE)
+
+            positions = {}
+            for c in "abcdefghij-lmnopqrstuvwxyz":
+                data = bytearray(c * record_size)
+                f.writeRecord(data)
+                positions[c] = f.getPosition()
+
+
+            f = FortIO("test", FortIO.READ_AND_WRITE_MODE)
+
+            f.seek(positions["j"])
+
+            new_data = bytearray("k" * record_size)
+            f.writeRecord(new_data)
+
+            f.close()
+
+            self.assertFilesAreEqual("test", "complete")

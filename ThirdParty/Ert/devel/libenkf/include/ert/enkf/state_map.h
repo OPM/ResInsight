@@ -43,7 +43,7 @@ extern "C" {
   void                     state_map_iset( state_map_type * map ,int index , realisation_state_enum state);
   bool                     state_map_equal( state_map_type * map1 , state_map_type * map2);
   void                     state_map_fwrite( state_map_type * map , const char * filename);
-  void                     state_map_fread( state_map_type * map , const char * filename);
+  bool                     state_map_fread( state_map_type * map , const char * filename);
   void                     state_map_select_matching( state_map_type * map , bool_vector_type * select_target , int select_mask);
   void                     state_map_deselect_matching( state_map_type * map , bool_vector_type * select_target , int select_mask);
   void                     state_map_set_from_inverted_mask(state_map_type * map, const bool_vector_type *mask , realisation_state_enum state);

@@ -41,6 +41,7 @@ the process of interacting with a C library:
 
 from .cnamespace import CNamespace
 from .basecclass import BaseCClass
+from .basecvalue import BaseCValue
 
 from .cclass import CClass
 from .cenum import create_enum

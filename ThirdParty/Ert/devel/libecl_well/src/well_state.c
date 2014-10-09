@@ -43,6 +43,7 @@
 #include <ert/ecl_well/well_state.h>
 #include <ert/ecl_well/well_segment_collection.h>
 #include <ert/ecl_well/well_branch_collection.h>
+#include <ert/ecl_well/well_rseg_loader.h>
 
 /*
 
@@ -375,26 +376,18 @@ bool well_state_add_MSW( well_state_type * well_state ,
     ecl_rsthead_type  * rst_head  = ecl_rsthead_alloc( rst_file );
     const ecl_kw_type * iwel_kw = ecl_file_iget_named_kw( rst_file , IWEL_KW , 0);
     const ecl_kw_type * iseg_kw = ecl_file_iget_named_kw( rst_file , ISEG_KW , 0);
-    ecl_kw_type * rseg_kw = NULL;
+    well_rseg_loader_type * rseg_loader = NULL;
     
     int segments;
 
-    if (ecl_file_has_kw( rst_file , RSEG_KW )) 
-      /* 
-         Here we check that the file has the RSEG_KW keyword, and pass
-         NULL if not. The rseg_kw pointer will later be used in
-         well_segment_collection_load_from_kw() where we test if this
-         is a MSW well. If this indeed is a MSW well the rseg_kw
-         pointer will be used unchecked, if it is then NULL => Crash
-         and burn.
-      */
-      rseg_kw = ecl_file_iget_named_kw( rst_file , RSEG_KW , 0);
+    if (ecl_file_has_kw( rst_file , RSEG_KW ))
+        rseg_loader = well_rseg_loader_alloc(rst_file);
 
     segments = well_segment_collection_load_from_kw( well_state->segments ,
                                                      well_nr ,
                                                      iwel_kw ,
                                                      iseg_kw ,
-                                                     rseg_kw ,
+                                                     rseg_loader ,
                                                      rst_head);
 
     if (segments) {
@@ -409,6 +402,11 @@ bool well_state_add_MSW( well_state_type * well_state ,
       well_segment_collection_add_branches( well_state->segments , well_state->branches );
     }
     ecl_rsthead_free( rst_head );
+
+    if(rseg_loader != NULL) {
+        well_rseg_loader_free(rseg_loader);
+    }
+
     return true;
   } else
     return false;

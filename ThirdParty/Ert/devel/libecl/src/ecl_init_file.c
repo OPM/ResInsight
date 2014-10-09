@@ -174,7 +174,7 @@ void ecl_init_file_fwrite_header( fortio_type * fortio , const ecl_grid_type * e
   }
 
   {
-    ecl_kw_type * doubhead_kw = ecl_init_file_alloc_DOUBHEAD( ecl_grid , phases , start_date );
+    ecl_kw_type * doubhead_kw = ecl_init_file_alloc_DOUBHEAD( );
     ecl_kw_fwrite( doubhead_kw , fortio );
     ecl_kw_free( doubhead_kw );
   }

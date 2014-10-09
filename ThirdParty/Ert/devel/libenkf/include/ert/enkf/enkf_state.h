@@ -29,7 +29,7 @@ extern "C" {
 #include <ert/util/rng.h>
 #include <ert/util/stringlist.h>
 #include <ert/util/matrix.h>
-#include <ert/util/log.h>
+
 
 #include <ert/sched/sched_file.h>
  
@@ -100,7 +100,6 @@ typedef struct enkf_state_struct    enkf_state_type;
                                       ensemble_config_type * ,
                                       const site_config_type * ,
                                       const ecl_config_type * ,
-                                      log_type * logh,
                                       ert_templates_type * templates,
                                       subst_list_type    * parent_subst);
   void               enkf_state_update_node( enkf_state_type * enkf_state , const char * node_key );
@@ -136,7 +135,8 @@ typedef struct enkf_state_struct    enkf_state_type;
                            int init_step_parameter , 
                            state_enum init_state_parameter , 
                            state_enum init_state_dynamic , 
-                           int load_start , 
+                           int load_start ,
+                           int iter ,
                            int step1 , 
                            int step2 );
   int enkf_state_get_queue_index(const enkf_state_type * enkf_state);

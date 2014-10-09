@@ -39,7 +39,7 @@
 
 
 int main(int argc , char ** argv) {
-  ensemble_config_type * ensemble = ensemble_config_alloc_empty();
+  ensemble_config_type * ensemble = ensemble_config_alloc();
   ensemble_config_free( ensemble );
   exit(0);
 }

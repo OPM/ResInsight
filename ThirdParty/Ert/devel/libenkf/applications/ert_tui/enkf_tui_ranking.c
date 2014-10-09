@@ -22,6 +22,7 @@
 #include <ert/util/menu.h>
 #include <ert/util/util.h>
 #include <ert/util/arg_pack.h>
+#include <ert/util/string_util.h>
 
 #include <ert/enkf/enkf_fs.h>
 #include <ert/enkf/enkf_main.h>
@@ -44,7 +45,7 @@ static void enkf_tui_ranking_make_misfit_ensemble( void * arg) {
   
     
   misfit_ensemble_type * misfit_ensemble = enkf_fs_get_misfit_ensemble( fs );
-  misfit_ensemble_update( misfit_ensemble , ensemble_config , enkf_obs , fs , ens_size , history_length );
+  misfit_ensemble_initialize( misfit_ensemble , ensemble_config , enkf_obs , fs , ens_size , history_length , false);
   {
     menu_item_type * obs_item                    = arg_pack_iget_ptr( arg_pack , 1 ); 
     menu_item_enable( obs_item );
@@ -85,13 +86,18 @@ static void enkf_tui_ranking_create_obs( void * arg ) {
     
     util_printf_prompt(store_prompt , prompt_len , '=' , "=> ");
     ranking_file = util_alloc_stdin_line();
+
+    char * report_steps = util_alloc_sprintf("%d-%d", step1, step2);
+    int_vector_type * steps_vector = string_util_alloc_value_list(report_steps);
         
     if (stringlist_get_size( ranking_keys ) > 0) {
-      ranking_table_add_misfit_ranking( ranking_table , misfit_ensemble , ranking_keys , step1 , step2 , ranking_key );
+      ranking_table_add_misfit_ranking( ranking_table , misfit_ensemble , ranking_keys , steps_vector, ranking_key );
       ranking_table_display_ranking( ranking_table , ranking_key);
     } else
       fprintf(stderr,"The input string : \"%s\" did not resolve to any valid observation keys \n", obs_keys_input);
     
+    free(report_steps);
+    int_vector_free(steps_vector);
     free( obs_keys_input );
     stringlist_free( ranking_keys );
     free( ranking_key );

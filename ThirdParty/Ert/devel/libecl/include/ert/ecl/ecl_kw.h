@@ -26,6 +26,7 @@ extern "C" {
 #include <stdio.h>
 
 #include <ert/util/buffer.h>
+#include <ert/util/type_macros.h>
 
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_util.h>
@@ -34,6 +35,8 @@ extern "C" {
 
 
   typedef struct ecl_kw_struct      ecl_kw_type;
+
+  #define ECL_KW_FORTIO_HEADER_SIZE  4 + ECL_STRING_LENGTH + 4 + ECL_TYPE_LENGTH + 4
   
   size_t         ecl_kw_fortio_size( const ecl_kw_type * ecl_kw );
   void *         ecl_kw_get_ptr(const ecl_kw_type *ecl_kw);
@@ -59,6 +62,7 @@ extern "C" {
   void           ecl_kw_fread(ecl_kw_type * , fortio_type * );
   ecl_kw_type *  ecl_kw_fread_alloc(fortio_type *);
   void           ecl_kw_free_data(ecl_kw_type *);
+  void           ecl_kw_fread_indexed_data(fortio_type * fortio, offset_type data_offset, ecl_type_enum ecl_type, int element_count, const int_vector_type* index_map, char* buffer);
   void           ecl_kw_free(ecl_kw_type *);
   void           ecl_kw_free__(void *);
   ecl_kw_type *  ecl_kw_alloc_copy (const ecl_kw_type *);
@@ -109,6 +113,7 @@ extern "C" {
   bool ecl_kw_is_grdecl_file(FILE * );
   bool ecl_kw_is_kw_file(FILE * , bool );
   
+  int        ecl_kw_element_sum_int( const ecl_kw_type * ecl_kw );
   double     ecl_kw_element_sum_float( const ecl_kw_type * ecl_kw );
   void       ecl_kw_inplace_inv(ecl_kw_type * my_kw);
   void       ecl_kw_element_sum(const ecl_kw_type * , void * );

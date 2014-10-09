@@ -363,6 +363,20 @@ int stringlist_iget_as_int( const stringlist_type * stringlist , int index , boo
   return value;
 }
 
+bool stringlist_iget_as_bool( const stringlist_type * stringlist, int index, bool * valid) {
+  const char * string_value = stringlist_iget( stringlist, index);
+  bool value = false;
+
+  if (valid != NULL)
+    *valid = false;
+
+  if (util_sscanf_bool(string_value , &value))
+    if (valid != NULL)
+      *valid = true;
+
+  return value;
+}
+
 const char * stringlist_get_last( const stringlist_type * stringlist ) {
   return vector_get_last( stringlist->strings );
 }

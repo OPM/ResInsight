@@ -21,7 +21,7 @@ class PlotConfig(BaseCClass):
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
-    def get_path(self):
+    def getPath(self):
         """ @rtype: str """
         return PlotConfig.cNamespace().get_path(self)
 

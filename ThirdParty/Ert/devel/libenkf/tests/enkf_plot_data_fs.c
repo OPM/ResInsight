@@ -36,7 +36,8 @@ void test_load_GEN_KW( enkf_main_type * enkf_main , const char * key , const cha
   enkf_plot_data_type * plot_data = enkf_plot_data_alloc( config_node );
 
   {
-    enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , true , false );
+    enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , true );
+
     enkf_plot_data_load( plot_data , enkf_fs , index_key , ANALYZED , NULL );
     test_assert_int_equal( 25 , enkf_plot_data_get_size( plot_data ));
     {
@@ -53,9 +54,8 @@ void test_load_GEN_KW( enkf_main_type * enkf_main , const char * key , const cha
       test_assert_false( enkf_plot_tvector_iget_active( plot_vector , 11 ));
       test_assert_false( enkf_plot_tvector_iget_active( plot_vector , 21 ));
       test_assert_false( enkf_plot_tvector_iget_active( plot_vector , 31 ));
-
     }
-    enkf_fs_umount( enkf_fs );
+    enkf_fs_decref( enkf_fs );
   }
   enkf_plot_data_free( plot_data );
 }
@@ -68,7 +68,7 @@ void test_load_summary( enkf_main_type * enkf_main , const char * summary_key) {
   enkf_plot_data_type * plot_data = enkf_plot_data_alloc( config_node );
   
   {
-    enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , true , false );
+    enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , true );
     enkf_plot_data_load( plot_data , enkf_fs , NULL , FORECAST , NULL );
     test_assert_int_equal( 25 , enkf_plot_data_get_size( plot_data ));
     {
@@ -77,11 +77,11 @@ void test_load_summary( enkf_main_type * enkf_main , const char * summary_key) {
       test_assert_false( enkf_plot_tvector_iget_active( plot_vector , 0 ));
       test_assert_int_equal( 63 , enkf_plot_tvector_size( plot_vector ));
     }
-    enkf_fs_umount( enkf_fs );
+    enkf_fs_decref( enkf_fs );
   }
   
   {
-    enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "default" , true , false );
+    enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "default" , true  );
     enkf_plot_data_load( plot_data , enkf_fs , NULL , FORECAST , NULL );
     test_assert_int_equal( 25 , enkf_plot_data_get_size( plot_data ));
     {
@@ -94,7 +94,7 @@ void test_load_summary( enkf_main_type * enkf_main , const char * summary_key) {
       test_assert_true( enkf_plot_tvector_is_instance( plot_vector ));
       test_assert_int_equal( 0 , enkf_plot_tvector_size( plot_vector ));
     }
-    enkf_fs_umount( enkf_fs );
+    enkf_fs_decref( enkf_fs );
   }
   enkf_plot_data_free( plot_data );
 }

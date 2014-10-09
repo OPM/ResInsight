@@ -32,29 +32,64 @@ from ert.cwrap import CWrapper, BaseCClass
 
 
 class Matrix(BaseCClass):
-    def __init__(self, rows, columns):
-        self.__rows = rows
-        self.__columns = columns
+    def __init__(self, rows, columns , value = 0):
         c_ptr = Matrix.cNamespace().matrix_alloc(rows, columns)
         super(Matrix, self).__init__(c_ptr)
+        self.setAll(value)
+
 
     def __getitem__(self, index_tuple):
-        if not 0 <= index_tuple[0] < self.__rows:
-            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[0], self.__rows))
+        if not 0 <= index_tuple[0] < self.rows():
+            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[0], self.rows()))
 
-        if not 0 <= index_tuple[1] < self.__columns:
-            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.__columns))
+        if not 0 <= index_tuple[1] < self.columns():
+            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.columns()))
 
         return Matrix.cNamespace().iget(self, index_tuple[0], index_tuple[1])
 
-    def __setitem__(self, index_tuple, value):
-        if not 0 <= index_tuple[0] < self.__rows:
-            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[0], self.__rows))
 
-        if not 0 <= index_tuple[1] < self.__columns:
-            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.__columns))
+    def __setitem__(self, index_tuple, value):
+        if not 0 <= index_tuple[0] < self.rows():
+            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[0], self.rows()))
+
+        if not 0 <= index_tuple[1] < self.columns():
+            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.columns()))
 
         return Matrix.cNamespace().iset(self, index_tuple[0], index_tuple[1], value)
+
+
+    def rows(self):
+        """ @rtype: int """
+        return Matrix.cNamespace().rows(self)
+
+
+    def columns(self):
+        """ @rtype: int """
+        return Matrix.cNamespace().columns(self)
+
+
+    def __eq__(self, other):
+        assert isinstance(other, Matrix)
+        return Matrix.cNamespace().equal(self, other)
+
+    def scaleColumn(self, column , factor):
+        if not 0 <= column < self.columns():
+            raise IndexError("Expected column: [0,%d) got:%d" % (self.columns() , column))
+        Matrix.cNamespace().scale_column(self , column , factor)
+
+    def scaleRow(self, row , factor):
+        if not 0 <= row < self.rows():
+            raise IndexError("Expected row: [0,%d) got:%d" % (self.rows() , row))
+        Matrix.cNamespace().scale_row(self , row ,  factor)
+        
+
+    def setAll(self , value):
+        Matrix.cNamespace().set_all(self, value)
+
+
+    def prettyPrint(self, name, fmt="%6.3g"):
+        Matrix.cNamespace().pretty_print(self, name, fmt)
+
 
     def free(self):
         Matrix.cNamespace().free(self)
@@ -71,5 +106,14 @@ Matrix.cNamespace().matrix_alloc = cwrapper.prototype("c_void_p matrix_alloc(int
 Matrix.cNamespace().free = cwrapper.prototype("void   matrix_free(matrix)")
 Matrix.cNamespace().iget = cwrapper.prototype("double matrix_iget( matrix , int , int )")
 Matrix.cNamespace().iset = cwrapper.prototype("void   matrix_iset( matrix , int , int , double)")
-        
+Matrix.cNamespace().set_all = cwrapper.prototype("void   matrix_scalar_set( matrix , double)")
+Matrix.cNamespace().scale_column = cwrapper.prototype("void matrix_scale_column(matrix , int , double)")
+Matrix.cNamespace().scale_row    = cwrapper.prototype("void matrix_scale_row(matrix , int , double)")
+
+Matrix.cNamespace().rows = cwrapper.prototype("int matrix_get_rows(matrix)")
+Matrix.cNamespace().columns = cwrapper.prototype("int matrix_get_columns(matrix)")
+Matrix.cNamespace().equal = cwrapper.prototype("bool matrix_equal(matrix, matrix)")
+
+Matrix.cNamespace().pretty_print = cwrapper.prototype("void matrix_pretty_print(matrix, char*, char*)")
+
     

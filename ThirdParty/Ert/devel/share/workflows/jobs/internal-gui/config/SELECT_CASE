@@ -1,0 +1,6 @@
+INTERNAL    True
+SCRIPT      ../scripts/select_case.py
+MIN_ARG     1
+MAX_ARG     1
+ARG_TYPE    0  STRING
+

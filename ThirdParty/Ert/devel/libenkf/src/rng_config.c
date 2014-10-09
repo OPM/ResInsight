@@ -82,11 +82,9 @@ void rng_config_free( rng_config_type * rng) {
   free( rng );
 }
 
-
-rng_type * rng_config_alloc_rng( rng_config_type * rng_config ) {
+rng_type * rng_config_init_rng__(const rng_config_type * rng_config, rng_type * rng) {
   const char * seed_load  = rng_config_get_seed_load_file( rng_config );
   const char * seed_store = rng_config_get_seed_store_file( rng_config );
-  rng_type * rng = rng_alloc( rng_config_get_type(rng_config) , INIT_DEFAULT);
 
   if (seed_load != NULL) {
     if (util_file_exists( seed_load)) {
@@ -94,7 +92,7 @@ rng_type * rng_config_alloc_rng( rng_config_type * rng_config ) {
       rng_fscanf_state( rng , stream );
       fclose( stream );
     } else {
-      /* 
+      /*
          In the special case that seed_load == seed_store; we accept a
          seed_load argument pointing to a non-existant file.
       */
@@ -107,8 +105,8 @@ rng_type * rng_config_alloc_rng( rng_config_type * rng_config ) {
     }
   } else
     rng_init( rng , INIT_DEV_URANDOM );
-  
-  
+
+
   if (seed_store != NULL) {
     FILE * stream = util_mkdir_fopen( seed_store , "w");
     rng_fprintf_state( rng , stream );
@@ -117,6 +115,18 @@ rng_type * rng_config_alloc_rng( rng_config_type * rng_config ) {
 
   return rng;
 }
+
+rng_type * rng_config_alloc_init_rng( const rng_config_type * rng_config ) {
+  rng_type * rng = rng_alloc(rng_config_get_type(rng_config) , INIT_DEFAULT);
+  return rng_config_init_rng__(rng_config, rng);
+}
+
+
+void rng_config_init_rng( const rng_config_type * rng_config, rng_type * rng ) {
+  rng_config_init_rng__(rng_config, rng);
+}
+
+
 
 /*****************************************************************/
 

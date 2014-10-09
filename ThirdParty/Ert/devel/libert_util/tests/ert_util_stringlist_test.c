@@ -89,6 +89,80 @@ void test_iget_as_int() {
   }
 }
 
+void test_iget_as_bool() {
+  stringlist_type * s = stringlist_alloc_new();
+  stringlist_append_ref(s , "TRUE" );
+  stringlist_append_ref(s , "True" );
+  stringlist_append_ref(s , "true" );
+  stringlist_append_ref(s , "T" );
+  stringlist_append_ref(s , "1" );
+
+  stringlist_append_ref(s , "FALSE" );
+  stringlist_append_ref(s , "False" );
+  stringlist_append_ref(s , "false" );
+  stringlist_append_ref(s , "F" );
+  stringlist_append_ref(s , "0" );
+
+  stringlist_append_ref(s , "not_so_bool" );
+  stringlist_append_ref(s , "8" );
+
+
+  {
+    bool value = false;
+    bool valid = false;
+
+    value = stringlist_iget_as_bool( s , 0 , &valid);
+    test_assert_true( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 1 , &valid);
+    test_assert_true( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 2 , &valid);
+    test_assert_true( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 3 , &valid);
+    test_assert_true( value );
+    test_assert_true( valid );
+
+
+    value = stringlist_iget_as_bool( s , 4 , &valid);
+    test_assert_true( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 5 , &valid);
+    test_assert_false( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 6 , &valid);
+    test_assert_false( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 7 , &valid);
+    test_assert_false( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 8 , &valid);
+    test_assert_false( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 9 , &valid);
+    test_assert_false( value );
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_bool( s , 10 , &valid);
+    test_assert_false( value );
+    test_assert_false( valid );
+
+    value = stringlist_iget_as_bool( s , 11 , &valid);
+    test_assert_false( value );
+    test_assert_false( valid );
+  }
+}
+
+
 void test_empty() {
   stringlist_type * s = stringlist_alloc_new();
   stringlist_fprintf( s , "\n" , stdout );
@@ -193,6 +267,7 @@ int main( int argc , char ** argv) {
   test_char();
   test_reverse();
   test_iget_as_int();
+  test_iget_as_bool();
   test_split();
   test_matching();
   exit(0);

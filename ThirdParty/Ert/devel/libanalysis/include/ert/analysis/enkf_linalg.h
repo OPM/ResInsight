@@ -3,6 +3,7 @@
 
 #include <ert/util/matrix_lapack.h>
 #include <ert/util/matrix.h>
+#include <ert/util/double_vector.h>
 
 
 void enkf_linalg_get_PC( const matrix_type * S0, 
@@ -10,7 +11,8 @@ void enkf_linalg_get_PC( const matrix_type * S0,
                          double truncation,
                          int ncomp, 
                          matrix_type * PC,
-                         matrix_type * PC_obs );
+                         matrix_type * PC_obs ,
+                         double_vector_type * singular_values);
 
 
 void enkf_linalg_init_stdX( matrix_type * X , 
@@ -96,16 +98,11 @@ void          enkf_linalg_checkX(const matrix_type * X , bool bootstrap);
 void enkf_linalg_rml_enkfX1(matrix_type *X1, matrix_type * Udr ,matrix_type * S ,matrix_type *R);
 void enkf_linalg_rml_enkfX2(matrix_type *X2, double  *Wdr, matrix_type * X1 ,double a , int nsign);
 void enkf_linalg_rml_enkfX3(matrix_type *X3, matrix_type *VdTr, double *Wdr,matrix_type *X2, int nsign);
-void enkf_linalg_rml_enkfdA(matrix_type *dA1,matrix_type *Dm,matrix_type *X3);
 
 double enkf_linalg_data_mismatch(matrix_type *D , matrix_type *R , matrix_type *Sk);
 void enkf_linalg_Covariance(matrix_type *Cd, const matrix_type *E, double nsc ,int nrobs);
-void enkf_linalg_rml_enkfAm(matrix_type * Um, double * Wm,int nsign1);
+void enkf_linalg_rml_enkfAm(matrix_type * Um, const double * Wm,int nsign1);
 
-void enkf_linalg_rml_enkfX4 (matrix_type *X4,matrix_type *Am, matrix_type *A);
-void enkf_linalg_rml_enkfX5(matrix_type * X5,matrix_type * Am, matrix_type * X4);
-void enkf_linalg_rml_enkfX6(matrix_type * X6, matrix_type * Dk, matrix_type * X5);
 void enkf_linalg_rml_enkfX7(matrix_type * X7, matrix_type * VdT, double * Wdr, double a,matrix_type * X6);
-void enkf_linalg_rml_enkfXdA2(matrix_type * dA2,matrix_type * Dk,matrix_type * X7);
 
 #endif

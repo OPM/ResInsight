@@ -15,7 +15,7 @@ class QCKeywords(object):
     def addQCWorkflow(self):
         qc_workflow = ConfigurationLineDefinition(keyword=KeywordDefinition("QC_WORKFLOW"),
                                                     arguments=[StringArgument()],
-                                                    documentation_link="qc/qc_workflow",
+                                                    documentation_link="keywords/qc_workflow",
                                                     required=False,
                                                     group=self.group)
         return qc_workflow
@@ -25,7 +25,7 @@ class QCKeywords(object):
     def addQCPath(self):
         qc_path = ConfigurationLineDefinition(keyword=KeywordDefinition("QC_PATH"),
                                                     arguments=[PathArgument()],
-                                                    documentation_link="qc/qc_path",
+                                                    documentation_link="keywords/qc_path",
                                                     required=False,
                                                     group=self.group)
         return qc_path

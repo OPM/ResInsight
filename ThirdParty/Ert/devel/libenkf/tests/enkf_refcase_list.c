@@ -115,13 +115,13 @@ int main(int argc , char ** argv) {
           equal = equal && util_string_equal( stringlist_iget( case_list , i ) , ecl_refcase_list_iget_pathcase( refcase_list , i));        
         test_assert_true( equal );
       }
-
+      stringlist_free( case_list );
     }
     ecl_refcase_list_add_matching( refcase_list , "DoesNotExist*");
     test_assert_int_equal( 11 , ecl_refcase_list_get_size( refcase_list ));
     ecl_refcase_list_free( refcase_list );
   }
-
+  
 
   exit(0);
 }

@@ -46,7 +46,7 @@ struct summary_config_struct {
 
 /*****************************************************************/
 
-
+UTIL_IS_INSTANCE_FUNCTION(summary_config , SUMMARY_CONFIG_TYPE_ID)
 
 const char * summary_config_get_var(const summary_config_type * config) {
   return config->var;

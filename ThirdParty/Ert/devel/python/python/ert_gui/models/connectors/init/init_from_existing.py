@@ -25,12 +25,11 @@ class InitializeFromExistingCaseModel(ErtConnector, ButtonModelMixin):
         total_member_count = EnsembleSizeModel().getSpinnerValue()
 
         member_mask = BoolVector.createFromList(total_member_count, selected_members)
-        ranking_key = None
         selected_parameters = StringList((InitializationParametersModel()).getSelectedItems())
 
         # print("%s %d %d %s %s" % (source_case, source_report_step, int(source_state), str(selected_members), str(selected_parameters)))
 
-        self.ert().getEnkfFsManager().initializeFromExistingCase(source_case, source_report_step, source_state, member_mask, ranking_key, selected_parameters)
+        self.ert().getEnkfFsManager().customInitializeCurrentFromExistingCase(source_case, source_report_step, source_state, member_mask, selected_parameters)
 
         self.observable().notify(ButtonModelMixin.BUTTON_TRIGGERED_EVENT)
 

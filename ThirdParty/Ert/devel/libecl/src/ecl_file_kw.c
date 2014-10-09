@@ -293,6 +293,9 @@ ecl_type_enum ecl_file_kw_get_type( const ecl_file_kw_type * file_kw) {
   return file_kw->ecl_type;
 }
 
+offset_type ecl_file_kw_get_offset(const ecl_file_kw_type * file_kw) {
+    return file_kw->file_offset;
+}
 
 void ecl_file_kw_fskip_data( const ecl_file_kw_type * file_kw , fortio_type * fortio) {
   ecl_kw_fskip_data__( file_kw->ecl_type , file_kw->kw_size , fortio );

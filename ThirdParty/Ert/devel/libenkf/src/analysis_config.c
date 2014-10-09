@@ -277,6 +277,20 @@ void analysis_config_load_internal_module( analysis_config_type * config ,
     fprintf(stderr,"** Warning: failed to load module %s from %s.\n",user_name , symbol_table);
 }
 
+void analysis_config_load_all_external_modules_from_config ( analysis_config_type * analysis, const config_type * config) {
+  if (config_item_set( config, ANALYSIS_LOAD_KEY)) {
+    const config_content_item_type * load_item = config_get_content_item( config , ANALYSIS_LOAD_KEY );
+    if (load_item != NULL) {
+      for (int i=0; i < config_content_item_get_size( load_item ); i++) {
+        const config_content_node_type * load_node = config_content_item_iget_node( load_item , i );
+        const char * user_name = config_content_node_iget( load_node , 0 );
+        const char * lib_name  = config_content_node_iget( load_node , 1 );
+
+        analysis_config_load_external_module( analysis , user_name , lib_name);
+      }
+    }
+  }
+}
 
 
 bool analysis_config_load_external_module( analysis_config_type * config ,
@@ -346,8 +360,6 @@ void analysis_config_reload_module( analysis_config_type * config , const char *
   } else
     fprintf(stderr,"** Warning: Internal modules can not be reloaded.\n");
 }
-
-
 
 
 analysis_module_type * analysis_config_get_module( analysis_config_type * config , const char * module_name ) {
@@ -449,8 +461,24 @@ void analysis_config_init( analysis_config_type * analysis , const config_type *
   if (config_item_set( config , RERUN_START_KEY ))
     analysis_config_set_rerun_start( analysis , config_get_value_as_int( config , RERUN_START_KEY ));
 
-  if (config_item_set( config , MIN_REALIZATIONS_KEY ))
-    analysis_config_set_min_realisations( analysis , config_get_value_as_int( config , MIN_REALIZATIONS_KEY ));
+  if (config_item_set( config , MIN_REALIZATIONS_KEY )) {
+    double percent                            = 0.0;
+    config_content_node_type * config_content = config_get_value_node(config , MIN_REALIZATIONS_KEY);
+    char * min_realizations_string            = config_content_node_alloc_joined_string(config_content, " ");
+
+    if (util_sscanf_percent(min_realizations_string, &percent)) {
+      int num_realizations = config_get_value_as_int(config, NUM_REALIZATIONS_KEY);
+      int min_realizations = num_realizations * percent/100;
+      analysis_config_set_min_realisations(analysis, min_realizations);
+    } else {
+      int min_realizations = 0;
+      if (util_sscanf_int(min_realizations_string, &min_realizations))
+        analysis_config_set_min_realisations( analysis , min_realizations);
+      else
+        fprintf(stderr, "Method %s: failed to read integer value for MIN_REALIZATION_KEY\n", __func__);
+    }
+    free(min_realizations_string);
+  }
   
   if (config_item_set( config , STOP_LONG_RUNNING_KEY ))
     analysis_config_set_stop_long_running( analysis , config_get_value_as_bool( config , STOP_LONG_RUNNING_KEY ));
@@ -459,20 +487,10 @@ void analysis_config_init( analysis_config_type * analysis , const config_type *
     analysis_config_set_max_runtime( analysis, config_get_value_as_int( config, MAX_RUNTIME_KEY )); 
   }
   
-  
-  /* Loading external modules */
-  {
-    const config_content_item_type * load_item = config_get_content_item( config , ANALYSIS_LOAD_KEY );
-    if (load_item != NULL) {
-      for (int i=0; i < config_content_item_get_size( load_item ); i++) {
-        const config_content_node_type * load_node = config_content_item_iget_node( load_item , i );
-        const char * user_name = config_content_node_iget( load_node , 0 );
-        const char * lib_name  = config_content_node_iget( load_node , 1 );
-        
-        analysis_config_load_external_module( analysis , user_name , lib_name);
-      }
-    }
-  }
+
+  /* Loading external modules */ 
+  analysis_config_load_all_external_modules_from_config(analysis, config);
+
   
   /* Reload/copy modules. */
   {
@@ -540,8 +558,10 @@ analysis_iter_config_type * analysis_config_get_iter_config( const analysis_conf
 void analysis_config_free(analysis_config_type * config) {
   analysis_iter_config_free( config->iter_config );
   hash_free( config->analysis_modules );
-  free(config->log_path);
-  free(config);
+  free( config->log_path );
+  free( config->PC_filename );
+  free( config->PC_path );
+  free( config );
 }
 
 
@@ -606,7 +626,7 @@ void analysis_config_add_config_items( config_type * config ) {
   config_add_key_value( config , ENKF_RERUN_KEY              , false , CONFIG_BOOL);
   config_add_key_value( config , RERUN_START_KEY             , false , CONFIG_INT);
   config_add_key_value( config , UPDATE_LOG_PATH_KEY         , false , CONFIG_STRING);
-  config_add_key_value( config , MIN_REALIZATIONS_KEY        , false , CONFIG_INT );
+  config_add_key_value( config , MIN_REALIZATIONS_KEY        , false , CONFIG_STRING );
   config_add_key_value( config , MAX_RUNTIME_KEY             , false , CONFIG_INT );
   
   item = config_add_key_value( config , STOP_LONG_RUNNING_KEY, false,  CONFIG_BOOL ); 

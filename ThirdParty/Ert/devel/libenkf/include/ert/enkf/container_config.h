@@ -37,12 +37,12 @@ extern "C" {
   const void            * container_config_iget_node(const container_config_type * container_config , int index);
   int                     container_config_get_size( const container_config_type * container_config );
 
-
+  UTIL_IS_INSTANCE_HEADER(container_config);
   UTIL_SAFE_CAST_HEADER_CONST(container_config);
   GET_DATA_SIZE_HEADER(container);
   VOID_GET_DATA_SIZE_HEADER(container);
   VOID_CONFIG_FREE_HEADER(container);
-
+  
 
 #ifdef __cplusplus
 }

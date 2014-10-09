@@ -31,6 +31,10 @@ void           gen_obs_user_get_with_data_index(const gen_obs_type * gen_obs , c
 
 void           gen_obs_scale_std(gen_obs_type * gen_obs, double std_multiplier );
 void           gen_obs_scale_std__(void * gen_obs, double std_multiplier );
+int            gen_obs_get_size(const gen_obs_type * gen_obs);
+double         gen_obs_iget_std(const gen_obs_type * gen_obs, int index);
+double         gen_obs_iget_data(const gen_obs_type * gen_obs, int index);
+int            gen_obs_get_obs_index(const gen_obs_type * gen_obs, int index);
 
 
 VOID_CHI2_HEADER(gen_obs);

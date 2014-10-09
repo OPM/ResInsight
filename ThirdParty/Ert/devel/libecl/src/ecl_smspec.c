@@ -515,7 +515,14 @@ ecl_smspec_var_type  ecl_smspec_identify_var_type(const char * var) {
         var_type = ECL_SMSPEC_LOCAL_WELL_VAR;
         break;
       default:
-        util_abort("%s: not recognized: %s \n",__func__ , var);
+        /*
+          The documentation explicitly mentions keywords starting with
+          LB, LC and LW as special types, but keywords starting with
+          L[^BCW] are also valid. These come in the misceallaneous
+          category; at least the LLINEAR keyword is an example of such
+          a keyword.
+        */
+        var_type = ECL_SMSPEC_MISC_VAR;
       }
       break;
     case('N'):

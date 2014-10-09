@@ -30,6 +30,7 @@
 
 #include <ert/enkf/enkf_node.h>
 #include <ert/enkf/enkf_config_node.h>
+#include <ert/enkf/container_config.h>
 #include <ert/enkf/enkf_fs.h>
 #include <ert/enkf/field.h>
 #include <ert/enkf/surface.h>
@@ -74,10 +75,10 @@
    |  |  |              |        |                |  field_config     |
    |  |  |              |        |                |                   |
    ===|  |  field       |  o------                |                   |
-   |  |              |                         |                   |
-   ===|              |                         =====================
-   |              |
-   ================
+   |     |              |                         |                   |
+   ===   |              |                         =====================
+         |              |
+         ================
 
 
    To summarize in words:
@@ -217,10 +218,10 @@ struct enkf_node_struct {
   iaddsqr_ftype                  * iaddsqr;
   
   /******************************************************************/
-  bool                         vector_storage;
-  char                        *node_key;         /* The (hash)key this node is identified with. */
-  void                        *data;             /* A pointer to the underlying enkf_object, i.e. gen_kw_type instance, or a field_type instance or ... */
-  const enkf_config_node_type *config;           /* A pointer to a enkf_config_node instance (which again cointans a pointer to the config object of data). */
+  bool                          vector_storage;
+  char                         *node_key;          /* The (hash)key this node is identified with. */
+  void                         *data;              /* A pointer to the underlying enkf_object, i.e. gen_kw_type instance, or a field_type instance or ... */
+  const enkf_config_node_type  *config;            /* A pointer to a enkf_config_node instance (which again cointans a pointer to the config object of data). */
   /*****************************************************************/
   
   vector_type                 *container_nodes;
@@ -311,7 +312,7 @@ void * enkf_node_value_ptr(const enkf_node_type * enkf_node) {
    spesific file.
 */
 
-void enkf_node_ecl_write(const enkf_node_type *enkf_node , const char *path , fortio_type * restart_fortio , int report_step) {
+void enkf_node_ecl_write(const enkf_node_type *enkf_node , const char *path , void * filestream , int report_step) {
   if (enkf_node->ecl_write != NULL) {
     char * node_eclfile = enkf_config_node_alloc_outfile(enkf_node->config , report_step); /* Will return NULL if the node does not have any outfile format. */
     /*
@@ -320,7 +321,7 @@ void enkf_node_ecl_write(const enkf_node_type *enkf_node , const char *path , fo
       is then the responsability of the low-level implementation to
       do "the right thing".
     */
-    enkf_node->ecl_write(enkf_node->data , path , node_eclfile , restart_fortio);
+    enkf_node->ecl_write(enkf_node->data , path , node_eclfile , filestream);
     util_safe_free( node_eclfile );
   }
 }
@@ -427,25 +428,21 @@ bool enkf_node_forward_load(enkf_node_type *enkf_node , const char * run_path , 
 
 bool enkf_node_forward_init(enkf_node_type * enkf_node , const char * run_path , int iens) {
   char * init_file = enkf_config_node_alloc_initfile( enkf_node->config , run_path , iens );
-  bool loadOK = false;
-  if (init_file) {
-    FUNC_ASSERT(enkf_node->fload);
-    loadOK = enkf_node->fload( enkf_node->data , init_file );
-  }
+  bool init = enkf_node->initialize(enkf_node->data , iens , init_file, NULL);
   util_safe_free( init_file );
-  return loadOK;
+  return init;
 }
 
 
 
-bool enkf_node_forward_load_vector(enkf_node_type *enkf_node , const char * run_path , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_block , int report_step1, int report_step2 , int iens ) {
+bool enkf_node_forward_load_vector(enkf_node_type *enkf_node , const char * run_path , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_block , const int_vector_type * time_index , int iens ) {
   bool loadOK;
   FUNC_ASSERT(enkf_node->forward_load_vector);
   {
-    loadOK = enkf_node->forward_load_vector(enkf_node->data , NULL  , ecl_sum , restart_block , report_step1 , report_step2);
+    loadOK = enkf_node->forward_load_vector(enkf_node->data , NULL  , ecl_sum , restart_block , time_index);
   }
   // This is broken ....
-  enkf_node->__node_id.report_step = report_step1;
+  enkf_node->__node_id.report_step = 0;//report_step1;
   enkf_node->__node_id.state       = FORECAST;
   enkf_node->__node_id.iens        = iens; 
   
@@ -576,7 +573,7 @@ static void enkf_node_buffer_load( enkf_node_type * enkf_node , enkf_fs_type * f
       enkf_fs_fread_node( fs , buffer , node_key , var_type , report_step , iens , state );
     
     buffer_fskip_time_t( buffer );
-    enkf_node->read_from_buffer(enkf_node->data , buffer , report_step , state );
+    enkf_node->read_from_buffer(enkf_node->data , buffer , fs , report_step , state );
     buffer_free( buffer );
   }
 }
@@ -584,7 +581,7 @@ static void enkf_node_buffer_load( enkf_node_type * enkf_node , enkf_fs_type * f
 
 
 
-static void enkf_node_load_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , int iens , state_enum state) {
+void enkf_node_load_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , int iens , state_enum state) {
   if ((enkf_node->__load_state & state) &&
       (enkf_node->__node_id.iens == iens)) 
     return;
@@ -908,6 +905,7 @@ void enkf_node_free(enkf_node_type *enkf_node) {
   if (enkf_node->freef != NULL)
     enkf_node->freef(enkf_node->data);
   free(enkf_node->node_key);
+  vector_free(enkf_node->container_nodes);
   free(enkf_node);
 }
 
@@ -1135,25 +1133,53 @@ enkf_node_type * enkf_node_alloc(const enkf_config_node_type * config) {
 }
 
 
-static void enkf_node_container_add( enkf_node_type * node , const enkf_node_type * child_node ) {
-  vector_append_ref( node->container_nodes , child_node );
+
+
+
+static void enkf_node_container_add_node( enkf_node_type * node , const enkf_node_type * child_node , bool shared) {
+  if (shared)
+    vector_append_ref( node->container_nodes , child_node );
+  else
+    vector_append_owned_ref( node->container_nodes , child_node, enkf_node_free__ );
 }
 
-
-
-enkf_node_type * enkf_node_container_alloc(const enkf_config_node_type * config, hash_type * node_hash) {
+static enkf_node_type * enkf_node_alloc_container(const enkf_config_node_type * config, hash_type * node_hash , bool shared) {
   enkf_node_type * container_node = enkf_node_alloc( config );
   {
     for (int i=0; i < enkf_config_node_container_size( config ); i++) {
       const enkf_config_node_type * child_config = enkf_config_node_container_iget( config , i );
-      enkf_node_type * child_node = hash_get( node_hash , enkf_config_node_get_key( child_config ));
+      enkf_node_type * child_node;
+
+      if (shared) 
+         child_node = hash_get( node_hash , enkf_config_node_get_key( child_config ));
+      else
+        child_node = enkf_node_alloc( child_config );
       
-      enkf_node_container_add( container_node , child_node );
+      enkf_node_container_add_node( container_node , child_node , shared);
       container_add_node( enkf_node_value_ptr( container_node ) , enkf_node_value_ptr( child_node ));
     }
   }
   return container_node;
 }
+
+enkf_node_type * enkf_node_alloc_shared_container(const enkf_config_node_type * config, hash_type * node_hash) {
+  return enkf_node_alloc_container( config , node_hash , true );
+}
+
+
+enkf_node_type * enkf_node_alloc_private_container(const enkf_config_node_type * config) {
+  return enkf_node_alloc_container( config , NULL , false );
+}
+
+enkf_node_type * enkf_node_deep_alloc(const enkf_config_node_type * config) {
+  if (enkf_config_node_get_impl_type( config ) == CONTAINER) {
+    enkf_node_type * container = enkf_node_alloc_container( config , NULL , false );
+    container_assert_size( enkf_node_value_ptr( container ));
+    return container;
+  } else
+    return enkf_node_alloc( config );
+}
+
 
 
 bool enkf_node_internalize(const enkf_node_type * node, int report_step) {

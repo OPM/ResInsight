@@ -42,7 +42,15 @@ extern "C" {
   void                misfit_ensemble_free( misfit_ensemble_type * table );
   void                misfit_ensemble_fwrite( const misfit_ensemble_type * misfit_ensemble , FILE * stream);
   bool                misfit_ensemble_initialized( const misfit_ensemble_type * misfit_ensemble );
-  void                misfit_ensemble_update( misfit_ensemble_type * misfit_ensemble , const ensemble_config_type * ensemble_config , const enkf_obs_type * enkf_obs , enkf_fs_type * fs , int ens_size , int history_length);
+
+  void                misfit_ensemble_initialize( misfit_ensemble_type * misfit_ensemble ,
+                                                  const ensemble_config_type * ensemble_config ,
+                                                  const enkf_obs_type * enkf_obs ,
+                                                  enkf_fs_type * fs ,
+                                                  int ens_size ,
+                                                  int history_length,
+                                                  bool force_init);
+
   void                misfit_ensemble_set_ens_size( misfit_ensemble_type * misfit_ensemble , int ens_size);
   int                 misfit_ensemble_get_ens_size( const misfit_ensemble_type * misfit_ensemble );
 

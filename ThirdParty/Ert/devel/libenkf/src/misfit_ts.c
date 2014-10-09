@@ -20,6 +20,7 @@
 #include <ert/util/util.h>
 #include <ert/util/type_macros.h>
 #include <ert/util/double_vector.h>
+#include <ert/util/int_vector.h>
 
 #include <ert/enkf/misfit_ts.h>
 
@@ -85,12 +86,14 @@ void misfit_ts_iset( misfit_ts_type * vector , int time_index , double value ) {
 }
 
 /** Step2 is inclusive - what a fucking mess. */
-double misfit_ts_eval( const misfit_ts_type * vector , int step1 , int step2 ) {
+double misfit_ts_eval( const misfit_ts_type * vector , const int_vector_type * steps) {
   double misfit_sum = 0;
   int step;
-  
-  for (step = step1; step <= step2; step++)
+
+  for (int i = 0; i < int_vector_size(steps); ++i) {
+    step = int_vector_iget(steps, i);
     misfit_sum += double_vector_iget(vector->data , step );
+  }
   
   return misfit_sum;
 }

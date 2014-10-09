@@ -40,7 +40,8 @@ typedef struct rng_config_struct rng_config_type;
   rng_config_type * rng_config_alloc( );
   void              rng_config_free( rng_config_type * rng);
   void              rng_config_add_config_items( config_type * config );
-  rng_type * rng_config_alloc_rng( rng_config_type * rng_config );
+  rng_type *        rng_config_alloc_init_rng( const rng_config_type * rng_config);
+  void              rng_config_init_rng(const rng_config_type * rng_config, rng_type * rng );
 
 #ifdef __cplusplus 
 }

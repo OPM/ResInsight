@@ -33,6 +33,7 @@
 #include <ert/ecl_well/well_segment.h>
 #include <ert/ecl_well/well_const.h>
 #include <ert/ecl_well/well_segment_collection.h>
+#include <ert/ecl_well/well_rseg_loader.h>
 
 
 int main(int argc , char ** argv) {
@@ -41,7 +42,7 @@ int main(int argc , char ** argv) {
   ecl_rsthead_type * rst_head = ecl_rsthead_alloc( rst_file );
   const ecl_kw_type * iwel_kw = ecl_file_iget_named_kw( rst_file , IWEL_KW , 0 );
   const ecl_kw_type * iseg_kw = ecl_file_iget_named_kw( rst_file , ISEG_KW , 0 );
-  const ecl_kw_type * rseg_kw = ecl_file_iget_named_kw( rst_file , RSEG_KW , 0 );
+  well_rseg_loader_type * rseg_loader = well_rseg_loader_alloc(rst_file);
   const ecl_kw_type * icon_kw = ecl_file_iget_named_kw( rst_file , ICON_KW , 0 );
   const ecl_kw_type * scon_kw = NULL;
 
@@ -56,7 +57,7 @@ int main(int argc , char ** argv) {
       {
         well_segment_collection_type * segments = well_segment_collection_alloc();
                 
-        if (well_segment_collection_load_from_kw( segments , well_nr , iwel_kw , iseg_kw , rseg_kw , rst_head )) {
+        if (well_segment_collection_load_from_kw( segments , well_nr , iwel_kw , iseg_kw , rseg_loader , rst_head )) {
           well_branch_collection_type * branches = well_branch_collection_alloc();
           
           test_assert_true( well_segment_well_is_MSW( well_nr , iwel_kw , rst_head));

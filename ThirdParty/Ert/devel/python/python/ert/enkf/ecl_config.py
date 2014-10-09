@@ -126,6 +126,14 @@ class EclConfig(BaseCClass):
     def add_static_kw(self, kw):
         EclConfig.cNamespace().add_static_kw(self, kw)
 
+    #-----------------------------------------------------------------
+
+    def getDepthUnit(self):
+        return EclConfig.cNamespace().get_depth_unit(self)
+
+    def getPressureUnit(self):
+        return EclConfig.cNamespace().get_pressure_unit(self)
+
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerType("ecl_config", EclConfig)
@@ -168,3 +176,5 @@ EclConfig.cNamespace().get_static_kw_list = cwrapper.prototype("stringlist_ref e
 EclConfig.cNamespace().clear_static_kw = cwrapper.prototype("void ecl_config_clear_static_kw(ecl_config)")
 EclConfig.cNamespace().add_static_kw = cwrapper.prototype("void ecl_config_add_static_kw(ecl_config, char*)")
 
+EclConfig.cNamespace().get_depth_unit = cwrapper.prototype("char* ecl_config_get_depth_unit(ecl_config)")
+EclConfig.cNamespace().get_pressure_unit = cwrapper.prototype("char* ecl_config_get_pressure_unit(ecl_config)")

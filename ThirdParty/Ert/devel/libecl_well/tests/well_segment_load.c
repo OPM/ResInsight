@@ -30,6 +30,7 @@
 #include <ert/ecl_well/well_segment.h>
 #include <ert/ecl_well/well_const.h>
 #include <ert/ecl_well/well_segment_collection.h>
+#include <ert/ecl_well/well_rseg_loader.h>
 
 
 int main(int argc , char ** argv) {
@@ -38,8 +39,8 @@ int main(int argc , char ** argv) {
   ecl_rsthead_type * rst_head = ecl_rsthead_alloc( rst_file );
   const ecl_kw_type * iwel_kw = ecl_file_iget_named_kw( rst_file , IWEL_KW , 0 );
   const ecl_kw_type * iseg_kw = ecl_file_iget_named_kw( rst_file , ISEG_KW , 0 );
-  const ecl_kw_type * rseg_kw = ecl_file_iget_named_kw( rst_file , RSEG_KW , 0 );
-  
+  well_rseg_loader_type * rseg_loader = well_rseg_loader_alloc(rst_file);
+
   test_install_SIGNALS();
   test_assert_not_NULL( rst_file );
   test_assert_not_NULL( rst_head );
@@ -57,7 +58,7 @@ int main(int argc , char ** argv) {
         
         for (segment_index = 0; segment_index < rst_head->nsegmx; segment_index++) {
           int segment_id = segment_index + WELL_SEGMENT_OFFSET;
-          well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_kw , rst_head , seg_well_nr , segment_index , segment_id );
+          well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_loader , rst_head , seg_well_nr , segment_index , segment_id );
           
           test_assert_true( well_segment_is_instance( segment ));
           
@@ -73,7 +74,7 @@ int main(int argc , char ** argv) {
 
       {
         well_segment_collection_type * segments2 = well_segment_collection_alloc();
-        test_assert_int_equal( well_segment_collection_load_from_kw( segments2 , well_nr , iwel_kw , iseg_kw , rseg_kw , rst_head ) , 
+        test_assert_int_equal( well_segment_collection_load_from_kw( segments2 , well_nr , iwel_kw , iseg_kw , rseg_loader , rst_head ) ,
                                well_segment_collection_get_size( segments));
 
         well_segment_collection_link( segments );

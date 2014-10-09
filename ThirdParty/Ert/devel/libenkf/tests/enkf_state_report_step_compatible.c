@@ -63,7 +63,8 @@ int main(int argc , char ** argv) {
   
   {
     run_mode_type run_mode = ENSEMBLE_EXPERIMENT; 
-    enkf_main_init_run(enkf_main , NULL , run_mode , INIT_NONE);     /* This is ugly */
+    bool_vector_type * iactive = bool_vector_alloc( enkf_main_get_ensemble_size( enkf_main ) , true ); 
+    enkf_main_init_run(enkf_main , iactive , run_mode , INIT_NONE);     /* This is ugly */
     
     enkf_state_type * state = enkf_main_iget_state( enkf_main , 0 );
     bool active = true;
@@ -75,7 +76,8 @@ int main(int argc , char ** argv) {
     int step1 = 1; 
     int step2 = 1; 
     
-    enkf_state_init_run(state, run_mode, active, max_internal_sumbit, init_step_parameter, init_state_parameter, init_state_dynamic, load_start, step1, step2); 
+    enkf_state_init_run(state, run_mode, active, max_internal_sumbit, init_step_parameter, init_state_parameter, init_state_dynamic, load_start, 0, step1, step2);
+    bool_vector_free( iactive );
   }
 
   test_assert_bool_equal(check_compatible, check_ecl_sum_compatible(enkf_main));

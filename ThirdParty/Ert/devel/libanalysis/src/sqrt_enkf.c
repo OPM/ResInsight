@@ -48,6 +48,7 @@ typedef struct {
 
 
 static UTIL_SAFE_CAST_FUNCTION( sqrt_enkf_data , SQRT_ENKF_TYPE_ID )
+static UTIL_SAFE_CAST_FUNCTION_CONST( sqrt_enkf_data , SQRT_ENKF_TYPE_ID )
 
 
 void * sqrt_enkf_data_alloc( rng_type * rng ) {
@@ -164,6 +165,27 @@ void sqrt_enkf_complete_update( void * arg ) {
   }
 }
 
+bool sqrt_enkf_has_var( const void * arg, const char * var_name) {
+    const sqrt_enkf_data_type * module_data = sqrt_enkf_data_safe_cast_const( arg );
+    {
+      return std_enkf_has_var(module_data->std_data, var_name);
+    }
+}
+
+double sqrt_enkf_get_double( const void * arg, const char * var_name) {
+    const sqrt_enkf_data_type * module_data = sqrt_enkf_data_safe_cast_const( arg );
+    {
+      return std_enkf_get_double( module_data->std_data , var_name);
+    }
+}
+
+int sqrt_enkf_get_int( const void * arg, const char * var_name) {
+    const sqrt_enkf_data_type * module_data = sqrt_enkf_data_safe_cast_const( arg );
+    {
+      return std_enkf_get_int( module_data->std_data , var_name);
+    }
+}
+
 
 
 /*****************************************************************/
@@ -189,9 +211,10 @@ analysis_table_type SYMBOL_TABLE = {
   .init_update     = sqrt_enkf_init_update,
   .complete_update = sqrt_enkf_complete_update,
   .get_options     = sqrt_enkf_get_options,
-  .has_var         = NULL,
-  .get_int         = NULL,
-  .get_double      = NULL,
+  .has_var         = sqrt_enkf_has_var,
+  .get_int         = sqrt_enkf_get_int,
+  .get_double      = sqrt_enkf_get_double,
+  .get_bool        = NULL,
   .get_ptr         = NULL
 };
 

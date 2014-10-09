@@ -163,6 +163,7 @@ typedef struct ecl_region_struct ecl_region_type;
   void      ecl_region_kw_imul( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , const ecl_kw_type * mul_kw , bool force_active);
   void      ecl_region_kw_isub( ecl_region_type * ecl_region , ecl_kw_type * ecl_kw , const ecl_kw_type * delta_kw , bool force_active);
 
+  bool      ecl_region_equal( const ecl_region_type * region1 , const ecl_region_type * region2);
 
 /*****************************************************************/
 /* set/get the name */

@@ -46,6 +46,7 @@
 #include <ert/enkf/fs_types.h>
 #include <ert/enkf/enkf_defaults.h>
 #include <ert/enkf/config_keys.h>
+#include <ert/enkf/time_map.h>
 
 /**
    This struct contains configuration which is specific to this
@@ -68,10 +69,8 @@
   is selected with model_config_select_runpath(). However this
   implementation is quite different from the way manipulation of the
   runpath is exposed to the user: The runpath is controlled through
-  the RUNPATH config key (key DEFAULT_RUNPATH_KEY in the hash table),
-  and the optional RERUN_PATH config key (key RERUN_PATH_KEY in the
-  hash table). These two semantically predefined runpaths are the two
-  only options visible to the user.
+  the RUNPATH config key (key DEFAULT_RUNPATH_KEY in the hash table)
+  This semantically predefined runpath is the only option visible to the user.
  */
 
 #define MODEL_CONFIG_TYPE_ID 661053
@@ -80,6 +79,7 @@ struct model_config_struct {
   stringlist_type      * case_names;                 /* A list of "iens -> name" mappings - can be NULL. */
   char                 * case_table_file; 
   forward_model_type   * forward_model;             /* The forward_model - as loaded from the config file. Each enkf_state object internalizes its private copy of the forward_model. */  
+  time_map_type        * external_time_map;
   history_type         * history;                   /* The history object. */
   path_fmt_type        * current_runpath;           /* path_fmt instance for runpath - runtime the call gets arguments: (iens, report_step1 , report_step2) - i.e. at least one %d must be present.*/  
   char                 * current_path_key;
@@ -96,9 +96,11 @@ struct model_config_struct {
   history_source_type    history_source;
   const ecl_sum_type   * refcase;                    /* A pointer to the refcase - can be NULL. Observe that this ONLY a pointer 
                                                         to the ecl_sum instance owned and held by the ecl_config object. */
+  char                 * gen_kw_export_file_name;
+
   /** The results are always loaded. */
   bool_vector_type    * internalize_state;          /* Should the (full) state be internalized (at this report_step). */
-  bool_vector_type    * __load_state;               /* Internal variable: is it necessary to load the state? */
+  bool_vector_type    * __load_eclipse_restart;     /* Internal variable: is it necessary to load the state? */
 };
 
 
@@ -116,9 +118,16 @@ path_fmt_type * model_config_get_runpath_fmt(const model_config_type * model_con
   return model_config->current_runpath;
 }
 
- const char * model_config_get_runpath_as_char( const model_config_type * model_config ) {
+const char * model_config_get_runpath_as_char( const model_config_type * model_config ) {
    return path_fmt_get_fmt( model_config->current_runpath );
- }
+}
+
+bool model_config_runpath_requires_iter( const model_config_type * model_config ) {
+  if (util_int_format_count( model_config_get_runpath_as_char( model_config)) > 1 )
+    return true;
+  else
+    return false;
+}
 
 
 const char * model_config_get_case_table_file( const model_config_type * model_config ) {
@@ -197,6 +206,15 @@ void model_config_set_runpath(model_config_type * model_config , const char * fm
 
 
 
+void  model_config_set_gen_kw_export_file( model_config_type * model_config, const char * file_name) {
+  model_config->gen_kw_export_file_name = util_realloc_string_copy( model_config->gen_kw_export_file_name , file_name );
+}
+
+const char * model_config_get_gen_kw_export_file( const model_config_type * model_config) {
+  return model_config->gen_kw_export_file_name;
+}
+
+
  /**
     This function is not called at bootstrap time, but rather as part
     of an initialization just before the run. Can be called maaaanye
@@ -213,7 +231,7 @@ void model_config_set_runpath(model_config_type * model_config , const char * fm
 
    if (run_mode == ENKF_ASSIMILATION)
      model_config->enkf_sched  = enkf_sched_fscanf_alloc(model_config->enkf_sched_file                   , 
-                                                         history_get_last_restart(model_config->history) , 
+                                                         model_config_get_last_history_restart(model_config) , 
                                                          run_mode);
    
  }
@@ -335,10 +353,12 @@ model_config_type * model_config_alloc() {
   model_config->history                   = NULL;
   model_config->jobname_fmt               = NULL;
   model_config->forward_model             = NULL;
+  model_config->external_time_map         = NULL;
   model_config->internalize_state         = bool_vector_alloc( 0 , false );
-  model_config->__load_state              = bool_vector_alloc( 0 , false ); 
+  model_config->__load_eclipse_restart    = bool_vector_alloc( 0 , false ); 
   model_config->history_source            = HISTORY_SOURCE_INVALID;
   model_config->runpath_map               = hash_alloc(); 
+  model_config->gen_kw_export_file_name   = NULL;
 
   model_config_set_enspath( model_config        , DEFAULT_ENSPATH );
   model_config_set_rftpath( model_config        , DEFAULT_RFTPATH );
@@ -346,6 +366,7 @@ model_config_type * model_config_alloc() {
   model_config_set_max_internal_submit( model_config   , DEFAULT_MAX_INTERNAL_SUBMIT);
   model_config_add_runpath( model_config , DEFAULT_RUNPATH_KEY , DEFAULT_RUNPATH);
   model_config_select_runpath( model_config , DEFAULT_RUNPATH_KEY );
+  model_config_set_gen_kw_export_file(model_config, DEFAULT_GEN_KW_EXPORT_FILE);
   
   return model_config;
 }
@@ -413,14 +434,7 @@ void model_config_init(model_config_type * model_config ,
     model_config_add_runpath( model_config , DEFAULT_RUNPATH_KEY , config_get_value(config , RUNPATH_KEY) );
     model_config_select_runpath( model_config , DEFAULT_RUNPATH_KEY );
   }
-  
-  if (config_item_set( config, RERUN_PATH_KEY)) 
-    model_config_add_runpath( model_config , RERUN_PATH_KEY , config_get_value(config , RERUN_PATH_KEY) );
 
-  if (sched_file != NULL) {
-
-  }
-  
   {
     history_source_type source_type = DEFAULT_HISTORY_SOURCE;
 
@@ -436,13 +450,24 @@ void model_config_init(model_config_type * model_config ,
     
   }
       
-
-
   if (model_config->history != NULL) {
-    int num_restart = history_get_last_restart( model_config->history );
+    int num_restart = model_config_get_last_history_restart(model_config);
     bool_vector_iset( model_config->internalize_state , num_restart - 1 , false );
-    bool_vector_iset( model_config->__load_state      , num_restart - 1 , false );
+    bool_vector_iset( model_config->__load_eclipse_restart      , num_restart - 1 , false );
   }
+
+  if (config_item_set( config , TIME_MAP_KEY)) {
+    const char * filename = config_get_value_as_path( config , TIME_MAP_KEY);
+    time_map_type * time_map = time_map_alloc();
+    if (time_map_fscanf( time_map , filename))
+      model_config->external_time_map = time_map;
+    else {
+      time_map_free( time_map );
+      fprintf(stderr,"** ERROR: Loading external time map from:%s failed \n", filename);
+    }
+  }
+  
+
 
   /*
     The full treatment of the SCHEDULE_PREDICTION_FILE keyword is in
@@ -474,6 +499,17 @@ void model_config_init(model_config_type * model_config ,
   
   if (config_item_set( config , MAX_RESAMPLE_KEY))
     model_config_set_max_internal_submit( model_config , config_get_value_as_int( config , MAX_RESAMPLE_KEY ));
+
+
+  {
+    const char * export_file_name;
+    if (config_item_set( config , GEN_KW_EXPORT_FILE_KEY))
+      export_file_name = config_get_value(config, GEN_KW_EXPORT_FILE_KEY);
+    else
+      export_file_name = DEFAULT_GEN_KW_EXPORT_FILE;
+
+    model_config_set_gen_kw_export_file(model_config, export_file_name);
+   }
   
 }
 
@@ -488,7 +524,6 @@ const char * model_config_iget_casename( const model_config_type * model_config 
 
 
 void model_config_free(model_config_type * model_config) {
-  path_fmt_free(  model_config->current_runpath );
   if (model_config->enkf_sched != NULL)
     enkf_sched_free( model_config->enkf_sched );
   free( model_config->enspath );
@@ -499,15 +534,22 @@ void model_config_free(model_config_type * model_config) {
   util_safe_free( model_config->case_table_file );
   util_safe_free( model_config->current_path_key);
 
-  if (model_config->history != NULL)
+  if (model_config->history)
     history_free(model_config->history);
-
-  if (model_config->forward_model != NULL)
+  
+  if (model_config->forward_model)
     forward_model_free(model_config->forward_model);
+  
+  if (model_config->external_time_map)
+    time_map_free( model_config->external_time_map );
+
 
   bool_vector_free(model_config->internalize_state);
-  bool_vector_free(model_config->__load_state);
-  if (model_config->case_names != NULL) stringlist_free( model_config->case_names );
+  bool_vector_free(model_config->__load_eclipse_restart);
+  hash_free(model_config->runpath_map);
+
+  if (model_config->case_names) 
+    stringlist_free( model_config->case_names );
   free(model_config);
 }
 
@@ -533,12 +575,25 @@ history_type * model_config_get_history(const model_config_type * config) {
   return config->history;
 }
 
+/**
+   Will be NULL unless the user has explicitly loaded an external time
+   map with the TIME_MAP config option.
+*/
+
+time_map_type * model_config_get_external_time_map( const model_config_type * config) {
+  return config->external_time_map;
+}
+
 int model_config_get_last_history_restart(const model_config_type * config) {
   if (config->history)
     return history_get_last_restart( config->history );
   else {
-    fprintf(stderr,"** Warning: Trying to get the last restart number - no history object has been registered.\n");
-    return 0;
+    if (config->external_time_map)
+      return time_map_get_last_step( config->external_time_map);
+    else {
+      fprintf(stderr,"** Warning: Trying to get the last restart number - no history/time_map object has been registered.\n");
+      return 0;
+    }
   }
 }
 
@@ -558,24 +613,24 @@ forward_model_type * model_config_get_forward_model( const model_config_type * c
 /* Setting everything back to the default value: false. */
 void model_config_init_internalization( model_config_type * config ) {
   bool_vector_reset(config->internalize_state);
-  bool_vector_reset(config->__load_state);
+  bool_vector_reset(config->__load_eclipse_restart);
 }
 
 
 /**
    This function sets the internalize_state flag to true for
-   report_step. Because of the coupling to the __load_state variable
+   report_step. Because of the coupling to the __load_eclipse_restart variable
    this function can __ONLY__ be used to set internalize to true. 
 */
 
 void model_config_set_internalize_state( model_config_type * config , int report_step) {
   bool_vector_iset(config->internalize_state , report_step , true);
-  bool_vector_iset(config->__load_state      , report_step , true);
+  bool_vector_iset(config->__load_eclipse_restart      , report_step , true);
 }
 
 
 void model_config_set_load_state( model_config_type * config , int report_step) {
-  bool_vector_iset(config->__load_state , report_step , true);
+  bool_vector_iset(config->__load_eclipse_restart , report_step , true);
 }
 
 
@@ -589,7 +644,7 @@ bool model_config_internalize_state( const model_config_type * config , int repo
 /*****************************************************************/
 
 bool model_config_load_state( const model_config_type * config , int report_step) {
-  return bool_vector_iget(config->__load_state , report_step);
+  return bool_vector_iget(config->__load_eclipse_restart , report_step);
 }
 
 

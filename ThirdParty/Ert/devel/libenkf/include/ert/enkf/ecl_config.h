@@ -43,7 +43,7 @@ extern "C" {
   void                  ecl_config_set_data_file( ecl_config_type * ecl_config , const char * data_file);
   ui_return_type *      ecl_config_validate_data_file(const ecl_config_type * ecl_config, const char * data_file);
 
-  void                  ecl_config_set_schedule_file(ecl_config_type * ecl_config, const char * schedule_file);
+  void                  ecl_config_set_schedule_file(ecl_config_type * ecl_config, const char * schedule_file, const char * schedule_target_file);
   ui_return_type *      ecl_config_validate_schedule_file(const ecl_config_type * ecl_config , const char * schedule_file);
   const char *          ecl_config_get_schedule_file( const ecl_config_type * ecl_config );
   const char          * ecl_config_get_schedule_target(const ecl_config_type * );
@@ -104,7 +104,9 @@ extern "C" {
   void                  ecl_config_fprintf_config( const ecl_config_type * ecl_config , FILE * stream );
   ecl_config_type     * ecl_config_alloc( );
   void                  ecl_config_add_config_items( config_type * config );
-  
+  const char          * ecl_config_get_depth_unit( const ecl_config_type * ecl_config );
+  const char          * ecl_config_get_pressure_unit( const ecl_config_type * ecl_config );
+
 #ifdef __cplusplus
 }
 #endif

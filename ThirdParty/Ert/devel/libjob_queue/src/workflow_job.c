@@ -19,6 +19,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include <ert/util/int_vector.h>
 #include <ert/util/util.h>
@@ -39,12 +42,14 @@
 #define INTERNAL_KEY   "INTERNAL"
 #define MODULE_KEY     "MODULE" 
 #define FUNCTION_KEY   "FUNCTION"
+#define SCRIPT_KEY     "SCRIPT"
 #define EXECUTABLE_KEY "EXECUTABLE"
 
 #define NULL_STRING         "NULL"
 #define WORKFLOW_JOB_STRING_TYPE "STRING"
 #define WORKFLOW_JOB_INT_TYPE    "INT"
 #define WORKFLOW_JOB_FLOAT_TYPE  "FLOAT"
+#define WORKFLOW_JOB_BOOL_TYPE    "BOOL"
 
 #define WORKFLOW_JOB_TYPE_ID 614441
 
@@ -56,6 +61,7 @@ struct workflow_job_struct {
   int                  max_arg;   
   int_vector_type    * arg_types;     // Should contain values from the config_item_types enum in config.h.
   char               * executable;
+  char               * internal_script_path;
   char               * module;
   char               * function;
   char               * name;
@@ -90,10 +96,15 @@ config_type * workflow_job_alloc_config() {
     item = config_add_schema_item( config , ARG_TYPE_KEY , false );
     config_schema_item_set_argc_minmax( item , 2 , 2 );
     config_schema_item_iset_type( item , 0 , CONFIG_INT );
-    config_schema_item_set_indexed_selection_set( item , 1 , 3 , (const char *[3]) {WORKFLOW_JOB_STRING_TYPE , WORKFLOW_JOB_INT_TYPE , WORKFLOW_JOB_FLOAT_TYPE});
+    config_schema_item_set_indexed_selection_set( item , 1 , 4 , (const char *[4]) {WORKFLOW_JOB_STRING_TYPE , WORKFLOW_JOB_INT_TYPE , WORKFLOW_JOB_FLOAT_TYPE, WORKFLOW_JOB_BOOL_TYPE});
 
     /*****************************************************************/
     item = config_add_schema_item( config , EXECUTABLE_KEY , false );
+    config_schema_item_set_argc_minmax( item , 1 , 1 );
+    config_schema_item_iset_type( item , 0 , CONFIG_PATH );
+
+    /*****************************************************************/
+    item = config_add_schema_item( config , SCRIPT_KEY , false );
     config_schema_item_set_argc_minmax( item , 1 , 1 );
     config_schema_item_iset_type( item , 0 , CONFIG_PATH );
 
@@ -141,9 +152,10 @@ workflow_job_type * workflow_job_alloc( const char * name , bool internal ) {
   workflow_job->max_arg    = CONFIG_DEFAULT_ARG_MAX;
   workflow_job->arg_types  = int_vector_alloc( 0 , CONFIG_STRING );
 
-  workflow_job->executable = NULL;
-  workflow_job->module     = NULL;
-  workflow_job->function   = NULL;
+  workflow_job->executable           = NULL;
+  workflow_job->internal_script_path = NULL;
+  workflow_job->module               = NULL;
+  workflow_job->function             = NULL;
 
   if (name == NULL)
     util_abort("%s: trying to create workflow_job with name == NULL - illegal\n",__func__);
@@ -160,6 +172,21 @@ void workflow_job_set_executable( workflow_job_type * workflow_job , const char 
   workflow_job->executable = util_realloc_string_copy( workflow_job->executable , executable );
 }
 
+char* workflow_job_get_executable( workflow_job_type * workflow_job) {
+    return workflow_job->executable;
+}
+
+void workflow_job_set_internal_script( workflow_job_type * workflow_job , const char * script_path ) {
+  workflow_job->internal_script_path = util_realloc_string_copy( workflow_job->internal_script_path , script_path );
+}
+
+char* workflow_job_get_internal_script_path( workflow_job_type * workflow_job) {
+    return workflow_job->internal_script_path;
+}
+
+bool workflow_job_is_internal_script( workflow_job_type * workflow_job) {
+    return workflow_job->internal && workflow_job->internal_script_path != NULL;
+}
 
 void workflow_job_set_module( workflow_job_type * workflow_job , const char * module) {
   if (strcmp(module  ,NULL_STRING) == 0)
@@ -168,14 +195,20 @@ void workflow_job_set_module( workflow_job_type * workflow_job , const char * mo
   workflow_job->module = util_realloc_string_copy( workflow_job->module , module );
 }
 
+char * workflow_job_get_module( workflow_job_type * workflow_job) {
+    return workflow_job->module;
+}
 
 void workflow_job_set_function( workflow_job_type * workflow_job , const char * function) {
   workflow_job->function = util_realloc_string_copy( workflow_job->function , function );
 }
 
+char * workflow_job_get_function( workflow_job_type * workflow_job) {
+    return workflow_job->function;
+}
 
 void workflow_job_iset_argtype( workflow_job_type * workflow_job , int iarg , config_item_types type) {
-  if (type == CONFIG_STRING || type == CONFIG_INT || type == CONFIG_FLOAT)
+  if (type == CONFIG_STRING || type == CONFIG_INT || type == CONFIG_FLOAT || type == CONFIG_BOOL)
     int_vector_iset( workflow_job->arg_types , iarg , type );
 }
 
@@ -191,8 +224,12 @@ int workflow_job_get_min_arg( const workflow_job_type * workflow_job ) {
   return workflow_job->min_arg;
 }
  
-int workflow_job_get_max_arg( workflow_job_type * workflow_job ) {
+int workflow_job_get_max_arg( const workflow_job_type * workflow_job ) {
   return workflow_job->max_arg;
+}
+
+config_item_types workflow_job_iget_argtype( const workflow_job_type * workflow_job, int index) {
+    return int_vector_iget( workflow_job->arg_types , index );
 }
 
 
@@ -206,6 +243,8 @@ static void workflow_job_iset_argtype_string( workflow_job_type * workflow_job ,
     type = CONFIG_INT;
   else if (strcmp( arg_type , WORKFLOW_JOB_FLOAT_TYPE) == 0)
     type = CONFIG_FLOAT;
+  else if (strcmp( arg_type , WORKFLOW_JOB_BOOL_TYPE) == 0)
+    type = CONFIG_BOOL;
 
   if (type != CONFIG_INVALID)
     workflow_job_iset_argtype( workflow_job , iarg , type );
@@ -214,20 +253,27 @@ static void workflow_job_iset_argtype_string( workflow_job_type * workflow_job ,
 
 
 static void workflow_job_validate_internal( workflow_job_type * workflow_job ) {
-  if ((workflow_job->executable == NULL) && (workflow_job->function != NULL)) {
-    workflow_job->lib_handle = dlopen( workflow_job->module , RTLD_NOW );
-    if (workflow_job->lib_handle != NULL) {
-      workflow_job->dl_func = (workflow_job_ftype *) dlsym( workflow_job->lib_handle , workflow_job->function );
-      if (workflow_job->dl_func != NULL)
-        workflow_job->valid = true;
-      else 
-        fprintf(stderr,"Failed to load symbol:%s Error:%s \n",workflow_job->function , dlerror());
+    if (workflow_job->executable == NULL) {
+        if ((workflow_job->internal_script_path == NULL) && (workflow_job->function != NULL)) {
+            workflow_job->lib_handle = dlopen( workflow_job->module , RTLD_NOW );
+            if (workflow_job->lib_handle != NULL) {
+              workflow_job->dl_func = (workflow_job_ftype *) dlsym( workflow_job->lib_handle , workflow_job->function );
+              if (workflow_job->dl_func != NULL)
+                workflow_job->valid = true;
+              else
+                fprintf(stderr,"Failed to load symbol:%s Error:%s \n",workflow_job->function , dlerror());
+            } else {
+              if (workflow_job->module != NULL)
+                fprintf(stderr,"Failed to load module:%s Error:%s \n",workflow_job->module , dlerror());
+            }
+        } else if ((workflow_job->internal_script_path != NULL) && (workflow_job->function == NULL)) {
+            workflow_job->valid = true;
+        } else {
+            fprintf(stderr, "Must have function != NULL or internal_script != NULL for internal jobs");
+        }
     } else {
-      if (workflow_job->module != NULL)
-        fprintf(stderr,"Failed to load module:%s Error:%s \n",workflow_job->module , dlerror());
+        fprintf(stderr, "Must have executable == NULL for internal jobs\n");
     }
-  } else
-    fprintf(stderr,"Must have executable == NULL and function != NULL for internal jobs \n");
 }
 
 
@@ -286,7 +332,11 @@ workflow_job_type * workflow_job_config_alloc( const char * name , config_type *
       
       if (config_item_set( config , EXECUTABLE_KEY)) 
         workflow_job_set_executable( workflow_job , config_get_value_as_abspath( config , EXECUTABLE_KEY));
-      
+
+      if (config_item_set( config , SCRIPT_KEY)) {
+        workflow_job_set_internal_script( workflow_job , config_get_value_as_abspath( config , SCRIPT_KEY));
+      }
+
       workflow_job_validate( workflow_job );
       
       if (!workflow_job->valid) {
@@ -325,15 +375,15 @@ void workflow_job_free__( void * arg) {
   discard it.  
 */
 
-static void * workflow_job_run_internal( const workflow_job_type * job , void * self , bool verbose , const stringlist_type * arg) {
-  return job->dl_func( self , arg );
+static void * workflow_job_run_internal( const workflow_job_type * job, void * self , bool verbose , const stringlist_type * arg) {
+    return job->dl_func( self , arg );
 }
 
 
-static void * workflow_job_run_external( const workflow_job_type * job  , bool verbose , const stringlist_type * arg) {
+static void * workflow_job_run_external( const workflow_job_type * job, bool verbose , const stringlist_type * arg) {
   char ** argv = stringlist_alloc_char_copy( arg );
 
-  util_fork_exec( job->executable , 
+  util_fork_exec( job->executable ,
                   stringlist_get_size( arg ),
                   (const char **) argv , 
                   true ,
@@ -342,8 +392,7 @@ static void * workflow_job_run_external( const workflow_job_type * job  , bool v
                   NULL , 
                   NULL , 
                   NULL );
-  
-  
+
   if (argv != NULL) {
     int i;
     for (i=0; i < stringlist_get_size( arg ); i++)
@@ -353,10 +402,16 @@ static void * workflow_job_run_external( const workflow_job_type * job  , bool v
   return NULL;
 }
 
-
-void * workflow_job_run( const workflow_job_type * job , void * self , bool verbose , const stringlist_type * arg) {
-  if (job->internal)
-    return workflow_job_run_internal( job , self , verbose , arg );
-  else
-    return workflow_job_run_external( job , verbose , arg );
+/* This is the old C way and will only be used from the TUI */
+void * workflow_job_run( const workflow_job_type * job, void * self , bool verbose , const stringlist_type * arg) {
+  if (job->internal) {
+    if (workflow_job_is_internal_script(job)) {
+        fprintf(stderr, "*** Can not run internal script workflow jobs using this method: workflow_job_run()\n");
+        return NULL;
+    } else {
+        return workflow_job_run_internal( job, self, verbose, arg );
+    }
+  } else {
+    return workflow_job_run_external( job, verbose, arg );
+  }
 }

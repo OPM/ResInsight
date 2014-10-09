@@ -174,7 +174,7 @@ static misfit_ranking_type * misfit_ranking_alloc_empty( int ens_size ) {
    Step and step2 are inclusive. The time direction is flattened.
 */
 
-misfit_ranking_type *  misfit_ranking_alloc(const misfit_ensemble_type * misfit_ensemble , const stringlist_type * sort_keys , int step1 , int step2, const char * ranking_key) {
+misfit_ranking_type *  misfit_ranking_alloc(const misfit_ensemble_type * misfit_ensemble , const stringlist_type * sort_keys , const int_vector_type * steps, const char * ranking_key) {
   const int ens_size = misfit_ensemble_get_ens_size( misfit_ensemble );
   int iens;
   misfit_ranking_type * ranking = misfit_ranking_alloc_empty(ens_size);
@@ -190,7 +190,7 @@ misfit_ranking_type *  misfit_ranking_alloc(const misfit_ensemble_type * misfit_
         const char * obs_key        = stringlist_iget( sort_keys , ikey );
         if (misfit_member_has_ts( misfit_member , obs_key )) {
           misfit_ts_type * ts = misfit_member_get_ts( misfit_member , obs_key );
-          double value        = misfit_ts_eval( ts , step1 , step2 );  /* Sum up the misfit for this key - and these timesteps. */
+          double value        = misfit_ts_eval( ts , steps );  /* Sum up the misfit for this key - and these timesteps. */
           hash_insert_double( obs_hash , obs_key , value);
           total += value;
         } else

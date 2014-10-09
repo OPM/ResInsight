@@ -132,7 +132,7 @@ typedef struct {
 } sort_node_type;
 
 
-static UTIL_SAFE_CAST_FUNCTION(@TYPE@_vector , TYPE_VECTOR_ID);
+UTIL_SAFE_CAST_FUNCTION(@TYPE@_vector , TYPE_VECTOR_ID);
 UTIL_IS_INSTANCE_FUNCTION(@TYPE@_vector , TYPE_VECTOR_ID);
 
 
@@ -157,20 +157,20 @@ static void @TYPE@_vector_realloc_data__(@TYPE@_vector_type * vector , int new_a
 }
 
 
-static void @TYPE@_vector_memmove(@TYPE@_vector_type * vector , int offset , int count) {
-  if ((count + offset) < 0)
-    util_abort("%s: offset:%d  left_shift:%d - invalid \n",__func__ , offset , -count);
-
-  if ((count + vector->size > vector->alloc_size))
-    @TYPE@_vector_realloc_data__( vector , util_int_min( 2*vector->alloc_size , count + vector->size ));
+static void @TYPE@_vector_memmove(@TYPE@_vector_type * vector , int offset , int shift) {
+  if ((shift + offset) < 0)
+    util_abort("%s: offset:%d  left_shift:%d - invalid \n",__func__ , offset , -shift);
+  
+  if ((shift + vector->size > vector->alloc_size))
+    @TYPE@_vector_realloc_data__( vector , util_int_min( 2*vector->alloc_size , shift + vector->size ));
   
   {
-    int block_size     = abs(count) * sizeof(@TYPE@);
-    @TYPE@ * target    = &vector->data[offset + count];
+    size_t move_size   = (vector->size - offset) * sizeof(@TYPE@);
+    @TYPE@ * target    = &vector->data[offset + shift];
     const @TYPE@ * src = &vector->data[offset];
-    memmove( target , src , block_size );
+    memmove( target , src , move_size );
     
-    vector->size += count;
+    vector->size += shift;
   }
 }
 
@@ -247,14 +247,16 @@ static @TYPE@_vector_type * @TYPE@_vector_alloc__(int init_size , @TYPE@ default
 
 
 /**
-   This function will change the size of the storage area of the
-   vector to become @new_alloc_size elements. If @new_alloc_size is
-   less than the current size of the vector, the last elements will be
-   lost.
+   new_size < current_size: The trailing elements will be lost
+
+   new_size > current_size: The vector will grow by adding default elements at the end.
 */
 
-void @TYPE@_vector_resize( @TYPE@_vector_type * vector , int new_alloc_size ) {
-  @TYPE@_vector_realloc_data__( vector , new_alloc_size );
+void @TYPE@_vector_resize( @TYPE@_vector_type * vector , int new_size ) {
+  if (new_size <= vector->size)
+    vector->size = new_size;
+  else 
+    @TYPE@_vector_iset( vector , new_size - 1 , vector->default_value);
 }
 
 
@@ -334,6 +336,13 @@ void @TYPE@_vector_memcpy_data_block( @TYPE@_vector_type * target , const @TYPE@
     target->size = target_offset + len;
 }
 
+
+
+void @TYPE@_vector_memcpy_from_data( @TYPE@_vector_type * target , const @TYPE@ * src , int src_size ) {
+  @TYPE@_vector_reset( target );
+  @TYPE@_vector_iset( target , src_size - 1 , 0 );
+  memcpy( target->data , src , src_size * sizeof * target->data );
+}
 
 
 void @TYPE@_vector_memcpy_data( @TYPE@ * target, const @TYPE@_vector_type * src ) {
@@ -526,6 +535,18 @@ void @TYPE@_vector_inplace_add( @TYPE@_vector_type * vector , const @TYPE@_vecto
   }
 }
 
+/* vector - vector */
+void @TYPE@_vector_inplace_sub( @TYPE@_vector_type * vector , const @TYPE@_vector_type * delta) {
+  if (vector->size != delta->size) 
+    util_abort("%s: combining vectors with different size: %d and %d \n",__func__ , vector->size , delta->size);
+  {
+    int i;
+    for (i=0; i < vector->size; i++) 
+      vector->data[i] -= delta->data[i];
+  }
+}
+
+
 /* vector * vector (elementwise) */
 void @TYPE@_vector_inplace_mul( @TYPE@_vector_type * vector , const @TYPE@_vector_type * factor) {
   if (vector->size != factor->size) 
@@ -606,6 +627,19 @@ void @TYPE@_vector_iset(@TYPE@_vector_type * vector , int index , @TYPE@ value) 
   }
 }
 
+/*
+  The block_size can be negative, in which case the loop will walk to
+  the left in the vector.
+*/
+
+void @TYPE@_vector_iset_block(@TYPE@_vector_type * vector , int index , int block_size , @TYPE@ value) {
+  int sign = (block_size > 0) ? 1 : -1 ;
+  int c;
+  for (c=0; c < abs(block_size); c++) 
+    @TYPE@_vector_iset( vector , index + c * sign , value);
+}
+
+
 /**
    This function invokes _iset - i.e. growing the vector if needed. If
    the index is not currently set, the default value will be used.
@@ -656,6 +690,30 @@ void @TYPE@_vector_idel_block( @TYPE@_vector_type * vector , int index , int blo
   @TYPE@ del_value = @TYPE@_vector_iget( vector , index );
   @TYPE@_vector_idel_block( vector , index , 1 );
   return del_value;
+}
+
+
+
+/**
+   Removes all occurences of @value from the vector, thereby shrinking
+   the vector. The return value is the number of elements removed from
+   the vector.
+*/
+
+@TYPE@ @TYPE@_vector_del_value( @TYPE@_vector_type * vector , @TYPE@ del_value) {
+  int index = 0;
+  int del_count = 0;
+  while (true) {
+    if (index == vector->size)
+      break;
+
+    if (@TYPE@_vector_iget( vector , index) == del_value) {
+      @TYPE@_vector_idel( vector , index);
+      del_count++;
+    } else
+      index++;
+  }
+  return del_count;
 }
 
 
@@ -734,6 +792,21 @@ int @TYPE@_vector_size(const @TYPE@_vector_type * vector) {
   }
 }
 
+
+void @TYPE@_vector_rshift(@TYPE@_vector_type * vector , int shift) {
+  if (shift < 0) 
+    @TYPE@_vector_memmove( vector , -shift , shift);
+  else {
+    int i;
+    @TYPE@_vector_memmove( vector , 0 , shift);
+    for (i=0; i < shift; i++)
+      vector->data[i] = vector->default_value;
+  }
+}
+
+void @TYPE@_vector_lshift(@TYPE@_vector_type * vector , int shift) {
+  @TYPE@_vector_rshift( vector , -shift);
+}
 
 
 @TYPE@ * @TYPE@_vector_get_ptr(const @TYPE@_vector_type * vector) {
@@ -947,6 +1020,20 @@ int @TYPE@_vector_index(const @TYPE@_vector_type * vector , @TYPE@ value) {
     return -1;
 }
 
+bool @TYPE@_vector_contains(const @TYPE@_vector_type * vector , @TYPE@ value) {
+  if (@TYPE@_vector_index( vector , value) >= 0)
+    return true;
+  else
+    return false;
+}
+
+
+bool @TYPE@_vector_contains_sorted(const @TYPE@_vector_type * vector , @TYPE@ value) {
+  if (@TYPE@_vector_index_sorted( vector , value) >= 0)
+    return true;
+  else
+    return false;
+}
 
 
 /*
@@ -1359,7 +1446,7 @@ void @TYPE@_vector_buffer_fread(@TYPE@_vector_type * vector , buffer_type * buff
   buffer_fread( buffer , &default_value , sizeof default_value , 1 );
   
   @TYPE@_vector_set_default( vector , default_value );
-  @TYPE@_vector_resize( vector , size );
+  @TYPE@_vector_realloc_data__( vector , size );
   buffer_fread( buffer , vector->data , sizeof * vector->data , size );
   vector->size = size;
 }
@@ -1406,7 +1493,29 @@ int @TYPE@_vector_count_equal( const @TYPE@_vector_type * vector , @TYPE@ cmp_va
 
 }
  
+/*
+  The upper limit is inclusive - if it is commensurable with the
+  delta.
+*/
 
+void @TYPE@_vector_range_fill(@TYPE@_vector_type * vector , @TYPE@ limit1 , @TYPE@ delta , @TYPE@ limit2) {
+  @TYPE@ current_value = limit1;
+
+  if (delta == 0)
+    util_abort("%s: sorry can not have delta == 0 \n",__func__);
+  
+  @TYPE@_vector_reset( vector );
+  while (true) {
+    @TYPE@_vector_append( vector , current_value );
+    current_value += delta;
+    if (delta > 0 && current_value > limit2)
+      break;
+    
+    if (delta < 0 && current_value < limit2)
+      break;
+  }
+}
+  
 #ifdef __cplusplus
 }
 #endif

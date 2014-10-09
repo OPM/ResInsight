@@ -61,13 +61,17 @@ set( source_files
      local_obsset.c 
      surface.c 
      surface_config.c 
-     enkf_plot_data.c 
-     enkf_plot_tvector.c 
-     qc_module.c 
+     enkf_plot_data.c
+     enkf_plot_tvector.c
+     enkf_plot_gendata.c
+     enkf_plot_genvector.c
+     enkf_plot_gen_kw.c
+     enkf_plot_gen_kw_vector.c
+     qc_module.c
      ert_report_list.c 
      runpath_list.c 
-     ert_workflow_list.c 
-     analysis_iter_config.c 
+     ert_workflow_list.c
+     analysis_iter_config.c
      enkf_main_jobs.c 
      ecl_refcase_list.c 
      local_obsdata_node.c 
@@ -77,7 +81,9 @@ set( source_files
      pca_plot_vector.c 
      state_map.c 
      cases_config.c 
-     state_map.c)
+     state_map.c    
+     ert_test_context.c
+     ert_log.c)
 
 set( header_files 
      ert_report.h 
@@ -97,6 +103,7 @@ set( header_files
      enkf_state.h 
      enkf_util.h 
      enkf_main.h 
+     enkf_main_jobs.h 
      enkf_node.h 
      enkf_fs.h 
      gen_kw_config.h 
@@ -150,13 +157,17 @@ set( header_files
      surface.h 
      surface_config.h 
      local_context.h 
-     enkf_plot_data.h 
-     enkf_plot_tvector.h 
+     enkf_plot_data.h
+     enkf_plot_tvector.h
+     enkf_plot_gendata.h
+     enkf_plot_genvector.h
+     enkf_plot_gen_kw.h
+     enkf_plot_gen_kw_vector.h
      qc_module.h 
      ert_report_list.h 
      runpath_list.h 
-     ert_workflow_list.h 
-     analysis_iter_config.h 
+     ert_workflow_list.h
+     analysis_iter_config.h
      ecl_refcase_list.h 
      local_obsdata_node.h 
      local_obsdata.h 
@@ -165,11 +176,14 @@ set( header_files
      pca_plot_vector.h 
      state_map.h 
      cases_config.h 
-     state_map.h)
+     state_map.h
+     ert_test_context.h
+     ert_log.h)
 
 
 add_library( enkf  ${LIBRARY_TYPE} ${source_files} )
 set_target_properties( enkf PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+
 
 
 #configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/CMake/config/ert_build_info.h.in
@@ -190,4 +204,6 @@ if (INSTALL_ERT)
    endforeach()
 endif()
 
+#-----------------------------------------------------------------
 
+      

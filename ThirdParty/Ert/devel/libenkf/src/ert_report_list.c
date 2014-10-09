@@ -169,6 +169,8 @@ void ert_report_list_free( ert_report_list_type * report_list ){
   stringlist_free( report_list->well_list );
   subst_list_free( report_list->global_context );
   vector_free( report_list->report_list );
+  free( report_list->target_path );
+  free( report_list->plot_path );
   free( report_list );
 }
 

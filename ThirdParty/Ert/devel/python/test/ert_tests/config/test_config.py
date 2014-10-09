@@ -16,7 +16,7 @@
 #  for more details. 
 
 from ert.config import ContentTypeEnum, UnrecognizedEnum, SchemaItem, ContentItem, ContentNode, ConfigParser
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class ConfigTest(ExtendedTestCase):
@@ -25,12 +25,12 @@ class ConfigTest(ExtendedTestCase):
 
 
     def test_enums(self):
-        self.assertTrue(ContentTypeEnum.CONFIG_STRING)
-        self.assertTrue(ContentTypeEnum.CONFIG_INVALID)
+        source_file_path = "libconfig/include/ert/config/config_schema_item.h"
+        self.assertEnumIsFullyDefined(ContentTypeEnum, "config_item_types", source_file_path)
+
         self.assertTrue(UnrecognizedEnum.CONFIG_UNRECOGNIZED_ERROR)
 
-        self.assertEqual(ContentTypeEnum.CONFIG_STRING, 1)
-        self.assertEqual(ContentTypeEnum.CONFIG_INVALID, 512)
+
 
 
     def test_parse(self):

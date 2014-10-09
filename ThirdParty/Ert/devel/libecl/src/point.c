@@ -16,8 +16,10 @@
    for more details. 
 */
 
+#include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include <ert/util/util.h>
 
@@ -39,7 +41,7 @@ void point_mapaxes_invtransform( point_type * p , const double origo[2], const d
   double dy     = p->y - origo[1];
 
 
-  double org_x  =  (dx*unit_y[1] - dy*unit_y[0])  * norm;
+  double org_x  =  ( dx*unit_y[1] - dy*unit_y[0]) * norm;
   double org_y  =  (-dx*unit_x[1] + dy*unit_x[0]) * norm;
   
   p->x = org_x;
@@ -48,12 +50,19 @@ void point_mapaxes_invtransform( point_type * p , const double origo[2], const d
 
 
 
-
 void point_compare( const point_type *p1 , const point_type * p2, bool * equal) {
-  const double tolerance = 0.0001;
-  if ((abs(p1->x - p2->x) + abs(p1->y - p2->y) + abs(p1->z - p2->z)) > tolerance) 
+  const double tolerance = 0.001;
+  
+  double diff_x = (abs(p1->x - p2->x) / abs(p1->x + p2->x + 1));
+  double diff_y = (abs(p1->y - p2->y) / abs(p1->y + p2->y + 1));
+  double diff_z = (abs(p1->z - p2->z) / abs(p1->z + p2->z + 1));
+  
+  if (diff_x + diff_y + diff_z > tolerance)
     *equal = false;
+}
 
+bool point_equal( const point_type *p1 , const point_type * p2) {
+  return (memcmp( p1 , p2 , sizeof * p1 ) == 0);
 }
 
 
@@ -64,8 +73,12 @@ void point_dump( const point_type * p , FILE * stream) {
 }
 
 
-void point_dump_ascii( const point_type * p , FILE * stream) {
-  fprintf(stream , "(%7.2f, %7.2f, %7.2f) " , p->x , p->y , p->z);
+void point_dump_ascii( const point_type * p , FILE * stream , const double * offset) {
+  if (offset)
+    fprintf(stream , "(%7.2f, %7.2f, %7.2f) " , p->x - offset[0], p->y - offset[1] , p->z - offset[2]);
+  else
+    fprintf(stream , "(%7.2f, %7.2f, %7.2f) " , p->x , p->y , p->z);
+
 }
 
 
@@ -184,21 +197,21 @@ void point_normal_vector(point_type * n, const point_type * p0, const point_type
 
 /**
    This function calculates the (signed) distance from point 'p' to
-   the plane specifed by the plane vector 'n' andthe point
+   the plane specifed by the plane vector 'n' and the point
    'plane_point' which is part of the plane.
 */
 
 double point_plane_distance(const point_type * p , const point_type * n , const point_type * plane_point) {
   point_type * diff = point_alloc_diff( p , plane_point );
   double d = point_dot_product( n , diff );
-
-  printf("plane_point: "); point_fprintf( plane_point , stdout ); printf("\n");
-  printf("p:           "); point_fprintf( p , stdout );        printf("\n");
-  printf("diff:        "); point_fprintf( diff , stdout );        printf("\n");
   
-
   free( diff );
   return d;
 }
 
 
+double point3_plane_distance(const point_type * p0 , const point_type * p1 , const point_type * p2 , const point_type * x) {
+  point_type n;
+  point_normal_vector( &n , p0 , p1 , p2 );
+  return point_plane_distance( x , &n , p0 ) / sqrt( n.x*n.x + n.y*n.y + n.z*n.z);
+}

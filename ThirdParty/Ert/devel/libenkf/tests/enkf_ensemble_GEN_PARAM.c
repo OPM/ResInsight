@@ -41,9 +41,9 @@
 int main(int argc , char ** argv) {
   const char * config_file = argv[1];
   config_type * config = config_alloc();
-  ensemble_config_type * ensemble = ensemble_config_alloc_empty();
+  ensemble_config_type * ensemble = ensemble_config_alloc();
 
-  ensemble_config_add_GEN_PARAM_config_item( config );
+  enkf_config_node_add_GEN_PARAM_config_schema( config );
   test_assert_true( config_parse( config , config_file , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true ) );
 
   ensemble_config_init_GEN_PARAM( ensemble, config );

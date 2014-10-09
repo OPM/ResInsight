@@ -1,8 +1,9 @@
+import warnings
 from ert.ecl.ecl_sum_node import EclSumNode
 
 
 class EclSumVector:
-    def __init__(self, parent, key, report_only):
+    def __init__(self, parent, key, report_only = False):
         """
         A summary vector with a vector of values and time.
 
@@ -22,6 +23,9 @@ class EclSumVector:
         self.parent = parent
         self.key = key
         self.report_only = report_only
+        
+        if report_only:
+            warnings.warn("The report_only flag to the EclSumVector will be removed" , DeprecationWarning)
 
         self.__dates = parent.get_dates(report_only)
         self.__days = parent.get_days(report_only)

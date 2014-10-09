@@ -1,0 +1,4 @@
+INTERNAL    True
+FUNCTION    enkf_main_init_misfit_table_JOB
+MIN_ARG     0
+

@@ -277,7 +277,7 @@ int  vector_append_copy(vector_type * vector , const void * data , copyc_ftype *
 
 void  vector_push_copy(vector_type * vector , const void * data , copyc_ftype * copyc , free_ftype * del) {
   node_data_type * node = node_data_alloc_ptr( data, copyc , del);
-  return vector_push_node(vector , node);
+  vector_push_node(vector , node);
 }
 
 

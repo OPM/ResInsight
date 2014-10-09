@@ -9,7 +9,7 @@ ert_root = os.path.realpath( os.path.join(os.path.dirname( os.path.realpath( os.
 #-----------------------------------------------------------------
 
 default_lib_list          = ["analysis"   , "ert_util"]
-default_define_list       = ["HAVE_PTHREAD"]
+default_define_list       = ["HAVE_PTHREAD" , "COMPILER_GCC"]
 
 
 CFLAGS       = "-std=gnu99 -O2 -Wall -fpic -g"
@@ -169,10 +169,10 @@ Link:    %s %s  %s
 
 parser = OptionParser( usage ) 
 parser.add_option("--ert-root" , dest="ert_root" , action="store")
-parser.add_option("-I" , dest = "include_path_list", action = "append")
-parser.add_option("-D" , dest = "define_list"      , action = "append")
-parser.add_option("-L" , dest = "lib_path_list"    , action = "append")
-parser.add_option("-l" , dest = "lib_list"         , action = "append")
+parser.add_option("-I" , dest = "include_path_list", action = "append" , default = [])
+parser.add_option("-D" , dest = "define_list"      , action = "append" , default = [])
+parser.add_option("-L" , dest = "lib_path_list"    , action = "append" , default = [])
+parser.add_option("-l" , dest = "lib_list"         , action = "append" , default = [])
 parser.add_option("--exclude-ert" , dest = "exclude_ert" , action="store_true" , default = False)
 parser.add_option("--use-rpath" , dest="use_rpath" , action="store_true" , default = False)
 parser.add_option("--silent" , dest="silent" , action="store_true" , default = False)
@@ -185,28 +185,21 @@ if options.ert_root:
     ert_root = options.ert_root
 
 if options.exclude_ert:
-    include_path_list = ["./"]
-    lib_path_list = []    
-    define_list = []
-    lib_list = []
+    default_include_path_list = ["./"]
+    default_lib_path_list = []    
+    default_lib_list = []
 else:
-    include_path_list = ["./" , "%s/include" % ert_root]
-    lib_path_list = ["%s/lib64" % ert_root]
-    define_list = default_define_list
-    lib_list = default_lib_list
+    default_include_path_list = ["./" , "%s/include" % ert_root]
+    default_lib_path_list = ["%s/lib64" % ert_root]
+    default_lib_list = default_lib_list
 
 
-if options.include_path_list:
-    include_path_list += options.include_path_list
-
-if options.define_list:
-    define_list  += options.define_list
-
-if options.lib_list:
-    lib_list += options.lib_list
-
-if options.lib_path_list:
-    lib_path_list += options.lib_path_list
+# What is supplied as commandline options should take presedence, this
+# implies that it should be first OR last on the commandline.
+include_path_list = options.include_path_list + default_include_path_list
+define_list       = default_define_list       + options.define_list
+lib_list          = options.lib_list          + default_lib_list
+lib_path_list     = options.lib_path_list     + default_lib_path_list
 
 
 verbose = not options.silent

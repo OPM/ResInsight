@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <ert/util/test_util.h>
 #include <ert/util/test_work_area.h>
@@ -33,13 +35,18 @@
 
 void test_mount() {
   test_work_area_type * work_area = test_work_area_alloc("enkf_fs/mount");
-  
+
+  test_assert_false( enkf_fs_exists( "mnt" ));
   enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL );
+  test_assert_true( enkf_fs_exists( "mnt" ));
   {
-    enkf_fs_type * fs = enkf_fs_mount( "mnt" , false );
+    enkf_fs_type * fs = enkf_fs_mount( "mnt"  );
+    test_assert_true( util_file_exists("mnt/mnt.lock"));
     test_assert_true( enkf_fs_is_instance( fs ));
-    enkf_fs_umount( fs );
+    enkf_fs_decref( fs );
+    test_assert_false( util_file_exists("mnt/mnt.lock"));
   }
+
   test_work_area_free( work_area );
 }
 
@@ -49,39 +56,89 @@ void test_refcount() {
   
   enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL );
   {
-    enkf_fs_type * fs = enkf_fs_mount( "mnt" , false );
+    enkf_fs_type * fs = enkf_fs_mount( "mnt" );
     test_assert_int_equal( 1 , enkf_fs_get_refcount( fs ));
-    {
-      enkf_fs_type * fs2 = enkf_fs_get_ref( fs );
-      enkf_fs_type * fs3 = enkf_fs_get_weakref( fs );
-      test_assert_int_equal( 2 , enkf_fs_get_refcount( fs ));    
-      test_assert_int_equal( 2 , enkf_fs_get_refcount( fs2 ));    
-      test_assert_int_equal( 2 , enkf_fs_get_refcount( fs3 ));    
-      enkf_fs_umount( fs2 );
-    }
-    test_assert_int_equal( 1 , enkf_fs_get_refcount( fs ));
-    enkf_fs_umount( fs );
+    enkf_fs_decref( fs );
   }
   test_work_area_free( work_area );
 }
 
-void test_read_only() {
-  test_work_area_type * work_area = test_work_area_alloc("enkf_fs/read_only");
 
-  enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL );
-  {
-    enkf_fs_type * fs_false = enkf_fs_mount( "mnt" , false );
+void createFS() {
+  pid_t pid = fork();
+
+  if (pid == 0) {
+    enkf_fs_type * fs_false = enkf_fs_mount( "mnt" );
     test_assert_false(enkf_fs_is_read_only(fs_false));
+    test_assert_true( util_file_exists("mnt/mnt.lock"));
+    {
+      int total_sleep = 0;
+      while (true) {
+        if (util_file_exists( "stop")) {
+          unlink("stop");
+          break;
+        }
+        
+        usleep(1000);
+        total_sleep += 1000;
+        if (total_sleep > 1000000 * 5) {
+          fprintf(stderr,"Test failure - never receieved \"stop\" file from parent process \n");
+          break;
+        }
+      }
+    }
+    enkf_fs_decref( fs_false );
+    exit(0);
+  } 
+  usleep(10000);
+}
 
-    enkf_fs_umount( fs_false );
 
-    enkf_fs_type * fs_true = enkf_fs_mount( "mnt" , true );
-    test_assert_true(enkf_fs_is_read_only(fs_true));
+void test_fwrite_readonly( void * arg ) {
+  enkf_fs_type * fs = enkf_fs_safe_cast( arg );
+  /* 
+     The arguments here are completely bogus; the important thing is
+     that this fwrite call should be intercepted by a util_abort()
+     call (which is again intercepted by the testing function) before
+     the argument are actually accessed. 
+  */
+  enkf_fs_fwrite_node( fs , NULL , "KEY" , PARAMETER , 100 , 1 , FORECAST );
+}
 
-    enkf_fs_umount( fs_true );
+
+/*
+  This test needs to fork off a seperate process to test the cross-process file locking. 
+*/
+void test_read_only2() {
+  test_work_area_type * work_area = test_work_area_alloc("enkf_fs/read_only2");
+  enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL );
+  createFS();
+
+  while (true) {
+    if (util_file_exists("mnt/mnt.lock"))
+      break;
   }
+  
+  {
+    enkf_fs_type * fs_false = enkf_fs_mount( "mnt" );
+    test_assert_true(enkf_fs_is_read_only(fs_false));
+    test_assert_util_abort( "enkf_fs_fwrite_node" , test_fwrite_readonly , fs_false );
+    enkf_fs_decref( fs_false );
+  }
+  {
+    FILE * stream = util_fopen("stop" , "w");
+    fclose( stream );
+  }
+  
+  while (util_file_exists( "stop")) {
+    usleep( 1000 );
+  }      
   test_work_area_free( work_area );
 }
+
+
+
+
 
 
 
@@ -89,6 +146,6 @@ void test_read_only() {
 int main(int argc, char ** argv) {
   test_mount();
   test_refcount();
-  test_read_only();
+  test_read_only2();
   exit(0);
 }

@@ -51,7 +51,7 @@ const stringlist_type * ext_job_get_arglist( const ext_job_type * ext_job );
 bool                    ext_job_is_shared( const ext_job_type * ext_job );
 bool                    ext_job_is_private( const ext_job_type * ext_job );
 
-void                    ext_job_set_executable(ext_job_type * ext_job, const char * executable);
+void                    ext_job_set_executable(ext_job_type * ext_job, const char * executable, const char * execuatble_raw);
 const char *            ext_job_get_executable(const ext_job_type * ext_job);
 
 

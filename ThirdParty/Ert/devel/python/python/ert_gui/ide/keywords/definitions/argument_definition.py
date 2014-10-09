@@ -22,7 +22,7 @@ class ArgumentDefinition(object):
     def validate(self, token):
         vs = ValidationStatus()
 
-        if token.strip() == "":
+        if not self.isOptional() and token.strip() == "":
             vs.setFailed()
             vs.addToMessage(ArgumentDefinition.MISSING_ARGUMENT)
 

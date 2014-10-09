@@ -27,6 +27,7 @@ extern "C" {
 #include <stdbool.h>
 
 #include <ert/util/util.h>
+#include <ert/util/type_macros.h>
 
 typedef enum {
   FORTIO_NOENTRY         = 0,    /* File does not exists at all - application error. */
@@ -68,14 +69,20 @@ typedef struct fortio_struct fortio_type;
   void               fortio_rewind(const fortio_type *fortio);
   const char  *      fortio_filename_ref(const fortio_type * );
   bool               fortio_fmt_file(const fortio_type *);
-  offset_type              fortio_ftell( const fortio_type * fortio );
+  offset_type        fortio_ftell( const fortio_type * fortio );
   int                fortio_fseek( fortio_type * fortio , offset_type offset , int whence);
+  void               fortio_data_fskip(fortio_type* fortio, const int element_size, const int element_count, const int block_count);
+  void               fortio_data_fseek(fortio_type* fortio, offset_type data_offset, size_t data_element, const int element_size, const int element_count, const int block_size);
   int                fortio_fileno( fortio_type * fortio );
 
   bool               fortio_fclose_stream( fortio_type * fortio );
   bool               fortio_fopen_stream( fortio_type * fortio );
   bool               fortio_stream_is_open( const fortio_type * fortio );
   bool               fortio_assert_stream_open( fortio_type * fortio );
+
+
+UTIL_IS_INSTANCE_HEADER( fortio );
+UTIL_SAFE_CAST_HEADER( fortio );
 
 #ifdef __cplusplus
 }

@@ -44,6 +44,8 @@ void          enkf_analysis_deactivate_outliers(obs_data_type * obs_data ,
                                                 double std_cutoff , 
                                                 double alpha);
 
+void          enkf_analysis_deactivate_std_zero(obs_data_type * obs_data ,
+                                                meas_data_type * meas_data);
 
 
 #ifdef __cplusplus

@@ -1,8 +1,14 @@
 cmake_minimum_required( VERSION 2.8 )
 project( ERT C CXX )
 
+if(POLICY CMP0042)
+  cmake_policy(SET CMP0042 OLD)
+endif()
+
 set( ERT_VERSION_MAJOR 1 )
-set( ERT_VERSION_MINOR 0 )
+set( ERT_VERSION_MINOR 7 )
+set( ERT_VERSION_MICRO X )
+
 
 option( BUILD_ERT           "Build the full ERT application - Linux only" OFF)
 option( BUILD_ENS_PLOT      "Build small Eclipse plotting program - no" OFF)
@@ -14,6 +20,8 @@ option( BUILD_SHARED_LIBS   "Build shared libraries" ON )
 option( INSTALL_ERT         "Should anything be installed when issuing make install?" ON)
 option( ERT_BUILD_GUI       "Should the pyQt based gui be compiled and installed" OFF )
 option( ERT_USE_OPENMP      "Use OpenMP - currently only in EclGrid" OFF)
+option( ERT_DOC             "Build ERT documantation" OFF)
+
 
 include( CheckFunctionExists )
 include( CheckTypeSize )
@@ -22,6 +30,10 @@ ENABLE_TESTING()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    set(ERT_LINUX TRUE )
    add_definitions( -DERT_LINUX )
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   set(ERT_LINUX TRUE )
+   set(ERT_MAC TRUE)
+   add_definitions( -DERT_LINUX )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    set(ERT_WINDOWS TRUE)
    add_definitions( -DERT_WINDOWS )
@@ -29,15 +41,28 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    add_definitions( -DWINDOWS_LFS )
 endif()    
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+   message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
+   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING 
+       "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+   # Set the possible values of build type for cmake-gui
+   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+                "MinSizeRel" "RelWithDebInfo")
+endif()
 
 # Treat warnings as errors if not on Windows
-if (ERT_WINDOWS)
-   set( CMAKE_C_FLAGS    "-O2" )
-   set( CMAKE_CXX_FLAGS  "-O2" )
-else()
-   set( CMAKE_C_FLAGS    "-std=gnu99 -g -O2 -Wall -Wno-unknown-pragmas " )
-   set( CMAKE_CXX_FLAGS  "-g -Wall -O2 ")
+if (NOT ERT_WINDOWS)
+   set( CMAKE_C_FLAGS   "-std=gnu99 -Wall -Wno-unknown-pragmas ")
+   set( CMAKE_CXX_FLAGS "-Wall " )
 endif()
+
+if (MSVC)
+    add_definitions( "/W3 /D_CRT_SECURE_NO_WARNINGS /wd4996" )
+    add_definitions( -DCOMPILER_MSVC )
+elseif (CMAKE_COMPILER_IS_GNUCC) 
+    add_definitions( -DCOMPILER_GCC )
+endif()
+
 
 if (ERT_USE_OPENMP)
    find_package(OpenMP)
@@ -118,6 +143,8 @@ add_subdirectory( libecl_well )
 #-----------------------------------------------------------------
 if (BUILD_ERT)
 #-----------------------------------------------------------------
+   include(cmake/ert_module_name.cmake)
+
    include_directories( ${PROJECT_SOURCE_DIR}/libconfig/include )
    add_subdirectory( libconfig )
 
@@ -143,5 +170,8 @@ endif()
 if (BUILD_PYTHON)
    include(cmake/python.cmake2)
    add_subdirectory( python )
+   if(ERT_DOC)
+      add_subdirectory( docs )
+   endif()
 endif()
 

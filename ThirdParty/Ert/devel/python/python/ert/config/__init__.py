@@ -16,7 +16,7 @@
 from ert.cwrap import clib
 import ert.util
 
-CONFIG_LIB = clib.ert_load("libconfig.so")
+CONFIG_LIB = clib.ert_load("libconfig")
 
 from .unrecognized_enum import UnrecognizedEnum
 from .content_type_enum import ContentTypeEnum

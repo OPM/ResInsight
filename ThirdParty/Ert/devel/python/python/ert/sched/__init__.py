@@ -19,7 +19,7 @@ import ert.ecl
 import ert.util
 import ert.geo
 
-SCHED_LIB = clib.ert_load("libsched.so")
+SCHED_LIB = clib.ert_load("libsched")
 
 
 from .sched_file import SchedFile

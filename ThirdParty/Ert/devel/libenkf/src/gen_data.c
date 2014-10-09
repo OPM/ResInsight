@@ -24,7 +24,6 @@
 
 #include <ert/util/util.h>
 #include <ert/util/matrix.h>
-#include <ert/util/log.h>
 #include <ert/util/bool_vector.h>
 #include <ert/util/rng.h>
 
@@ -41,6 +40,7 @@
 #include <ert/enkf/gen_data.h>
 #include <ert/enkf/gen_data_common.h>
 #include <ert/enkf/gen_common.h>
+#include <ert/enkf/enkf_fs.h>
 
 /**
    The file implements a general data type which can be used to update
@@ -71,9 +71,6 @@ void gen_data_assert_size( gen_data_type * gen_data , int size , int report_step
   gen_data_config_assert_size(gen_data->config , size , report_step);
   gen_data->current_report_step = report_step;
 }
-
-
-
 
 gen_data_config_type * gen_data_get_config(const gen_data_type * gen_data) { return gen_data->config; }
 
@@ -161,7 +158,7 @@ bool gen_data_write_to_buffer(const gen_data_type * gen_data , buffer_type * buf
 
 
 
-void gen_data_read_from_buffer(gen_data_type * gen_data , buffer_type * buffer , int report_step, state_enum state) {
+void gen_data_read_from_buffer(gen_data_type * gen_data , buffer_type * buffer , enkf_fs_type * fs,  int report_step, state_enum state) {
   int size;
   enkf_util_assert_buffer_type(buffer , GEN_DATA);
   size = buffer_fread_int(buffer);
@@ -173,7 +170,10 @@ void gen_data_read_from_buffer(gen_data_type * gen_data , buffer_type * buffer ,
     buffer_fread_compressed( buffer , compressed_size , gen_data->data , byte_size );
   }
   gen_data_assert_size( gen_data , size , report_step );
-  gen_data_config_load_active( gen_data->config , report_step , false );
+
+  if (gen_data_config_is_dynamic(gen_data->config)) {
+    gen_data_config_load_active( gen_data->config , fs, report_step , false );
+  }
 }
 
 
@@ -214,7 +214,7 @@ static void gen_data_set_data__(gen_data_type * gen_data , int size, int report_
   gen_data_assert_size(gen_data , size, report_step);
 
   if (gen_data_config_is_dynamic( gen_data->config )) 
-    gen_data_config_update_active( gen_data->config , report_step , gen_data->active_mask);
+    gen_data_config_update_active( gen_data->config ,  report_step , gen_data->active_mask);
 
   gen_data_realloc_data(gen_data);
 
@@ -235,8 +235,6 @@ static void gen_data_set_data__(gen_data_type * gen_data , int size, int report_
 }
       
       
-
-
 
 /**
    This functions loads data from file. Observe that there is *NO*
@@ -302,8 +300,8 @@ bool gen_data_fload_with_report_step( gen_data_type * gen_data , const char * fi
         free( active_file );
       }
     }
+    gen_data_set_data__(gen_data , size , report_step , load_type , buffer );
   } 
-  gen_data_set_data__(gen_data , size , report_step , load_type , buffer );
   util_safe_free(buffer);
   return has_file;
 }
@@ -315,22 +313,8 @@ bool gen_data_fload( gen_data_type * gen_data , const char * filename) {
 
 
 
-
-/**
-   The gen_data_forward_load() function is called by enkf_node objects
-   which represent dynamic data. The gen_data objects are very weakly
-   structured; and in particular we do not know in advance whether a
-   particular file should be present or not, it is therefor not an
-   error as such if a file can not be found. For this reason this
-   function must return true unconditionally, otherwise the scalling
-   scope will interpret a false return value as an error and signal
-   load failure.
-*/
-
-
 bool gen_data_forward_load(gen_data_type * gen_data , const char * ecl_file , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_file , int report_step) {
-  gen_data_fload_with_report_step( gen_data , ecl_file , report_step );
-  return true;
+  return gen_data_fload_with_report_step( gen_data , ecl_file , report_step );
 }
 
 
@@ -353,12 +337,13 @@ bool gen_data_forward_load(gen_data_type * gen_data , const char * ecl_file , co
 
 
 bool gen_data_initialize(gen_data_type * gen_data , int iens , const char * init_file , rng_type * rng) {
-  if (init_file != NULL) {
+  bool ret = false; 
+  if (init_file) {
     if (!gen_data_fload_with_report_step(gen_data , init_file , 0))
       util_abort("%s: could not find file:%s \n",__func__ , init_file);
-    return true;
-  } else
-    return false; /* No init performed ... */
+    ret = true; 
+  }
+  return ret; 
 }
 
 
@@ -446,12 +431,12 @@ void gen_data_export(const gen_data_type * gen_data , const char * full_path , g
 */
 
 
-void gen_data_ecl_write(const gen_data_type * gen_data , const char * run_path , const char * eclfile , fortio_type * fortio) {
+void gen_data_ecl_write(const gen_data_type * gen_data , const char * run_path , const char * eclfile , void * filestream) {
   if (eclfile != NULL) {  
     char * full_path = util_alloc_filename( run_path , eclfile  , NULL);
     
     gen_data_file_format_type export_type = gen_data_config_get_output_format( gen_data->config );
-    gen_data_export( gen_data , full_path , export_type , fortio );
+    gen_data_export( gen_data , full_path , export_type , filestream );
     free( full_path );
   }
 }
@@ -637,7 +622,22 @@ const bool_vector_type * gen_data_get_forward_mask( const gen_data_type * gen_da
   return gen_data_config_get_active_mask( gen_data->config );
 }
 
+void gen_data_copy_to_double_vector(const gen_data_type * gen_data , double_vector_type * vector){
+    const ecl_type_enum internal_type = gen_data_config_get_internal_type(gen_data->config);
+    int size = gen_data_get_size( gen_data );
+    if (internal_type == ECL_FLOAT_TYPE) {
+      float * data       = (float *) gen_data->data;
+      double_vector_reset(vector);
+      for (int i = 0; i < size; i++){
+        double_vector_append(vector , data[i]);
+      }
+    } else if (internal_type == ECL_DOUBLE_TYPE) {
+      double * data       = (double *) gen_data->data;
+      double_vector_memcpy_from_data( vector , data , size );
+    }
 
+
+}
 
 #define INFLATE(inf,std,min)                                                                                                                                     \
 {                                                                                                                                                                \

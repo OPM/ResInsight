@@ -16,7 +16,7 @@ class UnixEnvironmentKeywords(object):
     def addSetEnv(self):
         setenv = ConfigurationLineDefinition(keyword=KeywordDefinition("SETENV"),
                                              arguments=[StringArgument(), StringArgument(rest_of_line=True,allow_space=True)],
-                                             documentation_link="unix_environment/setenv",
+                                             documentation_link="keywords/setenv",
                                              required=False,
                                              group=self.group)
         return setenv
@@ -25,7 +25,7 @@ class UnixEnvironmentKeywords(object):
     def addUMask(self):
         umask = ConfigurationLineDefinition(keyword=KeywordDefinition("UMASK"),
                                                   arguments=[IntegerArgument()],
-                                                  documentation_link="unix_environment/umask",
+                                                  documentation_link="keywords/umask",
                                                   required=False,
                                                   group=self.group)
         return umask
@@ -34,7 +34,7 @@ class UnixEnvironmentKeywords(object):
     def addUpdatePath(self):
         update_path = ConfigurationLineDefinition(keyword=KeywordDefinition("UPDATE_PATH"),
                                                   arguments=[StringArgument(built_in=True), PathArgument()],
-                                                  documentation_link="unix_environment/update_path",
+                                                  documentation_link="keywords/update_path",
                                                   required=False,
                                                   group=self.group)
         return update_path

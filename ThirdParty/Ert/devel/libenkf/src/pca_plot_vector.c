@@ -29,6 +29,7 @@
 struct pca_plot_vector_struct {
   UTIL_TYPE_ID_DECLARATION;
   int      size;
+  double   singular_value;
   double   obs_value;
   double * sim_data;
 };
@@ -37,36 +38,39 @@ struct pca_plot_vector_struct {
 UTIL_IS_INSTANCE_FUNCTION( pca_plot_vector , PCA_PLOT_VECTOR_TYPE_ID )
 static UTIL_SAFE_CAST_FUNCTION( pca_plot_vector , PCA_PLOT_VECTOR_TYPE_ID )
 
-bool pca_plot_assert_input( const matrix_type * PC, const matrix_type * PC_obs) {
+bool pca_plot_assert_input( const matrix_type * PC, const matrix_type * PC_obs, const double_vector_type * singular_values) {
   if ((matrix_get_rows(PC) == matrix_get_rows( PC_obs )) && 
-      (matrix_get_columns(PC_obs) == 1)) 
+      (matrix_get_columns(PC_obs) == 1) &&
+      (double_vector_size( singular_values ) >= matrix_get_rows(PC)))
     return true;
-  else
+  else 
     return false;
 }
 
-static void pca_plot_vector_init_data( pca_plot_vector_type * plot_vector , int component, const matrix_type * PC , const matrix_type * PC_obs) {
+static void pca_plot_vector_init_data( pca_plot_vector_type * plot_vector , int component, const matrix_type * PC , const matrix_type * PC_obs, const double_vector_type * singular_values) {
   int iens;
   
   for (iens = 0; iens < matrix_get_columns( PC ); iens++)
     plot_vector->sim_data[iens] = matrix_iget( PC, component , iens );
 
   plot_vector->obs_value = matrix_iget( PC_obs , component , 0 );
+  plot_vector->singular_value = double_vector_iget( singular_values , component );
 }
 
 pca_plot_vector_type * pca_plot_vector_alloc( int component , 
                                               const matrix_type * PC , 
-                                              const matrix_type * PC_obs) {
+                                              const matrix_type * PC_obs, 
+                                              const double_vector_type * singular_values) {
   pca_plot_vector_type * plot_vector = NULL;
 
-  if (pca_plot_assert_input( PC , PC_obs) && (component < matrix_get_rows( PC ))) {
+  if (pca_plot_assert_input( PC , PC_obs , singular_values ) && (component < matrix_get_rows( PC ))) {
     
     plot_vector = util_malloc( sizeof * plot_vector );
     UTIL_TYPE_ID_INIT( plot_vector , PCA_PLOT_VECTOR_TYPE_ID );
     plot_vector->obs_value = matrix_iget( PC_obs , component , 0 );
     plot_vector->size = matrix_get_columns( PC );
     plot_vector->sim_data = util_calloc( plot_vector->size , sizeof * plot_vector->sim_data );
-    pca_plot_vector_init_data( plot_vector , component , PC , PC_obs );
+    pca_plot_vector_init_data( plot_vector , component , PC , PC_obs , singular_values);
   }
 
   return plot_vector;
@@ -92,6 +96,10 @@ int pca_plot_vector_get_size( const pca_plot_vector_type * vector ) {
 
 double pca_plot_vector_get_obs_value( const pca_plot_vector_type * vector ) {
   return vector->obs_value;
+}
+
+double pca_plot_vector_get_singular_value( const pca_plot_vector_type * vector ) {
+  return vector->singular_value;
 }
 
 

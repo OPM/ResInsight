@@ -1,5 +1,5 @@
 from ert_gui.ide.keywords.definitions import FloatArgument
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class FloatArgumentTest(ExtendedTestCase):

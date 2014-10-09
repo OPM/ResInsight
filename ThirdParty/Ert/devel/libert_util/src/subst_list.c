@@ -231,7 +231,8 @@ static subst_list_string_type * subst_list_insert_new_node(subst_list_type * sub
     vector_append_owned_ref( subst_list->string_data , new_node , subst_list_string_free__ );
   else
     vector_insert_owned_ref( subst_list->string_data , 0 , new_node , subst_list_string_free__ );
-
+  
+  hash_insert_ref( subst_list->map , key , new_node );
   return new_node;
 }
 
@@ -257,6 +258,11 @@ void subst_list_set_parent( subst_list_type * subst_list , const subst_list_type
 
 const subst_list_type * subst_list_get_parent( const subst_list_type * subst_list ) {
   return subst_list->parent;
+}
+
+
+bool subst_list_has_key( const subst_list_type * subst_list , const char * key) {
+  return hash_has_key( subst_list->map , key );
 }
 
 
@@ -669,7 +675,7 @@ bool subst_list_filter_file(const subst_list_type * subst_list , const char * sr
     remove( backup_file );
     free( backup_file );
   }
-  free(buffer);
+  buffer_free( buffer );
   return match;
 }
 
@@ -812,6 +818,12 @@ const char * subst_list_iget_value( const subst_list_type * subst_list , int ind
     return NULL;
   }
 }
+
+const char * subst_list_get_value( subst_list_type * subst_list , const char * key) {
+  const subst_list_string_type * node = hash_get( subst_list->map , key );
+  return node->value;
+}
+
 
 
 const char * subst_list_iget_doc_string( const subst_list_type * subst_list , int index) {

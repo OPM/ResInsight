@@ -602,7 +602,7 @@ bool parser_fseek_string(const parser_type * parser , FILE * stream , const char
     bool cont                = true;
     
     if (strstr( string , parser->comment_start ) != NULL)
-      util_abort("%s: sorry the string contains a comment start - will never find it ... \n"); /* A bit harsh ?? */
+      util_abort("%s: sorry the string contains a comment start - will never find it ... \n",__func__); /* A bit harsh ?? */
     
     do {
       int c = fgetc( stream );
@@ -661,8 +661,10 @@ bool parser_fseek_string(const parser_type * parser , FILE * stream , const char
     } while (cont);
     
     if (string_found) {
-      if (!skip_string)
-        util_fseek(stream , -strlen(string) , SEEK_CUR); /* Reposition to the beginning of 'string' */
+      if (!skip_string) {
+        offset_type offset = (offset_type) strlen( string );
+        util_fseek(stream , -offset , SEEK_CUR); /* Reposition to the beginning of 'string' */
+      }
     } else
       util_fseek(stream , initial_pos , SEEK_SET);       /* Could not find the string reposition at initial position. */
   }

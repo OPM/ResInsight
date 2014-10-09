@@ -41,6 +41,7 @@ struct runpath_list_struct {
 struct runpath_node_struct {
   UTIL_TYPE_ID_DECLARATION;
   int    iens;
+  int    iter;
   char * runpath;
   char * basename;
 };
@@ -51,11 +52,12 @@ struct runpath_node_struct {
   UTIL_SAFE_CAST_FUNCTION( runpath_node , RUNPATH_NODE_TYPE_ID )
   UTIL_SAFE_CAST_FUNCTION_CONST( runpath_node , RUNPATH_NODE_TYPE_ID )
 
-  static runpath_node_type * runpath_node_alloc( int iens, const char * runpath , const char * basename) {
+  static runpath_node_type * runpath_node_alloc( int iens, int iter, const char * runpath , const char * basename) {
     runpath_node_type * node = util_malloc( sizeof * node );
     UTIL_TYPE_ID_INIT( node , RUNPATH_NODE_TYPE_ID );
 
     node->iens = iens;
+    node->iter = iter;
     node->runpath = util_alloc_string_copy( runpath );
     node->basename = util_alloc_string_copy( basename );
 
@@ -83,6 +85,10 @@ static int runpath_node_cmp( const void * arg1 , const void * arg2) {
       return 1;
     else if (node1->iens < node2->iens)
       return -1;
+    else if (node1->iter > node2->iter)
+      return 1;
+    else if (node1->iter < node2->iter)
+      return 1;
     else
       return 0;
   }
@@ -90,7 +96,7 @@ static int runpath_node_cmp( const void * arg1 , const void * arg2) {
 
 
 static void runpath_node_fprintf( const runpath_node_type * node , const char * line_fmt , FILE * stream) {
-  fprintf(stream , line_fmt , node->iens, node->runpath , node->basename);
+  fprintf(stream , line_fmt , node->iens, node->runpath , node->basename, node->iter);
 }
 
 
@@ -127,8 +133,9 @@ void runpath_list_sort( runpath_list_type * list ) {
 }
 
 
-void runpath_list_add( runpath_list_type * list , int iens , const char * runpath , const char * basename) {
-  runpath_node_type * node = runpath_node_alloc( iens , runpath , basename );
+void runpath_list_add( runpath_list_type * list , int iens , int iter, const char * runpath , const char * basename) {
+  runpath_node_type * node = runpath_node_alloc( iens , iter, runpath , basename );
+
   pthread_rwlock_wrlock( &list->lock );
   {
     vector_append_owned_ref( list->list , node , runpath_node_free__ );
@@ -184,6 +191,10 @@ int runpath_list_iget_iens( runpath_list_type * list , int index) {
   return node->iens;
 }
 
+int runpath_list_iget_iter( runpath_list_type * list , int index) {
+  const runpath_node_type * node = runpath_list_iget_node( list , index );
+  return node->iter;
+}
 
 void runpath_list_fprintf(runpath_list_type * list , FILE * stream) {
   pthread_rwlock_rdlock( &list->lock );

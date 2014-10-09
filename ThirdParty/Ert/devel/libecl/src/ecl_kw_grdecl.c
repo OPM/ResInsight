@@ -173,7 +173,8 @@ static bool ecl_kw_grdecl_fseek_kw__(const char * kw , FILE * stream) {
       char next_kw[256];
       fscanf( stream , "%s" , next_kw);
       if (strcmp( kw , next_kw ) == 0) {
-        util_fseek( stream , -strlen(next_kw) , SEEK_CUR);
+        offset_type offset = (offset_type) strlen(next_kw);
+        util_fseek( stream , -offset , SEEK_CUR);
         return true;
       }
     } else {

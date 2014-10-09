@@ -78,6 +78,13 @@ void test_assert_string_equal__( const char * s1 , const char * s2 , const char 
 }
 
 
+void test_assert_string_not_equal__( const char * s1 , const char * s2 , const char * file, int line) {
+  bool equal = test_check_string_equal( s1 , s2 );
+  if (equal) 
+    test_error_exit( "%s:%d => String are equal s1:[%s]  s2:[%s]\n" , file , line , s1 , s2 );
+}
+
+
 
 void test_assert_int_equal__( int i1 , int i2 , const char * file , int line) {
   if (i1 != i2) 
@@ -210,6 +217,24 @@ void test_assert_double_not_equal__( double d1 , double d2, const char * file , 
     test_error_exit( "%s:%d => double values:%15.12g %15.12g are equal.\n" , file , line , d1 , d2);
 }
 
+bool test_check_float_equal( float d1 , float d2) {
+  const float tolerance = 1e-4;
+  return util_float_approx_equal__( d1 , d2 , tolerance );
+}
+
+
+void test_assert_float_equal__( float d1 , float d2, const char * file , int line) {
+  if (!test_check_float_equal(d1 , d2))
+    test_error_exit( "%s:%d => float values:%g %g are not sufficiently similar\n" , file , line , d1 , d2);
+}
+
+
+void test_assert_float_not_equal__( float d1 , float d2, const char * file , int line) {
+  if (test_check_float_equal(d1 , d2))
+    test_error_exit( "%s:%d => float values:%15.12g %15.12g are equal.\n" , file , line , d1 , d2);
+}
+
+
 /*****************************************************************/
 
 void test_install_SIGNALS(void) {
@@ -243,5 +268,28 @@ void test_util_addr2line() {
   test_assert_int_equal( line , line_nr );
   test_assert_string_equal( file_name , file );
 }
+
+
+void test_assert_util_abort(const char * function_name , void call_func (void *) , void * arg) {
+  bool util_abort_intercepted = false;
+
+  {
+    jmp_buf * context = util_abort_test_jump_buffer();
+    util_abort_test_set_intercept_function( function_name );
+    
+    if (setjmp(*context) == 0) 
+      call_func( arg );
+    else 
+      util_abort_intercepted = true;
+    
+    util_abort_test_set_intercept_function( NULL );
+  }
+
+  if (!util_abort_intercepted) {
+    fprintf(stderr,"Expected call to util_abort() from:%s missing \n",function_name);
+    test_assert_true( util_abort_intercepted );
+  }
+}
+
 
 #endif

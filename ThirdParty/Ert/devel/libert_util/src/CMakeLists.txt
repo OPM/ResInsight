@@ -1,9 +1,109 @@
-set(source_files rng.c lookup_table.c statistics.c mzran.c set.c hash_node.c hash_sll.c hash.c node_data.c node_ctype.c util.c thread_pool.c msg.c arg_pack.c path_fmt.c menu.c subst_list.c subst_func.c vector.c parser.c stringlist.c matrix.c buffer.c log.c template.c timer.c time_interval.c string_util.c type_vector_functions.c ui_return.c)
+set(source_files
+    rng.c
+    lookup_table.c
+    statistics.c
+    mzran.c
+    set.c
+    hash_node.c
+    hash_sll.c
+    hash.c
+    node_data.c
+    node_ctype.c
+    util.c
+    thread_pool.c
+    msg.c
+    arg_pack.c
+    path_fmt.c
+    menu.c
+    subst_list.c
+    subst_func.c
+    vector.c
+    parser.c
+    stringlist.c
+    matrix.c
+    buffer.c
+    log.c
+    template.c
+    timer.c
+    time_interval.c
+    string_util.c
+    type_vector_functions.c
+    ui_return.c
+    version.c
+    struct_vector.c
+)
 
-set(header_files ssize_t.h type_macros.h rng.h lookup_table.h statistics.h mzran.h set.h hash.h hash_node.h hash_sll.h node_data.h node_ctype.h util.h thread_pool.h msg.h arg_pack.h path_fmt.h  stringlist.h menu.h subst_list.h subst_func.h vector.h parser.h matrix.h buffer.h log.h template.h timer.h time_interval.h string_util.h type_vector_functions.h ui_return.h)
+set(header_files
+    ssize_t.h
+    type_macros.h
+    rng.h
+    lookup_table.h
+    statistics.h
+    mzran.h
+    set.h
+    hash.h
+    hash_node.h
+    hash_sll.h
+    node_data.h
+    node_ctype.h
+    util.h
+    thread_pool.h
+    msg.h
+    arg_pack.h
+    path_fmt.h
+    stringlist.h
+    menu.h
+    subst_list.h
+    subst_func.h
+    vector.h
+    parser.h
+    matrix.h
+    buffer.h
+    log.h
+    template.h
+    timer.h
+    time_interval.h
+    string_util.h
+    type_vector_functions.h
+    ui_return.h
+    struct_vector.h
+)
 
 set( test_source test_util.c )
 set( test_headers test_util.h )
+
+
+# Add compile time variable values to version.c
+if (ERT_WINDOWS)
+   execute_process(COMMAND cmd.exe /c "echo %date% %time%"  OUTPUT_VARIABLE BUILD_TIME )   
+else() # Linux or Darwin
+   execute_process(COMMAND date "+%Y-%m-%d %H:%M:%S" OUTPUT_VARIABLE BUILD_TIME )
+endif()
+string(STRIP ${BUILD_TIME} BUILD_TIME)
+
+find_package(Git)
+if(GIT_FOUND)
+   execute_process(
+     COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+     OUTPUT_VARIABLE GIT_COMMIT
+     OUTPUT_STRIP_TRAILING_WHITESPACE
+   )
+
+   execute_process(
+     COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+     OUTPUT_VARIABLE GIT_COMMIT_SHORT
+     OUTPUT_STRIP_TRAILING_WHITESPACE
+   )
+else()
+   set( GIT_COMMIT "unknown (git not found!)")
+   set( GIT_COMMIT_SHORT "unknown (git not found!)")
+   message( WARNING "Git not found. Build will not contain git revision info." )
+endif()
+
+set_source_files_properties( version.c PROPERTIES COMPILE_DEFINITIONS "COMPILE_TIME_STAMP=\"${BUILD_TIME}\";GIT_COMMIT=\"${GIT_COMMIT}\";GIT_COMMIT_SHORT=\"${GIT_COMMIT_SHORT}\";ERT_VERSION_MAJOR=\"${ERT_VERSION_MAJOR}\";ERT_VERSION_MINOR=\"${ERT_VERSION_MINOR}\";ERT_VERSION_MICRO=\"${ERT_VERSION_MICRO}\"")
+
 
 if (CMAKE_COMPILER_IS_GNUCC)
    set_property(SOURCE hash.c PROPERTY COMPILE_FLAGS "-Wno-error")

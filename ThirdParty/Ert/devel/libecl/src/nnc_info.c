@@ -36,7 +36,7 @@ struct nnc_info_struct {
   int               lgr_nr;        /* The lgr_nr of the cell holding this nnc_info structure. */ 
 }; 
 
-
+static void nnc_info_add_vector( nnc_info_type * nnc_info , nnc_vector_type * nnc_vector);
 UTIL_IS_INSTANCE_FUNCTION( nnc_info , NNC_INFO_TYPE_ID )
 
 
@@ -48,6 +48,58 @@ nnc_info_type * nnc_info_alloc(int lgr_nr) {
   nnc_info->lgr_nr = lgr_nr;
   return nnc_info; 
 }
+
+
+
+nnc_info_type * nnc_info_alloc_copy( const nnc_info_type * src_info ) {
+  nnc_info_type * copy_info = nnc_info_alloc( src_info->lgr_nr );
+  int ivec;
+  
+  for (ivec = 0; ivec < vector_get_size( src_info->lgr_list ); ivec++) {
+    nnc_vector_type * copy_vector = nnc_vector_alloc_copy( vector_iget_const( src_info->lgr_list , ivec));
+    nnc_info_add_vector( copy_info , copy_vector );
+  }
+
+  return copy_info;
+}
+
+
+bool nnc_info_equal( const nnc_info_type * nnc_info1 , const nnc_info_type * nnc_info2 ) {
+  if (nnc_info1 == nnc_info2)
+    return true;
+  
+  if ((nnc_info1 == NULL) || (nnc_info2 == NULL))
+    return false;
+
+  {
+    if (nnc_info1->lgr_nr != nnc_info2->lgr_nr)
+      return false;
+    
+    if ((int_vector_size( nnc_info1->lgr_index_map ) > 0) && (int_vector_size( nnc_info2->lgr_index_map ) > 0)) {
+      int max_lgr_nr = util_int_max( int_vector_size( nnc_info1->lgr_index_map ), 
+                                     int_vector_size( nnc_info2->lgr_index_map ) );
+      int lgr_nr = 0;
+      
+      while (true) {
+        nnc_vector_type * vector1 = nnc_info_get_vector( nnc_info1 , lgr_nr );
+        nnc_vector_type * vector2 = nnc_info_get_vector( nnc_info2 , lgr_nr );
+        
+        if (!nnc_vector_equal(vector1 , vector2))
+          return false;
+        
+        lgr_nr++;
+        if (lgr_nr > max_lgr_nr)
+          return true;
+      } 
+    } else {
+      if (int_vector_size( nnc_info1->lgr_index_map ) == int_vector_size( nnc_info2->lgr_index_map ))
+        return true;
+      else
+        return false;
+    }
+  }
+}
+
 
 void nnc_info_free( nnc_info_type * nnc_info ) {
   vector_free(nnc_info->lgr_list); 
@@ -73,13 +125,17 @@ nnc_vector_type * nnc_info_get_self_vector( const nnc_info_type * nnc_info ) {
   return nnc_info_get_vector( nnc_info , nnc_info->lgr_nr );
 }
 
+static void nnc_info_add_vector( nnc_info_type * nnc_info , nnc_vector_type * nnc_vector) {
+  vector_append_owned_ref( nnc_info->lgr_list , nnc_vector , nnc_vector_free__ );
+  int_vector_iset( nnc_info->lgr_index_map , nnc_vector_get_lgr_nr( nnc_vector ) , vector_get_size( nnc_info->lgr_list ) - 1 );
+}
+
 
 static void nnc_info_assert_vector( nnc_info_type * nnc_info , int lgr_nr ) {
   nnc_vector_type * nnc_vector = nnc_info_get_vector( nnc_info , lgr_nr);
   if (!nnc_vector) {
     nnc_vector = nnc_vector_alloc( lgr_nr );
-    vector_append_owned_ref( nnc_info->lgr_list , nnc_vector , nnc_vector_free__ );
-    int_vector_iset( nnc_info->lgr_index_map , lgr_nr , vector_get_size( nnc_info->lgr_list ) - 1 );
+    nnc_info_add_vector( nnc_info , nnc_vector );
   }
 }
 

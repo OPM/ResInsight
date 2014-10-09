@@ -7,8 +7,10 @@ set(PYTHON_SOURCES
     integer_argument.py
     keyword_definition.py
     path_argument.py
+    percent_argument.py
     proper_name_argument.py
     proper_name_format_argument.py
+    proper_name_format_string_argument.py
     range_string_argument.py
     string_argument.py
 )

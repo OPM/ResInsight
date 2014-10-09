@@ -26,6 +26,10 @@
 #include <sys/types.h>
 #include <time.h>
 
+#ifdef COMPILER_GCC
+#include <setjmp.h>
+#endif
+
 #ifdef HAVE_GETPWUID
 #include <pwd.h>
 #endif
@@ -127,6 +131,7 @@ typedef enum {left_pad   = 0,
   void         util_fprintf_double(double , int , int , char , FILE *);
   bool         util_fscanf_date(FILE * , time_t *);
   bool         util_sscanf_date(const char * , time_t *);
+  bool         util_sscanf_percent(const char * string, double * value);
   char       * util_alloc_stdin_line();
   char       * util_realloc_stdin_line(char * );
   bool         util_is_executable(const char * );
@@ -150,7 +155,7 @@ typedef enum {left_pad   = 0,
   bool         util_string_equal(const char * s1 , const char * s2 );
   char       * util_alloc_strupr_copy(const char * );
   void         util_string_tr(char * , char , char);
-  bool         util_copy_stream(FILE *, FILE *, int , void * , bool abort_on_error);
+  bool         util_copy_stream(FILE *, FILE *, size_t , void * , bool abort_on_error);
   void         util_move_file(const char * src_file , const char * target_file);
   void         util_move_file4( const char * src_name , const char * target_name , const char *src_path , const char * target_path);
   bool         util_copy_file(const char * , const char * );
@@ -288,8 +293,10 @@ typedef enum {left_pad   = 0,
   
   char *  util_alloc_dump_filename();
   void    util_exit(const char * fmt , ...);
-  void    util_abort(const char * fmt , ...);
+  void    util_abort__(const char * file , const char * function , int line , const char * fmt , ...);
+
   void    util_abort_signal(int );
+  void    util_install_signals(void);
   void    util_abort_append_version_info(const char * );
   void    util_abort_free_version_info();
   void    util_abort_set_executable( const char * argv0 );
@@ -368,6 +375,7 @@ typedef enum {left_pad   = 0,
   double   util_kahan_sum(const double *data, size_t N);
   bool     util_double_approx_equal( double d1 , double d2);
   bool     util_double_approx_equal__( double d1 , double d2, double epsilon);
+  bool util_float_approx_equal__( float d1 , float d2, float epsilon);
   int      util_fnmatch( const char * pattern , const char * string );
   void     util_localtime( time_t * t , struct tm * ts );
 
@@ -458,6 +466,23 @@ typedef struct {
 } util_enum_element_type;
 
 const char * util_enum_iget( int index , int size , const util_enum_element_type * enum_defs , int * value);
+
+
+#ifdef COMPILER_GCC
+
+jmp_buf * util_abort_test_jump_buffer();
+void      util_abort_test_set_intercept_function(const char * function);
+
+#define util_abort(fmt , ...) util_abort__(__FILE__ , __func__ , __LINE__ , fmt , ##__VA_ARGS__)
+#endif
+
+#ifdef __clang__
+#define util_abort(fmt , ...) util_abort__(__FILE__ , __func__ , __LINE__ , fmt , ##__VA_ARGS__)
+#endif
+
+#ifdef COMPILER_MSVC
+#define util_abort(fmt , ...) util_abort__(__FILE__ , __func__ , __LINE__ , fmt , __VA_ARGS__)
+#endif
 
 
 /*****************************************************************/

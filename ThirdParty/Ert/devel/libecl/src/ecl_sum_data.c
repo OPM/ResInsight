@@ -624,7 +624,7 @@ void ecl_sum_data_init_interp_from_sim_time( const ecl_sum_data_type * data , ti
   const ecl_sum_tstep_type * ministep2 = ecl_sum_data_iget_ministep( data , index2 );
   const ecl_sum_tstep_type * ministep1;
   time_t sim_time2 = ecl_sum_tstep_get_sim_time( ministep2 );
-
+  
   
   index1 = index2;
   while (true) {
@@ -642,8 +642,8 @@ void ecl_sum_data_init_interp_from_sim_time( const ecl_sum_data_type * data , ti
   {
     double  weight2    =  (sim_time - ecl_sum_tstep_get_sim_time( ministep1 ));
     double  weight1    = -(sim_time - ecl_sum_tstep_get_sim_time( ministep2 ));
-
-  
+    
+    
     *_index1   = index1;
     *_index2   = index2;
     *_weight1 = weight1 / ( weight1 + weight2 );
@@ -1126,7 +1126,25 @@ double ecl_sum_data_interp_get(const ecl_sum_data_type * data , int time_index1 
 double ecl_sum_data_get_from_sim_time( const ecl_sum_data_type * data , time_t sim_time , const smspec_node_type * smspec_node) {
   int params_index = smspec_node_get_params_index( smspec_node );
   if (smspec_node_is_rate( smspec_node )) {
-    int time_index = ecl_sum_data_get_index_from_sim_time( data , sim_time );
+    int time_index;
+    /*
+      In general the mapping from sim_time to index is based on half
+      open intervals, which are closed in the upper end:
+
+          []<------------]<--------------]<-----------]
+          t0             t1             t2           t3
+          
+       However - as indicated on the figure above there is a zero
+       measure point right at the start which corresponds to
+       time_index == 0; this is to ensure that there is correspondance
+       with the ECLIPSE results if you ask for a value interpolated to
+       the starting time.
+    */
+    if (sim_time == time_interval_get_start( data->sim_time )) 
+      time_index = 0;
+    else
+      time_index = ecl_sum_data_get_index_from_sim_time( data , sim_time );
+
     return ecl_sum_data_iget( data , time_index , params_index);
   } else {
     /* Interpolated lookup based on two (hopefully) consecutive ministeps. */

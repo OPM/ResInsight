@@ -103,7 +103,7 @@ bool  well_segment_collection_has_segment( const well_segment_collection_type * 
 int well_segment_collection_load_from_kw( well_segment_collection_type * segment_collection , int well_nr , 
                                           const ecl_kw_type * iwel_kw , 
                                           const ecl_kw_type * iseg_kw , 
-                                          const ecl_kw_type * rseg_kw , 
+                                          const well_rseg_loader_type * rseg_loader ,
                                           const ecl_rsthead_type * rst_head) {
 
   int iwel_offset = rst_head->niwelz * well_nr;
@@ -114,7 +114,7 @@ int well_segment_collection_load_from_kw( well_segment_collection_type * segment
     int segment_index;
     for (segment_index = 0; segment_index < rst_head->nsegmx; segment_index++) {
       int segment_id = segment_index + WELL_SEGMENT_OFFSET;
-      well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_kw , rst_head , segment_well_nr , segment_index , segment_id );
+      well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_loader , rst_head , segment_well_nr , segment_index , segment_id );
 
       if (well_segment_active( segment )) {
         well_segment_collection_add( segment_collection , segment );

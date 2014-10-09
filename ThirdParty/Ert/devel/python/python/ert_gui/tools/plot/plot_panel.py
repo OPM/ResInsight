@@ -1,17 +1,9 @@
-import json
-import os
-from PyQt4.QtCore import QUrl, Qt, pyqtSlot, pyqtSignal
-from PyQt4.QtGui import QWidget, QGridLayout, QPainter
-from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
+from PyQt4.QtCore import Qt, pyqtSignal
+from PyQt4.QtGui import QWidget, QGridLayout, QPainter, QShortcut, QMainWindow
+from PyQt4.QtWebKit import QWebView, QWebSettings, QWebInspector
 
-
-class PlotWebPage(QWebPage):
-    def __init__(self, name):
-        QWebPage.__init__(self)
-        self.name = name
-
-    def javaScriptConsoleMessage(self, message, line_number, source_id):
-        print("[%s] Source: %s at line: %d -> %s" % (self.name, source_id, line_number, message))
+from ert_gui.tools.plot import PlotBridge
+from ert_gui.tools.plot.plot_bridge import PlotWebPage
 
 
 class PlotWebView(QWebView):
@@ -25,84 +17,108 @@ class PlotWebView(QWebView):
         self.settings().setAttribute(QWebSettings.LocalContentCanAccessRemoteUrls, True)
         self.settings().clearMemoryCaches()
 
+        self.__inspector_window = None
+
+        shortcut = QShortcut(self)
+        shortcut.setKey(Qt.Key_F12)
+        shortcut.activated.connect(self.toggleInspector)
+
+
+    def toggleInspector(self):
+        if self.__inspector_window is None:
+            self.settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+            web_inspector = QWebInspector()
+            web_inspector.setPage(self.page())
+
+            self.__inspector_window = QMainWindow(self)
+            self.__inspector_window.setCentralWidget(web_inspector)
+            self.__inspector_window.resize(900, 600)
+            self.__inspector_window.setVisible(False)
+
+        self.__inspector_window.setVisible(not self.__inspector_window.isVisible())
 
 
 class PlotPanel(QWidget):
     plotReady = pyqtSignal()
 
-    def __init__(self, name, plot_url):
+    def __init__(self, name, debug_name, plot_url):
         QWidget.__init__(self)
 
         self.__name = name
-        self.__ready = False
-        self.__html_ready = False
-        self.__data = []
-        root_path = os.getenv("ERT_SHARE_PATH")
-        path = os.path.join(root_path, plot_url)
+        self.__debug_name = debug_name
+        self.__plot_url = plot_url
 
         layout = QGridLayout()
 
-        self.web_view = PlotWebView(name)
-        self.applyContextObject()
-        # self.web_view.page().mainFrame().javaScriptWindowObjectCleared.connect(self.applyContextObject)
-        self.web_view.loadFinished.connect(self.loadFinished)
+        self.web_view = PlotWebView(debug_name)
 
         layout.addWidget(self.web_view)
-
         self.setLayout(layout)
 
-        self.web_view.setUrl(QUrl("file://%s" % path))
+        self.__plot_is_visible = True
+        self.__plot_bridge = PlotBridge(self.getWebView().page(), plot_url)
+        self.__plot_bridge.plotReady.connect(self.plotReady)
 
 
-    @pyqtSlot(result=str)
-    def getPlotData(self):
-        return json.dumps(self.__data)
+    def getName(self):
+        return self.__name
 
+    def getUrl(self):
+        return self.__plot_url
 
-    @pyqtSlot()
-    def htmlInitialized(self):
-        # print("[%s] Initialized!" % self.__name)
-        self.__html_ready = True
-        self.checkStatus()
+    def getWebView(self):
+        return self.web_view
 
-
-    def setPlotData(self, data):
-        self.__data = data
-        self.web_view.page().mainFrame().evaluateJavaScript("updatePlot();")
-
-
-    def applyContextObject(self):
-        self.web_view.page().mainFrame().addToJavaScriptWindowObject("plot_data_source", self)
-
-
-    def loadFinished(self, ok):
-        self.__ready = True
-        self.checkStatus()
-
-    def checkStatus(self):
-        if self.__ready and self.__html_ready:
-            # print("[%s] Ready!" % self.__name)
-            self.plotReady.emit()
-            self.updatePlotSize()
-
+    def setSettings(self, settings):
+        if self.isPlotVisible():
+            self.__plot_bridge.setPlotSettings(settings)
 
     def isReady(self):
-        return self.__ready and self.__html_ready
+        return self.__plot_bridge.isReady()
 
 
     def resizeEvent(self, event):
         QWidget.resizeEvent(self, event)
-
-        if self.isReady():
-            self.updatePlotSize()
-
-
-    def updatePlotSize(self):
-        size = self.size()
-        self.web_view.page().mainFrame().evaluateJavaScript("setSize(%d,%d);" % (size.width(), size.height()))
+        if self.isPlotVisible():
+            self.__plot_bridge.updatePlotSize(size = self.size())
 
 
+    def supportsPlotProperties(self, time=False, value=False, depth=False, index=False, histogram=False, pca=False):
+        return self.__plot_bridge.supportsPlotProperties(time, value, depth, index, histogram, pca)
+
+    def isPlotVisible(self):
+        return self.__plot_is_visible
+
+    def setPlotIsVisible(self, visible):
+        self.__plot_is_visible = visible
+
+    def getPlotBridge(self):
+        """ @rtype: PlotBridge """
+        return self.__plot_bridge
+
+    def renderNow(self):
+        if self.isPlotVisible():
+            self.__plot_bridge.renderNow()
 
 
+    def xAxisType(self):
+        """ @rtype: str """
+        return self.__plot_bridge.xAxisType()
 
 
+    def yAxisType(self):
+        """ @rtype: str """
+        return self.__plot_bridge.yAxisType()
+
+    def getXScales(self, data):
+        """ @rtype: (float, float) """
+        return self.__plot_bridge.getXScales(data)
+
+    def getYScales(self, data):
+        """ @rtype: (float, float) """
+        return self.__plot_bridge.getYScales(data)
+
+
+    def isReportStepCapable(self):
+        """ @rtype: bool """
+        return self.__plot_bridge.isReportStepCapable()

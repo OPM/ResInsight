@@ -15,12 +15,12 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.sched import SCHED_LIB
-from ert.util import ctime
+from ert.util import CTime
 
 
 class SchedFile(BaseCClass):
     def __init__(self, filename, start_time):
-        c_ptr = SchedFile.cNamespace().parse(filename, ctime(start_time))
+        c_ptr = SchedFile.cNamespace().parse(filename, CTime(start_time))
         super(SchedFile, self).__init__(c_ptr)
 
     @property

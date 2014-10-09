@@ -24,15 +24,17 @@ extern "C" {
 
 #include <ert/util/type_macros.h>
 #include <ert/util/matrix.h>
+#include <ert/util/double_vector.h>
 
   typedef struct pca_plot_vector_struct pca_plot_vector_type;
 
-  pca_plot_vector_type * pca_plot_vector_alloc( int component , const matrix_type * PC, const matrix_type * PC_obs);
+  pca_plot_vector_type * pca_plot_vector_alloc( int component , const matrix_type * PC, const matrix_type * PC_obs, const double_vector_type * singular_values);
 
   void                 pca_plot_vector_free( pca_plot_vector_type * plot_vector );
-  bool                 pca_plot_assert_input( const matrix_type * PC, const matrix_type * PC_obs);
+  bool                 pca_plot_assert_input( const matrix_type * PC, const matrix_type * PC_obs , const double_vector_type * singular_values);
   void                 pca_plot_vector_free__( void * arg );
   double               pca_plot_vector_get_obs_value( const pca_plot_vector_type * vector );
+  double               pca_plot_vector_get_singular_value( const pca_plot_vector_type * vector );
   double               pca_plot_vector_iget_sim_value( const pca_plot_vector_type * vector , int sim_index);
   int                  pca_plot_vector_get_size( const pca_plot_vector_type * vector );
 

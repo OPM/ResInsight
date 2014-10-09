@@ -1,6 +1,6 @@
 import random
 from ert.util import DoubleVector, quantile, quantile_sorted
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class StatTest(ExtendedTestCase):

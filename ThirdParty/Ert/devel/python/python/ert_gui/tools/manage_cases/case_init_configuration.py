@@ -6,7 +6,7 @@ from ert_gui.models.connectors.init.init_history_length import HistoryLengthMode
 from ert_gui.models.connectors.init.init_members import InitializationMembersModel
 from ert_gui.models.connectors.init.init_parameters import InitializationParametersModel
 from ert_gui.models.connectors.init.initialized_case_selector import InitializedCaseSelectorModel
-from ert_gui.tools.manage_cases.all_cases_model import AllCasesModel
+from ert_gui.models.qt.all_cases_model import AllCasesModel
 from ert_gui.widgets.button import Button
 from ert_gui.widgets.check_list import CheckList
 from ert_gui.widgets.combo_choice import ComboChoice
@@ -15,11 +15,13 @@ from ert_gui.widgets.integer_spinner import IntegerSpinner
 from ert_gui.widgets.keyword_list import KeywordList
 from ert_gui.widgets.row_group import RowGroup
 from ert_gui.widgets.row_panel import RowPanel
+from ert_gui.widgets.util import may_take_a_long_time
 from ert_gui.widgets.validated_dialog import ValidatedDialog
 
 
 class CaseInitializationConfigurationPanel(RowPanel):
 
+    @may_take_a_long_time
     def __init__(self):
         RowPanel.__init__(self, "Case Management")
         self.setMinimumWidth(600)
@@ -129,7 +131,6 @@ class CaseInitializationConfigurationPanel(RowPanel):
 
         self.addSpace(10)
 
-
     def addShowCaseInfo(self):
         self.addTab("Case Info")
 
@@ -157,7 +158,8 @@ class CaseInitializationConfigurationPanel(RowPanel):
         area_widget.addStretch()
         self.addRow(area_widget)
 
-        self.showInfoForCase()
+        choice = CaseSelectorModel().getCurrentChoice()
+        self.combo.setCurrentIndex(model.indexOf(choice))
 
 
     def showInfoForCase(self):

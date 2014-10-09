@@ -119,6 +119,8 @@ struct ecl_coarse_cell_struct {
 };
 
 
+
+
 static UTIL_SAFE_CAST_FUNCTION( ecl_coarse_cell , ECL_COARSE_CELL_TYPE_ID )
 
 void ecl_coarse_cell_assert( ecl_coarse_cell_type * coarse_cell ) {
@@ -156,6 +158,37 @@ ecl_coarse_cell_type * ecl_coarse_cell_alloc() {
   return coarse_cell;
 }
 
+
+bool ecl_coarse_cell_equal( const ecl_coarse_cell_type * coarse_cell1 , const ecl_coarse_cell_type * coarse_cell2) {
+  bool equal = true;
+  if (coarse_cell1->active_index != coarse_cell2->active_index)
+    equal = false;
+
+  if (coarse_cell1->active_fracture_index != coarse_cell2->active_fracture_index)
+    equal = false;
+  
+  if (equal) {
+    if (memcmp( coarse_cell1->ijk , coarse_cell2->ijk , 6 * sizeof * coarse_cell1->ijk) != 0)
+      equal = false;
+  }
+
+  
+  if (equal)
+    equal = int_vector_equal(coarse_cell1->active_cells , coarse_cell2->active_cells);
+  
+  if (equal)
+    equal = int_vector_equal(coarse_cell1->active_values , coarse_cell2->active_values);
+
+  if (equal)
+    equal = int_vector_equal(coarse_cell1->cell_list , coarse_cell2->cell_list);
+
+  if (!equal) {
+    ecl_coarse_cell_fprintf( coarse_cell1 , stdout );
+    ecl_coarse_cell_fprintf( coarse_cell2 , stdout );
+  }
+  
+  return equal;
+}
 
 /*
   Should not be called more than once with the same arguments; that is
@@ -306,12 +339,12 @@ int ecl_coarse_cell_get_num_active( const ecl_coarse_cell_type * coarse_cell) {
 
 /*****************************************************************/
 
-void ecl_coarse_cell_fprintf( ecl_coarse_cell_type * coarse_cell , FILE * stream ) {
+void ecl_coarse_cell_fprintf( const ecl_coarse_cell_type * coarse_cell , FILE * stream ) {
   fprintf(stream,"Coarse box: \n");
   fprintf(stream,"   i             : %3d - %3d\n",coarse_cell->ijk[0] , coarse_cell->ijk[1]);
   fprintf(stream,"   j             : %3d - %3d\n",coarse_cell->ijk[2] , coarse_cell->ijk[3]);
   fprintf(stream,"   k             : %3d - %3d\n",coarse_cell->ijk[4] , coarse_cell->ijk[5]);
   fprintf(stream,"   active_cells  : " ); int_vector_fprintf( coarse_cell->active_cells  , stream , "" , "%5d "); 
   fprintf(stream,"   active_values : " ); int_vector_fprintf( coarse_cell->active_values , stream , "" , "%5d "); 
-  fprintf(stream,"   Cells         : " ); int_vector_fprintf( coarse_cell->cell_list , stream , "" , "%5d ");
+  //fprintf(stream,"   Cells         : " ); int_vector_fprintf( coarse_cell->cell_list , stream , "" , "%5d ");
 }

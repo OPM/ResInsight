@@ -1,6 +1,6 @@
 from ctypes import c_void_p
 from ert.util import Hash, StringHash, DoubleHash, IntegerHash
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class HashTest(ExtendedTestCase):

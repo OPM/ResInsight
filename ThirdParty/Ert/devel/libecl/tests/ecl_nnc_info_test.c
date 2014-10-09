@@ -28,9 +28,52 @@
 #include <ert/ecl/ecl_kw_magic.h>
 
 
+void test_equal( ) {
+
+  int lgr_nr = 1;
+  nnc_info_type * nnc_info1 = nnc_info_alloc(lgr_nr);   
+  nnc_info_type * nnc_info2 = nnc_info_alloc(lgr_nr);   
+
+  test_assert_false( nnc_info_equal( NULL , nnc_info1 ));
+  test_assert_false( nnc_info_equal( nnc_info1, NULL ));
+  
+  test_assert_true( nnc_info_equal( nnc_info1 , nnc_info2 ));
+
+  
+  nnc_info_add_nnc(nnc_info1, lgr_nr, 3 , 0);
+  test_assert_false( nnc_info_equal( nnc_info1 , nnc_info2 ));
+
+  nnc_info_add_nnc(nnc_info2, lgr_nr, 3 , 0);
+  test_assert_true( nnc_info_equal( nnc_info1 , nnc_info2 ));
+  
+  nnc_info_add_nnc( nnc_info1 , lgr_nr + 1 , 10 , 10 );
+  nnc_info_add_nnc( nnc_info2 , lgr_nr + 2 , 11 , 11 );
+  test_assert_false( nnc_info_equal( nnc_info1 , nnc_info2 ));
+  
+  nnc_info_add_nnc( nnc_info1 , lgr_nr + 2 , 11 , 11 );
+  nnc_info_add_nnc( nnc_info2 , lgr_nr + 1 , 10 , 10 );
+  test_assert_true( nnc_info_equal( nnc_info1 , nnc_info2 ));
+}
 
 
-int main(int argc , char ** argv) {
+
+void test_copy( ) {
+  int lgr_nr = 1;
+  nnc_info_type * nnc_info1 = nnc_info_alloc(lgr_nr);   
+  nnc_info_add_nnc( nnc_info1 , lgr_nr + 1 , 11 , 11 );
+  nnc_info_add_nnc( nnc_info1 , lgr_nr + 2 , 11 , 11 );
+  nnc_info_add_nnc( nnc_info1 , lgr_nr + 1 , 111 , 111 );
+
+  {
+    nnc_info_type * nnc_copy = nnc_info_alloc_copy( nnc_info1 );
+    test_assert_true( nnc_info_equal( nnc_info1 , nnc_copy ));
+    nnc_info_free( nnc_copy );
+  }
+  nnc_info_free( nnc_info1 );
+}
+
+
+void basic_test() {
   int lgr_nr = 77;
   nnc_info_type * nnc_info = nnc_info_alloc(lgr_nr);   
 
@@ -70,7 +113,12 @@ int main(int argc , char ** argv) {
   test_assert_int_equal( 2 , nnc_info_get_size( nnc_info ));
   test_assert_ptr_equal( nnc_info_get_vector( nnc_info , 1 ) , nnc_info_iget_vector( nnc_info , 1 ));
   nnc_info_free(nnc_info);
-  
+}
 
+
+int main(int argc , char ** argv) {
+  basic_test();
+  test_equal();
+  test_copy();
   exit(0);
 }

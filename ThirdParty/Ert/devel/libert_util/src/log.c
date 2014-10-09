@@ -104,7 +104,7 @@ log_type * log_open( const char * filename , int log_level) {
 #ifdef HAVE_PTHREAD
   pthread_mutex_init( &logh->mutex , NULL );
 #endif
-  if (filename != NULL)
+  if (filename != NULL && log_level > 0)
     log_reopen( logh , filename);
   
   return logh;
@@ -112,7 +112,7 @@ log_type * log_open( const char * filename , int log_level) {
 
 
 
-static bool log_include_message(const log_type *logh , int message_level) {
+bool log_include_message(const log_type *logh , int message_level) {
   if (message_level <= logh->log_level)
     return true;
   else
@@ -124,17 +124,18 @@ static bool log_include_message(const log_type *logh , int message_level) {
    If dup_stream != NULL the message (without the date/time header) is duplicated on this stream.
 */
 void log_add_message(log_type *logh, int message_level , FILE * dup_stream , char* message, bool free_message) {
-  if (logh->stream == NULL)
-    util_abort("%s: logh->stream == NULL - must call log_reset_filename() first \n",__func__);
+  if (log_include_message(logh,message_level)) {
 
+    if (logh->stream == NULL)
+      util_abort("%s: logh->stream == NULL - must call log_reset_filename() first \n",__func__);
+    
 #ifdef HAVE_PTHREAD
-  pthread_mutex_lock( &logh->mutex );
+    pthread_mutex_lock( &logh->mutex );
 #endif
-  {
-    struct tm time_fields;
-    time_t    epoch_time;
-  
-    if (log_include_message(logh,message_level)) {
+    {
+      struct tm time_fields;
+      time_t    epoch_time;
+      
       time(&epoch_time);
       util_localtime(&epoch_time , &time_fields);
 
@@ -142,19 +143,19 @@ void log_add_message(log_type *logh, int message_level , FILE * dup_stream , cha
         fprintf(logh->stream,"%02d/%02d - %02d:%02d:%02d  %s\n",time_fields.tm_mday, time_fields.tm_mon + 1, time_fields.tm_hour , time_fields.tm_min , time_fields.tm_sec , message);
       else
         fprintf(logh->stream,"%02d/%02d - %02d:%02d:%02d   \n",time_fields.tm_mday, time_fields.tm_mon + 1, time_fields.tm_hour , time_fields.tm_min , time_fields.tm_sec);
-
+      
       /** We duplicate the message to the stream 'dup_stream'. */
       if ((dup_stream != NULL) && (message != NULL))
         fprintf(dup_stream , "%s\n", message);
       
       log_sync( logh );
     }
-  }
 #ifdef HAVE_PTHREAD
-  pthread_mutex_unlock( &logh->mutex );
+    pthread_mutex_unlock( &logh->mutex );
 #endif
-  if (free_message)
-    free( message );
+    if (free_message)
+      free( message );
+  }
 }
 
 

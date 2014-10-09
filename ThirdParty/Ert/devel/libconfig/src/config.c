@@ -261,6 +261,10 @@ config_type * config_alloc() {
 
 
 
+const subst_list_type * config_get_define_list( const config_type * config) {
+  return config->define_list;   
+}
+
 
 static void config_clear_content_items( config_type * config ) {
   hash_free( config->content_items );
@@ -301,6 +305,11 @@ void config_free(config_type * config) {
   hash_free(config->schema_items);
   hash_free(config->content_items);
   hash_free(config->messages);
+
+  util_safe_free( config->config_file );
+  util_safe_free( config->abs_path );
+  if (config->invoke_path != NULL)
+    config_root_path_free( config->invoke_path );
 
   free(config);
 }

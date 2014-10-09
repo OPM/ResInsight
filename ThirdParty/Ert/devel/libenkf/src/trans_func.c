@@ -33,11 +33,12 @@
 
 
 struct trans_func_struct {
-  char            * name;          /* The name this function is registered as. */
-  arg_pack_type   * params;        /* The parameter values registered for this function. */
-  transform_ftype * func;          /* A pointer to the actual transformation function. */
-  validate_ftype  * validate;      /* A pointer to a a function which can be used to validate the parameters - can be NULL. */
-  stringlist_type * param_names;   /* A list of the parameter names. */
+  char            * name;               /* The name this function is registered as. */
+  arg_pack_type   * params;             /* The parameter values registered for this function. */
+  transform_ftype * func;               /* A pointer to the actual transformation function. */
+  validate_ftype  * validate;           /* A pointer to a a function which can be used to validate the parameters - can be NULL. */
+  stringlist_type * param_names;        /* A list of the parameter names. */
+  bool              use_log;
 };
 
 
@@ -182,6 +183,7 @@ static trans_func_type * trans_func_alloc_empty( const char * func_name ) {
   trans_func->validate    = NULL;
   trans_func->name        = util_alloc_string_copy( func_name );
   trans_func->param_names = stringlist_alloc_new();
+  trans_func->use_log     = false;
   
   return trans_func;
 }
@@ -277,6 +279,7 @@ trans_func_type * trans_func_alloc( const char * func_name ) {
       arg_pack_append_double( trans_func->params , 0 );
       arg_pack_append_double( trans_func->params , 0 );
       trans_func->func = trans_lognormal;
+      trans_func->use_log = true;
     }
 
     if (util_string_equal( func_name , "TRUNCATED_NORMAL")) {
@@ -351,6 +354,7 @@ trans_func_type * trans_func_alloc( const char * func_name ) {
       arg_pack_append_double( trans_func->params , 0 );
       arg_pack_append_double( trans_func->params , 0 );
       trans_func->func = trans_logunif;
+      trans_func->use_log = true;
     }
 
 
@@ -377,7 +381,9 @@ double trans_func_eval( const trans_func_type * trans_func , double x) {
   return y;
 }
 
-
+bool trans_func_use_log_scale(const trans_func_type * trans_func) {
+    return trans_func->use_log;
+}
 
 
 

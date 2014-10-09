@@ -21,7 +21,8 @@ C based functions.
 """
 import os
 import warnings
-from ert.ecl import EclRFTFile, EclGrid, EclSum, EclUtil, EclDefault, EclQueue
+from ert.ecl import EclRFTFile, EclGrid, EclSum, EclUtil, EclDefault
+from ert.ecl.ecl_queue import EclQueue
 
 
 
@@ -225,4 +226,4 @@ class EclCase:
 
         @type queue: EclQueue
         """
-        queue.submitDatafile( self.datafile )
+        queue.submitDataFile( self.datafile )

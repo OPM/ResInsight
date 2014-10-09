@@ -94,8 +94,7 @@ struct obs_block_struct {
 
 struct obs_data_struct {
   vector_type   * data;            /* vector with obs_block instances. */
-  int           __active_size;   
-}; 
+};
 
 
 
@@ -142,6 +141,7 @@ void obs_block_deactivate( obs_block_type * obs_block , int iobs , const char * 
     printf("Deactivating: %s(%d) : %s \n",obs_block->obs_key , iobs , msg);
     obs_block->active_mode[ iobs ] = DEACTIVATED;
     obs_block->active_size--;
+
   }
 }
 
@@ -333,7 +333,6 @@ obs_data_type * obs_data_alloc() {
 
 void obs_data_reset(obs_data_type * obs_data) { 
   vector_clear( obs_data->data );
-  obs_data->__active_size = -1;
 }
 
 
@@ -639,17 +638,13 @@ void obs_data_scale_kernel(const obs_data_type * obs_data , matrix_type *S , mat
 
 
 int obs_data_get_active_size(  obs_data_type * obs_data ) {
-  
-  if (obs_data->__active_size < 0) {
     int active_size = 0;
     for (int block_nr = 0; block_nr < vector_get_size( obs_data->data ); block_nr++) {
       const obs_block_type * obs_block   = vector_iget_const( obs_data->data , block_nr );
-      active_size += obs_block->active_size; 
+      active_size += obs_block->active_size;
     }
-    obs_data->__active_size = active_size;
-  }
-  
-  return obs_data->__active_size;
+
+    return active_size;
 }
 
 

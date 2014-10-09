@@ -86,6 +86,8 @@ struct std_enkf_data_struct {
   long      option_flags;
 };
 
+static UTIL_SAFE_CAST_FUNCTION_CONST( std_enkf_data , STD_ENKF_TYPE_ID )
+
 
 /*
   This is a macro which will expand to generate a function:
@@ -229,6 +231,36 @@ long std_enkf_get_options( void * arg , long flag ) {
   }
 }
 
+bool std_enkf_has_var( const void * arg, const char * var_name) {
+  {
+    if (strcmp(var_name , ENKF_NCOMP_KEY_) == 0)
+      return true;
+    else if (strcmp(var_name , ENKF_TRUNCATION_KEY_) == 0)
+      return true;
+    else
+      return false;
+  }
+}
+
+double std_enkf_get_double( const void * arg, const char * var_name) {
+  const std_enkf_data_type * module_data = std_enkf_data_safe_cast_const( arg );
+  {
+    if (strcmp(var_name , ENKF_TRUNCATION_KEY_) == 0)
+      return module_data->truncation;
+    else
+      return -1;
+  }
+}
+
+int std_enkf_get_int( const void * arg, const char * var_name) {
+  const std_enkf_data_type * module_data = std_enkf_data_safe_cast_const( arg );
+  {
+    if (strcmp(var_name , ENKF_NCOMP_KEY_) == 0)
+      return module_data->subspace_dimension;
+    else
+      return -1;
+  }
+}
 
 
 /**
@@ -257,9 +289,10 @@ analysis_table_type SYMBOL_TABLE = {
     .updateA         = NULL,
     .init_update     = NULL,
     .complete_update = NULL,
-    .has_var         = NULL,
-    .get_int         = NULL,
-    .get_double      = NULL,
+    .has_var         = std_enkf_has_var,
+    .get_int         = std_enkf_get_int,
+    .get_double      = std_enkf_get_double,
+    .get_bool        = NULL,
     .get_ptr         = NULL, 
 };
 

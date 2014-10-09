@@ -19,17 +19,33 @@ from ert.util import StringList
 
 
 class GenKwConfig(BaseCClass):
-    def __init__(self):
-        raise NotImplementedError("Class can not be instantiated directly!")
+    def __init__(self, key, tag_fmt, parameter_file=None):
+        """
+         @type key: str
+         @type tag_fmt: str
+        """
+        c_ptr = GenKwConfig.cNamespace().alloc_empty(key, tag_fmt)
+        super(GenKwConfig, self).__init__(c_ptr)
 
-    def get_template_file(self):
+        if parameter_file is not None:
+            self.setParameterFile(parameter_file)
+
+    def getTemplateFile(self):
         return GenKwConfig.cNamespace().get_template_file(self)
 
-    def get_parameter_file(self):
+    def getParameterFile(self):
         return GenKwConfig.cNamespace().get_parameter_file(self)
 
-    def alloc_name_list(self):
-        return GenKwConfig.cNamespace().alloc_name_list(self).setParent(self)
+    def setParameterFile(self, parameter_file):
+        GenKwConfig.cNamespace().set_parameter_file(self, parameter_file)
+
+    def getKeyWords(self):
+        """ @rtype: StringList """
+        return GenKwConfig.cNamespace().alloc_name_list(self)
+
+    def shouldUseLogScale(self, index):
+        """ @rtype: bool """
+        return GenKwConfig.cNamespace().should_use_log_scale(self, index)
 
     def free(self):
         GenKwConfig.cNamespace().free(self)
@@ -42,6 +58,9 @@ cwrapper.registerType("gen_kw_config_obj", GenKwConfig.createPythonObject)
 cwrapper.registerType("gen_kw_config_ref", GenKwConfig.createCReference)
 
 GenKwConfig.cNamespace().free = cwrapper.prototype("void gen_kw_config_free( gen_kw_config )")
+GenKwConfig.cNamespace().alloc_empty = cwrapper.prototype("c_void_p gen_kw_config_alloc_empty( char*, char* )")
 GenKwConfig.cNamespace().get_template_file = cwrapper.prototype("char* gen_kw_config_get_template_file(gen_kw_config)")
 GenKwConfig.cNamespace().get_parameter_file = cwrapper.prototype("char* gen_kw_config_get_parameter_file(gen_kw_config)")
-GenKwConfig.cNamespace().alloc_name_list = cwrapper.prototype("stringlist_ref gen_kw_config_alloc_name_list(gen_kw_config)")
+GenKwConfig.cNamespace().set_parameter_file = cwrapper.prototype("void gen_kw_config_set_parameter_file( gen_kw_config, char* )")
+GenKwConfig.cNamespace().alloc_name_list = cwrapper.prototype("stringlist_obj gen_kw_config_alloc_name_list(gen_kw_config)")
+GenKwConfig.cNamespace().should_use_log_scale = cwrapper.prototype("bool gen_kw_config_should_use_log_scale(gen_kw_config, int)")

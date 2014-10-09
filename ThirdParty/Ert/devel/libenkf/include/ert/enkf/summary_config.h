@@ -26,6 +26,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <ert/util/type_macros.h>
+
 #include <ert/ecl/ecl_sum.h>
 #include <ert/ecl/ecl_smspec.h>
 
@@ -69,6 +71,7 @@ typedef enum { LOAD_FAIL_SILENT  = 0,     // We just try to load - and if it is 
   void                   summary_config_add_obs_key(summary_config_type * , const char * );
   int                    summary_config_get_byte_size(const summary_config_type * );
   
+  UTIL_IS_INSTANCE_HEADER(summary_config);
   UTIL_SAFE_CAST_HEADER(summary_config);
   UTIL_SAFE_CAST_HEADER_CONST(summary_config);
   GET_DATA_SIZE_HEADER(summary);

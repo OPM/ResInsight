@@ -1,5 +1,5 @@
 from ert.job_queue import JobStatusType
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class JobQueueTest(ExtendedTestCase):

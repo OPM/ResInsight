@@ -51,7 +51,7 @@ class LegacyEclTest(TestCase):
                 ecl.ecl_default.default.ecl_version
                 new_ecl.EclDefault.ecl_version()
 
-        self.assertEqual(ecl.EclQueue, new_ecl.EclQueue)
+        self.assertEqual(ecl.EclQueue, new_ecl.ecl_queue.EclQueue)
 
     def test_enums(self):
         self.assertEqual(ecl.ECL_FLOAT_TYPE, EclTypeEnum.ECL_FLOAT_TYPE)

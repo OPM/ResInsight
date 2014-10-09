@@ -23,7 +23,8 @@ correct restype and argtypes attributes of the function objects.
 import ctypes
 import re
 import sys
-from ert.cwrap import BaseCClass
+from ert.cwrap import BaseCClass, BaseCValue
+import inspect
 
 
 prototype_pattern = "(?P<return>[a-zA-Z][a-zA-Z0-9_*]*) +(?P<function>[a-zA-Z]\w*) *[(](?P<arguments>[a-zA-Z0-9_*, ]*)[)]"
@@ -34,8 +35,8 @@ class CWrapper:
     registered_types = {}
     pattern = re.compile(prototype_pattern)
 
-    def __init__( self, lib ):
-        self.lib = lib
+    def __init__(self, lib):
+        self.__lib = lib
 
     @classmethod
     def registerType(cls, type_name, value):
@@ -43,6 +44,25 @@ class CWrapper:
         # if type_name in cls.registered_types:
         #     print("Type %s already exists!" % type_name)
         cls.registered_types[type_name] = value
+
+    @classmethod
+    def registerObjectType(cls, type_name, base_c_class):
+        """
+        Automatically registers a class type with object and reference versions.
+        For example:
+            string_list -> StringList
+            string_list_ref -> StringList.createCReference
+            string_list_obj -> StringList.createPythonObject
+
+        @type type_name: str
+        @type base_c_class: BaseCClass
+        """
+        assert issubclass(base_c_class, BaseCClass)
+
+        cls.registerType(type_name, base_c_class)
+        cls.registerType("%s_ref" % type_name, base_c_class.createCReference)
+        cls.registerType("%s_obj" % type_name, base_c_class.createPythonObject)
+
 
     @classmethod
     def registerDefaultTypes(cls):
@@ -53,8 +73,8 @@ class CWrapper:
         cls.registerType("int*", ctypes.POINTER(ctypes.c_int))
         cls.registerType("size_t", ctypes.c_size_t)
         cls.registerType("size_t*", ctypes.POINTER(ctypes.c_size_t))
-        cls.registerType("bool", ctypes.c_int)
-        cls.registerType("bool*", ctypes.POINTER(ctypes.c_int))
+        cls.registerType("bool", ctypes.c_bool)
+        cls.registerType("bool*", ctypes.POINTER(ctypes.c_bool))
         cls.registerType("long", ctypes.c_long)
         cls.registerType("long*", ctypes.POINTER(ctypes.c_long))
         cls.registerType("char", ctypes.c_char)
@@ -70,7 +90,7 @@ class CWrapper:
         """Convert a prototype definition type from string to a ctypes legal type."""
         type_name = type_name.strip()
 
-        if CWrapper.registered_types.has_key(type_name):
+        if type_name in CWrapper.registered_types:
             return CWrapper.registered_types[type_name]
         else:
             return getattr(ctypes, type_name)
@@ -107,16 +127,22 @@ class CWrapper:
 
         match = re.match(CWrapper.pattern, prototype)
         if not match:
-            sys.stderr.write("Illegal prototype definition: %s\n" % (prototype))
+            sys.stderr.write("Illegal prototype definition: %s\n" % prototype)
             return None
         else:
             restype = match.groupdict()["return"]
             function_name = match.groupdict()["function"]
             arguments = match.groupdict()["arguments"].split(",")
 
-            func = getattr(self.lib, function_name)
+            func = getattr(self.__lib, function_name)
 
             return_type = self.__parseType(restype)
+
+            if inspect.isclass(return_type) and issubclass(return_type, BaseCClass):
+                sys.stderr.write("BaseCClass can not be used as a return type in prototype definition: %s\n" % prototype)
+                sys.stderr.write("  Correct return type may be: %s_ref or %s_obj" % (restype, restype))
+                return None
+
             func.restype = return_type
 
             if hasattr(return_type, "__call__"):
@@ -129,6 +155,13 @@ class CWrapper:
 
                     func.errcheck = returnFunction
 
+                elif issubclass(return_type, BaseCValue):
+                    func.restype = return_type.type()
+
+                    def returnFunction(result, func, arguments):
+                        return return_type(result)
+
+                    func.errcheck = returnFunction
 
             if len(arguments) == 1 and arguments[0].strip() == "":
                 func.argtypes = []
@@ -140,16 +173,8 @@ class CWrapper:
 
             return func
 
-    def safe_prototype(self, pattern, lib=None):
-        try:
-            func = self.prototype(pattern, lib)
-        except AttributeError:
-            func = None
-            sys.stderr.write("****Defunct function call: %s\n" % pattern)
-        return func
 
-
-    def print_types(self):
+    def printTypes(self):
         for ctype in self.registered_types.keys():
             print "%16s -> %s" % (ctype, self.registered_types[ctype])
 

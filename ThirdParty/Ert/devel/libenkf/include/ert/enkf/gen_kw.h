@@ -39,6 +39,12 @@ const double   * gen_kw_get_data_ref(const gen_kw_type * );
   //void             gen_kw_get_data(const gen_kw_type * , double * );
 
 void             gen_kw_free(gen_kw_type *);
+int              gen_kw_data_size( gen_kw_type * );
+double           gen_kw_data_iget( gen_kw_type * , int , bool );
+void             gen_kw_data_iset( gen_kw_type * , int , double );
+double           gen_kw_data_get( gen_kw_type * , const char * , bool );
+void             gen_kw_data_set( gen_kw_type *, const char *, double );
+bool             gen_kw_data_has_key( gen_kw_type *, const char *);
 void             gen_kw_ens_write(const gen_kw_type * , const char *);
 void             gen_kw_ens_read(gen_kw_type * , const char *);
 void             gen_kw_truncate(gen_kw_type * );
@@ -49,6 +55,7 @@ void             gen_kw_export(const gen_kw_type * , int * , char ***, double **
 void             gen_kw_upgrade_103( const char * filename );
 char           * gen_kw_alloc_user_key(const gen_kw_config_type *  , const char * , int );
 void             gen_kw_set_subst_parent(gen_kw_type * gen_kw , const subst_list_type * parent_subst);
+void             gen_kw_ecl_write_template(const gen_kw_type * gen_kw , const char * file_name);
 
 
 UTIL_SAFE_CAST_HEADER(gen_kw);

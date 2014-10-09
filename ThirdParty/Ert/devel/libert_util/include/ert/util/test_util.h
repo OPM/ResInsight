@@ -36,6 +36,9 @@ extern "C" {
 
 #define test_assert_string_equal( s1 , s2 ) test_assert_string_equal__(s1 , s2 , __FILE__ , __LINE__)  
   void  test_assert_string_equal__( const char * s1 , const char * s2 , const char * file , int line);
+#define test_assert_string_not_equal( s1 , s2 ) test_assert_string_not_equal__(s1 , s2 , __FILE__ , __LINE__)  
+  void  test_assert_string_not_equal__( const char * s1 , const char * s2 , const char * file , int line);
+
   bool  test_check_string_equal( const char *s1 , const char * s2);
 
 #define test_assert_int_equal( i1 , i2 ) test_assert_int_equal__( (i1) , (i2) , __FILE__ , __LINE__  )
@@ -54,6 +57,10 @@ extern "C" {
 #define test_assert_double_equal( d1 , d2 ) test_assert_double_equal__( (d1) , (d2) , __FILE__ , __LINE__  )
   void  test_assert_double_equal__( double d1 , double d2 , const char * file , int line );
   bool  test_check_double_equal( double d1 , double d2);
+
+#define test_assert_float_equal( d1 , d2 ) test_assert_float_equal__( (d1) , (d2) , __FILE__ , __LINE__  )
+  void  test_assert_float_equal__( float d1 , float d2 , const char * file , int line );
+  bool  test_check_float_equal( float d1 , float d2);
 
 #define test_assert_double_not_equal( d1 , d2 ) test_assert_double_not_equal__( (d1) , (d2) , __FILE__ , __LINE__  )
   void  test_assert_double_not_equal__( double d1 , double d2 , const char * file , int line );
@@ -96,7 +103,9 @@ extern "C" {
 
 
 #ifdef HAVE_UTIL_ABORT
+#include <setjmp.h>
   void test_util_addr2line();
+  void test_assert_util_abort(const char * function_name , void (void *) , void * arg);
 #endif
 
   void test_install_SIGNALS(void);

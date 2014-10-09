@@ -1267,18 +1267,14 @@ static int ecl_util_get_num_parallel_cpu__(parser_type* parser, FILE* stream, co
 
   {
     stringlist_type * tokens = parser_tokenize_buffer( parser , buffer , true );
-    int i;
-    char * item = NULL;
-    for (i=0; i < stringlist_get_size( tokens ); i++) {
-      item = util_realloc_string_copy( item , stringlist_iget( tokens , i ));
-      util_strupr( item );
-      if (( util_string_equal( item , "DISTRIBUTED" )) || 
-          ( util_string_equal( item , "DIST" ))) { 
-        num_cpu = atoi( stringlist_iget( tokens , i - 1));
-        break;
-      }
-    }
-    free( item );  
+    
+    if (stringlist_get_size( tokens ) > 0) {
+      const char * num_cpu_string = stringlist_iget( tokens , 0 );
+      if (!util_sscanf_int( num_cpu_string , &num_cpu))
+        fprintf(stderr,"** Warning: failed to interpret:%s as integer - assuming one CPU\n",num_cpu_string);
+    } else
+      fprintf(stderr,"** Warning: failed to load data for PARALLEL keyword - assuming one CPU\n");
+
     stringlist_free( tokens );
   }  
   free( buffer );
@@ -1342,6 +1338,23 @@ int ecl_util_get_num_cpu(const char * data_file) {
 }
 
 
+ecl_unit_enum ecl_util_get_unit_set(const char * data_file) {
+  ecl_unit_enum units = ECL_METRIC_UNITS;
+  parser_type * parser = parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
+  FILE * stream = util_fopen(data_file , "r");
+
+  if (parser_fseek_string( parser , stream , "FIELD" , true , true)) {  /* Seeks case insensitive. */
+    units = ECL_FIELD_UNITS;
+  } else if (parser_fseek_string( parser , stream , "LAB" , true , true)) {  /* Seeks case insensitive. */
+    units = ECL_LAB_UNITS;
+  }
+
+  parser_free( parser );
+  fclose(stream);
+  return units;
+}
+
+
 /**
    This function checks that all the characters in the input @basename
    are either lowercase, or uppercase. If presented with a mixed-case
@@ -1351,12 +1364,15 @@ int ecl_util_get_num_cpu(const char * data_file) {
 
 
 bool ecl_util_valid_basename( const char * basename ) {
+
+  char * eclbasename = util_split_alloc_filename(basename);
+
   int upper_count = 0;
   int lower_count = 0;
   int index;
 
-  for (index = 0; index < strlen( basename ); index++) {
-    int c = basename[index];
+  for (index = 0; index < strlen( eclbasename ); index++) {
+    int c = eclbasename[index];
     if (isalpha(c)) {
       if (isupper(c))
         upper_count++;
@@ -1364,6 +1380,8 @@ bool ecl_util_valid_basename( const char * basename ) {
         lower_count++;
     }
   }
+
+  free(eclbasename);
 
   if ((lower_count * upper_count) != 0)
     return false;
@@ -1375,14 +1393,17 @@ bool ecl_util_valid_basename( const char * basename ) {
 bool ecl_util_valid_basename_fmt(const char * basename_fmt)
 {
   bool valid;
-  const char * percent_ptr = strchr(basename_fmt, '%');
+
+  char * eclbasename_fmt = util_split_alloc_filename(basename_fmt);
+
+  const char * percent_ptr = strchr(eclbasename_fmt, '%');
   if (percent_ptr) {
     percent_ptr++;
     while (true)
     {
       if (*percent_ptr == 'd')
       {
-        char * basename_instance = util_alloc_sprintf(basename_fmt, 0);
+        char * basename_instance = util_alloc_sprintf(eclbasename_fmt, 0);
         valid = ecl_util_valid_basename(basename_instance);
         free(basename_instance);
         break;
@@ -1393,7 +1414,9 @@ bool ecl_util_valid_basename_fmt(const char * basename_fmt)
         percent_ptr++;
     }
   } else
-    valid = ecl_util_valid_basename(basename_fmt);
+    valid = ecl_util_valid_basename(eclbasename_fmt);
+
+  free(eclbasename_fmt);
 
   return valid;
 }

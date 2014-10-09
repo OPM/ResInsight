@@ -37,7 +37,8 @@ typedef struct workflow_joblist_struct workflow_joblist_type;
   bool                      workflow_joblist_add_job_from_file( workflow_joblist_type * joblist , const char * job_name , const char * config_file );
   config_type             * workflow_joblist_get_compiler( const workflow_joblist_type * joblist );
   config_type             * workflow_joblist_get_job_config( const workflow_joblist_type * joblist );
-  
+  bool                      workflow_joblist_has_job( const workflow_joblist_type * joblist , const char * job_name);
+    
 #ifdef __cplusplus
 }
 #endif

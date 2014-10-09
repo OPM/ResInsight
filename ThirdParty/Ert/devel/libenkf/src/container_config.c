@@ -31,6 +31,7 @@ struct container_config_struct {
   vector_type * nodes;
 };
 
+UTIL_IS_INSTANCE_FUNCTION(container_config , CONTAINER_CONFIG_TYPE_ID);
 
 container_config_type * container_config_alloc( const char * key ) {
   container_config_type * container = util_malloc( sizeof * container );

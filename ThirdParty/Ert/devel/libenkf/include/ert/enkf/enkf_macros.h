@@ -26,9 +26,9 @@ extern "C" {
 #include <stdlib.h>
 
 #include <ert/util/matrix.h>
-#include <ert/util/log.h>
 #include <ert/util/rng.h>
 #include <ert/util/double_vector.h>
+#include <ert/util/int_vector.h>
 
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_sum.h>
@@ -37,6 +37,7 @@ extern "C" {
 #include <ert/enkf/enkf_serialize.h>
 #include <ert/enkf/active_list.h>
 #include <ert/enkf/meas_data.h>
+#include <ert/enkf/enkf_fs_type.h>
 
 
 #define CONFIG_STD_FIELDS \
@@ -109,13 +110,13 @@ void * prefix ## _alloc__(const void *void_config) {                            
 
 
 #define VOID_READ_FROM_BUFFER(prefix)                                              \
-  void prefix ## _read_from_buffer__(void * void_arg , buffer_type * buffer , int report_step, state_enum state) { \
+  void prefix ## _read_from_buffer__(void * void_arg , buffer_type * buffer , enkf_fs_type * fs, int report_step, state_enum state) { \
    prefix ## _type * arg = prefix ## _safe_cast( void_arg );                       \
-   prefix ## _read_from_buffer(arg , buffer , report_step, state);            \
+   prefix ## _read_from_buffer(arg , buffer , fs, report_step, state);            \
 }
 
 #define VOID_WRITE_TO_BUFFER_HEADER(prefix) bool prefix ## _write_to_buffer__(const void * , buffer_type * , int , state_enum);
-#define VOID_READ_FROM_BUFFER_HEADER(prefix) void prefix ## _read_from_buffer__(void * , buffer_type * , int, state_enum);
+#define VOID_READ_FROM_BUFFER_HEADER(prefix) void prefix ## _read_from_buffer__(void * , buffer_type * ,  enkf_fs_type * , int, state_enum);
 
 #define VOID_FLOAD(prefix)                                                         \
 bool prefix ## _fload__(void * void_arg , const char * filename) {                 \
@@ -128,12 +129,12 @@ bool prefix ## _fload__(void * void_arg , const char * filename) {              
 /*****************************************************************/
 
 #define VOID_ECL_WRITE(prefix) \
-void prefix ## _ecl_write__(const void * void_arg , const char * path , const char * file , fortio_type * restart_fortio) { \
+void prefix ## _ecl_write__(const void * void_arg , const char * path , const char * file , void * filestream) { \
    const prefix ## _type * arg = prefix ## _safe_cast_const( void_arg );       \
-   prefix ## _ecl_write(arg , path , file , restart_fortio);                    \
+   prefix ## _ecl_write(arg , path , file , filestream);                    \
 }
 
-#define VOID_ECL_WRITE_HEADER(prefix) void prefix ## _ecl_write__(const void * , const char * , const char * , fortio_type *);
+#define VOID_ECL_WRITE_HEADER(prefix) void prefix ## _ecl_write__(const void * , const char * , const char * , void *);
 
 /*****************************************************************/
 
@@ -148,12 +149,12 @@ bool prefix ## _forward_load__(void * void_arg , const char * ecl_file  , const 
   /*****************************************************************/
 
 #define VOID_FORWARD_LOAD_VECTOR(prefix) \
-  bool prefix ## _forward_load_vector__(void * void_arg , const char * ecl_file  , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_file, int report_step1 , int report_step2) { \
+  bool prefix ## _forward_load_vector__(void * void_arg , const char * ecl_file  , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_file, const int_vector_type * time_index) { \
    prefix ## _type * arg = prefix ## _safe_cast( void_arg );                         \
-   return prefix ## _forward_load_vector(arg , ecl_file , ecl_sum , restart_file , report_step1 , report_step2); \
+   return prefix ## _forward_load_vector(arg , ecl_file , ecl_sum , restart_file , time_index); \
 }
 
-#define VOID_FORWARD_LOAD_VECTOR_HEADER(prefix) bool prefix ## _forward_load_vector__(void * , const char * , const ecl_sum_type *, const ecl_file_type * , int , int);
+#define VOID_FORWARD_LOAD_VECTOR_HEADER(prefix) bool prefix ## _forward_load_vector__(void * , const char * , const ecl_sum_type *, const ecl_file_type * , const int_vector_type * );
 
 
 /*****************************************************************/
@@ -266,11 +267,11 @@ void prefix ## _set_inflation__( void * void_inflation , const void * void_std ,
 /*****************************************************************/
 
 #define VOID_GET_OBS(prefix)   \
-void prefix ## _get_observations__(const void * void_arg , obs_data_type * obs_data, int report_step , const active_list_type * __active_list) { \
-  prefix ## _get_observations((prefix ## _type *) void_arg , obs_data , report_step , __active_list); \
+void prefix ## _get_observations__(const void * void_arg , obs_data_type * obs_data, enkf_fs_type * fs, int report_step , const active_list_type * __active_list) { \
+  prefix ## _get_observations((prefix ## _type *) void_arg , obs_data , fs,  report_step , __active_list); \
 }
 
-#define VOID_GET_OBS_HEADER(prefix) void prefix ## _get_observations__(const void * , obs_data_type * , int , const active_list_type * )
+#define VOID_GET_OBS_HEADER(prefix) void prefix ## _get_observations__(const void * , obs_data_type * , enkf_fs_type *, int , const active_list_type * )
 
 /*****************************************************************/
 

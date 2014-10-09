@@ -46,12 +46,12 @@ extern "C" {
 
   bool                 ranking_table_has_ranking( const ranking_table_type * ranking_table , const char * ranking_key );
   bool                 ranking_table_display_ranking( const ranking_table_type * ranking_table , const char * ranking_key );
+  bool                 ranking_table_fwrite_ranking( const ranking_table_type * ranking_table , const char * ranking_key, const char * filename );
 
   void                 ranking_table_add_misfit_ranking( ranking_table_type * ranking_table , 
                                                          const misfit_ensemble_type * misfit_ensemble , 
                                                          const stringlist_type * obs_keys , 
-                                                         int step1 , 
-                                                         int step2 , 
+                                                         const int_vector_type * steps,
                                                          const char * ranking_key);
 
 

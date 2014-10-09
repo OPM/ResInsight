@@ -35,6 +35,7 @@ extern "C" {
 #include <ert/enkf/enkf_state.h>
 #include <ert/enkf/meas_data.h>
 #include <ert/enkf/obs_data.h>
+#include <ert/enkf/time_map.h>
 #include <ert/enkf/obs_vector.h>
 #include <ert/enkf/local_obsset.h>
 #include <ert/enkf/enkf_types.h>
@@ -47,19 +48,26 @@ extern "C" {
   
   void            enkf_obs_free(  enkf_obs_type * enkf_obs);
   
+  obs_vector_type * enkf_obs_iget_vector(const enkf_obs_type * obs, int index);
   obs_vector_type * enkf_obs_get_vector(const enkf_obs_type * , const char * );
   void enkf_obs_add_obs_vector(enkf_obs_type * enkf_obs, const char * key, const obs_vector_type * vector);
   
   void              enkf_obs_load(enkf_obs_type * enkf_obs,
                                   const history_type * history , 
+                                  time_map_type * external_time_map,
                                   const char           * config_file,
                                   const ecl_grid_type  * grid , 
                                   const ecl_sum_type   * refcase , 
                                   double std_cutoff , 
                                   ensemble_config_type * ensemble_config);
   
-  void            enkf_obs_reload( enkf_obs_type * enkf_obs , const history_type * history , 
-                                   const ecl_grid_type * grid , const ecl_sum_type * refcase , double std_cutoff , ensemble_config_type * ensemble_config );
+  void            enkf_obs_reload( enkf_obs_type * enkf_obs , 
+                                   const history_type * history , 
+                                   time_map_type * external_time_map,
+                                   const ecl_grid_type * grid , 
+                                   const ecl_sum_type * refcase , 
+                                   double std_cutoff , 
+                                   ensemble_config_type * ensemble_config );
   
   void enkf_obs_get_obs_and_measure(
                                     const enkf_obs_type    * enkf_obs,
@@ -67,7 +75,6 @@ extern "C" {
                                     const int_vector_type  * step_list , 
                                     state_enum               state,
                                     const int_vector_type  * ens_active_list, 
-                                    const enkf_state_type ** ensemble ,
                                     meas_data_type         * meas_data,
                                     obs_data_type          * obs_data,
                                     const local_obsset_type * obsset);
@@ -78,7 +85,6 @@ extern "C" {
                                           const local_obsdata_node_type * obs_node , 
                                           state_enum                 state,
                                           const int_vector_type    * ens_active_list , 
-                                          const enkf_state_type    ** ensemble ,
                                           meas_data_type           * meas_data,
                                           obs_data_type            * obs_data);
 
@@ -88,7 +94,6 @@ extern "C" {
                                          const local_obsdata_type * local_obsdata , 
                                          state_enum                 state,
                                          const int_vector_type    * ens_active_list , 
-                                         const enkf_state_type    ** ensemble ,
                                          meas_data_type           * meas_data,
                                          obs_data_type            * obs_data);
 
@@ -98,12 +103,13 @@ extern "C" {
   
   const obs_vector_type * enkf_obs_user_get_vector(const enkf_obs_type * obs , const char  * full_key, char ** index_key );
   bool              enkf_obs_has_key(const enkf_obs_type * , const char * );
+  int               enkf_obs_get_size( const enkf_obs_type * obs );
   
   hash_iter_type  * enkf_obs_alloc_iter( const enkf_obs_type * enkf_obs );
 
   stringlist_type * enkf_obs_alloc_keylist(enkf_obs_type * enkf_obs );
   stringlist_type * enkf_obs_alloc_matching_keylist(const enkf_obs_type * enkf_obs , const char * input_string);
-  time_t            enkf_obs_iget_obs_time(enkf_obs_type * enkf_obs , int report_step);
+  time_t            enkf_obs_iget_obs_time(const enkf_obs_type * enkf_obs , int report_step);
   void              enkf_obs_fprintf_config( const enkf_obs_type * enkf_obs , FILE * stream);
   void              enkf_obs_scale_std(enkf_obs_type * enkf_obs, double scale_factor);
   

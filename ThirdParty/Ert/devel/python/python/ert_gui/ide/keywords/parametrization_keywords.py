@@ -16,6 +16,7 @@ class ParametrizationKeywords(object):
         ert_keywords.addKeyword(self.addLoadSeed())
         ert_keywords.addKeyword(self.addGenKwTagFormat())
         ert_keywords.addKeyword(self.addSurface())
+        ert_keywords.addKeyword(self.addGenKwExportFile())
 
 
 
@@ -25,7 +26,7 @@ class ParametrizationKeywords(object):
                                             arguments=[StringArgument(),
                                                        StringArgument(),
                                                        StringArgument(rest_of_line=True, allow_space=True)],
-                                            documentation_link="parametrization/field",
+                                            documentation_link="keywords/field",
                                             required=False,
                                             group=self.group)
         return field
@@ -37,7 +38,7 @@ class ParametrizationKeywords(object):
                                             arguments=[StringArgument(),
                                                       StringArgument(),
                                                       StringArgument(rest_of_line=True, allow_space=True)],
-                                            documentation_link="parametrization/gen_data",
+                                            documentation_link="keywords/gen_data",
                                             required=False,
                                             group=self.group)
         return gen_data
@@ -48,16 +49,25 @@ class ParametrizationKeywords(object):
                                             arguments=[StringArgument(),
                                                        StringArgument(),
                                                        StringArgument(rest_of_line=True,allow_space=True)],
-                                            documentation_link="parametrization/gen_kw",
+                                            documentation_link="keywords/gen_kw",
                                             required=False,
                                             group=self.group)
         return gen_kw
 
 
+    def addGenKwExportFile(self):
+        gen_kw_export_file = ConfigurationLineDefinition(keyword=KeywordDefinition("GEN_KW_EXPORT_FILE"),
+                                            arguments=[StringArgument()],
+                                            documentation_link="keywords/gen_kw_export_file",
+                                            required=False,
+                                            group=self.group)
+        return gen_kw_export_file
+
+
     def addGenKwTagFormat(self):
         gen_kw_tag_format = ConfigurationLineDefinition(keyword=KeywordDefinition("GEN_KW_TAG_FORMAT"),
                                                         arguments=[StringArgument(built_in=True,allow_space=True)],
-                                                        documentation_link="parametrization/gen_kw_tag_format",
+                                                        documentation_link="keywords/gen_kw_tag_format",
                                                         required=False,
                                                         group=self.group)
         return gen_kw_tag_format
@@ -68,7 +78,7 @@ class ParametrizationKeywords(object):
                                                 arguments=[StringArgument(),
                                                        StringArgument(),
                                                        StringArgument(built_in=True,allow_space=True)],
-                                                documentation_link="parametrization/gen_param",
+                                                documentation_link="keywords/gen_param",
                                                 required=False,
                                                 group=self.group)
         return gen_param
@@ -77,7 +87,7 @@ class ParametrizationKeywords(object):
     def addSummary(self):
         summary = ConfigurationLineDefinition(keyword=KeywordDefinition("SUMMARY"),
                                               arguments=[StringArgument(rest_of_line=True,allow_space=True)],
-                                              documentation_link="parametrization/summary",
+                                              documentation_link="keywords/summary",
                                               required=False,
                                               group=self.group)
         return summary
@@ -85,7 +95,7 @@ class ParametrizationKeywords(object):
     def addDBaseType(self):
         dbase_type = ConfigurationLineDefinition(keyword=KeywordDefinition("DBASE_TYPE"),
                                                   arguments=[StringArgument()],
-                                                  documentation_link="parametrization/dbase_type",
+                                                  documentation_link="keywords/dbase_type",
                                                   required=False,
                                                   group=self.group)
         return dbase_type
@@ -94,7 +104,7 @@ class ParametrizationKeywords(object):
     def addStoreSeed(self):
         store_seed = ConfigurationLineDefinition(keyword=KeywordDefinition("STORE_SEED"),
                                                   arguments=[StringArgument(built_in=True)],
-                                                  documentation_link="parametrization/store_seed",
+                                                  documentation_link="keywords/store_seed",
                                                   required=False,
                                                   group=self.group)
         return store_seed
@@ -103,7 +113,7 @@ class ParametrizationKeywords(object):
     def addLoadSeed(self):
         load_seed = ConfigurationLineDefinition(keyword=KeywordDefinition("LOAD_SEED"),
                                                 arguments=[StringArgument(built_in=True)],
-                                                documentation_link="parametrization/load_seed",
+                                                documentation_link="keywords/load_seed",
                                                 required=False,
                                                 group=self.group)
         return load_seed
@@ -112,7 +122,7 @@ class ParametrizationKeywords(object):
     def addSurface(self):
         surface = ConfigurationLineDefinition(keyword=KeywordDefinition("SURFACE"),
                                                 arguments=[StringArgument(rest_of_line=True,allow_space=True)],
-                                                documentation_link="parametrization/surface",
+                                                documentation_link="keywords/surface",
                                                 required=False,
                                                 group=self.group)
         return surface

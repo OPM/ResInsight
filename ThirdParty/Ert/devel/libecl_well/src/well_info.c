@@ -65,15 +65,15 @@
                 | |
            +----| |--------+---------------+---------------+
     LGR1   |   :| |:   :   |               |               |
-           +···+| |+···+···+               |    (2,2)      |
+           +ï¿½ï¿½ï¿½+| |+ï¿½ï¿½ï¿½+ï¿½ï¿½ï¿½+               |    (2,2)      |
            |   :| |:   :   |               |               |
-           +···+| |+···+···+               |               |
+           +ï¿½ï¿½ï¿½+| |+ï¿½ï¿½ï¿½+ï¿½ï¿½ï¿½+               |               |
            |   :| |:   :   |               |               |
            +----| |--------+---------------+---------------+
            |   :| |:   :   |               |   :   :   :   |
-           +···+| \__________________________________ -+---+   LGR2
+           +ï¿½ï¿½ï¿½+| \__________________________________ -+---+   LGR2
            |   :\______________   ___________________| :   |
-           +···+···+···+···+   | |         +---+---+---+---+
+           +ï¿½ï¿½ï¿½+ï¿½ï¿½ï¿½+ï¿½ï¿½ï¿½+ï¿½ï¿½ï¿½+   | |         +---+---+---+---+
            |   :   :   :   |   | |         |   :   :   :   |
            +---------------+---| |---------+---------------+
            |               |   | |         |               |
@@ -274,14 +274,24 @@ static void well_info_add_state( well_info_type * well_info , well_state_type * 
  */
 
 void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file , int report_nr) {
-  int well_nr;
-  ecl_rsthead_type * global_header = ecl_rsthead_alloc( rst_file );
-  for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
-    well_state_type * well_state = well_state_alloc_from_file( rst_file , well_info->grid , report_nr , well_nr );
-    if (well_state != NULL)
-      well_info_add_state( well_info , well_state );
+  int flags = ecl_file_get_flags(rst_file);
+  if (ecl_file_flags_set(rst_file, ECL_FILE_CLOSE_STREAM)) {
+    int new_flags = flags & ~ECL_FILE_CLOSE_STREAM;
+    ecl_file_set_flags(rst_file, new_flags);
   }
-  ecl_rsthead_free( global_header );
+
+  {
+    ecl_rsthead_type * global_header = ecl_rsthead_alloc( rst_file );
+    int well_nr;
+    for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
+      well_state_type * well_state = well_state_alloc_from_file( rst_file , well_info->grid , report_nr , well_nr );
+      if (well_state != NULL)
+        well_info_add_state( well_info , well_state );
+    }
+    ecl_rsthead_free( global_header );
+  }
+
+  ecl_file_set_flags(rst_file, flags);
 }
 
 /**
@@ -317,22 +327,27 @@ void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst
 */
 
 void well_info_load_rstfile( well_info_type * well_info , const char * filename) {
+  ecl_file_type * ecl_file = ecl_file_open( filename , 0);
+  well_info_load_rst_eclfile(well_info, ecl_file);
+  ecl_file_close( ecl_file );
+}
+
+
+void well_info_load_rst_eclfile( well_info_type * well_info , ecl_file_type * ecl_file) {
   int report_nr;
+  const char* filename = ecl_file_get_src_file(ecl_file);
   ecl_file_enum file_type = ecl_util_get_file_type( filename , NULL , &report_nr);
   if ((file_type == ECL_RESTART_FILE) || (file_type == ECL_UNIFIED_RESTART_FILE))
   {
-    ecl_file_type * ecl_file = ecl_file_open( filename , 0);
-
     if (file_type == ECL_RESTART_FILE)
       well_info_add_wells( well_info , ecl_file , report_nr );
     else
       well_info_add_UNRST_wells( well_info , ecl_file );
-    
-    ecl_file_close( ecl_file );
-  } else
-    util_abort("%s: invalid file type:%s - must be a restart file\n",__func__ , filename);
-}
 
+  } else
+    util_abort("%s: invalid file type: %s - must be a restart file\n", __func__ , filename);
+
+}
 
 void well_info_free( well_info_type * well_info ) {
   hash_free( well_info->wells );

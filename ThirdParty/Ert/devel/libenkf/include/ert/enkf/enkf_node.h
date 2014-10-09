@@ -27,6 +27,7 @@
 #include <ert/util/matrix.h>
 #include <ert/util/rng.h>
 #include <ert/util/hash.h>
+#include <ert/util/int_vector.h>
 
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_file.h>
@@ -57,10 +58,10 @@ extern "C" {
   typedef void          (ecl_write_ftype)         (const void *  ,   /* Node object */
                                                    const char *  ,   /* Directory to write to. */
                                                    const char *  ,   /* Filename - can be NULL. */
-                                                   fortio_type *);   /* fortio inistance for writing elements in restart files. */
+                                                   void * );   /* fortio or FILE inistance for writing elements in restart files. */
   
   typedef bool          (fload_ftype)                     (      void *  , const char *);
-  typedef void          (read_from_buffer_ftype)          (      void *  , buffer_type * , int, state_enum );
+  typedef void          (read_from_buffer_ftype)          (      void *  , buffer_type * , enkf_fs_type * ,  int, state_enum );
   typedef bool          (write_to_buffer_ftype)           (const void *  , buffer_type * , int, state_enum );
   typedef bool          (has_data_ftype)                  (const void *  , int , state_enum); 
   
@@ -75,7 +76,7 @@ extern "C" {
   typedef void *        (alloc_ftype)                     (const void *);
   typedef bool          (initialize_ftype)                (      void *  , int , const char * , rng_type * );
   typedef bool          (forward_load_ftype)              (void *  , const char * , const ecl_sum_type * , const ecl_file_type * , int);
-  typedef bool          (forward_load_vector_ftype)       (void *  , const char * , const ecl_sum_type * , const ecl_file_type * , int , int);
+  typedef bool          (forward_load_vector_ftype)       (void *  , const char * , const ecl_sum_type * , const ecl_file_type * , const int_vector_type * );
   typedef void          (realloc_data_ftype)              (void * );
   typedef void          (free_data_ftype)                 (void * );
   typedef void          (node_free_ftype)                 (      void *);
@@ -110,6 +111,7 @@ extern "C" {
   bool             enkf_node_user_get_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int iens , state_enum state , double_vector_type * values);
   bool             enkf_node_user_get_no_id(enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int report_step, int iens, state_enum state , double * value);
   bool             enkf_node_user_get(enkf_node_type *  , enkf_fs_type * , const char * , node_id_type , double * );
+  enkf_node_type * enkf_node_deep_alloc(const enkf_config_node_type * config);
   enkf_node_type * enkf_node_alloc(const enkf_config_node_type *);
   enkf_node_type * enkf_node_copyc(const enkf_node_type * );
   /*
@@ -133,10 +135,10 @@ extern "C" {
   void             enkf_node_serialize(enkf_node_type * enkf_node , enkf_fs_type * fs , node_id_type node_id , const active_list_type * active_list , matrix_type * A , int row_offset , int column);
   void             enkf_node_deserialize(enkf_node_type *enkf_node , enkf_fs_type * fs , node_id_type node_id , const active_list_type * active_list , const matrix_type * A , int row_offset , int column);
   
-  bool             enkf_node_forward_load_vector(enkf_node_type *enkf_node , const char * run_path , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_block , int report_step1, int report_step2 , int iens );
+  bool enkf_node_forward_load_vector(enkf_node_type *enkf_node , const char * run_path , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_block , const int_vector_type * time_index , int iens );
   bool             enkf_node_forward_load  (enkf_node_type *, const char * , const ecl_sum_type * , const ecl_file_type * , int, int );
   void             enkf_node_ecl_load_static  (enkf_node_type *, const ecl_kw_type * , int , int);
-  void             enkf_node_ecl_write (const enkf_node_type *, const char * , fortio_type * , int);
+  void             enkf_node_ecl_write (const enkf_node_type *, const char * , void * , int);
   bool             enkf_node_initialize(enkf_node_type *enkf_node , int , rng_type * );
   void             enkf_node_printf(const enkf_node_type *);
   bool             enkf_node_fwrite (enkf_node_type * , FILE * stream, bool , int , int , state_enum);
@@ -161,13 +163,15 @@ extern "C" {
   enkf_node_type *  enkf_node_load_alloc( const enkf_config_node_type * config_node , enkf_fs_type * fs , node_id_type node_id);
   bool              enkf_node_fload( enkf_node_type * enkf_node , const char * filename );
   void              enkf_node_load(enkf_node_type * enkf_node , enkf_fs_type * fs , node_id_type node_id );
+  void              enkf_node_load_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , int iens , state_enum state);
   bool              enkf_node_store(enkf_node_type * enkf_node , enkf_fs_type * fs , bool force_vectors , node_id_type node_id);
   bool              enkf_node_store_vector(enkf_node_type *enkf_node , enkf_fs_type * fs , int iens , state_enum state);
   bool              enkf_node_try_load(enkf_node_type *enkf_node , enkf_fs_type * fs , node_id_type node_id);
   bool              enkf_node_try_load_vector(enkf_node_type *enkf_node , enkf_fs_type * fs , int iens , state_enum state);
   bool              enkf_node_exists( enkf_node_type *enkf_node , enkf_fs_type * fs , int report_step , int iens , state_enum state);
   bool              enkf_node_vector_storage( const enkf_node_type * node );
-  enkf_node_type  * enkf_node_container_alloc(const enkf_config_node_type * config, hash_type * node_hash);
+  enkf_node_type  * enkf_node_alloc_shared_container(const enkf_config_node_type * config, hash_type * node_hash);
+  enkf_node_type * enkf_node_alloc_private_container(const enkf_config_node_type * config);
 /*****************************************************************/
 /* Function callbacks */
 ecl_write_ftype * enkf_node_get_func_pointer( const enkf_node_type * node );

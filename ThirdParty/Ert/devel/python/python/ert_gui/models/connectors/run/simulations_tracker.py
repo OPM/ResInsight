@@ -61,12 +61,13 @@ class SimulationsTracker(ListModelMixin):
         done_state = SimulationStateStatus("Finished", JobStatusType.JOB_QUEUE_DONE | JobStatusType.JOB_QUEUE_SUCCESS, SimulationStateStatus.COLOR_FINISHED)
 
         self.states = [waiting_state, pending_state, running_state, killed_state, failed_state, done_state]
+        self.custom_states = [waiting_state, pending_state, running_state, failed_state, done_state]
 
         self.__checkForUnusedEnums()
 
     def getList(self):
         """ @rtype: list of SimulationStateStatus """
-        return list(self.states)
+        return list(self.custom_states)
 
     def __checkForUnusedEnums(self):
         for enum in JobStatusType.enums():

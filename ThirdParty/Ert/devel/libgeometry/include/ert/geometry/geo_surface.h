@@ -31,7 +31,7 @@ extern "C" {
 
   typedef struct geo_surface_struct geo_surface_type;
 
-
+  bool                geo_surface_equal( const geo_surface_type * surface1 , const geo_surface_type * surface2);
   void                geo_surface_free( geo_surface_type * geo_surface );
   void                geo_surface_free__( void * arg);
   geo_pointset_type * geo_surface_get_pointset( const geo_surface_type * surface );

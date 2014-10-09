@@ -97,7 +97,8 @@ void get_driver_option_lists() {
     test_assert_true(stringlist_contains(option_list, TORQUE_NUM_CPUS_PER_NODE));
     test_assert_true(stringlist_contains(option_list, TORQUE_NUM_NODES));
     test_assert_true(stringlist_contains(option_list, TORQUE_KEEP_QSUB_OUTPUT));
-    
+    test_assert_true(stringlist_contains(option_list, TORQUE_CLUSTER_LABEL));
+
     stringlist_free(option_list);
     queue_driver_free(driver_torque);
   }

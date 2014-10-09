@@ -41,6 +41,7 @@ typedef struct log_struct log_type;
   int          log_get_level( const log_type * logh);
   void         log_set_level( log_type * logh , int log_level);
   bool         log_is_open( const log_type * logh);
+  bool         log_include_message(const log_type *logh , int message_level);
 
 
 #ifdef __cplusplus

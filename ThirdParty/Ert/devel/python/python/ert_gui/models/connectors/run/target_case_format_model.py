@@ -29,8 +29,11 @@ class TargetCaseFormatModel(ErtConnector, BasicModelMixin):
 
     def getDefaultName(self):
         """ @rtype: str """
-        case_name = CaseSelectorModel().getCurrentChoice()
-        return "%s_%%d" % case_name
+        if self.ert().analysisConfig().getAnalysisIterConfig().caseFormatSet():
+            return self.ert().analysisConfig().getAnalysisIterConfig().getCaseFormat()
+        else:
+            case_name = CaseSelectorModel().getCurrentChoice()
+            return "%s_%%d" % case_name
 
 
     def __caseChanged(self):

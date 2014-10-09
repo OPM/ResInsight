@@ -55,6 +55,7 @@ struct analysis_module_struct {
   analysis_has_var_ftype         * has_var;
   analysis_get_int_ftype         * get_int;
   analysis_get_double_ftype      * get_double;
+  analysis_get_bool_ftype        * get_bool;
   analysis_get_ptr_ftype         * get_ptr;
   
   bool                             internal;  
@@ -81,6 +82,7 @@ static analysis_module_type * analysis_module_alloc_empty( const char * user_nam
   module->has_var         = NULL;
   module->get_int         = NULL;
   module->get_double      = NULL;
+  module->get_bool        = NULL;
   module->get_ptr         = NULL;
   module->alloc           = NULL;
 
@@ -121,6 +123,7 @@ static analysis_module_type * analysis_module_alloc__( rng_type * rng ,
   module->has_var           = table->has_var;
   module->get_int           = table->get_int;
   module->get_double        = table->get_double;
+  module->get_bool          = table->get_bool;
   module->get_ptr           = table->get_ptr;
 
   if (module->alloc)
@@ -270,13 +273,14 @@ void analysis_module_updateA(analysis_module_type * module ,
 
 
 void analysis_module_init_update( analysis_module_type * module , 
-                                  matrix_type * S , 
-                                  matrix_type * R , 
-                                  matrix_type * dObs , 
-                                  matrix_type * E , 
-                                  matrix_type * D ) {
+                                  const bool_vector_type * ens_mask , 
+                                  const matrix_type * S , 
+                                  const matrix_type * R , 
+                                  const matrix_type * dObs , 
+                                  const matrix_type * E , 
+                                  const matrix_type * D ) {
   if (module->init_update != NULL)
-    module->init_update( module->module_data , S , R , dObs , E , D);
+    module->init_update( module->module_data , ens_mask , S , R , dObs , E , D);
 }
 
 
@@ -404,6 +408,19 @@ int analysis_module_get_int( const analysis_module_type * module , const char * 
     util_exit("%s: Tried to get integer variable:%s from module:%s - module does not support this variable \n" , __func__ , var , module->user_name);
 
   return 0;
+}
+
+
+bool analysis_module_get_bool( const analysis_module_type * module , const char * var) {
+  if (analysis_module_has_var( module , var )) {
+    if (module->get_bool != NULL)
+      return module->get_bool( module->module_data , var );
+    else
+      util_exit("%s: Tried to get bool variable:%s from module:%s - get_int() method not implemented for this module\n" , __func__ , var , module->user_name);
+  } else 
+    util_exit("%s: Tried to get bool variable:%s from module:%s - module does not support this variable \n" , __func__ , var , module->user_name);
+
+  return false;
 }
 
 

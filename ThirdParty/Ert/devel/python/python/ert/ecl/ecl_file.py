@@ -40,7 +40,7 @@ import types
 import datetime
 from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
 from ert.ecl import EclKW, ECL_LIB
-from ert.util import ctime
+from ert.util import CTime
 
 
 class EclFile(CClass):
@@ -66,7 +66,7 @@ class EclFile(CClass):
         obj = EclFile( filename )
         
         if dtime:
-            OK = cfunc.restart_block_time( obj , ctime( dtime ))
+            OK = cfunc.restart_block_time( obj , CTime( dtime ))
         elif not report_step is None:
             OK = cfunc.restart_block_step( obj , report_step )
         else:
@@ -273,7 +273,7 @@ class EclFile(CClass):
         if report_step:
             OK = cfunc.restart_block_step( self , report_step )
         elif sim_time:
-            OK = cfunc.restart_block_time( self , ctime( sim_time ) )
+            OK = cfunc.restart_block_time( self , CTime( sim_time ) )
         elif index:
             OK = cfunc.restart_block_iselect( self, index )
         else:
@@ -439,18 +439,20 @@ class EclFile(CClass):
         [1]: For working with summary data you are probably better off
              using the EclSum class.
         """
-        kw_c_ptr = cfunc.iget_named_kw( self , kw_name , index )
-        ecl_kw = EclKW.wrap( kw_c_ptr , parent = self , data_owner = False)
+        if index < self.num_named_kw( kw_name ):
+            kw_c_ptr = cfunc.iget_named_kw( self , kw_name , index )
+            ecl_kw = EclKW.wrap( kw_c_ptr , parent = self , data_owner = False)
         
-        if copy:
-            return EclKW.copy( ecl_kw )
+            if copy:
+                return EclKW.copy( ecl_kw )
+            else:
+                return ecl_kw
         else:
-            return ecl_kw
+            raise KeyError("Asked for occurence:%d of keyword:%s - max:%d" % (index  , kw_name , self.num_named_kw( kw_name )))
 
 
     def restart_get_kw( self , kw_name , dtime , copy = False):
-        """
-        Will return EclKW @kw_name from restart file at time @dtime.
+        """Will return EclKW @kw_name from restart file at time @dtime.
 
         This function assumes that the current EclFile instance
         represents a restart file. It will then look for keyword
@@ -466,18 +468,25 @@ class EclFile(CClass):
         out of scope. If the optional argument @copy is True the
         returned kw will be a true copy.
 
-        If the file does not have the keyword at the specified time the
-        function will return None.
+        If the file does not have the keyword at the specified time
+        the function will raise IndexError(); if the file does not
+        have the keyword at all - KeyError will be raised.
         """
-        index = cfunc.get_restart_index( self , ctime( dtime ) )
+        index = cfunc.get_restart_index( self , CTime( dtime ) )
         if index >= 0:
-            kw = self.iget_named_kw( kw_name , index )
-            if copy:
-                return EclKW.copy( kw )
+            if self.num_named_kw(kw_name) > index:
+                kw = self.iget_named_kw( kw_name , index )
+                if copy:
+                    return EclKW.copy( kw )
+                else:
+                    return kw
             else:
-                return kw
+                if self.has_kw(kw_name):
+                    raise IndexError("Does not have keyword:%s at time:%s" % (kw_name , dtime))
+                else:
+                    raise KeyError("Key:%s not recognized" % kw_name)
         else:
-            return None
+            raise IndexError("Does not have keyword:%s at time:%s" % (kw_name , dtime))
 
 
     def replace_kw( self , old_kw , new_kw):
@@ -657,7 +666,7 @@ class EclFile(CClass):
         keyword(s), but is still not a restart file. The @dtime
         argument should be a normal python datetime instance.
         """
-        return cfunc.has_sim_time( self , ctime(dtime) )    
+        return cfunc.has_sim_time( self , CTime(dtime) )    
 
     
     def iget_restart_sim_time( self , index ):
@@ -665,8 +674,8 @@ class EclFile(CClass):
         Will locate restart block nr @index and return the true time
         as a datetime instance.
         """
-        ctime = cfunc.iget_restart_time( self , index ) 
-        return ctime.datetime()
+        ct = CTime(cfunc.iget_restart_time( self , index ))
+        return ct.datetime()
 
 
     def iget_restart_sim_days( self , index ):

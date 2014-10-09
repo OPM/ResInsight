@@ -374,7 +374,7 @@ void JobQueueSetMaxDurationRunJobsLoopInThread_Duration5Seconds_KillsAllJobsWith
 }
 
 void JobQueueSetAutoStopTime_ThreeQuickJobs_AutoStopTimeKillsTheRest(char ** argv) {
-  printf("Running JobQueueSetMaxDurationRunJobsLoopInThread_Duration5Seconds_KillsAllJobsWithDurationMoreThan5Seconds\n");
+  printf("Running JobQueueSetAutoStopTime_ThreeQuickJobs_AutoStopTimeKillsTheRest\n");
 
   int number_of_jobs = 10;
 
@@ -391,7 +391,7 @@ void JobQueueSetAutoStopTime_ThreeQuickJobs_AutoStopTimeKillsTheRest(char ** arg
   thread_pool_type * pool = thread_pool_alloc(1, true);
   thread_pool_add_job(pool, job_queue_run_jobs__, arg_pack);
 
-  int number_of_slowjobs = 3;
+  int number_of_slowjobs = 7;
   char * sleep_short = "0";
   char * sleep_long = "100";
 

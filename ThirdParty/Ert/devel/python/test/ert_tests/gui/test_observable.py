@@ -1,5 +1,5 @@
 from ert_gui.models import Observable
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 def observeWithoutSelf():

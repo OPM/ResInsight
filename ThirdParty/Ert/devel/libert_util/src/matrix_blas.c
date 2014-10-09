@@ -181,11 +181,34 @@ void matrix_dgemm(matrix_type *C , const matrix_type *A , const matrix_type * B 
     util_abort("%s: matrix size mismatch between B and C \n",__func__);
   }
 
+  if (!ldc >= util_int_max(1 , m)) {
+    dgemm_debug(C,A,B,transA , transB);
+    fprintf(stderr,"Tried to capture blas message: \"** On entry to DGEMM parameter 13 had an illegal value\"\n");
+    fprintf(stderr,"m:%d  ldc:%d  ldc should be >= max(1,%d) \n",m,ldc,m);
+    util_abort("%s: invalid value for ldc\n",__func__);
+  }
 
-  dgemm_(&transA_c , &transB_c , &m ,&n , &k , &alpha , matrix_get_data( A ) , &lda , matrix_get_data( B ) , &ldb , &beta , matrix_get_data( C ) , &ldc);
+
+  dgemm_(&transA_c ,                  //  1
+         &transB_c ,                  //  2
+         &m ,                         //  3
+         &n ,                         //  4
+         &k ,                         //  5
+         &alpha ,                     //  6
+         matrix_get_data( A ) ,       //  7
+         &lda ,                       //  8
+         matrix_get_data( B ) ,       //  9
+         &ldb ,                       // 10
+         &beta ,                      // 11 
+         matrix_get_data( C ) ,       // 12 
+         &ldc);                       // 13
 }
 
 
+
+void matrix_matmul_with_transpose(matrix_type * C, const matrix_type * A , const matrix_type * B , bool transA , bool transB) {
+  matrix_dgemm( C , A , B , transA , transB , 1 , 0);
+}
 
 
 /* 

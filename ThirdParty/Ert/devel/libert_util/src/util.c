@@ -290,6 +290,16 @@ static bool EOL_CHAR(char c) {
 
 #undef strncpy // This is for some reason needed in RH3
 
+/*
+  The difference between /dev/random and /dev/urandom is that the
+  former will block if the entropy pool is close to empty:
+
+    util_fread_dev_random() : The 'best' quality random numbers, but
+       runtime can be quite long.
+
+    util_fread_dev_urandom(): Potentially lower quality random
+       numbers, but deterministic runtime.
+*/
 
 void util_fread_dev_random(int buffer_size , char * buffer) {
   FILE * stream = util_fopen("/dev/random" , "r");
@@ -350,6 +360,21 @@ double util_kahan_sum(const double *data, size_t N) {
     S = T;
   }
   return S;
+}
+
+
+bool util_float_approx_equal__( float d1 , float d2, float epsilon) {
+  if (d1 == d2)
+    return true;
+  else {
+    float diff = fabs(d1 - d2);
+    float sum  = fabs(d1) + fabs(d2);
+    
+    if ((diff / sum) < epsilon)
+      return true;
+    else
+      return false;
+  }
 }
 
 
@@ -533,8 +558,10 @@ bool util_fseek_string(FILE * stream , const char * __string , bool skip_string 
     
     
     if (string_found) {
-      if (!skip_string)
-        util_fseek(stream , -strlen(string) , SEEK_CUR); /* Reposition to the beginning of 'string' */
+      if (!skip_string) {
+        offset_type offset = (offset_type) strlen(string);
+        util_fseek(stream , -offset , SEEK_CUR); /* Reposition to the beginning of 'string' */
+      }
     } else
       util_fseek(stream , initial_pos , SEEK_SET);       /* Could not find the string reposition at initial position. */
     
@@ -2168,8 +2195,7 @@ char * util_fread_alloc_file_content(const char * filename , int * buffer_size) 
 */
   
 
-bool util_copy_stream(FILE *src_stream , FILE *target_stream , int buffer_size , void * buffer , bool abort_on_error) {
-
+bool util_copy_stream(FILE *src_stream , FILE *target_stream , size_t buffer_size , void * buffer , bool abort_on_error) {
   while ( ! feof(src_stream)) {
     int bytes_read;
     int bytes_written;
@@ -2195,7 +2221,7 @@ bool util_copy_stream(FILE *src_stream , FILE *target_stream , int buffer_size ,
 }
 
 
-static bool util_copy_file__(const char * src_file , const char * target_file, int buffer_size , void * buffer , bool abort_on_error) {
+static bool util_copy_file__(const char * src_file , const char * target_file, size_t buffer_size , void * buffer , bool abort_on_error) {
   if (util_same_file(src_file , target_file)) {
     fprintf(stderr,"%s Warning: trying to copy %s onto itself - nothing done\n",__func__ , src_file);
     return false;
@@ -2207,6 +2233,18 @@ static bool util_copy_file__(const char * src_file , const char * target_file, i
         
       fclose(src_stream);
       fclose(target_stream);
+
+#ifdef HAVE_CHMOD_AND_MODE_T
+      {
+        struct stat stat_buffer;
+        mode_t src_mode;
+
+        stat( src_file , &stat_buffer );
+        src_mode = stat_buffer.st_mode;
+        chmod( target_file , src_mode );
+      }
+#endif
+
       return result;
     }
   }
@@ -2421,7 +2459,7 @@ bool util_file_exists(const char *filename) {
 bool util_entry_exists( const char * entry ) {
   stat_type stat_buffer;
   int stat_return = util_stat(entry, &stat_buffer);
-  if (stat_return == 0)
+  if (stat_return == 0) 
     return true;
   else {
     if (errno == ENOENT)
@@ -3027,6 +3065,19 @@ bool util_sscanf_date(const char * date_token , time_t * t) {
     *t = -1;
     return false;
   }
+}
+
+
+bool util_sscanf_percent(const char * percent_token, double * value) {
+  char * percent_ptr;
+
+  double double_val = strtod( percent_token, &percent_ptr);
+
+  if (0 == strcmp(percent_ptr, "%")) {
+    *value = double_val;
+    return true;
+  } else
+    return false;
 }
 
 
@@ -4044,7 +4095,7 @@ void util_float_to_double(double *double_ptr , const float *float_ptr , int size
 void util_double_to_float(float *float_ptr , const double *double_ptr , int size) {
   int i;
   for (i=0; i < size; i++)
-    float_ptr[i] = double_ptr[i];
+    float_ptr[i] = (float) double_ptr[i];
 }
 
 
@@ -4759,8 +4810,18 @@ char * util_realloc_sprintf(char * s , const char * fmt , ...) {
   
 
 void util_abort_signal(int signal) {
-  util_abort("Program recieved signal:%d\n" , signal);
+  util_abort("Program received signal:%d\n" , signal);
 }
+
+
+void util_install_signals(void) {
+  signal(SIGSEGV , util_abort_signal);    /* Segmentation violation, i.e. overwriting memory ... */
+  signal(SIGTERM , util_abort_signal);    /* If killing the enkf program with SIGTERM (the default kill signal) you will get a backtrace. 
+                                             Killing with SIGKILL (-9) will not give a backtrace.*/
+  signal(SIGABRT , util_abort_signal);    /* Signal abort. */ 
+  signal(SIGILL  , util_abort_signal);    /* Signal illegal instruction. */
+}
+
 
 
 void util_exit(const char * fmt , ...) {
@@ -4991,6 +5052,7 @@ char * util_alloc_link_target(const char * link) {
 
 
 #ifdef HAVE_UTIL_ABORT
+#include "util_abort_test.c"
 #include "util_abort_gnu.c"
 #else
 #include "util_abort_simple.c"

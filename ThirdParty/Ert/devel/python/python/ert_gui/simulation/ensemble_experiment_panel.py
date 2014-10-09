@@ -39,10 +39,13 @@ class EnsembleExperimentPanel(SimulationConfigPanel):
 
         self.setLayout(layout)
 
+
     def isConfigurationValid(self):
         return self.active_realizations_field.isValid()
 
-
+    def toggleAdvancedOptions(self, show_advanced):
+        self.active_realizations_field.setVisible(show_advanced)
+        self.layout().labelForField(self.active_realizations_field).setVisible(show_advanced)
 
 
 

@@ -71,11 +71,10 @@ void test_change_case(const char * site_config, const char * model_config) {
       free(current_case); 
     }
     
-    enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "default" , false , false );
+    enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "default" , false  );
     enkf_main_select_fs( enkf_main , "default");
     test_assert_true( enkf_main_case_is_current( enkf_main , "default"));
-    enkf_fs_umount( enkf_fs );
-    
+    enkf_fs_decref( enkf_fs );
     enkf_main_free(enkf_main); 
 }
 

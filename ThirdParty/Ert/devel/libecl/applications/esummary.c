@@ -52,7 +52,7 @@ int main(int argc , char ** argv) {
     if (argc < 3) usage(); 
 
     {
-      ecl_sum_type * first_ecl_sum;   /* This governs the timing */
+      ecl_sum_type * first_ecl_sum = NULL;   /* This governs the timing */
       vector_type  * ecl_sum_list = vector_alloc_new();
       time_interval_type * time_union = NULL;
       time_interval_type * time_intersect = NULL;
@@ -74,30 +74,32 @@ int main(int argc , char ** argv) {
           util_alloc_file_components( argv[iarg] , &path , &basename  , NULL); 
           fprintf(stderr,"Loading case: %s/%s" , path , basename); fflush(stderr);
           ecl_sum = ecl_sum_fread_alloc_case( argv[iarg] , ":");
-
-          if (iarg == 1) {
-            first_ecl_sum = ecl_sum;  /* Keep track of this  - might sort the vector */
-            time_union = time_interval_alloc_copy( ecl_sum_get_sim_time( ecl_sum ));
-            time_intersect = time_interval_alloc_copy( ecl_sum_get_sim_time( ecl_sum ));
-
-            if (use_time_union)
-              time = time_union;
-            else
-              time = time_intersect;
-            vector_append_owned_ref( ecl_sum_list , ecl_sum , ecl_sum_free__ );
-          } else {
-            const time_interval_type * ti = ecl_sum_get_sim_time( ecl_sum );
-            if (time_interval_has_overlap(time , ti)) {
-              time_interval_intersect( time_intersect , ti );
-              time_interval_extend( time_union , ti );
+          if (ecl_sum) {
+            if (first_ecl_sum == NULL) {
+              first_ecl_sum = ecl_sum;  /* Keep track of this  - might sort the vector */
+              time_union = time_interval_alloc_copy( ecl_sum_get_sim_time( ecl_sum ));
+              time_intersect = time_interval_alloc_copy( ecl_sum_get_sim_time( ecl_sum ));
               
-              vector_append_owned_ref( ecl_sum_list , ecl_sum , ecl_sum_free__ );
-              load_count++;
+              if (use_time_union)
+                time = time_union;
+              else
+                time = time_intersect;
+            vector_append_owned_ref( ecl_sum_list , ecl_sum , ecl_sum_free__ );
             } else {
-              fprintf(stderr,"** Warning case:%s has no time overlap - discarded \n",ecl_sum_get_case( ecl_sum ));
-              ecl_sum_free( ecl_sum );
+              const time_interval_type * ti = ecl_sum_get_sim_time( ecl_sum );
+              if (time_interval_has_overlap(time , ti)) {
+                time_interval_intersect( time_intersect , ti );
+                time_interval_extend( time_union , ti );
+                
+                vector_append_owned_ref( ecl_sum_list , ecl_sum , ecl_sum_free__ );
+                load_count++;
+              } else {
+                fprintf(stderr,"** Warning case:%s has no time overlap - discarded \n",ecl_sum_get_case( ecl_sum ));
+                ecl_sum_free( ecl_sum );
+              }
             }
-          }
+          } else 
+            fprintf(stderr," --- no data found?!");
           
           iarg++;
           fprintf(stderr,"\n");

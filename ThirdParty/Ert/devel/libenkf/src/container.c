@@ -55,6 +55,16 @@ const void * container_iget_node(const container_type * container , int index) {
   return vector_iget_const( container->nodes , index );
 }
 
+int container_get_size( const container_type * container ) {
+  return vector_get_size( container->nodes );
+}
+
+void container_assert_size( const container_type * container ) {
+  if (vector_get_size( container->nodes ) != container_config_get_size( container->config ))
+    util_abort("%s: container size mismatch. Current:%d  Config:%d \n",__func__ , container_get_size( container ) , container_config_get_size( container->config ));
+}
+
+
 /******************************************************************/
 /* Anonumously generated functions used by the enkf_node object   */
 /******************************************************************/

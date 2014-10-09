@@ -17,12 +17,29 @@
 from ert.cwrap import BaseCEnum
 from ert.config import CONFIG_LIB
 
-
 class ContentTypeEnum(BaseCEnum):
-    pass
+    CONFIG_STRING        = None
+    CONFIG_INT           = None
+    CONFIG_FLOAT         = None
+    CONFIG_PATH          = None
+    CONFIG_EXISTING_PATH = None
+    CONFIG_BOOL          = None
+    CONFIG_CONFIG        = None
+    CONFIG_BYTESIZE      = None
+    CONFIG_EXECUTABLE    = None
+    CONFIG_INVALID       = None
 
+ContentTypeEnum.addEnum("CONFIG_STRING", 1)
+ContentTypeEnum.addEnum("CONFIG_INT", 2)
+ContentTypeEnum.addEnum("CONFIG_FLOAT", 4)
+ContentTypeEnum.addEnum("CONFIG_PATH", 8)
+ContentTypeEnum.addEnum("CONFIG_EXISTING_PATH", 16)
+ContentTypeEnum.addEnum("CONFIG_BOOL", 32)
+ContentTypeEnum.addEnum("CONFIG_CONFIG", 64)
+ContentTypeEnum.addEnum("CONFIG_BYTESIZE", 128)
+ContentTypeEnum.addEnum("CONFIG_EXECUTABLE", 256)
+ContentTypeEnum.addEnum("CONFIG_INVALID", 512)
 
-ContentTypeEnum.populateEnum(CONFIG_LIB, "config_schema_item_type_enum_iget")
 ContentTypeEnum.registerEnum(CONFIG_LIB, "config_content_type_enum")
 
 

@@ -1,6 +1,6 @@
 from ert.config import CONFIG_LIB
 from ert.cwrap import BaseCEnum
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 

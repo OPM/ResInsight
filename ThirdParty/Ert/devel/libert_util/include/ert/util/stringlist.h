@@ -52,6 +52,7 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   bool              stringlist_iequal( const stringlist_type * stringlist , int index, const char * s );
   const      char * stringlist_iget(const stringlist_type * , int);
   int               stringlist_iget_as_int( const stringlist_type * stringlist , int index , bool * valid);
+  bool              stringlist_iget_as_bool( const stringlist_type * stringlist, int index, bool * valid);
   char            * stringlist_iget_copy(const stringlist_type * stringlist , int );
   char            * stringlist_alloc_joined_string(const stringlist_type *  , const char * );
   char            * stringlist_alloc_joined_substring( const stringlist_type * s , int start_index , int end_index , const char * sep );

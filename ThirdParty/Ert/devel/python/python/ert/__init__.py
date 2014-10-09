@@ -62,6 +62,14 @@ import cwrap.clib
 import sys
 import warnings
 
+
+
+try:
+    import ert_site_init
+except ImportError:
+    pass
+
+
 required_version_hex = 0x02060000
 
 ert_lib_path = os.getenv("ERT_LIBRARY_PATH")

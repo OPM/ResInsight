@@ -28,6 +28,9 @@ target_link_libraries( config_content_item config test_util )
 add_executable( config_argc config_argc.c)
 target_link_libraries( config_argc config test_util )
 
+add_executable( config_define config_define.c)
+target_link_libraries( config_define config test_util )
+
 add_executable( config_error config_error.c)
 target_link_libraries( config_error config test_util )
 add_test( config_error ${EXECUTABLE_OUTPUT_PATH}/config_error )
@@ -45,6 +48,7 @@ add_test( config_typeOK        ${EXECUTABLE_OUTPUT_PATH}/config_typeOK       ${C
 add_test( config_typeFail      ${EXECUTABLE_OUTPUT_PATH}/config_typeFail     ${CMAKE_CURRENT_SOURCE_DIR}/data/type_testFail )
 add_test( config_append_test   ${EXECUTABLE_OUTPUT_PATH}/config_append_test  ${CMAKE_CURRENT_SOURCE_DIR}/data/append_test )
 add_test( config_node_test     ${EXECUTABLE_OUTPUT_PATH}/config_node_test    ${CMAKE_CURRENT_SOURCE_DIR}/data/append_test )
+add_test( config_define        ${EXECUTABLE_OUTPUT_PATH}/config_define       ${CMAKE_CURRENT_SOURCE_DIR}/data/define_test )
 add_test( config_path_elm      ${EXECUTABLE_OUTPUT_PATH}/config_path_elm )
 add_test( config_content_node  ${EXECUTABLE_OUTPUT_PATH}/config_content_node )
 add_test( config_content_item  ${EXECUTABLE_OUTPUT_PATH}/config_content_item ${CMAKE_CURRENT_SOURCE_DIR}/data/content_item_test)

@@ -18,7 +18,7 @@ from _ctypes import ArgumentError
 import os
 import datetime
 from ert.ecl import EclFile
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 
@@ -34,6 +34,7 @@ class RestartTest(ExtendedTestCase):
 
     def addFile( self, filename ):
         self.file_list.append(filename)
+
 
     def tearDown(self):
         for f in self.file_list:
@@ -76,11 +77,11 @@ class RestartTest(ExtendedTestCase):
 
     def report_list_file_test(self, fname, rlist0):
         rlist = EclFile.file_report_list(fname)
-        self.assertAlmostEqualList(rlist, rlist0)
+        self.assertListEqual(rlist, rlist0)
 
         f = EclFile(fname)
         rlist = f.report_list
-        self.assertAlmostEqualList(rlist, rlist0)
+        self.assertListEqual(rlist, rlist0)
 
 
     def test_report_list(self):
@@ -122,7 +123,7 @@ class RestartTest(ExtendedTestCase):
 
         self.assertTrue(kw1.equal(kw2))
         self.assertTrue(kw1.equal(kw3))
-
-        kw4 = f.restart_get_kw("SWAT", datetime.datetime(2009, 3, 1))
-        self.assertIsNone(kw4)
-
+        
+        with self.assertRaises(IndexError):
+            kw4 = f.restart_get_kw("SWAT", datetime.datetime(2009, 3, 17))
+            
