@@ -850,12 +850,12 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
 
 cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(const QString& faceString)
 {
-    if (faceString == "X" ) return cvf::StructGridInterface::POS_I;
-    if (faceString == "X-") return cvf::StructGridInterface::NEG_I;
-    if (faceString == "Y" ) return cvf::StructGridInterface::POS_J;
-    if (faceString == "Y-") return cvf::StructGridInterface::NEG_J;
-    if (faceString == "Z" ) return cvf::StructGridInterface::POS_K;
-    if (faceString == "Z-") return cvf::StructGridInterface::NEG_K;
+    if (faceString == "X"  || faceString == "I" ) return cvf::StructGridInterface::POS_I;
+    if (faceString == "X-" || faceString == "I-") return cvf::StructGridInterface::NEG_I;
+    if (faceString == "Y"  || faceString == "J" ) return cvf::StructGridInterface::POS_J;
+    if (faceString == "Y-" || faceString == "J-") return cvf::StructGridInterface::NEG_J;
+    if (faceString == "Z"  || faceString == "K" ) return cvf::StructGridInterface::POS_K;
+    if (faceString == "Z-" || faceString == "K-") return cvf::StructGridInterface::NEG_K;
 
     return cvf::StructGridInterface::NO_FACE;
 }
