@@ -109,28 +109,28 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
         size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->reservoirActiveCellCount();
         RigCaseCellResultsData* destCellResultsData = m_destinationCase->results(poroModel);
 
-        // Special handling if SOIL is asked for
-        // Build SGAS/SWAT meta data, SOIL is automatically generated as part of RigCaseCellResultsData::findOrLoadScalarResultForTimeStep
-        if (resultName.toUpper() == "SOIL")
-        {
-            size_t swatIndex = m_sourceCases.at(0)->results(poroModel)->cellResults()->findScalarResultIndex(resultType, "SWAT");
-            if (swatIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                buildSourceMetaData(poroModel, resultType, "SWAT");
-            }
-
-            size_t sgasIndex = m_sourceCases.at(0)->results(poroModel)->cellResults()->findScalarResultIndex(resultType, "SGAS");
-            if (sgasIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                buildSourceMetaData(poroModel, resultType, "SGAS");
-            }
-        }
-        else
-        {
-            // Meta info is loaded from disk for first case only
-            // Build metadata for all other source cases
-            buildSourceMetaData(poroModel, resultType, resultName);
-        }
+//         // Special handling if SOIL is asked for
+//         // Build SGAS/SWAT meta data, SOIL is automatically generated as part of RigCaseCellResultsData::findOrLoadScalarResultForTimeStep
+//         if (resultName.toUpper() == "SOIL")
+//         {
+//             size_t swatIndex = m_sourceCases.at(0)->results(poroModel)->cellResults()->findScalarResultIndex(resultType, "SWAT");
+//             if (swatIndex != cvf::UNDEFINED_SIZE_T)
+//             {
+//                 buildSourceMetaData(poroModel, resultType, "SWAT");
+//             }
+// 
+//             size_t sgasIndex = m_sourceCases.at(0)->results(poroModel)->cellResults()->findScalarResultIndex(resultType, "SGAS");
+//             if (sgasIndex != cvf::UNDEFINED_SIZE_T)
+//             {
+//                 buildSourceMetaData(poroModel, resultType, "SGAS");
+//             }
+//         }
+//         else
+//         {
+//             // Meta info is loaded from disk for first case only
+//             // Build metadata for all other source cases
+//             buildSourceMetaData(poroModel, resultType, resultName);
+//         }
 
         // Create new result data structures to contain the statistical values
         std::vector<QString> statisticalResultNames;
