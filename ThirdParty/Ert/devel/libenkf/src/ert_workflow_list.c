@@ -80,7 +80,7 @@ void ert_workflow_list_set_verbose( ert_workflow_list_type * workflow_list , boo
 }
 
 
-subst_list_type * ert_workflow_list_get_context(const ert_workflow_list_type * workflow_list) {
+const subst_list_type * ert_workflow_list_get_context(const ert_workflow_list_type * workflow_list) {
     return workflow_list->context;
 }
 
@@ -102,7 +102,7 @@ workflow_type * ert_workflow_list_add_workflow( ert_workflow_list_type * workflo
     if (workflow_name == NULL) 
       util_alloc_file_components( workflow_file , NULL , &name , NULL );
     else 
-      name = workflow_name;
+      name = (char *) workflow_name;
 
 
     hash_insert_hash_owned_ref( workflow_list->workflows , name , workflow , workflow_free__);    

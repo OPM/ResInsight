@@ -103,9 +103,12 @@ class EclConfig(BaseCClass):
 
     def getRefcase(self):
         """ @rtype: EclSum """
-        refcase = EclConfig.cNamespace().get_refcase(self)
-        refcase.setParent(self)
+        refcase = EclConfig.cNamespace().get_refcase( self )
+        if not refcase is None:
+            refcase.setParent(self)
+
         return refcase
+
 
     def validateRefcase(self, refcase):
         return EclConfig.cNamespace().validate_refcase( self , refcase )
@@ -167,7 +170,7 @@ EclConfig.cNamespace().set_init_section = cwrapper.prototype("void ecl_config_se
 EclConfig.cNamespace().validate_init_section = cwrapper.prototype("ui_return_obj ecl_config_validate_init_section(ecl_config, char*)")
 
 EclConfig.cNamespace().get_refcase_name = cwrapper.prototype("char* ecl_config_get_refcase_name(ecl_config)")
-EclConfig.cNamespace().get_refcase = cwrapper.prototype("ecl_sum_ref ecl_config_get_refcase(ecl_config)")
+EclConfig.cNamespace().get_refcase = cwrapper.prototype("ecl_sum_ref ecl_config_get_refcase(ecl_config)")   #todo: fix return type!!!
 EclConfig.cNamespace().load_refcase = cwrapper.prototype("void ecl_config_load_refcase(ecl_config, char*)")
 EclConfig.cNamespace().validate_refcase = cwrapper.prototype("ui_return_obj ecl_config_validate_refcase(ecl_config, char*)")
 EclConfig.cNamespace().has_refcase = cwrapper.prototype("bool ecl_config_has_refcase(ecl_config)")

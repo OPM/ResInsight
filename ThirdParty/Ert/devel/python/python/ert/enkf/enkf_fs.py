@@ -29,7 +29,8 @@ class EnkfFs(BaseCClass):
     @classmethod
     def createCReference(cls, c_pointer, parent=None):
         obj = super(EnkfFs, cls).createCReference(c_pointer, parent)
-        obj.__umounted = False
+        if not obj is None:
+            obj.__umounted = False
         return obj
 
 
@@ -79,10 +80,11 @@ class EnkfFs(BaseCClass):
         return cls.cNamespace().exists(path)
 
     @classmethod
-    def createFileSystem(cls, path, fs_type, arg=None):
+    def createFileSystem(cls, path, fs_type, arg=None , mount = False):
         assert isinstance(path, str)
         assert isinstance(fs_type, EnKFFSType)
-        cls.cNamespace().create(path, fs_type, arg)
+        fs = cls.cNamespace().create(path, fs_type, arg, mount)
+        return fs
 
 
     def __checkIfUmounted(self):
@@ -99,12 +101,10 @@ class EnkfFs(BaseCClass):
 
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("enkf_fs", EnkfFs)
-cwrapper.registerType("enkf_fs_obj", EnkfFs.createPythonObject)
-cwrapper.registerType("enkf_fs_ref", EnkfFs.createCReference)
+cwrapper.registerObjectType("enkf_fs", EnkfFs)
 
 EnkfFs.cNamespace().mount = cwrapper.prototype("c_void_p enkf_fs_mount(char* )")
-EnkfFs.cNamespace().create = cwrapper.prototype("void enkf_fs_create_fs(char* , enkf_fs_type_enum , c_void_p)")
+EnkfFs.cNamespace().create = cwrapper.prototype("enkf_fs_ref enkf_fs_create_fs(char* , enkf_fs_type_enum , c_void_p , bool)")
 EnkfFs.cNamespace().decref = cwrapper.prototype("int enkf_fs_decref(enkf_fs)")
 EnkfFs.cNamespace().get_refcount = cwrapper.prototype("int enkf_fs_get_refcount(enkf_fs)")
 EnkfFs.cNamespace().has_node = cwrapper.prototype("bool enkf_fs_has_node(enkf_fs, char*, c_uint, int, int, c_uint)")

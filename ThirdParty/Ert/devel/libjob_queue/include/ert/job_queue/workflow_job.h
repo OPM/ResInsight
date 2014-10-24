@@ -43,8 +43,8 @@ extern "C" {
   char *         workflow_job_get_executable( workflow_job_type * workflow_job);
 
   void           workflow_job_set_internal_script( workflow_job_type * workflow_job , const char * script_path);
-  char*          workflow_job_get_internal_script_path( workflow_job_type * workflow_job);
-  bool           workflow_job_is_internal_script( workflow_job_type * workflow_job);
+  char*          workflow_job_get_internal_script_path( const workflow_job_type * workflow_job);
+  bool           workflow_job_is_internal_script( const workflow_job_type * workflow_job);
 
   void           workflow_job_set_function( workflow_job_type * workflow_job , const char * function);
   char *         workflow_job_get_function( workflow_job_type * workflow_job);

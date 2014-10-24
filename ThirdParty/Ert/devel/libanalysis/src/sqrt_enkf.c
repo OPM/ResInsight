@@ -142,7 +142,10 @@ long sqrt_enkf_get_options( void * arg , long flag ) {
 }
 
 
-void sqrt_enkf_init_update( void * arg , 
+
+// Called from analysis_module.c: analysis_module_init_update()
+void sqrt_enkf_init_update( void * arg ,
+                          const bool_vector_type * ens_mask,
                           const matrix_type * S , 
                           const matrix_type * R , 
                           const matrix_type * dObs , 

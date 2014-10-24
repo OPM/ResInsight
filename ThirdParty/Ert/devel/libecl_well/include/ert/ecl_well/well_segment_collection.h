@@ -47,7 +47,9 @@ extern "C" {
                                                                        const ecl_kw_type * iwel_kw , 
                                                                        const ecl_kw_type * iseg_kw , 
                                                                        const well_rseg_loader_type * rseg_loader ,
-                                                                       const ecl_rsthead_type * rst_head);
+                                                                       const ecl_rsthead_type * rst_head,
+                                                                       bool load_segment_information , bool * is_MSW_well);
+  
   void                           well_segment_collection_link(const  well_segment_collection_type * segment_collection);
   void                           well_segment_collection_add_connections(well_segment_collection_type * segment_collection , 
                                                                          const char * grid_name , 

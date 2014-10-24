@@ -273,7 +273,7 @@ static void well_info_add_state( well_info_type * well_info , well_state_type * 
    determine the number of wells.
  */
 
-void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file , int report_nr) {
+void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file , int report_nr, bool load_segment_information) {
   int flags = ecl_file_get_flags(rst_file);
   if (ecl_file_flags_set(rst_file, ECL_FILE_CLOSE_STREAM)) {
     int new_flags = flags & ~ECL_FILE_CLOSE_STREAM;
@@ -284,7 +284,7 @@ void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file 
     ecl_rsthead_type * global_header = ecl_rsthead_alloc( rst_file );
     int well_nr;
     for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
-      well_state_type * well_state = well_state_alloc_from_file( rst_file , well_info->grid , report_nr , well_nr );
+      well_state_type * well_state = well_state_alloc_from_file( rst_file , well_info->grid , report_nr , well_nr , load_segment_information );
       if (well_state != NULL)
         well_info_add_state( well_info , well_state );
     }
@@ -300,7 +300,7 @@ void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file 
    not have the SEQNUM keyword.
 */
 
-void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst_file) {
+void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst_file, bool load_segment_information) {
   {
     int num_blocks = ecl_file_get_num_named_kw( rst_file , SEQNUM_KW );
     int block_nr;
@@ -311,7 +311,7 @@ void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst
         {                                                                                             //  is not changed as a side
           const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw( rst_file , SEQNUM_KW , 0);          //  effect.
           int report_nr = ecl_kw_iget_int( seqnum_kw , 0 );                                           //
-          well_info_add_wells( well_info , rst_file , report_nr );                                    //
+          well_info_add_wells( well_info , rst_file , report_nr , load_segment_information );                                    //
         }                                                                                             //
       }                                                                                               //
       ecl_file_pop_block( rst_file );       // <-------------------------------------------------------
@@ -326,23 +326,23 @@ void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst
    have crash and burn.
 */
 
-void well_info_load_rstfile( well_info_type * well_info , const char * filename) {
+void well_info_load_rstfile( well_info_type * well_info , const char * filename, bool load_segment_information) {
   ecl_file_type * ecl_file = ecl_file_open( filename , 0);
-  well_info_load_rst_eclfile(well_info, ecl_file);
+  well_info_load_rst_eclfile(well_info, ecl_file, load_segment_information);
   ecl_file_close( ecl_file );
 }
 
 
-void well_info_load_rst_eclfile( well_info_type * well_info , ecl_file_type * ecl_file) {
+void well_info_load_rst_eclfile( well_info_type * well_info , ecl_file_type * ecl_file, bool load_segment_information) {
   int report_nr;
   const char* filename = ecl_file_get_src_file(ecl_file);
   ecl_file_enum file_type = ecl_util_get_file_type( filename , NULL , &report_nr);
   if ((file_type == ECL_RESTART_FILE) || (file_type == ECL_UNIFIED_RESTART_FILE))
   {
     if (file_type == ECL_RESTART_FILE)
-      well_info_add_wells( well_info , ecl_file , report_nr );
+      well_info_add_wells( well_info , ecl_file , report_nr , load_segment_information );
     else
-      well_info_add_UNRST_wells( well_info , ecl_file );
+      well_info_add_UNRST_wells( well_info , ecl_file , load_segment_information );
 
   } else
     util_abort("%s: invalid file type: %s - must be a restart file\n", __func__ , filename);

@@ -56,8 +56,10 @@ int main(int argc , char ** argv) {
       well_conn_collection_load_from_kw( connections , iwel_kw , icon_kw , scon_kw , well_nr , rst_head);
       {
         well_segment_collection_type * segments = well_segment_collection_alloc();
+        bool load_segment_information = true;
+        bool is_MSW_well = false;
                 
-        if (well_segment_collection_load_from_kw( segments , well_nr , iwel_kw , iseg_kw , rseg_loader , rst_head )) {
+        if (well_segment_collection_load_from_kw( segments , well_nr , iwel_kw , iseg_kw , rseg_loader , rst_head , load_segment_information , &is_MSW_well)) {
           well_branch_collection_type * branches = well_branch_collection_alloc();
           
           test_assert_true( well_segment_well_is_MSW( well_nr , iwel_kw , rst_head));

@@ -35,6 +35,7 @@
 #include <ert/enkf/ensemble_config.h>
 #include <ert/enkf/enkf_analysis.h>
 #include <ert/enkf/ecl_config.h>
+#include <ert/enkf/run_arg.h>
 
 #include <enkf_tui_util.h>
 #include <enkf_tui_fs.h>
@@ -138,10 +139,6 @@ void enkf_tui_run_exp(void * enkf_main) {
   const int ens_size          = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive  = bool_vector_alloc(0,false);
 
-  state_enum init_state    = ANALYZED; 
-  int start_report         = 0;
-  int init_step_parameters = 0;
-  
   {
 
     char * prompt = util_alloc_sprintf("Which realizations to simulate (Ex: 1,3-5) <Enter for all> [M to return to menu] : " , ens_size);
@@ -155,7 +152,7 @@ void enkf_tui_run_exp(void * enkf_main) {
     free( prompt );
   }
   if (bool_vector_count_equal(iactive , true))
-    enkf_main_run_exp(enkf_main , iactive , true , init_step_parameters , start_report , init_state);
+    enkf_main_run_exp(enkf_main , iactive , true );
   
   bool_vector_free(iactive);
 }
@@ -167,9 +164,6 @@ void enkf_tui_run_create_runpath__(void * __enkf_main) {
   const int ens_size         = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive = bool_vector_alloc(0,false);
 
-  state_enum init_state    = ANALYZED; 
-  int start_report         = 0;
-  int init_step_parameters = 0;
   {
     char * prompt = util_alloc_sprintf("Which realizations to create[ensemble size:%d] : " , ens_size);
     char * select_string;
@@ -181,7 +175,7 @@ void enkf_tui_run_create_runpath__(void * __enkf_main) {
     util_safe_free( select_string );
     free( prompt );
   }
-  enkf_main_run_exp(enkf_main , iactive , false , init_step_parameters , start_report , init_state);
+  enkf_main_run_exp(enkf_main , iactive , false );
   bool_vector_free(iactive);
 }
 
@@ -197,11 +191,8 @@ void enkf_tui_run_manual_load__( void * arg ) {
   enkf_main_type * enkf_main = enkf_main_safe_cast( arg );
   const int ens_size         = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive = bool_vector_alloc( 0 , false );
-  run_mode_type run_mode     = ENSEMBLE_EXPERIMENT;
   int iter = 0;
   
-  enkf_main_init_run(enkf_main , iactive , run_mode , INIT_NONE);  /* This is ugly */
-
   {
     char * prompt = util_alloc_sprintf("Which realizations to load  (Ex: 1,3-5) <Enter for all> [M to return to menu] : [ensemble size:%d] : " , ens_size);
     char * select_string;
@@ -243,20 +234,7 @@ void enkf_tui_run_manual_load__( void * arg ) {
     }
 
     enkf_main_load_from_forward_model(enkf_main, iter , iactive, realizations_msg_list);
-
-    {
-      qc_module_type * qc_module = enkf_main_get_qc_module( enkf_main );
-      runpath_list_type * runpath_list = qc_module_get_runpath_list( qc_module );
-
-      for (iens = 0; iens < ens_size; ++iens) {
-        if (bool_vector_iget(iactive , iens)) {
-          const enkf_state_type * state = enkf_main_iget_state( enkf_main , iens );
-          runpath_list_add( runpath_list , iens , iter, enkf_state_get_run_path( state ) , enkf_state_get_eclbase( state ));
-        }
-      }
-      qc_module_export_runpath_list( qc_module );
-    }
-
+    
     for (iens = 0; iens < ens_size; ++iens) {
       stringlist_type * msg_list = realizations_msg_list[iens];
       if (bool_vector_iget(iactive, iens)) {

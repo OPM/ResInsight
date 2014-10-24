@@ -162,7 +162,7 @@ void * enkf_main_ensemble_run_JOB( void * self , const stringlist_type * args ) 
   bool_vector_type * iactive = alloc_iactive_vector_from_range(args, 0, stringlist_get_size(args), ens_size);
 
   bool_vector_iset( iactive , ens_size - 1 , true );
-  enkf_main_run_exp( enkf_main , iactive , true , 0 , 0 , ANALYZED);
+  enkf_main_run_exp( enkf_main , iactive , true );
   bool_vector_free(iactive);
   return NULL;
 }
@@ -536,43 +536,34 @@ static void enkf_main_export_runpath_file(enkf_main_type * enkf_main,
   const model_config_type * model_config  = enkf_main_get_model_config(enkf_main);
   const char * basename_fmt               = ecl_config_get_eclbase(ecl_config);
   const char * runpath_fmt                = model_config_get_runpath_as_char(model_config);
+  const qc_module_type * qc_module        = enkf_main_get_qc_module( enkf_main );
 
-
-  runpath_list_type * runpath_list = runpath_list_alloc();
-  char * cwd = util_alloc_cwd();
+  runpath_list_type * runpath_list = runpath_list_alloc( qc_module_get_runpath_list_file( qc_module ));
 
   for (int iter = 0; iter < int_vector_size(iterations); ++iter) {
     for (int iens = 0; iens < int_vector_size(realizations); ++iens) {
       int iter_value = int_vector_iget(iterations, iter);
       int iens_value = int_vector_iget(realizations, iens);
-      char * basename = NULL;
+      char * basename;
+      char * runpath;
+
       if (basename_fmt)
         basename = util_alloc_sprintf(basename_fmt, iens_value);
       else
         basename = util_alloc_sprintf("--%d", iens_value);
-      char * runpath = NULL;
-      if (model_config_runpath_requires_iter(model_config)) {
+
+      if (model_config_runpath_requires_iter(model_config)) 
         runpath = util_alloc_sprintf(runpath_fmt, iens_value, iter_value);
-      }
       else
         runpath = util_alloc_sprintf(runpath_fmt, iens_value);
-
+      
       runpath_list_add(runpath_list, iens_value, iter_value, runpath, basename);
 
       free(basename);
       free(runpath);
     }
   }
-
-  {
-    qc_module_type * qc_module     = enkf_main_get_qc_module( enkf_main );
-    const char * runpath_file_name = qc_module_get_runpath_list_file(qc_module);
-    FILE * file_stream = util_mkdir_fopen(runpath_file_name, "w");
-    runpath_list_fprintf(runpath_list, file_stream);
-    fclose(file_stream);
-  }
-
-  free(cwd);
+  runpath_list_fprintf(runpath_list);
   runpath_list_free(runpath_list);
 }
 

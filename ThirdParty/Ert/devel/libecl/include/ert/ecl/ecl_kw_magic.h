@@ -345,10 +345,10 @@ extern "C" {
 #define FILEHEAD_DUAL_PERMEABILITY    2 
 
 
-#define INACTIVE            0 
-#define ACTIVE_MATRIX       1
-#define ACTIVE              ACTIVE_MATRIX 
-#define ACTIVE_FRACTURE     2 
+#define CELL_NOT_ACTIVE          0 
+#define CELL_ACTIVE_MATRIX       1
+#define CELL_ACTIVE              CELL_ACTIVE_MATRIX 
+#define CELL_ACTIVE_FRACTURE     2 
 
 
 

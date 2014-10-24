@@ -16,6 +16,7 @@
 from ert.cwrap import BaseCClass, CWrapper
 
 from ert.enkf import AnalysisConfig, EclConfig, EnkfObs, EnKFState, LocalConfig, ModelConfig, EnsConfig, PlotConfig, SiteConfig, ENKF_LIB, EnkfSimulationRunner, EnkfFsManager, ErtWorkflowList, PostSimulationHook
+from ert.enkf.enums import EnkfInitModeEnum
 from ert.util import SubstitutionList, Log
 
 
@@ -39,6 +40,14 @@ class EnKFMain(BaseCClass):
     @staticmethod
     def createNewConfig(config_file, storage_path, case_name, dbase_type, num_realizations):
         EnKFMain.cNamespace().create_new_config(config_file, storage_path, case_name, dbase_type, num_realizations)
+
+    def getRealisation(self , iens):
+        """ @rtype: EnKFState """
+        if 0 <= iens < len(self):
+            return EnKFMain.cNamespace().iget_state(self, iens).setParent(self)
+        else:
+            raise IndexError("iens value:%d invalid Valid range: [0,%d)" % (iens , len(self)))
+
 
     def set_eclbase(self, eclbase):
         EnKFMain.cNamespace().set_eclbase(self, eclbase)
@@ -202,6 +211,15 @@ class EnKFMain(BaseCClass):
     def loadFromForwardModel(self, realization, iteration, fs):
         EnKFMain.cNamespace().load_from_forward_model(self, iteration, realization, fs)
 
+        
+    def submitSimulation(self , run_arg):
+        EnKFMain.cNamespace().submit_simulation( self , run_arg)
+
+
+    def getRunContextENSEMPLE_EXPERIMENT(self , fs , iactive , init_mode = EnkfInitModeEnum.INIT_CONDITIONAL , iteration = 0):
+        return EnKFMain.cNamespace().alloc_run_context_ENSEMBLE_EXPERIMENT( self , fs , iactive , init_mode , iteration )
+    
+
 
 ##################################################################
 
@@ -263,3 +281,5 @@ EnKFMain.cNamespace().export_field = cwrapper.prototype("bool enkf_main_export_f
 EnKFMain.cNamespace().export_field_with_fs = cwrapper.prototype("bool enkf_main_export_field_with_fs(enkf_main, char*, char*, bool_vector, enkf_field_file_format_enum, int, enkf_state_type_enum, enkf_fs_manager)")
 EnKFMain.cNamespace().load_from_forward_model = cwrapper.prototype("void enkf_main_load_from_forward_model_from_gui(enkf_main, int, bool_vector, enkf_fs)")
 
+EnKFMain.cNamespace().submit_simulation = cwrapper.prototype("void enkf_main_isubmit_job(enkf_main , run_arg)")
+EnKFMain.cNamespace().alloc_run_context_ENSEMBLE_EXPERIMENT= cwrapper.prototype("ert_run_context_obj enkf_main_alloc_ert_run_context_ENSEMBLE_EXPERIMENT( enkf_main , enkf_fs , bool_vector , enkf_init_mode_enum , int)")

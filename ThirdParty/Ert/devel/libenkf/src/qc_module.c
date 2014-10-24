@@ -40,7 +40,6 @@ struct qc_module_struct {
   workflow_type          * qc_workflow;
   ert_workflow_list_type * workflow_list;
   runpath_list_type      * runpath_list; 
-  char                   * runpath_list_file; 
 };
 
 
@@ -51,18 +50,16 @@ qc_module_type * qc_module_alloc( ert_workflow_list_type * workflow_list , const
   qc_module->qc_workflow = NULL;
   qc_module->qc_path = NULL;
   qc_module->workflow_list = workflow_list;
-  qc_module->runpath_list = runpath_list_alloc();
-  qc_module->runpath_list_file = NULL;
+  qc_module->runpath_list = runpath_list_alloc( NULL );
   qc_module_set_path( qc_module , qc_path );
   qc_module_set_runpath_list_file( qc_module , NULL, RUNPATH_LIST_FILE );
-
+  
   return qc_module;
 }
 
 
 void qc_module_free( qc_module_type * qc_module ) {
   util_safe_free( qc_module->qc_path );
-  util_safe_free( qc_module->runpath_list_file);
   runpath_list_free( qc_module->runpath_list );
   free( qc_module );
 }
@@ -73,14 +70,11 @@ runpath_list_type * qc_module_get_runpath_list( qc_module_type * qc_module ) {
 
 
 void qc_module_export_runpath_list( const qc_module_type * qc_module ) {
-  FILE * stream = util_fopen( qc_module->runpath_list_file , "w");
-  runpath_list_fprintf( qc_module->runpath_list , stream );
-  fclose( stream );
+  runpath_list_fprintf( qc_module->runpath_list );
 }
   
 static void qc_module_set_runpath_list_file__( qc_module_type * qc_module , const char * runpath_list_file) {
-  util_safe_free( qc_module->runpath_list_file );
-  qc_module->runpath_list_file = util_alloc_string_copy( runpath_list_file );
+  runpath_list_set_export_file( qc_module->runpath_list , runpath_list_file );
 }
 
 
@@ -111,8 +105,8 @@ void qc_module_set_runpath_list_file( qc_module_type * qc_module , const char * 
   }
 }
 
-const char * qc_module_get_runpath_list_file( qc_module_type * qc_module) {
-  return qc_module->runpath_list_file;
+const char * qc_module_get_runpath_list_file( const qc_module_type * qc_module) {
+  return runpath_list_get_export_file( qc_module->runpath_list );
 }
 
 
@@ -143,8 +137,9 @@ void qc_module_set_workflow( qc_module_type * qc_module , const char * qc_workfl
 bool qc_module_run_workflow( const qc_module_type * qc_module , void * self) {
   bool verbose = false;
   if (qc_module->qc_workflow != NULL ) {
-    if (!util_file_exists( qc_module->runpath_list_file ))
-      fprintf(stderr,"** Warning: the file:%s with a list of runpath directories was not found - QC workflow wil probably fail.\n" , qc_module->runpath_list_file);
+    const char * export_file = runpath_list_get_export_file( qc_module->runpath_list );
+    if (!util_file_exists( export_file ))
+      fprintf(stderr,"** Warning: the file:%s with a list of runpath directories was not found - QC workflow wil probably fail.\n" , export_file);
     
     bool result = ert_workflow_list_run_workflow__( qc_module->workflow_list, qc_module->qc_workflow , verbose , self);
     return result;

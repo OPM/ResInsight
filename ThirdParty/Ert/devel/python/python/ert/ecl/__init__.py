@@ -83,7 +83,7 @@ from .ecl_util import EclFileEnum, EclFileFlagEnum, EclPhaseEnum, EclTypeEnum, E
 from .ecl_default import EclDefault
 from .ecl_rft_cell import EclPLTCell, EclRFTCell
 from .ecl_rft import EclRFT, EclRFTFile
-from .fortio import FortIO
+from .fortio import FortIO, openFortIO
 from .ecl_kw import EclKW
 from .ecl_file import EclFile
 from .ecl_grid import EclGrid

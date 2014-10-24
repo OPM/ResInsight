@@ -44,7 +44,7 @@ int main(int argc, char ** argv) {
       stream = stdout;
     
     ecl_grid = ecl_grid_alloc(grid_file);
-    ecl_grid_dump_ascii( ecl_grid , true , stream );
+    ecl_grid_dump_ascii( ecl_grid , false , stream );
     
     if (output_file != NULL)
       fclose( stream );

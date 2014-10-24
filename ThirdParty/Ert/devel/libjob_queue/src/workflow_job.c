@@ -180,11 +180,11 @@ void workflow_job_set_internal_script( workflow_job_type * workflow_job , const 
   workflow_job->internal_script_path = util_realloc_string_copy( workflow_job->internal_script_path , script_path );
 }
 
-char* workflow_job_get_internal_script_path( workflow_job_type * workflow_job) {
+char* workflow_job_get_internal_script_path( const workflow_job_type * workflow_job) {
     return workflow_job->internal_script_path;
 }
 
-bool workflow_job_is_internal_script( workflow_job_type * workflow_job) {
+bool workflow_job_is_internal_script( const workflow_job_type * workflow_job) {
     return workflow_job->internal && workflow_job->internal_script_path != NULL;
 }
 

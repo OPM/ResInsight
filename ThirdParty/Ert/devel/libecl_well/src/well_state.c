@@ -168,6 +168,7 @@ struct well_state_struct {
   int              global_well_nr;
   bool             open;
   well_type_enum   type;
+  bool             is_MSW_well;
 
   hash_type      * connections;                                                       // hash<grid_name,well_conn_collection>
   well_segment_collection_type * segments;
@@ -199,6 +200,7 @@ well_state_type * well_state_alloc(const char * well_name , int global_well_nr ,
   well_state->connections = hash_alloc();
   well_state->segments = well_segment_collection_alloc();
   well_state->branches = well_branch_collection_alloc();
+  well_state->is_MSW_well = false;
 
   /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
   if ((type == UNDOCUMENTED_ZERO) && open)
@@ -370,7 +372,8 @@ void well_state_add_connections( well_state_type * well_state ,
 
 bool well_state_add_MSW( well_state_type * well_state ,
                          const ecl_file_type * rst_file ,
-                         int well_nr) {
+                         int well_nr,
+                         bool load_segment_information) {
 
   if (ecl_file_has_kw( rst_file , ISEG_KW)) {
     ecl_rsthead_type  * rst_head  = ecl_rsthead_alloc( rst_file );
@@ -378,50 +381,60 @@ bool well_state_add_MSW( well_state_type * well_state ,
     const ecl_kw_type * iseg_kw = ecl_file_iget_named_kw( rst_file , ISEG_KW , 0);
     well_rseg_loader_type * rseg_loader = NULL;
     
-    int segments;
+    int segment_count;
 
-    if (ecl_file_has_kw( rst_file , RSEG_KW ))
+    if (ecl_file_has_kw( rst_file , RSEG_KW )) {
+      if (load_segment_information)
         rseg_loader = well_rseg_loader_alloc(rst_file);
+        
+      segment_count = well_segment_collection_load_from_kw( well_state->segments ,
+                                                            well_nr ,
+                                                            iwel_kw ,
+                                                            iseg_kw ,
+                                                            rseg_loader ,
+                                                            rst_head,
+                                                            load_segment_information , 
+                                                            &well_state->is_MSW_well);
+      
+      
+      if (segment_count > 0) {
+        hash_iter_type * grid_iter = hash_iter_alloc( well_state->connections );
+        while (!hash_iter_is_complete( grid_iter )) {
+          const char * grid_name = hash_iter_get_next_key( grid_iter );
+          const well_conn_collection_type * connections = hash_get( well_state->connections , grid_name );
+          well_segment_collection_add_connections( well_state->segments , grid_name , connections );
+        }
+        hash_iter_free( grid_iter );
 
-    segments = well_segment_collection_load_from_kw( well_state->segments ,
-                                                     well_nr ,
-                                                     iwel_kw ,
-                                                     iseg_kw ,
-                                                     rseg_loader ,
-                                                     rst_head);
-
-    if (segments) {
-      hash_iter_type * grid_iter = hash_iter_alloc( well_state->connections );
-      while (!hash_iter_is_complete( grid_iter )) {
-        const char * grid_name = hash_iter_get_next_key( grid_iter );
-        const well_conn_collection_type * connections = hash_get( well_state->connections , grid_name );
-        well_segment_collection_add_connections( well_state->segments , grid_name , connections );
+        well_segment_collection_link( well_state->segments );
+        well_segment_collection_add_branches( well_state->segments , well_state->branches );
       }
-      hash_iter_free( grid_iter );
-      well_segment_collection_link( well_state->segments );
-      well_segment_collection_add_branches( well_state->segments , well_state->branches );
-    }
-    ecl_rsthead_free( rst_head );
-
-    if(rseg_loader != NULL) {
+      ecl_rsthead_free( rst_head );
+      
+      if (rseg_loader != NULL) {
         well_rseg_loader_free(rseg_loader);
+      }
+      
+      return true;
     }
-
-    return true;
   } else
     return false;
 }
 
 
 bool well_state_is_MSW( const well_state_type * well_state) {
-  if (well_segment_collection_get_size( well_state->segments ) > 0)
-    return true;
-  else
-    return false;
+  return well_state->is_MSW_well;
+}
+
+bool well_state_has_segment_data(const well_state_type * well_state){
+    if (well_segment_collection_get_size( well_state->segments ) > 0)
+      return true;
+    else
+      return false;
 }
 
 
-well_state_type * well_state_alloc_from_file( ecl_file_type * ecl_file , const ecl_grid_type * grid , int report_nr ,  int global_well_nr) {
+well_state_type * well_state_alloc_from_file( ecl_file_type * ecl_file , const ecl_grid_type * grid , int report_nr ,  int global_well_nr ,bool load_segment_information) {
   if (ecl_file_has_kw( ecl_file , IWEL_KW)) {
     well_state_type   * well_state = NULL;
     ecl_rsthead_type  * global_header  = ecl_rsthead_alloc( ecl_file );
@@ -456,7 +469,9 @@ well_state_type * well_state_alloc_from_file( ecl_file_type * ecl_file , const e
 
       well_state_add_connections( well_state , grid , ecl_file , global_well_nr);
       if (ecl_file_has_kw( ecl_file , ISEG_KW))
-        well_state_add_MSW( well_state , ecl_file , global_well_nr );
+        well_state_add_MSW( well_state , ecl_file , global_well_nr , load_segment_information);
+      
+
     }
     ecl_rsthead_free( global_header );
     return well_state;

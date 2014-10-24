@@ -71,6 +71,10 @@ class WellState(BaseCClass):
         """ @rtype: bool """
         return WellState.cNamespace().is_msw(self)
 
+    def hasSegmentData(self):
+        """ @rtype: bool """
+        return WellState.cNamespace().has_segment_data(self)
+
 
 CWrapper.registerObjectType("well_state", WellState)
 cwrapper = CWrapper(ECL_WELL_LIB)
@@ -83,6 +87,7 @@ WellState.cNamespace().well_number = cwrapper.prototype("int well_state_get_well
 WellState.cNamespace().report_number = cwrapper.prototype("int well_state_get_report_nr(well_state)")
 WellState.cNamespace().sim_time = cwrapper.prototype("time_t well_state_get_sim_time(well_state)")
 WellState.cNamespace().well_type = cwrapper.prototype("well_type_enum well_state_get_type(well_state)")
+WellState.cNamespace().has_segment_data = cwrapper.prototype("bool well_state_has_segment_data(well_state)")
 
 WellState.cNamespace().has_global_connections = cwrapper.prototype("bool well_state_has_global_connections(well_state)")
 WellState.cNamespace().get_global_connections = cwrapper.prototype("c_void_p well_state_get_global_connections(well_state)")

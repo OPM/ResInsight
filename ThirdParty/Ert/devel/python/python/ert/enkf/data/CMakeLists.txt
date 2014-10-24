@@ -3,6 +3,7 @@ set(PYTHON_SOURCES
     enkf_config_node.py
     enkf_node.py
     gen_kw.py
+    gen_data.py
     field.py
     field_config.py
     gen_data_config.py

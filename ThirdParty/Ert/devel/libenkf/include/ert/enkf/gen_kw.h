@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <ert/util/subst_list.h>
+#include <ert/util/double_vector.h>
 
 #include <ert/enkf/gen_kw_config.h>
 #include <ert/enkf/enkf_util.h>
@@ -42,6 +43,7 @@ void             gen_kw_free(gen_kw_type *);
 int              gen_kw_data_size( gen_kw_type * );
 double           gen_kw_data_iget( gen_kw_type * , int , bool );
 void             gen_kw_data_iset( gen_kw_type * , int , double );
+void             gen_kw_data_set_vector( gen_kw_type * gen_kw, const double_vector_type * values );
 double           gen_kw_data_get( gen_kw_type * , const char * , bool );
 void             gen_kw_data_set( gen_kw_type *, const char *, double );
 bool             gen_kw_data_has_key( gen_kw_type *, const char *);

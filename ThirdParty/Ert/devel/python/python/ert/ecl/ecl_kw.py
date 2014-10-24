@@ -730,6 +730,9 @@ class EclKW(CClass):
         else:
             raise TypeError("Can only compare with another EclKW")
     
+    def __eq__(self , other):
+        return self.equal( other )
+
 
     def equal_numeric(self , other , epsilon = 1e-6):
         """

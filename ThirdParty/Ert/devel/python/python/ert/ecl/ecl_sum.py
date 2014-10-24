@@ -816,14 +816,6 @@ ime_index.
         return CTime( EclSum.cNamespace().get_data_start( self ) ).datetime()
     
 
-    @property
-    def start_time(self):
-        """
-        A Python datetime instance with the start time.
-        
-        See start_date() for further details.
-        """
-        return CTime( EclSum.cNamespace().get_start_date( self ) ).datetime()
 
     @property
     def end_time(self):
@@ -831,7 +823,23 @@ ime_index.
         The time of the last (loaded) time step.
         """
         return CTime(EclSum.cNamespace().get_end_date( self )).datetime()
+
     
+    @property
+    def start_time(self):
+        return self.getStartTime()
+
+        
+    def getStartTime(self):
+        """
+        A Python datetime instance with the start time.
+        
+        See start_date() for further details.
+        """
+        return CTime( EclSum.cNamespace().get_start_date( self ) ).datetime()
+
+
+
     @property
     def last_report(self):
         """
@@ -916,7 +924,8 @@ ime_index.
     @classmethod
     def createCReference(cls, c_pointer, parent=None):
         result = super(EclSum, cls).createCReference(c_pointer, parent)
-        result._initialize()
+        if not result is None:
+            result._initialize()
         return result
 
     @classmethod

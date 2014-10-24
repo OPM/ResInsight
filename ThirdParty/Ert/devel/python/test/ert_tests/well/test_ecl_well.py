@@ -31,7 +31,23 @@ class EclWellTest(ExtendedTestCase):
     @classmethod
     def setUpClass(cls):
         EclWellTest.__well_info = None
+        EclWellTest.__well_info_with_no_well_segments = None
 
+
+    def getWellInfoWithNoWellSegments(self):
+        """ @rtype: WellInfo """
+        if EclWellTest.__well_info_with_no_well_segments is None:
+            grid_path = self.createTestPath("Statoil/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.EGRID")
+            rst_path_1 = self.createTestPath("Statoil/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.X0135")
+
+            grid = EclGrid(grid_path)
+
+            rst_file = EclFile(rst_path_1, EclFileFlagEnum.ECL_FILE_CLOSE_STREAM)
+
+            EclWellTest.__well_info_with_no_well_segments = WellInfo(grid, rst_file, False)
+
+
+        return EclWellTest.__well_info_with_no_well_segments
 
     def getWellInfo(self):
         """ @rtype: WellInfo """
@@ -78,17 +94,17 @@ class EclWellTest(ExtendedTestCase):
 
 
         well_info = WellInfo(grid)
-        well_info.addWellFile(rst_path_1)
+        well_info.addWellFile(rst_path_1, True)
 
         checkWellInfo(well_info, well_count=5, report_step_count=[1, 1, 1, 1, 1])
 
-        well_info.addWellFile(EclFile(rst_path_2))
+        well_info.addWellFile(EclFile(rst_path_2), True)
         checkWellInfo(well_info, well_count=8, report_step_count=[2, 2, 2, 2, 2, 1, 1, 1])
 
-        well_info.addWellFile(EclFile(rst_path_3))
+        well_info.addWellFile(EclFile(rst_path_3), True)
         checkWellInfo(well_info, well_count=8, report_step_count=[3, 3, 3, 3, 3, 2, 2, 2])
 
-        well_info.addWellFile(rst_path_4)
+        well_info.addWellFile(rst_path_4, True)
         checkWellInfo(well_info, well_count=8, report_step_count=[4, 4, 4, 4, 4, 3, 3, 3])
 
 
@@ -358,6 +374,35 @@ class EclWellTest(ExtendedTestCase):
                        103, 104, 105, 106, 107, 108]
 
         self.assertTrue(well_state.isMultiSegmentWell())
+
+        self.assertTrue(well_state.hasGlobalConnections())
+        global_connections = well_state.globalConnections()
+
+        self.assertEqual(len(global_connections), len(segment_ids))
+
+        for index, connection in enumerate(global_connections):
+            assert isinstance(connection, WellConnection)
+            self.assertTrue(connection.isOpen())
+            self.assertTrue(connection.isMultiSegmentWell())
+            self.assertEqual(connection.segmentId(), segment_ids[index])
+            self.assertFalse(connection.isFractureConnection())
+            self.assertTrue(connection.isMatrixConnection())
+            self.assertEqual(connection.direction(), WellConnectionDirectionEnum.well_conn_dirY)
+
+
+    def test_well_connections_msw_do_not_load_segments(self):
+        well_info = self.getWellInfoWithNoWellSegments()
+
+        well_name = "X22AYH"
+        well_time_line = well_info[well_name]
+        well_state = well_time_line[0]
+
+        segment_ids = [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+                       80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102,
+                       103, 104, 105, 106, 107, 108]
+
+        self.assertTrue(well_state.isMultiSegmentWell())
+        self.assertFalse(well_state.hasSegmentData())
 
         self.assertTrue(well_state.hasGlobalConnections())
         global_connections = well_state.globalConnections()

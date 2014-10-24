@@ -44,7 +44,7 @@ int main( int argc , char ** argv) {
     ecl_grid_type * grid = ecl_grid_alloc( argv[1] );
     well_info_type * well_info = well_info_alloc( grid );
 
-    well_info_load_rstfile( well_info , argv[2]);
+    well_info_load_rstfile( well_info , argv[2] , true);
     
     // List all wells:
     {

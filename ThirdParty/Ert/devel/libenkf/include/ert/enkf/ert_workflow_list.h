@@ -54,7 +54,7 @@ extern "C" {
   const config_error_type  * ert_workflow_list_get_last_error( const ert_workflow_list_type * workflow_list);
   void                       ert_workflow_list_set_verbose( ert_workflow_list_type * workflow_list , bool verbose);
   bool                       ert_workflow_list_run_workflow_blocking(ert_workflow_list_type * workflow_list  , const char * workflow_name , void * self);
-  subst_list_type *          ert_workflow_list_get_context(const ert_workflow_list_type * workflow_list);
+  const subst_list_type *          ert_workflow_list_get_context(const ert_workflow_list_type * workflow_list);
   int                        ert_workflow_list_get_size( const ert_workflow_list_type * workflow_list);
 
   UTIL_IS_INSTANCE_HEADER( ert_workflow_list );

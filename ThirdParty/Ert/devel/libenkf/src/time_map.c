@@ -592,7 +592,7 @@ int_vector_type * time_map_alloc_index_map( time_map_type * map , const ecl_sum_
         time_t sum_time;
         
         while (true) {
-          sum_time = ecl_sum_iget_sim_time( ecl_sum , sum_index );
+          sum_time = ecl_sum_get_report_time( ecl_sum , sum_index );
           
           if (sum_time > map_time) {
             int day,month,year;

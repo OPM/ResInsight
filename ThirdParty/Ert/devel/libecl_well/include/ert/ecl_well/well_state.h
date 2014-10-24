@@ -41,7 +41,7 @@ extern "C" {
   typedef struct well_state_struct well_state_type;
   
   well_state_type      * well_state_alloc(const char * well_name , int global_well_nr , bool open, well_type_enum type , int report_nr, time_t valid_from);
-  well_state_type      * well_state_alloc_from_file( ecl_file_type * ecl_file , const ecl_grid_type * grid , int report_step , int well_nr);
+  well_state_type      * well_state_alloc_from_file( ecl_file_type * ecl_file , const ecl_grid_type * grid , int report_step , int well_nr , bool load_segment_information);
 
   void well_state_add_connections( well_state_type * well_state , 
                                    const ecl_grid_type * grid , 
@@ -50,9 +50,13 @@ extern "C" {
 
   bool well_state_add_MSW( well_state_type * well_state , 
                            const ecl_file_type * rst_file , 
-                           int well_nr);
+                           int  well_nr,
+                           bool load_segment_information);
+                           
 
   bool well_state_is_MSW( const well_state_type * well_state);
+
+  bool well_state_has_segment_data(const well_state_type * well_state);
 
   well_segment_collection_type * well_state_get_segments( const well_state_type * well_state );
   well_branch_collection_type * well_state_get_branches( const well_state_type * well_state );

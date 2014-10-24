@@ -79,7 +79,7 @@ class SensitivityStudyPanel(SimulationConfigPanel):
 
     def showParametersPopup(self):
         parameter_panel = SensitivityStudyParametersPanel()
-        dialog = ClosableDialog("Edit variables", parameter_panel, self.parent())
+        dialog = ClosableDialog("Sensitivity Study Parameters", parameter_panel, self.parent())
 
         dialog.exec_()
 

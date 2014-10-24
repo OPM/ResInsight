@@ -453,10 +453,8 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
-    if (isSimulationWellDataEnabled())
-    {
-        readWellCells(mainEclGrid);
-    }
+
+    readWellCells(mainEclGrid, isSimulationWellDataEnabled());
 
     progInfo.setProgressDescription("Releasing reader memory");
     ecl_grid_free( mainEclGrid );
@@ -1057,7 +1055,7 @@ void propagatePosContribDownwards(std::map<int, std::vector<SegmentPositionContr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
+void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, bool importCompleteMswData)
 {
     CVF_ASSERT(m_eclipseCase);
 
@@ -1066,7 +1064,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
     well_info_type* ert_well_info = well_info_alloc(mainEclGrid);
     if (!ert_well_info) return;
 
-    m_dynamicResultsAccess->readWellData(ert_well_info);
+    m_dynamicResultsAccess->readWellData(ert_well_info, importCompleteMswData);
 
     RigMainGrid* mainGrid = m_eclipseCase->mainGrid();
     std::vector<RigGridBase*> grids;
@@ -1129,7 +1127,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
             wellResFrame.m_isOpen = well_state_is_open( ert_well_state );
 
 
-            if (well_state_is_MSW(ert_well_state))
+            if (importCompleteMswData && well_state_is_MSW(ert_well_state))
             {
                 wellResults->setMultiSegmentWell(true);
 

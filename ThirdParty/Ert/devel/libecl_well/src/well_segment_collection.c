@@ -104,23 +104,28 @@ int well_segment_collection_load_from_kw( well_segment_collection_type * segment
                                           const ecl_kw_type * iwel_kw , 
                                           const ecl_kw_type * iseg_kw , 
                                           const well_rseg_loader_type * rseg_loader ,
-                                          const ecl_rsthead_type * rst_head) {
-
+                                          const ecl_rsthead_type * rst_head , 
+                                          bool load_segments , bool * is_MSW_well) {
+  
   int iwel_offset = rst_head->niwelz * well_nr;
   int segment_well_nr = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_SEGMENTED_WELL_NR_ITEM) - 1; 
   int segments_added = 0;
       
   if (segment_well_nr != IWEL_SEGMENTED_WELL_NR_NORMAL_VALUE) {
     int segment_index;
-    for (segment_index = 0; segment_index < rst_head->nsegmx; segment_index++) {
-      int segment_id = segment_index + WELL_SEGMENT_OFFSET;
-      well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_loader , rst_head , segment_well_nr , segment_index , segment_id );
+    *is_MSW_well = true;
 
-      if (well_segment_active( segment )) {
-        well_segment_collection_add( segment_collection , segment );
-        segments_added++;
-      } else
-        well_segment_free( segment );
+    if (load_segments) {
+      for (segment_index = 0; segment_index < rst_head->nsegmx; segment_index++) {
+        int segment_id = segment_index + WELL_SEGMENT_OFFSET;
+        well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_loader , rst_head , segment_well_nr , segment_index , segment_id );
+        
+        if (well_segment_active( segment )) {
+          well_segment_collection_add( segment_collection , segment );
+          segments_added++;
+        } else
+          well_segment_free( segment );
+      }
     }
   }
   return segments_added;

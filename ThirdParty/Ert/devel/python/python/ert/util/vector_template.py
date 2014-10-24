@@ -510,3 +510,15 @@ class VectorTemplate(BaseCClass):
                 return self.cNamespace().rsort_perm(self)
 
         return None
+
+
+    def asList(self):
+        l = [0] * len(self)
+        for (index,value) in enumerate(self):
+            l[index] = value
+            
+        return l
+
+    def selectUnique(self):
+        self.cNamespace().select_unique(self)
+

@@ -14,8 +14,8 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB, EnkfFs, NodeId, GenData
-from ert.enkf.data import EnkfConfigNode
+from ert.enkf import ENKF_LIB, EnkfFs, NodeId
+from ert.enkf.data import EnkfConfigNode , GenKw , GenData
 from ert.enkf.data.gen_data_config import GenDataConfig
 from ert.enkf.enums import EnkfStateType
 from ert.enkf.enums.ert_impl_type_enum import ErtImplType
@@ -50,6 +50,14 @@ class EnkfNode(BaseCClass):
         return GenData.createCReference(self.valuePointer(), self)
 
 
+    def asGenKw(self):
+        impl_type = EnkfNode.cNamespace().get_impl_type(self)
+        assert impl_type == ErtImplType.GEN_KW
+
+        return GenKw.createCReference(self.valuePointer(), self)
+
+
+
     # def vector_storage(self):
     #     return EnkfNode.cNamespace().vector_storage(self)
 
@@ -70,6 +78,9 @@ class EnkfNode(BaseCClass):
 
         return EnkfNode.cNamespace().try_load(self, fs, node_id)
 
+    def save(self , fs , node_id ):
+        EnkfNode.cNamespace().store(self , fs , True , node_id)
+
 
     def free(self):
         EnkfNode.cNamespace().free(self)
@@ -89,6 +100,6 @@ EnkfNode.cNamespace().value_ptr = cwrapper.prototype("c_void_p enkf_node_value_p
 
 EnkfNode.cNamespace().try_load = cwrapper.prototype("bool enkf_node_try_load(enkf_node, enkf_fs, node_id)")
 EnkfNode.cNamespace().get_impl_type = cwrapper.prototype("ert_impl_type_enum enkf_node_get_impl_type(enkf_node)")
-
+EnkfNode.cNamespace().store = cwrapper.prototype("void enkf_node_store(enkf_node, enkf_fs , bool , node_id)")
 #todo fix this
 # EnkfNode.cNamespace().get_config = cwrapper.prototype("c_void_p enkf_node_get_config(enkf_node)")

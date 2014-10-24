@@ -95,13 +95,13 @@ static void * enkf_main_initialize_from_scratch_mt(void * void_arg) {
   enkf_main_type * enkf_main         = arg_pack_iget_ptr( arg_pack , 0);
   const stringlist_type * param_list = arg_pack_iget_const_ptr( arg_pack , 1 );
   int iens                          = arg_pack_iget_int( arg_pack , 2 );
-  init_mode_enum init_mode           = arg_pack_iget_int( arg_pack , 3 );
+  init_mode_type init_mode           = arg_pack_iget_int( arg_pack , 3 );
   enkf_state_type * state = enkf_main_iget_state( enkf_main , iens);
   enkf_state_initialize( state , enkf_main_get_fs( enkf_main ) , param_list , init_mode);
   return NULL;
 }
 
-void enkf_main_initialize_from_scratch_with_bool_vector(enkf_main_type * enkf_main , const stringlist_type * param_list ,const bool_vector_type * iens_mask , init_mode_enum init_mode) {
+void enkf_main_initialize_from_scratch_with_bool_vector(enkf_main_type * enkf_main , const stringlist_type * param_list ,const bool_vector_type * iens_mask , init_mode_type init_mode) {
   int num_cpu = 4;
   int ens_size               = enkf_main_get_ensemble_size( enkf_main );
   thread_pool_type * tp     = thread_pool_alloc( num_cpu , true );
@@ -129,7 +129,7 @@ void enkf_main_initialize_from_scratch_with_bool_vector(enkf_main_type * enkf_ma
   thread_pool_free( tp );
 }
 
-void enkf_main_initialize_from_scratch(enkf_main_type * enkf_main , const stringlist_type * param_list , int iens1 , int iens2, init_mode_enum init_mode) {
+void enkf_main_initialize_from_scratch(enkf_main_type * enkf_main , const stringlist_type * param_list , int iens1 , int iens2, init_mode_type init_mode) {
     int iens;
     int ens_size = enkf_main_get_ensemble_size( enkf_main );
     bool_vector_type * iens_mask = bool_vector_alloc(ens_size,false);
@@ -422,7 +422,8 @@ static void enkf_main_create_fs( const enkf_main_type * enkf_main , const char *
 
   enkf_fs_create_fs( new_mount_point,
                      model_config_get_dbase_type( enkf_main->model_config ) ,
-                     model_config_get_dbase_args( enkf_main->model_config ));
+                     model_config_get_dbase_args( enkf_main->model_config ) , 
+                     false );
 
   free( new_mount_point );
 }

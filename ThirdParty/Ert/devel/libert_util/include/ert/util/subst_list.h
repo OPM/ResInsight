@@ -50,7 +50,7 @@ extern "C" {
   char                  * subst_list_alloc_filtered_string(const subst_list_type * , const char * );
   void                    subst_list_filtered_fprintf(const subst_list_type * , const char *  , FILE * );
   int                     subst_list_get_size( const subst_list_type *);
-  const char            * subst_list_get_value( subst_list_type * subst_list , const char * key);
+  const char            * subst_list_get_value( const subst_list_type * subst_list , const char * key);
   const char            * subst_list_iget_value( const subst_list_type * subst_list , int index);
   const char            * subst_list_iget_key( const subst_list_type * subst_list , int index);
   const char            * subst_list_iget_doc_string( const subst_list_type * subst_list , int index);

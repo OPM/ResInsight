@@ -146,13 +146,13 @@ bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info)
+void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info, bool importCompleteMswData)
 {
     if (!well_info) return;
 
     if (openFile())
     {
-        well_info_add_UNRST_wells(well_info, m_ecl_file);
+        well_info_add_UNRST_wells(well_info, m_ecl_file, importCompleteMswData);
     }
 }
 

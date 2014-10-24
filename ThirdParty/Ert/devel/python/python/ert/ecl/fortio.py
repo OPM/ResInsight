@@ -107,6 +107,24 @@ class FortIO(BaseCClass):
         self.close()
 
 
+class FortIOContextManager(object):
+
+    def __init__(self , fortio):
+        self.__fortio = fortio
+    
+    def __enter__(self):
+        return self.__fortio
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__fortio.close()
+        return False          
+
+
+def openFortIO( file_name , mode = FortIO.READ_MODE , fmt_file = False , endian_flip_header = True):
+    return FortIOContextManager( FortIO( file_name , mode = mode , fmt_file = fmt_file , endian_flip_header = endian_flip_header ))
+
+
+
 
 cwrapper = CWrapper(ECL_LIB)
 cwrapper.registerObjectType("fortio", FortIO)

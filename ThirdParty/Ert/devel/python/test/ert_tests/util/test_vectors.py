@@ -354,6 +354,25 @@ class UtilTest(TestCase):
         self.assertTrue( other not in tv)
 
 
+    def test_unique(self):
+        iv = IntVector()
+        iv.append(1)
+        iv.append(1)
+        iv.append(1)
+        iv.append(0)
+        iv.append(1)
+        iv.append(2)
+        iv.append(2)
+        iv.append(0)
+        iv.append(3)
+        iv.selectUnique()
+        self.assertEqual( len(iv) , 4)
+        self.assertEqual( iv[0] , 0 )
+        self.assertEqual( iv[1] , 1 )
+        self.assertEqual( iv[2] , 2 )
+        self.assertEqual( iv[3] , 3 )
+
+
 
     def test_time_vector_regular(self):
         start = datetime.datetime(2010 , 1 , 1 , 0,0,0)
@@ -408,3 +427,12 @@ class UtilTest(TestCase):
 
         trange = TimeVector.createRegular(start , datetime.date(2050, 1 , 1) , "1Y")
         
+
+    def test_asList(self):
+        v = IntVector()
+        v[0] = 100
+        v[1] = 10
+        v[2] = 1
+
+        l = v.asList()
+        self.assertListEqual( l , [100,10,1] )

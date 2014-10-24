@@ -25,6 +25,7 @@
 #include <ert/util/util.h>
 
 #include <ert/enkf/enkf_main.h>
+#include <ert/enkf/run_arg.h>
 
 
 bool check_ecl_sum_compatible(const enkf_main_type * enkf_main)
@@ -32,13 +33,14 @@ bool check_ecl_sum_compatible(const enkf_main_type * enkf_main)
   stringlist_type * msg_list = stringlist_alloc_new();
   enkf_state_type * state    = enkf_main_iget_state( enkf_main , 0 );
   enkf_fs_type    * fs       = enkf_main_get_fs( enkf_main );
-  
+  run_arg_type * run_arg     = run_arg_alloc_ENSEMBLE_EXPERIMENT(fs , 0 , 0 , "simulations/run0");
+
   state_map_type * state_map = enkf_fs_get_state_map(fs);
   state_map_iset(state_map, 0, STATE_INITIALIZED);
   
   int error = 0; 
 
-  enkf_state_load_from_forward_model( state , fs , &error , false , msg_list );
+  enkf_state_load_from_forward_model( state , run_arg , &error , false , msg_list );
   
   stringlist_free( msg_list );
   return (REPORT_STEP_INCOMPATIBLE & error) ? false : true; 
@@ -61,26 +63,8 @@ int main(int argc , char ** argv) {
   bool strict = true;
   enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , strict , true );
   
-  {
-    run_mode_type run_mode = ENSEMBLE_EXPERIMENT; 
-    bool_vector_type * iactive = bool_vector_alloc( enkf_main_get_ensemble_size( enkf_main ) , true ); 
-    enkf_main_init_run(enkf_main , iactive , run_mode , INIT_NONE);     /* This is ugly */
-    
-    enkf_state_type * state = enkf_main_iget_state( enkf_main , 0 );
-    bool active = true;
-    int max_internal_sumbit = 1; 
-    int init_step_parameter = 1; 
-    state_enum init_state_parameter = FORECAST; 
-    state_enum init_state_dynamic = FORECAST; 
-    int load_start = 1; 
-    int step1 = 1; 
-    int step2 = 1; 
-    
-    enkf_state_init_run(state, run_mode, active, max_internal_sumbit, init_step_parameter, init_state_parameter, init_state_dynamic, load_start, 0, step1, step2);
-    bool_vector_free( iactive );
-  }
-
-  test_assert_bool_equal(check_compatible, check_ecl_sum_compatible(enkf_main));
+  
+  test_assert_bool_equal(check_compatible , check_ecl_sum_compatible(enkf_main));
   
   enkf_main_free( enkf_main );
   test_work_area_free(work_area); 

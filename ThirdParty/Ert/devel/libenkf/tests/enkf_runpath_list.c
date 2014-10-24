@@ -43,7 +43,7 @@ void * add_pathlist( void * arg ) {
 }
 
 void test_runpath_list() {
-  runpath_list_type * list = runpath_list_alloc();
+  runpath_list_type * list = runpath_list_alloc("DefaultFile");
 
   test_assert_int_equal( runpath_list_size( list ) , 0 );
 
@@ -102,20 +102,14 @@ void test_runpath_list() {
     
     {
       test_work_area_type * work_area = test_work_area_alloc("enkf_runpath_list" );
-      const char *filename = "runpath_list.txt";
-      {
-        FILE * stream = util_fopen( filename, "w");
-        runpath_list_fprintf( list , stream );
-        fclose( stream );
-      }
-
+      runpath_list_fprintf( list );
       {
         int file_iens;
         int file_iter;
         char file_path[256];
         char file_base[256];
         int iens;
-        FILE * stream = util_fopen( filename, "r");
+        FILE * stream = util_fopen( runpath_list_get_export_file(list) , "r");
         for (iens = 0; iens < threads * block_size; iens++) {
           int fscanf_return = fscanf( stream , "%d %s %s %d" , &file_iens , file_path , file_base, &file_iter);
           test_assert_int_equal(fscanf_return, 4 );
@@ -136,7 +130,7 @@ void test_config( const char * config_file ) {
   ert_test_context_type * test_context = ert_test_context_alloc( "RUNPATH_FILE" , config_file , NULL );
   enkf_main_type * enkf_main = ert_test_context_get_main( test_context );
   qc_module_type * qc_module = enkf_main_get_qc_module( enkf_main );
-
+  
   ert_test_context_run_worklow( test_context , "ARGECHO_WF");
   {
     FILE * stream = util_fopen("runpath_list.txt" , "r");
@@ -150,11 +144,18 @@ void test_config( const char * config_file ) {
 }
 
 
-
+void test_filename() {
+  runpath_list_type * list = runpath_list_alloc("DefaultFile");
+  test_assert_string_equal( "DefaultFile" , runpath_list_get_export_file(list));
+  runpath_list_set_export_file( list , "/tmp/file.txt");
+  test_assert_string_equal( "/tmp/file.txt" , runpath_list_get_export_file(list));
+  runpath_list_free( list );
+}
 
 int main(int argc , char ** argv) {
   test_runpath_list();
   test_config( argv[1] );
+  test_filename();
   exit(0);
 }
 

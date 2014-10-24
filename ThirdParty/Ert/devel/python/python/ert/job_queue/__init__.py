@@ -76,6 +76,7 @@ JOB_QUEUE_LIB = clib.ert_load("libjob_queue")
 from .job_status_type_enum import JobStatusType
 from .job import Job
 from .queue import JobList, JobQueue, statusList, exList, runtimeList
+from .job_queue_manager import JobQueueManager
 from .driver import QueueDriverEnum, Driver, LSFDriver, RSHDriver, LocalDriver
 from .ext_job import ExtJob
 from .ext_joblist import ExtJoblist

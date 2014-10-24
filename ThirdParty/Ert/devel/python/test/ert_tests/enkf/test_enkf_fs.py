@@ -27,8 +27,16 @@ class EnKFFSTest(ExtendedTestCase):
 
             self.assertFalse(EnkfFs.exists("newFS"))
             arg = None
-            EnkfFs.createFileSystem("newFS", EnKFFSType.BLOCK_FS_DRIVER_ID, arg)
+            fs = EnkfFs.createFileSystem("newFS", EnKFFSType.BLOCK_FS_DRIVER_ID, arg)
             self.assertTrue(EnkfFs.exists("newFS"))
+            self.assertTrue( fs is None )
+
+        with TestAreaContext("create_fs2") as work_area:
+            work_area.copy_parent_content(self.config_file)
+
+            new_fs = EnkfFs.createFileSystem("newFS", EnKFFSType.BLOCK_FS_DRIVER_ID, mount = True)
+            self.assertTrue( isinstance( new_fs , EnkfFs ))
+
 
 
     def test_throws(self):

@@ -81,7 +81,7 @@ extern "C" {
 
   void              enkf_fs_debug_fprintf( const enkf_fs_type * fs);
 
-  void              enkf_fs_create_fs( const char * mount_point , fs_driver_impl driver_id , void * arg);
+  enkf_fs_type *    enkf_fs_create_fs( const char * mount_point , fs_driver_impl driver_id , void * arg, bool mount);
 
   char             * enkf_fs_alloc_case_filename( const enkf_fs_type * fs , const char * input_name);
   char             * enkf_fs_alloc_case_member_filename( const enkf_fs_type * fs , int iens , const char * input_name);

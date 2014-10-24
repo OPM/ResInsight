@@ -124,3 +124,4 @@ BoolVector.cNamespace().create_active_mask = cwrapper.prototype("bool_vector_obj
 BoolVector.cNamespace().update_active_mask = cwrapper.prototype("bool string_util_update_active_mask(char*, bool_vector)")
 BoolVector.cNamespace().active_list        = cwrapper.prototype("int_vector_obj bool_vector_alloc_active_list(bool_vector)")
 BoolVector.cNamespace().contains           = cwrapper.prototype("bool bool_vector_contains(bool_vector, bool)")
+BoolVector.cNamespace().select_unique          = cwrapper.prototype("void bool_vector_select_unique(bool_vector)")

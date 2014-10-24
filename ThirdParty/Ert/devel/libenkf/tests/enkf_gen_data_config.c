@@ -25,7 +25,9 @@
 
 #include <ert/util/test_work_area.h>
 #include <ert/util/test_util.h>
+#include <ert/enkf/gen_data.h>
 #include <ert/enkf/gen_data_config.h>
+#include <ert/enkf/enkf_fs.h>
 
 
 void test_report_steps_param() {
@@ -90,7 +92,42 @@ void test_report_steps_dynamic() {
 }
 
 
+void test_gendata_fload(const char * filename) {
+  test_work_area_type * work_area = test_work_area_alloc( "test_gendata_fload");
+  gen_data_config_type * config = gen_data_config_alloc_GEN_DATA_result("KEY" , ASCII);
+  gen_data_type * gen_data = gen_data_alloc(config);
 
+  const char * cwd = test_work_area_get_cwd(work_area);
+  enkf_fs_type * write_fs =   enkf_fs_create_fs(cwd, BLOCK_FS_DRIVER_ID, NULL , true);
+  gen_data_config_set_write_fs(config, write_fs);
+  gen_data_fload(gen_data, filename);
+  int data_size = gen_data_config_get_data_size(config, 0);
+  test_assert_true(data_size > 0);
+  enkf_fs_decref( write_fs );
+
+  gen_data_free(gen_data);
+  gen_data_config_free( config );
+  test_work_area_free(work_area);
+}
+
+
+void test_gendata_fload_empty_file(const char * filename) {
+  test_work_area_type * work_area = test_work_area_alloc( "test_gendata_fload_empty_file" );
+  gen_data_config_type * config = gen_data_config_alloc_GEN_DATA_result("KEY" , ASCII);
+  gen_data_type * gen_data = gen_data_alloc(config);
+
+  const char * cwd = test_work_area_get_cwd(work_area);
+  enkf_fs_type * write_fs = enkf_fs_create_fs(cwd, BLOCK_FS_DRIVER_ID, NULL , true);
+  gen_data_config_set_write_fs(config, write_fs);
+  gen_data_fload(gen_data, filename);
+  int data_size = gen_data_config_get_data_size(config, 0);
+  test_assert_true(data_size == 0);
+  enkf_fs_decref( write_fs );
+
+  gen_data_free(gen_data);
+  gen_data_config_free( config );
+  test_work_area_free(work_area);
+}
 
 
 void test_result_format() {
@@ -304,6 +341,9 @@ void test_set_template() {
 
 int main(int argc , char ** argv) {
 
+  const char * gendata_file       = argv[1];
+  const char * gendata_file_empty = argv[2];
+
   test_report_steps_param();
   test_report_steps_dynamic();
   test_result_format();
@@ -311,6 +351,8 @@ int main(int argc , char ** argv) {
   test_set_template_invalid();
   test_set_invalid_format();
   test_format_check();
+  test_gendata_fload(gendata_file);
+  test_gendata_fload_empty_file(gendata_file_empty);
   
   exit(0);
 }

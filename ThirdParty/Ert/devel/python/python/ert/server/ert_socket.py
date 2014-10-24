@@ -19,6 +19,7 @@ import time
 import sys
 import threading
 import json
+import traceback
 
 from ert.server import ErtServer
 
@@ -36,7 +37,7 @@ class ErtHandler(SocketServer.StreamRequestHandler):
             else:
                 self.evalJson( json_data )
         except Exception,e:
-            self.handleInvalidJSON(data , e)
+            self.handleInvalidJSON(data , "%s %s" % (e , traceback.format_exc()))
             
 
 

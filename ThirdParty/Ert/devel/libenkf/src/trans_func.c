@@ -78,6 +78,12 @@ static double trans_const(double x , const arg_pack_type * arg) {
 }
 
 
+static double trans_raw(double x , const arg_pack_type * arg) { 
+  return x;
+}
+
+
+
 /* Observe that the argument of the shift should be "+" */
 static double trans_derrf(double x , const arg_pack_type * arg) {
   int    steps    = arg_pack_iget_int(arg , 0);
@@ -364,8 +370,10 @@ trans_func_type * trans_func_alloc( const char * func_name ) {
       trans_func->func = trans_const;
     }
     
-    if (util_string_equal( func_name , "NONE")) 
-      trans_func->func = trans_const;
+    
+    if (util_string_equal( func_name , "RAW")) {
+      trans_func->func = trans_raw;
+    }
 
     
     if (trans_func->func == NULL) 

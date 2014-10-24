@@ -173,10 +173,11 @@ void ecl_refcase_list_free( ecl_refcase_list_type * refcase_list ) {
 
 
 const ecl_sum_type * ecl_refcase_list_get_default( ecl_refcase_list_type * refcase_list ) {
+  const ecl_sum_type * return_value = NULL;
   if (refcase_list->default_case)
-    return sum_pair_get_ecl_sum( refcase_list->default_case );
-  else
-    return NULL;
+    return_value = sum_pair_get_ecl_sum( refcase_list->default_case );
+
+  return return_value;
 }
 
 

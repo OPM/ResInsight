@@ -15,7 +15,6 @@ set(PYTHON_SOURCES
     ert_template.py
     ert_templates.py
     ert_workflow_list.py
-    gen_data.py
     local_config.py
     local_obsdata.py
     local_obsdata_node.py
@@ -27,6 +26,8 @@ set(PYTHON_SOURCES
     post_simulation_hook.py
     site_config.py
     state_map.py
+    run_arg.py
+    ert_run_context.py
 )
 
 add_python_package("python.ert.enkf"  ${PYTHON_INSTALL_PREFIX}/ert/enkf "${PYTHON_SOURCES}" True)

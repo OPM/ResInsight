@@ -209,7 +209,7 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info)
+void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info, bool importCompleteMswData)
 {
     if (!well_info) return;
 
@@ -221,7 +221,7 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info)
         int reportNumber = ecl_util_filename_report_nr(fileName);
         if(reportNumber != -1)
         {
-            well_info_add_wells(well_info, m_ecl_files[i], reportNumber);
+            well_info_add_wells(well_info, m_ecl_files[i], reportNumber, importCompleteMswData);
         }
     }
 }

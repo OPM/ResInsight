@@ -819,7 +819,7 @@ const char * subst_list_iget_value( const subst_list_type * subst_list , int ind
   }
 }
 
-const char * subst_list_get_value( subst_list_type * subst_list , const char * key) {
+const char * subst_list_get_value( const subst_list_type * subst_list , const char * key) {
   const subst_list_string_type * node = hash_get( subst_list->map , key );
   return node->value;
 }

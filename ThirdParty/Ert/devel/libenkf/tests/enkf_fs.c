@@ -37,7 +37,7 @@ void test_mount() {
   test_work_area_type * work_area = test_work_area_alloc("enkf_fs/mount");
 
   test_assert_false( enkf_fs_exists( "mnt" ));
-  enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL );
+  test_assert_NULL( enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL , false));
   test_assert_true( enkf_fs_exists( "mnt" ));
   {
     enkf_fs_type * fs = enkf_fs_mount( "mnt"  );
@@ -46,7 +46,13 @@ void test_mount() {
     enkf_fs_decref( fs );
     test_assert_false( util_file_exists("mnt/mnt.lock"));
   }
+  {
+    enkf_fs_type * fs = enkf_fs_create_fs( "mnt2" , BLOCK_FS_DRIVER_ID , NULL , true);
+    test_assert_true( enkf_fs_is_instance( fs ));
+    enkf_fs_decref( fs );
+  }
 
+  
   test_work_area_free( work_area );
 }
 
@@ -54,7 +60,7 @@ void test_mount() {
 void test_refcount() {
   test_work_area_type * work_area = test_work_area_alloc("enkf_fs/refcount");
   
-  enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL );
+  enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL , false);
   {
     enkf_fs_type * fs = enkf_fs_mount( "mnt" );
     test_assert_int_equal( 1 , enkf_fs_get_refcount( fs ));
@@ -111,7 +117,7 @@ void test_fwrite_readonly( void * arg ) {
 */
 void test_read_only2() {
   test_work_area_type * work_area = test_work_area_alloc("enkf_fs/read_only2");
-  enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL );
+  enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL , false);
   createFS();
 
   while (true) {

@@ -27,7 +27,7 @@ try:
 except ImportError:
     from unittest import skipIf, skipUnless, skipIf
 
-from ert.server import ErtServer
+from ert.server import ErtServer,ErtCmdError
 from ert.util import StringList, TimeVector, DoubleVector
 
 from ert.test import ExtendedTestCase , TestAreaContext
@@ -59,5 +59,28 @@ class ServerTest(ExtendedTestCase):
             
             cmd = ["STATUS"]
             res = ert_server.evalCmd( cmd )
-            self.assertEqual( res , ["OPEN"] )
+            self.assertEqual( res , ["READY"] )
+
+            with self.assertRaises(ErtCmdError):
+                res = ert_server.evalCmd( ["UNKNWON-COMMAND"])
+            
+
+    def testSimulations(self):
+        with TestAreaContext("server/server") as work_area:
+            work_area.copy_directory_content(self.config_path)
+
+            
+            ert_server = ErtServer(self.config_file)
+            cmd = ["INIT_SIMULATIONS"]
+            with self.assertRaises(ErtCmdError):
+                res = ert_server.evalCmd( cmd )
+                
+            cmd = ["INIT_SIMULATIONS" , 100 , "Init_case"]
+            res = ert_server.evalCmd( cmd )
+
+            cmd = ["STATUS"]
+            res = ert_server.evalCmd( cmd )
+            self.assertEqual( res , ["RUNNING" , 0 , 0 ])
+            
+            cmd = ["START_SIMULATION" , "0"]
             

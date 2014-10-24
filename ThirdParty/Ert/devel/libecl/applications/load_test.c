@@ -20,87 +20,65 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-
 #include <ert/util/timer.h>
 
 #include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/ecl_file.h>
 
 
-
 void test_case( const char * base , bool load_all) {
-    timer_type * ti = timer_alloc(false);
-    timer_type * tr = timer_alloc(false);
-    timer_type * tg = timer_alloc(false);
+  timer_type * ti = timer_alloc(false);
+  timer_type * tr = timer_alloc(false);
+  timer_type * tg = timer_alloc(false);
 
-    char * grid_file    = NULL;
-    char * init_file    = NULL;
-    char * restart_file = NULL;
+  char * grid_file    = ecl_util_alloc_filename( NULL , base , ECL_EGRID_FILE , false , 0 );
+  char * init_file    = ecl_util_alloc_filename( NULL , base , ECL_INIT_FILE , false , 0 );
+  char * restart_file = ecl_util_alloc_filename( NULL , base , ECL_UNIFIED_RESTART_FILE , false , 0 );
 
-//    grid_file    = ecl_util_alloc_filename( NULL , base , ECL_EGRID_FILE , false , 0 );
-//     init_file    = ecl_util_alloc_filename( NULL , base , ECL_INIT_FILE , false , 0 );
-     restart_file = ecl_util_alloc_filename( NULL , base , ECL_UNIFIED_RESTART_FILE , false , 0 );
-
-
-    timer_start( tg );
-    if (grid_file)
-    {
-        ecl_grid_type * grid = NULL;
-        grid = ecl_grid_alloc(grid_file );
-        ecl_grid_free( grid );
-    }
-    timer_stop( tg );
-
-    timer_start( ti );
-    if (init_file)
-    {
-        ecl_file_type * init = NULL;
-        init = ecl_file_open( init_file , 0);
-        if (load_all)
-        {
-            ecl_file_load_all( init );
-        }
-        ecl_file_close( init );
-    }
-    timer_stop( ti );
-
-    timer_start( tr );
-    if (restart_file)
-    {
-        ecl_file_type * restart = NULL;
-        restart = ecl_file_open( restart_file , 0);
-        if (load_all)
-        {
-            ecl_file_load_all( restart );
-        }
-        ecl_file_close( restart );
-    }
-    timer_stop( tr );
+  ecl_grid_type * grid;
+  ecl_file_type * restart;
+  ecl_file_type * init;
 
 
-    printf("%-64s  Restart:%8.4f    Grid:%8.4f     Init:%8.4f \n",
-            base,
-            timer_get_total_time( tr ),
-            timer_get_total_time( tg ),
-            timer_get_total_time( ti ));
+  timer_start( tg );
+  grid = ecl_grid_alloc(grid_file );
+  timer_stop( tg );
 
-    timer_free( tr );
-    timer_free( ti );
-    timer_free( tg );
-    free( grid_file );
-    free( init_file );
-    free( restart_file );
+  timer_start( ti );
+  init = ecl_file_open( init_file , 0);
+  if (load_all)
+    ecl_file_load_all( init );
+  timer_stop( ti );
+
+  timer_start( tr );
+  restart = ecl_file_open( restart_file , 0);
+  if (load_all)
+    ecl_file_load_all( restart );
+  timer_stop( tr );
+
+
+  printf("%-64s  Restart:%8.4f    Grid:%8.4f     Init:%8.4f \n",
+         base,
+         timer_get_total_time( tr ),
+         timer_get_total_time( tg ),
+         timer_get_total_time( ti ));
+
+  timer_free( tr );
+  timer_free( ti );
+  timer_free( tg );
+  ecl_file_close( init );
+  ecl_file_close( restart );
+  ecl_grid_free( grid );
+  free( grid_file );
+  free( init_file );
+  free( restart_file );
 }
 
 
 int main(int argc, char ** argv) {
-  bool load_all = false;
+  bool load_all = true;
   int i;
-
-//  system("pause");
-
   for (i=1; i < argc; i++)
     test_case( argv[i] , load_all);
-
-  system("pause");
+  
 }

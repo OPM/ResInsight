@@ -74,8 +74,16 @@ int main(int argc , char ** argv) {
 
       {
         well_segment_collection_type * segments2 = well_segment_collection_alloc();
-        test_assert_int_equal( well_segment_collection_load_from_kw( segments2 , well_nr , iwel_kw , iseg_kw , rseg_loader , rst_head ) ,
+        bool load_segments = true;
+        bool is_MSW_well = false;
+        test_assert_int_equal( well_segment_collection_load_from_kw( segments2 , well_nr , iwel_kw , iseg_kw , rseg_loader , rst_head , load_segments , &is_MSW_well ) ,
                                well_segment_collection_get_size( segments));
+
+        if (well_segment_collection_get_size( segments ) > 0)
+          test_assert_true( is_MSW_well );
+        else
+          test_assert_false( is_MSW_well );
+        
 
         well_segment_collection_link( segments );
         well_segment_collection_link( segments2 );

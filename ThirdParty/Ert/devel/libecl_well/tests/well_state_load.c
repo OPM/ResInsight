@@ -45,7 +45,8 @@ int main(int argc , char ** argv) {
     bool open = false;
     well_type_enum type = GAS_INJECTOR;
     int global_well_nr = 0;
-    
+    bool load_segment_information = true;
+
     for (global_well_nr = 0; global_well_nr < header->nwells; global_well_nr++) {
       well_state_type * well_state = well_state_alloc(well_name , global_well_nr , open , type , report_nr , valid_from);
       test_assert_true( well_state_is_instance( well_state) );
@@ -55,7 +56,7 @@ int main(int argc , char ** argv) {
       test_assert_false( well_state_has_grid_connections( well_state , "???" ));
       test_assert_true( well_state_has_global_connections( well_state ));
       
-      well_state_add_MSW( well_state , rst_file , global_well_nr );
+      well_state_add_MSW( well_state , rst_file , global_well_nr , load_segment_information );
       {
         const well_segment_collection_type * segments = well_state_get_segments( well_state );
         const well_branch_collection_type * branches = well_state_get_branches( well_state );

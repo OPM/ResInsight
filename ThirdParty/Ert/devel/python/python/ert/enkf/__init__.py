@@ -23,7 +23,6 @@ from .enums import *
 
 from .node_id import NodeId
 
-from .gen_data import GenData
 from .enkf_linalg import EnkfLinalg
 from .util import TimeMap
 from .state_map import StateMap
@@ -57,7 +56,8 @@ from .post_simulation_hook import PostSimulationHook
 
 from .enkf_simulation_runner import EnkfSimulationRunner
 from .enkf_fs_manager import EnkfFsManager
-
+from .run_arg import RunArg
+from .ert_run_context import ErtRunContext
 from .enkf_main import EnKFMain
 from .ert_log import ErtLog
 

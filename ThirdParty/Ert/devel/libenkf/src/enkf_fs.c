@@ -462,7 +462,7 @@ static enkf_fs_type *  enkf_fs_mount_plain( FILE * fstab_stream , const char * m
 
 
 
-void enkf_fs_create_fs( const char * mount_point, fs_driver_impl driver_id , void * arg) {
+enkf_fs_type * enkf_fs_create_fs( const char * mount_point, fs_driver_impl driver_id , void * arg , bool mount) {
   const int num_drivers = 32;
   FILE * stream = fs_driver_open_fstab( mount_point , true );
   if (stream != NULL) {
@@ -481,6 +481,11 @@ void enkf_fs_create_fs( const char * mount_point, fs_driver_impl driver_id , voi
     }
     fclose( stream );
   }
+
+  if (mount) 
+    return enkf_fs_mount( mount_point );
+  else
+    return NULL;
 }
 
 

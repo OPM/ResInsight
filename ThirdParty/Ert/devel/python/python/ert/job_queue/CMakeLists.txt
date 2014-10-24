@@ -10,6 +10,7 @@ set(PYTHON_SOURCES
     job.py
     job_status_type_enum.py
     queue.py
+    job_queue_manager.py
     workflow.py
     workflow_job.py
     workflow_joblist.py

@@ -9,28 +9,30 @@ except ImportError:
 class ErtTestRunner(object):
 
     @staticmethod
-    def findTestsInDirectory(path, recursive=True):
-        loader = TestLoader()
-        tests = loader.discover(path)
-
-        for (root, dirnames, filenames) in os.walk( path ):
-            for directory in dirnames:
-                tests.addTests(ErtTestRunner.findTestsInDirectory(os.path.join(root, directory), recursive))
-
-        return tests
-
-
-    @staticmethod
-    def runTestsInDirectory(path=".", recursive=True, test_verbosity=3):
-        tests = ErtTestRunner.findTestsInDirectory(path, recursive)
-        if tests.countTestCases() > 0:
-            print("Running %d tests in %s" % (tests.countTestCases(), path))
-
+    def runTestSuite(tests , test_verbosity = 3):
         test_runner = TextTestRunner(verbosity=test_verbosity)
         result = test_runner.run(tests)
 
         return result.wasSuccessful()
 
+
+    @staticmethod
+    def findTestsInDirectory(path, recursive=True , pattern = "test*.py"):
+        loader = TestLoader()
+        test_suite = loader.discover(path , pattern = pattern)
+        
+        for (root, dirnames, filenames) in os.walk( path ):
+            for directory in dirnames:
+                test_suite.addTests(ErtTestRunner.findTestsInDirectory(os.path.join(root, directory), recursive , pattern))
+
+        return test_suite
+
+
+    @staticmethod
+    def runTestsInDirectory(path=".", recursive=True, test_verbosity=3):
+        test_suite = ErtTestRunner.findTestsInDirectory(path, recursive)
+        return ErtTestRunner.runTestSuite(test_suite)
+        
 
     @staticmethod
     def runTestsInClass(classpath, test_verbosity=3):

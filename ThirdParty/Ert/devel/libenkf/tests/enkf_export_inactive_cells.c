@@ -24,12 +24,17 @@
 #include <ert/enkf/ert_test_context.h>
 #include <ert/util/util.h>
 
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/ecl_kw.h>
+
+#include <ert/rms/rms_util.h>
+
 #include <ert/enkf/enkf_main.h>
 #include <ert/enkf/field.h>
 #include <ert/enkf/enkf_config_node.h>
-#include <ert/ecl/ecl_kw_magic.h>
-#include <ert/ecl/ecl_kw.h>
-#include <ert/rms/rms_util.h>
+#include <ert/enkf/run_arg.h>
+
+
 
 
 void check_exported_data(const char * exported_file,
@@ -118,11 +123,8 @@ void forward_initialize_node(enkf_main_type * enkf_main, const char * init_file,
     const int ens_size         = enkf_main_get_ensemble_size( enkf_main );
     bool_vector_type * iactive = bool_vector_alloc(0, false);
     bool_vector_iset( iactive , ens_size - 1 , true );
-    state_enum init_state      = ANALYZED;
-    int start_report           = 0;
-    int init_step_parameters   = 0;
 
-    enkf_main_run_exp(enkf_main , iactive , false , init_step_parameters , start_report , init_state);
+    enkf_main_run_exp(enkf_main , iactive , false);
     bool_vector_free(iactive);
   }
 
@@ -131,8 +133,9 @@ void forward_initialize_node(enkf_main_type * enkf_main, const char * init_file,
     enkf_state_type * state = enkf_main_iget_state( enkf_main , iens );
     enkf_fs_type * fs       = enkf_main_get_fs(enkf_main);
     int error               = 0;
+    run_arg_type  * run_arg = run_arg_alloc_ENSEMBLE_EXPERIMENT( fs , 0 ,0 , "simulations/run0");
 
-    enkf_state_forward_init( state , fs , &error );
+    enkf_state_forward_init( state , run_arg , &error );
   }
 }
 

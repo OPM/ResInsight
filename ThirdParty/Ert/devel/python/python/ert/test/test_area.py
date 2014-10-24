@@ -63,6 +63,15 @@ class TestArea(BaseCClass):
     def set_store(self, store):
         TestArea.cNamespace().set_store(self , store)
 
+    def getFullPath(self , path):
+        if not os.path.exists( path ):
+            raise IOError("Path not found:%s" % path)
+
+        if os.path.isabs( path ):
+            raise IOError("Path:%s is already absolute" % path)
+
+        return os.path.join( self.get_cwd() , path )
+
 
 
 class TestAreaContext(object):
