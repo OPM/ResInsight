@@ -45,11 +45,11 @@ bool RifReaderInterface::isFaultImportEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isSimulationWellDataEnabled()
+bool RifReaderInterface::isImportOfCompleteMswDataEnabled()
 {
     if (m_settings.notNull())
     {
-        return m_settings->importSimulationWellData;
+        return m_settings->importAdvancedMswData;
     }
 
     return false;

@@ -64,9 +64,11 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.setUiHidden(true);
 
-    CAF_PDM_InitField(&autocomputeDepthRelatedProperties,   "autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
-
+    CAF_PDM_InitField(&autocomputeDepthRelatedProperties, "autocomputeDepth", true, "Compute DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
     autocomputeDepthRelatedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    
+    CAF_PDM_InitField(&loadAndShowSoil, "loadAndShowSoil", true, "Load and show SOIL", "", "", "");
+    loadAndShowSoil.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     readerSettings = new RifReaderSettings;
     CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader settings", "", "", "");
@@ -97,7 +99,8 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
         }
     }
     else if (field == &octaveShowHeaderInfoWhenExecutingScripts ||
-             field == &autocomputeDepthRelatedProperties)
+            field == &autocomputeDepthRelatedProperties ||
+            field == &loadAndShowSoil )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -130,8 +133,9 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     defaultSettingsGroup->add(&defaultFaultGridLineColors);
     defaultSettingsGroup->add(&defaultWellLabelColor);
 
-    caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
+    caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Behavior when loading new case");
     autoComputeGroup->add(&autocomputeDepthRelatedProperties);
+    autoComputeGroup->add(&loadAndShowSoil);
     
     caf::PdmUiGroup* readerSettingsGroup = uiOrdering.addNewGroup("Reader settings");
     std::vector<caf::PdmFieldHandle*> readerSettingsFields;
@@ -152,6 +156,7 @@ void RiaPreferences::configureForRegressionTests()
     showHud = false;
 
     autocomputeDepthRelatedProperties = true;
+    loadAndShowSoil = true;
 
     CVF_ASSERT(readerSettings);
     readerSettings->importFaults = false;

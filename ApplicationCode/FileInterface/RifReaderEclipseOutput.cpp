@@ -454,7 +454,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
 
-    readWellCells(mainEclGrid, isSimulationWellDataEnabled());
+    readWellCells(mainEclGrid, isImportOfCompleteMswDataEnabled());
 
     progInfo.setProgressDescription("Releasing reader memory");
     ecl_grid_free( mainEclGrid );

@@ -642,7 +642,11 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     // Select SOIL as default result variable
     riv->cellResult()->setResultType(RimDefines::DYNAMIC_NATIVE);
-    riv->cellResult()->setResultVariable("SOIL");
+
+    if (m_preferences->loadAndShowSoil)
+    {
+        riv->cellResult()->setResultVariable("SOIL");
+    }
     riv->animationMode = true;
 
     riv->loadDataAndUpdate();
