@@ -635,6 +635,26 @@ public:
                         m_currentReservoir->reservoirData() &&
                         m_currentReservoir->reservoirData()->results(m_porosityModelEnum) )
                 {
+                    // Adjust the result data if only one time step is requested so the result behaves like a static result
+                    if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
+                    {
+                        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+                        scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellResults()->cellScalarResults(m_currentScalarIndex));
+                        size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
+                        for (size_t i = 0; i < scalarResultFrames->size(); i++)
+                        {
+                            if ((*scalarResultFrames)[i].size() > 0)
+                            {
+                                lastIndexWithDataPresent = i;
+                            }
+                        }
+
+                        if (lastIndexWithDataPresent == 0)
+                        {
+                            scalarResultFrames->resize(1);
+                        }
+                    }
+
                     m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
                 }
 
@@ -961,6 +981,26 @@ public:
                     m_currentReservoir->reservoirData() &&
                     m_currentReservoir->reservoirData()->results(m_porosityModelEnum) )
                 {
+                    // Adjust the result data if only one time step is requested so the result behaves like a static result
+                    if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
+                    {
+                        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+                        scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellResults()->cellScalarResults(m_currentScalarIndex));
+                        size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
+                        for (size_t i = 0; i < scalarResultFrames->size(); i++)
+                        {
+                            if ((*scalarResultFrames)[i].size() > 0)
+                            {
+                                lastIndexWithDataPresent = i;
+                            }
+                        }
+
+                        if (lastIndexWithDataPresent == 0)
+                        {
+                            scalarResultFrames->resize(1);
+                        }
+                    }
+
                     m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
                 }
 
