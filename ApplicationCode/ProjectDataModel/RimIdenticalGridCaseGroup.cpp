@@ -164,7 +164,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         return;
     }
 
-    // Read active cell info from all source cases
+    // Action A : Read active cell info
+    // Read active cell info from all source cases. The file access is optimized for this purpose, and result meta data
+    // is copied from main case to all other cases (see "Action B")
     
     caf::ProgressInfo info(caseCollection()->reservoirs.size(), "Case group - Reading Active Cell data");
     for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
@@ -204,7 +206,10 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         computeUnionOfActiveCells();
     }
 
-    // Propagate result meta data to all cases
+    // Action B : Copy result meta data from main case to all other cases in grid case group
+
+    // This code was originally part of RimStatisticsCaseEvaluator, but moved here to be a general solution
+    // for all cases
 
     {
         RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
