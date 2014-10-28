@@ -906,6 +906,9 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         // Replace tab with space to be able to split the string using space as splitter
         line.replace("\t", " ");
 
+        // Replace character ' used to mark start and end of fault name
+        line.remove("'");
+
         QStringList entries = line.split(" ", QString::SkipEmptyParts);
         if (entries.size() < 8)
         {
@@ -913,7 +916,6 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         }
 
         QString name = entries[0];
-        name.remove("'");
 
         int i1, i2, j1, j2, k1, k2;
         i1 = entries[1].toInt();
@@ -924,7 +926,6 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         k2 = entries[6].toInt();
 
         QString faceString = entries[7];
-        faceString.remove("'");
 
         cvf::StructGridInterface::FaceEnum cellFaceEnum = RifEclipseInputFileTools::faceEnumFromText(faceString);
 

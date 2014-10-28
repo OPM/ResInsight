@@ -106,7 +106,9 @@ TEST(RigReservoirTest, WellTestErt)
     well_info_free( well_info );
 }
 
+#endif
 
+#if 0
 //--------------------------------------------------------------------------------------------------
 /// This file contains test code taken from the test cases in ERT source code.
 //  There is a typedef issue (center) between ERT and QTextStream, so this file does not include any 
@@ -149,10 +151,12 @@ TEST(RigReservoirTest, ReadFaultsRecursively)
 {
     //TODO: Establish a way to define location of test model files
 
-    QString filename("d:/Models/Statoil/TEST_RKMFAULTS/TEST_RKMFAULTS.DATA");
+    //QString filename("d:/Models/Statoil/TEST_RKMFAULTS/TEST_RKMFAULTS.DATA");
+    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.DATA");
+    
 //    QString filename("d:/gitroot/ResInsight/TestModels/fault_test/regular27cell.DATA");
 
-    QString outFilename = "c:/tmp/TestModels/TEST_RKMFAULTS/msj_faults.txt";
+    QString outFilename = "d:/tmp/msj_faults.txt";
     QFile outputFile(outFilename);
     {
         if (!outputFile.open(QIODevice::WriteOnly))
@@ -165,7 +169,8 @@ TEST(RigReservoirTest, ReadFaultsRecursively)
 
     cvf::Collection<RigFault> faults;
 
-    RifEclipseInputFileTools::readFaultsInGridSection(filename, faults);
+    std::vector<QString> filenamesWithFaults;
+    RifEclipseInputFileTools::readFaultsInGridSection(filename, faults, filenamesWithFaults);
 
 //    EXPECT_EQ(4, faults.size());
 
@@ -178,21 +183,21 @@ TEST(RigReservoirTest, ReadFaultsRecursively)
         for (size_t faceType = 0; faceType < 6; faceType++)
         {
             cvf::StructGridInterface::FaceType faceEnum = cvf::StructGridInterface::FaceType(faceType);
-            const std::vector<cvf::CellRange>& cellRanges = rigFault->cellRangeForFace(faceEnum);
-
-            for (size_t i = 0; i < cellRanges.size(); i++)
-            {
-                cvf::Vec3st min, max;
-                cellRanges[i].range(min, max);
-
-                QString tmp;
-                tmp = tmp.sprintf("min i=%3d  j=%3d  k=%3d  -  max  i=%3d  j=%3d  k=%3d  \n", min.x(), min.y(), min.z(), max.x(), max.y(), max.z());
-                
-                outStream << tmp;
-
-//                 printf("min i=%3d  j=%3d  k=%3d  -  max  i=%3d  j=%3d  k=%3d  ", min.x(), min.y(), min.z(), max.x(), max.y(), max.z());
-//                 printf("\n");
-            }
+//             const std::vector<cvf::CellRange>& cellRanges = rigFault->cellRangeForFace(faceEnum);
+// 
+//             for (size_t i = 0; i < cellRanges.size(); i++)
+//             {
+//                 cvf::Vec3st min, max;
+//                 cellRanges[i].range(min, max);
+// 
+//                 QString tmp;
+//                 tmp = tmp.sprintf("min i=%3d  j=%3d  k=%3d  -  max  i=%3d  j=%3d  k=%3d  \n", min.x(), min.y(), min.z(), max.x(), max.y(), max.z());
+//                 
+//                 outStream << tmp;
+// 
+// //                 printf("min i=%3d  j=%3d  k=%3d  -  max  i=%3d  j=%3d  k=%3d  ", min.x(), min.y(), min.z(), max.x(), max.y(), max.z());
+// //                 printf("\n");
+//             }
         }
     }
 }
