@@ -157,8 +157,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
     RimCase* mainCase = caseCollection()->reservoirs[0];
     mainCase->openEclipseGridFile();
-    RigCaseData* mainEclipseCase = mainCase->reservoirData();
-    if (mainEclipseCase)
+    RigCaseData* rigCaseData = mainCase->reservoirData();
+    if (rigCaseData)
     {
         RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
         RimReservoirCellResultsStorage* cellResultsStorage = mainCase->results(poroModel);
@@ -182,7 +182,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         RimResultCase* rimReservoir = dynamic_cast<RimResultCase*>(caseCollection()->reservoirs[i]);
         if(!rimReservoir) continue; // Input reservoir
 
-        if (!rimReservoir->openAndReadActiveCellData(mainEclipseCase))
+        if (!rimReservoir->openAndReadActiveCellData(rigCaseData))
         {
             // Error message
             continue;
@@ -191,7 +191,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         info.incrementProgress();
     }
 
-    m_mainGrid = mainEclipseCase->mainGrid();
+    m_mainGrid = rigCaseData->mainGrid();
 
     // Check if we need to calculate the union of the active cells
 
@@ -222,8 +222,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     {
         RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
 
-        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(poroModel)->timeStepDates(0);
-        const std::vector<RigCaseCellResultsData::ResultInfo> resultInfos = mainEclipseCase->results(poroModel)->infoForEachResultIndex();
+        std::vector<QDateTime> timeStepDates = rigCaseData->results(poroModel)->timeStepDates(0);
+        const std::vector<RigCaseCellResultsData::ResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
 
         for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
         {
