@@ -37,20 +37,24 @@ RivTernaryScalarMapper::RivTernaryScalarMapper(const cvf::Color3f& undefScalarCo
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord(double soil, double sgas, bool isTransparent) const
 {
-	double soilNormalized = (soil - m_rangeMinSoil) * m_soilFactor;
-	soilNormalized = cvf::Math::clamp(soilNormalized, 0.0, 1.0);
+    // Clamp the float texture coordinate to avoid edge issues when looking up the texture coordinate 
+    // The issue was detected on Linux, no similar issues has been seen on Windows
+    double edgeClampDelta = 0.001;
 
-	double sgasNormalized = (sgas - m_rangeMinSgas) * m_sgasFactor;
-	sgasNormalized = cvf::Math::clamp(sgasNormalized, 0.0, 1.0 - soilNormalized);
-	sgasNormalized /= 2.0;
+    double soilNormalized = (soil - m_rangeMinSoil) * m_soilFactor;
+    soilNormalized = cvf::Math::clamp(soilNormalized, edgeClampDelta, 1.0 - edgeClampDelta);
 
-	if (isTransparent)
-	{
-		sgasNormalized += 0.5;
-	}
+    double sgasNormalized = (sgas - m_rangeMinSgas) * m_sgasFactor;
+    sgasNormalized = cvf::Math::clamp(sgasNormalized, edgeClampDelta, 1.0 - soilNormalized);
+    sgasNormalized /= 2.0;
 
-	cvf::Vec2f texCoord(static_cast<float>(soilNormalized), static_cast<float>(sgasNormalized));
-	return texCoord;
+    if (isTransparent)
+    {
+        sgasNormalized += 0.5;
+    }
+
+    cvf::Vec2f texCoord(static_cast<float>(soilNormalized), static_cast<float>(sgasNormalized));
+    return texCoord;
 }
 
 //--------------------------------------------------------------------------------------------------
