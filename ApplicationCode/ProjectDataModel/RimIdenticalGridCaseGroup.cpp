@@ -158,11 +158,19 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RimCase* mainCase = caseCollection()->reservoirs[0];
     mainCase->openEclipseGridFile();
     RigCaseData* mainEclipseCase = mainCase->reservoirData();
-    if (!mainEclipseCase)
+    if (mainEclipseCase)
+    {
+        RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
+        RimReservoirCellResultsStorage* cellResultsStorage = mainCase->results(poroModel);
+
+        cellResultsStorage->cellResults()->createPlaceholderResultEntries();
+    }
+    else
     {
         // Error message
         return;
     }
+
 
     // Action A : Read active cell info
     // Read active cell info from all source cases. The file access is optimized for this purpose, and result meta data
