@@ -1792,6 +1792,12 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         info.setProgress(i);
     }
 
+    if (gridCaseGroup)
+    {
+        // Create placeholder results and propagate results info from main case to all other cases 
+        gridCaseGroup->loadMainCaseAndActiveCellInfo();
+    }
+
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
  
     uiModel->updateUiSubTree( m_project->activeOilField()->analysisModels());
