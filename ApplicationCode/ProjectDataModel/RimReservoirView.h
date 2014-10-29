@@ -157,6 +157,7 @@ public:
     void                                    setMeshSurfDrawstyle();
     void                                    setSurfOnlyDrawstyle();
     void                                    setFaultMeshSurfDrawstyle();
+    void                                    setSurfaceDrawstyle();
 
     void                                    setShowFaultsOnly(bool showFaults);
     bool                                    isGridVisualizationMode() const;

@@ -1636,6 +1636,15 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::setSurfaceDrawstyle()
+{
+    if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 // Surf: No Fault Surf
