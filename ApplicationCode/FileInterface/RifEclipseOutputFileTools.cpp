@@ -26,9 +26,12 @@
 #include "ecl_grid.h"
 #include "ecl_rsthead.h"
 
+#include "cafProgressInfo.h"
+
 #include <QFileInfo>
 #include <QDebug>
-#include "cafProgressInfo.h"
+
+#include <assert.h>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -45,6 +48,16 @@ RifEclipseOutputFileTools::RifEclipseOutputFileTools()
 RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 {
 }
+
+void getDayMonthYear(const ecl_kw_type* intehead_kw, int* day, int* month, int* year)
+{
+    assert(day && month && year);
+
+    *day = ecl_kw_iget_int(intehead_kw, INTEHEAD_DAY_INDEX);
+    *month = ecl_kw_iget_int(intehead_kw, INTEHEAD_MONTH_INDEX);
+    *year = ecl_kw_iget_int(intehead_kw, INTEHEAD_YEAR_INDEX);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
@@ -94,9 +107,12 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
         if (kwINTEHEAD)
         {
-            time_t ertTimeStamp = ecl_rsthead_date(kwINTEHEAD);
-            QDateTime simulationStart = QDateTime::fromTime_t(ertTimeStamp);
-
+            int day = 0;
+            int month = 0;
+            int year = 0;
+            getDayMonthYear(kwINTEHEAD, &day, &month, &year);
+            
+            QDateTime simulationStart(QDate(year, month, day));
             for (int i = 0; i < days.size(); i++)
             {
                 QDateTime reportDateTime(simulationStart);
@@ -127,8 +143,15 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
             ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
             if (kwINTEHEAD)
             {
-                time_t ertTimeStamp = ecl_rsthead_date(kwINTEHEAD);
-                QDateTime reportDateTime = QDateTime::fromTime_t(ertTimeStamp);
+                int day = 0;
+                int month = 0;
+                int year = 0;
+                getDayMonthYear(kwINTEHEAD, &day, &month, &year);
+
+                QDateTime reportDateTime(QDate(year, month, day));
+                QTime time(0, 0);
+                reportDateTime.setTime(time);
+
                 CVF_ASSERT(reportDateTime.isValid());
 
                 if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())

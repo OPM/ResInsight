@@ -45,6 +45,7 @@ public:
 
     size_t                      timeStepCount();
     std::vector<QDateTime>            timeSteps();
+    std::vector<int>            reportNumbers();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
     bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
@@ -54,6 +55,7 @@ public:
 
 private:
     bool                        openFile();
+
 
 private:
     QString         m_filename;

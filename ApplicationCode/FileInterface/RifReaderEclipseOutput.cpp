@@ -1066,6 +1066,14 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
     m_dynamicResultsAccess->readWellData(ert_well_info, importCompleteMswData);
 
+    std::vector<QDateTime> timeSteps = m_dynamicResultsAccess->timeSteps();
+    std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
+    bool sameCount = false;
+    if (timeSteps.size() == reportNumbers.size())
+    {
+        sameCount = true;
+    }
+
     RigMainGrid* mainGrid = m_eclipseCase->mainGrid();
     std::vector<RigGridBase*> grids;
     m_eclipseCase->allGrids(&grids);
@@ -1095,8 +1103,27 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
             RigWellResultFrame& wellResFrame = wellResults->m_wellCellsTimeSteps[timeIdx];
 
             // Build timestamp for well
-            // Also see RifEclipseOutputFileAccess::timeStepsText for accessing time_t structures
+            bool haveFoundTimeStamp = false;
+            
+            if (sameCount)
             {
+                int reportNr = well_state_get_report_nr(ert_well_state);
+
+                for (size_t i = 0; i < reportNumbers.size(); i++)
+                {
+                    if (reportNumbers[i] == reportNr)
+                    {
+                        wellResFrame.m_timestamp = timeSteps[i];
+                        haveFoundTimeStamp = true;
+                    }
+                }
+            }
+
+            if (!haveFoundTimeStamp)
+            {
+                // This fallback will not work for timesteps before 1970.
+
+                // Also see RifEclipseOutputFileAccess::timeStepsText for accessing time_t structures
                 time_t stepTime = well_state_get_sim_time(ert_well_state);
                 wellResFrame.m_timestamp = QDateTime::fromTime_t(stepTime);
             }
