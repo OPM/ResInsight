@@ -18,6 +18,9 @@ class WellTimeLine(BaseCClass):
          @rtype: WellState
         """
 
+        if index < 0:
+            index += len(self)
+
         if not 0 <= index < len(self):
             raise IndexError("Index must be in range 0 <= %d < %d" % (index, len(self)))
 

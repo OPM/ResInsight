@@ -9,6 +9,9 @@ class WellSegment(BaseCClass):
     def free(self):
         pass
 
+    def __str__(self):
+        return "{Segment ID:%d   BranchID:%d  Length:%g}" % (self.id() , self.branchId() , self.length())
+
     def id(self):
         """ @rtype: int """
         return WellSegment.cNamespace().id(self)

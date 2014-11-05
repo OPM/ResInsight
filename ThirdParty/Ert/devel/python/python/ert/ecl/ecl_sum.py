@@ -394,7 +394,7 @@ class EclSum(BaseCClass):
             raise ValueError("Must supply either days or date")
 
     
-    def timeRange(self , start = None , end = None , interval = "1Y"):
+    def timeRange(self , start = None , end = None , interval = "1Y", extend_end = True):
         (num , timeUnit) = TimeVector.parseTimeUnit( interval )
 
         if start is None:
@@ -418,26 +418,31 @@ class EclSum(BaseCClass):
             month2 = end.month
             day1 = start.day
             day2 = end.day
-            
-            if timeUnit == 'm':
-                if day2 > 1:
-                    month2 += 1
-                    if month2 == 13:
+            if extend_end:
+                if timeUnit == 'm':
+                    if day2 > 1:
+                        month2 += 1
+                        if month2 == 13:
+                            year2 += 1
+                            month2 = 1
+                elif timeUnit == "y":
+                    month1 = 1
+                    if year2 > 1 or day2 > 1:
                         year2 += 1
                         month2 = 1
-            elif timeUnit == "y":
-                month1 = 1
-                if year2 > 1 or day2 > 1:
-                    year2 += 1
-                month2 = 1
             day1 = 1
             day2 = 1
+
             start = datetime.date( year1, month1 , day1)
             end =  datetime.date(year2 , month2 , day2)
                 
         trange = TimeVector.createRegular(start , end , interval)
         if trange[-1] < end:
-            trange.appendTime( num , timeUnit )
+            if extend_end:
+                trange.appendTime( num , timeUnit )
+            else:
+                trange.append( end )
+
         return trange
         
 

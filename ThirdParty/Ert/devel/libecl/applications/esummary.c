@@ -84,7 +84,9 @@ int main(int argc , char ** argv) {
                 time = time_union;
               else
                 time = time_intersect;
+
             vector_append_owned_ref( ecl_sum_list , ecl_sum , ecl_sum_free__ );
+            load_count++;
             } else {
               const time_interval_type * ti = ecl_sum_get_sim_time( ecl_sum );
               if (time_interval_has_overlap(time , ti)) {

@@ -494,7 +494,7 @@ void fortio_data_fseek(fortio_type* fortio, offset_type data_offset, size_t data
       int block_index = data_element / block_size;
       int headers = (block_index + 1) * 4;
       int trailers = block_index * 4;
-      int bytes_to_skip = data_offset + headers + trailers + (data_element * element_size);
+      offset_type bytes_to_skip = data_offset + headers + trailers + (data_element * element_size);
 
       fortio_fseek(fortio, bytes_to_skip, SEEK_SET);
     }

@@ -52,17 +52,37 @@ class WellState(BaseCClass):
         return values
 
 
+    def numSegments(self):
+        """ @rtype: int """
+        segment_collection = WellState.cNamespace().get_segment_collection(self)
+        count = WellState.cNamespace().segment_collection_size(segment_collection)
+        return count
+
+
     def segments(self):
         """ @rtype: list of WellSegment """
         segment_collection = WellState.cNamespace().get_segment_collection(self)
-        count = WellState.cNamespace().segment_collection_size(segment_collection)
 
         values = []
-        for index in range(count):
+        for index in range(self.numSegments()):
             value = WellState.cNamespace().segment_collection_iget(segment_collection, index).setParent(self)
             values.append(value)
 
         return values
+
+
+    def igetSegment(self , segment_index):
+        """ @rtype: WellSegment """
+        if segment_index < 0:
+            segment_index += len(self)
+        
+        if not 0 <= segment_index < self.numSegments():
+            raise IndexError("Invalid index:%d - valid range [0,%d)" % (index , len(self)))
+        
+        segment_collection = WellState.cNamespace().get_segment_collection(self)
+        return WellState.cNamespace().segment_collection_iget(segment_collection, segment_index).setParent(self)
+
+
 
     # def branches(self):
     #     """ @rtype: BranchCollection """

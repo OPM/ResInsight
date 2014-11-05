@@ -76,6 +76,10 @@ class WellInfo(BaseCClass):
             raise TypeError("Expected the RST file to be a filename or an EclFile instance.")
 
 
+    def hasWell(self , well_name):
+        return well_name in self
+
+
     def free(self):
         WellInfo.cNamespace().free(self)
 

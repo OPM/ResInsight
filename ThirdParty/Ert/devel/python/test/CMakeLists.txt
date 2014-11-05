@@ -127,6 +127,7 @@ set(TEST_SOURCES
     ert_tests/server/test_socket.py
 
     ert_tests/well/test_ecl_well.py
+    ert_tests/well/test_ecl_well2.py
 
     ecl_isosurf.py
     ens_config_test.py
@@ -445,6 +446,10 @@ add_test( NAME python.tests.ert.ecl.ecl_sum_vector
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
           COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.ecl.test_ecl_sum_vector.EclSumVectorTest)
 
+add_test( NAME python.tests.ert.ecl.ecl_sum_time_range
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.ecl.test_ecl_sum.EclSumTest)
+
 add_test( NAME python.tests.ert.ecl.layer
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
           COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.ecl.test_layer.LayerTest )
@@ -601,6 +606,11 @@ add_test( NAME python.tests.ert.well.ecl_well
           COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.well.test_ecl_well.EclWellTest)
 
 
+add_test( NAME python.tests.ert.well.ecl_well2
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.well.test_ecl_well2.EclWellTest2)
+
+
 set_property( TEST python.tests.ert.sched.sched           PROPERTY LABELS Python:StatoilData )
 set_property( TEST python.tests.ert.ecl.fortio            PROPERTY LABELS Python:StatoilData )
 set_property( TEST python.tests.ert.ecl.ecl_grdecl        PROPERTY LABELS Python:StatoilData )
@@ -618,6 +628,7 @@ set_property( TEST python.tests.ert.ecl.ecl_grid          PROPERTY LABELS Python
 set_property( TEST python.tests.ert.ecl.ecl_deprecation   PROPERTY LABELS Python )
 #set_property( TEST python.tests.import_local             PROPERTY LABELS Python:StatoilBuild )
 set_property( TEST python.tests.ert.well.ecl_well         PROPERTY LABELS Python:StatoilData )
+set_property( TEST python.tests.ert.well.ecl_well2        PROPERTY LABELS Python:StatoilData )
 
 set_property( TEST python.tests.ert.test_run              PROPERTY LABELS Python)
 set_property( TEST python.tests.ert.import                PROPERTY LABELS Python)
@@ -639,6 +650,7 @@ set_property( TEST python.tests.ert.enkf.ert_test_context     PROPERTY LABELS Py
 set_property( TEST python.tests.ert.enkf.plot.plot_block_data PROPERTY LABELS Python:StatoilData )
 set_property( TEST python.tests.ert.enkf.data.gen_data_config PROPERTY LABELS Python:StatoilData )
 set_property( TEST python.tests.ert.enkf.data.gen_data        PROPERTY LABELS Python:StatoilData )
+set_property( TEST python.tests.ert.ecl.ecl_sum_time_range    PROPERTY LABELS Python:StatoilData )
 
 if (ERT_BUILD_GUI)
    set_property( TEST python.tests.ert_gui.import         PROPERTY ENVIRONMENT "ERT_SHARE_PATH=${PROJECT_SOURCE_PATH}/share")
