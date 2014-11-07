@@ -24,6 +24,7 @@ extern "C" {
 
 #include <ert/util/util.h>
 #include <ert/util/bool_vector.h>
+#include <ert/util/double_vector.h>
 #include <ert/util/buffer.h>
 
 #include <ert/ecl/ecl_sum.h>
@@ -42,11 +43,12 @@ const bool_vector_type *  gen_data_get_forward_mask( const gen_data_type * gen_d
 int                       gen_data_get_size(const gen_data_type * );
 double                    gen_data_iget_double(const gen_data_type * , int );
 void                      gen_data_export(const gen_data_type * gen_data , const char * full_path , gen_data_file_format_type export_type , fortio_type * fortio);
+void                      gen_data_export_data(const gen_data_type * gen_data , double_vector_type * export_data);
 gen_data_file_format_type gen_data_guess_export_type( const gen_data_type * gen_data );
 const char  *             gen_data_get_key( const gen_data_type * gen_data);
 void                      gen_data_upgrade_103(const char * filename);
 int                       gen_data_get_size( const gen_data_type * gen_data );
-
+void                      gen_data_copy_to_double_vector(const gen_data_type * gen_data , double_vector_type * vector);
 
 UTIL_SAFE_CAST_HEADER(gen_data);
 UTIL_SAFE_CAST_HEADER_CONST(gen_data);

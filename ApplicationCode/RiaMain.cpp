@@ -20,7 +20,6 @@
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
 
-
 int main(int argc, char *argv[])
 {
     RiaApplication app(argc, argv);

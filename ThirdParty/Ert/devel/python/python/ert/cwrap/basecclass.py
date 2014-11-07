@@ -44,19 +44,22 @@ class BaseCClass(object):
 
     @classmethod
     def createPythonObject(cls, c_pointer):
-        if not c_pointer == 0:
+        if c_pointer is not None:
             new_obj = cls.__new__(cls)
             BaseCClass.__init__(new_obj, c_pointer=c_pointer, parent=None, is_reference=False)
             return new_obj
-        return None
+        else:
+            return None
 
     @classmethod
     def createCReference(cls, c_pointer, parent=None):
-        if not c_pointer == 0:
+        if c_pointer is not None:
             new_obj = cls.__new__(cls)
             BaseCClass.__init__(new_obj, c_pointer=c_pointer, parent=parent, is_reference=True)
             return new_obj
-        return None
+        else:
+            return None
+
 
     def convertToCReference(self, parent):
         self.__is_reference = True
@@ -85,7 +88,9 @@ class BaseCClass(object):
         super(BaseCClass, self).__eq__(other)
 
     def free(self):
-        raise NotImplementedError("A CClass requires a free method implementation!")
+        raise NotImplementedError("A BaseCClass requires a free method implementation!")
+
+
 
     def __del__(self):
         if self.free is not None:

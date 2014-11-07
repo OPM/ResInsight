@@ -108,7 +108,7 @@ static void workflow_store_error( workflow_type * workflow , const config_error_
 
 
 
-static bool workflow_try_compile( workflow_type * script , const subst_list_type * context) {
+bool workflow_try_compile( workflow_type * script , const subst_list_type * context) {
   if (util_file_exists( script->src_file )) {
     const char * src_file = script->src_file;
     char * tmp_file = NULL;
@@ -174,7 +174,7 @@ static bool workflow_try_compile( workflow_type * script , const subst_list_type
 }
 
 
-bool workflow_run(workflow_type * workflow , void * self , bool verbose , const subst_list_type * context) {
+bool workflow_run(workflow_type * workflow, void * self , bool verbose , const subst_list_type * context) {
   vector_clear( workflow->stack );
   workflow_try_compile( workflow , context);
   
@@ -182,7 +182,7 @@ bool workflow_run(workflow_type * workflow , void * self , bool verbose , const 
     int icmd;
     for (icmd = 0; icmd < vector_get_size( workflow->cmd_list ); icmd++) {
       const cmd_type * cmd = vector_iget_const( workflow->cmd_list , icmd );
-      void * return_value = workflow_job_run( cmd->workflow_job , self , verbose , cmd->arglist );
+      void * return_value = workflow_job_run( cmd->workflow_job, self , verbose , cmd->arglist );
       vector_push_front_ref( workflow->stack , return_value );
     }
     return true;
@@ -223,7 +223,7 @@ workflow_type * workflow_alloc( const char * src_file , workflow_joblist_type * 
 
 
 static UTIL_SAFE_CAST_FUNCTION( workflow , WORKFLOW_TYPE_ID )
-
+UTIL_IS_INSTANCE_FUNCTION( workflow , WORKFLOW_TYPE_ID)
 
 void workflow_free( workflow_type * workflow ) {
   free( workflow->src_file );
@@ -245,4 +245,18 @@ void workflow_free__( void * arg ) {
 
 const config_error_type * workflow_get_last_error( const workflow_type * workflow) {
   return workflow->last_error;
+}
+
+int workflow_size(const workflow_type * workflow) {
+    return vector_get_size( workflow->cmd_list );
+}
+
+workflow_job_type * workflow_iget_job( const workflow_type * workflow, int index) {
+    const cmd_type * cmd = vector_iget_const( workflow->cmd_list , index );
+    return cmd->workflow_job;
+}
+
+stringlist_type * workflow_iget_arguments( const workflow_type * workflow, int index) {
+    const cmd_type * cmd = vector_iget_const( workflow->cmd_list , index );
+    return cmd->arglist;
 }

@@ -53,6 +53,39 @@ nnc_vector_type * nnc_vector_alloc(int lgr_nr) {
   return nnc_vector; 
 }
 
+nnc_vector_type * nnc_vector_alloc_copy(const nnc_vector_type * src_vector) {
+  nnc_vector_type * copy_vector =  util_malloc( sizeof * src_vector );
+  UTIL_TYPE_ID_INIT(copy_vector , NNC_VECTOR_TYPE_ID);
+
+  copy_vector->lgr_nr = src_vector->lgr_nr;  
+  copy_vector->grid_index_list = int_vector_alloc_copy( src_vector->grid_index_list );
+  copy_vector->nnc_index_list  = int_vector_alloc_copy( src_vector->nnc_index_list );
+  return copy_vector;
+}
+
+
+bool nnc_vector_equal( const nnc_vector_type * nnc_vector1 , const nnc_vector_type * nnc_vector2) {
+  if (nnc_vector1 == nnc_vector2)
+    return true;
+  
+  if ((nnc_vector1 == NULL) || (nnc_vector2 == NULL))
+    return false;
+
+  {
+    if (nnc_vector1->lgr_nr != nnc_vector2->lgr_nr)
+      return false;
+    
+    if (!int_vector_equal( nnc_vector1->grid_index_list , nnc_vector2->grid_index_list))
+      return false;
+    
+    if (!int_vector_equal( nnc_vector1->nnc_index_list , nnc_vector2->nnc_index_list))
+      return false;
+    
+    return true;
+  }
+}
+
+
 void nnc_vector_free( nnc_vector_type * nnc_vector ) {
   int_vector_free( nnc_vector->grid_index_list );
   int_vector_free( nnc_vector->nnc_index_list );

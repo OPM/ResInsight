@@ -58,7 +58,7 @@ class ModelConfig(BaseCClass):
     def set_max_internal_submit(self, max_value):
         ModelConfig.cNamespace().get_max_internal_submit(self, max_value)
 
-    def get_forward_model(self):
+    def getForwardModel(self):
         """ @rtype: ForwardModel """
         return ModelConfig.cNamespace().get_forward_model(self).setParent(self)
 
@@ -80,6 +80,9 @@ class ModelConfig(BaseCClass):
     def free(self):
         ModelConfig.cNamespace().free(self)
 
+    def getFSType(self):
+        return ModelConfig.cNamespace().get_fs_type( self )
+
     ##################################################################
 
 cwrapper = CWrapper(ENKF_LIB)
@@ -98,6 +101,7 @@ ModelConfig.cNamespace().get_case_table_file = cwrapper.prototype("char* model_c
 ModelConfig.cNamespace().get_runpath_as_char = cwrapper.prototype("char* model_config_get_runpath_as_char(model_config)")
 ModelConfig.cNamespace().select_runpath = cwrapper.prototype("bool model_config_select_runpath(model_config, char*)")
 ModelConfig.cNamespace().set_runpath = cwrapper.prototype("void model_config_set_runpath(model_config, char*)")
+ModelConfig.cNamespace().get_fs_type = cwrapper.prototype("enkf_fs_type_enum model_config_get_dbase_type(model_config)")
 
 ModelConfig.cNamespace().get_history = cwrapper.prototype("history_ref model_config_get_history(model_config)")
 ModelConfig.cNamespace().get_history_source = cwrapper.prototype("history_source_enum model_config_get_history_source(model_config)")

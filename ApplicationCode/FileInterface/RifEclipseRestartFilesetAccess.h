@@ -44,15 +44,17 @@ public:
     void                        setTimeSteps(const std::vector<QDateTime>& timeSteps);
     size_t                      timeStepCount();
     std::vector<QDateTime>            timeSteps();
+    std::vector<int>            reportNumbers();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
     bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
 
-    virtual void                readWellData(well_info_type* well_info);
+    virtual void                readWellData(well_info_type* well_info, bool importCompleteMswData);
     virtual int                 readUnitsType();
 
 private:
     void                        openTimeStep(size_t timeStep);
+
 
 private:
     QStringList                     m_fileNames;

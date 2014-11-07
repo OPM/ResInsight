@@ -1,6 +1,6 @@
 from ert_gui.models import ErtConnector
 from ert_gui.models.mixins import BasicModelMixin
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class EmptyModel(ErtConnector, BasicModelMixin):

@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #include <ert/util/util.h>
 #include <ert/util/type_macros.h>
@@ -215,7 +216,9 @@ struct enkf_fs_struct {
   char                   * root_path;
   char                   * mount_point;    // mount_point = root_path / case_name; the mount_point is the fundamental INPUT.
 
-
+  char                   * lock_file;
+  int                      lock_fd;
+  
   fs_driver_type         * dynamic_forecast;
   fs_driver_type         * dynamic_analyzed;
   fs_driver_type         * parameter;
@@ -246,28 +249,44 @@ struct enkf_fs_struct {
 UTIL_SAFE_CAST_FUNCTION( enkf_fs , ENKF_FS_TYPE_ID)
 UTIL_IS_INSTANCE_FUNCTION( enkf_fs , ENKF_FS_TYPE_ID)
 
-static int enkf_fs_incref( enkf_fs_type * fs ) {
+static void enkf_fs_umount( enkf_fs_type * fs );
+
+int enkf_fs_incref( enkf_fs_type * fs ) {
   fs->refcount++;
   return fs->refcount;
 }
 
-static int enkf_fs_decref( enkf_fs_type * fs ) {
+
+int enkf_fs_decref( enkf_fs_type * fs ) {
+  int refcount;
   fs->refcount--;
+  refcount = fs->refcount;
+
   if (fs->refcount < 0)
     util_abort("%s: internal fuckup. The filesystem refcount:%d is < 0 \n",__func__ , fs->refcount);
-  return fs->refcount;
+  
+  if (refcount == 0)
+    enkf_fs_umount( fs );
+
+  return refcount;
 }
+
 
 int enkf_fs_get_refcount( const enkf_fs_type * fs ) {
   return fs->refcount;
 }
 
 
+enkf_fs_type * enkf_fs_get_ref( enkf_fs_type * fs ) {
+  enkf_fs_incref( fs );
+  return fs;
+}
 
-static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point , bool read_only) {
+
+static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point ) {
   enkf_fs_type * fs          = util_malloc(sizeof * fs );
   UTIL_TYPE_ID_INIT( fs , ENKF_FS_TYPE_ID );
-  fs->time_map               = time_map_alloc();
+  fs->time_map               = time_map_alloc(  );
   fs->cases_config           = cases_config_alloc();
   fs->state_map              = state_map_alloc();
   fs->misfit_ensemble        = misfit_ensemble_alloc();
@@ -276,9 +295,11 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point , bool read_
   fs->parameter              = NULL;
   fs->dynamic_forecast       = NULL;
   fs->dynamic_analyzed       = NULL;
-  fs->read_only              = read_only;
+  fs->read_only              = true;
   fs->mount_point            = util_alloc_string_copy( mount_point );
   fs->refcount               = 0;
+  fs->lock_fd                = 0;
+  
   if (mount_point == NULL)
     util_abort("%s: fatal internal error: mount_point == NULL \n",__func__);
   {
@@ -288,7 +309,15 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point , bool read_
     util_path_split( fs->mount_point , &path_len , &path_tmp);
     fs->case_name = util_alloc_string_copy( path_tmp[path_len - 1]);
     fs->root_path = util_alloc_joined_string( (const char **) path_tmp , path_len , UTIL_PATH_SEP_STRING);
-    
+    fs->lock_file = util_alloc_filename( fs->mount_point , fs->case_name , "lock");
+
+    if (util_try_lockf( fs->lock_file , S_IWUSR + S_IWGRP , &fs->lock_fd)) {
+      fs->read_only = false;
+    } else {
+      fprintf(stderr," Another program has already opened filesystem read-write - this instance will be UNSYNCRONIZED read-only. Cross your fingers ....\n");
+      fs->read_only = true;
+    }
+
     util_free_stringlist( path_tmp , path_len );
   }
   return fs;
@@ -400,13 +429,15 @@ static void enkf_fs_assign_driver( enkf_fs_type * fs , fs_driver_type * driver ,
 }
 
 
-static enkf_fs_type *  enkf_fs_mount_block_fs( FILE * fstab_stream , const char * mount_point , bool read_only ) {
-  enkf_fs_type * fs = enkf_fs_alloc_empty( mount_point , read_only );
+static enkf_fs_type *  enkf_fs_mount_block_fs( FILE * fstab_stream , const char * mount_point  ) {
+  enkf_fs_type * fs = enkf_fs_alloc_empty( mount_point );
+  
   {
     int driver_nr;
     for (driver_nr = 0; driver_nr < 5; driver_nr++) {
       fs_driver_enum driver_type = util_fread_int( fstab_stream );
-      fs_driver_type * driver = block_fs_driver_open( fstab_stream , mount_point , driver_type , read_only);
+
+      fs_driver_type * driver = block_fs_driver_open( fstab_stream , mount_point , driver_type , fs->read_only);
       
       enkf_fs_assign_driver( fs , driver , driver_type );
     }
@@ -415,8 +446,8 @@ static enkf_fs_type *  enkf_fs_mount_block_fs( FILE * fstab_stream , const char 
 }
 
 
-static enkf_fs_type *  enkf_fs_mount_plain( FILE * fstab_stream , const char * mount_point , bool read_only ) {
-  enkf_fs_type * fs = enkf_fs_alloc_empty( mount_point , read_only);
+static enkf_fs_type *  enkf_fs_mount_plain( FILE * fstab_stream , const char * mount_point ) {
+  enkf_fs_type * fs = enkf_fs_alloc_empty( mount_point );
   {
     int driver_nr;
     for (driver_nr = 0; driver_nr < 5; driver_nr++) {
@@ -431,7 +462,7 @@ static enkf_fs_type *  enkf_fs_mount_plain( FILE * fstab_stream , const char * m
 
 
 
-void enkf_fs_create_fs( const char * mount_point, fs_driver_impl driver_id , void * arg) {
+enkf_fs_type * enkf_fs_create_fs( const char * mount_point, fs_driver_impl driver_id , void * arg , bool mount) {
   const int num_drivers = 32;
   FILE * stream = fs_driver_open_fstab( mount_point , true );
   if (stream != NULL) {
@@ -450,6 +481,11 @@ void enkf_fs_create_fs( const char * mount_point, fs_driver_impl driver_id , voi
     }
     fclose( stream );
   }
+
+  if (mount) 
+    return enkf_fs_mount( mount_point );
+  else
+    return NULL;
 }
 
 
@@ -507,6 +543,18 @@ state_map_type * enkf_fs_alloc_readonly_state_map( const char * mount_point ) {
 }
 
 
+time_map_type * enkf_fs_alloc_readonly_time_map( const char * mount_point ) {
+  path_fmt_type * path_fmt = path_fmt_alloc_directory_fmt( DEFAULT_CASE_PATH );
+  char * filename = path_fmt_alloc_file( path_fmt , false , mount_point , TIME_MAP_FILE);
+
+  time_map_type * time_map = time_map_fread_alloc_readonly( filename );
+
+  path_fmt_free( path_fmt );
+  free( filename );
+  return time_map;
+}
+
+
 
 static void enkf_fs_fread_misfit( enkf_fs_type * fs ) {
   FILE * stream = enkf_fs_open_excase_file( fs , MISFIT_ENSEMBLE_FILE );
@@ -526,25 +574,12 @@ static void enkf_fs_fwrite_misfit( enkf_fs_type * fs ) {
 }
 
 
-enkf_fs_type * enkf_fs_get_weakref( enkf_fs_type * fs ) {
-  return fs;
-}
-
-
-enkf_fs_type * enkf_fs_get_ref( enkf_fs_type * fs ) {
-  if (enkf_fs_is_instance( fs )) {
-    enkf_fs_incref( fs );
-    return fs;
-  } else {
-    util_abort("%s: tried to get enkf_fs reference from object which was not an existing enkf_fs reference\n",__func__);
-    return NULL;
-  }
-}
 
 
 
 
-enkf_fs_type * enkf_fs_mount( const char * mount_point , bool read_only) {
+
+enkf_fs_type * enkf_fs_mount( const char * mount_point ) {
   FILE * stream = fs_driver_open_fstab( mount_point , false );
   
   if (stream != NULL) {
@@ -556,10 +591,10 @@ enkf_fs_type * enkf_fs_mount( const char * mount_point , bool read_only) {
     
       switch( driver_id ) {
       case( BLOCK_FS_DRIVER_ID ):
-        fs = enkf_fs_mount_block_fs( stream , mount_point , read_only );
+        fs = enkf_fs_mount_block_fs( stream , mount_point);
         break;
       case( PLAIN_DRIVER_ID ):
-        fs = enkf_fs_mount_plain( stream , mount_point , read_only );
+        fs = enkf_fs_mount_plain( stream , mount_point );
         break;
       default:
         util_abort("%s: unrecognized driver_id:%d \n",__func__ , driver_id );
@@ -572,16 +607,17 @@ enkf_fs_type * enkf_fs_mount( const char * mount_point , bool read_only) {
     enkf_fs_fread_state_map( fs );
     enkf_fs_fread_misfit( fs );
     
-    return enkf_fs_get_ref( fs );
+    enkf_fs_get_ref( fs );
+    return fs;
   }
   return NULL;
 }
 
 
-bool enkf_fs_exists( const char * path ) {
+bool enkf_fs_exists( const char * mount_point ) {
   bool exists   = false;
   
-  FILE * stream = fs_driver_open_fstab( path , false );
+  FILE * stream = fs_driver_open_fstab( mount_point , false );
   if (stream != NULL) {
     exists = true;
     fclose( stream );
@@ -602,15 +638,14 @@ static void enkf_fs_free_driver(fs_driver_type * driver) {
 }
 
 
-void enkf_fs_umount( enkf_fs_type * fs ) {
+static void enkf_fs_umount( enkf_fs_type * fs ) {
   if (!fs->read_only) {
     enkf_fs_fsync( fs );
     enkf_fs_fwrite_misfit( fs );
   }
-  
-  {
-    int refcount = enkf_fs_decref( fs );
 
+  {
+    int refcount = fs->refcount;
     if (refcount == 0) {
       enkf_fs_free_driver( fs->dynamic_forecast );
       enkf_fs_free_driver( fs->dynamic_analyzed );
@@ -618,8 +653,14 @@ void enkf_fs_umount( enkf_fs_type * fs ) {
       enkf_fs_free_driver( fs->eclipse_static );
       enkf_fs_free_driver( fs->index );
       
+      if (fs->lock_fd > 0) {
+        close( fs->lock_fd );  // Closing the lock_file file descriptor - and releasing the lock.
+        util_unlink_existing( fs->lock_file );
+      }
+
       util_safe_free( fs->case_name );
       util_safe_free( fs->root_path );
+      util_safe_free(fs->lock_file);
       util_safe_free( fs->mount_point );
       path_fmt_free( fs->case_fmt );
       path_fmt_free( fs->case_member_fmt );
@@ -629,8 +670,10 @@ void enkf_fs_umount( enkf_fs_type * fs ) {
       state_map_free( fs->state_map );
       time_map_free( fs->time_map );
       cases_config_free( fs->cases_config );
+      misfit_ensemble_free( fs->misfit_ensemble );
       free( fs );
-    } 
+    } else
+      util_abort("%s: internal fuckup - tried to umount a filesystem with refcount:%d\n",__func__ , refcount);
   }
 }
 
@@ -828,8 +871,8 @@ bool enkf_fs_is_read_only(const enkf_fs_type * fs) {
     return fs->read_only;
 }
 
-void enkf_fs_set_writable(enkf_fs_type * fs) {
-    fs->read_only = false;
+void enkf_fs_set_writable(enkf_fs_type * fs, bool writable) {
+    fs->read_only = !writable;
 }
 
 void enkf_fs_debug_fprintf( const enkf_fs_type * fs) {

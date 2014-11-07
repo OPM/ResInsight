@@ -455,17 +455,19 @@ static void job_queue_node_free_error_info( job_queue_node_type * node ) {
 
 static void job_queue_node_fscanf_EXIT( job_queue_node_type * node ) {
   job_queue_node_free_error_info( node );
-  if (util_file_exists( node->exit_file )) {
-    char * xml_buffer = util_fread_alloc_file_content( node->exit_file, NULL);
-    
-    node->failed_job     = __alloc_tag_content( xml_buffer , "job" );
-    node->error_reason   = __alloc_tag_content( xml_buffer , "reason" );
-    node->stderr_capture = __alloc_tag_content( xml_buffer , "stderr");
-    node->stderr_file    = __alloc_tag_content( xml_buffer , "stderr_file");
-
-    free( xml_buffer );
-  } else
-    node->failed_job = util_alloc_sprintf("EXIT file:%s not found - load failure?" , node->exit_file);
+  if (node->exit_file) {
+    if (util_file_exists( node->exit_file )) {
+      char * xml_buffer = util_fread_alloc_file_content( node->exit_file, NULL);
+      
+      node->failed_job     = __alloc_tag_content( xml_buffer , "job" );
+      node->error_reason   = __alloc_tag_content( xml_buffer , "reason" );
+      node->stderr_capture = __alloc_tag_content( xml_buffer , "stderr");
+      node->stderr_file    = __alloc_tag_content( xml_buffer , "stderr_file");
+      
+      free( xml_buffer );
+    } else
+      node->failed_job = util_alloc_sprintf("EXIT file:%s not found - load failure?" , node->exit_file);
+  }
 }
 
 
@@ -1519,6 +1521,18 @@ void * job_queue_run_jobs__(void * __arg_pack) {
 }
 
 
+void job_queue_start_manager_thread( job_queue_type * job_queue , pthread_t * queue_thread , int job_size , bool verbose) {
+
+  arg_pack_type  * queue_args = arg_pack_alloc(); /* This arg_pack will be freed() in the job_que_run_jobs__() */
+  arg_pack_append_ptr(queue_args  , job_queue);
+  arg_pack_append_int(queue_args  , job_size);
+  arg_pack_append_bool(queue_args , verbose);
+  job_queue_reset(job_queue);
+  pthread_create( queue_thread , NULL , job_queue_run_jobs__ , queue_args);
+}     
+
+
+
 
 /**
    The most flexible use scenario is as follows:
@@ -1537,17 +1551,12 @@ void * job_queue_run_jobs__(void * __arg_pack) {
    job_queue_run_jobs() function. 
 */
 
+
 void job_queue_run_jobs_threaded(job_queue_type * queue , int num_total_run, bool verbose) {
-  arg_pack_type * arg_pack = arg_pack_alloc();   /* The arg_pack will be freed in the job_queue_run_jobs__() function. */
-  arg_pack_append_ptr( arg_pack , queue );
-  arg_pack_append_int( arg_pack , num_total_run );
-  arg_pack_append_bool( arg_pack , verbose );
-  {
-    pthread_t        queue_thread;
-    pthread_create( &queue_thread , NULL , job_queue_run_jobs__ , arg_pack);
-    pthread_detach( queue_thread );             /* Signal that the thread resources should be cleaned up when
-                                                   the thread has exited. */
-  }
+  pthread_t        queue_thread;
+  job_queue_start_manager_thread( queue , &queue_thread , num_total_run , verbose );
+  pthread_detach( queue_thread );             /* Signal that the thread resources should be cleaned up when
+                                                 the thread has exited. */
 }
 
 

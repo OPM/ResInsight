@@ -18,6 +18,7 @@
 
 #include <ert/util/rng.h>
 #include <ert/util/matrix.h>
+#include <ert/util/bool_vector.h>
 
 typedef struct cv_enkf_data_struct cv_enkf_data_type;
 
@@ -25,6 +26,7 @@ void * cv_enkf_data_alloc( rng_type * rng );
 void   cv_enkf_data_free( void * arg );
 
 void cv_enkf_init_update( void * arg , 
+                          const bool_vector_type * ens_mask , 
                           const matrix_type * S , 
                           const matrix_type * R , 
                           const matrix_type * dObs , 

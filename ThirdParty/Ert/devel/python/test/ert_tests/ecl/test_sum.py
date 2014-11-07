@@ -26,9 +26,8 @@ except ImportError:
 from ert.ecl import EclSum
 
 from ert.util import StringList, TimeVector, DoubleVector
-from ert.util.test_area import TestAreaContext
 
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase , TestAreaContext
 
 
 base = "ECLIPSE"
@@ -56,6 +55,29 @@ class SumTest(ExtendedTestCase):
         self.assertIsNotNone(self.ecl_sum, "Load failed")
 
 
+    def test_invalid(self):
+        with self.assertRaises(AssertionError):
+            sum = EclSum("Does/not/exist")
+
+
+    def test_KeyError(self):
+        sum = self.ecl_sum
+        with self.assertRaises(KeyError):
+            v = sum["KeyMissing"]
+        
+        with self.assertRaises(KeyError):
+            v = sum.get_interp("Missing" , days = 750)
+
+        with self.assertRaises(KeyError):
+            v = sum.get_interp_vector("Missing" , days_list = [750])
+
+
+
+    def test_contains(self):
+        self.assertTrue( "FOPT" in self.ecl_sum)
+        self.assertFalse( "MISSING" in self.ecl_sum )
+
+
     def test_interp(self):
         sum = self.ecl_sum
 
@@ -68,28 +90,53 @@ class SumTest(ExtendedTestCase):
         v = sum.get_interp_vector("WGPT:OP_2", date_list=[datetime.date(2002, 1, 1), datetime.date(2003, 1, 1), datetime.date(2004, 1, 1)])
         self.assertAlmostEqualList(v, [8.20773632e+08, 9.68444032e+08, 1.02515213e+09])
 
+        self.assertEqual(sum.get_interp("FOPT" , days = 0) , 0)
+
+        self.assertEqual(sum.get_interp("WOPR:OP_1" , days = 0) , 0)
+        self.assertEqual(sum.get_interp("WOPR:OP_1" , date=datetime.date(2000,1,1)) , 0)
+
+        self.assertEqual(sum.get_interp("WOPR:OP_1" , days = 31) , 7996)
+        self.assertEqual(sum.get_interp("WOPR:OP_1" , date=datetime.date(2000,2,1)) , 7996)
+
+        FPR = sum["FPR"]
+        self.assertFloatEqual(sum.get_interp("FPR" , days = 0)  , FPR[0].value)
+        self.assertFloatEqual(sum.get_interp("FPR" , days = 31) , FPR[1].value)
+
+        with self.assertRaises(ValueError):
+            sum.get_interp("WOPR:OP_1")
+
+        with self.assertRaises(ValueError):
+            sum.get_interp("WOPR:OP_1" , days=10 , date = datetime.date(2000,1,1))
+
+
+    def test_LLINEAR(self):
+        sum = EclSum( self.createTestPath("Statoil/ECLIPSE/Heidrun/LGRISSUE/EM-LTAA-ISEG_CARFIN_NWPROPS"))
+        self.assertTrue( sum.has_key("LLINEARS") )
+
+        
 
     def test_wells(self):
         wells = self.ecl_sum.wells()
         wells.sort()
-        self.assertAlmostEqualList(wells, ["OP_1", "OP_2", "OP_3", "OP_4", "OP_5", "WI_1", "WI_2", "WI_3"])
+        self.assertListEqual([well for well in wells], ["OP_1", "OP_2", "OP_3", "OP_4", "OP_5", "WI_1", "WI_2", "WI_3"])
 
         wells = self.ecl_sum.wells(pattern="*_3")
         wells.sort()
-        self.assertAlmostEqualList(wells, ["OP_3", "WI_3"])
+        self.assertListEqual([well for well in wells], ["OP_3", "WI_3"])
 
         groups = self.ecl_sum.groups()
         groups.sort()
-        self.assertAlmostEqualList(groups, ['GMWIN', 'OP', 'WI'])
+        self.assertListEqual([group for group in groups], ['GMWIN', 'OP', 'WI'])
 
 
     def test_last( self ):
         last = self.ecl_sum.get_last("FOPT")
-        self.assertAlmostEqual(last.value, 38006336.0)
-        self.assertAlmostEqual(last.days, 1826.0)
+        self.assertFloatEqual(last.value, 38006336.0)
+        self.assertFloatEqual(last.days, 1826.0)
         self.assertEqual(last.date, datetime.datetime(2004, 12, 31, 0, 0, 0))
 
-        self.assertAlmostEqual(self.ecl_sum.get_last_value("FGPT"), 6605249024.0)
+        self.assertFloatEqual(self.ecl_sum.get_last_value("FGPT"), 6605249024.0)
+        self.assertEqual( len(self.ecl_sum) , 63 )
 
 
     def test_dates( self ):
@@ -111,6 +158,17 @@ class SumTest(ExtendedTestCase):
         self.assertEqual(sum.start_time, datetime.datetime(2000, 1, 1, 0, 0, 0))
         self.assertEqual(sum.end_time, datetime.datetime(2004, 12, 31, 0, 0, 0))
         self.assertTrue(sum.check_sim_time(datetime.datetime(2004, 12, 31, 0, 0, 0)))
+        self.assertEqual(sum.end_date , datetime.date(2004, 12, 31))
+        
+
+
+    def test_dates2( self ):
+        sum = EclSum(self.createTestPath("Statoil/ECLIPSE/FF12/FF12_2013B3_AMAP2"))
+        self.assertEqual(sum.end_date , datetime.date(2045, 1, 1))
+
+
+
+
 
     def test_keys(self):
         sum = self.ecl_sum
@@ -141,7 +199,7 @@ class SumTest(ExtendedTestCase):
         self.assertEqual(sum.last_report, 62)
 
         self.assertEqual(sum.get_report_time(10), datetime.date(2000, 10, 1))
-        self.assertAlmostEqualScaled(sum.get_from_report("FOPT", 10), 6.67447e+06)
+        self.assertFloatEqual(sum.get_from_report("FOPT", 10), 6.67447e+06)
 
 
     @skipIf(ExtendedTestCase.slowTestShouldNotRun(), "Slow test skipped")
@@ -243,7 +301,7 @@ class SumTest(ExtendedTestCase):
     def test_stringlist_reference(self):
         sum = EclSum(self.case)
         wells = sum.wells()
-        self.assertAlmostEqualList(wells, ['OP_1', 'OP_2', 'OP_3', 'OP_4', 'OP_5', 'WI_1', 'WI_2', 'WI_3'])
+        self.assertListEqual([well for well in wells], ['OP_1', 'OP_2', 'OP_3', 'OP_4', 'OP_5', 'WI_1', 'WI_2', 'WI_3'])
         self.assertIsInstance(wells, StringList)
 
 
@@ -273,5 +331,92 @@ class SumTest(ExtendedTestCase):
         key_index = self.ecl_sum.get_general_var_index("FOPT")
         self.assertIsInstance(self.ecl_sum.alloc_data_vector(key_index, True), DoubleVector)
 
+    def test_timeRange(self):
+        sum = EclSum(self.case)
+        with self.assertRaises(TypeError):
+            trange = sum.timeRange(interval = "1")
+            trange = sum.timeRange(interval = "1X")
+            trange = sum.timeRange(interval = "YY")
+            trange = sum.timeRange(interval = "MY")
+
+        with self.assertRaises(ValueError):
+            trange = sum.timeRange( start = datetime.datetime(2000,1,1) , end = datetime.datetime(1999,1,1) )
+
+        sim_start = datetime.datetime(2000, 1, 1, 0, 0, 0)
+        sim_end = datetime.datetime(2004, 12, 31, 0, 0, 0)
+        trange = sum.timeRange( interval = "1Y")
+        self.assertTrue( trange[0] == datetime.date( 2000 , 1 , 1 ))
+        self.assertTrue( trange[1] == datetime.date( 2001 , 1 , 1 ))
+        self.assertTrue( trange[2] == datetime.date( 2002 , 1 , 1 ))
+        self.assertTrue( trange[3] == datetime.date( 2003 , 1 , 1 ))
+        self.assertTrue( trange[4] == datetime.date( 2004 , 1 , 1 ))
+        self.assertTrue( trange[5] == datetime.date( 2005 , 1 , 1 ))
+
+        trange = sum.timeRange( interval = "1M")
+        self.assertTrue( trange[0] == datetime.date( 2000 , 1 , 1 ))
+        self.assertTrue( trange[-1] == datetime.date( 2005 , 1 , 1 ))
+
+        trange = sum.timeRange( start = datetime.date( 2002 , 1 , 15), interval = "1M")
+        self.assertTrue( trange[0] == datetime.date( 2002 , 1 , 1 ))
+        self.assertTrue( trange[-1] == datetime.date( 2005 , 1 , 1 ))
+
+        trange = sum.timeRange( start = datetime.date( 2002 , 1 , 15) , end = datetime.date( 2003 , 1 , 15), interval = "1M")
+        self.assertTrue( trange[0] == datetime.date( 2002 , 1 , 1 ))
+        self.assertTrue( trange[-1] == datetime.date( 2003 , 2 , 1 ))
+
+        trange = sum.timeRange( start = datetime.date( 2002 , 1 , 15) , end = datetime.datetime( 2003 , 1 , 15,0,0,0), interval = "1M")
+        self.assertTrue( trange[0] == datetime.date( 2002 , 1 , 1 ))
+        self.assertTrue( trange[-1] == datetime.date( 2003 , 2 , 1 ))
 
 
+
+    # Loading this dataset is a test of loading a case where one report step is missing.
+    def test_Heidrun(self):
+        sum = EclSum( self.createTestPath("Statoil/ECLIPSE/Heidrun/Summary/FF12_2013B3_CLEAN_RS"))
+        self.assertEqual( 452 , len(sum))
+        self.assertFloatEqual( 1.8533144e+8 , sum.get_last_value("FOPT"))
+
+    def test_regularProduction(self):
+        sum = EclSum(self.case)
+        with self.assertRaises(TypeError):
+            trange = TimeVector.createRegular( sum.start_time , sum.end_time , "1M" )
+            prod = sum.blockedProduction("FOPR" , trange)
+            
+        with self.assertRaises(KeyError):
+            trange = TimeVector.createRegular( sum.start_time , sum.end_time , "1M" )
+            prod = sum.blockedProduction("NoNotThis" , trange)
+
+        trange = sum.timeRange(interval = "2Y")
+        self.assertTrue( trange[0]  == datetime.date( 2000 , 1 , 1 ))
+        self.assertTrue( trange[-1] == datetime.date( 2006 , 1 , 1 ))
+
+        trange = sum.timeRange(interval = "5Y")
+        self.assertTrue( trange[0]  == datetime.date( 2000 , 1 , 1 ))
+        self.assertTrue( trange[-1] == datetime.date( 2005 , 1 , 1 ))
+        
+        trange = sum.timeRange(interval = "6M")
+        wprod1 = sum.blockedProduction("WOPT:OP_1" , trange)
+        wprod2 = sum.blockedProduction("WOPT:OP_2" , trange)
+        wprod3 = sum.blockedProduction("WOPT:OP_3" , trange)
+        wprod4 = sum.blockedProduction("WOPT:OP_4" , trange)
+        wprod5 = sum.blockedProduction("WOPT:OP_5" , trange)
+    
+        fprod = sum.blockedProduction("FOPT" , trange)
+        gprod = sum.blockedProduction("GOPT:OP" , trange)
+        wprod = wprod1 + wprod2 + wprod3 + wprod4 + wprod5
+        for (w,f,g) in zip(wprod, fprod,gprod):
+            self.assertFloatEqual( w , f )
+            self.assertFloatEqual( w , g )
+
+
+
+    def test_writer(self):
+        writer = EclSum.writer("CASE" , datetime.date( 2000 , 1 , 1) , 10 , 10 , 5)
+        self.assertIsInstance(self.ecl_sum, EclSum)
+
+        
+        writer.addVariable( "FOPT" )
+        self.assertTrue( writer.has_key( "FOPT" ))
+        
+        writer.addTStep( 1 , 100 )
+        

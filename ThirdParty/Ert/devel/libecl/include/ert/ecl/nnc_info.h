@@ -50,6 +50,9 @@ extern "C" {
   int                     nnc_info_get_total_size( const nnc_info_type * nnc_info );
   void                    nnc_info_fprintf(const nnc_info_type * nnc_info , FILE * stream);
 
+  bool                    nnc_info_equal( const nnc_info_type * nnc_info1 , const nnc_info_type * nnc_info2 );
+  nnc_info_type *         nnc_info_alloc_copy( const nnc_info_type * src_info );
+
 #ifdef __cplusplus
 }
 #endif

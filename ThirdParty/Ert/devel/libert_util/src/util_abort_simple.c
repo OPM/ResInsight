@@ -10,12 +10,13 @@
 
 
 
-void util_abort(const char * fmt , ...) {
+void util_abort__(const char * file , const char * function , int line , const char * fmt , ...) {
   fprintf(stderr,"\n-----------------------------------------------------------------\n");
   fprintf(stderr,"A fatal error has been detected and the program will abort.\n\n");
   fprintf(stderr, "Current executable : %s\n" , (__current_executable == NULL) ? "<Not set>" : __current_executable);
   fprintf(stderr, "Version info       : %s\n" , (__abort_program_message == NULL) ? "<Not set>" : __abort_program_message);
   fprintf(stderr, "\nError message: ");
+  fprintf(stderr , "Abort called from: %s (%s:%d) \n",function , file , line);
   {  
     va_list ap;
     va_start(ap , fmt);

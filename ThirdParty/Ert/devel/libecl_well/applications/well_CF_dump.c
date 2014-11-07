@@ -29,7 +29,7 @@ int main( int argc , char ** argv ) {
   ecl_grid_type * grid = ecl_grid_alloc( grid_file );
   well_info_type * well_info = well_info_alloc( grid );
   
-  well_info_load_rstfile( well_info , rst_file ); 
+  well_info_load_rstfile( well_info , rst_file , true );
   {
     int iw;
     int ic;

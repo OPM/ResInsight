@@ -3,7 +3,7 @@
     
    The file 'enkf_tui_workflow.c' is part of ERT - Ensemble based Reservoir Tool. 
     
-   ERT is free software: you can redistribute it and/or modify 
+   ERT is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by 
    the Free Software Foundation, either version 3 of the License, or 
    (at your option) any later version. 
@@ -53,7 +53,7 @@ void enkf_tui_workflow_run( void * arg ) {
       char * workflow_name = util_alloc_stdin_line();
       if (workflow_name != NULL) {
         if (ert_workflow_list_has_workflow( workflow_list , workflow_name )) {
-          bool runOK = ert_workflow_list_run_workflow( workflow_list , workflow_name , enkf_main);
+          bool runOK = ert_workflow_list_run_workflow_blocking( workflow_list , workflow_name , enkf_main);
           if (!runOK) {
             printf("Errors in workflow:%s \n", workflow_name );
             printf("-----------------------------------------------------------------\n");

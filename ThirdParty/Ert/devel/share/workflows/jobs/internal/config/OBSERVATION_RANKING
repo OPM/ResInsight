@@ -1,0 +1,4 @@
+INTERNAL    True
+FUNCTION    enkf_main_rank_on_observations_JOB
+MIN_ARG     1
+ARG_TYPE    0  STRING

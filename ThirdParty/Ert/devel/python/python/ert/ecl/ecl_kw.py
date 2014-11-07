@@ -71,7 +71,7 @@ class EclKW(CClass):
     limit the operation to a part of the EclKW.
     """
 
-    int_kw_set = set( ["PVTNUM" , "FIPNUM" , "EQLNUM" , "FLUXNUM" , "MULTNUM" , "ACTNUM" , "SPECGRID"] )
+    int_kw_set = set( ["PVTNUM" , "FIPNUM" , "EQLNUM" , "FLUXNUM" , "MULTNUM" , "ACTNUM" , "SPECGRID" , "REGIONS"] )
 
     @classmethod
     def add_int_kw(cls , kw):
@@ -542,6 +542,30 @@ class EclKW(CClass):
     
     # No __rdiv__()
 
+    def sum(self):
+        """
+        Will calculate the sum of all the elements in the keyword.
+
+        String: Raise ValueError exception.
+        Bool:   The number of true values
+        """
+        if self.ecl_type == EclTypeEnum.ECL_CHAR_TYPE:
+            raise ValueError("The keyword:%s is of string type - sum is not implemented" % self.get_name())
+        elif self.ecl_type == EclTypeEnum.ECL_INT_TYPE:
+            return cfunc.int_sum( self )
+        elif self.ecl_type == EclTypeEnum.ECL_FLOAT_TYPE:
+            return cfunc.float_sum( self )
+        elif self.ecl_type == EclTypeEnum.ECL_DOUBLE_TYPE:
+            return cfunc.float_sum( self )
+        elif self.ecl_type == EclTypeEnum.ECL_BOOL_TYPE:
+            sum = 0
+            for elm in self:
+                if elm:
+                    sum += 1
+            return sum
+
+
+
     def assert_binary( self , other ):
         """
         Utility function to assert that keywords @self and @other can
@@ -706,6 +730,9 @@ class EclKW(CClass):
         else:
             raise TypeError("Can only compare with another EclKW")
     
+    def __eq__(self , other):
+        return self.equal( other )
+
 
     def equal_numeric(self , other , epsilon = 1e-6):
         """
@@ -745,22 +772,6 @@ class EclKW(CClass):
         
 
     name = property( get_name , set_name )
-
-    @property
-    def type( self ):
-        # enum ecl_type_enum from ecl_util.h
-        if self.ecl_type == EclTypeEnum.ECL_CHAR_TYPE:
-            return "CHAR"
-        if self.ecl_type == EclTypeEnum.ECL_FLOAT_TYPE:
-            return "REAL"
-        if self.ecl_type == EclTypeEnum.ECL_DOUBLE_TYPE:
-            return "DOUB"
-        if self.ecl_type == EclTypeEnum.ECL_INT_TYPE:
-            return "INTE"
-        if self.ecl_type == EclTypeEnum.ECL_BOOL_TYPE:
-            return "BOOL"
-        if self.ecl_type == EclTypeEnum.ECL_MESS_TYPE:
-            return "MESS"
 
 
     @property    
@@ -811,11 +822,18 @@ class EclKW(CClass):
     
     @property
     def type( self ):
-        return self.ecl_type
+        return self.getEclType()
 
     @property
     def type_name( self ):
+        return self.typeName( )
+
+    def typeName(self):
         return EclUtil.type_name( self.ecl_type )
+
+    def getEclType(self):
+        return self.ecl_type
+
     
     @property
     def header( self ):
@@ -994,6 +1012,8 @@ cfunc.fwrite                     = cwrapper.prototype("void     ecl_kw_fwrite( e
 cfunc.get_header                 = cwrapper.prototype("char*    ecl_kw_get_header ( ecl_kw )")
 cfunc.set_header                 = cwrapper.prototype("void     ecl_kw_set_header_name ( ecl_kw , char*)")
 
+cfunc.int_sum                    = cwrapper.prototype("int      ecl_kw_element_sum_int( ecl_kw )")
+cfunc.float_sum                  = cwrapper.prototype("double   ecl_kw_element_sum_float( ecl_kw )")
 cfunc.iadd                       = cwrapper.prototype("void     ecl_kw_inplace_add( ecl_kw , ecl_kw )")
 cfunc.imul                       = cwrapper.prototype("void     ecl_kw_inplace_mul( ecl_kw , ecl_kw )")
 cfunc.idiv                       = cwrapper.prototype("void     ecl_kw_inplace_div( ecl_kw , ecl_kw )")

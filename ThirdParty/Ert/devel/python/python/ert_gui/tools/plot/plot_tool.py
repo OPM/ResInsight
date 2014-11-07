@@ -5,7 +5,7 @@ from ert_gui.widgets import util
 
 class PlotTool(Tool):
     def __init__(self):
-        super(PlotTool, self).__init__("Create Plot", util.resourceIcon("ide/chart_curve_add"))
+        super(PlotTool, self).__init__("Create Plot", "tools/plot", util.resourceIcon("ide/chart_curve_add"))
 
     def trigger(self):
         plot_window = PlotWindow(self.parent())

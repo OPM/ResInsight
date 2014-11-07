@@ -8,7 +8,7 @@ extern "C" {
 
 #include <ert/util/matrix.h>
 #include <ert/util/rng.h>
-
+#include <ert/util/bool_vector.h>
 
   typedef void (analysis_updateA_ftype) (void * module_data , 
                                          matrix_type * A , 
@@ -38,6 +38,7 @@ extern "C" {
 
 
   typedef void (analysis_init_update_ftype) (void * module_data, 
+                                             const bool_vector_type * ens_mask , 
                                              const matrix_type * S , 
                                              const matrix_type * R , 
                                              const matrix_type * dObs , 
@@ -51,6 +52,7 @@ extern "C" {
   typedef bool   (analysis_has_var_ftype)    (const void * module_data , const char * var_name);
   typedef int    (analysis_get_int_ftype)    (const void * module_data , const char * var_name );
   typedef double (analysis_get_double_ftype) (const void * module_data , const char * var_name );
+  typedef bool   (analysis_get_bool_ftype)   (const void * module_data , const char * var_name );
   typedef void * (analysis_get_ptr_ftype)    (const void * module_data , const char * var_name );
 
 /*****************************************************************/
@@ -77,6 +79,7 @@ typedef struct {
   analysis_has_var_ftype         * has_var;
   analysis_get_int_ftype         * get_int;
   analysis_get_double_ftype      * get_double;
+  analysis_get_bool_ftype        * get_bool;
   analysis_get_ptr_ftype         * get_ptr;
 } analysis_table_type;
 

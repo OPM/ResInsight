@@ -39,18 +39,33 @@ int main(int argc , char ** argv) {
   ecl_grid_type * grid = ecl_grid_alloc( grid_file );
   const ecl_kw_type * poro_kw = ecl_file_iget_named_kw( init , "PORO" , 0 );
   const ecl_kw_type * porv_kw = ecl_file_iget_named_kw( init , "PORV" , 0 );
+  ecl_kw_type * multpv = NULL;
+  ecl_kw_type * NTG = NULL;
   bool error_found = false;
   
   int error_count = 0;
   int iactive;
+
+  if (ecl_file_has_kw( init , "NTG"))
+    NTG = ecl_file_iget_named_kw( init , "NTG" , 0);
+
+  if (ecl_file_has_kw( init , "MULTPV"))
+    multpv = ecl_file_iget_named_kw( init , "MULTPV" , 0);
+  
   for (iactive = 0; iactive < ecl_grid_get_nactive( grid ); ++iactive) {
     int iglobal = ecl_grid_get_global_index1A( grid , iactive );
     
     double grid_volume = ecl_grid_get_cell_volume1( grid , iglobal );
     double eclipse_volume = ecl_kw_iget_float( porv_kw , iglobal ) / ecl_kw_iget_float( poro_kw , iactive );
-    
+  
+    if (NTG)
+      eclipse_volume *= ecl_kw_iget_float( NTG , iactive );
+
+    if (multpv)
+      eclipse_volume *= ecl_kw_iget_float( multpv , iactive);
+  
     if (!util_double_approx_equal__( grid_volume , eclipse_volume , 1e-3)) {
-      printf("Error in cell: %d V: %g    V2: %g \n",iglobal , grid_volume , eclipse_volume );
+      printf("Error in cell: %d V: %g    V2: %g   \n", iglobal , grid_volume , eclipse_volume);
       error_count++;
       error_found = true;
     }

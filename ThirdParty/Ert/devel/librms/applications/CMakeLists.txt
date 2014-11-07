@@ -13,11 +13,8 @@ foreach(prog ${program_list})
    endif()   
 
    #-----------------------------------------------------------------
-   if (RMS_INSTALL_PREFIX)
-      set (destination ${RMS_INSTALL_PREFIX}/bin)
-   else()
-      set (destination bin)
-   endif()
+
+   set (destination ${CMAKE_INSTALL_PREFIX}/bin)
 
    if (INSTALL_ERT)
       install(TARGETS ${prog} DESTINATION ${destination})

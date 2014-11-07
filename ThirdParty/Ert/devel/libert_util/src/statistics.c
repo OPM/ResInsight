@@ -34,6 +34,25 @@ double statistics_mean( const double_vector_type * data_vector ) {
 
   return sum / size;
 }
+
+
+
+double statistics_std( const double_vector_type * data_vector ) {
+  const double * data = double_vector_get_const_ptr( data_vector );
+  double std = 0;
+  double mean = statistics_mean( data_vector );
+  int size = double_vector_size( data_vector );
+  int i;
+
+  for (i=0; i < size; i++) {
+    double d = (data[i] - mean);
+    std += d*d;
+  }
+  
+  return sqrt(std / size);
+}
+
+
  
 
 /**

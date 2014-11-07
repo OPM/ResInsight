@@ -68,6 +68,7 @@ path_stack_type * path_stack_alloc() {
 void path_stack_free( path_stack_type * path_stack ) {
   stringlist_free( path_stack->stack );
   stringlist_free( path_stack->storage );
+  free( path_stack );
 }
 
 

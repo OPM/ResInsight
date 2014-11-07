@@ -71,12 +71,22 @@ if LSF_HOME:
     setenv("LSF_SERVERDIR", "%s/etc" % LSF_HOME)
     setenv("LSF_ENVDIR", "%s/conf" % LSF_HOME)   # This is wrong: Statoil: /prog/LSF/conf
 
-JOB_QUEUE_LIB = clib.ert_load("libjob_queue.so")
+JOB_QUEUE_LIB = clib.ert_load("libjob_queue")
 
 from .job_status_type_enum import JobStatusType
 from .job import Job
 from .queue import JobList, JobQueue, statusList, exList, runtimeList
+from .job_queue_manager import JobQueueManager
 from .driver import QueueDriverEnum, Driver, LSFDriver, RSHDriver, LocalDriver
 from .ext_job import ExtJob
 from .ext_joblist import ExtJoblist
 from .forward_model import ForwardModel
+
+from .ert_script import ErtScript
+from .function_ert_script import FunctionErtScript
+from .external_ert_script import ExternalErtScript
+
+from .workflow_job import WorkflowJob
+from .workflow_joblist import WorkflowJoblist
+from .workflow import Workflow
+from .workflow_runner import WorkflowRunner

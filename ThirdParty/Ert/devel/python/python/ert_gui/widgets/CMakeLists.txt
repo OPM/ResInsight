@@ -11,12 +11,12 @@ set(PYTHON_SOURCES
     double_box.py
     double_spinner.py
     error_popup.py
-    help_dock.py
     helped_widget.py
     integer_spinner.py
     keyword_list.py
     keyword_table.py
     legend.py
+    list_spin_box.py
     path_chooser.py
     path_format.py
     progress.py
@@ -29,6 +29,7 @@ set(PYTHON_SOURCES
     util.py
     validated_dialog.py
     warning_panel.py
+    workflow_dialog.py
 )
 
 add_python_package("python.ert_gui.widgets"  ${PYTHON_INSTALL_PREFIX}/ert_gui/widgets "${PYTHON_SOURCES}" True)

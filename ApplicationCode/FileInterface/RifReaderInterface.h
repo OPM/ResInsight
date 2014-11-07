@@ -56,7 +56,7 @@ public:
     void                        setReaderSetting(RifReaderSettings* settings);
 
     bool                        isFaultImportEnabled();
-    bool                        isSimulationWellDataEnabled();
+    bool                        isImportOfCompleteMswDataEnabled();
     bool                        isNNCsEnabled();
 
     virtual bool                open(const QString& fileName, RigCaseData* eclipseCase) = 0;

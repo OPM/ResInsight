@@ -37,8 +37,8 @@ public:
     RifReaderSettings();
 
     caf::PdmField<bool> importFaults;
-    caf::PdmField<bool> importSimulationWellData;
     caf::PdmField<bool> importNNCs;
+    caf::PdmField<bool> importAdvancedMswData;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

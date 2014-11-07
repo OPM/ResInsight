@@ -81,6 +81,8 @@ class StringBox(HelpedWidget):
     def setValidator(self, validator):
         self.__validator = validator
 
+    def setAlignment(self, flag):
+        self.box_string.setAlignment(flag)
 
 
 

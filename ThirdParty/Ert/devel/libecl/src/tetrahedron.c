@@ -64,8 +64,10 @@ double tetrahedron_volume( const tetrahedron_type * tet ) {
 
   point_vector_cross( &b_x_c , &b , &c);
   
-  return fabs( point_dot_product( &a , &b_x_c) ) / 6.0;
+  return point_dot_product( &a , &b_x_c)  / 6.0;
 }
+
+
 
 
 /**
@@ -74,7 +76,7 @@ double tetrahedron_volume( const tetrahedron_type * tet ) {
 */
 
 static int __sign( double x) {
-  const double zero_tol = 1e-10;
+  const double zero_tol = 1e-8;
   if (fabs(x) < zero_tol)
     return 0;
   else if (x > 0) 
@@ -170,8 +172,12 @@ bool tetrahedron_contains__( const tetrahedron_type * tet , const point_type * p
   const point_type * p3 = tet->p2; 
   const point_type * p4 = tet->p3;
   
-  double D0 , D1 , D2 , D3 , D4;
+
   int current_sign , sign;
+  /*
+    Special casing around the vertex points should be handled prior to
+    calling this function.
+  */
 
   /*****************************************************************/
   matrix_iset( D , 0 , 0 , p1->x);
@@ -193,10 +199,13 @@ bool tetrahedron_contains__( const tetrahedron_type * tet , const point_type * p
   matrix_iset( D , 3 , 1 , p4->y);
   matrix_iset( D , 3 , 2 , p4->z);
   matrix_iset( D , 3 , 3 , 1);
-  D0 = matrix_det4( D );
-  current_sign = __sign( D0 );
-  if (current_sign == 0)
-    return false; /* A zero volume cell. */
+  
+  {
+    double D0 = matrix_det4( D );
+    current_sign = __sign( D0 );
+    if (current_sign == 0)
+      return false; /* A zero volume cell. */
+  }
 
   /*****************************************************************/
   matrix_iset( D , 0 , 0 , p->x);
@@ -218,10 +227,14 @@ bool tetrahedron_contains__( const tetrahedron_type * tet , const point_type * p
   matrix_iset( D , 3 , 1 , p4->y);
   matrix_iset( D , 3 , 2 , p4->z);
   matrix_iset( D , 3 , 3 , 1);
-  D1 = matrix_det4( D );
-  sign = __sign( D1 );
-  if ((sign != 0) && (sign != current_sign)) return false;
   
+  {
+    double D1 = matrix_det4( D );
+    sign = __sign( D1 );
+    if ((sign != 0) && (sign != current_sign)) 
+      return false;
+  }
+
   /*****************************************************************/
   matrix_iset( D , 0 , 0 , p1->x);
   matrix_iset( D , 0 , 1 , p1->y);
@@ -242,10 +255,15 @@ bool tetrahedron_contains__( const tetrahedron_type * tet , const point_type * p
   matrix_iset( D , 3 , 1 , p4->y);
   matrix_iset( D , 3 , 2 , p4->z);
   matrix_iset( D , 3 , 3 , 1);
-  D2 = matrix_det4( D );
-  sign = __sign( D2 );
-  if ((sign != 0) && (sign != current_sign)) return false;
+  
+  {
+    double D2 = matrix_det4( D );
+    sign = __sign( D2 );
+    if ((sign != 0) && (sign != current_sign)) 
+      return false;
+  }
   /*****************************************************************/
+
   matrix_iset( D , 0 , 0 , p1->x);
   matrix_iset( D , 0 , 1 , p1->y);
   matrix_iset( D , 0 , 2 , p1->z);
@@ -265,10 +283,15 @@ bool tetrahedron_contains__( const tetrahedron_type * tet , const point_type * p
   matrix_iset( D , 3 , 1 , p4->y);
   matrix_iset( D , 3 , 2 , p4->z);
   matrix_iset( D , 3 , 3 , 1);
-  D3 = matrix_det4( D );
-  sign = __sign( D3 );
-  if ((sign != 0) && (sign != current_sign)) return false;
+
+  {
+    double D3 = matrix_det4( D );
+    sign = __sign( D3 );
+    if ((sign != 0) && (sign != current_sign)) 
+      return false;
+  }
   /*****************************************************************/
+
   matrix_iset( D , 0 , 0 , p1->x);
   matrix_iset( D , 0 , 1 , p1->y);
   matrix_iset( D , 0 , 2 , p1->z);
@@ -288,11 +311,13 @@ bool tetrahedron_contains__( const tetrahedron_type * tet , const point_type * p
   matrix_iset( D , 3 , 1 , p->y);
   matrix_iset( D , 3 , 2 , p->z);
   matrix_iset( D , 3 , 3 , 1);
-  D4 = matrix_det4( D );
-  sign = __sign( D4 );
-  if ((sign != 0) && (sign != current_sign)) return false;
-  /*****************************************************************/
-
+  
+  {
+    double D4 = matrix_det4( D );
+    sign = __sign( D4 );
+    if ((sign != 0) && (sign != current_sign)) 
+      return false;
+  }
   return true;
 }
 
@@ -302,4 +327,12 @@ bool tetrahedron_contains( const tetrahedron_type * tet , const point_type * p) 
   bool contains = tetrahedron_contains__( tet , p , D );
   matrix_free( D );
   return contains;
+}
+
+
+void tetrahedron_fprintf( const tetrahedron_type * tet , FILE * stream , const double* offset) {
+  fprintf(stream , "P0: "); point_dump_ascii( tet->p0 , stream , offset); fprintf(stream , "\n");
+  fprintf(stream , "P1: "); point_dump_ascii( tet->p1 , stream , offset); fprintf(stream , "\n");
+  fprintf(stream , "P2: "); point_dump_ascii( tet->p2 , stream , offset); fprintf(stream , "\n");
+  fprintf(stream , "P3: "); point_dump_ascii( tet->p3 , stream , offset); fprintf(stream , "\n");
 }

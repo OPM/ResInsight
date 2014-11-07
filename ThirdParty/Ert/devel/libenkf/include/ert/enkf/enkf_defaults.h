@@ -25,6 +25,12 @@
 
 
 /**
+  Default file name for export file for GEN_KW parameters
+*/
+#define DEFAULT_GEN_KW_EXPORT_FILE   "parameters.txt"
+
+
+/**
    The format string used when creating search strings from user input
    with the 'DATA_KW' keyword. The format string must contain one '%s'
    placeholder which will be replaced with the user supplied key; can
@@ -122,6 +128,7 @@
 #define DEFAULT_ANALYSIS_MIN_REALISATIONS  0   // 0: No lower limit
 #define DEFAULT_ANALYSIS_STOP_LONG_RUNNING false 
 #define DEFAULT_MAX_RUNTIME                0
+#define DEFAULT_ITER_RETRY_COUNT           4
 
 
 /* Default directories. */

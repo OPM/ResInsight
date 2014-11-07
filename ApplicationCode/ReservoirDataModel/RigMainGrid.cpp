@@ -405,6 +405,8 @@ bool RigMainGrid::isFaceNormalsOutwards() const
 //--------------------------------------------------------------------------------------------------
 const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
 {
+    CVF_ASSERT(m_faultsPrCellAcc.notNull());
+
     int faultIdx = m_faultsPrCellAcc->faultIdx(reservoirCellIndex, face);
     if (faultIdx !=  RigFaultsPrCellAccumulator::NO_FAULT )
     {

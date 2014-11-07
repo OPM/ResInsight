@@ -22,6 +22,7 @@
 #include <stdio.h>
 
 #include <ert/util/stringlist.h>
+#include <ert/util/string_util.h>
 #include <ert/util/util.h>
 #include <ert/util/path_fmt.h>
 #include <ert/util/bool_vector.h>
@@ -72,13 +73,20 @@ struct enkf_config_node_struct {
 };
 
 
+UTIL_IS_INSTANCE_FUNCTION( enkf_config_node , ENKF_CONFIG_NODE_TYPE_ID )
+
 
 static bool enkf_config_node_has_container(const enkf_config_node_type * node , enkf_fs_type * fs , node_id_type node_id) {
   bool has_container = true;
-
   for (int inode=0; inode < vector_get_size( node->container_nodes ); inode++) {
     enkf_config_node_type * child_node = vector_iget( node->container_nodes , inode );
-    if (!enkf_config_node_has_node( child_node , fs , node_id )) {
+    bool has_child;
+    if (child_node->vector_storage)
+      has_child = enkf_config_node_has_vector( child_node , fs , node_id.iens , node_id.state);
+    else
+      has_child = enkf_config_node_has_node( child_node , fs , node_id );
+
+    if (!has_child) {
       has_container = false;
       break;
     }
@@ -91,7 +99,7 @@ static bool enkf_config_node_has_container(const enkf_config_node_type * node , 
 bool enkf_config_node_has_node( const enkf_config_node_type * node , enkf_fs_type * fs , node_id_type node_id) {
   if (node->impl_type == CONTAINER) 
     return enkf_config_node_has_container( node , fs , node_id );
-  else
+  else 
     return enkf_fs_has_node( fs , node->key , node->var_type , node_id.report_step , node_id.iens , node_id.state );
 }
 
@@ -277,6 +285,8 @@ enkf_config_node_type * enkf_config_node_alloc(enkf_var_type              var_ty
 
 
 
+
+
 void enkf_config_node_update_gen_kw( enkf_config_node_type * config_node ,
                                      const char * enkf_outfile_fmt ,   /* The include file created by ERT for the forward model. */
                                      const char * template_file    , 
@@ -329,13 +339,77 @@ enkf_config_node_type * enkf_config_node_alloc_summary( const char * key , load_
 }
 
 
-/*****************************************************************/
 
-enkf_config_node_type * enkf_config_node_new_gen_data( const char * key , bool forward_init) {
-  enkf_config_node_type * config_node = enkf_config_node_alloc__( INVALID , GEN_DATA , key , forward_init);
-  config_node->data = gen_data_config_alloc_empty( key );
+
+enkf_config_node_type * enkf_config_node_alloc_GEN_PARAM( const char * node_key , 
+                                                          bool forward_init , 
+                                                          gen_data_file_format_type input_format , 
+                                                          gen_data_file_format_type output_format , 
+                                                          const char * init_file_fmt , 
+                                                          const char * ert_outfile_fmt) {
+
+
+  enkf_config_node_type * config_node = enkf_config_node_alloc__( PARAMETER , GEN_DATA , node_key , forward_init );
+  config_node->data = gen_data_config_alloc_GEN_PARAM( node_key , output_format , input_format);
+    
+  enkf_config_node_update( config_node ,               /* Generic update - needs the format settings from the special.*/
+                           init_file_fmt ,
+                           ert_outfile_fmt , 
+                           NULL , 
+                           NULL );
+  
   return config_node;
 }
+
+
+
+
+enkf_config_node_type * enkf_config_node_alloc_GEN_DATA_result( const char * key , 
+                                                                gen_data_file_format_type input_format,
+                                                                const char * enkf_infile_fmt ) {
+  
+  enkf_config_node_type * config_node = enkf_config_node_alloc__( DYNAMIC_RESULT , GEN_DATA , key , false);
+  config_node->data = gen_data_config_alloc_GEN_DATA_result( key , input_format );
+  
+  enkf_config_node_update( config_node ,               /* Generic update - needs the format settings from the special.*/
+                           NULL , 
+                           NULL , 
+                           enkf_infile_fmt ,
+                           NULL ); 
+  
+  return config_node;
+}
+
+
+enkf_config_node_type * enkf_config_node_alloc_GEN_DATA_state( const char * key, 
+                                                               bool forward_init , 
+                                                               gen_data_file_format_type input_format,
+                                                               gen_data_file_format_type output_format,
+                                                               const char * init_file_fmt           , 
+                                                               const char * template_ecl_file       , 
+                                                               const char * template_data_key       ,
+                                                               const char * enkf_outfile_fmt        , 
+                                                               const char * enkf_infile_fmt         , 
+                                                               const char * min_std_file) {
+  
+  if (gen_data_config_valid_result_format( enkf_infile_fmt )) {
+    enkf_config_node_type * config_node = enkf_config_node_alloc__( DYNAMIC_STATE , GEN_DATA , key , forward_init);
+    config_node->data = gen_data_config_alloc_GEN_DATA_state( key , output_format , input_format );
+
+    enkf_config_node_update(config_node ,               /* Generic update - needs the format settings from the special.*/
+                            init_file_fmt ,
+                            enkf_outfile_fmt , 
+                            enkf_infile_fmt, 
+                            min_std_file); 
+
+    return config_node;
+  } else {
+    fprintf(stderr, "** ERROR: The RESULT_FILE setting for %s is invalid - must have an embedded %%d - and be a relative path.\n" , key );
+    return NULL;
+  }
+}
+
+
 
 /*****************************************************************/
 
@@ -347,6 +421,7 @@ enkf_config_node_type * enkf_config_node_new_container( const char * key ) {
 
 void enkf_config_node_update_container( enkf_config_node_type * config_node , const enkf_config_node_type * child_node) {
   vector_append_ref( config_node->container_nodes , child_node );
+  container_config_add_node( config_node->data , child_node );
 }                                       
   
 const char * enkf_config_node_iget_container_key( const enkf_config_node_type * config_node , int index) {
@@ -361,9 +436,9 @@ const char * enkf_config_node_iget_container_key( const enkf_config_node_type * 
    This will create a new gen_kw_config instance which is NOT yet
    valid. Mainly support code for the GUI.
 */
-enkf_config_node_type * enkf_config_node_new_field( const char * key , ecl_grid_type * ecl_grid, field_trans_table_type * trans_table, bool forward_init) {
+enkf_config_node_type * enkf_config_node_alloc_field( const char * key , ecl_grid_type * ecl_grid, field_trans_table_type * trans_table, bool forward_init) {
   enkf_config_node_type * config_node = enkf_config_node_alloc__( INVALID , FIELD , key , forward_init);
-  config_node->data = field_config_alloc_empty( key , ecl_grid , trans_table );
+  config_node->data = field_config_alloc_empty( key , ecl_grid , trans_table, false );
   return config_node;
 }
 
@@ -449,72 +524,6 @@ void enkf_config_node_update_general_field( enkf_config_node_type * config_node 
 /*****************************************************************/
 
 
-void enkf_config_node_update_gen_data( enkf_config_node_type * config_node, 
-                                       gen_data_file_format_type input_format,
-                                       gen_data_file_format_type output_format,
-                                       const char * init_file_fmt           , 
-                                       const char * template_ecl_file       , 
-                                       const char * template_data_key       ,
-                                       const char * enkf_outfile_fmt        , 
-                                       const char * enkf_infile_fmt         , 
-                                       const char * min_std_file) {
-
-  {
-    enkf_var_type var_type = INVALID_VAR;
-    /*
-      The var type parameter is determined by inspecting the
-      combination of input parameters. It is possible to specify an
-      invalid input combination; that should be identified with a call
-      to gen_data_config_is_valid() in the calling scope.
-
-
-      PARAMETER:      init_file_fmt    != NULL
-                      enkf_outfile_fmt != NULL
-                      enkf_infile_fmt  == NULL
-
-      DYNAMIC_STATE:  init_file_fmt    != NULL
-                      enkf_outfile_fmt != NULL
-                      enkf_infile_fmt  != NULL
-
-      DYNAMIC_RESULT: init_file_fmt    == NULL
-                      enkf_outfile_fmt == NULL
-                      enkf_infile_fmt  != NULL                
-
-    */
-    
-    if ((init_file_fmt != NULL) && (enkf_outfile_fmt != NULL) && (enkf_infile_fmt == NULL)) var_type = PARAMETER;
-
-    if ((init_file_fmt != NULL) && (enkf_outfile_fmt != NULL) && (enkf_infile_fmt != NULL)) var_type = DYNAMIC_STATE;
-
-    if ((init_file_fmt == NULL) && (enkf_outfile_fmt == NULL) && (enkf_infile_fmt != NULL)) var_type = DYNAMIC_RESULT;
-
-    config_node->var_type = var_type;  /* Can be stuck with INVALID_VAR */
-  }
-
-  if (enkf_infile_fmt)
-    if (util_int_format_count(enkf_infile_fmt) != 1)
-      util_abort("%s: Fatal error when updating GEN_DATA key:%s the enkf_infile_fmt must contain exactly one %%d format specifier \n" , enkf_config_node_get_key( config_node ));
-
-
-  if (config_node->var_type != INVALID_VAR) {
-    gen_data_config_update(config_node->data ,           /* Special update */ 
-                           config_node->var_type , 
-                           input_format , 
-                           output_format ,          
-                           template_ecl_file , 
-                           template_data_key);
-    
-    enkf_config_node_update( config_node ,               /* Generic update - needs the format settings from the special.*/
-                             init_file_fmt ,
-                             enkf_outfile_fmt , 
-                             enkf_infile_fmt, 
-                             min_std_file); 
-  }
-  
-}
-
-/*****************************************************************/                   
-
 enkf_config_node_type * enkf_config_node_container_iget( const enkf_config_node_type * node , int index) {
   return vector_iget( node->container_nodes , index );
 }
@@ -539,7 +548,7 @@ int enkf_config_node_get_data_size( const enkf_config_node_type * node , int rep
 
 void enkf_config_node_free(enkf_config_node_type * node) {
   /* Freeing the underlying node object. */
-  if (node->freef   != NULL) node->freef(node->data);
+  if (node->freef != NULL) node->freef(node->data);
   free(node->key);
   stringlist_free(node->obs_keys);
 
@@ -830,6 +839,179 @@ void enkf_config_node_fprintf_config( const enkf_config_node_type * config_node 
     util_abort("%s: internal error - function can not store configuration for: %s variables. \n",__func__ , enkf_types_get_impl_name( config_node->impl_type) );
   }
   fprintf( stream , "\n");
+}
+/*****************************************************************/
+
+void enkf_config_node_add_GEN_PARAM_config_schema( config_type * config ) {
+  config_schema_item_type * item;
+  item = config_add_schema_item(config , GEN_PARAM_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 2 , CONFIG_DEFAULT_ARG_MAX);
+}
+
+
+void enkf_config_node_add_GEN_DATA_config_schema( config_type * config ) {
+  config_schema_item_type * item;
+  item = config_add_schema_item(config , GEN_DATA_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , CONFIG_DEFAULT_ARG_MAX);
+}
+
+
+
+enkf_config_node_type * enkf_config_node_alloc_GEN_DATA_from_config( const config_content_node_type * node ) {
+  enkf_config_node_type * config_node   = NULL;
+  const char * node_key                 = config_content_node_iget( node , 0 );
+  {
+    hash_type * options = hash_alloc();
+    
+    config_content_node_init_opt_hash( node , options , 1 );
+    {
+      gen_data_file_format_type input_format  = gen_data_config_check_format( hash_safe_get( options , INPUT_FORMAT_KEY));
+      gen_data_file_format_type output_format = gen_data_config_check_format( hash_safe_get( options , OUTPUT_FORMAT_KEY));
+      const char * init_file_fmt              = hash_safe_get( options , INIT_FILES_KEY);
+      const char * ecl_file                   = hash_safe_get( options , ECL_FILE_KEY); 
+      const char * template                   = hash_safe_get( options , TEMPLATE_KEY);
+      const char * data_key                   = hash_safe_get( options , KEY_KEY);
+      const char * result_file                = hash_safe_get( options , RESULT_FILE_KEY);
+      const char * min_std_file               = hash_safe_get( options , MIN_STD_KEY);
+      const char * forward_string             = hash_safe_get( options , FORWARD_INIT_KEY );
+      const char * report_steps_string        = hash_safe_get( options , REPORT_STEPS_KEY );
+      int_vector_type * report_steps          = int_vector_alloc(0,0);
+      bool forward_init = false;
+      bool valid_input = true;
+      
+      if (input_format == GEN_DATA_UNDEFINED)
+        valid_input = false;
+
+      if (!gen_data_config_valid_result_format( result_file )) {
+        fprintf(stderr, "** ERROR: The RESULT_FILE:%s setting for %s is invalid - must have an embedded %%d - and be a relative path.\n" , result_file , node_key );
+        valid_input = false;
+      }
+      
+      if (report_steps_string) {
+        if (!string_util_update_active_list( report_steps_string , report_steps )) {
+          valid_input = false;
+          fprintf(stderr,"** ERROR: The REPORT_STEPS:%s attribute was not valid.\n",report_steps_string); 
+        }
+      } else {
+        fprintf(stderr,"** ERROR: As of July 2014 the GEN_DATA keywords must have a REPORT_STEPS:xxxx \n");
+        fprintf(stderr,"          attribute to indicate which report step(s) you want to load data \n");
+        fprintf(stderr,"          from. By requiring the user to enter this information in advance\n");
+        fprintf(stderr,"          it is easier for ERT for to check that the results are valid, and\n");
+        fprintf(stderr,"          handle errors with the GEN_DATA results gracefully.\n");
+        fprintf(stderr,"          \n");
+        fprintf(stderr,"          You can list several report steps separated with ',' and ranges with '-' \n");
+        fprintf(stderr,"          but observe that spaces is NOT ALLOWED. \n");
+        fprintf(stderr,"          \n");
+        fprintf(stderr,"           - load from report step 100:                 REPORT_STEPS:100 \n");
+        fprintf(stderr,"           - load from report steps 10, 20 and 30-40    REPORT_STEPS:10,20,30-40 \n");
+        fprintf(stderr,"          \n");
+        fprintf(stderr,"          The GEN_DATA keyword: %s will be ignored\n",node_key);
+        valid_input = false;
+      }
+      
+      if (valid_input) {
+
+        if (forward_string) {
+          if (!util_sscanf_bool( forward_string , &forward_init))
+            fprintf(stderr,"** Warning: parsing %s as bool failed - using FALSE \n",forward_string);
+        }
+
+        if ((init_file_fmt == NULL) && 
+            (ecl_file      == NULL) && 
+            (result_file   != NULL)) 
+          config_node = enkf_config_node_alloc_GEN_DATA_result( node_key , input_format , result_file);
+        else if ((init_file_fmt != NULL) && 
+                 (ecl_file      != NULL) && 
+                 (result_file   != NULL)) 
+          config_node = enkf_config_node_alloc_GEN_DATA_state( node_key , 
+                                                               forward_init , 
+                                                               input_format , 
+                                                               output_format , 
+                                                               init_file_fmt , 
+                                                               template , 
+                                                               data_key , 
+                                                               ecl_file , 
+                                                               result_file , 
+                                                               min_std_file);
+        
+        {
+          gen_data_config_type * gen_data_config = enkf_config_node_get_ref( config_node );
+
+          if (template) 
+            gen_data_config_set_template( gen_data_config , template , data_key);
+          
+          for (int i=0; i < int_vector_size( report_steps ); i++) { 
+            int report_step = int_vector_iget( report_steps , i );
+            gen_data_config_add_report_step( gen_data_config , report_step);
+            enkf_config_node_set_internalize( config_node , report_step );
+          }
+        }
+      }
+      
+      int_vector_free( report_steps );
+    }
+    hash_free( options );
+  }
+  
+  return config_node;
+}
+
+
+enkf_config_node_type * enkf_config_node_alloc_GEN_PARAM_from_config( const config_content_node_type * node ) {
+  enkf_config_node_type * config_node   = NULL;
+  const char * node_key                 = config_content_node_iget( node , 0 );
+  const char * ecl_file                 = config_content_node_iget( node , 1 );
+  {
+    hash_type * options = hash_alloc();
+    
+    config_content_node_init_opt_hash( node , options , 2 );
+    {
+      gen_data_file_format_type input_format  = gen_data_config_check_format( hash_safe_get( options , INPUT_FORMAT_KEY));
+      gen_data_file_format_type output_format = gen_data_config_check_format( hash_safe_get( options , OUTPUT_FORMAT_KEY));
+      const char * init_file_fmt              = hash_safe_get( options , INIT_FILES_KEY);
+      const char * template                   = hash_safe_get( options , TEMPLATE_KEY);
+      const char * data_key                   = hash_safe_get( options , KEY_KEY);
+      const char * min_std_file               = hash_safe_get( options , MIN_STD_KEY);
+      const char * forward_string             = hash_safe_get( options , FORWARD_INIT_KEY );
+      bool forward_init = false;
+      bool valid_input = true;
+
+      
+      if (input_format == GEN_DATA_UNDEFINED)
+        valid_input = false;
+
+      if (input_format == ASCII_TEMPLATE)
+        valid_input = false;
+
+      if (output_format == GEN_DATA_UNDEFINED)
+        valid_input = false;
+
+      if (init_file_fmt == NULL)
+        valid_input = false;
+
+      if (valid_input) {
+
+        if (forward_string) {
+          if (!util_sscanf_bool( forward_string , &forward_init))
+            fprintf(stderr,"** Warning: parsing %s as bool failed - using FALSE \n",forward_string);
+        }
+
+        config_node = enkf_config_node_alloc_GEN_PARAM( node_key , forward_init , input_format , output_format , init_file_fmt , ecl_file);
+
+        if (template) {
+          bool template_set_ok = gen_data_config_set_template( enkf_config_node_get_ref( config_node ) , template , data_key);
+          if (!template_set_ok)
+            fprintf(stderr,"** Warning: the template settings were not applied correctly - ignored\n");
+        }
+        
+        if (min_std_file)
+          enkf_config_node_update_min_std( config_node , min_std_file );
+
+      }
+    }
+    hash_free( options );
+  }
+  return config_node;
 }
 
 

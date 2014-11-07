@@ -32,7 +32,8 @@ extern "C" {
 #include <ert/ecl_well/well_segment.h>
 #include <ert/ecl_well/well_conn_collection.h>
 #include <ert/ecl_well/well_branch_collection.h>
-  
+#include <ert/ecl_well/well_rseg_loader.h>
+
   typedef struct well_segment_collection_struct well_segment_collection_type;
 
   well_segment_collection_type * well_segment_collection_alloc();
@@ -45,8 +46,10 @@ extern "C" {
   int                            well_segment_collection_load_from_kw( well_segment_collection_type * segment_collection , int well_nr , 
                                                                        const ecl_kw_type * iwel_kw , 
                                                                        const ecl_kw_type * iseg_kw , 
-                                                                       const ecl_kw_type * rseg_kw , 
-                                                                       const ecl_rsthead_type * rst_head);
+                                                                       const well_rseg_loader_type * rseg_loader ,
+                                                                       const ecl_rsthead_type * rst_head,
+                                                                       bool load_segment_information , bool * is_MSW_well);
+  
   void                           well_segment_collection_link(const  well_segment_collection_type * segment_collection);
   void                           well_segment_collection_add_connections(well_segment_collection_type * segment_collection , 
                                                                          const char * grid_name , 

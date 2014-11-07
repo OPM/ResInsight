@@ -94,6 +94,7 @@ bool scale_std_block_nodata_no_errors() {
 }
 
 block_obs_type * create_block_obs(ecl_grid_type * grid, int size, double value, double std_dev) {
+  field_config_type * field_config = field_config_alloc_empty( "PRESSURE" , grid , NULL, false );
   int * i = util_calloc(size, sizeof * i);
   int * j = util_calloc(size, sizeof * j);
   int * k = util_calloc(size, sizeof * k);
@@ -108,14 +109,15 @@ block_obs_type * create_block_obs(ecl_grid_type * grid, int size, double value, 
     k[num] = num;
   }
 
-  block_obs_type * block_obs = block_obs_alloc("Label", SOURCE_FIELD, NULL, NULL, grid, size, i, j, k, obs_value, obs_std);
+  block_obs_type * block_obs = block_obs_alloc_complete("Label",  SOURCE_FIELD, NULL, field_config , grid, size, i, j, k, obs_value, obs_std);
 
   free(i);
   free(j);
   free(k);
   free(obs_value);
   free(obs_std);
-          
+  field_config_free( field_config );
+        
   return block_obs;
 }
 

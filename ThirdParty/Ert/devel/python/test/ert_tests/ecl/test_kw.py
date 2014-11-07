@@ -15,10 +15,10 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 import os
-from ert.ecl import EclKW, EclTypeEnum, EclFile
-from ert.util.test_area import TestAreaContext
+import random
+from ert.ecl import EclKW, EclTypeEnum, EclFile, FortIO, EclFileFlagEnum
 
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase , TestAreaContext
 
 
 def copy_long():
@@ -102,6 +102,43 @@ class KWTest(ExtendedTestCase):
             file2.write(fmt % d)
         file2.close()
         self.assertFilesAreEqual(name1, name2)
+        self.assertEqual( kw.getEclType() , data_type )
+
+        
+    def test_sum( self ):
+        kw_string = EclKW.create( "STRING" , 100 , EclTypeEnum.ECL_CHAR_TYPE )
+        with self.assertRaises(ValueError):
+            kw_string.sum()
+
+
+        kw_int = EclKW.create( "INT" , 4 , EclTypeEnum.ECL_INT_TYPE )
+        kw_int[0] = 1
+        kw_int[1] = 2
+        kw_int[2] = 3
+        kw_int[3] = 4
+        self.assertEqual( kw_int.sum() , 10 )
+
+        kw_d = EclKW.create( "D" , 4 , EclTypeEnum.ECL_DOUBLE_TYPE )
+        kw_d[0] = 1
+        kw_d[1] = 2
+        kw_d[2] = 3
+        kw_d[3] = 4
+        self.assertEqual( kw_d.sum() , 10 )
+
+        kw_f = EclKW.create( "F" , 4 , EclTypeEnum.ECL_FLOAT_TYPE )
+        kw_f[0] = 1
+        kw_f[1] = 2
+        kw_f[2] = 3
+        kw_f[3] = 4
+        self.assertEqual( kw_f.sum() , 10 )
+
+        kw_b = EclKW.create( "F" , 4 , EclTypeEnum.ECL_BOOL_TYPE )
+        kw_b[0] = False
+        kw_b[1] = True
+        kw_b[2] = False
+        kw_b[3] = True
+        self.assertEqual( kw_b.sum() , 2 )
+
 
 
     def test_sub_copy(self):
@@ -136,6 +173,44 @@ class KWTest(ExtendedTestCase):
             self.kw_test(EclTypeEnum.ECL_DOUBLE_TYPE, [0.0, 1.1, 2.2, 3.3, 4.4, 5.5], "%12.6f\n")
             self.kw_test(EclTypeEnum.ECL_BOOL_TYPE, [True, True, True, False, True], "%4d\n")
             self.kw_test(EclTypeEnum.ECL_CHAR_TYPE, ["1", "22", "4444", "666666", "88888888"], "%-8s\n")
+
+    def test_kw_write(self):
+        with TestAreaContext("python/ecl_kw/writing"):
+
+            data = [random.random() for i in range(10000)]
+
+            kw = EclKW.new("TEST", len(data), EclTypeEnum.ECL_DOUBLE_TYPE)
+            i = 0
+            for d in data:
+                kw[i] = d
+                i += 1
+
+            fortio = FortIO("ECL_KW_TEST", FortIO.WRITE_MODE)
+            kw.fwrite(fortio)
+            fortio.close()
+
+            fortio = FortIO("ECL_KW_TEST")
+
+            kw2 = EclKW.fread(fortio)
+
+            self.assertTrue(kw.equal(kw2))
+
+            ecl_file = EclFile("ECL_KW_TEST", flags=EclFileFlagEnum.ECL_FILE_WRITABLE)
+            kw3 = ecl_file["TEST"][0]
+            self.assertTrue(kw.equal(kw3))
+            ecl_file.save_kw(kw3)
+            ecl_file.close()
+
+            fortio = FortIO("ECL_KW_TEST", FortIO.READ_AND_WRITE_MODE)
+            kw4 = EclKW.fread(fortio)
+            self.assertTrue(kw.equal(kw4))
+            fortio.seek(0)
+            kw4.fwrite(fortio)
+            fortio.close()
+
+            ecl_file = EclFile("ECL_KW_TEST")
+            kw5 = ecl_file["TEST"][0]
+            self.assertTrue(kw.equal(kw5))
 
 
 #def cutoff( x , arg ):

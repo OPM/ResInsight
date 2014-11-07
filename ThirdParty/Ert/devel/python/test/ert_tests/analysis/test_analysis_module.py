@@ -14,7 +14,7 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 from ert.analysis import AnalysisModule, AnalysisModuleLoadStatusEnum, AnalysisModuleOptionsEnum
 
 from ert.util.enums import RngAlgTypeEnum, RngInitModeEnum

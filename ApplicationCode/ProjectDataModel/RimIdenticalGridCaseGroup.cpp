@@ -32,6 +32,7 @@
 #include "RimResultCase.h"
 #include "RimResultSlot.h"
 #include "RimStatisticsCase.h"
+#include "RigCaseCellResultsData.h"
 
 #include "cafProgressInfo.h"
 
@@ -156,14 +157,24 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
     RimCase* mainCase = caseCollection()->reservoirs[0];
     mainCase->openEclipseGridFile();
-    RigCaseData* mainEclipseCase = mainCase->reservoirData();
-    if (!mainEclipseCase)
+    RigCaseData* rigCaseData = mainCase->reservoirData();
+    if (rigCaseData)
+    {
+        RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
+        RimReservoirCellResultsStorage* cellResultsStorage = mainCase->results(poroModel);
+
+        cellResultsStorage->cellResults()->createPlaceholderResultEntries();
+    }
+    else
     {
         // Error message
         return;
     }
 
-    // Read active cell info from all source cases
+
+    // Action A : Read active cell info
+    // Read active cell info from all source cases. The file access is optimized for this purpose, and result meta data
+    // is copied from main case to all other cases (see "Action B")
     
     caf::ProgressInfo info(caseCollection()->reservoirs.size(), "Case group - Reading Active Cell data");
     for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
@@ -171,7 +182,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         RimResultCase* rimReservoir = dynamic_cast<RimResultCase*>(caseCollection()->reservoirs[i]);
         if(!rimReservoir) continue; // Input reservoir
 
-        if (!rimReservoir->openAndReadActiveCellData(mainEclipseCase))
+        if (!rimReservoir->openAndReadActiveCellData(rigCaseData))
         {
             // Error message
             continue;
@@ -180,7 +191,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         info.incrementProgress();
     }
 
-    m_mainGrid = mainEclipseCase->mainGrid();
+    m_mainGrid = rigCaseData->mainGrid();
 
     // Check if we need to calculate the union of the active cells
 
@@ -201,6 +212,45 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     if (foundResultsInCache)
     {
         computeUnionOfActiveCells();
+    }
+
+    // Action B : Copy result meta data from main case to all other cases in grid case group
+
+    // This code was originally part of RimStatisticsCaseEvaluator, but moved here to be a general solution
+    // for all cases
+
+    {
+        RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
+
+        std::vector<QDateTime> timeStepDates = rigCaseData->results(poroModel)->timeStepDates(0);
+        const std::vector<RigCaseCellResultsData::ResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
+
+        for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
+        {
+            RimResultCase* rimReservoir = dynamic_cast<RimResultCase*>(caseCollection()->reservoirs[i]);
+            if (!rimReservoir) continue; // Input reservoir
+
+            RimReservoirCellResultsStorage* cellResultsStorage = rimReservoir->results(poroModel);
+
+            for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
+            {
+                RimDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
+                QString resultName = resultInfos[resIdx].m_resultName;
+                bool needsToBeStored = resultInfos[resIdx].m_needsToBeStored;
+
+                size_t scalarResultIndex = cellResultsStorage->cellResults()->findScalarResultIndex(resultType, resultName);
+                if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+                {
+                    size_t scalarResultIndex = cellResultsStorage->cellResults()->addEmptyScalarResult(resultType, resultName, needsToBeStored);
+                    cellResultsStorage->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates);
+
+                    std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellResults()->cellScalarResults(scalarResultIndex);
+                    dataValues.resize(timeStepDates.size());
+                }
+            }
+
+            cellResultsStorage->cellResults()->createPlaceholderResultEntries();
+        }
     }
 
     // "Load" the statistical cases

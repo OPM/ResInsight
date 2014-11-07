@@ -32,13 +32,14 @@ extern "C" {
 
 #include <ert/ecl_well/well_conn_collection.h>
 #include <ert/ecl_well/well_conn.h>
+#include <ert/ecl_well/well_rseg_loader.h>
 
 
 
   
   typedef struct well_segment_struct well_segment_type;
 
-  well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , const ecl_kw_type * rseg_kw , const ecl_rsthead_type * header , int well_nr, int segment_index , int segment_id);
+  well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , const well_rseg_loader_type * rseg_loader , const ecl_rsthead_type * header , int well_nr, int segment_index , int segment_id);
   well_segment_type * well_segment_alloc(int segment_id , int outlet_segment_id , int branch_id , const double * rseg_data);
   void                well_segment_free(well_segment_type * segment );
   void                well_segment_free__(void * arg);

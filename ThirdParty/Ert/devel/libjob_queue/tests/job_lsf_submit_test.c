@@ -27,26 +27,27 @@
 
 
 void test_submit(lsf_driver_type * driver , const char * server , const char * bsub_cmd , const char * bjobs_cmd , const char * bkill_cmd , const char * cmd) {
-  lsf_driver_set_option(driver , LSF_SERVER , server );
+
+  test_assert_true( lsf_driver_set_option(driver , LSF_SERVER , server ) );
   
   if (bsub_cmd != NULL)
-    lsf_driver_set_option(driver , LSF_BSUB_CMD , server );
+    test_assert_true( lsf_driver_set_option(driver , LSF_BSUB_CMD , server ));
 
   if (bjobs_cmd != NULL)
-    lsf_driver_set_option(driver , LSF_BJOBS_CMD , server );
+    test_assert_true( lsf_driver_set_option(driver , LSF_BJOBS_CMD , server ) );
 
   if (bkill_cmd != NULL)
-    lsf_driver_set_option(driver , LSF_BKILL_CMD , server );
-
+    test_assert_true( lsf_driver_set_option(driver , LSF_BKILL_CMD , server ));
+  
   {
     char * run_path = util_alloc_cwd();
     lsf_job_type * job = lsf_driver_submit_job( driver , cmd , 1 , run_path , "NAME" , 0 , NULL );
     
-    if (job != NULL) {
+    if (job) {
       {
         int lsf_status = lsf_driver_get_job_status_lsf( driver , job );
-        if (!((lsf_status == JOB_STAT_RUN) || (lsf_status == JOB_STAT_PEND)))
-          exit(1);
+        if (!((lsf_status == JOB_STAT_RUN) || (lsf_status == JOB_STAT_PEND))) 
+          test_error_exit("Got lsf_status:%d expected: %d or %d \n",lsf_status , JOB_STAT_RUN , JOB_STAT_PEND);
       }
       
       lsf_driver_kill_job( driver , job );
@@ -56,10 +57,11 @@ void test_submit(lsf_driver_type * driver , const char * server , const char * b
       {
         int lsf_status = lsf_driver_get_job_status_lsf( driver , job );
         if (lsf_status != JOB_STAT_EXIT)
-          exit(1);
+          test_error_exit("Got lsf_status:%d expected: %d \n",lsf_status , JOB_STAT_EXIT );
       }
-    } else
-      exit(1);
+    } else 
+      test_error_exit("lsf_driver_submit_job() returned NULL \n");
+    
     
     free( run_path );
   }

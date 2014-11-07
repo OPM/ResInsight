@@ -76,23 +76,23 @@ import ert.geo
 
 
 
-ECL_LIB = clib.ert_load("libecl.so")
+ECL_LIB = clib.ert_load("libecl")
 
 from .ecl_sum import EclSum #, EclSumVector, EclSumNode, EclSMSPECNode
 from .ecl_util import EclFileEnum, EclFileFlagEnum, EclPhaseEnum, EclTypeEnum, EclUtil
 from .ecl_default import EclDefault
 from .ecl_rft_cell import EclPLTCell, EclRFTCell
 from .ecl_rft import EclRFT, EclRFTFile
-from .fortio import FortIO
+from .fortio import FortIO, openFortIO
 from .ecl_kw import EclKW
 from .ecl_file import EclFile
 from .ecl_grid import EclGrid
 from .ecl_region import EclRegion
 from .ecl_subsidence import EclSubsidence
 from .ecl_grav_calc import phase_deltag, deltag
-from .ecl_queue import EclQueue
 from .ecl_sum_node import EclSumNode
 from .ecl_sum_vector import EclSumVector
+from .ecl_npv import EclNPV , NPVPriceVector
 
 #from .ecl_queue import
 

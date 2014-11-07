@@ -1,7 +1,7 @@
 import re
 from PyQt4.QtCore import Qt, QEvent, QDir, QRegExp, QChar
 from PyQt4.QtGui import QPlainTextEdit, QTextOption, QCompleter, QStringListModel, QFont, QColor, QShortcut, QKeySequence, QTextCursor, QFileSystemModel, QTextDocument
-from ert_gui.widgets.help_dock import HelpDock
+from ert_gui.tools import HelpCenter
 
 
 class IdePanel(QPlainTextEdit):
@@ -37,11 +37,12 @@ class IdePanel(QPlainTextEdit):
             configuration_line = user_data.configuration_line
 
             if configuration_line.keyword().hasKeywordDefinition():
-                HelpDock.getInstance().setHelpMessageLink("config/" + configuration_line.documentationLink())
-                # print(configuration_line.documentationLink())
+                HelpCenter.getHelpCenter("ERT").setHelpMessageLink("config/" + configuration_line.documentationLink())
+
 
     def getText(self):
-        return str(self.document().toPlainText())
+        return self.document().toPlainText()
+
 
     def eventFilter(self, qobject, qevent):
         if qobject == self and qevent.type() == QEvent.ToolTip:

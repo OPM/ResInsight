@@ -14,7 +14,7 @@ class RowGroup(HelpedWidget):
         widget.setLayout(self.layout)
 
         HelpedWidget.addWidget(self, widget)
-        self.hideValidationLabel()
+
 
     def addWidget(self, widget):
         self.layout.addWidget(widget)

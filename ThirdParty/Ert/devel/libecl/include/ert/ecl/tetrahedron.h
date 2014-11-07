@@ -34,6 +34,7 @@ struct tetrahedron_struct {
 void               tetrahedron_init( tetrahedron_type * tet , const point_type * p0 , const point_type * p1 , const point_type * p2 , const point_type * p3);
 double             tetrahedron_volume( const tetrahedron_type * tet );
 bool               tetrahedron_contains( const tetrahedron_type * tet , const point_type * p);
+void               tetrahedron_fprintf( const tetrahedron_type * tet , FILE * stream , const double * offset);
 #endif
 
 

@@ -20,6 +20,7 @@
 
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
+#include <ert/util/vector.h>
 #include <ert/util/test_work_area.h>
 
 #include <ert/ecl/fortio.h>
@@ -30,6 +31,38 @@ void test_existing_read(const char * filename) {
   test_assert_not_NULL( fortio );
   fortio_fclose( fortio );
 }
+
+
+void test_fortio_is_instance(const char * filename ) {
+  {
+    fortio_type * fortio = fortio_open_reader( filename , false , ECL_ENDIAN_FLIP);
+    test_assert_not_NULL( fortio );
+    test_assert_true(fortio_is_instance(fortio));
+    fortio_fclose( fortio );
+  }
+  {
+    vector_type * dummy_vector = vector_alloc_new();
+    test_assert_false(fortio_is_instance(dummy_vector));
+    vector_free(dummy_vector);
+  }
+}
+
+
+void test_fortio_safe_cast(const char * filename ) {
+  void * i_am_a_fortio = fortio_open_reader( filename , false , ECL_ENDIAN_FLIP);
+  test_assert_not_NULL( i_am_a_fortio );
+  fortio_type * fortio = fortio_safe_cast(i_am_a_fortio);
+  test_assert_true(fortio_is_instance(fortio));
+  fortio_fclose( fortio );
+}
+
+
+void test_fortio_unsafe_cast(void * arg) {
+  void * i_am_not_a_fortio = vector_alloc_new();
+  test_assert_not_NULL( i_am_not_a_fortio );
+  fortio_safe_cast(i_am_not_a_fortio);
+}
+
 
 
 void test_not_existing_read() {
@@ -78,6 +111,9 @@ void test_open_close_read( const char * filename ) {
 int main( int argc , char ** argv) {
   const char * file = argv[1];
   
+  test_fortio_is_instance( file );
+  test_fortio_safe_cast( file );
+  test_assert_util_abort("fortio_safe_cast", test_fortio_unsafe_cast, NULL);
   test_existing_read( file );
   test_not_existing_read( );
   test_open_close_read( file );

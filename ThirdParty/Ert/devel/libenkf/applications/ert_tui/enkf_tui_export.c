@@ -85,7 +85,7 @@ void enkf_tui_export_field(const enkf_main_type * enkf_main , field_file_format_
 
         {
           const field_type * field = enkf_node_value_ptr(node);
-          field_export(field , filename , NULL , file_type , output_transform);
+          field_export(field , filename , NULL , file_type , output_transform, NULL);
         }
         free(filename);
       } else 
@@ -462,7 +462,7 @@ void enkf_tui_export_fieldP(void * arg) {
             free( path );
           }
         }
-        field_export(sum_field , export_file , NULL , RMS_ROFF_FILE , false);
+        field_export(sum_field , export_file , NULL , RMS_ROFF_FILE , false, NULL);
       } else fprintf(stderr,"Warning: no data found \n");
     }    
     

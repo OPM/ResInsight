@@ -21,6 +21,10 @@ in the C source files ecl_sum.c, ecl_smspec.c and ecl_sum_data in the
 libecl/src directory.
 """
 
+
+import numpy
+import datetime
+
 # Observe that there is some convention conflict with the C code
 # regarding order of arguments: The C code generally takes the time
 # index as the first argument and the key/key_index as second
@@ -28,10 +32,9 @@ libecl/src directory.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.ecl.ecl_sum_vector import EclSumVector
 from ert.ecl.ecl_smspec_node import EclSMSPECNode
-from ert.util import StringList, ctime, DoubleVector, TimeVector
+from ert.util import StringList, CTime, DoubleVector, TimeVector, IntVector
 from ert.ecl import ECL_LIB
 
-import numpy
 
 
 #import ert.ecl_plot.sum_plot as sum_plot
@@ -42,7 +45,6 @@ import numpy
 # implementation could be replaced with:
 #
 #   from matplotlib.dates import date2num
-from ert.util.tvector import TimeVector
 
 
 HOURS_PER_DAY     = 24.0
@@ -95,10 +97,28 @@ class EclSum(BaseCClass):
         try to load summary results also from the restarted case.
         """
         c_pointer = EclSum.cNamespace().fread_alloc( load_case , join_string , include_restart)
-        assert c_pointer is not None
-        super(EclSum, self).__init__(c_pointer)
+        if c_pointer is None:
+            raise AssertionError("Failed to create summary instance from argument:%s" % load_case)
+        else:
+            super(EclSum, self).__init__(c_pointer)
+            self._initialize()
 
-        self._initialize()
+
+    @staticmethod
+    def writer(case , start_time , nx,ny,nz , fmt_output = False , unified = True , key_join_string = ":"):
+        """
+        The writer is not generally usable.
+        """
+        return EclSum.cNamespace().create_writer( case , fmt_output , unified , key_join_string , CTime(start_time) , nx , ny , nz)
+
+
+    def addVariable(self , variable , wgname = None , num = 0 , unit = "None" , default_value = 0):
+        EclSum.cNamespace().add_variable(self , variable , wgname , num , unit , default_value)
+        
+
+    def addTStep(self , report_step , sim_days):
+        tstep = EclSum.cNamespace().add_tstep( self , report_step , sim_days )
+        return tstep
 
 
     def _initialize(self):
@@ -112,26 +132,37 @@ class EclSum(BaseCClass):
 
         for i in range(length):
             self.__days[i] = EclSum.cNamespace().iget_sim_days(self, i)
-            self.__dates[i] = EclSum.cNamespace().iget_sim_time(self, i).datetime()
+            self.__dates[i] = self.iget_date( i )
             self.__report_step[i] = EclSum.cNamespace().iget_report_step(self, i)
             self.__mini_step[i] = EclSum.cNamespace().iget_mini_step(self, i)
             self.__mpl_dates[i] = date2num(self.__dates[i])
 
         index_list = self.report_index_list()
-        length = len(index_list)
+
+        length = len(index_list) - index_list.count(-1)
         self.__datesR = [0] * length
         self.__report_stepR = numpy.zeros(length, dtype=numpy.int32)
         self.__mini_stepR = numpy.zeros(length, dtype=numpy.int32)
         self.__daysR = numpy.zeros(length)
         self.__mpl_datesR = numpy.zeros(length)
 
-        for i in range(length):
-            time_index = index_list[i]
-            self.__daysR[i] = EclSum.cNamespace().iget_sim_days(self, time_index)
-            self.__datesR[i] = EclSum.cNamespace().iget_sim_time(self, time_index).datetime()
-            self.__report_stepR[i] = EclSum.cNamespace().iget_report_step(self, time_index)
-            self.__mini_stepR[i] = EclSum.cNamespace().iget_mini_step(self, time_index)
-            self.__mpl_datesR[i] = date2num(self.__datesR[i])
+        # Slightly hysterical heuristics to accomoate for the
+        # situation where there are holes in the report steps series;
+        # when a report step is completely missing there will be -1
+        # entries in the index_list.
+        i1 = 0
+        for i0 in range(length):
+            while True:
+                time_index = index_list[i1]
+                if time_index >= 0:
+                    break
+                i1 += 1
+                
+            self.__daysR[i0] = EclSum.cNamespace().iget_sim_days(self, time_index)
+            self.__datesR[i0] = self.iget_date(time_index)
+            self.__report_stepR[i0] = EclSum.cNamespace().iget_report_step(self, time_index)
+            self.__mini_stepR[i0] = EclSum.cNamespace().iget_mini_step(self, time_index)
+            self.__mpl_datesR[i0] = date2num(self.__datesR[i0])
 
 
     def get_vector( self , key , report_only = False):
@@ -141,10 +172,11 @@ class EclSum(BaseCClass):
         Will raise exception KeyError if the summary object does not
         have @key.
         """
-        if self.has_key( key ):
-            return EclSumVector( self , key , report_only )
+        self.assertKeyValid(key)
+        if report_only:
+            return EclSumVector( self , key, report_only = True)
         else:
-            raise KeyError("Summary object does not have key: %s" % key)
+            return EclSumVector( self , key)
 
 
     def report_index_list( self ):
@@ -153,7 +185,7 @@ class EclSum(BaseCClass):
         """
         first_report = self.first_report
         last_report  = self.last_report
-        index_list = []
+        index_list = IntVector()
         for report_step in range( first_report , last_report + 1):
             time_index = EclSum.cNamespace().get_report_end( self , report_step )
             index_list.append( time_index )
@@ -261,7 +293,7 @@ class EclSum(BaseCClass):
         return self[key].last
 
 
-    def iiget(self , key_index , time_index):
+    def iiget(self , time_index , key_index):
         """
         Lookup a summary value based on naive @time_index and
         @key_index.
@@ -295,6 +327,25 @@ class EclSum(BaseCClass):
         return EclSum.cNamespace().get_general_var( self , time_index , key )
 
 
+    def __len__(self):
+        """
+        The number of timesteps in the dataset; the return when evaluating
+        len(case).
+
+        """
+        return EclSum.cNamespace().data_length( self )
+
+
+    def __contains__(self , key):
+        if EclSum.cNamespace().has_key( self, key ):
+            return True
+        else:
+            return False
+
+    def assertKeyValid(self , key):
+        if not key in self:
+            raise KeyError("The summary key:%s was not recognized" % key)
+
     def __getitem__(self , key):
         """
         Implements [] operator - @key should be a summary key.
@@ -308,7 +359,7 @@ class EclSum(BaseCClass):
         """
         Will check if the input date is in the time span [sim_start , sim_end].
         """
-        return EclSum.cNamespace().check_sim_time( self , ctime(date) )
+        return EclSum.cNamespace().check_sim_time( self , CTime(date) )
 
     
     def get_interp( self , key , days = None , date = None):
@@ -325,21 +376,93 @@ class EclSum(BaseCClass):
         Also available as method get_interp() on the EclSumVector
         class.
         """
-        if days:
-            if date:
-                raise ValueError("Must supply either days or date")
-            else:
-                if EclSum.cNamespace().check_sim_days( self , days ):
-                    return EclSum.cNamespace().get_general_var_from_sim_days( self , days , key )
-                else:
-                    raise ValueError("days:%s is outside range of simulation: [%g,%g]" % (days , self.first_day , self.sim_length))
-        elif date:
+        self.assertKeyValid( key )
+        if days is None and date is None:
+            raise ValueError("Must supply either days or date")
+
+        if days is None:
             if self.check_sim_time( date ):
-                return EclSum.cNamespace().get_general_var_from_sim_time( self , ctime(date) , key )
+                return EclSum.cNamespace().get_general_var_from_sim_time( self , CTime(date) , key )
             else:
                 raise ValueError("date:%s is outside range of simulation data" % date)
+        elif date is None:
+            if EclSum.cNamespace().check_sim_days( self , days ):
+                return EclSum.cNamespace().get_general_var_from_sim_days( self , days , key )
+            else:
+                raise ValueError("days:%s is outside range of simulation: [%g,%g]" % (days , self.first_day , self.sim_length))
         else:
             raise ValueError("Must supply either days or date")
+
+    
+    def timeRange(self , start = None , end = None , interval = "1Y", extend_end = True):
+        (num , timeUnit) = TimeVector.parseTimeUnit( interval )
+
+        if start is None:
+            start = self.start_time
+        if isinstance(start , datetime.date):
+            start = datetime.datetime( start.year , start.month , start.day , 0 , 0 , 0 )
+                
+        if end is None:
+            end = self.end_time
+        if isinstance(end , datetime.date):
+            end = datetime.datetime( end.year , end.month , end.day , 0 , 0 , 0 )
+        
+        if end < start:
+            raise ValueError("Invalid time interval start after end")
+
+
+        if not timeUnit == "d":
+            year1 = start.year
+            year2 = end.year
+            month1 = start.month
+            month2 = end.month
+            day1 = start.day
+            day2 = end.day
+            if extend_end:
+                if timeUnit == 'm':
+                    if day2 > 1:
+                        month2 += 1
+                        if month2 == 13:
+                            year2 += 1
+                            month2 = 1
+                elif timeUnit == "y":
+                    month1 = 1
+                    if year2 > 1 or day2 > 1:
+                        year2 += 1
+                        month2 = 1
+            day1 = 1
+            day2 = 1
+
+            start = datetime.date( year1, month1 , day1)
+            end =  datetime.date(year2 , month2 , day2)
+                
+        trange = TimeVector.createRegular(start , end , interval)
+        if trange[-1] < end:
+            if extend_end:
+                trange.appendTime( num , timeUnit )
+            else:
+                trange.append( end )
+
+        return trange
+        
+
+
+    def blockedProduction(self , totalKey , timeRange):
+        node = self.smspec_node(totalKey)
+        if node.is_total:
+            total = DoubleVector()
+            for t in timeRange:
+                if t < CTime(self.start_time):
+                    total.append( 0 )
+                elif t >= CTime( self.end_time):
+                    total.append( self.get_last_value( totalKey ))
+                else:
+                    total.append( self.get_interp( totalKey , date = t ))
+            tmp = total << 1
+            total.pop()
+            return tmp - total
+        else:
+            raise TypeError("The blockedProduction method must be called with one of the TOTAL keys like e.g. FOPT or GWIT")
 
 
     def get_report( self , date = None , days = None):
@@ -353,7 +476,7 @@ class EclSum(BaseCClass):
         if date:
             if days:
                 raise ValueError("Must supply either days or date")
-            step = EclSum.cNamespace().get_report_step_from_time( self , ctime(date))
+            step = EclSum.cNamespace().get_report_step_from_time( self , CTime(date))
         elif days:
             step = EclSum.cNamespace().get_report_step_from_days( self , days)
             
@@ -364,8 +487,7 @@ class EclSum(BaseCClass):
         """
         Will return the datetime corresponding to the report_step @report.
         """
-        ctime = EclSum.cNamespace().get_report_time( self , report )
-        return ctime.date()
+        return CTime( EclSum.cNamespace().get_report_time( self , report ) ).date()
 
 
     def get_interp_vector( self , key , days_list = None , date_list = None):
@@ -382,6 +504,7 @@ class EclSum(BaseCClass):
         Also available as method get_interp_vector() on the
         EclSumVector class.
         """
+        self.assertKeyValid(key)
         if days_list:
             if date_list:
                 raise ValueError("Must supply either days_list or date_list")
@@ -401,9 +524,11 @@ class EclSum(BaseCClass):
             end_time   = self.end_date
             vector = numpy.zeros( len(date_list ))
             index = 0
+
             for date in date_list:
-                if (date >= start_time) and (date <= end_time):
-                    vector[index] =  EclSum.cNamespace().get_general_var_from_sim_time( self , ctime(date) , key)
+                ct = CTime(date)
+                if start_time <= ct <= end_time:
+                    vector[index] =  EclSum.cNamespace().get_general_var_from_sim_time( self , ct , key)
                 else:
                     raise ValueError("Invalid date value")
                 index += 1
@@ -424,7 +549,7 @@ class EclSum(BaseCClass):
         """
         Check if summary object has key @key.
         """
-        return EclSum.cNamespace().has_key( self, key )
+        return key in self
 
 
     def smspec_node( self , key ):
@@ -624,9 +749,13 @@ class EclSum(BaseCClass):
 
     def iget_date(self , time_index):
         """
-        Returns the simulation date for element nr @time_index.
+        Returns the simulation date for element nr @t
+ime_index.
         """
-        return EclSum.cNamespace().iget_sim_time( self , time_index ).datetime()
+        long_time = EclSum.cNamespace().iget_sim_time( self , time_index )
+        ct = CTime(long_time)
+        return ct.datetime()
+
 
     def iget_report( self , time_index ):
         """
@@ -671,44 +800,51 @@ class EclSum(BaseCClass):
         returned start_date might be different from the datetime of
         the first (loaded) timestep.
         """
-        ctime = EclSum.cNamespace().get_start_date( self )
-        return ctime.date()
+        ct = EclSum.cNamespace().get_start_date( self )
+        return CTime(ct).date()
+
 
     @property
     def end_date(self):
         """
         The date of the last (loaded) time step.
         """
-        ctime = EclSum.cNamespace().get_end_date( self )
-        return ctime.date()
+        return CTime( EclSum.cNamespace().get_end_date( self ) ).date()
+
+        
 
     @property
     def data_start(self):
         """
         The first date we have data for.
         """
-        ctime = EclSum.cNamespace().get_data_start( self )
-        return ctime.date()
+        return CTime( EclSum.cNamespace().get_data_start( self ) ).datetime()
     
 
-    @property
-    def start_time(self):
-        """
-        A Python datetime instance with the start time.
-        
-        See start_date() for further details.
-        """
-        ctime = EclSum.cNamespace().get_start_date( self )
-        return ctime.datetime()
 
     @property
     def end_time(self):
         """
         The time of the last (loaded) time step.
         """
-        ctime = EclSum.cNamespace().get_end_date( self )
-        return ctime.datetime()
+        return CTime(EclSum.cNamespace().get_end_date( self )).datetime()
+
     
+    @property
+    def start_time(self):
+        return self.getStartTime()
+
+        
+    def getStartTime(self):
+        """
+        A Python datetime instance with the start time.
+        
+        See start_date() for further details.
+        """
+        return CTime( EclSum.cNamespace().get_start_date( self ) ).datetime()
+
+
+
     @property
     def last_report(self):
         """
@@ -793,7 +929,8 @@ class EclSum(BaseCClass):
     @classmethod
     def createCReference(cls, c_pointer, parent=None):
         result = super(EclSum, cls).createCReference(c_pointer, parent)
-        result._initialize()
+        if not result is None:
+            result._initialize()
         return result
 
     @classmethod
@@ -862,3 +999,6 @@ EclSum.cNamespace().get_var_node                  = cwrapper.prototype("smspec_n
 EclSum.cNamespace().create_well_list              = cwrapper.prototype("stringlist_obj ecl_sum_alloc_well_list( ecl_sum , char* )")
 EclSum.cNamespace().create_group_list             = cwrapper.prototype("stringlist_obj ecl_sum_alloc_group_list( ecl_sum , char* )")
 
+EclSum.cNamespace().create_writer                 = cwrapper.prototype("ecl_sum_obj  ecl_sum_alloc_writer( char* , bool , bool , char* , time_t , int , int , int)")
+EclSum.cNamespace().add_variable                  = cwrapper.prototype("void         ecl_sum_add_var(ecl_sum , char* , char* , int , char*, double)")
+EclSum.cNamespace().add_tstep                     = cwrapper.prototype("c_void_p     ecl_sum_add_tstep(ecl_sum , int , double)")

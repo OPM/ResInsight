@@ -9,3 +9,4 @@ add_python_package("python.ert_gui.models"  ${PYTHON_INSTALL_PREFIX}/ert_gui/mod
 
 add_subdirectory(connectors)
 add_subdirectory(mixins)
+add_subdirectory(qt)

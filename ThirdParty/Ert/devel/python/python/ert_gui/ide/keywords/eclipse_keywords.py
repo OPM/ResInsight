@@ -23,7 +23,7 @@ class EclipseKeywords(object):
     def addDataFile(self):
         data_file = ConfigurationLineDefinition(keyword=KeywordDefinition("DATA_FILE"),
                                                 arguments=[PathArgument()],
-                                                documentation_link="eclipse/data_file",
+                                                documentation_link="keywords/data_file",
                                                 required=True,
                                                 group=self.group)
         return data_file
@@ -32,7 +32,7 @@ class EclipseKeywords(object):
     def addEquilInitFile(self):
         equil_init_file = ConfigurationLineDefinition(keyword=KeywordDefinition("EQUIL_INIT_FILE"),
                                                       arguments=[PathArgument()],
-                                                      documentation_link="eclipse/equil_init_file",
+                                                      documentation_link="keywords/equil_init_file",
                                                       group=self.group)
         return equil_init_file
 
@@ -41,7 +41,7 @@ class EclipseKeywords(object):
     def addEclBase(self):
         ecl_base = ConfigurationLineDefinition(keyword=KeywordDefinition("ECLBASE"),
                                                arguments=[StringArgument()],
-                                               documentation_link="eclipse/ecl_base",
+                                               documentation_link="keywords/eclbase",
                                                required=True,
                                                group=self.group)
         return ecl_base
@@ -50,7 +50,7 @@ class EclipseKeywords(object):
     def addJobName(self):
         job_name = ConfigurationLineDefinition(keyword=KeywordDefinition("JOBNAME"),
                                                arguments=[StringArgument()],
-                                               documentation_link="eclipse/job_name",
+                                               documentation_link="keywords/job_name",
                                                required=True,
                                                group=self.group)
         return job_name
@@ -59,7 +59,7 @@ class EclipseKeywords(object):
     def addGrid(self):
         grid = ConfigurationLineDefinition(keyword=KeywordDefinition("GRID"),
                                            arguments=[PathArgument()],
-                                           documentation_link="eclipse/grid",
+                                           documentation_link="keywords/grid",
                                            required=True,
                                            group=self.group)
         return grid
@@ -67,7 +67,7 @@ class EclipseKeywords(object):
     def addInitSection(self):
         init_section = ConfigurationLineDefinition(keyword=KeywordDefinition("INIT_SECTION"),
                                                    arguments=[PathArgument()],
-                                                   documentation_link="eclipse/init_section",
+                                                   documentation_link="keywords/init_section",
                                                    required=True,
                                                    group=self.group)
         return init_section
@@ -76,7 +76,7 @@ class EclipseKeywords(object):
     def addScheduleFile(self):
         schedule_file = ConfigurationLineDefinition(keyword=KeywordDefinition("SCHEDULE_FILE"),
                                                     arguments=[PathArgument()],
-                                                    documentation_link="ensemble/schedule_file",
+                                                    documentation_link="keywords/schedule_file",
                                                     required=True,
                                                     group=self.group)
         return schedule_file
@@ -85,7 +85,7 @@ class EclipseKeywords(object):
     def addIgnoreSchedule(self):
         ignore_schedule = ConfigurationLineDefinition(keyword=KeywordDefinition("IGNORE_SCHEDULE"),
                                                     arguments=[BoolArgument()],
-                                                    documentation_link="ensemble/ignore_schedule",
+                                                    documentation_link="keywords/ignore_schedule",
                                                     required=False,
                                                     group=self.group)
         return ignore_schedule
@@ -95,7 +95,7 @@ class EclipseKeywords(object):
         data_kw = ConfigurationLineDefinition(keyword=KeywordDefinition("DATA_KW"),
                                                     arguments=[StringArgument(),
                                                                StringArgument(rest_of_line=True, allow_space=True)],
-                                                    documentation_link="ensemble/data_kw",
+                                                    documentation_link="keywords/data_kw",
                                                     required=False,
                                                     group=self.group)
         return data_kw

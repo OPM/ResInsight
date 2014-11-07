@@ -29,18 +29,19 @@ extern "C" {
 
   typedef struct qc_module_struct qc_module_type;
 
-  bool                qc_module_has_workflow( const qc_module_type * qc_module );
-  qc_module_type    * qc_module_alloc(ert_workflow_list_type * workflow_list ,  const char * qc_path);
-  void                qc_module_free();
-  bool                qc_module_run_workflow( const qc_module_type * qc_module , void * self);
-  runpath_list_type * qc_module_get_runpath_list( qc_module_type * qc_module );
-  void                qc_module_set_path( qc_module_type * qc_module , const char * qc_path);
-  const char    *     qc_module_get_path( const qc_module_type * qc_module );
-  void                qc_module_init( qc_module_type * qc_module , const config_type * config);
-  void                qc_module_export_runpath_list( const qc_module_type * qc_module );
-  void                qc_module_add_config_items( config_type * config );
-  void                qc_module_set_runpath_list_file( qc_module_type * qc_module , const char * path, const char * filename);
-  const char        * qc_module_get_runpath_list_file( qc_module_type * qc_module);
+  bool                  qc_module_has_workflow( const qc_module_type * qc_module );
+  const workflow_type * qc_module_get_workflow( const qc_module_type * qc_module );
+  qc_module_type      * qc_module_alloc(ert_workflow_list_type * workflow_list ,  const char * qc_path);
+  void                  qc_module_free();
+  bool                  qc_module_run_workflow( const qc_module_type * qc_module , void * self);
+  runpath_list_type   * qc_module_get_runpath_list( qc_module_type * qc_module );
+  void                  qc_module_set_path( qc_module_type * qc_module , const char * qc_path);
+  const char          * qc_module_get_path( const qc_module_type * qc_module );
+  void                  qc_module_init( qc_module_type * qc_module , const config_type * config);
+  void                  qc_module_export_runpath_list( const qc_module_type * qc_module );
+  void                  qc_module_add_config_items( config_type * config );
+  void                  qc_module_set_runpath_list_file( qc_module_type * qc_module , const char * path, const char * filename);
+  const char          * qc_module_get_runpath_list_file(const qc_module_type * qc_module);
 
 
 

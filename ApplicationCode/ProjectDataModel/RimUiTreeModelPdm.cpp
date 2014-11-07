@@ -404,8 +404,6 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
     if (collectionItem)
     {
         RimCase* rimReservoir = dynamic_cast<RimCase*>(collectionItem->dataObject().p());
-        rimReservoir->openEclipseGridFile();
-
         RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
 
         // Must be run before buildViewItems, as wells are created in this function

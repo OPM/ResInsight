@@ -1,6 +1,6 @@
 from PyQt4.QtCore import QSize, pyqtSignal
 from PyQt4.QtGui import QWidget, QColor, QLabel, QHBoxLayout, QIcon, QPixmap
-from ert_gui.pages.message_center import MessageCenter
+from ert_gui.tools import HelpCenter
 from ert_gui.widgets.error_popup import ErrorPopup
 
 from ert_gui.widgets.util import resourceImage
@@ -24,10 +24,7 @@ class HelpedWidget(QWidget):
     def __init__(self, widget_label="", help_link=""):
         QWidget.__init__(self)
 
-        self.validation_label = QLabel()
-        self.validation_label.setParent(self)
-        self.validation_label.setMinimumSize(QSize(16, 16))
-        self.validation_label.setMaximumSize(QSize(16, 16))
+
 
         if not widget_label == "":
             self.label = widget_label + ":"
@@ -40,7 +37,6 @@ class HelpedWidget(QWidget):
 
         self.widget_layout = QHBoxLayout()
         self.widget_layout.setMargin(0)
-        self.widget_layout.addWidget(self.validation_label)
         self.setLayout(self.widget_layout)
         self.setMinimumHeight(20)
 
@@ -71,30 +67,26 @@ class HelpedWidget(QWidget):
         if message == "":
             self.validation_type = None
             self.validation_message = None
-            self.validation_label.setPixmap(QPixmap())
             HelpedWidget.__error_popup.hide()
             self.validationChanged.emit(True)
 
         else:
             self.validation_type = validation_type
             self.validation_message = message
-            self.validation_label.setPixmap(resourceImage(validation_type))
             HelpedWidget.__error_popup.presentError(self, self.validation_message)
             self.validationChanged.emit(False)
 
-        MessageCenter().setWarning(self, self.validation_message)
+        # HelpCenter.getHelpCenter("ERT").setHelpMessageLink()
+        # MessageCenter().setWarning(self, self.validation_message)
 
 
     def isValid(self):
         return self.validation_message is None
 
 
-    def hideValidationLabel(self):
-        self.validation_label.setHidden(True)
-
     def enterEvent(self, event):
         QWidget.enterEvent(self, event)
-        MessageCenter().setHelpMessageLink(self.help_link)
+        HelpCenter.getHelpCenter("ERT").setHelpMessageLink(self.help_link)
 
         # if HelpedWidget.__error_popup is None:
         #     HelpedWidget.__error_popup = ErrorPopup()
@@ -114,5 +106,13 @@ class HelpedWidget(QWidget):
         """ Remove any model attachment or similar. Called when QT object is destroyed."""
         pass
 
+    @staticmethod
+    def addHelpToWidget(widget, link):
+        original_enter_event = widget.enterEvent
 
+        def enterEvent(event):
+            original_enter_event(event)
+            HelpCenter.getHelpCenter("ERT").setHelpMessageLink(link)
+
+        widget.enterEvent = enterEvent
 

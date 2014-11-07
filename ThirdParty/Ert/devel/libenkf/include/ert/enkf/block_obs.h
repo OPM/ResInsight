@@ -44,17 +44,22 @@ typedef struct block_obs_struct block_obs_type;
   } block_obs_source_type;
 
 
-  block_obs_type * block_obs_alloc(const char   * obs_label,
-                                   block_obs_source_type source_type , 
-                                   const stringlist_type * summary_keys , 
+  block_obs_type * block_obs_alloc_complete(const char   * obs_label,
+                                            block_obs_source_type source_type , 
+                                            const stringlist_type * summary_keys , 
+                                            const void * data_config , 
+                                            const ecl_grid_type * grid , 
+                                            int            size,
+                                            const int    * i,
+                                            const int    * j,
+                                            const int    * k,
+                                            const double * obs_value,
+                                            const double * obs_std);
+  
+  block_obs_type * block_obs_alloc(const char * obs_key,
                                    const void * data_config , 
-                                   const ecl_grid_type * grid , 
-                                   int            size,
-                                   const int    * i,
-                                   const int    * j,
-                                   const int    * k,
-                                   const double * obs_value,
-                                   const double * obs_std);
+                                   const ecl_grid_type * grid);
+
   
 void block_obs_free(
   block_obs_type * block_obs);
@@ -62,18 +67,21 @@ void block_obs_free(
 
 block_obs_type * block_obs_alloc_from_BLOCK_OBSERVATION(const conf_instance_type * conf_instance, const history_type  * history);
 
-
+double      block_obs_iget_depth( const block_obs_type * block_obs , int index);
 int         block_obs_iget_i(const block_obs_type * , int index);
 int         block_obs_iget_j(const block_obs_type * , int index);
 int         block_obs_iget_k(const block_obs_type * , int index);
 int         block_obs_get_size(const block_obs_type * );
 void        block_obs_iget(const block_obs_type * block_obs, int  , double * , double * );
+double      block_obs_iget_value(const block_obs_type * block_obs, int index );
+double      block_obs_iget_std(const block_obs_type * block_obs, int index );
 void        block_obs_iget_ijk(const block_obs_type * block_obs , int block_nr , int * i , int * j , int * k);
+double      block_obs_iget_data( const block_obs_type * block_obs, const void * state , int iobs , node_id_type node_id );
 
 void        block_obs_scale_std(block_obs_type * block_obs, double scale_factor);
 void        block_obs_scale_std__(void * block_obs, double scale_factor);
-
-
+void        block_obs_append_field_obs( block_obs_type * block_obs , int i , int j , int k , double value , double std);
+void        block_obs_append_summary_obs( block_obs_type * block_obs , int i , int j , int k , const char * sum_key , double value , double std);
 
 VOID_FREE_HEADER(block_obs);
 VOID_GET_OBS_HEADER(block_obs);

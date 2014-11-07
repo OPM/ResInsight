@@ -39,9 +39,16 @@ int main(int argc , char ** argv) {
   
   {
     log_type * logh = log_open( LOG_FILE , 0 );
+    test_assert_not_NULL(logh);
+    log_close( logh );
+  }
+
+  {
+    log_type * logh = log_open( LOG_FILE , 1 );
     test_assert_true( log_is_open( logh ));
     log_close( logh );
   }
+
   test_work_area_free( work_area );
   exit(0);
 }

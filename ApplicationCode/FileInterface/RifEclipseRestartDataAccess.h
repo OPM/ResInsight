@@ -51,10 +51,11 @@ public:
     virtual void                setTimeSteps(const std::vector<QDateTime>& timeSteps) {};
     virtual size_t              timeStepCount() = 0;
     virtual std::vector<QDateTime>    timeSteps() = 0;
+    virtual std::vector<int>     reportNumbers() = 0;
 
     virtual void                resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts) = 0;
     virtual bool                results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values) = 0;
 
-    virtual void                readWellData(well_info_type * well_info) = 0;
+    virtual void                readWellData(well_info_type * well_info, bool importCompleteMswData) = 0;
     virtual int                 readUnitsType() = 0;
 };

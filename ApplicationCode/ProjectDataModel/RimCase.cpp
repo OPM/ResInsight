@@ -307,13 +307,9 @@ void RimCase::computeCachedData()
         rigEclipseCase->mainGrid()->computeCachedData();
         pInf.incrementProgress();
 
-        RiaPreferences* prefs = RiaApplication::instance()->preferences();
-        if (prefs->autocomputeGridFaults)
-        {
-            pInf.setProgressDescription("Calculating faults");
-            rigEclipseCase->mainGrid()->calculateFaults();
-            pInf.incrementProgress();
-        }
+        pInf.setProgressDescription("Calculating faults");
+        rigEclipseCase->mainGrid()->calculateFaults();
+        pInf.incrementProgress();
     }
 }
 

@@ -44,9 +44,12 @@ class EnsConfig(BaseCClass):
         """ @rtype: EnkfConfigNode """
         return EnsConfig.cNamespace().add_gen_kw(self, key).setParent(self)
 
-    def add_gen_data(self, key):
-        """ @rtype: EnkfConfigNode """
-        return EnsConfig.cNamespace().add_gen_data(self, key).setParent(self)
+
+    def addNode(self , config_node):
+        assert isinstance(config_node , EnkfConfigNode)
+        EnsConfig.cNamespace().add_node( self , config_node )
+        config_node.setParent( self )
+
 
     def add_field(self, key, eclipse_grid):
         """ @rtype: EnkfConfigNode """
@@ -66,6 +69,7 @@ class EnsConfig(BaseCClass):
         EnsConfig.cNamespace().free(self)
 
 
+
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerType("ens_config", EnsConfig)
 cwrapper.registerType("ens_config_obj", EnsConfig.createPythonObject)
@@ -77,7 +81,7 @@ EnsConfig.cNamespace().get_node = cwrapper.prototype("enkf_config_node_ref ensem
 EnsConfig.cNamespace().alloc_keylist = cwrapper.prototype("stringlist_obj ensemble_config_alloc_keylist( ens_config )")
 EnsConfig.cNamespace().add_summary = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_summary( ens_config, char*, int)")
 EnsConfig.cNamespace().add_gen_kw = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_gen_kw( ens_config, char*)")
-EnsConfig.cNamespace().add_gen_data = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_gen_data( ens_config, char*)")
 EnsConfig.cNamespace().add_field = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_field( ens_config, char*, ecl_grid)")
 EnsConfig.cNamespace().alloc_keylist_from_var_type = cwrapper.prototype("stringlist_obj ensemble_config_alloc_keylist_from_var_type(ens_config, enkf_var_type_enum)")
 EnsConfig.cNamespace().alloc_keylist_from_impl_type = cwrapper.prototype("stringlist_obj ensemble_config_alloc_keylist_from_impl_type(ens_config, ert_impl_type_enum)")
+EnsConfig.cNamespace().add_node = cwrapper.prototype("void ensemble_config_add_node( ens_config , enkf_config_node )")

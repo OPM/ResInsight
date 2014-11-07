@@ -16,7 +16,7 @@
 #  for more details.
 import os
 
-from ert_tests import ExtendedTestCase
+from ert.test.extended_testcase import ExtendedTestCase
 from ert_tests.import_tester import ImportTester
 
 

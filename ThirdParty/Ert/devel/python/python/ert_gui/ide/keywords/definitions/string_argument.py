@@ -20,6 +20,8 @@ class StringArgument(ArgumentDefinition):
 
         if not validation_status:
             return validation_status
+        elif self.isOptional() and token.strip() == "":
+            return validation_status
         else:
             if self.__allow_space:
                 match = StringArgument.PATTERN_WITH_SPACE.match(token)

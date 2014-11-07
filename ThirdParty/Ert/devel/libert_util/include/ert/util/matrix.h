@@ -34,10 +34,14 @@ extern "C" {
 
 typedef struct matrix_struct matrix_type;
 
+  matrix_type * matrix_fread_alloc(FILE * stream);
+  void          matrix_fread(matrix_type * matrix , FILE * stream);
+  void          matrix_fwrite(const matrix_type * matrix , FILE * stream);
   bool          matrix_check_dims( const matrix_type * m , int rows , int columns);
   void          matrix_fscanf_data( matrix_type * matrix , bool row_major_order , FILE * stream );
   void          matrix_fprintf( const matrix_type * matrix , const char * fmt , FILE * stream );
   void          matrix_pretty_fprint(const matrix_type * matrix , const char * name , const char * fmt , FILE * stream);
+  void matrix_pretty_fprint_submat(const matrix_type * matrix , const char * name , const char * fmt , FILE * stream, int m, int M, int n, int N);
   matrix_type * matrix_alloc(int rows, int columns);
   matrix_type * matrix_safe_alloc(int rows, int columns);
   bool          matrix_resize(matrix_type * matrix , int rows , int columns , bool copy_content);
@@ -111,6 +115,7 @@ typedef struct matrix_struct matrix_type;
   void          matrix_get_dims(const matrix_type * matrix ,  int * rows , int * columns , int * row_stride , int * column_stride);
   bool          matrix_is_quadratic(const matrix_type * matrix);
   bool          matrix_equal( const matrix_type * m1 , const matrix_type * m2);
+  bool          matrix_columns_equal( const matrix_type * m1 , int col1 , const matrix_type * m2 , int col2);
   
   void          matrix_diag_set_scalar(matrix_type * matrix , double value);
   void          matrix_diag_set(matrix_type * matrix , const double * diag);
@@ -131,6 +136,7 @@ typedef struct matrix_struct matrix_type;
   void          matrix_create_identiy(int n,matrix_type *Id);
   double        matrix_trace(const matrix_type *matrix);
   double        matrix_diag_std(const matrix_type * Sk,double mean);
+  double        matrix_det2( const matrix_type * A);
   double        matrix_det3( const matrix_type * A);
   double        matrix_det4( const matrix_type * A);
   

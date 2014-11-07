@@ -141,6 +141,14 @@ typedef enum {
 #define ECL_PHASE_ENUM_SIZE 3
 
 
+typedef enum {
+  ECL_METRIC_UNITS = 0,
+  ECL_FIELD_UNITS  = 1,
+  ECL_LAB_UNITS    = 2
+} ecl_unit_enum;
+
+#define ECL_UNIT_ENUM_DEFS {.value = 0 , .name = "ECL_METRIC_UNITS"}, {.value = 1 , .name = "ECL_FIELD_UNITS"} , {.value = 2 , .name = "ECL_LAB_UNITS"}
+#define ECL_UNIT_ENUM_SIZE 3
 
 
 // For unformatted files:
@@ -177,6 +185,7 @@ int             ecl_util_get_month_nr(const char * month_name);
 int             ecl_util_fname_report_cmp(const void *f1, const void *f2);
 time_t          ecl_util_make_date(int mday , int month , int year);
 time_t          ecl_util_make_date__(int mday , int month , int year, int * year_offset);
+ecl_unit_enum   ecl_util_get_unit_set(const char * data_file);
 
 bool            ecl_util_valid_basename_fmt( const char * basename_fmt );
 bool            ecl_util_valid_basename( const char * basename );

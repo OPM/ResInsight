@@ -49,7 +49,9 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
   {
     bool  address_found = false;
     Dl_info dl_info;
-
+#if defined(__APPLE__)
+    return false;
+#else
     if (dladdr(bt_addr , &dl_info)) {
       const char * executable = dl_info.dli_fname;
       *func_name = util_alloc_string_copy( dl_info.dli_sname );
@@ -94,6 +96,7 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
       } 
     } 
     return address_found;
+#endif
   }
 }
 
@@ -187,23 +190,34 @@ static void util_fprintf_backtrace(FILE * stream) {
 
 char * util_alloc_dump_filename() {
   time_t timestamp = time(NULL);
-  struct tm *converted = localtime(&timestamp);
   char day[32];
-  size_t last = strftime(day, 32, "%Y%m%d-%H%M%S", converted);
-  day[last] = '\0';
+  strftime(day, 32, "%Y%m%d-%H%M%S", localtime(&timestamp));
+  {
+    uid_t uid = getuid();
+    struct passwd *pwd = getpwuid(uid);
+    char * filename;
+    
+    if (pwd)
+      filename = util_alloc_sprintf("/tmp/ert_abort_dump.%s.%s.log", pwd->pw_name, day);
+    else
+      filename = util_alloc_sprintf("/tmp/ert_abort_dump.%d.%s.log", uid , day);
 
-  struct passwd *pwd = getpwuid(getuid());
-  char * filename = util_alloc_sprintf("/tmp/ert_abort_dump.%s.%s.log", pwd->pw_name, day);
-  return filename;
+    return filename;
+  }
 }
 
-void util_abort(const char * fmt , ...) {
+
+void util_abort__(const char * file , const char * function , int line , const char * fmt , ...) {
+  util_abort_test_intercept( function );
   pthread_mutex_lock( &__abort_mutex ); /* Abort before unlock() */
   {
-    char * filename = util_alloc_dump_filename();
+    char * filename = NULL;
     FILE * abort_dump = NULL;
 
     if (!getenv("ERT_SHOW_BACKTRACE")) 
+      filename = util_alloc_dump_filename();
+
+    if (filename)
       abort_dump = fopen(filename, "w");
     
     if (abort_dump == NULL) 
@@ -213,6 +227,7 @@ void util_abort(const char * fmt , ...) {
 
     va_start(ap , fmt);
     fprintf(abort_dump , "\n\n");
+    fprintf(abort_dump , "Abort called from: %s (%s:%d) \n",function , file , line);
     vfprintf(abort_dump , fmt , ap);
     fprintf(abort_dump , "\n\n");
     va_end(ap);

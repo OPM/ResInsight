@@ -1,13 +1,12 @@
 import os
 from ert.ecl import EclSum
-from ert.enkf import BlockObs, AnalysisConfig, EclConfig, GenKwConfig, EnkfConfigNode, SiteConfig, ObsVector
+from ert.enkf import AnalysisConfig, EclConfig, GenKwConfig, EnkfConfigNode, SiteConfig, ObsVector
 from ert.enkf import GenDataConfig, FieldConfig, EnkfFs, EnkfObs, EnKFState, EnsConfig
 from ert.enkf import ErtTemplate, ErtTemplates, LocalConfig, ModelConfig, PlotConfig
 from ert.enkf.enkf_main import EnKFMain
 
 from ert.enkf.util import TimeMap
-from ert.util.test_area import TestAreaContext
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase , TestAreaContext
 
 
 class EnKFLibraryTest(ExtendedTestCase):
@@ -17,8 +16,8 @@ class EnKFLibraryTest(ExtendedTestCase):
 
 
     def test_failed_class_creation(self):
-        classes = [BlockObs, FieldConfig, GenKwConfig, GenDataConfig,
-                   EnkfConfigNode, EnkfFs, EnkfObs, TimeMap, EnKFState, EnsConfig,
+        classes = [FieldConfig, GenDataConfig,
+                   EnkfConfigNode, EnkfObs, EnKFState, EnsConfig,
                    ErtTemplate, ErtTemplates, LocalConfig, ModelConfig, PlotConfig, SiteConfig]
 
         for cls in classes:
@@ -35,12 +34,12 @@ class EnKFLibraryTest(ExtendedTestCase):
             self.assertIsInstance(main.analysisConfig(), AnalysisConfig)
             self.assertIsInstance(main.eclConfig(), EclConfig)
 
-            with self.assertRaises(ValueError): # Null pointer!
+            with self.assertRaises(AssertionError): # Null pointer!
                 self.assertIsInstance(main.eclConfig().getRefcase(), EclSum)
 
-            file_system = main.getEnkfFsManager().getFileSystem()
+            file_system = main.getEnkfFsManager().getCurrentFileSystem()
             self.assertEqual(file_system.getCaseName(), "default")
-            time_map = file_system.get_time_map()
+            time_map = file_system.getTimeMap()
             self.assertIsInstance(time_map, TimeMap)
 
             main.free()

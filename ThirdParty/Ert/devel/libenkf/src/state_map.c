@@ -80,7 +80,9 @@ state_map_type * state_map_alloc_copy( state_map_type * map ) {
   return copy;
 }
 
+
 void state_map_free( state_map_type * map ) {
+  int_vector_free( map->state );
   free( map );
 }
 
@@ -133,7 +135,7 @@ bool state_map_legal_transition( realisation_state_enum state1 , realisation_sta
   else if (state1 == STATE_HAS_DATA)
     target_mask = STATE_INITIALIZED | STATE_LOAD_FAILURE | STATE_HAS_DATA | STATE_PARENT_FAILURE;
   else if (state1 == STATE_LOAD_FAILURE)
-    target_mask = STATE_HAS_DATA | STATE_INITIALIZED;
+    target_mask = STATE_HAS_DATA | STATE_INITIALIZED | STATE_LOAD_FAILURE;
   else if (state1 == STATE_PARENT_FAILURE)
     target_mask = STATE_INITIALIZED | STATE_PARENT_FAILURE;
   
@@ -196,7 +198,8 @@ void state_map_fwrite( state_map_type * map , const char * filename) {
 
 
 
-void state_map_fread( state_map_type * map , const char * filename) {
+bool state_map_fread( state_map_type * map , const char * filename) {
+  bool file_exists = false;
   pthread_rwlock_wrlock( &map->rw_lock );
   {
     if (util_file_exists( filename )) {
@@ -206,10 +209,12 @@ void state_map_fread( state_map_type * map , const char * filename) {
         fclose( stream );
       } else
         util_abort("%s: failed to open:%s for reading \n",__func__ , filename );
+      file_exists = true;
     } else
       int_vector_reset( map->state );
   }
   pthread_rwlock_unlock( &map->rw_lock );
+  return file_exists;
 }
 
 

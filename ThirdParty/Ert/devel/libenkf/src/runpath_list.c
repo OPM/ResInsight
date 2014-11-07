@@ -34,6 +34,7 @@ struct runpath_list_struct {
   pthread_rwlock_t   lock;
   vector_type      * list;
   char             * line_fmt;   // Format string : Values are in the order: (iens , runpath , basename)
+  char             * export_file;
 };
 
 
@@ -41,6 +42,7 @@ struct runpath_list_struct {
 struct runpath_node_struct {
   UTIL_TYPE_ID_DECLARATION;
   int    iens;
+  int    iter;
   char * runpath;
   char * basename;
 };
@@ -51,11 +53,12 @@ struct runpath_node_struct {
   UTIL_SAFE_CAST_FUNCTION( runpath_node , RUNPATH_NODE_TYPE_ID )
   UTIL_SAFE_CAST_FUNCTION_CONST( runpath_node , RUNPATH_NODE_TYPE_ID )
 
-  static runpath_node_type * runpath_node_alloc( int iens, const char * runpath , const char * basename) {
+  static runpath_node_type * runpath_node_alloc( int iens, int iter, const char * runpath , const char * basename) {
     runpath_node_type * node = util_malloc( sizeof * node );
     UTIL_TYPE_ID_INIT( node , RUNPATH_NODE_TYPE_ID );
 
     node->iens = iens;
+    node->iter = iter;
     node->runpath = util_alloc_string_copy( runpath );
     node->basename = util_alloc_string_copy( basename );
 
@@ -83,6 +86,10 @@ static int runpath_node_cmp( const void * arg1 , const void * arg2) {
       return 1;
     else if (node1->iens < node2->iens)
       return -1;
+    else if (node1->iter > node2->iter)
+      return 1;
+    else if (node1->iter < node2->iter)
+      return 1;
     else
       return 0;
   }
@@ -90,17 +97,18 @@ static int runpath_node_cmp( const void * arg1 , const void * arg2) {
 
 
 static void runpath_node_fprintf( const runpath_node_type * node , const char * line_fmt , FILE * stream) {
-  fprintf(stream , line_fmt , node->iens, node->runpath , node->basename);
+  fprintf(stream , line_fmt , node->iens, node->runpath , node->basename, node->iter);
 }
 
 
 /*****************************************************************/
 
 
-runpath_list_type * runpath_list_alloc() {
+runpath_list_type * runpath_list_alloc(const char * export_file) {
   runpath_list_type * list = util_malloc( sizeof * list );
   list->list     = vector_alloc_new();
   list->line_fmt = NULL;
+  list->export_file = util_alloc_string_copy( export_file );
   pthread_rwlock_init( &list->lock , NULL );
   return list;
 }
@@ -109,6 +117,7 @@ runpath_list_type * runpath_list_alloc() {
 void runpath_list_free( runpath_list_type * list ) {
   vector_free( list->list );
   util_safe_free( list->line_fmt );
+  util_safe_free( list->export_file);
   free( list );
 }
 
@@ -127,8 +136,9 @@ void runpath_list_sort( runpath_list_type * list ) {
 }
 
 
-void runpath_list_add( runpath_list_type * list , int iens , const char * runpath , const char * basename) {
-  runpath_node_type * node = runpath_node_alloc( iens , runpath , basename );
+void runpath_list_add( runpath_list_type * list , int iens , int iter, const char * runpath , const char * basename) {
+  runpath_node_type * node = runpath_node_alloc( iens , iter, runpath , basename );
+
   pthread_rwlock_wrlock( &list->lock );
   {
     vector_append_owned_ref( list->list , node , runpath_node_free__ );
@@ -184,16 +194,32 @@ int runpath_list_iget_iens( runpath_list_type * list , int index) {
   return node->iens;
 }
 
+int runpath_list_iget_iter( runpath_list_type * list , int index) {
+  const runpath_node_type * node = runpath_list_iget_node( list , index );
+  return node->iter;
+}
 
-void runpath_list_fprintf(runpath_list_type * list , FILE * stream) {
+void runpath_list_fprintf(runpath_list_type * list ) {
   pthread_rwlock_rdlock( &list->lock );
   {
+    FILE * stream = util_fopen( list->export_file , "w");
     const char * line_fmt = runpath_list_get_line_fmt( list );
     int index;
     for (index =0; index < vector_get_size( list->list ); index++) {
       const runpath_node_type * node = runpath_list_iget_node__( list , index );
       runpath_node_fprintf( node , line_fmt , stream );
     }
+    fclose( stream );
   }
   pthread_rwlock_unlock( &list->lock );
+}
+
+
+const char * runpath_list_get_export_file( const runpath_list_type * list ) {
+  return list->export_file;
+}
+
+
+void runpath_list_set_export_file( runpath_list_type * list , const char * export_file ) {
+  list->export_file = util_realloc_string_copy( list->export_file , export_file );
 }

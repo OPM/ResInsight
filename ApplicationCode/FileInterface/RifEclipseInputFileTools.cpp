@@ -850,12 +850,12 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
 
 cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(const QString& faceString)
 {
-    if (faceString == "X" ) return cvf::StructGridInterface::POS_I;
-    if (faceString == "X-") return cvf::StructGridInterface::NEG_I;
-    if (faceString == "Y" ) return cvf::StructGridInterface::POS_J;
-    if (faceString == "Y-") return cvf::StructGridInterface::NEG_J;
-    if (faceString == "Z" ) return cvf::StructGridInterface::POS_K;
-    if (faceString == "Z-") return cvf::StructGridInterface::NEG_K;
+    if (faceString == "X"  || faceString == "I" ) return cvf::StructGridInterface::POS_I;
+    if (faceString == "X-" || faceString == "I-") return cvf::StructGridInterface::NEG_I;
+    if (faceString == "Y"  || faceString == "J" ) return cvf::StructGridInterface::POS_J;
+    if (faceString == "Y-" || faceString == "J-") return cvf::StructGridInterface::NEG_J;
+    if (faceString == "Z"  || faceString == "K" ) return cvf::StructGridInterface::POS_K;
+    if (faceString == "Z-" || faceString == "K-") return cvf::StructGridInterface::NEG_K;
 
     return cvf::StructGridInterface::NO_FACE;
 }
@@ -906,6 +906,9 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         // Replace tab with space to be able to split the string using space as splitter
         line.replace("\t", " ");
 
+        // Replace character ' used to mark start and end of fault name
+        line.remove("'");
+
         QStringList entries = line.split(" ", QString::SkipEmptyParts);
         if (entries.size() < 8)
         {
@@ -913,7 +916,6 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         }
 
         QString name = entries[0];
-        name.remove("'");
 
         int i1, i2, j1, j2, k1, k2;
         i1 = entries[1].toInt();
@@ -924,7 +926,6 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         k2 = entries[6].toInt();
 
         QString faceString = entries[7];
-        faceString.remove("'");
 
         cvf::StructGridInterface::FaceEnum cellFaceEnum = RifEclipseInputFileTools::faceEnumFromText(faceString);
 

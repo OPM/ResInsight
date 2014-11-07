@@ -26,7 +26,7 @@ class EnsembleKeywords(object):
     def addNumRealizations(self):
         num_realizations = ConfigurationLineDefinition(keyword=KeywordDefinition("NUM_REALIZATIONS"),
                                                        arguments=[IntegerArgument(from_value=1)],
-                                                       documentation_link="ensemble/num_realizations",
+                                                       documentation_link="keywords/num_realizations",
                                                        required=True,
                                                        group=self.group)
         return num_realizations
@@ -35,7 +35,7 @@ class EnsembleKeywords(object):
     def addEndDate(self):
         end_date = ConfigurationLineDefinition(keyword=KeywordDefinition("END_DATE"),
                                                          arguments=[StringArgument()],
-                                                         documentation_link="ensemble/end_date",
+                                                         documentation_link="keywords/end_date",
                                                          required=False,
                                                          group=self.group)
         return end_date
@@ -44,7 +44,7 @@ class EnsembleKeywords(object):
     def addEnsPath(self):
         ens_path = ConfigurationLineDefinition(keyword=KeywordDefinition("ENSPATH"),
                                                arguments=[PathArgument()],
-                                               documentation_link="ensemble/enspath",
+                                               documentation_link="keywords/enspath",
                                                required=False,
                                                group=self.group)
         return ens_path
@@ -54,7 +54,7 @@ class EnsembleKeywords(object):
     def addSelectCase(self):
         select_case = ConfigurationLineDefinition(keyword=KeywordDefinition("SELECT_CASE"),
                                                   arguments=[StringArgument()],
-                                                  documentation_link="ensemble/select_case",
+                                                  documentation_link="keywords/select_case",
                                                   required=False,
                                                   group=self.group)
         return select_case
@@ -63,7 +63,7 @@ class EnsembleKeywords(object):
     def addHistorySource(self):
         history_source = ConfigurationLineDefinition(keyword=KeywordDefinition("HISTORY_SOURCE"),
                                                   arguments=[StringArgument(built_in=True)],
-                                                  documentation_link="ensemble/history_source",
+                                                  documentation_link="keywords/history_source",
                                                   required=False,
                                                   group=self.group)
         return history_source
@@ -72,7 +72,7 @@ class EnsembleKeywords(object):
     def addRefCase(self):
         refcase = ConfigurationLineDefinition(keyword=KeywordDefinition("REFCASE"),
                                                   arguments=[PathArgument()],
-                                                  documentation_link="ensemble/refcase",
+                                                  documentation_link="keywords/refcase",
                                                   required=False,
                                                   group=self.group)
         return refcase
@@ -81,7 +81,7 @@ class EnsembleKeywords(object):
     def addRefcaseList(self):
         refcase_list = ConfigurationLineDefinition(keyword=KeywordDefinition("REFCASE_LIST"),
                                                   arguments=[StringArgument(rest_of_line=True,allow_space=True)],
-                                                  documentation_link="ensemble/refcase_list",
+                                                  documentation_link="keywords/refcase_list",
                                                   required=False,
                                                   group=self.group)
         return refcase_list
@@ -91,7 +91,7 @@ class EnsembleKeywords(object):
     def addInclude(self):
         include = ConfigurationLineDefinition(keyword=KeywordDefinition("INCLUDE"),
                                               arguments=[PathArgument()],
-                                              documentation_link="ensemble/include",
+                                              documentation_link="keywords/include",
                                               required=False,
                                               group=self.group)
         return include
@@ -101,7 +101,7 @@ class EnsembleKeywords(object):
     def addObsConfig(self):
         obs_config = ConfigurationLineDefinition(keyword=KeywordDefinition("OBS_CONFIG"),
                                                    arguments=[PathArgument()],
-                                                   documentation_link="ensemble/obs_config",
+                                                   documentation_link="keywords/obs_config",
                                                    required=False,
                                                    group=self.group)
         return obs_config
@@ -110,7 +110,7 @@ class EnsembleKeywords(object):
     def addResultPath(self):
         result_path = ConfigurationLineDefinition(keyword=KeywordDefinition("RESULT_PATH"),
                                                   arguments=[PathArgument()],
-                                                  documentation_link="ensemble/result_path",
+                                                  documentation_link="keywords/result_path",
                                                   required=False,
                                                   group=self.group)
         return result_path
@@ -119,7 +119,7 @@ class EnsembleKeywords(object):
     def addLicensePath(self):
         license_path = ConfigurationLineDefinition(keyword=KeywordDefinition("LICENSE_PATH"),
                                                   arguments=[PathArgument()],
-                                                  documentation_link="ensemble/license_path",
+                                                  documentation_link="keywords/license_path",
                                                   required=False,
                                                   group=self.group)
         return license_path
@@ -128,7 +128,7 @@ class EnsembleKeywords(object):
     def addLocalConfig(self):
         local_config = ConfigurationLineDefinition(keyword=KeywordDefinition("LOCAL_CONFIG"),
                                                   arguments=[StringArgument(rest_of_line=True,allow_space=True)],
-                                                  documentation_link="ensemble/local_config",
+                                                  documentation_link="keywords/local_config",
                                                   required=False,
                                                   group=self.group)
         return local_config

@@ -80,8 +80,6 @@ UTIL_IS_INSTANCE_FUNCTION(ecl_kw , ECL_KW_TYPE_ID )
 #define COLUMNS_INT      6
 #define COLUMNS_MESSAGE  1
 #define COLUMNS_BOOL    25
-   
-#define ECL_KW_FORTIO_HEADER_SIZE  4 + ECL_STRING_LENGTH + 4 + ECL_TYPE_LENGTH + 4
 
 
 /*****************************************************************/
@@ -751,11 +749,11 @@ double ecl_kw_iget_as_double(const ecl_kw_type * ecl_kw , int index) {
 
 float ecl_kw_iget_as_float(const ecl_kw_type * ecl_kw , int i) {
   if (ecl_kw->ecl_type == ECL_FLOAT_TYPE) 
-    return ecl_kw_iget_float( ecl_kw , i); /* Here the compiler will silently insert a float -> double conversion. */
+    return ecl_kw_iget_float( ecl_kw , i);
   else if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE)
-    return ecl_kw_iget_double( ecl_kw, i);
+    return (float) ecl_kw_iget_double( ecl_kw, i);
   else {
-    util_abort("%s: can not be converted to double - no data for you! \n",__func__);
+    util_abort("%s: can not be converted to float - no data for you! \n",__func__);
     return -1;
   }
 }
@@ -1159,34 +1157,65 @@ void ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
   }
 }
 
+
+void ecl_kw_fread_indexed_data(fortio_type * fortio, offset_type data_offset, ecl_type_enum ecl_type, int element_count, const int_vector_type* index_map, char* buffer) {
+    const int block_size = get_blocksize( ecl_type );
+    FILE *stream  = fortio_get_FILE( fortio );
+    int index;
+    int element_size = ecl_util_get_sizeof_ctype(ecl_type);
+    
+    if(ecl_type == ECL_CHAR_TYPE || ecl_type == ECL_MESS_TYPE) {
+        element_size = ECL_STRING_LENGTH;
+    }
+    
+    
+    for(index = 0; index < int_vector_size(index_map); index++) {
+        int element_index = int_vector_iget(index_map, index);
+
+        if(element_index < 0 || element_index >= element_count) {
+            util_abort("%s: Element index is out of range 0 <= %d < %d\n", __func__, element_index, element_count);
+        }
+        fortio_data_fseek(fortio, data_offset, element_index, element_size, element_count, block_size);
+        util_fread(&buffer[index * element_size], element_size, 1, stream, __func__);
+    }
+
+    if (ECL_ENDIAN_FLIP) {
+        util_endian_flip_vector(buffer, element_size, int_vector_size(index_map));
+    }
+}
+
 /**
    Allocates storage and reads data. 
 */
 void ecl_kw_fread_realloc_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
   ecl_kw_alloc_data(ecl_kw);
-  return ecl_kw_fread_data(ecl_kw , fortio);
+  ecl_kw_fread_data(ecl_kw , fortio);
 }
 
 /**
    Static method without a class instance.
 */
 
-void ecl_kw_fskip_data__( ecl_type_enum ecl_type , int size , fortio_type * fortio) {
+void ecl_kw_fskip_data__( ecl_type_enum ecl_type , const int element_count , fortio_type * fortio) {
   bool fmt_file = fortio_fmt_file(fortio);
-  if (size > 0) {
+  if (element_count > 0) {
     if (fmt_file) {
       /* Formatted skipping actually involves reading the data - nice ??? */
       ecl_kw_type * tmp_kw = ecl_kw_alloc_empty( );
-      ecl_kw_initialize( tmp_kw , "WORK" , size , ecl_type );
+      ecl_kw_initialize( tmp_kw , "WORK" , element_count , ecl_type );
       ecl_kw_alloc_data(tmp_kw);
       ecl_kw_fread_data(tmp_kw , fortio);
       ecl_kw_free( tmp_kw );
     } else {
       const int blocksize = get_blocksize( ecl_type );
-      const int blocks    = size / blocksize + (size % blocksize == 0 ? 0 : 1);
-      int ib;
-      for (ib = 0; ib < blocks; ib++) 
-        fortio_fskip_record(fortio);
+      const int block_count = element_count / blocksize + (element_count % blocksize == 0 ? 0 : 1);
+
+      int element_size = ecl_util_get_sizeof_ctype(ecl_type );
+      if(ecl_type == ECL_CHAR_TYPE || ecl_type == ECL_MESS_TYPE) {
+        element_size = ECL_STRING_LENGTH;
+      }
+
+      fortio_data_fskip(fortio, element_size, element_count, block_count);
     }
   }
 }
@@ -1362,8 +1391,12 @@ void ecl_kw_set_data_ptr(ecl_kw_type * ecl_kw , void * data) {
 void ecl_kw_alloc_data(ecl_kw_type *ecl_kw) {
   if (ecl_kw->shared_data) 
     util_abort("%s: trying to allocate data for ecl_kw object which has been declared with shared storage - aborting \n",__func__);
-  
-  ecl_kw->data = util_realloc(ecl_kw->data , ecl_kw->size * ecl_kw->sizeof_ctype );
+
+  {
+    size_t byte_size = ecl_kw->size * ecl_kw->sizeof_ctype;
+    ecl_kw->data = util_realloc(ecl_kw->data , byte_size );
+    memset(ecl_kw->data , 0 , byte_size);
+  }
 }
 
 
@@ -1720,7 +1753,7 @@ void ecl_kw_get_data_as_float(const ecl_kw_type * ecl_kw , float * float_data) {
       const int * int_data = (const int *) ecl_kw->data;
       int i;
       for (i=0; i < ecl_kw->size; i++)
-        float_data[i] = int_data[i];
+        float_data[i] = (float) int_data[i];
     } else {
       fprintf(stderr,"%s: type can not be converted to float - aborting \n",__func__);
       ecl_kw_summarize(ecl_kw);
@@ -2349,7 +2382,7 @@ void ecl_kw_inplace_inv(ecl_kw_type * my_kw) {
       {
         float *my_float        = (float *)       my_data;
         for (i=0; i < size; i++)
-          my_float[i] = 1.0 / my_float[i];
+          my_float[i] = 1.0f / my_float[i];
         break;
       }
     default:
@@ -2575,6 +2608,14 @@ double ecl_kw_element_sum_float( const ecl_kw_type * ecl_kw ) {
     return float_sum;
   else
     return 0;
+}
+
+
+int ecl_kw_element_sum_int( const ecl_kw_type * ecl_kw ) {
+  int int_sum;
+  ecl_kw_element_sum( ecl_kw , &int_sum);
+
+  return int_sum;
 }
 
 /*****************************************************************/

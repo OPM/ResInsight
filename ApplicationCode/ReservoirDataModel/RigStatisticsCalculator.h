@@ -61,7 +61,7 @@ public:
     virtual size_t  timeStepCount();
 
 private:
-	cvf::ref<RigCaseCellResultsData> m_resultsData;
+	RigCaseCellResultsData* m_resultsData;
     size_t m_scalarResultIndex;
 };
 
@@ -85,5 +85,5 @@ public:
     virtual size_t  timeStepCount();
 
 private:
-    cvf::Collection<RigStatisticsCalculator> m_nativeStatisticsCalculators;
+    std::vector<RigStatisticsCalculator*> m_nativeStatisticsCalculators;
 };

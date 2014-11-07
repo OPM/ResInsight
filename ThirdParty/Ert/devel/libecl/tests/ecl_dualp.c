@@ -52,13 +52,13 @@ int main(int argc , char ** argv) {
       int fracture_index = 0;
 
       for (gi = 0; gi < ecl_grid_get_global_size( ecl_grid ); gi++) {
-        if (ecl_kw_iget_int( actnum , gi ) & ACTIVE_MATRIX) {
+        if (ecl_kw_iget_int( actnum , gi ) & CELL_ACTIVE_MATRIX) {
           test_assert_int_equal( ecl_grid_get_active_index1( ecl_grid , gi ) , matrix_index);
           test_assert_int_equal( ecl_grid_get_global_index1A( ecl_grid , matrix_index ) , gi);
           matrix_index++;
         }
 
-        if (ecl_kw_iget_int( actnum , gi ) & ACTIVE_FRACTURE) {
+        if (ecl_kw_iget_int( actnum , gi ) & CELL_ACTIVE_FRACTURE) {
           test_assert_int_equal( ecl_grid_get_active_fracture_index1( ecl_grid , gi ) , fracture_index);
           test_assert_int_equal( ecl_grid_get_global_index1F( ecl_grid , fracture_index ) , gi);
           fracture_index++;

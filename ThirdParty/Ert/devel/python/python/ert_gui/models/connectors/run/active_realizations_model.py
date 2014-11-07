@@ -1,4 +1,4 @@
-from ert.util.tvector import BoolVector
+from ert.util import BoolVector
 from ert_gui.models import ErtConnector
 from ert_gui.models.connectors import EnsembleSizeModel
 from ert_gui.models.mixins import BasicModelMixin

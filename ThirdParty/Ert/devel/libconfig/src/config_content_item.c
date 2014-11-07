@@ -92,9 +92,11 @@ char * config_content_item_alloc_joined_string(const config_content_item_type * 
   char * joined_string = NULL;
   
   for (int i =0; i < occurences ; i++) {
-    joined_string = util_strcat_realloc( joined_string , config_content_item_ialloc_joined_string(item , sep , i));
+    char * element = config_content_item_ialloc_joined_string(item , sep , i);
+    joined_string = util_strcat_realloc( joined_string , element);
     if (i < (occurences - 1))
       joined_string = util_strcat_realloc( joined_string , sep );
+    free( element );
   }
   
   return joined_string;

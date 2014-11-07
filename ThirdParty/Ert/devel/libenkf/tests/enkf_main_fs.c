@@ -42,7 +42,7 @@ int main(int argc, char ** argv) {
   {
     const char * site_config = "/project/res/etc/ERT/site-config";
     enkf_main_type * enkf_main = enkf_main_bootstrap( site_config , model_config , false , false );
-    
+
     enkf_main_select_fs( enkf_main , "enkf");
     test_assert_true( enkf_main_case_is_current( enkf_main , "enkf"));
     test_assert_false( enkf_main_case_is_current( enkf_main , "default_fs"));
@@ -50,58 +50,68 @@ int main(int argc, char ** argv) {
 
     test_assert_int_equal( 1 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
     {
+      enkf_fs_type * fs_ref = enkf_main_get_fs_ref( enkf_main );
+      test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
+      enkf_fs_decref( fs_ref );
+      test_assert_int_equal( 1 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
+    }
+
+    {
       state_map_type * map1 = enkf_fs_get_state_map( enkf_main_get_fs( enkf_main ));
       state_map_type * map2 = enkf_main_alloc_readonly_state_map(enkf_main , "enkf");
       test_assert_true(state_map_equal( map1 , map2 ));
       state_map_free( map2 );
     }
     {
-      enkf_fs_type * fs1 = enkf_main_mount_alt_fs( enkf_main , "default" , false , false);
-      enkf_fs_type * fs2 = enkf_main_mount_alt_fs( enkf_main , "enkf" , false , false);
+      enkf_fs_type * fs1 = enkf_main_mount_alt_fs( enkf_main , "default" , false );
+      enkf_fs_type * fs2 = enkf_main_mount_alt_fs( enkf_main , "enkf" , false );
+      
       test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
       test_assert_int_equal( 2 , enkf_fs_get_refcount( fs2 ));
       test_assert_int_equal( 1 , enkf_fs_get_refcount( fs1 ));
 
-      enkf_fs_umount( fs1 );
-      enkf_fs_umount( fs2 );
+      enkf_fs_decref( fs1 );
+      enkf_fs_decref( fs2 );
     }
 
     {
-      enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , false , false );
+      enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , false  );
       
       enkf_main_select_fs( enkf_main , "default");
       test_assert_int_equal( 1 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
-      enkf_fs_umount( enkf_fs );
+      enkf_fs_decref( enkf_fs );
     }
 
     {
-      enkf_fs_type * default_fs = enkf_main_mount_alt_fs( enkf_main , "default" , false , false );
-
+      enkf_fs_type * default_fs = enkf_main_mount_alt_fs( enkf_main , "default" , false );
+      
       test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
       enkf_main_select_fs( enkf_main , "default");
       test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
-      enkf_fs_umount( default_fs );
+      enkf_fs_decref( default_fs );
       test_assert_int_equal( 1 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
     }
     /*****************************************************************/
     {
-      enkf_fs_type * fs = enkf_main_mount_alt_fs( enkf_main , "default" , false , false );
+      enkf_fs_type * fs = enkf_main_mount_alt_fs( enkf_main , "default" , false  );
       test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
       
       enkf_main_set_fs( enkf_main , fs , NULL );
+      enkf_fs_decref( fs );
       test_assert_int_equal( 1 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
     }
     {
-      enkf_fs_type * fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , false , false );
-      enkf_fs_type * current = enkf_main_mount_alt_fs( enkf_main , "default" , false , false);
+      enkf_fs_type * fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , false );
+      enkf_fs_type * current = enkf_main_mount_alt_fs( enkf_main , "default" , false );
       
-
       test_assert_int_equal( 2 , enkf_fs_get_refcount( current ));
       test_assert_int_equal( 1 , enkf_fs_get_refcount( fs));
       enkf_main_set_fs( enkf_main , fs , NULL);
-      test_assert_int_equal( 1 , enkf_fs_get_refcount( fs));
+      test_assert_int_equal( 2 , enkf_fs_get_refcount( fs));
       test_assert_int_equal( 1 , enkf_fs_get_refcount( current ));
-      enkf_fs_umount( current );
+
+      enkf_fs_decref( current );
+      enkf_fs_decref( fs);
     }
 
     

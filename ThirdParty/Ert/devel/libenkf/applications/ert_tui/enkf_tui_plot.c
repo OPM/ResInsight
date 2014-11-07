@@ -1179,7 +1179,7 @@ void enkf_tui_plot_RFT_time(void * arg) {
     char * obs_key;
     int report_step;
     obs_vector_type       * obs_vector;
-    enkf_config_node_type * config_node;
+    const enkf_config_node_type * config_node;
     int step1 , step2;
     int iens1 , iens2;
     state_enum plot_state;

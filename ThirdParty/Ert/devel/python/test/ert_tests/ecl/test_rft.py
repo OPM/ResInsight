@@ -18,7 +18,7 @@
 
 import datetime
 from ert.ecl import EclRFTFile, EclRFTCell, EclPLTCell
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class RFTTest(ExtendedTestCase):
@@ -55,6 +55,10 @@ class RFTTest(ExtendedTestCase):
             cell0 = rft.iget_sorted(0)
             self.assertIsInstance(cell, EclRFTCell)
             rft.sort()
+
+        for h in rftFile.headers:
+            print h
+            self.assertIsInstance( h[1] , datetime.date )
 
 
     def test_PLT_load( self ):

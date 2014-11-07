@@ -40,9 +40,22 @@ extern "C" {
 
   void           workflow_job_update_config_compiler( const workflow_job_type * workflow_job , config_type * config_compiler );
   void           workflow_job_set_executable( workflow_job_type * workflow_job , const char * executable);
+  char *         workflow_job_get_executable( workflow_job_type * workflow_job);
+
+  void           workflow_job_set_internal_script( workflow_job_type * workflow_job , const char * script_path);
+  char*          workflow_job_get_internal_script_path( const workflow_job_type * workflow_job);
+  bool           workflow_job_is_internal_script( const workflow_job_type * workflow_job);
+
   void           workflow_job_set_function( workflow_job_type * workflow_job , const char * function);
+  char *         workflow_job_get_function( workflow_job_type * workflow_job);
   void           workflow_job_set_module( workflow_job_type * workflow_job , const char * module);
-  void *         workflow_job_run( const workflow_job_type * job , void * self , bool verbose , const stringlist_type * arg);
+  char *         workflow_job_get_module( workflow_job_type * workflow_job);
+  void *         workflow_job_run( const workflow_job_type * job, void * self , bool verbose , const stringlist_type * arg);
+
+  int           workflow_job_get_min_arg( const workflow_job_type * workflow_job );
+  int           workflow_job_get_max_arg( const workflow_job_type * workflow_job );
+  config_item_types  workflow_job_iget_argtype( const workflow_job_type * workflow_job, int index);
+
   
 #ifdef __cplusplus
 }

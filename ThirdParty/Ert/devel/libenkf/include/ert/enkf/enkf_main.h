@@ -28,12 +28,12 @@ extern "C" {
 #include <ert/util/stringlist.h>
 #include <ert/util/set.h>
 #include <ert/util/subst_list.h>
-#include <ert/util/log.h>  
 #include <ert/util/bool_vector.h>
 #include <ert/util/int_vector.h>
 #include <ert/util/matrix.h>
 #include <ert/util/path_fmt.h>
 #include <ert/util/ui_return.h>
+#include <ert/util/log.h>
 
 #include <ert/sched/sched_file.h>
 
@@ -61,21 +61,11 @@ extern "C" {
 #include <ert/enkf/rng_config.h>
 #include <ert/enkf/pca_plot_data.h>
 #include <ert/enkf/field_config.h>
+#include <ert/enkf/ert_run_context.h>
   
   /*****************************************************************/
   
   typedef struct enkf_main_struct enkf_main_type;
-  //void                          enkf_main_close_alt_fs(const enkf_main_type * enkf_main , enkf_fs_type * fs);
-  bool                          enkf_main_case_is_current(const enkf_main_type * enkf_main , const char * case_path);
-  enkf_fs_type                * enkf_main_mount_alt_fs(const enkf_main_type * enkf_main , const char * case_path , bool read_only , bool create);
-  state_map_type              * enkf_main_alloc_readonly_state_map( const enkf_main_type * enkf_main , const char * case_path);
-  stringlist_type             * enkf_main_alloc_caselist( const enkf_main_type * enkf_main );
-  void                          enkf_main_set_fs( enkf_main_type * enkf_main , enkf_fs_type * fs , const char * case_path );
-  char                        * enkf_main_alloc_mount_point( const enkf_main_type * enkf_main , const char * case_path);
-  const char                  * enkf_main_get_current_fs( const enkf_main_type * enkf_main );
-  void                          enkf_main_user_select_fs(enkf_main_type * enkf_main , const char * case_path );
-  bool                          enkf_main_fs_exists(const enkf_main_type * enkf_main, const char * input_case);
-  char *                        enkf_main_read_alloc_current_case_name(const enkf_main_type * enkf_main); 
   ui_return_type *              enkf_main_set_eclbase( enkf_main_type * enkf_main , const char * eclbase_fmt);
   ui_return_type *              enkf_main_set_data_file( enkf_main_type * enkf_main , const char * data_file );
   void                          enkf_main_set_user_config_file( enkf_main_type * enkf_main , const char * user_config_file );
@@ -93,7 +83,7 @@ extern "C" {
   const char                  * enkf_main_get_log_file( const enkf_main_type * enkf_main );
   void                          enkf_main_set_log_level( enkf_main_type * enkf_main , int log_level );
   int                           enkf_main_get_log_level( const enkf_main_type * enkf_main );
-  log_type                    * enkf_main_get_logh( const enkf_main_type * enkf_main );
+
   member_config_type          * enkf_main_iget_member_config(const enkf_main_type * enkf_main , int iens);
   void                          enkf_main_del_unused_static(enkf_main_type * , int );
   const char                  * enkf_main_get_data_file(const enkf_main_type * );
@@ -111,23 +101,21 @@ extern "C" {
   void                          enkf_main_free(enkf_main_type * );
   void                          enkf_main_exit(enkf_main_type * enkf_main);
   void                          enkf_main_init_eclipse(enkf_main_type * , int , int );
-  void                          enkf_main_init_run( enkf_main_type * enkf_main, const bool_vector_type * iactive , run_mode_type run_mode , init_mode_enum init_mode);
+  void                          enkf_main_init_run( enkf_main_type * enkf_main, const ert_run_context_type * run_context);
   void                          enkf_main_load_ecl_init_mt(enkf_main_type * enkf_main , int );
   void                          enkf_main_load_ecl_complete_mt(enkf_main_type *);
   void                          enkf_main_iload_ecl_mt(enkf_main_type *enkf_main , int );
 
+  bool                          enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_list, enkf_fs_type * target_fs , int target_step , run_mode_type run_mode);
   void                          enkf_main_assimilation_update(enkf_main_type * enkf_main , const int_vector_type * step_list);
   bool                          enkf_main_smoother_update(enkf_main_type * enkf_main , enkf_fs_type * target_fs);
 
   void                          enkf_main_run_post_workflow( enkf_main_type * enkf_main );
-  bool                          enkf_main_run_simple_step(enkf_main_type * enkf_main , bool_vector_type * iactive , init_mode_enum init_mode);
+  bool                          enkf_main_run_simple_step(enkf_main_type * enkf_main , bool_vector_type * iactive , init_mode_type init_mode, int iter);
 
-  void                          enkf_main_run_exp(enkf_main_type * enkf_main            ,
-                                                  bool_vector_type * iactive      , 
-                                                  bool             simulate , 
-                                                  int              init_step_parameters ,
-                                                  int              start_report         ,
-                                                  state_enum       start_state);
+  void                          enkf_main_run_exp(enkf_main_type * enkf_main ,
+                                                  bool_vector_type * iactive , 
+                                                  bool             simulate);
 
   
   void                          enkf_main_run_assimilation(enkf_main_type * enkf_main            ,
@@ -136,10 +124,8 @@ extern "C" {
                                                            int              start_report         ,
                                                            state_enum       start_state);
 
-  void                          enkf_main_run_smoother(enkf_main_type * enkf_main , const char * target_fs_name , bool_vector_type * iactive , bool rerun);
-  bool                          enkf_main_iterate_smoother(enkf_main_type * enkf_main, int iteration_number, const char * target_fs_name , bool_vector_type * iactive);
-  void                          enkf_main_run_iterated_ES(enkf_main_type * enkf_main);
-  void                          enkf_main_run_one_more_iteration(enkf_main_type * enkf_main, int step2);
+  void                          enkf_main_run_smoother(enkf_main_type * enkf_main , const char * target_fs_name , bool_vector_type * iactive , int iter , bool rerun);
+  void                          enkf_main_run_iterated_ES(enkf_main_type * enkf_main, int num_iterations);
   void                          enkf_main_set_data_kw(enkf_main_type * , const char * , const char *);
   void                          enkf_main_set_state_run_path(const enkf_main_type * , int );
   void                          enkf_main_set_state_eclbase(const enkf_main_type * , int );
@@ -168,46 +154,19 @@ extern "C" {
   model_config_type           * enkf_main_get_model_config( const enkf_main_type * );
   local_config_type           * enkf_main_get_local_config( const enkf_main_type * enkf_main );
   plot_config_type            * enkf_main_get_plot_config( const enkf_main_type * enkf_main );
-  enkf_fs_type                * enkf_main_get_fs(const enkf_main_type * );
   void                          enkf_main_load_obs( enkf_main_type * enkf_main , const char * obs_config_file );
   void                          enkf_main_reload_obs( enkf_main_type * enkf_main);
   enkf_obs_type               * enkf_main_get_obs(const enkf_main_type * );
   bool                          enkf_main_have_obs( const enkf_main_type * enkf_main );
   analysis_config_type        * enkf_main_get_analysis_config(const enkf_main_type * );
-  void                          enkf_main_select_fs( enkf_main_type * enkf_main , const char * case_path );  
-  
+
   void       * enkf_main_get_enkf_config_node_type(const ensemble_config_type *, const char *);
   void         enkf_main_set_field_config_iactive(const ensemble_config_type *, int);
-   const char * enkf_main_get_image_viewer(const enkf_main_type * );
+  const char * enkf_main_get_image_viewer(const enkf_main_type * );
   const char * enkf_main_get_plot_driver(const enkf_main_type * enkf_main );
   const char * enkf_main_get_image_type(const enkf_main_type * enkf_main);
-  void         enkf_main_initialize_from_scratch(enkf_main_type * enkf_main , const stringlist_type * param_list , int iens1 , int iens2, init_mode_enum init_mode);
   
-  void enkf_main_initialize_from_existing(enkf_main_type * enkf_main , 
-                                          const char * source_case , 
-                                          int          source_report_step,
-                                          state_enum   source_state,
-                                          const bool_vector_type * iens_mask,
-                                          const char * ranking_key);
 
-  void enkf_main_copy_ensemble(enkf_main_type * enkf_main , 
-                               const char * source_case , 
-                               int          source_report_step,
-                               state_enum   source_state,
-                               const char * target_case , 
-                               int          target_report_step,
-                               state_enum   target_state,
-                               const bool_vector_type * iens_mask,
-                               const char * ranking_key ,    
-                               const stringlist_type * node_list);
-  
-  void enkf_main_initialize_from_existing__(enkf_main_type * enkf_main , 
-                                            const char * source_case , 
-                                            int          source_report_step,
-                                            state_enum   source_state,
-                                            const bool_vector_type * iens_mask,
-                                            const char * ranking_key,
-                                            const stringlist_type * node_list);
   
   
 pca_plot_data_type * enkf_main_alloc_pca_plot_data( const enkf_main_type * enkf_main , 
@@ -215,7 +174,6 @@ pca_plot_data_type * enkf_main_alloc_pca_plot_data( const enkf_main_type * enkf_
                                                     double truncation_or_ncomp);
 
   
-  void                     enkf_main_set_case_table( enkf_main_type * enkf_main , const char * case_table_file );
   void                     enkf_main_list_users(  set_type * users , const char * executable );
   const ext_joblist_type * enkf_main_get_installed_jobs( const enkf_main_type * enkf_main );
   
@@ -233,8 +191,6 @@ pca_plot_data_type * enkf_main_alloc_pca_plot_data( const enkf_main_type * enkf_
   void                        enkf_main_install_SIGNALS(void);
   const                char * enkf_main_get_SVN_VERSION( void );
   const                char * enkf_main_get_COMPILE_TIME( void );
-  bool                        enkf_main_case_is_initialized( const enkf_main_type * enkf_main , const char * case_name ,  bool_vector_type * __mask);
-  bool                        enkf_main_is_initialized( const enkf_main_type * enkf_main ,bool_vector_type * __mask);
   void                        enkf_main_del_node(enkf_main_type * enkf_main , const char * key);
   void                        enkf_main_update_node( enkf_main_type * enkf_main , const char * key );
   void                        enkf_main_fprintf_config( const enkf_main_type * enkf_main );
@@ -248,13 +204,17 @@ pca_plot_data_type * enkf_main_alloc_pca_plot_data( const enkf_main_type * enkf_
                          double truncation , 
                          int ncomp , 
                          matrix_type * PC , 
-                         matrix_type * PC_obs);
+                         matrix_type * PC_obs,
+                         double_vector_type * singular_values);
   
+
   void enkf_main_init_PC( const enkf_main_type * enkf_main , 
                           const local_obsdata_type * obsdata , 
                           double truncation_or_ncomp , 
                           matrix_type * PC , 
-                          matrix_type * PC_obs );
+                          matrix_type * PC_obs ,
+                          double_vector_type * singular_values);
+  
 
   void enkf_main_fprintf_PC(const char * filename , 
                             matrix_type * PC , 
@@ -273,13 +233,135 @@ pca_plot_data_type * enkf_main_alloc_pca_plot_data( const enkf_main_type * enkf_
   rng_config_type     * enkf_main_get_rng_config( const enkf_main_type * enkf_main );
   void                  enkf_main_rng_init( enkf_main_type * enkf_main);
   
-  bool enkf_main_export_field(const enkf_main_type * enkf_main, 
+
+  char * enkf_main_alloc_abs_path_to_init_file(const enkf_main_type * enkf_main, const enkf_config_node_type * enkf_config_node);
+
+  bool enkf_main_export_field(const enkf_main_type * enkf_main,
                               const char * kw, 
                               const char * path,
-                              int_vector_type * realization_list, 
+                              bool_vector_type * iactive,
                               field_file_format_type file_type,
                               int report_step,
-                              state_enum state);  
+                              state_enum state);
+
+  bool enkf_main_export_field_with_fs(const enkf_main_type * enkf_main,
+                              const char * kw,
+                              const char * path,
+                              bool_vector_type * iactive,
+                              field_file_format_type file_type,
+                              int report_step,
+                              state_enum state,
+                              enkf_fs_type * fs);
+
+  
+  void enkf_main_load_from_forward_model_with_fs(enkf_main_type * enkf_main, int iter , const bool_vector_type * iactive, stringlist_type ** realizations_msg_list, enkf_fs_type * fs);
+  void enkf_main_load_from_forward_model(enkf_main_type * enkf_main, int iter , const bool_vector_type * iactive, stringlist_type ** realizations_msg_list);
+  void enkf_main_load_from_forward_model_from_gui(enkf_main_type * enkf_main, int iter , bool_vector_type * iactive, enkf_fs_type * fs);
+
+  void enkf_main_rank_on_observations(enkf_main_type * enkf_main,
+                                      const char * ranking_key,
+                                      const stringlist_type * obs_ranking_keys,
+                                      const int_vector_type * steps);
+
+
+
+  void enkf_main_rank_on_data(enkf_main_type * enkf_main,
+                              const char * ranking_key,
+                              const char * data_key,
+                              bool sort_increasing,
+                              int step);
+
+
+  void enkf_main_export_ranking(enkf_main_type * enkf_main, const char * ranking_key, const char * ranking_file);
+
+
+
+
+
+
+
+  /********* File System / Case Management **********
+          Implementation: enkf_main_manage_fs.c     */
+
+
+  bool              enkf_main_case_is_current(const enkf_main_type * enkf_main , const char * case_path);
+  char *            enkf_main_read_alloc_current_case_name(const enkf_main_type * enkf_main);
+  stringlist_type * enkf_main_alloc_caselist( const enkf_main_type * enkf_main );
+  void              enkf_main_set_case_table( enkf_main_type * enkf_main , const char * case_table_file );
+
+  void              enkf_main_initialize_from_scratch(enkf_main_type * enkf_main ,
+                                                      const stringlist_type * param_list ,
+                                                      int iens1 ,
+                                                      int iens2,
+                                                      init_mode_type init_mode);
+
+  void              enkf_main_initialize_from_scratch_with_bool_vector(enkf_main_type * enkf_main ,
+                                                      const stringlist_type * param_list ,
+                                                      const bool_vector_type * iens_mask ,
+                                                      init_mode_type init_mode);
+
+  void              enkf_main_init_current_case_from_existing(enkf_main_type * enkf_main,
+                                                              enkf_fs_type * source_case_fs,
+                                                              int source_report_step,
+                                                              state_enum source_state);
+
+  void              enkf_main_init_current_case_from_existing_custom(enkf_main_type * enkf_main,
+                                                                    enkf_fs_type * source_case_fs,
+                                                                    int source_report_step,
+                                                                    state_enum source_state,
+                                                                    stringlist_type * node_list,
+                                                                    bool_vector_type * iactive);
+
+
+  void              enkf_main_init_case_from_existing(const enkf_main_type * enkf_main,
+                                                      enkf_fs_type * source_case_fs,
+                                                      int source_report_step,
+                                                      state_enum source_state,
+                                                      enkf_fs_type * target_case);
+
+  void              enkf_main_init_case_from_existing_custom(const enkf_main_type * enkf_main,
+                                                             enkf_fs_type * source_case_fs,
+                                                             int source_report_step,
+                                                             state_enum source_state,
+                                                             enkf_fs_type * target_case,
+                                                             stringlist_type * node_list,
+                                                             bool_vector_type * iactive);
+
+  bool              enkf_main_case_is_initialized( const enkf_main_type * enkf_main ,
+                                                   const char * case_name ,
+                                                   bool_vector_type * __mask);
+
+  bool              enkf_main_is_initialized( const enkf_main_type * enkf_main ,bool_vector_type * __mask);
+
+  char            * enkf_main_alloc_mount_point( const enkf_main_type * enkf_main , const char * case_path);
+  enkf_fs_type    * enkf_main_get_fs(const enkf_main_type * );
+  enkf_fs_type    * enkf_main_get_fs_ref(const enkf_main_type * enkf_main);
+  const char      * enkf_main_get_current_fs( const enkf_main_type * enkf_main );
+  enkf_fs_type    * enkf_main_mount_alt_fs(const enkf_main_type * enkf_main , const char * case_path ,  bool create);
+  void              enkf_main_set_fs( enkf_main_type * enkf_main , enkf_fs_type * fs , const char * case_path );
+  void              enkf_main_user_select_fs(enkf_main_type * enkf_main , const char * case_path );
+  void              enkf_main_select_fs( enkf_main_type * enkf_main , const char * case_path );
+  bool              enkf_main_fs_exists(const enkf_main_type * enkf_main, const char * input_case);
+  const      char * enkf_main_get_mount_root( const enkf_main_type * enkf_main);
+
+
+  state_map_type  * enkf_main_alloc_readonly_state_map( const enkf_main_type * enkf_main , const char * case_path);
+  time_map_type   * enkf_main_alloc_readonly_time_map( const enkf_main_type * enkf_main , const char * case_path );
+
+  ert_run_context_type * enkf_main_alloc_ert_run_context_ENSEMBLE_EXPERIMENT(const enkf_main_type * enkf_main , enkf_fs_type * fs , const bool_vector_type * iactive , init_mode_type init_mode , int iter);
+  ert_run_context_type * enkf_main_alloc_ert_run_context_INIT_ONLY(const enkf_main_type * enkf_main , enkf_fs_type * fs , const bool_vector_type * iactive , init_mode_type init_mode , int iter);
+  ert_run_context_type * enkf_main_alloc_ert_run_context_ENKF_ASSIMILATION( const enkf_main_type * enkf_main , 
+                                                                        enkf_fs_type * fs , 
+                                                                        const bool_vector_type * iactive ,
+                                                                        init_mode_type init_mode , 
+                                                                        state_enum init_state_parameter ,
+                                                                        state_enum init_state_dynamic   ,
+                                                                        int step1                       , 
+                                                                        int step2                       ,
+                                                                        int iter);
+
+
+
 
 UTIL_SAFE_CAST_HEADER(enkf_main);
 UTIL_IS_INSTANCE_HEADER(enkf_main);

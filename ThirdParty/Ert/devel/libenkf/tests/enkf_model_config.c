@@ -47,6 +47,10 @@ void test_runpath() {
   test_assert_true( model_config_select_runpath(model_config , "KEY"));
   test_assert_string_equal("PATH%d" , model_config_get_runpath_as_char(model_config));
 
+  test_assert_false( model_config_runpath_requires_iter( model_config ));
+  model_config_set_runpath( model_config , "iens%d/iter%d" );
+  test_assert_true( model_config_runpath_requires_iter( model_config ));
+  
   model_config_free( model_config );
 }
 

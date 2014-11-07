@@ -24,7 +24,6 @@
 #include <ert/util/util.h>
 #include <ert/util/buffer.h>
 #include <ert/util/matrix.h>
-#include <ert/util/log.h>
 #include <ert/util/rng.h>
 #include <ert/util/subst_list.h>
 
@@ -34,6 +33,7 @@
 #include <ert/enkf/gen_kw_common.h>
 #include <ert/enkf/gen_kw_config.h>
 #include <ert/enkf/gen_kw.h>
+#include <ert/ecl/fortio.h>
 
 
 GET_DATA_SIZE_HEADER(gen_kw);
@@ -88,6 +88,70 @@ void gen_kw_copy(const gen_kw_type * src , gen_kw_type * target) {
 
 
 
+int gen_kw_data_size( gen_kw_type * gen_kw ) {
+  return gen_kw_config_get_data_size( gen_kw->config );
+}
+
+
+
+double gen_kw_data_iget( gen_kw_type * gen_kw, int index , bool do_transform )
+{
+  double value;
+  int size = gen_kw_config_get_data_size( gen_kw->config );
+  if (( index < 0 ) || ( index >= size ))
+    util_abort( "%s: index:%d invalid. Valid interval: [0,%d>.\n" , __func__ , index , size );
+
+  if (do_transform) {
+    value = gen_kw_config_transform(gen_kw->config, index, gen_kw->data[index]);
+  }
+  else {
+    value = gen_kw->data[index];
+  }
+
+  return value;
+}
+
+
+void gen_kw_data_set_vector( gen_kw_type * gen_kw, const double_vector_type * values ) {
+  int size = gen_kw_config_get_data_size( gen_kw->config );
+  if (size == double_vector_size( values )) {
+    for (int index = 0; index < size; index++)
+      gen_kw->data[index] = double_vector_iget( values , index);
+  } else
+    util_abort( "%s: Invalid size for vector:%d  gen_Kw:%d \n",__func__ , double_vector_size( values ) , size);
+}
+
+
+
+void gen_kw_data_iset( gen_kw_type * gen_kw, int index , double value )
+{
+  int size = gen_kw_config_get_data_size( gen_kw->config );
+  if (( index < 0 ) || ( index >= size ))
+    util_abort( "%s: index:%d invalid. Valid interval: [0,%d>.\n" , __func__ , index , size );
+
+  gen_kw->data[index] = value;
+}
+
+
+double gen_kw_data_get( gen_kw_type * gen_kw, const char * subkey, bool do_transform )
+{
+  int index = gen_kw_config_get_index(gen_kw->config, subkey);
+  return gen_kw_data_iget(gen_kw, index, do_transform);
+}
+
+void gen_kw_data_set( gen_kw_type * gen_kw, const char * subkey, double value )
+{
+  int index = gen_kw_config_get_index(gen_kw->config, subkey);
+  return gen_kw_data_iset(gen_kw, index, value);
+}
+
+
+bool gen_kw_data_has_key( gen_kw_type * gen_kw, const char * subkey )
+{
+  int index = gen_kw_config_get_index(gen_kw->config, subkey);
+  bool has_key = ((0 <= index) && (gen_kw_data_size(gen_kw) > index))? true : false;
+  return has_key;
+}
 
 bool gen_kw_write_to_buffer(const gen_kw_type *gen_kw , buffer_type * buffer,  int report_step, state_enum state) {
   const int data_size = gen_kw_config_get_data_size( gen_kw->config );
@@ -108,7 +172,7 @@ bool gen_kw_write_to_buffer(const gen_kw_type *gen_kw , buffer_type * buffer,  i
 
 
 #define MULTFLT 102
-void gen_kw_read_from_buffer(gen_kw_type * gen_kw , buffer_type * buffer, int report_step, state_enum state) {
+void gen_kw_read_from_buffer(gen_kw_type * gen_kw , buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {
   const int data_size = gen_kw_config_get_data_size( gen_kw->config );
   ert_impl_type file_type;
   file_type = buffer_fread_int(buffer);
@@ -125,8 +189,13 @@ void gen_kw_truncate(gen_kw_type * gen_kw) {
 
 
 bool gen_kw_initialize(gen_kw_type *gen_kw , int iens , const char * init_file , rng_type * rng ) {
-  if (init_file != NULL) 
-    gen_kw_fload(gen_kw , init_file );
+  if (!init_file && !rng)
+    util_abort("%s internal error: both init_file and rng are NULL", __func__); 
+  
+  bool ret = false; 
+  
+  if (init_file) 
+    ret = gen_kw_fload(gen_kw , init_file );
   else {
     const double mean = 0.0; /* Mean and std are hardcoded - the variability should be in the transformation. */
     const double std  = 1.0; 
@@ -135,9 +204,10 @@ bool gen_kw_initialize(gen_kw_type *gen_kw , int iens , const char * init_file ,
     
     for (i=0; i < data_size; i++) 
       gen_kw->data[i] = enkf_util_rand_normal(mean , std , rng);
-    
+   
+    ret = true; 
   }
-  return true;
+  return ret;
 }
 
 
@@ -183,10 +253,43 @@ void gen_kw_filter_file(const gen_kw_type * gen_kw , const char * target_file) {
 }
 
 
-void gen_kw_ecl_write(const gen_kw_type * gen_kw , const char * run_path , const char * base_file , fortio_type * fortio) {
-  char * target_file = util_alloc_filename( run_path , base_file  , NULL);
-  gen_kw_filter_file(gen_kw , target_file);
-  free( target_file );
+void gen_kw_write_export_file(const gen_kw_type * gen_kw, FILE * filestream) {
+  const int size = gen_kw_config_get_data_size(gen_kw->config );
+  int ikw;
+
+  for (ikw = 0; ikw < size; ++ikw) {
+    const char * key          = gen_kw_config_get_key(gen_kw->config);
+    const char * parameter    = gen_kw_config_iget_name(gen_kw->config , ikw);
+    int width                 = 60 - (strlen(key) + strlen(parameter) + 1);
+    double transformed_value  = gen_kw_config_transform( gen_kw->config , ikw , gen_kw->data[ikw] );
+    const char * print_string = util_alloc_sprintf("%s:%s %e\n", key, parameter, width, transformed_value);
+    fprintf(filestream, print_string);
+  }
+}
+
+void gen_kw_ecl_write_template(const gen_kw_type * gen_kw , const char * file_name){
+    gen_kw_filter_file(gen_kw , file_name);
+}
+
+
+void gen_kw_ecl_write(const gen_kw_type * gen_kw , const char * run_path , const char * base_file , void * filestream) {
+  if (fortio_is_instance(filestream)) {
+      util_abort("%s: Called with fortio instance, aborting\n", __func__);
+  } else {
+    if (filestream)
+      gen_kw_write_export_file(gen_kw, filestream);
+    {
+      char * target_file;
+      if (run_path)
+        target_file = util_alloc_filename( run_path , base_file  , NULL);
+      else
+        target_file = util_alloc_string_copy( base_file );
+
+      gen_kw_filter_file(gen_kw , target_file);
+      
+      free( target_file );
+    }
+  }
 }
 
 

@@ -1,4 +1,4 @@
-from PyQt4.QtCore import pyqtSignal, QSignalMapper
+from PyQt4.QtCore import pyqtSignal, QSignalMapper, Qt
 from PyQt4.QtGui import QWidget, QVBoxLayout, QHBoxLayout, QToolButton, QComboBox, QPushButton
 from ert_gui.tools.plot import PlotCaseModel
 from ert_gui.widgets import util
@@ -20,11 +20,14 @@ class CaseSelectionWidget(QWidget):
         layout = QVBoxLayout()
 
         add_button_layout = QHBoxLayout()
-        button = QPushButton(util.resourceIcon("ide/small/add"), "Add case to plot")
-        button.clicked.connect(self.addCaseSelector)
+        self.__add_case_button = QToolButton()
+        self.__add_case_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.__add_case_button.setText("Add case to plot")
+        self.__add_case_button.setIcon(util.resourceIcon("ide/small/add"))
+        self.__add_case_button.clicked.connect(self.addCaseSelector)
 
         add_button_layout.addStretch()
-        add_button_layout.addWidget(button)
+        add_button_layout.addWidget(self.__add_case_button)
         add_button_layout.addStretch()
 
         layout.addLayout(add_button_layout)
@@ -41,14 +44,25 @@ class CaseSelectionWidget(QWidget):
         self.__signal_mapper.mapped[QWidget].connect(self.removeWidget)
 
 
+    def __caseName(self, widget):
+        """ @rtype: str """
+        return str(self.__case_selectors[widget].currentText())
+
     def getPlotCaseNames(self):
-        return [str(self.__case_selectors[widget].currentText()) for widget in self.__case_selectors_order]
+        if self.__model.rowCount() == 0:
+            return []
+
+        return [self.__caseName(widget) for widget in self.__case_selectors_order]
+
+    def checkCaseCount(self):
+        state = True
+        if len(self.__case_selectors_order) == 5:
+            state = False
+
+        self.__add_case_button.setEnabled(state)
 
 
     def addCaseSelector(self, disabled=False, current_case=None):
-        if len(self.__case_selectors_order) == 5:
-            return
-
         widget = QWidget()
 
         layout = QHBoxLayout()
@@ -88,6 +102,7 @@ class CaseSelectionWidget(QWidget):
 
         self.__case_layout.addWidget(widget)
 
+        self.checkCaseCount()
         self.caseSelectionChanged.emit()
 
 
@@ -98,4 +113,6 @@ class CaseSelectionWidget(QWidget):
         self.__case_selectors_order.remove(widget)
         widget.setParent(None)
         self.caseSelectionChanged.emit()
+
+        self.checkCaseCount()
 

@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #include <ert/util/thread_pool.h>
@@ -193,17 +194,20 @@ static matrix_type * matrix_alloc_empty( ) {
   allocation fails.
 */
 static matrix_type * matrix_alloc_with_stride(int rows , int columns , int row_stride , int column_stride, bool safe_mode) {
-  matrix_type * matrix = matrix_alloc_empty();
-  matrix->data      = NULL;
-  matrix->data_size = 0;
-  matrix_init_header( matrix , rows , columns , row_stride , column_stride);
-  matrix->data_owner    = true;
-  matrix_realloc_data__( matrix  , safe_mode );
-  if (safe_mode) {
-    if (matrix->data == NULL) {  
-      /* Allocation failed - we return NULL */
-      matrix_free(matrix);
-      matrix = NULL;
+  matrix_type * matrix = NULL;
+  if ((rows > 0) && (columns > 0)) {
+    matrix = matrix_alloc_empty();
+    matrix->data      = NULL;
+    matrix->data_size = 0;
+    matrix_init_header( matrix , rows , columns , row_stride , column_stride);
+    matrix->data_owner    = true;
+    matrix_realloc_data__( matrix  , safe_mode );
+    if (safe_mode) {
+      if (matrix->data == NULL) {  
+        /* Allocation failed - we return NULL */
+        matrix_free(matrix);
+        matrix = NULL;
+      }
     }
   }
   return matrix;
@@ -348,38 +352,41 @@ static bool matrix_resize__(matrix_type * matrix , int rows , int columns , bool
   if (!matrix->data_owner)
     util_abort("%s: sorry - can not resize shared matrizes. \n",__func__);
   {
-    bool resize_OK           = true;
-    int copy_rows            = util_int_min( rows    , matrix->rows );
-    int copy_columns         = util_int_min( columns , matrix->columns);
-    matrix_type * copy_view  = NULL;
-    matrix_type * copy       = NULL;  
+    bool resize_OK = true;
     
-    if (copy_content) {
-      copy_view = matrix_alloc_shared( matrix , 0 , 0 , copy_rows , copy_columns);         /* This is the part of the old matrix which should be copied over to the new. */                   
-      copy      = matrix_alloc_copy__( copy_view , safe_mode );                            /* Now copy contains the part of the old matrix which should be copied over - with private storage. */
-    }
-    {
-      int old_rows , old_columns, old_row_stride , old_column_stride;
-      matrix_get_dims( matrix , &old_rows , &old_columns , &old_row_stride , &old_column_stride);        /* Storing the old header information - in case the realloc() fails. */
+    if ((rows != matrix->rows) || (columns != matrix->columns)) {
+      int copy_rows            = util_int_min( rows    , matrix->rows );
+      int copy_columns         = util_int_min( columns , matrix->columns);
+      matrix_type * copy_view  = NULL;
+      matrix_type * copy       = NULL;  
       
-      matrix_init_header(matrix , rows , columns , 1 , rows);                                            /* Resetting the header for the matrix */
-      matrix_realloc_data__(matrix , safe_mode);
-      if (matrix->data != NULL) {  /* Realloc succeeded */
-        if (copy_content) {
-          matrix_type * target_view = matrix_alloc_shared(matrix , 0 , 0 , copy_rows , copy_columns);
-          matrix_assign( target_view , copy);
-          matrix_free( target_view );
-        }
-      } else {                                                              
-        /* Failed to realloc new storage; RETURNING AN INVALID MATRIX */
-        matrix_init_header(matrix , old_rows , old_columns , old_row_stride , old_column_stride);
-        resize_OK = false;
+      if (copy_content) {
+        copy_view = matrix_alloc_shared( matrix , 0 , 0 , copy_rows , copy_columns);         /* This is the part of the old matrix which should be copied over to the new. */                   
+        copy      = matrix_alloc_copy__( copy_view , safe_mode );                            /* Now copy contains the part of the old matrix which should be copied over - with private storage. */
       }
-    }
-
-    if (copy_content) {
-      matrix_free(copy_view);
-      matrix_free(copy);
+      {
+        int old_rows , old_columns, old_row_stride , old_column_stride;
+        matrix_get_dims( matrix , &old_rows , &old_columns , &old_row_stride , &old_column_stride);        /* Storing the old header information - in case the realloc() fails. */
+        
+        matrix_init_header(matrix , rows , columns , 1 , rows);                                            /* Resetting the header for the matrix */
+        matrix_realloc_data__(matrix , safe_mode);
+        if (matrix->data != NULL) {  /* Realloc succeeded */
+          if (copy_content) {
+            matrix_type * target_view = matrix_alloc_shared(matrix , 0 , 0 , copy_rows , copy_columns);
+            matrix_assign( target_view , copy);
+            matrix_free( target_view );
+          }
+        } else {                                                              
+          /* Failed to realloc new storage; RETURNING AN INVALID MATRIX */
+          matrix_init_header(matrix , old_rows , old_columns , old_row_stride , old_column_stride);
+          resize_OK = false;
+        }
+      }
+      
+      if (copy_content) {
+        matrix_free(copy_view);
+        matrix_free(copy);
+      }
     }
     return resize_OK;
   }
@@ -464,6 +471,21 @@ void matrix_safe_free( matrix_type * matrix ) {
 
 
 /*****************************************************************/
+void matrix_pretty_fprint_submat(const matrix_type * matrix , const char * name , const char * fmt , FILE * stream, int m, int M, int n, int N) {
+  int i,j;
+
+ if (m<0 || m>M || M >= matrix->rows || n<0 || n>N || N >= matrix->columns)
+         util_abort("%s: matrix:%s not compatible with print subdimensions. \n",__func__ , matrix->name);
+
+ fprintf(stream ,  "%s =" , name);
+  for (i=m; i < M; i++) {
+    fprintf(stream , " [");
+    for (j=n; j < N; j++)
+      fprintf(stream , fmt , matrix_iget(matrix , i,j));
+    fprintf(stream , "]\n");
+  }
+}
+/*****************************************************************/
 
 void matrix_pretty_fprint(const matrix_type * matrix , const char * name , const char * fmt , FILE * stream) {
   int i,j;
@@ -501,10 +523,56 @@ void matrix_fprintf( const matrix_type * matrix , const char * fmt , FILE * stre
 
 
 
-/* Discard the strides?? */
 void matrix_fwrite(const matrix_type * matrix , FILE * stream) {
+  util_fwrite_int( matrix->rows , stream );
+  util_fwrite_int( matrix->columns , stream );
   
+  if (matrix->column_stride == matrix->rows)
+    util_fwrite( matrix->data , sizeof * matrix->data , matrix->columns * matrix->rows , stream , __func__);
+  else {
+    int column;
+    for (column=0; column < matrix->columns; column++) {
+      if (matrix->row_stride == 1) {
+        const double * column_data = &matrix->data[ column * matrix->column_stride ];
+        util_fwrite( column_data , sizeof * column_data , matrix->rows , stream , __func__);
+      } else {
+        int row;
+        for (row=0; row < matrix->rows; row++)
+          util_fwrite_double( matrix->data[ GET_INDEX( matrix , row , column )] , stream);
+      }
+    }
+  }
 }
+
+
+void matrix_fread(matrix_type * matrix , FILE * stream) {
+  int rows    = util_fread_int( stream );
+  int columns = util_fread_int( stream );
+  
+  matrix_resize( matrix , rows , columns , false);
+  if (matrix->column_stride == matrix->rows)
+    util_fread( matrix->data , sizeof * matrix->data , matrix->columns * matrix->rows , stream , __func__);
+  else {
+    int column;
+    for (column=0; column < matrix->columns; column++) {
+      if (matrix->row_stride == 1) {
+        double * column_data = &matrix->data[ column * matrix->column_stride ];
+        util_fread( column_data , sizeof * column_data , matrix->rows , stream , __func__);
+      } else {
+        int row;
+        for (row=0; row < matrix->rows; row++)
+          matrix->data[ GET_INDEX( matrix , row , column )] = util_fread_double( stream );
+      }
+    }
+  }
+}
+
+matrix_type * matrix_fread_alloc(FILE * stream) {
+  matrix_type * matrix = matrix_alloc(1,1);
+  matrix_fread(matrix , stream);
+  return matrix;
+}
+
 
 /**
      [ a11   a12  ]
@@ -685,16 +753,16 @@ void matrix_set_const_row(matrix_type * matrix , const double value , int row) {
 void matrix_copy_column(matrix_type * target_matrix, const matrix_type * src_matrix , int target_column, int src_column) {
   matrix_assert_equal_rows( target_matrix , src_matrix );
   { 
-         int row;
-     for(row = 0; row < target_matrix->rows; row++)
-        target_matrix->data[ GET_INDEX( target_matrix, row , target_column)] = src_matrix->data[ GET_INDEX( src_matrix, row, src_column)];
+    int row;
+    for(row = 0; row < target_matrix->rows; row++)
+      target_matrix->data[ GET_INDEX( target_matrix, row , target_column)] = src_matrix->data[ GET_INDEX( src_matrix, row, src_column)];
   }
 } 
 
 
 void matrix_scale_column(matrix_type * matrix , int column  , double scale_factor) {
-    int row; 
-        for (row = 0; row < matrix->rows; row++)
+  int row; 
+  for (row = 0; row < matrix->rows; row++)
     matrix->data[ GET_INDEX( matrix , row , column) ] *= scale_factor;
 }
 
@@ -707,9 +775,9 @@ void matrix_scale_row(matrix_type * matrix , int row  , double scale_factor) {
 void matrix_copy_row(matrix_type * target_matrix, const matrix_type * src_matrix , int target_row, int src_row) {
   matrix_assert_equal_columns( target_matrix , src_matrix );
   {
-          int col;
-          for(col = 0; col < target_matrix->columns; col++)
-         target_matrix->data[ GET_INDEX( target_matrix , target_row , col)] = src_matrix->data[ GET_INDEX( src_matrix, src_row, col)];
+    int col;
+    for(col = 0; col < target_matrix->columns; col++)
+      target_matrix->data[ GET_INDEX( target_matrix , target_row , col)] = src_matrix->data[ GET_INDEX( src_matrix, src_row, col)];
   }
 } 
 
@@ -1120,8 +1188,8 @@ void matrix_shift_row(matrix_type * matrix , int row , double shift) {
 */
 
 void matrix_subtract_row_mean(matrix_type * matrix) {
-        int i; 
-        for ( i=0; i < matrix->rows; i++) {
+		int i; 
+		for ( i=0; i < matrix->rows; i++) {
     double row_mean = matrix_get_row_sum(matrix , i) / matrix->columns;
     matrix_shift_row( matrix , i , -row_mean);
   }
@@ -1138,7 +1206,7 @@ void matrix_subtract_and_store_row_mean(matrix_type * matrix, matrix_type * row_
 
 void matrix_imul_col( matrix_type * matrix , int column , double factor) {
    int i;
-        for ( i=0; i < matrix->rows; i++)
+   for ( i=0; i < matrix->rows; i++)
     matrix_imul( matrix , i , column , factor );
 }
 
@@ -1267,15 +1335,36 @@ bool matrix_equal( const matrix_type * m1 , const matrix_type * m2) {
     return false;
   {    
     int i,j;
-    for (j=0; j < m1->columns; j++) {
-      for (i=0; i < m1->rows; i++) {
-        if (memcmp( &m1->data[ GET_INDEX(m1 , i , j)]  , &m2->data[ GET_INDEX(m2 , i,j)] , sizeof * m1->data) != 0)
+    for (i=0; i < m1->rows; i++) {
+      for (j=0; j < m1->columns; j++) {
+        int index1 = GET_INDEX(m1 , i , j);
+        int index2 = GET_INDEX(m2 , i , j);
+        double d1 = m1->data[ index1 ];
+        double d2 = m2->data[ index2 ];
+        
+        if (d1 != d2) 
           return false;
       }
     }
   }
 
   /** OK - we came all the way through - they are equal. */
+  return true;
+}
+
+
+bool matrix_columns_equal( const matrix_type * m1 , int col1 , const matrix_type * m2 , int col2) {
+  if (m1->rows != m2->rows)
+    return false;
+
+  {    
+    int row;
+    for (row=0; row < m1->rows; row++) {
+      if (memcmp( &m1->data[ GET_INDEX(m1 , row , col1)]  , &m2->data[ GET_INDEX(m2 , row , col2)] , sizeof * m1->data) != 0)
+        return false;
+    }
+  }
+
   return true;
 }
 
@@ -1445,10 +1534,7 @@ double matrix_diag_std(const matrix_type * Sk,double mean)
   else{
     int nrows  = Sk->rows;
     double std = 0;
-        int i;
-
-    for ( i=0; i<nrows; i++) 
-      Sk->data[GET_INDEX(Sk , i , i)] =  Sk->data[GET_INDEX(Sk , i , i)] - mean; 
+    int i;
     
     for ( i=0; i<nrows; i++) {
       double d = Sk->data[GET_INDEX(Sk , i , i)] - mean;
@@ -1456,7 +1542,7 @@ double matrix_diag_std(const matrix_type * Sk,double mean)
     }
 
     
-    std = sqrt(std)/nrows;
+    std = sqrt(std / nrows);
     return std;
   }
 }
@@ -1468,6 +1554,20 @@ double matrix_diag_std(const matrix_type * Sk,double mean)
    using this explicit implementation the ecl_grid library has no
    LAPACK dependency.
 */
+
+double matrix_det2( const matrix_type * A) {
+  if ((A->rows == 2) && (A->columns == 2)) {
+    double a00 = A->data[GET_INDEX(A,0,0)];
+    double a01 = A->data[GET_INDEX(A,0,1)];
+    double a10 = A->data[GET_INDEX(A,1,0)];
+    double a11 = A->data[GET_INDEX(A,1,1)];
+
+    return a00 * a11 - a10 * a01;
+  } else {
+    util_abort("%s: hardcoded for 2x2 matrices A is: %d x %d \n",__func__, A->rows , A->columns); 
+    return 0;
+  }
+}
 
 double matrix_det3( const matrix_type * A) {
   if ((A->rows == 3) && (A->columns == 3)) {
@@ -1509,11 +1609,45 @@ double matrix_det4( const matrix_type * A) {
     double a31 = A->data[GET_INDEX(A,3,1)];
     double a32 = A->data[GET_INDEX(A,3,2)];
     double a33 = A->data[GET_INDEX(A,3,3)];
-
+    
+    /*
     double det = (a00*(a11*(a22*a33 - a23*a32)-a12*(a21*a33 - a23*a31)+a13*(a21*a32 - a22*a31)) -
                   a01*(a10*(a22*a33 - a23*a32)-a12*(a20*a33 - a23*a30)+a13*(a20*a32 - a22*a30)) + 
                   a02*(a10*(a21*a33 - a23*a31)-a11*(a20*a33 - a23*a30)+a13*(a20*a31 - a21*a30)) - 
                   a03*(a10*(a21*a32 - a22*a31)-a11*(a20*a32 - a22*a30)+a12*(a20*a31 - a21*a30)));
+    */
+    double det = 0;
+
+    {
+      double factors[24] = {   a00*a12*a23*a31,
+                               a00*a13*a21*a32,
+                               a00*a11*a22*a33,
+                               a01*a10*a23*a32,
+                               a01*a12*a20*a33,
+                               a01*a13*a22*a30,
+                               a02*a10*a21*a33,
+                               a02*a11*a23*a30,
+                               a02*a13*a20*a31,
+                               a03*a10*a22*a31,
+                               a03*a11*a20*a32,
+                               a03*a12*a21*a30 
+                              -a02*a13*a21*a30,
+                              -a03*a10*a21*a32, 
+                              -a03*a11*a22*a30, 
+                              -a03*a12*a20*a31, 
+                              -a00*a11*a23*a32,
+                              -a00*a12*a21*a33,
+                              -a00*a13*a22*a31,
+                              -a01*a10*a22*a33, 
+                              -a01*a12*a23*a30, 
+                              -a01*a13*a20*a32, 
+                              -a02*a10*a23*a31, 
+                              -a02*a11*a20*a33};
+      int i;
+
+      for (i = 0; i < 12; i++) 
+        det += (factors[i] + factors[i + 12]);
+    }
     
     return det;
   } else {

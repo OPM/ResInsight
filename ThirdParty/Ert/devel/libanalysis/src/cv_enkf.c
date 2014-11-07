@@ -63,6 +63,7 @@ struct cv_enkf_data_struct {
 
 
 static UTIL_SAFE_CAST_FUNCTION( cv_enkf_data , CV_ENKF_TYPE_ID )
+static UTIL_SAFE_CAST_FUNCTION_CONST( cv_enkf_data , CV_ENKF_TYPE_ID )
 
 
 void cv_enkf_set_truncation( cv_enkf_data_type * data , double truncation ) {
@@ -114,6 +115,7 @@ void cv_enkf_data_free( void * arg ) {
     matrix_safe_free( cv_data->Rp );
     matrix_safe_free( cv_data->Dp );
   }
+  free( cv_data );
 }
 
 
@@ -122,6 +124,7 @@ void cv_enkf_data_free( void * arg ) {
 
 
 void cv_enkf_init_update( void * arg , 
+                          const bool_vector_type * ens_mask , 
                           const matrix_type * S , 
                           const matrix_type * R , 
                           const matrix_type * dObs , 
@@ -643,6 +646,53 @@ long cv_enkf_get_options( void * arg , long flag) {
   }
 }
 
+bool cv_enkf_has_var( const void * arg, const char * var_name) {
+  {
+    if (strcmp(var_name , ENKF_NCOMP_KEY_) == 0)
+      return true;
+    else if (strcmp(var_name , ENKF_TRUNCATION_KEY_) == 0)
+      return true;
+    else if (strcmp(var_name , NFOLDS_KEY) == 0)
+      return true;
+    else if (strcmp(var_name , CV_PEN_PRESS_KEY) == 0)
+      return true;
+    else
+      return false;
+  }
+}
+
+double cv_enkf_get_double( const void * arg, const char * var_name) {
+  const cv_enkf_data_type * module_data = cv_enkf_data_safe_cast_const( arg );
+  {
+    if (strcmp(var_name , ENKF_TRUNCATION_KEY_) == 0)
+      return module_data->truncation;
+    else
+      return -1;
+  }
+}
+
+int cv_enkf_get_int( const void * arg, const char * var_name) {
+  const cv_enkf_data_type * module_data = cv_enkf_data_safe_cast_const( arg );
+  {
+    if (strcmp(var_name , ENKF_NCOMP_KEY_) == 0)
+      return module_data->subspace_dimension;
+    else if (strcmp(var_name , NFOLDS_KEY) == 0)
+      return module_data->nfolds;
+    else
+      return -1;
+  }
+}
+
+bool cv_enkf_get_bool( const void * arg, const char * var_name) {
+  const cv_enkf_data_type * module_data = cv_enkf_data_safe_cast_const( arg );
+  {
+    if (strcmp(var_name , CV_PEN_PRESS_KEY) == 0)
+      return module_data->penalised_press;
+    else
+      return false;
+  }
+}
+
 
 
 
@@ -665,8 +715,9 @@ analysis_table_type SYMBOL_TABLE = {
   .updateA         = NULL,
   .init_update     = cv_enkf_init_update , 
   .complete_update = cv_enkf_complete_update ,
-  .has_var         = NULL,
-  .get_int         = NULL,
-  .get_double      = NULL,
+  .has_var         = cv_enkf_has_var,
+  .get_int         = cv_enkf_get_int,
+  .get_double      = cv_enkf_get_double,
+  .get_bool        = cv_enkf_get_bool,
   .get_ptr         = NULL, 
 };

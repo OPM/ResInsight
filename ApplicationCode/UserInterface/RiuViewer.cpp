@@ -294,7 +294,7 @@ void RiuViewer::slotRangeFilterI()
         mainWindow->setCurrentObjectInTreeView(rangeFilter);
     }
 
-    m_reservoirView->setShowFaultsOnly(false);
+    m_reservoirView->setSurfaceDrawstyle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,7 +329,7 @@ void RiuViewer::slotRangeFilterJ()
         mainWindow->setCurrentObjectInTreeView(rangeFilter);
     }
 
-    m_reservoirView->setShowFaultsOnly(false);
+    m_reservoirView->setSurfaceDrawstyle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -364,7 +364,7 @@ void RiuViewer::slotRangeFilterK()
         mainWindow->setCurrentObjectInTreeView(rangeFilter);
     }
 
-    m_reservoirView->setShowFaultsOnly(false);
+    m_reservoirView->setSurfaceDrawstyle();
 }
 
 //--------------------------------------------------------------------------------------------------

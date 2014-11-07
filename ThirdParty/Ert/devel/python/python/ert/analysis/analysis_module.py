@@ -54,6 +54,13 @@ class AnalysisModule(BaseCClass):
     def getInt(self, var):
         return AnalysisModule.cNamespace().get_int(self, var)
 
+    def getBool(self, var):
+            return AnalysisModule.cNamespace().get_bool(self, var)
+
+    def getStr(self, var):
+            test = AnalysisModule.cNamespace().get_str(self, var)
+            return str(test)
+
 
 cwrapper = CWrapper(ANALYSIS_LIB)
 cwrapper.registerType("analysis_module", AnalysisModule)
@@ -71,7 +78,8 @@ AnalysisModule.cNamespace().check_option        = cwrapper.prototype("bool analy
 AnalysisModule.cNamespace().has_var             = cwrapper.prototype("bool analysis_module_has_var(analysis_module, char*)")
 AnalysisModule.cNamespace().get_double          = cwrapper.prototype("double analysis_module_get_double(analysis_module, char*)")
 AnalysisModule.cNamespace().get_int             = cwrapper.prototype("int analysis_module_get_int(analysis_module, char*)")
-
+AnalysisModule.cNamespace().get_bool             = cwrapper.prototype("bool analysis_module_get_bool(analysis_module, char*)")
+AnalysisModule.cNamespace().get_str             = cwrapper.prototype("char* analysis_module_get_ptr(analysis_module, char*)")
 
 
 

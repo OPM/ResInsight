@@ -26,10 +26,14 @@ int main(int argc , char ** argv) {
   const char * filename1 = argv[1];
   const char * filename2 = argv[2];
   const char * filename3 = argv[3];
+  const char * filename4 = argv[4];
+
   int num_cpu = 4;
   test_assert_int_equal(ecl_util_get_num_cpu(filename1), num_cpu);
   test_assert_int_equal(ecl_util_get_num_cpu(filename2), num_cpu);
   test_assert_int_equal(ecl_util_get_num_cpu(filename3), num_cpu);
+  test_assert_int_equal(ecl_util_get_num_cpu(filename4), num_cpu);
   exit(0);
+
 }
 

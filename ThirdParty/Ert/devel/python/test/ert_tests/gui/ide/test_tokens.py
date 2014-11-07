@@ -1,6 +1,6 @@
 from ert_gui.ide.keywords.data import Keyword, Argument, Token
 from ert_gui.ide.keywords.definitions import KeywordDefinition, StringArgument
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 
 
 class TokenTest(ExtendedTestCase):

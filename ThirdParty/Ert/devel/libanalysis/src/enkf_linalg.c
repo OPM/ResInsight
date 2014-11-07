@@ -73,19 +73,19 @@ void enkf_linalg_genX2(matrix_type * X2 , const matrix_type * S , const matrix_t
 
 /*This function is similar to enkf_linalg_svdS but it returns the eigen values without its inverse and also give the matrices truncated U VT and Sig0*/
 
+// Trunc.SVD(S)  = U0 * Sig0 * V0T
 int enkf_linalg_svd_truncation(const matrix_type * S , 
-                     double truncation , 
-                     int ncomp ,
-                     dgesvd_vector_enum store_V0T , 
-                     double * sig0, 
-                     matrix_type * U0 , 
-                     matrix_type * V0T) {
+                               double truncation , 
+                               int ncomp ,
+                               dgesvd_vector_enum store_V0T , 
+                               double * sig0, 
+                               matrix_type * U0 , 
+                               matrix_type * V0T) {
   
   int num_significant = -1;
   int nrows = matrix_get_rows(S);
   int ncolumns= matrix_get_columns(S);
 
-  
   if (((truncation > 0) && (ncomp < 0)) ||
       ((truncation < 0) && (ncomp > 0))) {
 
@@ -95,7 +95,6 @@ int enkf_linalg_svd_truncation(const matrix_type * S ,
         matrix_dgesvd(DGESVD_MIN_RETURN , store_V0T , workS , sig0 , U0 , V0T);  
         matrix_free( workS );
       }
-        
       int i;
 
       if (ncomp > 0)
@@ -125,7 +124,7 @@ int enkf_linalg_svd_truncation(const matrix_type * S ,
       matrix_resize(U0 , nrows , num_significant , true);
       matrix_resize(V0T , num_significant , ncolumns , true);
   }
-   else 
+  else 
     util_abort("%s:  truncation:%g  ncomp:%d  - invalid ambigous input.\n",__func__ , truncation , ncomp );
   return num_significant;
 }
@@ -590,7 +589,8 @@ void enkf_linalg_get_PC( const matrix_type * S0,
                          double truncation,
                          int ncomp, 
                          matrix_type * PC,
-                         matrix_type * PC_obs ) {
+                         matrix_type * PC_obs, 
+                         double_vector_type * singular_values) {
   
   const int nrobs   = matrix_get_rows( S0 );
   const int nrens   = matrix_get_columns( S0 );
@@ -598,10 +598,12 @@ void enkf_linalg_get_PC( const matrix_type * S0,
 
   matrix_type * U0  = matrix_alloc( nrobs , nrens );
   matrix_type * S   = matrix_alloc_copy( S0 );
-  double * inv_sig0 = util_calloc( nrmin , sizeof * inv_sig0 );
-  
+  double * inv_sig0;
+
+  double_vector_iset( singular_values , nrmin - 1 , 0 );
   matrix_subtract_row_mean( S );
   ncomp = util_int_min( ncomp , nrmin );
+  inv_sig0 = double_vector_get_ptr( singular_values );
   {
     matrix_type * S_mean = matrix_alloc( nrobs , 1 );
     int num_PC = enkf_linalg_svdS(S , truncation , ncomp, DGESVD_NONE , inv_sig0 , U0 , NULL);
@@ -629,10 +631,11 @@ void enkf_linalg_get_PC( const matrix_type * S0,
       matrix_dgemm( PC_obs , U0 , S_mean , true , false , 1.0 , 0.0 );
     }
 
-
+    for (int i=0; i < double_vector_size( singular_values ); i++)
+      inv_sig0[i] = 1.0 / inv_sig0[i];
+    
     matrix_free( S_mean );
   }
-  free( inv_sig0 );
   matrix_free( S );
   matrix_free( U0 );
 }
@@ -641,147 +644,114 @@ void enkf_linalg_get_PC( const matrix_type * S0,
 
 void enkf_linalg_rml_enkfX1(matrix_type *X1, matrix_type *Udr, matrix_type *D, matrix_type *R)
 {
-  /*This routine computes X1 for RML_EnKF module as X1 = Ud(T)*Cd(-1/2)*D   -- D= (dk-do)
-  here the negative sign cancels with one needed in X3 matrix computation*/
+  /*
+    This routine computes X1 for RML_EnKF module as X1 = Ud(T)*Cd(-1/2)*D   -- D= (dk-do)
+    here the negative sign cancels with one needed in X3 matrix computation
+  */
   matrix_type * tmp = matrix_alloc(matrix_get_columns(Udr),matrix_get_rows(R));
  
-  matrix_dgemm( tmp, Udr, R, true, false, 1.0, 0.0);
-  printf("tmp matrix is computed");
-  matrix_dgemm( X1 , tmp, D,false,false, 1.0, 0.0);
-  printf("X1 is computed");
-  matrix_free(tmp);
+  matrix_matmul_with_transpose( tmp, Udr, R, true, false);
+  matrix_matmul( X1 , tmp, D);
 
+  matrix_free(tmp);
 }
 
-void enkf_linalg_rml_enkfX2(matrix_type *X2, double *Wdr, matrix_type * X1 ,double a, int nsign)
-{
-  /*This routine computes X2 for RML_EnKF module as X2 = ((a*Ipd)+Wd^2)^-1  * X1   */
-  /* Since a+Ipd & Wd are diagonal in nature the computation is reduced to array operations*/
-  double * tmp = util_calloc(nsign , sizeof * tmp );
-  
-  for (int i=0; i< nsign ; i++)
-    {
-      tmp[i] = 1/ (a+ (Wdr[i]*Wdr[i]));
-      matrix_scale_row(X1,i,tmp[i]);
-    }
-  matrix_assign(X2,X1);
 
+
+void enkf_linalg_rml_enkfX2(matrix_type *X2 , double *Wdr , matrix_type * X1 , double a , int nsign)
+{
+  /*
+    This routine computes X2 for RML_EnKF module as X2 = ((a*Ipd)+Wd^2)^-1  * X1   
+    Since a+Ipd & Wd are diagonal in nature the computation is reduced to array operations
+  */
+  
+  for (int i=0; i< nsign ; i++) {
+    double scale_factor = 1 / (a +  (Wdr[i]*Wdr[i]));
+    matrix_scale_row(X1 , i , scale_factor);
+  }
+  matrix_assign(X2,X1);
+  
 }
 
 
 void enkf_linalg_rml_enkfX3(matrix_type *X3, matrix_type *VdTr, double *Wdr, matrix_type *X2, int nsign)
 {
-  /*This routine computes X3 for RML_EnKF module as X3 = Vd *Wd*X2 */
-  matrix_type *tmp = matrix_alloc_copy(VdTr);
-  matrix_matlab_dump(tmp, "matrixVdTrcopy.dat");
-  printf("matrix X3 started");
-   for (int i=0; i< nsign ; i++)
-    {
-      printf("The value of Wd(%d) is = %5.2f \n",i, Wdr[i]);
-      matrix_scale_row(tmp, i, Wdr[i]);
-    }
+  /*
+    This routine computes X3 for RML_EnKF module as X3 = Vd *Wd*X2 
+  */
 
-  matrix_dgemm( X3 , tmp , X2 , true, false, 1.0, 0.0);
+	printf("\nWd: ");
+  matrix_type *tmp = matrix_alloc_copy(VdTr);
+  for (int i=0; i< nsign ; i++) {
+		printf("%5.2f ", Wdr[i]);
+    matrix_scale_row(tmp, i, Wdr[i]);
+  }
+	printf("\n\n");
+
+  matrix_matmul_with_transpose( X3 , tmp , X2 , true, false);
   matrix_free(tmp);
 }
 
 
-void enkf_linalg_rml_enkfdA(matrix_type * dA1, matrix_type * Dm, matrix_type * X3)      //dA = Dm * X3
-{
-
-  matrix_dgemm (dA1, Dm, X3,false, false, 1.0, 0.0 ); 
-
-}
 
 
 double enkf_linalg_data_mismatch(matrix_type *D , matrix_type *R , matrix_type *Sk)
 {
   matrix_type * tmp = matrix_alloc (matrix_get_columns(D), matrix_get_columns(R));
-  double mean;
-  
-  printf("-----------------------------------------------------------------\n");
-  printf("%s:%d Calling matrix_dgemm() \n",__func__ , __LINE__);
-  //            C   A  B
-  matrix_dgemm(tmp, D, R,true, false, 1.0, 0.0);
-  printf("-----------------------------------------------------------------\n");
-  printf("%s:%d Calling matrix_dgemm() \n",__func__ , __LINE__);
-  matrix_dgemm(Sk, tmp, D, false, false, 1.0, 0.0);
-  printf("-----------------------------------------------------------------\n");
-
-  printf("The data mismatch computed");
-                                  
+  double mismatch;
+  matrix_matmul_with_transpose(tmp, D, R,true, false); // tmp = D' * R, i.e. N-by-p
+  matrix_matmul(Sk, tmp, D); // Sk = D' * R * D
   // Calculate the mismatch 
-  mean = matrix_trace(Sk)/(matrix_get_columns(D));
-
- return mean;
+  mismatch = matrix_trace(Sk)/(matrix_get_columns(D));
+  
+  return mismatch;
 }
 
+// Cd = SampCov(E) (including (N-1) normalization)
 void enkf_linalg_Covariance(matrix_type *Cd, const matrix_type *E, double nsc ,int nrobs)
 {
-  matrix_matlab_dump( E, "matrixE.dat");
-  printf("Starting Dgemm for EE(T)\n");
-  matrix_dgemm(Cd, E, E,false,true, 1.0, 0.0);
-  for (int i=0; i< nrobs; i++)
-    {
-      for (int j=0;j< nrobs; j++)
-        {
-          if (i!=j)
-            matrix_iset(Cd, i, j, 0.0);
-
-        }
+  matrix_matmul_with_transpose(Cd, E, E,false,true);
+  for (int i=0; i< nrobs; i++) {
+    for (int j=0;j< nrobs; j++) {
+      if (i!=j)
+        matrix_iset(Cd, i, j, 0.0);
     }
-  nsc= nsc*nsc;
-  printf("nsc = %5.3f\n",nsc);
+  }
+  nsc = nsc*nsc;
   matrix_scale(Cd,nsc); 
 }
 
-void enkf_linalg_rml_enkfAm(matrix_type * Um, double * Wm,int nsign1){
 
- for (int i=0; i< nsign1 ; i++)
-    {
-       double sc = 1/ Wm[i];
-       matrix_scale_column(Um, i, sc);
-    }
+
+// Scale columns (not rows!) of Um by entries in diagonal Wm
+void enkf_linalg_rml_enkfAm(matrix_type * Um, const double * Wm,int nsign1){
+  for (int i=0; i< nsign1 ; i++) {
+    double sc = 1 / Wm[i];
+    matrix_scale_column(Um, i, sc);
+  }
 }
 
-void enkf_linalg_rml_enkfX4 (matrix_type *X4,matrix_type *Am, matrix_type *A){
 
-  matrix_dgemm(X4, Am, A, true, false, 1.0, 0.0);
-}
 
-void enkf_linalg_rml_enkfX5(matrix_type * X5,matrix_type * Am, matrix_type * X4){
-
-  matrix_dgemm (X5, Am, X4, false,false,1.0,0.0);
-
-}
-
-void enkf_linalg_rml_enkfX6(matrix_type * X6, matrix_type * Dk, matrix_type * X5){
-
-  matrix_dgemm(X6, Dk, X5, true, false, 1.0, 0.0);
-
-}
 
 void enkf_linalg_rml_enkfX7(matrix_type * X7, matrix_type * VdT, double * Wdr, double a, matrix_type * X6){
 
   int nsign = matrix_get_rows(VdT);
-  int ens_size= matrix_get_columns(VdT);
-  matrix_type *tmp1= matrix_alloc_copy(VdT);
-  matrix_type *tmp2= matrix_alloc(ens_size,ens_size);
+  int ens_size = matrix_get_columns(VdT);
+  matrix_type *tmp1 = matrix_alloc_copy(VdT);
+  matrix_type *tmp2 = matrix_alloc(ens_size,ens_size);
 
-  for (int i=0; i< nsign ; i++)
-    {
-      double tmp = 1/ ( a + (Wdr[i]*Wdr[i]));
-      matrix_scale_row(tmp1, i ,tmp);
-    }
- 
-  matrix_dgemm(tmp2, tmp1, VdT, true, false, 1.0, 0.0);
+
+  for (int i=0; i < nsign ; i++) {
+    double scale_factor = 1 / ( a + (Wdr[i]*Wdr[i]));
+    matrix_scale_row( tmp1 , i , scale_factor);
+  }
+  
+
+  matrix_matmul_with_transpose(tmp2, tmp1, VdT, true, false);
+  matrix_matmul(X7, tmp2, X6);
   matrix_free(tmp1);
-  matrix_dgemm(X7, tmp2, X6, false,false, 1.0, 0.0);
   matrix_free(tmp2);
 }
 
-void enkf_linalg_rml_enkfXdA2(matrix_type * dA2, matrix_type * Dk,matrix_type * X7){
- 
-  matrix_dgemm(dA2, Dk, X7, false, false, 1.0, 0.0);
-}
 

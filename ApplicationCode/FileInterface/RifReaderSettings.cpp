@@ -34,11 +34,11 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitField(&importFaults, "importFaults", true, "Import faults", "", "", "");
     importFaults.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&importSimulationWellData, "importSimulationWellData", true, "Import simulation wells", "", "", "");
-    importSimulationWellData.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-
     CAF_PDM_InitField(&importNNCs, "importSimulationNNCs", true, "Import NNCs", "", "", "");
     importNNCs.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitField(&importAdvancedMswData, "importAdvancedMswData", false, "Import advanced MSW data", "", "", "");
+    importAdvancedMswData.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ RifReaderSettings::RifReaderSettings()
 void RifReaderSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &importFaults ||
-        field == &importSimulationWellData ||
+        field == &importAdvancedMswData ||
         field == &importNNCs)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);

@@ -214,7 +214,10 @@ double gen_kw_config_transform(const gen_kw_config_type * config , int index, do
   return trans_func_eval( parameter->trans_func , x);
 }
 
-
+bool gen_kw_config_should_use_log_scale(const gen_kw_config_type * config, int index) {
+  const gen_kw_parameter_type * parameter = vector_iget_const( config->parameters , index );
+  return trans_func_use_log_scale( parameter->trans_func);
+}
 
 void gen_kw_config_free(gen_kw_config_type * gen_kw_config) {
   util_safe_free( gen_kw_config->key );

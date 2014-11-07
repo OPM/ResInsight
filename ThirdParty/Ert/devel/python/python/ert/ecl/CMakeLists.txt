@@ -8,6 +8,7 @@ set(PYTHON_SOURCES
     ecl_grav_calc.py
     ecl_grid.py
     ecl_kw.py
+    ecl_npv.py
     ecl_queue.py
     ecl_region.py
     ecl_rft.py
@@ -33,8 +34,11 @@ if (EXISTS ${ECL_LOCAL_TARGET})
    endif()
 
    EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink "${ECL_LOCAL_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}/ecl_local.py")
+   message(STATUS "Linking ${CMAKE_CURRENT_SOURCE_DIR}/ecl_local.py -> ${ECL_LOCAL_TARGET}")
 endif()
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ecl_local.py")
    add_python_package( "Python ert.ecl.ecl_local"  ${PYTHON_INSTALL_PREFIX}/ert/ecl "ecl_local.py" True)
 endif()
+
+add_subdirectory(faults)

@@ -33,7 +33,12 @@ struct lookup_table_struct {
   double               xmin,ymin;
   double               xmax,ymax;
   int                  prev_index;
+
   bool                 sorted;                 
+  bool                 has_low_limit;
+  bool                 has_high_limit;
+  double               low_limit;
+  double               high_limit;
 };
 
 
@@ -84,6 +89,25 @@ void lookup_table_set_data( lookup_table_type * lt , double_vector_type * x , do
 }
 
 
+void lookup_table_set_low_limit( lookup_table_type * lt , double limit ) {
+  lt->low_limit = limit;
+  lt->has_low_limit = true;
+}
+
+bool lookup_table_has_low_limit(const lookup_table_type * lt  ) {
+  return lt->has_low_limit;
+}
+
+void lookup_table_set_high_limit( lookup_table_type * lt , double limit ) {
+  lt->high_limit = limit;
+  lt->has_high_limit = true;
+}
+
+bool lookup_table_has_high_limit(const lookup_table_type * lt  ) {
+  return lt->has_high_limit;
+}
+
+
 
 lookup_table_type * lookup_table_alloc( double_vector_type * x , double_vector_type * y , bool data_owner) {
   lookup_table_type * lt = util_malloc( sizeof * lt);
@@ -95,6 +119,8 @@ lookup_table_type * lookup_table_alloc( double_vector_type * x , double_vector_t
   } 
   lookup_table_set_data( lt , x , y , false );
   lt->data_owner = data_owner;
+  lt->has_low_limit = false;
+  lt->has_high_limit = false;
   
   return lt;
 }
@@ -146,12 +172,22 @@ double lookup_table_interp( lookup_table_type * lt , double x) {
         return (( x - x1 ) * y2 + (x2 - x) * y1) / (x2 - x1 );
       }
     } else {
-      util_abort("%s: out of bounds \n",__func__);
-      return -1;
+      if (x == lt->xmax)
+        return double_vector_get_last( lt->y_vector );
+      else {
+        if (lt->has_low_limit && x < lt->xmin)
+          return lt->low_limit;
+        else if (lt->has_high_limit && x > lt->xmax)
+          return lt->high_limit;
+        else {
+          util_abort("%s: out of bounds \n",__func__);
+          return -1;
+        }
+      }
     }
   }
 }
-
+  
 
 
 double lookup_table_get_max_value(  lookup_table_type * lookup_table ) {

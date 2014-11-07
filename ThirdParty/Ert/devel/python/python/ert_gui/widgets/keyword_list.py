@@ -83,3 +83,8 @@ class KeywordList(HelpedWidget):
 
         for keyword in keywords:
             self.list.addItem(keyword)
+
+
+    def cleanup(self):
+        self.model.observable().detach(ListModelMixin.LIST_CHANGED_EVENT, self.modelChanged)
+

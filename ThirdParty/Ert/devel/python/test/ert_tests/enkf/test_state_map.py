@@ -1,6 +1,7 @@
 from ert.enkf.enums.realization_state_enum import RealizationStateEnum
 from ert.enkf.state_map import StateMap
-from ert_tests import ExtendedTestCase
+from ert.test import TestAreaContext
+from ert.test import ExtendedTestCase
 
 
 class StateMapTest(ExtendedTestCase):
@@ -12,6 +13,12 @@ class StateMapTest(ExtendedTestCase):
 
         with self.assertRaises(TypeError):
             r = state_map["r"]
+
+        with self.assertRaises(IOError):
+            s2 = StateMap("DoesNotExist")
+
+        with self.assertRaises(IOError):
+            state_map.load("/file/does/not/exist")
 
         with self.assertRaises(IndexError):
             v = state_map[0]
@@ -54,6 +61,12 @@ class StateMapTest(ExtendedTestCase):
         self.assertEqual(state_map[5], RealizationStateEnum.STATE_INITIALIZED)
 
         self.assertFalse(state_map.isReadOnly())
+
+        with TestAreaContext("python/state-map/fwrite") as work_area:
+            state_map.save("MAP")
+            s2 = StateMap("MAP")
+            self.assertTrue( state_map == s2 )
+            
 
 
     def test_state_map_transitions(self):

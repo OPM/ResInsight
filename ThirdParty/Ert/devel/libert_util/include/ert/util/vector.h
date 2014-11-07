@@ -83,6 +83,7 @@ extern "C" {
   void          vector_iset_buffer(vector_type * vector , int index , const void * buffer, int buffer_size);
   
   UTIL_IS_INSTANCE_HEADER( vector );
+  UTIL_SAFE_CAST_HEADER( vector );
 
 #ifdef __cplusplus
 }

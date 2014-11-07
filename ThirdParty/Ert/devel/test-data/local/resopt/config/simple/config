@@ -1,0 +1,5 @@
+JOBNAME  Job%d
+RUNPATH /tmp/simulations/run%d
+NUM_REALIZATIONS 1
+
+

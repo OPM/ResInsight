@@ -1,11 +1,12 @@
 set( HAVE_LSF_LIBRARY OFF )
-set( LSF_INCLUDE_PATH $ENV{LSF_INCLUDE_PATH}      CACHE FILEPATH "Path to search for LSF header file lsf/lsf.h")
-set( LSF_LIB_PATH     $ENV{LSF_HOME}/lib          CACHE FILEPATH "Path to search for LSF library files")
+
+set( ERT_LSF_LIB_PATH     "" CACHE FILEPATH "Path to search for the LSF libraries" )
+set( ERT_LSF_INCLUDE_PATH "" CACHE FILEPATH "Path to search for the LSF header files" )
 
 find_path( LSF_HEADER_PATH lsf/lsf.h 
-           PATHS ${LSF_INCLUDE_PATH}) 
+           PATHS ${ERT_LSF_INCLUDE_PATH}) 
 
-find_library( LSF_LIBRARY NAMES lsf PATHS ${LSF_LIB_PATH}) 
+find_library( LSF_LIBRARY NAMES lsf PATHS ${ERT_LSF_LIB_PATH}) 
 
 if (LSF_HEADER_PATH)
    if (LSF_LIBRARY)

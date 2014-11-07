@@ -83,6 +83,7 @@ extern "C" {
   
   bool             ecl_file_writable( const ecl_file_type * ecl_file );
   int              ecl_file_get_flags( const ecl_file_type * ecl_file );
+  void             ecl_file_set_flags( ecl_file_type * ecl_file, int new_flags );
   bool             ecl_file_flags_set( const ecl_file_type * ecl_file , int flags);
 
   
@@ -96,7 +97,8 @@ extern "C" {
   ecl_kw_type      * ecl_file_iget_named_kw( const ecl_file_type * file , const char * kw, int ith);
   ecl_type_enum      ecl_file_iget_named_type( const ecl_file_type * file , const char * kw , int ith);
   int                ecl_file_iget_named_size( const ecl_file_type * file , const char * kw , int ith);
-  
+  void               ecl_file_indexed_read(const ecl_file_type * file , const char * kw, int index, const int_vector_type * index_map, char* buffer);
+
   
   bool               ecl_file_subselect_block( ecl_file_type * ecl_file , const char * kw , int occurence);
   bool               ecl_file_select_block( ecl_file_type * ecl_file , const char * kw , int occurence);
@@ -118,7 +120,9 @@ extern "C" {
   bool             ecl_file_select_rstblock_sim_time( ecl_file_type * ecl_file , time_t sim_time);
   bool             ecl_file_select_rstblock_report_step( ecl_file_type * ecl_file , int report_step);
   bool             ecl_file_iselect_rstblock( ecl_file_type * ecl_file , int seqnum_index );
-  
+
+  void             ecl_file_close_fortio_stream(ecl_file_type * ecl_file);
+
   ecl_file_type  * ecl_file_open_rstblock_report_step( const char * filename , int report_step , int flags);
   ecl_file_type  * ecl_file_open_rstblock_sim_time( const char * filename , time_t sim_time , int flags); 
   ecl_file_type  * ecl_file_iopen_rstblock( const char * filename , int seqnum_index , int flags);

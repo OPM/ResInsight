@@ -29,6 +29,8 @@ extern "C" {
 
   void         container_add_node(container_type * container , void * child_node );
   const void * container_iget_node(const container_type * container , int index);
+  int          container_get_size( const container_type * container );
+  void         container_assert_size( const container_type * container );
   
   VOID_ALLOC_HEADER(container);
   VOID_FREE_HEADER(container);

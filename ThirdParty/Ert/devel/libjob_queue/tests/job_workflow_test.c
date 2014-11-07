@@ -70,11 +70,22 @@ void * read_file( void * self , const stringlist_type * args) {
 static void create_exjob( const char * workflow , const char * bin_path) 
 {
   FILE * stream = util_fopen( workflow , "w");
-  fprintf(stream , "EXECUTABLE  \"%s/create file\"\n" , bin_path);  
+  fprintf(stream , "EXECUTABLE  \"%s/create_file\"\n" , bin_path);
   fprintf(stream , "ARG_TYPE    1   INT\n");
   fprintf(stream , "MIN_ARG     2\n");
   fprintf(stream , "MAX_ARG     2\n");
   fclose(stream);
+}
+
+
+void test_has_job(const char * job) {
+  workflow_joblist_type * joblist = workflow_joblist_alloc();
+  test_assert_false( workflow_joblist_has_job( joblist , "NoNotThis"));
+  
+  workflow_joblist_add_job_from_file( joblist , "CREATE_FILE" , job);
+  test_assert_true( workflow_joblist_has_job( joblist  , "CREATE_FILE"));
+  
+  workflow_joblist_free( joblist );
 }
 
 
@@ -86,6 +97,7 @@ int main( int argc , char ** argv) {
 
   signal(SIGSEGV , util_abort_signal);    
   create_exjob( exjob_file , bin_path );
+  test_has_job( exjob_file );
   {
     
     int int_value = rand();
@@ -143,6 +155,7 @@ int main( int argc , char ** argv) {
             test_assert_int_equal( workflow_get_stack_size( workflow ) , 0 );
             
             free( return_value );
+
           }
 
           
@@ -170,7 +183,6 @@ int main( int argc , char ** argv) {
     create_workflow( workflow_file , tmp_file , int_value );
     workflow = workflow_alloc(workflow_file , joblist );
     unlink( workflow_file );
-
     test_assert_false( workflow_run( workflow , &read_value , false , NULL) );
     test_assert_int_equal( workflow_get_stack_size( workflow ) , 0 );
   }

@@ -24,9 +24,10 @@
 #include <ert/util/util.h>
 #include <ert/util/int_vector.h>
 #include <ert/util/bool_vector.h>
+#include <ert/util/string_util.h>
+#include <ert/util/type_macros.h>
 
 #include <ert/config/config.h>
-
 #include <ert/ecl/ecl_util.h>
 
 #include <ert/enkf/enkf_macros.h>
@@ -65,7 +66,7 @@ struct gen_data_config_struct {
   gen_data_file_format_type      input_format;          /* The format used for loading gen_data instances when the forward model has completed *AND* for loading the initial files.*/
   gen_data_file_format_type      output_format;         /* The format used when gen_data instances are written to disk for the forward model. */
   int_vector_type              * data_size_vector;      /* Data size, i.e. number of elements , indexed with report_step */
-  bool                           update_valid; 
+  int_vector_type              * active_report_steps;   /* The report steps where we expect to load data for this instance. */
   pthread_mutex_t                update_lock;  
   /*****************************************************************/
   /* All the fields below this line are related to the capability of
@@ -73,8 +74,9 @@ struct gen_data_config_struct {
      instance. See documentation above.
   */
   bool                           dynamic;
-  enkf_fs_type                 * fs;                   /* NBNB This will be NULL in the case of instances which are used as parameters. */
-  int                            ens_size;     
+  enkf_fs_type                 * read_fs;                   /* NBNB This will be NULL in the case of instances which are used as parameters. */
+  enkf_fs_type                 * write_fs;
+  int                            ens_size;
   bool                           mask_modified;
   bool_vector_type             * active_mask;
   int                            active_report_step;
@@ -83,7 +85,8 @@ struct gen_data_config_struct {
 
 /*****************************************************************/
 
-UTIL_SAFE_CAST_FUNCTION(gen_data_config , GEN_DATA_CONFIG_ID)
+UTIL_IS_INSTANCE_FUNCTION(gen_data_config , GEN_DATA_CONFIG_ID)
+UTIL_SAFE_CAST_FUNCTION(gen_data_config   , GEN_DATA_CONFIG_ID)
 UTIL_SAFE_CAST_FUNCTION_CONST(gen_data_config , GEN_DATA_CONFIG_ID)
 
 gen_data_file_format_type gen_data_config_get_input_format ( const gen_data_config_type * config) { return config->input_format; }
@@ -126,7 +129,22 @@ int gen_data_config_get_byte_size( const gen_data_config_type * config , int rep
 
 
 
-gen_data_config_type * gen_data_config_alloc_empty( const char * key ) {
+static void gen_data_config_reset_template( gen_data_config_type * config ) {
+  util_safe_free( config->template_buffer ); 
+  util_safe_free( config->template_key ); 
+  util_safe_free( config->template_file );
+
+  config->template_file = NULL;
+  config->template_buffer = NULL;
+  config->template_key = NULL;
+  config->template_data_offset = 0;
+  config->template_data_skip = 0;
+  config->template_buffer_size = 0;
+}
+
+
+
+static gen_data_config_type * gen_data_config_alloc( const char * key , bool dynamic ) {
   gen_data_config_type * config = util_malloc(sizeof * config );
   UTIL_TYPE_ID_INIT( config , GEN_DATA_CONFIG_ID);
 
@@ -135,26 +153,67 @@ gen_data_config_type * gen_data_config_alloc_empty( const char * key ) {
   config->template_file        = NULL;
   config->template_key         = NULL;
   config->template_buffer      = NULL;
-  config->template_data_offset = 0;
-  config->template_buffer_size = 0;
-  config->template_data_skip   = 0;
+  gen_data_config_reset_template( config );
 
   config->data_size          = 0;
   config->internal_type      = ECL_DOUBLE_TYPE;
   config->input_format       = GEN_DATA_UNDEFINED;
   config->output_format      = GEN_DATA_UNDEFINED;
   config->data_size_vector   = int_vector_alloc( 0 , -1 );   /* The default value: -1 - indicates "NOT SET" */
-  config->update_valid       = false;
+  config->active_report_steps= int_vector_alloc( 0 , 0 );
   config->active_mask        = bool_vector_alloc(0 , true ); /* Elements are explicitly set to FALSE - this MUST default to true. */ 
   config->active_report_step = -1;
   config->ens_size           = -1;
-  config->fs                 = NULL;
-  config->dynamic            = false;
+  config->read_fs            = NULL;
+  config->write_fs           = NULL;
+  config->dynamic            = dynamic;
   pthread_mutex_init( &config->update_lock , NULL );
+
 
   return config;
 }
 
+gen_data_config_type * gen_data_config_alloc_GEN_PARAM( const char * key , gen_data_file_format_type output_format , gen_data_file_format_type input_format) {
+  gen_data_config_type * config = gen_data_config_alloc( key , false );
+
+  if (input_format == ASCII_TEMPLATE) 
+    util_abort("%s: Sorry can not use INPUT_FORMAT:ASCII_TEMPLATE\n",__func__);
+  
+  if (output_format == GEN_DATA_UNDEFINED || input_format == GEN_DATA_UNDEFINED)
+    util_abort("%s: Sorry must specify valid values for both input and output format\n",__func__);
+  
+  config->output_format = output_format;
+  config->input_format  = input_format;
+  return config;
+}
+
+
+gen_data_config_type * gen_data_config_alloc_GEN_DATA_result( const char * key , gen_data_file_format_type input_format) {
+  gen_data_config_type * config = gen_data_config_alloc( key , true );
+
+  if (input_format == ASCII_TEMPLATE) 
+    util_abort("%s: Sorry can not use INPUT_FORMAT:ASCII_TEMPLATE\n",__func__);
+  
+  if (input_format == GEN_DATA_UNDEFINED)
+    util_abort("%s: Sorry must specify valid values for input format.\n",__func__);
+  
+  config->input_format  = input_format;
+  return config;
+}
+
+gen_data_config_type * gen_data_config_alloc_GEN_DATA_state( const char * key , gen_data_file_format_type output_format , gen_data_file_format_type input_format) {
+  gen_data_config_type * config = gen_data_config_alloc( key , true );
+  
+  if (input_format == ASCII_TEMPLATE) 
+    util_abort("%s: Sorry can not use INPUT_FORMAT:ASCII_TEMPLATE\n",__func__);
+  
+  if (output_format == GEN_DATA_UNDEFINED || input_format == GEN_DATA_UNDEFINED)
+    util_abort("%s: Sorry must specify valid values for both input and output format\n",__func__);
+  
+  config->output_format = output_format;
+  config->input_format  = input_format;
+  return config;
+}
 
 
 const bool_vector_type * gen_data_config_get_active_mask( const gen_data_config_type * config ) {
@@ -165,31 +224,55 @@ const bool_vector_type * gen_data_config_get_active_mask( const gen_data_config_
 }
 
 
-static void gen_data_config_set_template( gen_data_config_type * config , const char * template_ecl_file , const char * template_data_key ) {
-  util_safe_free( config->template_buffer ); 
-  config->template_buffer = NULL;
 
-  if (template_ecl_file != NULL) {
-    char *data_ptr;
-    config->template_buffer = util_fread_alloc_file_content( template_ecl_file , &config->template_buffer_size);
-    if (template_data_key != NULL) {
-      data_ptr = strstr(config->template_buffer , template_data_key);
-      if (data_ptr == NULL) 
-        util_abort("%s: template:%s can not be used - could not find data key:%s \n",__func__ , template_ecl_file , template_data_key);
-      else {
-        config->template_data_offset = data_ptr - config->template_buffer;
-        config->template_data_skip   = strlen( template_data_key );
+
+
+bool gen_data_config_set_template( gen_data_config_type * config , const char * template_ecl_file , const char * template_data_key ) {
+  char * template_buffer = NULL;
+  bool   template_valid = true;
+  int    template_buffer_size;
+
+  if (template_ecl_file) {
+    if (util_file_readable( template_ecl_file )) {
+      template_buffer = util_fread_alloc_file_content( template_ecl_file , &template_buffer_size);
+      if (template_data_key) {
+        if (strstr(template_buffer , template_data_key) == NULL)
+          template_valid = false;
       }
-    } else { /* We are using a template without a template_data_key - the
-                data is assumed to come at the end of the template. */
-      config->template_data_offset = strlen( config->template_buffer );
-      config->template_data_skip   = 0;
-    }
-  } else 
-    config->template_buffer = NULL;
+    } else
+      template_valid = false;
+  }
   
-  config->template_file = util_realloc_string_copy( config->template_file , template_ecl_file );
-  config->template_key  = util_realloc_string_copy( config->template_key , template_data_key );
+  if (template_valid) {
+
+    gen_data_config_reset_template(config);
+    if (template_ecl_file != NULL) {
+      char *data_ptr;
+      config->template_buffer = template_buffer;
+      config->template_buffer_size = template_buffer_size;
+      if (template_data_key != NULL) {
+        data_ptr = strstr(config->template_buffer , template_data_key);
+        if (data_ptr == NULL) 
+          util_abort("%s: template:%s can not be used - could not find data key:%s \n",__func__ , template_ecl_file , template_data_key);
+        else {
+          config->template_data_offset = data_ptr - config->template_buffer;
+          config->template_data_skip   = strlen( template_data_key );
+        }
+      } else { /* We are using a template without a template_data_key - the
+                  data is assumed to come at the end of the template. */
+        config->template_data_offset = strlen( config->template_buffer );
+        config->template_data_skip   = 0;
+      }
+      
+      config->template_file = util_realloc_string_copy( config->template_file , template_ecl_file );
+      config->template_key  = util_realloc_string_copy( config->template_key , template_data_key );
+      
+      if (config->output_format != ASCII_TEMPLATE)
+        fprintf(stderr,"**WARNING: The template settings will ignored for key:%s - use OUTPUT_FORMAT:ASCII_TEMPLATE to get template behaviour\n", config->key);
+    }
+
+  } 
+  return template_valid;
 }
 
 
@@ -202,68 +285,9 @@ const char * gen_data_config_get_template_key( const gen_data_config_type * conf
 }
 
 
-static void gen_data_config_set_io_format( gen_data_config_type * config , gen_data_file_format_type output_format , gen_data_file_format_type input_format) {
-  
-  config->output_format = output_format;
-  config->input_format  = input_format;
-}
-
-
-bool gen_data_config_is_valid( const gen_data_config_type * gen_data_config) {
-  return gen_data_config->update_valid;
-}
 
 
 
-/**
-   Observe that all the consistency checks are in this functions, and
-   not in the various small static functions called by this function,
-   it is therefor important that only this full function is used, and
-   not the small individual (static for a reason ...) functions.
-
-   Observe that the checks on == NULL and != NULL for the various parameters
-   should already have been performed (in enkf_config_node_update_gen_data).
-*/
-
-void gen_data_config_update(gen_data_config_type * config           , 
-                            enkf_var_type var_type                  , /* This is ONLY included too be able to do a sensible consistency check. */
-                            gen_data_file_format_type input_format  ,
-                            gen_data_file_format_type output_format ,
-                            const char * template_ecl_file          , 
-                            const char * template_data_key) {
-  bool valid = true;
-  
-  if ((var_type != DYNAMIC_RESULT) && (output_format == GEN_DATA_UNDEFINED))
-    valid = false;
-    //util_abort("%s: When specifying an enkf output file you must specify an output format as well. \n",__func__);
-  
-  if ((var_type != PARAMETER) && (input_format == GEN_DATA_UNDEFINED))
-    valid = false;
-    //util_abort("%s: When specifying a file for ERT to load from - you must also specify the format of the loaded files. \n",__func__);
-  
-  if (input_format == ASCII_TEMPLATE)
-    valid = false;
-    //util_abort("%s: Format ASCII_TEMPLATE is not valid as INPUT_FORMAT \n",__func__);
-
-  if ((template_ecl_file != NULL) && (template_data_key == NULL))
-    valid = false;
-    //util_abort("%s: When using a template you MUST also set a template_key \n",__func__);
-
-  if ((output_format == ASCII_TEMPLATE) && (template_ecl_file == NULL))
-    valid = false;
-  // When using format ASCII_TEMPLATE you also must set a template file. 
-
-  /*****************************************************************/
-  if (valid) {
-    gen_data_config_set_template( config , template_ecl_file , template_data_key );
-    gen_data_config_set_io_format( config , output_format , input_format);
-    
-    if ((output_format == ASCII_TEMPLATE) && (config->template_buffer == NULL))
-      valid = false;
-    //util_abort("%s: When specifying output_format == ASCII_TEMPLATE you must also supply a template_ecl_file\n",__func__);
-  }
-  config->update_valid = valid;
-}
 
 
 
@@ -292,8 +316,6 @@ gen_data_file_format_type gen_data_config_check_format( const void * format_stri
     else if (strcmp(format_string , "BINARY_FLOAT") == 0)
       type = BINARY_FLOAT;
     
-    if (type == GEN_DATA_UNDEFINED)
-      util_exit("Sorry: format:\"%s\" not recognized - valid values: ASCII / ASCII_TEMPLATE / BINARY_DOUBLE / BINARY_FLOAT \n", format_string);
   }
   
   return type;
@@ -317,6 +339,7 @@ gen_data_file_format_type gen_data_config_check_format( const void * format_stri
 
 void gen_data_config_free(gen_data_config_type * config) {
   int_vector_free( config->data_size_vector );
+  int_vector_free( config->active_report_steps );
   
   util_safe_free( config->key );
   util_safe_free( config->template_buffer );
@@ -379,7 +402,7 @@ void gen_data_config_assert_size(gen_data_config_type * config , int data_size, 
    This MUST be called after gen_data_config_assert_size(). 
 */
 
-void gen_data_config_update_active(gen_data_config_type * config , int report_step , const bool_vector_type * data_mask) {
+void gen_data_config_update_active(gen_data_config_type * config, int report_step , const bool_vector_type * data_mask) {
   pthread_mutex_lock( &config->update_lock );
   {
     if ( int_vector_iget( config->data_size_vector , report_step ) > 0) {
@@ -407,7 +430,7 @@ void gen_data_config_update_active(gen_data_config_type * config , int report_st
            i.e. we update the on-disk representation.
         */
         char * filename = util_alloc_sprintf("%s_active" , config->key );
-        FILE * stream   = enkf_fs_open_case_tstep_file( config->fs , filename , report_step , "w");
+        FILE * stream   = enkf_fs_open_case_tstep_file( config->write_fs , filename , report_step , "w");
         
         bool_vector_fwrite( config->active_mask , stream );
 
@@ -422,28 +445,67 @@ void gen_data_config_update_active(gen_data_config_type * config , int report_st
 }
 
 
+bool gen_data_config_has_active_mask( const gen_data_config_type * config , enkf_fs_type * fs , int report_step) {
+  bool   has_mask;
+  {
+    char * filename = util_alloc_sprintf("%s_active" , config->key );
+    FILE * stream   = enkf_fs_open_excase_tstep_file( fs , filename , report_step);
+    
+    if (stream == NULL) 
+      has_mask = false;
+    else {
+      has_mask = true;
+      fclose( stream );
+    }    
+    
+    free( filename );
+  }
+  return has_mask;
+}
+
 
 /**
    This function will load an active map from the enkf_fs filesystem.
 */
-void gen_data_config_load_active( gen_data_config_type * config , int report_step , bool force_load) {
-  if (config->fs == NULL)
+void gen_data_config_load_active( gen_data_config_type * config , enkf_fs_type * fs,  int report_step , bool force_load) {
+
+
+  bool fs_changed = false;
+  if (fs != config->read_fs) {
+    config->read_fs = fs;
+    fs_changed = true;
+  }
+
+  if (!config->dynamic)
     return;                /* This is used as a GEN_PARAM instance - and the loading of mask is not an option. */
-  
   
   pthread_mutex_lock( &config->update_lock );
   {
     if ( force_load || (int_vector_iget( config->data_size_vector , report_step ) > 0)) {
-      if (config->active_report_step != report_step) {
+      if (config->active_report_step != report_step || fs_changed) {
         char * filename = util_alloc_sprintf("%s_active" , config->key );
-        FILE * stream   = enkf_fs_open_excase_tstep_file( config->fs , filename , report_step);
+        FILE * stream   = enkf_fs_open_excase_tstep_file( fs , filename , report_step);
 
         if (stream != NULL) {
           bool_vector_fread( config->active_mask , stream );
           fclose( stream );
-        } else 
-          fprintf(stderr,"** Warning: could not find file:%s \n",filename);
-
+        } else {
+          int gen_data_size = int_vector_safe_iget( config->data_size_vector, report_step );
+          if (gen_data_size < 0) {
+            fprintf(stderr,"** Fatal internal error in function:%s \n",__func__);
+            fprintf(stderr,"\n");
+            fprintf(stderr,"   1: The active mask file:%s was not found \n",filename);
+            fprintf(stderr,"   2: The size of the gen_data vectors has not been set\n");
+            fprintf(stderr,"\n");
+            fprintf(stderr,"We can not create a suitable active_mask. Code should call gen_data_config_has_active_mask()\n\n");
+            
+            util_abort("%s: fatal internal error - could not create a suitable active_mask \n",__func__);
+          } else {
+            fprintf(stdout,"** Info: could not locate active data elements file %s, filling active vector with true all elements active \n",filename);
+            bool_vector_reset( config->active_mask );
+            bool_vector_iset( config->active_mask, gen_data_size - 1, true);
+          }
+        }
         free( filename );
       }
     }
@@ -452,16 +514,45 @@ void gen_data_config_load_active( gen_data_config_type * config , int report_ste
   pthread_mutex_unlock( &config->update_lock );
 }
 
+int gen_data_config_num_report_step( const gen_data_config_type * config ) {
+  return int_vector_size( config->active_report_steps );
+}
 
+bool gen_data_config_has_report_step( const gen_data_config_type * config , int report_step) {
+  return int_vector_contains_sorted( config->active_report_steps , report_step );
+}
+
+void gen_data_config_add_report_step( gen_data_config_type * config , int report_step) {
+  if (config->dynamic) {
+    if (!gen_data_config_has_report_step( config , report_step)) {
+      int_vector_append( config->active_report_steps , report_step );
+      int_vector_sort( config->active_report_steps );
+    }
+  }
+}
+
+int gen_data_config_iget_report_step( const gen_data_config_type *config , int index) {
+  return int_vector_iget( config->active_report_steps , index );
+}
+
+void gen_data_config_set_active_report_steps_from_string( gen_data_config_type *config , const char * range_string) {
+  if (config->dynamic) {
+    int_vector_reset( config->active_report_steps );
+    string_util_update_active_list(range_string , config->active_report_steps );
+  }
+}
+
+
+const int_vector_type * gen_data_config_get_active_report_steps( const gen_data_config_type *config) {
+  return config->active_report_steps;
+}
 
 void gen_data_config_set_ens_size( gen_data_config_type * config , int ens_size) {
   config->ens_size = ens_size;
 }
 
-
-void gen_data_config_set_dynamic( gen_data_config_type * config , enkf_fs_type * fs) {
-  config->dynamic = true;
-  config->fs      = fs;
+void gen_data_config_set_write_fs(gen_data_config_type * config, enkf_fs_type * write_fs) {
+  config->write_fs = write_fs;
 }
 
 
@@ -483,9 +574,20 @@ void gen_data_config_get_template_data( const gen_data_config_type * config ,
 }
 
 
-
-
-
+bool gen_data_config_valid_result_format(const char * result_file_fmt) {
+  if (result_file_fmt) {
+    if (util_is_abs_path( result_file_fmt ))
+      return false;
+    else {
+      if (util_int_format_count(result_file_fmt) == 1)
+        return true;
+      else
+        return false;
+    }
+  } else
+    return false;
+}
+                 
 
 const char * gen_data_config_get_key( const gen_data_config_type * config) {
   return config->key;

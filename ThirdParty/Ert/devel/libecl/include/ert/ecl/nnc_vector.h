@@ -31,6 +31,7 @@ extern "C" {
   UTIL_IS_INSTANCE_HEADER(nnc_vector);
     
   nnc_vector_type         * nnc_vector_alloc(int lgr_nr);   
+  nnc_vector_type         * nnc_vector_alloc_copy(const nnc_vector_type * src_vector);
   void                      nnc_vector_free( nnc_vector_type * nnc_vector );
   void                      nnc_vector_add_nnc(nnc_vector_type * nnc_vector, int global_cell_number, int nnc_index); 
   const int_vector_type   * nnc_vector_get_grid_index_list(const nnc_vector_type * nnc_vector);
@@ -38,7 +39,8 @@ extern "C" {
   int                       nnc_vector_get_lgr_nr(const nnc_vector_type * nnc_vector );
   void                      nnc_vector_free__(void * arg);
   int                       nnc_vector_get_size( const nnc_vector_type * nnc_vector );
-  
+  bool                      nnc_vector_equal( const nnc_vector_type * nnc_vector1 , const nnc_vector_type * nnc_vector2);
+
 #ifdef __cplusplus
 }
 #endif

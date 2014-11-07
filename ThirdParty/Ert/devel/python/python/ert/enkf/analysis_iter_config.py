@@ -19,7 +19,8 @@ from ert.enkf import ENKF_LIB
 
 class AnalysisIterConfig(BaseCClass):
     def __init__(self):
-        raise NotImplementedError("Class can not be instantiated directly!")
+        c_ptr = AnalysisIterConfig.cNamespace().alloc()
+        super(AnalysisIterConfig , self).__init__(c_ptr)
 
     def getNumIterations(self):
         """ @rtype: int """
@@ -28,6 +29,13 @@ class AnalysisIterConfig(BaseCClass):
     def setNumIterations(self, num_iterations):
         AnalysisIterConfig.cNamespace().set_num_iterations(self, num_iterations)
 
+    def numIterationsSet(self):
+        return AnalysisIterConfig.cNamespace().num_iterations_set(self)
+
+    def getNumRetries(self):
+        """ @rtype: int """
+        return AnalysisIterConfig.cNamespace().get_num_retries(self)
+
     def getCaseFormat(self):
         """ @rtype: str """
         return AnalysisIterConfig.cNamespace().get_case_fmt(self)
@@ -35,25 +43,22 @@ class AnalysisIterConfig(BaseCClass):
     def setCaseFormat(self, case_fmt):
         AnalysisIterConfig.cNamespace().set_case_fmt(self, case_fmt)
 
-    def getRunpathFormat(self):
-        """ @rtype: str """
-        return AnalysisIterConfig.cNamespace().get_runpath_fmt(self)
+    def caseFormatSet(self):
+        return AnalysisIterConfig.cNamespace().case_fmt_set(self)
 
-    def setRunpathFormat(self, runpath_fmt):
-        AnalysisIterConfig.cNamespace().set_runpath_fmt(self, runpath_fmt)
-
-    ##################################################################
+    def free(self):
+        AnalysisIterConfig.cNamespace().free(self)
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("analysis_iter_config", AnalysisIterConfig)
-cwrapper.registerType("analysis_iter_config_obj", AnalysisIterConfig.createPythonObject)
-cwrapper.registerType("analysis_iter_config_ref", AnalysisIterConfig.createCReference)
+cwrapper.registerObjectType("analysis_iter_config", AnalysisIterConfig)
 
 
+AnalysisIterConfig.cNamespace().alloc = cwrapper.prototype("c_void_p analysis_iter_config_alloc( )")
 AnalysisIterConfig.cNamespace().free = cwrapper.prototype("void analysis_iter_config_free( analysis_iter_config )")
 AnalysisIterConfig.cNamespace().set_num_iterations = cwrapper.prototype("void analysis_iter_config_set_num_iterations(analysis_iter_config, int)")
 AnalysisIterConfig.cNamespace().get_num_iterations = cwrapper.prototype("int analysis_iter_config_get_num_iterations(analysis_iter_config)")
+AnalysisIterConfig.cNamespace().get_num_retries = cwrapper.prototype("int analysis_iter_config_get_num_retries_per_iteration(analysis_iter_config)")
+AnalysisIterConfig.cNamespace().num_iterations_set = cwrapper.prototype("bool analysis_iter_config_num_iterations_set(analysis_iter_config)")
 AnalysisIterConfig.cNamespace().set_case_fmt = cwrapper.prototype("void analysis_iter_config_set_case_fmt( analysis_iter_config , char* )")
 AnalysisIterConfig.cNamespace().get_case_fmt = cwrapper.prototype("char* analysis_iter_config_get_case_fmt( analysis_iter_config)")
-AnalysisIterConfig.cNamespace().set_runpath_fmt = cwrapper.prototype("void analysis_iter_config_set_runpath_fmt( analysis_iter_config , char*)");
-AnalysisIterConfig.cNamespace().get_runpath_fmt = cwrapper.prototype("char* analysis_iter_config_get_runpath_fmt( analysis_iter_config)")
+AnalysisIterConfig.cNamespace().case_fmt_set = cwrapper.prototype("bool analysis_iter_config_case_fmt_set(analysis_iter_config)")

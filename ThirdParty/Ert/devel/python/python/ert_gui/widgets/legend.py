@@ -31,10 +31,12 @@ class Legend(QWidget):
         QWidget.__init__(self)
 
         self.setMinimumWidth(140)
+        self.setMaximumHeight(25)
 
         self.legend = legend
 
         layout = QHBoxLayout()
+        layout.setMargin(0)
 
         self.legend_marker = LegendMarker(color)
         self.legend_marker.setToolTip(legend)

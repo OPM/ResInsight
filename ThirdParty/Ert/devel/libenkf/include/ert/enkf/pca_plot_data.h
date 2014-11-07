@@ -24,13 +24,14 @@ extern "C" {
 
 #include <ert/util/type_macros.h>
 #include <ert/util/matrix.h>
+#include <ert/util/double_vector.h>
 
 #include <ert/enkf/pca_plot_vector.h>
 
   typedef struct pca_plot_data_struct pca_plot_data_type;
 
-  pca_plot_data_type * pca_plot_data_alloc( const char * name , const matrix_type * PC, const matrix_type * PC_obs);
-
+  pca_plot_data_type * pca_plot_data_alloc( const char * name , const matrix_type * PC, const matrix_type * PC_obs, const double_vector_type * singular_values);
+  const double_vector_type * pca_plot_data_get_singular_values( const pca_plot_data_type * plot_data );
   void                 pca_plot_data_free( pca_plot_data_type * plot_data );
   const pca_plot_vector_type * pca_plot_data_iget_vector( const pca_plot_data_type * plot_data , int ivec);
   int                  pca_plot_data_get_size( const pca_plot_data_type * plot_data );

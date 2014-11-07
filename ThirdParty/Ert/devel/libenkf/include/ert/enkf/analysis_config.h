@@ -43,11 +43,13 @@ typedef struct analysis_config_struct analysis_config_type;
 
 analysis_iter_config_type * analysis_config_get_iter_config( const analysis_config_type * config );
 analysis_module_type * analysis_config_get_module( analysis_config_type * config , const char * module_name );
+bool                   analysis_config_has_module( analysis_config_type * config , const char * module_name );
 void                   analysis_config_load_internal_module( analysis_config_type * config , const char * user_name , const char * symbol_table );
 void                   analysis_config_load_internal_modules( analysis_config_type * analysis );
 void                   analysis_config_reload_module( analysis_config_type * config , const char * module_name);
 bool                   analysis_config_get_module_option( const analysis_config_type * config , long flag);
 bool                   analysis_config_load_external_module( analysis_config_type * config , const char * user_name , const char * lib_name);
+void                   analysis_config_load_all_external_modules_from_config ( analysis_config_type * analysis_config, const config_type * config);
 
 stringlist_type      * analysis_config_alloc_module_names( analysis_config_type * config );
 const char           * analysis_config_get_log_path( const analysis_config_type * config );

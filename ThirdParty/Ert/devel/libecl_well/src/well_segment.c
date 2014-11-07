@@ -63,17 +63,24 @@ well_segment_type * well_segment_alloc(int segment_id , int outlet_segment_id , 
   segment->outlet_segment = NULL;
   segment->connections = hash_alloc();
 
-  segment->depth = rseg_data[ RSEG_DEPTH_INDEX ];
-  segment->length = rseg_data[ RSEG_LENGTH_INDEX ];
-  segment->total_length = rseg_data[ RSEG_TOTAL_LENGTH_INDEX ];
-  segment->diameter = rseg_data[ RSEG_DIAMETER_INDEX ];
+  segment->depth = 0.0;
+  segment->length = 0.0;
+  segment->total_length = 0.0;
+  segment->diameter = 0.0;
+
+  if(rseg_data != NULL) {
+    segment->depth = rseg_data[ RSEG_DEPTH_INDEX ];
+    segment->length = rseg_data[ RSEG_LENGTH_INDEX ];
+    segment->total_length = rseg_data[ RSEG_TOTAL_LENGTH_INDEX ];
+    segment->diameter = rseg_data[ RSEG_DIAMETER_INDEX ];
+  }
   
   return segment;
 }
 
 
-well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , const ecl_kw_type * rseg_kw , const ecl_rsthead_type * header , int well_nr, int segment_index , int segment_id) {
-  if (rseg_kw == NULL) {
+well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , const well_rseg_loader_type * rseg_loader , const ecl_rsthead_type * header , int well_nr, int segment_index , int segment_id) {
+  if (rseg_loader == NULL) {
     util_abort("%s: fatal internal error - tried to create well_segment instance without RSEG keyword.\n",__func__);
     return NULL;
   } else {
@@ -81,9 +88,13 @@ well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , co
     const int rseg_offset = header->nrsegz * ( header->nsegmx * well_nr + segment_index);
     int outlet_segment_id = ecl_kw_iget_int( iseg_kw , iseg_offset + ISEG_OUTLET_ITEM ) - ECLIPSE_WELL_SEGMENT_OFFSET + WELL_SEGMENT_OFFSET ;   // -1
     int branch_id         = ecl_kw_iget_int( iseg_kw , iseg_offset + ISEG_BRANCH_ITEM ) - ECLIPSE_WELL_BRANCH_OFFSET  + WELL_BRANCH_OFFSET ;    // -1
-    const double * rseg_data = ecl_kw_iget_ptr( rseg_kw , rseg_offset );
-    
-    well_segment_type * segment = well_segment_alloc( segment_id , outlet_segment_id , branch_id , rseg_data);
+    const double * rseg_data = well_rseg_loader_load_values(rseg_loader, rseg_offset);
+
+    well_segment_type * segment = well_segment_alloc( segment_id , outlet_segment_id , branch_id , NULL);
+    segment->depth = rseg_data[0];
+    segment->length = rseg_data[1];
+    segment->total_length = rseg_data[2];
+    segment->diameter = rseg_data[3];
     return segment;
   }
 }

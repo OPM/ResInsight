@@ -189,7 +189,7 @@ static node_data_type * hash_get_node_data(hash_type *hash , const char *key) {
 void hash_resize(hash_type *hash, int new_size) {
   hash_sll_type ** new_table = hash_sll_alloc_table( new_size );
   hash_node_type * node;
-  int i;
+  uint32_t i;
   
   for (i=0; i < hash->size; i++) {
     node = hash_sll_get_head(hash->table[i]);
@@ -537,7 +537,7 @@ UTIL_SAFE_CAST_FUNCTION_CONST( hash , HASH_TYPE_ID)
 UTIL_IS_INSTANCE_FUNCTION(hash , HASH_TYPE_ID)
 
 void hash_free(hash_type *hash) {
-  int i;
+  uint32_t i;
   for (i=0; i < hash->size; i++) 
     hash_sll_free(hash->table[i]);
   free(hash->table);

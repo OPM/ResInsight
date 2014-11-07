@@ -23,8 +23,12 @@
 #include <errno.h>
 
 #include <ert/util/util.h>
+#include <ert/util/type_macros.h>
 
 #include <ert/ecl/fortio.h>
+
+
+#define FORTIO_ID  345116
 
 extern int errno;
 
@@ -69,6 +73,7 @@ fwrite() from the standard library.
 
 
 struct fortio_struct {
+  UTIL_TYPE_ID_DECLARATION;
   FILE             * stream;
   char             * filename;
   bool               endian_flip_header;  
@@ -82,9 +87,12 @@ struct fortio_struct {
 };
 
 
+UTIL_IS_INSTANCE_FUNCTION( fortio , FORTIO_ID );
+UTIL_SAFE_CAST_FUNCTION( fortio, FORTIO_ID );
 
 static fortio_type * fortio_alloc__(const char *filename , bool fmt_file , bool endian_flip_header , bool stream_owner) {
   fortio_type * fortio       = util_malloc(sizeof * fortio );
+  UTIL_TYPE_ID_INIT( fortio, FORTIO_ID );
   fortio->filename           = util_alloc_string_copy(filename);
   fortio->endian_flip_header = endian_flip_header;
   fortio->active_header      = 0;
@@ -469,7 +477,28 @@ int fortio_init_read(fortio_type *fortio) {
 }
 
 
+void fortio_data_fskip(fortio_type* fortio, const int element_size, const int element_count, const int block_count) {
+    int headers = block_count * 4;
+    int trailers = block_count * 4;
+    int bytes_to_skip = headers + trailers + (element_size * element_count);
 
+    fortio_fseek(fortio, bytes_to_skip, SEEK_CUR);
+}
+
+
+void fortio_data_fseek(fortio_type* fortio, offset_type data_offset, size_t data_element, const int element_size, const int element_count, const int block_size) {
+    if(data_element < 0 || data_element >= element_count) {
+        util_abort("%s: Element index is out of range: 0 <= %d < %d \n", __func__, data_element, element_count);
+    }
+    {
+      int block_index = data_element / block_size;
+      int headers = (block_index + 1) * 4;
+      int trailers = block_index * 4;
+      offset_type bytes_to_skip = data_offset + headers + trailers + (data_element * element_size);
+
+      fortio_fseek(fortio, bytes_to_skip, SEEK_SET);
+    }
+}
 
 
 void fortio_complete_read(fortio_type *fortio) {
@@ -578,7 +607,7 @@ void  fortio_init_write(fortio_type *fortio , int record_size) {
   file_header = fortio->active_header;
   if (fortio->endian_flip_header)
     util_endian_flip_vector(&file_header , sizeof file_header , 1);
-  
+
   util_fwrite_int( file_header , fortio->stream );
   fortio->rec_nr++;
 }

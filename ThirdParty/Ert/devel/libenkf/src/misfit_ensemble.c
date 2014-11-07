@@ -77,9 +77,17 @@ static void  __2d_free(double ** d , int rows) {
 }
 
 
-void misfit_ensemble_update( misfit_ensemble_type * misfit_ensemble , const ensemble_config_type * ensemble_config , const enkf_obs_type * enkf_obs , enkf_fs_type * fs , int ens_size , int history_length) {
-  misfit_ensemble_clear( misfit_ensemble );
-  {
+void misfit_ensemble_initialize( misfit_ensemble_type * misfit_ensemble ,
+                                 const ensemble_config_type * ensemble_config ,
+                                 const enkf_obs_type * enkf_obs ,
+                                 enkf_fs_type * fs ,
+                                 int ens_size ,
+                                 int history_length,
+                                 bool force_init) {
+
+  if (force_init || !misfit_ensemble->initialized) {
+    misfit_ensemble_clear( misfit_ensemble );
+
     state_enum cmp_state           = FORECAST;
     msg_type * msg                 = msg_alloc("Evaluating misfit for observation: " , false);
     double ** chi2_work            = __2d_malloc( history_length + 1 , ens_size );
@@ -200,7 +208,6 @@ void misfit_ensemble_fread( misfit_ensemble_type * misfit_ensemble , FILE * stre
     }
     
   }
-  misfit_ensemble->initialized = true;
 }
 
 

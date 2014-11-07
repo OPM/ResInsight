@@ -16,13 +16,17 @@
 #  for more details.
 
 import os
-from ert.enkf import EnsConfig, AnalysisConfig, ModelConfig, SiteConfig, EclConfig, PlotConfig, EnkfObs, ErtTemplates, EnkfFs, EnKFState, EnkfStateType, EnkfRunEnum, EnkfVarType, ObsVector
+
+from ert.util import BoolVector
+
+from ert.enkf import EnsConfig, AnalysisConfig, ModelConfig, SiteConfig, EclConfig, PlotConfig, EnkfObs, ErtTemplates, EnkfFs, EnKFState, EnkfStateType, EnkfVarType, ObsVector , RunArg
 from ert.enkf.data import EnkfConfigNode
 from ert.enkf.enkf_main import EnKFMain
-from ert.enkf.enums import EnkfObservationImplementationType, LoadFailTypeEnum, EnkfInitModeEnum, ErtImplType, RealizationStateEnum
+from ert.enkf.enums import EnkfObservationImplementationType, LoadFailTypeEnum, EnkfInitModeEnum, ErtImplType, RealizationStateEnum , EnkfRunType
+from ert.enkf.enums.enkf_field_file_format_enum import EnkfFieldFileFormatEnum
+from ert.enkf.enums.enkf_truncation_type import EnkfTruncationType
 from ert.enkf.observations.summary_observation import SummaryObservation
-from ert.util.test_area import TestAreaContext
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase , TestAreaContext
 
 
 
@@ -39,19 +43,20 @@ class EnKFTest(ExtendedTestCase):
             self.assertTrue(main, "Load failed")
             main.free()
 
+
     def test_enum(self):
 
         self.assertEnumIsFullyDefined(EnkfVarType, "enkf_var_type", "libenkf/include/ert/enkf/enkf_types.h")
         self.assertEnumIsFullyDefined(EnkfStateType, "state_enum", "libenkf/include/ert/enkf/enkf_types.h")
         self.assertEnumIsFullyDefined(ErtImplType, "ert_impl_type", "libenkf/include/ert/enkf/enkf_types.h")
-        self.assertEnumIsFullyDefined(EnkfInitModeEnum, "init_mode_enum", "libenkf/include/ert/enkf/enkf_types.h")
+        self.assertEnumIsFullyDefined(EnkfInitModeEnum, "init_mode_type", "libenkf/include/ert/enkf/enkf_types.h")
         self.assertEnumIsFullyDefined(RealizationStateEnum, "realisation_state_enum", "libenkf/include/ert/enkf/enkf_types.h")
+        self.assertEnumIsFullyDefined(EnkfTruncationType, "truncation_type", "libenkf/include/ert/enkf/enkf_types.h")
+        self.assertEnumIsFullyDefined(EnkfRunType, "run_mode_type" , "libenkf/include/ert/enkf/enkf_types.h")
 
         self.assertEnumIsFullyDefined(EnkfObservationImplementationType, "obs_impl_type", "libenkf/include/ert/enkf/obs_vector.h")
         self.assertEnumIsFullyDefined(LoadFailTypeEnum, "load_fail_type", "libenkf/include/ert/enkf/summary_config.h")
-
-        self.assertEqual(EnkfRunEnum.ENKF_ASSIMILATION, 1)
-        self.assertEqual(EnkfRunEnum.ENSEMBLE_EXPERIMENT, 2)
+        self.assertEnumIsFullyDefined(EnkfFieldFileFormatEnum, "field_file_format_type", "libenkf/include/ert/enkf/field_config.h" )
 
 
     def test_observations(self):
@@ -80,7 +85,9 @@ class EnKFTest(ExtendedTestCase):
 
 
             observations = main.getObservations()
-            test_vector = observations.getObservationsVector(observation_key)
+            test_vector = observations[observation_key]
+
+            self.assertListEqual(range(10), [report_step for report_step in test_vector])
 
             self.assertEqual(observation_vector, test_vector)
             for index, value, std in values:
@@ -110,13 +117,61 @@ class EnKFTest(ExtendedTestCase):
             #self.assertIsInstance(main.local_config(), LocalConfig) #warn: Should this be None?
             self.assertIsInstance(main.siteConfig(), SiteConfig)
             self.assertIsInstance(main.eclConfig(), EclConfig)
-            self.assertIsInstance(main.plot_config(), PlotConfig)
+            self.assertIsInstance(main.plotConfig(), PlotConfig)
 
             # self.main.load_obs(obs_config_file)
             self.assertIsInstance(main.getObservations(), EnkfObs)
             self.assertIsInstance(main.get_templates(), ErtTemplates)
-            self.assertIsInstance(main.getEnkfFsManager().getFileSystem(), EnkfFs)
+            self.assertIsInstance(main.getEnkfFsManager().getCurrentFileSystem(), EnkfFs)
             # self.assertIsInstance(main.iget_member_config(0), MemberConfig)
             self.assertIsInstance(main.getMemberRunningState(0), EnKFState)
 
+            self.assertEqual( "Ensemble" , main.getMountPoint())
+
             main.free()
+            
+    def test_enkf_create_config_file(self):
+        config_file      = "test_new_config"
+        firste_case_name = "default_1"
+        dbase_type       = "BLOCK_FS"
+        num_realizations = 42
+        
+        with TestAreaContext("python/ens_condif/create_config" , store_area = True) as ta:
+            EnKFMain.createNewConfig(config_file, "storage" , firste_case_name, dbase_type, num_realizations)
+            main = EnKFMain(config_file, self.site_config_file)
+            self.assertEqual(main.getEnsembleSize(), num_realizations)
+
+
+    def test_run_context(self):
+        with TestAreaContext("enkf_test") as work_area:
+            work_area.copy_directory(self.case_directory)
+            main = EnKFMain("simple_config/minimum_config", self.site_config_file)
+            fs_manager = main.getEnkfFsManager()
+            fs = fs_manager.getCurrentFileSystem( )
+            iactive = BoolVector(initial_size = 10 , default_value = True)
+            iactive[0] = False
+            iactive[1] = False
+            run_context = main.getRunContextENSEMPLE_EXPERIMENT( fs , iactive )
+            
+            self.assertEqual( len(run_context) , 8 )
+            
+            with self.assertRaises(IndexError):
+                run_context[8]
+
+            with self.assertRaises(TypeError):
+                run_context["String"]
+
+            run_arg = run_context[0]
+            self.assertTrue( isinstance( run_arg , RunArg ))
+            
+            with self.assertRaises(ValueError):
+                run_context.iensGet(0)
+
+
+            with self.assertRaises(ValueError):
+                run_context.iensGet(1)
+                
+            arg0 = run_context[0]
+            arg2 = run_context.iensGet( 2 )
+            #self.assertEqual( arg0 , arg2 )
+

@@ -133,7 +133,6 @@ void enkf_plot_data_load( enkf_plot_data_type * plot_data ,
     thread_pool_type * tp = thread_pool_alloc( num_cpu , true );
     for (int iens = 0; iens < ens_size ; iens++) {
       if (bool_vector_iget( mask , iens)) {
-        // thread_pool here?
         enkf_plot_tvector_type * vector = enkf_plot_data_iget( plot_data , iens );
         arg_pack_type * work_arg = plot_data->work_arg[iens];
 

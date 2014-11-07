@@ -21,6 +21,7 @@
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifEclipseOutputFileTools.h"
 
+#include "ecl_kw_magic.h"
 #include <well_state.h>
 #include <well_info.h>
 #include <well_conn.h>
@@ -146,13 +147,13 @@ bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info)
+void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info, bool importCompleteMswData)
 {
     if (!well_info) return;
 
     if (openFile())
     {
-        well_info_add_UNRST_wells(well_info, m_ecl_file);
+        well_info_add_UNRST_wells(well_info, m_ecl_file, importCompleteMswData);
     }
 }
 
@@ -173,5 +174,33 @@ int RifEclipseUnifiedRestartFileAccess::readUnitsType()
     openFile();
 
     return RifEclipseOutputFileTools::readUnitsType(m_ecl_file);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RifEclipseUnifiedRestartFileAccess::reportNumbers()
+{
+    std::vector<int> reportNr;
+
+    // Taken from well_info_add_UNRST_wells
+
+    int num_blocks = ecl_file_get_num_named_kw(m_ecl_file, SEQNUM_KW);
+    int block_nr;
+    for (block_nr = 0; block_nr < num_blocks; block_nr++) {
+        ecl_file_push_block(m_ecl_file);      // <-------------------------------------------------------
+        {                                                                                               //
+            ecl_file_subselect_block(m_ecl_file, SEQNUM_KW, block_nr);                                  //  Ensure that the status
+            {                                                                                             //  is not changed as a side
+                const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw(m_ecl_file, SEQNUM_KW, 0);          //  effect.
+                int report_nr = ecl_kw_iget_int(seqnum_kw, 0);                                           //
+
+                reportNr.push_back(report_nr);
+            }                                                                                             //
+        }                                                                                               //
+        ecl_file_pop_block(m_ecl_file);       // <-------------------------------------------------------
+    }
+
+    return reportNr;
 }
 

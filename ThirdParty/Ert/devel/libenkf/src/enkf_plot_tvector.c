@@ -140,12 +140,15 @@ void enkf_plot_tvector_load( enkf_plot_tvector_type * plot_tvector ,
   enkf_node_type * work_node  = enkf_node_alloc( plot_tvector->config_node );
                              
   if (enkf_node_vector_storage( work_node )) {
-    enkf_node_user_get_vector(work_node , fs , index_key , plot_tvector->iens , state , plot_tvector->work);
-    for (int step = 0; step < time_map_get_size(time_map); step++) 
-      enkf_plot_tvector_iset( plot_tvector , 
-                              step , 
-                              time_map_iget( time_map , step ) , 
-                              double_vector_iget( plot_tvector->work , step ));
+    bool has_data = enkf_node_user_get_vector(work_node , fs , index_key , plot_tvector->iens , state , plot_tvector->work);
+
+    if(has_data) {
+        for (int step = 0; step < time_map_get_size(time_map); step++)
+          enkf_plot_tvector_iset( plot_tvector ,
+                                  step ,
+                                  time_map_iget( time_map , step ) ,
+                                  double_vector_iget( plot_tvector->work , step ));
+    }
   } else {
     int step;
     node_id_type node_id = {.iens        = plot_tvector->iens,

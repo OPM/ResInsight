@@ -1,5 +1,7 @@
 set(PYTHON_SOURCES
     __init__.py
+    block_observation.py
+    gen_observation.py
     obs_vector.py
     summary_observation.py
 )

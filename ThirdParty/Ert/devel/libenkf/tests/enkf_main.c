@@ -37,7 +37,7 @@ void test_case_initialized() {
     model_config_type * model_config = enkf_main_get_model_config(enkf_main);
     const char * new_case = "fs/case";
     char * mount_point = util_alloc_sprintf("%s/%s" , model_config_get_enspath(model_config) , new_case);
-    enkf_fs_create_fs(mount_point , BLOCK_FS_DRIVER_ID , NULL);
+    enkf_fs_create_fs(mount_point , BLOCK_FS_DRIVER_ID , NULL , false);
 
     test_assert_false(enkf_main_case_is_initialized(enkf_main , "does/not/exist" , NULL));
     test_assert_true(enkf_main_case_is_initialized(enkf_main , new_case , NULL));

@@ -1,0 +1,5 @@
+INTERNAL    True
+FUNCTION    enkf_main_load_results_iter_JOB
+MIN_ARG     1
+ARG_TYPE    0  INT
+

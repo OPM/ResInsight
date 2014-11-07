@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include <ert/util/util.h>
 
@@ -122,7 +123,26 @@ void geo_pointset_iget_xy( const geo_pointset_type * pointset , int index , doub
 }
 
 
+bool geo_pointset_equal( const geo_pointset_type * pointset1 , const geo_pointset_type * pointset2) {
+  bool equal = false;
 
+  if (pointset1->size == pointset2->size) {
+    size_t byte_size = pointset2->size * sizeof * pointset2->xcoord;
+    if ((memcmp(pointset1->xcoord, pointset2->xcoord , byte_size) == 0) &&
+        (memcmp(pointset1->ycoord, pointset2->ycoord , byte_size) == 0)) {
+      
+      if (pointset1->internal_z == pointset2->internal_z) {
+        if (pointset1->zcoord) {
+          if (memcmp(pointset1->zcoord, pointset2->zcoord , byte_size) == 0)
+            equal = true;
+        } else
+          equal = true;
+      }
+    }
+  }
+  return equal;
+
+}
 
 
 

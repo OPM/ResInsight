@@ -19,6 +19,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include <ert/util/util.h>
 #include <ert/util/hash.h>
@@ -146,6 +150,33 @@ bool ext_joblist_del_job( ext_joblist_type * joblist , const char * job_name ) {
 
 hash_type * ext_joblist_get_jobs( const ext_joblist_type * joblist ) {
   return joblist->jobs;
+}
+
+void ext_joblist_add_jobs_in_directory(ext_joblist_type * joblist  , const char * path, const char * license_root_path, bool user_mode ) {
+  DIR * dirH = opendir( path );
+  if (dirH) {
+    while (true) {
+      struct dirent * entry = readdir( dirH );
+      if (entry != NULL) {
+        if ((strcmp(entry->d_name , ".") != 0) && (strcmp(entry->d_name , "..") != 0)) {
+          char * full_path = util_alloc_filename( path , entry->d_name , NULL );
+          if (util_is_file( full_path )) {
+              ext_job_type * new_job = ext_job_fscanf_alloc(entry->d_name, license_root_path, user_mode, full_path);
+              if (new_job != NULL) {
+                ext_joblist_add_job(joblist, entry->d_name, new_job);
+              }
+              else{
+                  fprintf(stderr," Failed to add forward model job: %s \n",full_path);
+              }
+          }
+          free( full_path );
+        }
+      } else
+        break;
+    }
+    closedir( dirH );
+  } else
+    fprintf(stderr, "** Warning: failed to open jobs directory: %s\n", path);
 }
 
 

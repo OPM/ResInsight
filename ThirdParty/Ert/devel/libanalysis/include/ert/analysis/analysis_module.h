@@ -24,6 +24,7 @@ extern "C" {
 
 #include <ert/util/type_macros.h>
 #include <ert/util/matrix.h>
+#include <ert/util/bool_vector.h>
 
 
 /* 
@@ -94,13 +95,15 @@ typedef enum {
                                matrix_type * dObs , 
                                matrix_type * E , 
                                matrix_type * D );
+
   
   void                   analysis_module_init_update( analysis_module_type * module , 
-                                                      matrix_type * S , 
-                                                      matrix_type * R , 
-                                                      matrix_type * dObs , 
-                                                      matrix_type * E , 
-                                                      matrix_type * D );
+                                                      const bool_vector_type * ens_mask , 
+                                                      const matrix_type * S , 
+                                                      const matrix_type * R , 
+                                                      const matrix_type * dObs , 
+                                                      const matrix_type * E , 
+                                                      const matrix_type * D );
   
 
   const char           * analysis_module_get_lib_name( const analysis_module_type * module);
@@ -114,6 +117,7 @@ typedef enum {
   bool                   analysis_module_has_var( const analysis_module_type * module , const char * var );
   double                 analysis_module_get_double( const analysis_module_type * module , const char * var);
   int                    analysis_module_get_int( const analysis_module_type * module , const char * var);
+  bool                   analysis_module_get_bool( const analysis_module_type * module , const char * var);
   void *                 analysis_module_get_ptr( const analysis_module_type * module , const char * var);
   const char           * analysis_module_flag_enum_iget( int index, int * value);
   

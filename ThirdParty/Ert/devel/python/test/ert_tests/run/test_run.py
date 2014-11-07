@@ -1,39 +1,41 @@
-from ert.test_run import TestRun , path_exists
-from ert_tests import ExtendedTestCase
-
+from ert.test import TestRun , path_exists , ExtendedTestCase
     
 
 
 class RunTest(ExtendedTestCase):
+    def setUp(self):
+        self.testConfig = self.createTestPath("local/run/config.txt")
 
     def test_init(self):
         with self.assertRaises(IOError):
             TestRun("Does/notExist")
             
-        tr = TestRun("test-data/local/run/config.txt")
+        tr = TestRun(self.testConfig)
         self.assertEqual( tr.config_file , "config.txt")
+        self.assertEqual(tr.ert_version , "stable")
+
+
+    def test_args(self):
+        tr = TestRun(self.testConfig , args=["-v" , "latest"])
+        self.assertEqual(tr.ert_version , "latest")
 
 
     def test_cmd(self):
-        tr = TestRun("test-data/local/run/config.txt")
+        tr = TestRun(self.testConfig)
         self.assertEqual( tr.ert_cmd , TestRun.default_ert_cmd )
 
         tr.ert_cmd = "/tmp/test"
         self.assertEqual( "/tmp/test" , tr.ert_cmd )
 
 
-    def test_args(self):
-        tr = TestRun("test-data/local/run/config.txt")
-        self.assertEqual( tr.get_args() , [])
-
-        tr.add_arg("-v")
-        self.assertEqual( tr.get_args() , ["-v"])
-        tr.add_arg("latest")
-        self.assertEqual( tr.get_args() , ["-v" , "latest"])
+    def test_args2(self):
+        tr = TestRun(self.testConfig , args = ["arg1","arg2","-v","latest"])
+        self.assertEqual( tr.get_args() , ["arg1","arg2"])
+        self.assertEqual(tr.ert_version , "latest")
 
 
     def test_workflows(self):
-        tr = TestRun("test-data/local/run/config.txt")
+        tr = TestRun(self.testConfig)
         self.assertEqual( tr.get_workflows() , [])
         
         tr.add_workflow( "wf1" )
@@ -42,26 +44,20 @@ class RunTest(ExtendedTestCase):
 
         
     def test_run_no_workflow(self):
-        tr = TestRun("test-data/local/run/config.txt")
+        tr = TestRun(self.testConfig)
         with self.assertRaises(Exception):
             tr.run()
 
                     
-    def test_name(self):
-        tr = TestRun("test-data/local/run/config.txt" , "Name")
-        self.assertEqual( "Name" , tr.name[:4] )
-
-        tr = TestRun("test-data/local/run/config.txt")
-        self.assertEqual( "test-data.local.run.config.txt" , tr.name[:len("test-data/local/run/config.txt")] )
         
 
     def test_runpath(self):
-        tr = TestRun("test-data/local/run/config.txt" , "Name")
+        tr = TestRun(self.testConfig , "Name")
         self.assertEqual( TestRun.default_path_prefix , tr.path_prefix )
         
 
     def test_check(self):
-        tr = TestRun("test-data/local/run/config.txt" , "Name")
+        tr = TestRun(self.testConfig , "Name")
         tr.add_check( path_exists , "some/file" )
 
         with self.assertRaises(Exception):

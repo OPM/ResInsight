@@ -1,4 +1,6 @@
 INTERNAL    True
 FUNCTION    enkf_main_ensemble_run_JOB
+MIN_ARG	    0
+ARG_TYPE    0 STRING
 
 

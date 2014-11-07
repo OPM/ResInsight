@@ -18,7 +18,7 @@
 import os
 import os.path
 from ert.enkf import EclConfig
-from ert_tests import ExtendedTestCase
+from ert.test import ExtendedTestCase
 from ert.util import UIReturn
 from ert.ecl  import EclSum
 

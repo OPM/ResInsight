@@ -280,6 +280,16 @@ static void site_config_add_jobs(site_config_type * site_config, const config_ty
       site_config_install_job(site_config, job_key, description_file);
     }
   }
+  if (config_item_set(config, INSTALL_JOB_DIRECTORY_KEY)) {
+    const config_content_item_type * content_item = config_get_content_item(config, INSTALL_JOB_DIRECTORY_KEY);
+    int num_dirs = config_content_item_get_size(content_item);
+    for (int dir_nr = 0; dir_nr < num_dirs; dir_nr++) {
+      config_content_node_type * node = config_content_item_iget_node(content_item, dir_nr);
+      const char * directory = config_content_node_iget_as_abspath(node, 0);
+      ext_joblist_add_jobs_in_directory(site_config->joblist  , directory, site_config->__license_root_path, site_config->user_mode );
+    }
+  }
+
 }
 
 hash_type * site_config_get_env_hash(const site_config_type * site_config) {
@@ -579,17 +589,30 @@ bool site_config_queue_is_running(const site_config_type * site_config) {
 /**
    The job_script might be a relative path, and the cwd changes during
    execution, i.e. it is essential to get hold of the full path.
- */
+*/
 
-void site_config_set_job_script(site_config_type * site_config, const char * job_script) {
-  char * job_script_full_path = util_alloc_realpath(job_script);
-  {
-    site_config->job_script = util_realloc_string_copy(site_config->job_script, job_script_full_path);
-    if (!site_config->user_mode)
-      site_config->job_script_site = util_realloc_string_copy(site_config->job_script_site, site_config->job_script);
-  }
-  free(job_script_full_path);
+bool site_config_set_job_script(site_config_type * site_config, const char * job_script) {
+  if (util_is_executable(job_script)) {
+    char * job_script_full_path = util_alloc_realpath(job_script);
+    {
+      site_config->job_script = util_realloc_string_copy(site_config->job_script, job_script_full_path);
+      if (!site_config->user_mode)
+        site_config->job_script_site = util_realloc_string_copy(site_config->job_script_site, site_config->job_script);
+    }
+    free(job_script_full_path);
+    return true;
+  } else
+    return false;
 }
+
+
+bool site_config_has_job_script( const site_config_type * site_config ) {
+  if (site_config->job_script)
+    return true;
+  else
+    return false;
+}
+
 
 const char * site_config_get_job_script(const site_config_type * site_config) {
   return site_config->job_script;
@@ -623,9 +646,6 @@ int site_config_get_max_submit(const site_config_type * site_config) {
 }
 
 static void site_config_install_job_queue(site_config_type * site_config) {
-  if (site_config->job_script == NULL)
-    util_exit("Must set the path to the job script with the %s key in the site_config / config file\n", JOB_SCRIPT_KEY);
-
   /* 
      All the various driver options are set, unconditionally of which
      driver is actually selected in the end.
@@ -817,6 +837,7 @@ void site_config_free(site_config_type * site_config) {
     util_clear_directory(site_config->__license_root_path, true, true);
 
   util_safe_free(site_config->manual_url);
+  util_safe_free(site_config->default_browser);
   util_safe_free(site_config->license_root_path);
   util_safe_free(site_config->license_root_path_site);
   util_safe_free(site_config->__license_root_path);
@@ -1034,9 +1055,11 @@ void site_config_add_config_items(config_type * config, bool site_mode) {
   config_schema_item_set_argc_minmax(item, 2, 2);
   config_schema_item_set_envvar_expansion(item, false); /* Do not expand $VAR expressions (that is done in util_interp_setenv()). */
 
-  item = config_add_schema_item(config, LICENSE_PATH_KEY, site_mode);
-  config_schema_item_set_argc_minmax(item, 1, 1);
-  config_schema_item_iset_type(item, 0, CONFIG_PATH);
+  if (!site_mode) {
+    item = config_add_schema_item(config, LICENSE_PATH_KEY, false);
+    config_schema_item_set_argc_minmax(item, 1, 1);
+    config_schema_item_iset_type(item, 0, CONFIG_PATH);
+  }
 
 
   /*****************************************************************/
@@ -1077,7 +1100,7 @@ void site_config_add_config_items(config_type * config, bool site_mode) {
   item = config_add_schema_item(config, QUEUE_OPTION_KEY, false);
   config_schema_item_set_argc_minmax(item, 3, CONFIG_DEFAULT_ARG_MAX);
 
-  item = config_add_schema_item(config, JOB_SCRIPT_KEY, site_mode);
+  item = config_add_schema_item(config, JOB_SCRIPT_KEY, false);
   config_schema_item_set_argc_minmax(item, 1, 1);
   config_schema_item_iset_type(item, 0, CONFIG_EXISTING_PATH);
 
@@ -1085,7 +1108,14 @@ void site_config_add_config_items(config_type * config, bool site_mode) {
   config_schema_item_set_argc_minmax(item, 2, 2);
   config_schema_item_iset_type(item, 1, CONFIG_EXISTING_PATH);
 
+  item = config_add_schema_item(config, INSTALL_JOB_DIRECTORY_KEY, false);
+  config_schema_item_set_argc_minmax(item, 1, 1);
+  config_schema_item_iset_type(item, 0, CONFIG_PATH);
+
   /* Items related to the reports. */
   item = config_add_schema_item(config, REPORT_SEARCH_PATH_KEY, false);
   config_schema_item_set_argc_minmax(item, 1, CONFIG_DEFAULT_ARG_MAX);
+
+  item = config_add_schema_item( config , ANALYSIS_LOAD_KEY , false  );
+  config_schema_item_set_argc_minmax( item , 2 , 2);
 }

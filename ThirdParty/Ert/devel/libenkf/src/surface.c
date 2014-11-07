@@ -21,7 +21,6 @@
 #include <string.h>
 
 #include <ert/util/util.h>
-#include <ert/util/log.h>
 
 #include <ert/geometry/geo_surface.h>
 
@@ -53,15 +52,18 @@ void surface_clear(surface_type * surface) {
 }
 
 bool surface_fload( surface_type * surface , const char * filename ) {
-  const geo_surface_type * base_surface = surface_config_get_base_surface( surface->config );
-  return geo_surface_fload_irap_zcoord( base_surface , filename , surface->data );
+  bool ret = false; 
+  if (filename) {
+    const geo_surface_type * base_surface = surface_config_get_base_surface( surface->config );
+    ret = geo_surface_fload_irap_zcoord( base_surface , filename , surface->data );
+  }
+  return ret; 
 }
 
 
 
 bool surface_initialize(surface_type *surface , int iens , const char * filename , rng_type * rng) {
-  surface_fload(surface , filename );
-  return true;
+  return surface_fload(surface , filename );
 }
 
 
@@ -91,7 +93,7 @@ void surface_copy(const surface_type *src , surface_type * target) {
 
 
 
-void surface_read_from_buffer(surface_type * surface , buffer_type * buffer, int report_step, state_enum state) {
+void surface_read_from_buffer(surface_type * surface , buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {
   int  size = surface_config_get_data_size( surface->config );
   enkf_util_assert_buffer_type( buffer , SURFACE );
   buffer_fread( buffer , surface->data , sizeof * surface->data , size);
@@ -135,7 +137,7 @@ void surface_deserialize(surface_type * surface , node_id_type node_id , const a
 }
 
 
-void surface_ecl_write(const surface_type * surface , const char * run_path , const char * base_file , fortio_type * fortio) {
+void surface_ecl_write(const surface_type * surface , const char * run_path , const char * base_file , void * filestream) {
   char * target_file = util_alloc_filename( run_path , base_file  , NULL);
   surface_config_ecl_write( surface->config , target_file , surface->data );
   free( target_file );

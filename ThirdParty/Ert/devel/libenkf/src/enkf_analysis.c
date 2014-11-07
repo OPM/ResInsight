@@ -117,7 +117,7 @@ void enkf_analysis_deactivate_outliers(obs_data_type * obs_data , meas_data_type
       for (iobs =0; iobs < meas_block_get_total_size( meas_block ); iobs++) {
         if (meas_block_iget_active( meas_block , iobs )) {
           double ens_std  = meas_block_iget_ens_std( meas_block , iobs );
-          if (ens_std < std_cutoff) {
+          if (ens_std <= std_cutoff) {
             /*
               De activated because the ensemble has to small
               variation for this particular measurement.
@@ -147,6 +147,31 @@ void enkf_analysis_deactivate_outliers(obs_data_type * obs_data , meas_data_type
   }
 }
 
+void enkf_analysis_deactivate_std_zero(obs_data_type * obs_data , meas_data_type * meas_data) {
+
+  for (int block_nr =0; block_nr < obs_data_get_num_blocks( obs_data ); block_nr++) {
+    obs_block_type  * obs_block  = obs_data_iget_block( obs_data , block_nr);
+    meas_block_type * meas_block = meas_data_iget_block( meas_data , block_nr );
+
+    meas_block_calculate_ens_stats( meas_block );
+    {
+      int iobs;
+      for (iobs =0; iobs < meas_block_get_total_size( meas_block ); iobs++) {
+        if (meas_block_iget_active( meas_block , iobs )) {
+          double ens_std  = meas_block_iget_ens_std( meas_block , iobs );
+          if (ens_std <= 0.0) {
+            /*
+              De activated because the ensemble has to small
+              variation for this particular measurement.
+            */
+            obs_block_deactivate( obs_block , iobs , "No ensemble variation");
+            meas_block_deactivate( meas_block , iobs );
+          }
+        }
+      }
+    }
+  }
+}
 
 
 

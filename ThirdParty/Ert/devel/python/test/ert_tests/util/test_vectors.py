@@ -17,14 +17,14 @@
 
 
 import copy
-from datetime import datetime
+import datetime
 
 try:
     from unittest2 import TestCase
 except ImportError:
     from unittest import TestCase
 
-from ert.util import DoubleVector, IntVector, BoolVector, TimeVector, ctime
+from ert.util import DoubleVector, IntVector, BoolVector, TimeVector, CTime
 
 
 class UtilTest(TestCase):
@@ -66,8 +66,8 @@ class UtilTest(TestCase):
         self.assertEqual(list(v), [0.66, 0.66, 0.66, 0.66])
 
         v.clear()
-        v.default = 0.75
-        self.assertEqual(v.default, 0.75)
+        v.setDefault(0.75)
+        self.assertEqual(v.getDefault(), 0.75)
         v[2] = 0.0
         self.assertEqual(v[1], 0.75)
 
@@ -107,7 +107,7 @@ class UtilTest(TestCase):
 
     def test_bool_vector(self):
         b = BoolVector()
-        b.default = True
+        b.setDefault(True)
 
         b[4] = False
 
@@ -120,9 +120,28 @@ class UtilTest(TestCase):
         self.assertTrue(active_list[0] == 1)
         self.assertTrue(active_list[2] == 100)
         self.assertTrue(active_list[7] == 105)
+        self.assertEqual( active_list.count(100) , 1)
+        active_list.append(100)
+        active_list.append(100)
+        self.assertEqual( active_list.count(100) , 3)
 
         active_list = IntVector.active_list("1,10,100-105X")
         self.assertFalse(active_list)
+
+
+
+    def test_contains_int(self):
+        iv = IntVector()
+        iv[0] = 1
+        iv[1] = 10
+        iv[2] = 100
+        iv[3] = 1000
+
+        self.assertTrue( 1 in iv )
+        self.assertTrue( 10 in iv )
+        self.assertTrue( 88 not in iv )
+        self.assertTrue( 99 not in iv )
+        
 
 
     def test_activeMask(self):
@@ -134,12 +153,16 @@ class UtilTest(TestCase):
         self.assertFalse(active_list[9])
         self.assertFalse(active_list[8])
 
+        self.assertEqual(6, active_list.count(True))
+
         active_list = BoolVector.active_mask("1,4-7,10X")
         self.assertFalse(active_list)
 
 
+
+
     def test_update_active_mask(self):
-        vec = BoolVector(0, 10)
+        vec = BoolVector(False, 10)
 
         self.assertTrue(BoolVector.updateActiveMask("1-2,5", vec))
         self.assertTrue(vec[1])
@@ -148,7 +171,7 @@ class UtilTest(TestCase):
         self.assertFalse(vec[4])
 
 
-        vec = BoolVector(0, 10)
+        vec = BoolVector(False, 10)
 
         self.assertTrue(BoolVector.updateActiveMask("1-5,2,3", vec))
         self.assertTrue(vec[1])
@@ -160,7 +183,7 @@ class UtilTest(TestCase):
         self.assertFalse(vec[6])
 
 
-        vec = BoolVector(0, 10)
+        vec = BoolVector(False, 10)
 
         self.assertTrue(BoolVector.updateActiveMask("5,6,7,15", vec))
         self.assertTrue(vec[5])
@@ -170,6 +193,54 @@ class UtilTest(TestCase):
         self.assertFalse(vec[8])
         self.assertEqual(len(vec), 16)
 
+
+    def test_pop(self):
+        a = IntVector()
+        a.append(1)
+        a.append(2)
+        
+        self.assertEqual( a.pop() , 2 )
+        self.assertEqual( len(a) , 1 )
+        self.assertEqual( a.pop() , 1 )
+        self.assertEqual( len(a) , 0 )
+        with self.assertRaises(ValueError):
+            a.pop()
+        
+
+    def test_shift(self):
+        a = IntVector()
+        a.append(1)
+        a.append(2)
+        a.append(3)
+        a.append(4)
+        a.append(5)
+        
+        with self.assertRaises(ValueError):
+            a >> -1
+
+
+        with self.assertRaises(ValueError):
+            a << -1
+
+        with self.assertRaises(ValueError):
+            a << -6
+
+        b = a << 2
+        self.assertEqual(list(b) , [3,4,5])
+        
+        print a
+        a <<= 2
+        print a
+        self.assertEqual(list(a) , [3,4,5])
+
+        b = a >> 2
+        self.assertEqual(list(b) , [0,0,3,4,5])
+
+        
+        a >>= 2
+        self.assertEqual(list(a) , [0,0,3,4,5])
+        
+        
 
 
     def test_int_vector(self):
@@ -182,15 +253,15 @@ class UtilTest(TestCase):
 
         self.assertEqual(list(a), [1, 2, 3, 4, 5])
 
-        a.rsort()
+        a.sort(reverse=True)
         self.assertEqual(list(a), [5, 4, 3, 2, 1])
 
         self.assertTrue(a.max, 5)
         self.assertTrue(a.min, 1)
-        self.assertTrue(a.min_index(), 4)
+        self.assertTrue(a.minIndex(), 4)
 
-        self.assertEqual(a.max_index(reverse=True), 0)
-        self.assertEqual(a.max_index(reverse=False), 0)
+        self.assertEqual(a.maxIndex(reverse=True), 0)
+        self.assertEqual(a.maxIndex(reverse=False), 0)
 
         a[4] = 5
         self.assertTrue(a[4] == 5)
@@ -232,10 +303,10 @@ class UtilTest(TestCase):
     def test_time_vector(self):
         time_vector = TimeVector()
 
-        time1 = ctime(datetime(2013, 8, 13, 0, 0, 0))
-        time2 = ctime(datetime(2013, 8, 13, 1, 0, 0))
+        time1 = CTime(datetime.datetime(2013, 8, 13, 0, 0, 0))
+        time2 = CTime(datetime.datetime(2013, 8, 13, 1, 0, 0))
 
-        time_vector.default = time2
+        time_vector.setDefault(time2)
 
         time_vector.append(time1)
         time_vector[2] = time2
@@ -244,3 +315,124 @@ class UtilTest(TestCase):
         self.assertEqual(time_vector[1], time2)
         self.assertEqual(time_vector[2], time2)
 
+        tv1 = TimeVector( default_value = datetime.date( 2000 , 1,1) , initial_size = 2)
+        self.assertEqual( tv1[0] , datetime.date(2000,1,1))
+
+        tv2 = TimeVector()
+        tv2.append( time2 )
+        print tv2
+
+
+    def test_permutation_vector(self):
+        vector = DoubleVector()
+
+        for i in range(5, 0, -1):
+            vector.append(i)
+
+        permutation_vector = vector.permutationSort()
+
+        for index, value in enumerate(range(5, 0, -1)):
+            self.assertEqual(vector[index], value)
+
+        vector.permute(permutation_vector)
+
+        for index, value in enumerate(range(1, 6)):
+            self.assertEqual(vector[index], value)
+
+    
+    def test_contains_time(self):        
+        start = datetime.datetime(2010 , 1 , 1 , 0,0,0)
+        end = datetime.datetime(2010 , 2 , 1 , 0,0,0)
+        other = datetime.datetime(2010 , 1 , 15 , 0,0,0)
+        
+        tv = TimeVector()
+        tv.append( start )
+        tv.append( end )
+
+        self.assertTrue( start in tv )
+        self.assertTrue( end in tv )
+        self.assertTrue( other not in tv)
+
+
+    def test_unique(self):
+        iv = IntVector()
+        iv.append(1)
+        iv.append(1)
+        iv.append(1)
+        iv.append(0)
+        iv.append(1)
+        iv.append(2)
+        iv.append(2)
+        iv.append(0)
+        iv.append(3)
+        iv.selectUnique()
+        self.assertEqual( len(iv) , 4)
+        self.assertEqual( iv[0] , 0 )
+        self.assertEqual( iv[1] , 1 )
+        self.assertEqual( iv[2] , 2 )
+        self.assertEqual( iv[3] , 3 )
+
+
+
+    def test_time_vector_regular(self):
+        start = datetime.datetime(2010 , 1 , 1 , 0,0,0)
+        end = datetime.datetime(2010 , 2 , 1 , 0,0,0)
+
+        with self.assertRaises(ValueError):
+            trange = TimeVector.createRegular( end , start , "1X" )
+
+        with self.assertRaises(TypeError):
+            trange = TimeVector.createRegular( start , end , "1X" )
+
+        with self.assertRaises(TypeError):
+            trange = TimeVector.createRegular( start , end , "1" )
+
+        with self.assertRaises(TypeError):
+            trange = TimeVector.createRegular( start , end , "X" )
+
+        with self.assertRaises(TypeError):
+            trange = TimeVector.createRegular( start , end , "1.5Y" )
+
+        trange = TimeVector.createRegular(start , end , "d")
+        trange = TimeVector.createRegular(start , end , "D")
+        trange = TimeVector.createRegular(start , end , "1d")
+        self.assertEqual( trange[0].datetime()  , start )
+        self.assertEqual( trange[-1].datetime() , end )
+        date = start
+        delta = datetime.timedelta(days = 1)
+        for t in trange:
+            self.assertEqual(t ,  date)
+            date += delta
+        
+        
+        end = datetime.datetime(2010 , 1 , 10 , 0,0,0)
+        trange = TimeVector.createRegular(start , end , "2d")
+        self.assertEqual(  trange[-1].datetime() ,  datetime.datetime(2010 , 1 , 9 , 0,0,0))
+        self.assertEqual( 5 , len(trange))
+        
+
+        end = datetime.datetime(2012 , 1 , 10 , 0,0,0)
+        trange = TimeVector.createRegular(start , end , "3M")
+        self.assertTrue( trange[-1] == datetime.datetime(2012 , 1 , 1 , 0,0,0))
+        self.assertTrue( trange[1]  == datetime.datetime(2010 , 4  , 1 , 0,0,0))
+        self.assertTrue( trange[2]  == datetime.datetime(2010 , 7  , 1 , 0,0,0))
+        self.assertTrue( trange[3]  == datetime.datetime(2010 , 10 , 1 , 0,0,0))
+        self.assertTrue( trange[4]  == datetime.datetime(2011 , 1 , 1 , 0,0,0))
+
+        start = datetime.datetime(1980 , 1 , 1 , 0,0,0)
+        end = datetime.datetime(2020 , 1 , 1 , 0,0,0)
+        trange = TimeVector.createRegular(start , end , "2Y")
+        for (y,t) in zip(xrange(1980,2022,2) , trange):
+            self.assertTrue( t == datetime.datetime(y,1,1,0,0,0) )
+
+        trange = TimeVector.createRegular(start , datetime.date(2050, 1 , 1) , "1Y")
+        
+
+    def test_asList(self):
+        v = IntVector()
+        v[0] = 100
+        v[1] = 10
+        v[2] = 1
+
+        l = v.asList()
+        self.assertListEqual( l , [100,10,1] )

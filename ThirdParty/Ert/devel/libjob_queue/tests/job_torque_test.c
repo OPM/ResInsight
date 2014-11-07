@@ -40,6 +40,8 @@ void setoption_setalloptions_optionsset() {
   test_option(driver, TORQUE_NUM_NODES, "36");
   test_option(driver, TORQUE_KEEP_QSUB_OUTPUT, "1");
   test_option(driver, TORQUE_KEEP_QSUB_OUTPUT, "0");
+  test_option(driver, TORQUE_CLUSTER_LABEL, "thecluster");
+  test_option(driver, TORQUE_JOB_PREFIX_KEY, "coolJob");
 
   printf("Options OK\n");
   torque_driver_free(driver);
@@ -66,6 +68,8 @@ void getoption_nooptionsset_defaultoptionsreturned() {
   test_assert_string_equal(torque_driver_get_option(driver, TORQUE_KEEP_QSUB_OUTPUT), "0");
   test_assert_string_equal(torque_driver_get_option(driver, TORQUE_NUM_CPUS_PER_NODE), "1");
   test_assert_string_equal(torque_driver_get_option(driver, TORQUE_NUM_NODES), "1");
+  test_assert_string_equal(torque_driver_get_option(driver, TORQUE_CLUSTER_LABEL), NULL );
+  test_assert_string_equal(torque_driver_get_option(driver, TORQUE_JOB_PREFIX_KEY), NULL);
 
   printf("Default options OK\n");
   torque_driver_free(driver);

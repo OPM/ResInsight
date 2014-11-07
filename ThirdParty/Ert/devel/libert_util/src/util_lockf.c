@@ -21,6 +21,11 @@
 
     ** Observe that with this locking scheme the existence of a lockfile
     ** is not really interesting. 
+
+    Observe that the lockf() system call, which this function is based
+    on, will always succeed in the same process. I.e. this function
+    can NOT be used to protect against concurrent update from two
+    threads in the same process.
 */
     
 

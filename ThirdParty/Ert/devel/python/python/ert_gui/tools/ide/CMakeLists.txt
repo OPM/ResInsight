@@ -1,5 +1,6 @@
 set(PYTHON_SOURCES
     __init__.py
+    configuration_panel.py
     ide_panel.py
     ide_tool.py
     ide_window.py

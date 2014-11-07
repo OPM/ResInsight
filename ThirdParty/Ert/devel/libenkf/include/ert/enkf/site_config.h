@@ -35,6 +35,7 @@ extern "C" {
 
 typedef struct site_config_struct site_config_type;
 
+  bool                     site_config_has_job_script( const site_config_type * site_config );
   const char *             site_config_get_manual_url( const site_config_type * site_config );
   void                     site_config_set_manual_url( site_config_type * site_config , const char * manual_url );
   const char *             site_config_get_default_browser( const site_config_type * site_config );
@@ -81,7 +82,7 @@ typedef struct site_config_struct site_config_type;
   const char             * site_config_get_rsh_command( const site_config_type * site_config );
   
   
-  void                     site_config_set_job_script( site_config_type * site_config , const char * job_script );
+  bool                     site_config_set_job_script( site_config_type * site_config , const char * job_script );
   const char             * site_config_get_job_script( const site_config_type * site_config );
   
   void                     site_config_set_max_submit( site_config_type * site_config , int max_submit );

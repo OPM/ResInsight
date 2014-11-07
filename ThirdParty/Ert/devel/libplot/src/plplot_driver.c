@@ -207,7 +207,7 @@ static void plplot_set_axis(plot_driver_type * driver , const plot_range_type * 
 
 static void plplot_setup_linestyle( line_attribute_type line_attr ) {
   pllsty(line_attr.line_style);                                   /* Setting solid/dashed/... */
-  plwid(line_attr.line_width * PLOT_DEFAULT_LINE_WIDTH);          /* Setting line width.*/
+  plwidth(line_attr.line_width * PLOT_DEFAULT_LINE_WIDTH);          /* Setting line width.*/
   plcol0(line_attr.line_color);                                   /* Setting line color. */
 }
 

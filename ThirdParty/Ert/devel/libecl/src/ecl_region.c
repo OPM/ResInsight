@@ -1403,3 +1403,14 @@ void ecl_region_set_name( ecl_region_type * region , const char * name ) {
 const char * ecl_region_get_name( const ecl_region_type * region ) {
   return region->name;
 }
+
+
+bool ecl_region_equal( const ecl_region_type * region1 , const ecl_region_type * region2) {
+  if (region1->parent_grid == region2->parent_grid) {  // Must be exactly the same grid instance to compare as equal.
+    if (memcmp(region1->active_mask , region2->active_mask , region1->grid_vol * sizeof * region1->active_mask ) == 0)
+      return true;
+    else
+      return false;
+  } else
+    return false;
+}

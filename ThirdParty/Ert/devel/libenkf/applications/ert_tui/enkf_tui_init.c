@@ -45,7 +45,7 @@ void enkf_tui_init(enkf_main_type * enkf_main, bool all_members , bool all_param
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
   int   ens_size                               = enkf_main_get_ensemble_size( enkf_main );
   int iens1, iens2;
-  init_mode_enum init_mode = INIT_FORCE;
+  init_mode_type init_mode = INIT_FORCE;
   bool iens_valid = false;
   
   /* iens2 should be interpreted as __inclusive__ */

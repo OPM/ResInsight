@@ -1,6 +1,5 @@
 from PyQt4.QtCore import Qt, pyqtSlot
 from PyQt4.QtGui import QLabel
-from ert_gui.pages.message_center import MessageCenter
 from ert_gui.widgets.helped_widget import HelpedWidget
 
 
@@ -27,8 +26,6 @@ class WarningPanel(HelpedWidget):
 
         self.addWidget(self.warning_widget)
         self.warnings = {}
-
-        MessageCenter().addWarningMessageListeners(self)
 
 
     def setWarning(self, reference, warning):

@@ -18,7 +18,7 @@ class AdvancedKeywords(object):
         fixed_length_sched_kw = ConfigurationLineDefinition(keyword=KeywordDefinition("ADD_FIXED_LENGTH_SCHEDULE_KW"),
                                              arguments=[StringArgument(),
                                                         StringArgument()],
-                                             documentation_link="advanced/add_fixed_length_schedule_kw",
+                                             documentation_link="keywords/add_fixed_length_schedule_kw",
                                              required=False,
                                              group=self.group)
         return fixed_length_sched_kw
@@ -28,7 +28,7 @@ class AdvancedKeywords(object):
         add_static_kw = ConfigurationLineDefinition(keyword=KeywordDefinition("ADD_STATIC_KW"),
                                              arguments=[StringArgument(),
                                                         StringArgument()],
-                                             documentation_link="advanced/add_static_kw",
+                                             documentation_link="keywords/add_static_kw",
                                              required=False,
                                              group=self.group)
         return add_static_kw
@@ -39,7 +39,7 @@ class AdvancedKeywords(object):
         define = ConfigurationLineDefinition(keyword=KeywordDefinition("DEFINE"),
                                              arguments=[ProperNameArgument(),
                                                         StringArgument(rest_of_line=True,allow_space=True)],
-                                             documentation_link="advanced/define",
+                                             documentation_link="keywords/define",
                                              required=False,
                                              group=self.group)
         return define
@@ -49,7 +49,7 @@ class AdvancedKeywords(object):
     def addSchedulePredictionFile(self):
         schedule_prediction_file = ConfigurationLineDefinition(keyword=KeywordDefinition("SCHEDULE_PREDICTION_FILE"),
                                                       arguments=[PathArgument()],
-                                                      documentation_link="advanced/schedule_prediction_file",
+                                                      documentation_link="keywords/schedule_prediction_file",
                                                       required=False,
                                                       group=self.group)
         return schedule_prediction_file

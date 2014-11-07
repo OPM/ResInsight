@@ -22,7 +22,7 @@ class WorkflowKeywords(object):
     def addInternal(self):
         internal = ConfigurationLineDefinition(keyword=KeywordDefinition("INTERNAL"),
                                                arguments=[BoolArgument()],
-                                               documentation_link="workflow_jobs/internal",
+                                               documentation_link="keywords/internal",
                                                required=False,
                                                group=self.group)
         return internal
@@ -31,7 +31,7 @@ class WorkflowKeywords(object):
     def addFunction(self):
         function = ConfigurationLineDefinition(keyword=KeywordDefinition("FUNCTION"),
                                                arguments=[StringArgument()],
-                                               documentation_link="workflow_jobs/function",
+                                               documentation_link="keywords/function",
                                                required=False,
                                                group=self.group)
         return function
@@ -40,7 +40,7 @@ class WorkflowKeywords(object):
     def addModule(self):
         module = ConfigurationLineDefinition(keyword=KeywordDefinition("MODULE"),
                                              arguments=[PathArgument()],
-                                             documentation_link="workflow_jobs/module",
+                                             documentation_link="keywords/module",
                                              required=False,
                                              group=self.group)
         return module
@@ -49,7 +49,7 @@ class WorkflowKeywords(object):
     def addExecutable(self):
         executable = ConfigurationLineDefinition(keyword=KeywordDefinition("EXECUTABLE"),
                                                  arguments=[PathArgument()],
-                                                 documentation_link="workflow_jobs/executable",
+                                                 documentation_link="keywords/executable",
                                                  required=False,
                                                  group=self.group)
         return executable
@@ -60,7 +60,7 @@ class WorkflowKeywords(object):
     def addMinArg(self):
         min_arg = ConfigurationLineDefinition(keyword=KeywordDefinition("MIN_ARG"),
                                               arguments=[IntegerArgument()],
-                                              documentation_link="workflow_jobs/min_arg",
+                                              documentation_link="keywords/min_arg",
                                               required=False,
                                               group=self.group)
         return min_arg
@@ -71,7 +71,7 @@ class WorkflowKeywords(object):
     def addMaxArg(self):
         max_arg = ConfigurationLineDefinition(keyword=KeywordDefinition("MAX_ARG"),
                                               arguments=[IntegerArgument()],
-                                              documentation_link="workflow_jobs/max_arg",
+                                              documentation_link="keywords/max_arg",
                                               required=False,
                                               group=self.group)
         return max_arg
@@ -81,7 +81,7 @@ class WorkflowKeywords(object):
     def addArgType(self):
         arg_type = ConfigurationLineDefinition(keyword=KeywordDefinition("ARG_TYPE"),
                                                arguments=[StringArgument(built_in=True)],
-                                               documentation_link="workflow_jobs/arg_type",
+                                               documentation_link="keywords/arg_type",
                                                required=False,
                                                group=self.group)
         return arg_type
@@ -90,7 +90,7 @@ class WorkflowKeywords(object):
     def addLoadWorkflowJob(self):
         load_workflow_job = ConfigurationLineDefinition(keyword=KeywordDefinition("LOAD_WORKFLOW_JOB"),
                                                         arguments=[StringArgument()],
-                                                        documentation_link="workflow_jobs/load_workflow_job",
+                                                        documentation_link="keywords/load_workflow_job",
                                                         required=False,
                                                         group=self.group)
         return load_workflow_job
@@ -100,7 +100,7 @@ class WorkflowKeywords(object):
     def addWorkflowJobDirectory(self):
         workflow_job_directory = ConfigurationLineDefinition(keyword=KeywordDefinition("WORKFLOW_JOB_DIRECTORY"),
                                                         arguments=[PathArgument()],
-                                                        documentation_link="workflow_jobs/workflow_job_directory",
+                                                        documentation_link="keywords/workflow_job_directory",
                                                         required=False,
                                                         group=self.group)
         return workflow_job_directory
@@ -108,8 +108,8 @@ class WorkflowKeywords(object):
 
     def addLoadWorkflow(self):
         load_workflow = ConfigurationLineDefinition(keyword=KeywordDefinition("LOAD_WORKFLOW"),
-                                                        arguments=[PathArgument()],
-                                                        documentation_link="workflow_jobs/load_workflow",
+                                                        arguments=[PathArgument(), StringArgument(optional=True)],
+                                                        documentation_link="keywords/load_workflow",
                                                         required=False,
                                                         group=self.group)
         return load_workflow

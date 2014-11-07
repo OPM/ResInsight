@@ -26,6 +26,49 @@
 
 
 
+void test_set_get(analysis_module_type * module , const char * var_value) {
+  char * var , *string_value;
+  util_binary_split_string( var_value , ":" , false , &var , &string_value);
+
+  if (var && string_value) {
+    printf("Testing variable:%s \n",var);
+    while (true) {
+      int int_value;
+      double double_value;
+      bool bool_value;
+      test_assert_true(analysis_module_has_var( module , var ));
+      
+      if (util_sscanf_int( string_value , &int_value)) {
+        test_assert_true(analysis_module_set_var( module , var , string_value ));
+        test_assert_int_equal( int_value , analysis_module_get_int( module , var ));
+        break;
+      }
+
+      if (util_sscanf_double( string_value , &double_value)) {
+        test_assert_true(analysis_module_set_var( module , var , string_value ));
+        test_assert_double_equal( double_value , analysis_module_get_double( module , var ));
+        break;
+      }
+
+      if (util_sscanf_bool( string_value , &bool_value)) {
+        test_assert_true(analysis_module_set_var( module , var , string_value ));
+        test_assert_bool_equal( bool_value , analysis_module_get_bool( module , var ));
+        break;
+      }
+
+      
+      test_assert_true(analysis_module_set_var( module , var , string_value ));
+      test_assert_string_equal( string_value , (const char *) analysis_module_get_ptr( module , var ));
+      break;
+    }
+  } else {
+    fprintf(stderr,"Invalid test input data: %s -> could not split in var:value\n" , var_value);
+    exit(1);
+  }
+}
+
+
+
 void load_module( rng_type * rng , const char * user_name , const char * lib_name, const char * options_str , int nvar , const char ** var_list) {
   long flags = strtol(options_str , NULL , 10);
   analysis_module_type * analysis_module = analysis_module_alloc_external(rng , user_name , lib_name);
@@ -36,9 +79,9 @@ void load_module( rng_type * rng , const char * user_name , const char * lib_nam
     test_assert_string_equal( lib_name , analysis_module_get_lib_name(analysis_module));
 
   test_assert_true( analysis_module_is_instance( analysis_module));
-  for (int i=0; i < nvar; i++) {
-    printf("has_var(%s) \n" , var_list[i]);
-    test_assert_true( analysis_module_has_var(analysis_module , var_list[i]));
+  {
+    for (int i=0; i < nvar; i++) 
+      test_set_get( analysis_module , var_list[i] );
   }
   test_assert_false( analysis_module_has_var(analysis_module , "DoesNotHaveThisVariable"));
   

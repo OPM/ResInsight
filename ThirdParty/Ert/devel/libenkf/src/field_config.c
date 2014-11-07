@@ -127,6 +127,7 @@ struct field_config_struct {
 
   char                 * ecl_kw_name;    /* Name/key ... */
   int data_size , nx,ny,nz;              /* The number of elements in the three directions. */
+  bool keep_inactive_cells;              /* Whether the data contains only active cells or active and inactive cells */
   ecl_grid_type * grid;                  /* A shared reference to the grid this field is defined on. */
   bool  private_grid;
   
@@ -156,8 +157,10 @@ struct field_config_struct {
 };
 
 
+UTIL_IS_INSTANCE_FUNCTION(field_config , FIELD_CONFIG_ID)
 
 /*****************************************************************/
+
 
 void field_config_set_ecl_kw_name(field_config_type * config , const char * ecl_kw_name) {
   config->ecl_kw_name = util_realloc_string_copy(config->ecl_kw_name , ecl_kw_name);
@@ -397,8 +400,12 @@ void field_config_set_grid(field_config_type * config, ecl_grid_type * grid , bo
   
   config->grid         = grid;
   config->private_grid = private_grid;
-  ecl_grid_get_dims(grid , &config->nx , &config->ny , &config->nz , &config->data_size);
+
+  ecl_grid_get_dims(grid , &config->nx , &config->ny , &config->nz , NULL);
+  config->data_size = field_config_get_data_size_from_grid(config);
 }
+
+
 
 
 const char * field_config_get_grid_name( const field_config_type * config) {
@@ -410,16 +417,17 @@ const char * field_config_get_grid_name( const field_config_type * config) {
 /*
   The return value from this function is hardly usable. 
 */
-field_config_type * field_config_alloc_empty( const char * ecl_kw_name , ecl_grid_type * ecl_grid , field_trans_table_type * trans_table ) {
+field_config_type * field_config_alloc_empty( const char * ecl_kw_name , ecl_grid_type * ecl_grid , field_trans_table_type * trans_table, bool keep_inactive_cells ) {
 
   field_config_type * config = util_malloc(sizeof *config);
   UTIL_TYPE_ID_INIT( config , FIELD_CONFIG_ID);
   
-  config->ecl_kw_name      = util_alloc_string_copy( ecl_kw_name );
-  config->private_grid     = false;
-  config->__enkf_mode      = true;
-  config->grid             = NULL;
-  config->write_compressed = true;
+  config->keep_inactive_cells = keep_inactive_cells;
+  config->ecl_kw_name         = util_alloc_string_copy( ecl_kw_name );
+  config->private_grid        = false;
+  config->__enkf_mode         = true;
+  config->grid                = NULL;
+  config->write_compressed    = true;
 
   config->output_transform      = NULL;
   config->input_transform       = NULL;
@@ -565,14 +573,9 @@ bool field_config_is_valid( const field_config_type * field_config ) {
 }
 
 
-
 field_type_enum field_config_get_type( const field_config_type * config) {
   return config->type;
 }
-
-
-
-
 
 
 /*
@@ -586,6 +589,10 @@ field_type_enum field_config_get_type( const field_config_type * config) {
 
 inline int field_config_active_index(const field_config_type * config , int i , int j , int k) {
   return ecl_grid_get_active_index3( config->grid , i,j,k);
+}
+
+inline int field_config_global_index(const field_config_type * config, int i, int j, int k) {
+  return ecl_grid_get_global_index3( config->grid , i,j,k);
 }
 
 
@@ -655,11 +662,6 @@ double field_config_get_truncation_max( const field_config_type * config ) {
 
 
 
-
-
-
-
-
 void field_config_free(field_config_type * config) {
   util_safe_free(config->ecl_kw_name);
   util_safe_free(config->input_transform_name);
@@ -689,18 +691,17 @@ ecl_type_enum field_config_get_ecl_type(const field_config_type * config) {
 
 
 
+int field_config_get_data_size_from_grid(const field_config_type * config) {
+  return config->keep_inactive_cells ? ecl_grid_get_global_size(config->grid) : ecl_grid_get_active_size(config->grid);
+}
+
 int field_config_get_byte_size(const field_config_type * config) {
-  return config->data_size * config->sizeof_ctype;
+  int num_cells = field_config_get_data_size_from_grid(config);
+  return num_cells * config->sizeof_ctype;
 }
 
 
-
-
-
 int field_config_get_sizeof_ctype(const field_config_type * config) { return config->sizeof_ctype; }
-
-
-
 
 
 
@@ -714,17 +715,6 @@ bool field_config_active_cell(const field_config_type * config , int i , int j ,
   else
     return false;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -868,6 +858,9 @@ const char * field_config_get_key(const field_config_type * field_config) {
   return field_config->ecl_kw_name;
 }
 
+bool field_config_keep_inactive_cells(const field_config_type * config) {
+  return config->keep_inactive_cells;
+}
 
 void field_config_enkf_OFF(field_config_type * config) {
   if (config->__enkf_mode)
@@ -982,7 +975,7 @@ int field_config_parse_user_key(const field_config_type * config, const char * i
 
 
 
-const ecl_grid_type *field_config_get_grid(const field_config_type * config) { return config->grid; }
+ecl_grid_type * field_config_get_grid(const field_config_type * config) { return config->grid; }
 
 
 void field_config_fprintf_config( const field_config_type * config , 

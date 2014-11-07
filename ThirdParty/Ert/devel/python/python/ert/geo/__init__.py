@@ -21,7 +21,10 @@ from ert.cwrap import clib
 
 import ert.util
 
-ERT_GEOMETRY_LIB = clib.ert_load("libert_geometry.so")
+ERT_GEOMETRY_LIB = clib.ert_load("libert_geometry")
 
 from .geo_polygon import GeoPolygon
 
+from .polyline import Polyline
+from .xyz_io import XYZIo
+from .geometry_tools import GeometryTools

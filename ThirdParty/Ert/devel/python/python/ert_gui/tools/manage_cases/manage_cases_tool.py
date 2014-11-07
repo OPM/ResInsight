@@ -6,7 +6,7 @@ from ert_gui.widgets.closable_dialog import ClosableDialog
 
 class ManageCasesTool(Tool):
     def __init__(self):
-        super(ManageCasesTool, self).__init__("Manage Cases", util.resourceIcon("ide/database_gear"))
+        super(ManageCasesTool, self).__init__("Manage Cases", "tools/manage_cases", util.resourceIcon("ide/database_gear"))
 
 
     def trigger(self):

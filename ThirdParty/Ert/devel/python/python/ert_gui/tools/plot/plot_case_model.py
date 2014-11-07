@@ -6,10 +6,7 @@ class PlotCaseModel(QAbstractItemModel):
 
     def __init__(self):
         QAbstractItemModel.__init__(self)
-        CaseList().observable().attach(CaseList.LIST_CHANGED_EVENT, self.updateItems)
         self.__data = None
-        self.destroyed.connect(self.cleanup)
-
 
     def index(self, row, column, parent=None, *args, **kwargs):
         return self.createIndex(row, column, parent)
@@ -50,18 +47,9 @@ class PlotCaseModel(QAbstractItemModel):
 
     def getAllItems(self):
         if self.__data is None:
-            self.updateItems()
+            self.__data = CaseList().getAllCasesWithData()
 
         return self.__data
-
-    def updateItems(self):
-        self.beginResetModel()
-        self.__data = CaseList().getAllCasesWithData()
-        self.endResetModel()
-
-    def cleanup(self):
-        CaseList().observable().detach(CaseList.LIST_CHANGED_EVENT, self.updateItems)
-
 
     def __iter__(self):
         cur = 0

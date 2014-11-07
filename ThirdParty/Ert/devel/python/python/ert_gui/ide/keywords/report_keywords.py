@@ -21,7 +21,7 @@ class ReportKeywords(object):
     def addReportContext(self):
         report_context = ConfigurationLineDefinition(keyword=KeywordDefinition("REPORT_CONTEXT"),
                                                      arguments=[StringArgument(), StringArgument(rest_of_line=True,allow_space=True)],
-                                                     documentation_link="report/report_context",
+                                                     documentation_link="keywords/report_context",
                                                      required=False,
                                                      group=self.group)
         return report_context
@@ -30,7 +30,7 @@ class ReportKeywords(object):
     def addReportList(self):
         report_list = ConfigurationLineDefinition(keyword=KeywordDefinition("REPORT_LIST"),
                                                   arguments=[StringArgument(rest_of_line=True,allow_space=True)],
-                                                  documentation_link="report/report_list",
+                                                  documentation_link="keywords/report_list",
                                                   required=False,
                                                   group=self.group)
         return report_list
@@ -39,7 +39,7 @@ class ReportKeywords(object):
     def addReportPath(self):
         report_path = ConfigurationLineDefinition(keyword=KeywordDefinition("REPORT_PATH"),
                                                   arguments=[PathArgument()],
-                                                  documentation_link="report/report_path",
+                                                  documentation_link="keywords/report_path",
                                                   required=False,
                                                   group=self.group)
         return report_path
@@ -50,7 +50,7 @@ class ReportKeywords(object):
     def addReportSearchPath(self):
         report_search_path = ConfigurationLineDefinition(keyword=KeywordDefinition("REPORT_SEARCH_PATH"),
                                                      arguments=[StringArgument(rest_of_line=True,allow_space=True)],
-                                                     documentation_link="report/report_search_path",
+                                                     documentation_link="keywords/report_search_path",
                                                      required=False,
                                                      group=self.group)
         return report_search_path
@@ -59,7 +59,7 @@ class ReportKeywords(object):
     def addReportWellList(self):
         report_well_list = ConfigurationLineDefinition(keyword=KeywordDefinition("REPORT_WELL_LIST"),
                                                      arguments=[StringArgument(),StringArgument(rest_of_line=True,allow_space=True)],
-                                                     documentation_link="report/report_well_list",
+                                                     documentation_link="keywords/report_well_list",
                                                      required=False,
                                                      group=self.group)
         return report_well_list
@@ -68,7 +68,7 @@ class ReportKeywords(object):
     def addReportGroupList(self):
         report_group_list = ConfigurationLineDefinition(keyword=KeywordDefinition("REPORT_GROUP_LIST"),
                                                      arguments=[StringArgument(),StringArgument(rest_of_line=True,allow_space=True)],
-                                                     documentation_link="report/report_group_list",
+                                                     documentation_link="keywords/report_group_list",
                                                      required=False,
                                                      group=self.group)
         return report_group_list
@@ -76,7 +76,7 @@ class ReportKeywords(object):
     def addReportTimeout(self):
         report_timeout = ConfigurationLineDefinition(keyword=KeywordDefinition("REPORT_TIMEOUT"),
                                                      arguments=[IntegerArgument()],
-                                                     documentation_link="report/report_timeout",
+                                                     documentation_link="keywords/report_timeout",
                                                      required=False,
                                                      group=self.group)
         return report_timeout
@@ -85,7 +85,7 @@ class ReportKeywords(object):
     def addReportLarge(self):
         report_large = ConfigurationLineDefinition(keyword=KeywordDefinition("REPORT_LARGE"),
                                                      arguments=[BoolArgument()],
-                                                     documentation_link="report/report_large",
+                                                     documentation_link="keywords/report_large",
                                                      required=False,
                                                      group=self.group)
         return report_large
