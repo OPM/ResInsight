@@ -209,6 +209,8 @@ source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 
 if (MSVC)
     set( EXE_FILES WIN32)
+elseif (APPLE)
+    set( EXE_FILES MACOSX_BUNDLE)
 endif()
 set( EXE_FILES
     ${EXE_FILES}
