@@ -45,7 +45,7 @@
 #pragma warning (pop)
 #endif
 
-#if defined CVF_LINUX || defined(CVF_ANDROID)
+#if defined(CVF_LINUX) || defined(CVF_ANDROID) || defined(CVF_OSX)
 #include <pthread.h>
 #endif
 
