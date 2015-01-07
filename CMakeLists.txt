@@ -57,22 +57,46 @@ SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
 SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
 
+option( ERT_EXTERNAL             "Build ERT from external source" OFF)
+SET(EXT_ERT_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
 
-add_subdirectory(ThirdParty/Ert/devel)
+if (ERT_EXTERNAL)
+    if (EXT_ERT_ROOT)
+        set(ERT_SOURCE_PATH "${EXT_ERT_ROOT}")
 
-include_directories(
+        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+        include_directories(
+        ${ERT_SOURCE_PATH}/libecl/include/ert/ecl
+        ${ERT_SOURCE_PATH}/libert_util/include/ert/util
+        ${ERT_SOURCE_PATH}/libgeometry/include/ert/geometry
+        ${ERT_SOURCE_PATH}/libecl_well/include/ert/ecl_well
+        ${ERT_SOURCE_PATH}/libecl/include
+        ${ERT_SOURCE_PATH}/libert_util/include
+        ${ERT_SOURCE_PATH}/libgeometry/include
+        ${ERT_SOURCE_PATH}/libecl_well/include
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include/ert/util
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include
+        )
+    endif(EXT_ERT_ROOT)
+
+else (ERT_EXTERNAL)
+    add_subdirectory(ThirdParty/Ert/devel)
+    include_directories(
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include/ert/ecl
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include/ert/geometry
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include/ert/ecl_well
 	${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include
 
 	${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
+    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
     ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
-)
+    )
+endif (ERT_EXTERNAL)
 
 
 ################################################################################
