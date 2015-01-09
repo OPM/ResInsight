@@ -848,14 +848,20 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(const QString& faceString)
 {
-    if (faceString == "X"  || faceString == "I" ) return cvf::StructGridInterface::POS_I;
-    if (faceString == "X-" || faceString == "I-") return cvf::StructGridInterface::NEG_I;
-    if (faceString == "Y"  || faceString == "J" ) return cvf::StructGridInterface::POS_J;
-    if (faceString == "Y-" || faceString == "J-") return cvf::StructGridInterface::NEG_J;
-    if (faceString == "Z"  || faceString == "K" ) return cvf::StructGridInterface::POS_K;
-    if (faceString == "Z-" || faceString == "K-") return cvf::StructGridInterface::NEG_K;
+    QString upperCaseText = faceString.toUpper().trimmed();
+
+    if (upperCaseText == "X" || upperCaseText == "X+" || upperCaseText == "I" || upperCaseText == "I+") return cvf::StructGridInterface::POS_I;
+    if (upperCaseText == "Y" || upperCaseText == "Y+" || upperCaseText == "J" || upperCaseText == "J+") return cvf::StructGridInterface::POS_J;
+    if (upperCaseText == "Z" || upperCaseText == "Z+" || upperCaseText == "K" || upperCaseText == "K+") return cvf::StructGridInterface::POS_K;
+    
+    if (upperCaseText == "X-" || upperCaseText == "I-") return cvf::StructGridInterface::NEG_I;
+    if (upperCaseText == "Y-" || upperCaseText == "J-") return cvf::StructGridInterface::NEG_J;
+    if (upperCaseText == "Z-" || upperCaseText == "K-") return cvf::StructGridInterface::NEG_K;
 
     return cvf::StructGridInterface::NO_FACE;
 }
@@ -906,7 +912,7 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         // Replace tab with space to be able to split the string using space as splitter
         line.replace("\t", " ");
 
-        // Replace character ' used to mark start and end of fault name
+        // Remove character ' used to mark start and end of fault name, possibly also around face definition; 'I+'
         line.remove("'");
 
         QStringList entries = line.split(" ", QString::SkipEmptyParts);

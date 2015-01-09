@@ -55,6 +55,7 @@ source_group( "Headers"             FILES ${CODE_HEADER_FILES} )
 set( UNIT_TEST_CPP_SOURCES
     main.cpp
     RifReaderEclipseOutput-Test.cpp
+    RifEclipseInputFileTools-Test.cpp
     Ert-Test.cpp
 )
 
