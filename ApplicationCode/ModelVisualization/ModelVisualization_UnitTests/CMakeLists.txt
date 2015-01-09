@@ -61,6 +61,10 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set( EXTERNAL_LINK_LIBRARIES
         pthread
     )
+ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set( CMAKE_CXX_FLAGS
+        "-DGTEST_USE_OWN_TR1_TUPLE=1"
+    )
 ENDIF()
 
 target_link_libraries( ${ProjectName} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})

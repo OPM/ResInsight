@@ -209,6 +209,8 @@ source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 
 if (MSVC)
     set( EXE_FILES WIN32)
+elseif (APPLE)
+    set( EXE_FILES MACOSX_BUNDLE)
 endif()
 set( EXE_FILES
     ${EXE_FILES}
@@ -224,6 +226,18 @@ set( EXE_FILES
 
 add_executable( ResInsight ${EXE_FILES} )
 
+# Application icon for MacOS X bundle
+if (APPLE)
+    add_custom_command (OUTPUT Resources/ResInsight.icns
+        COMMAND sips -s format icns ${CMAKE_CURRENT_SOURCE_DIR}/Resources/AppLogo48x48.png --out ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns
+        COMMENT Converting application icon
+    )
+    add_custom_target (ResInsight-icns
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
+    add_dependencies (ResInsight ResInsight-icns)
+    set_target_properties (ResInsight PROPERTIES
+        MACOSX_BUNDLE_ICON_FILE ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
+endif ()
 
 set( LINK_LIBRARIES
     WellPathImportSsihub

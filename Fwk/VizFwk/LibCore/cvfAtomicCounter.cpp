@@ -99,12 +99,6 @@ AtomicCounter::AtomicCounter(int initialValue)
 }
 
 
-AtomicCounter::AtomicCounter(const AtomicCounter& counter)
-    : m_counter(counter.value())
-{
-}
-
-
 AtomicCounter::~AtomicCounter()
 {
 }

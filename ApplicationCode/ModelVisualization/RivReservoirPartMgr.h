@@ -23,6 +23,7 @@
 #include "cvfArray.h"
 #include "cvfCollection.h"
 
+#include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
 
 namespace cvf
@@ -33,7 +34,6 @@ namespace cvf
 
 class RimResultSlot;
 class RimCellEdgeResultSlot;
-class RivGridPartMgr;
 class RigCaseData;
 class RimReservoirView;
 

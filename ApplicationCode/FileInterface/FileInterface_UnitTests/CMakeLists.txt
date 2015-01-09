@@ -76,6 +76,10 @@ set( LINK_LIBRARIES
     ${QT_LIBRARIES}
 )
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(CMAKE_CXX_FLAGS "-DGTEST_USE_OWN_TR1_TUPLE=1")
+endif()
+
 add_executable( ${ProjectName}
     ${CODE_HEADER_FILES}
 
