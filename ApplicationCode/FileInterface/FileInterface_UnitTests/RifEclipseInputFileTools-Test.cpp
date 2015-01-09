@@ -16,7 +16,7 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         faceTexts << "X" << "X+" << "I" << "I+" << "x" << "x+" << "i" << "i+";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        for each (QString text in faceTexts)
+        foreach (QString text, faceTexts)
         {
             faceType = RifEclipseInputFileTools::faceEnumFromText(text);
             EXPECT_EQ(cvf::StructGridInterface::POS_I, faceType);
@@ -28,7 +28,7 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         faceTexts << "X-" << "I-" << "x-" << "i-";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        for each (QString text in faceTexts)
+        foreach(QString text, faceTexts)
         {
             faceType = RifEclipseInputFileTools::faceEnumFromText(text);
             EXPECT_EQ(cvf::StructGridInterface::NEG_I, faceType);
@@ -40,7 +40,7 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         faceTexts << "Y" << "Y+" << "J" << "J+" << "y" << "y+" << "j" << "j+";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        for each (QString text in faceTexts)
+        foreach(QString text, faceTexts)
         {
             faceType = RifEclipseInputFileTools::faceEnumFromText(text);
             EXPECT_EQ(cvf::StructGridInterface::POS_J, faceType);
@@ -52,7 +52,7 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         faceTexts << "Y-" << "J-" << "y-" << "j-";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        for each (QString text in faceTexts)
+        foreach(QString text, faceTexts)
         {
             faceType = RifEclipseInputFileTools::faceEnumFromText(text);
             EXPECT_EQ(cvf::StructGridInterface::NEG_J, faceType);
@@ -64,7 +64,7 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         faceTexts << "Z" << "Z+" << "K" << "k+" << "z" << "z+" << "k" << "k+";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        for each (QString text in faceTexts)
+        foreach(QString text, faceTexts)
         {
             faceType = RifEclipseInputFileTools::faceEnumFromText(text);
             EXPECT_EQ(cvf::StructGridInterface::POS_K, faceType);
@@ -76,7 +76,7 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         faceTexts << "Z-" << "K-" << "z-" << "k-";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        for each (QString text in faceTexts)
+        foreach(QString text, faceTexts)
         {
             faceType = RifEclipseInputFileTools::faceEnumFromText(text);
             EXPECT_EQ(cvf::StructGridInterface::NEG_K, faceType);
@@ -90,7 +90,7 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         faceTexts << "Z--" << "z--" << "-k-" << " -k " << "   +k-  ";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        for each (QString text in faceTexts)
+        foreach(QString text, faceTexts)
         {
             faceType = RifEclipseInputFileTools::faceEnumFromText(text);
             EXPECT_EQ(cvf::StructGridInterface::NO_FACE, faceType);
@@ -103,7 +103,7 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         faceTexts << " X" << " X+ " << " I " << " i+  ";
 
         cvf::StructGridInterface::FaceEnum faceType;
-        for each (QString text in faceTexts)
+        foreach(QString text, faceTexts)
         {
             faceType = RifEclipseInputFileTools::faceEnumFromText(text);
             EXPECT_EQ(cvf::StructGridInterface::POS_I, faceType);
