@@ -1,11 +1,11 @@
 ---
 layout: news_item
 title: "ResInsight 1.3.2 Dev Released"
-date: "2014-11-07 02:12:52 +0200"
+date: "2015-01-10 02:12:52 +0200"
 author: magnesj
-version: 1.3.2
+version: 
 categories: 
-  - release
+  - testrelease
 ---
 
 ## Test release including fix for selected clients
