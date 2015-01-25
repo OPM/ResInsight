@@ -11,5 +11,5 @@ cd "$INSTALL_PATH"
 
 # Start the application making the default file open path become the users cwd
 
-CommandLine="./ResInsight -startdir $WORKING_DIR $@"
+CommandLine="./ResInsight --startdir $WORKING_DIR $@"
 exec $CommandLine
