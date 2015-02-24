@@ -336,7 +336,11 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
 
         cvf::Vec3d intersectionPlaneNormal = candidateDir + nextDir;
 
-        // if (intersectionPlaneNormal.lengthSquared() < 1e-10) intersectionPlaneNormal = nextDir; // candidateDir == -nextDir => 180 deg turn
+        if (intersectionPlaneNormal.lengthSquared() < 1e-10) // candidateDir == -nextDir => 180 deg turn
+        {
+            CVF_ASSERT(false); // This is never supposed to happen due to what's done in updateFilteredPipeCenterCoords(). So look there for the bug... 
+            intersectionPlaneNormal = nextDir; 
+        }
 
         computeExtrudedCoordsAndNormals(secondCoord, intersectionPlaneNormal, candidateDir, crossSectionNodeCount, &extrudedNodes, &crossSectionVertices, &cylinderSegmentNormals);
     }
@@ -521,10 +525,17 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         if (dotProduct > cosMinBendAngle)
         {
             bool success = false;
-            cvf::Vec3d pipeIntermediateDirection = (lastValidDirectionAB + directionBC.getNormalized()).getNormalized(&success);
-            if (!success)
+
+            cvf::Vec3d pipeIntermediateDirection = (lastValidDirectionAB + directionBC.getNormalized());
+            pipeIntermediateDirection.getNormalized(&success);
+
+            if (pipeIntermediateDirection.lengthSquared() < squareDistanceTolerance)
             {
                 pipeIntermediateDirection = lastValidDirectionAB.perpendicularVector();
+            }
+            else
+            {
+                pipeIntermediateDirection.normalize();
             }
 
             double bendRadius = m_bendScalingFactor * m_radius + 1.0e-30;
