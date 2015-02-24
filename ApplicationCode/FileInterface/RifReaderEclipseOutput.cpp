@@ -474,26 +474,29 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
     // Get the data from ERT
 
     int numNNC = ecl_nnc_export_get_size( mainEclGrid );
-    ecl_nnc_type * eclNNCData= new ecl_nnc_type[numNNC];
-
-    ecl_nnc_export( mainEclGrid , init_file , eclNNCData);
-
-    // Transform to our own datastructures
-    //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
-
-    mainGrid->nncData()->connections().resize(numNNC);
-    std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
-    for (int nIdx = 0; nIdx < numNNC; ++nIdx)
+    if (numNNC > 0)
     {
-        RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
-        mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(eclNNCData[nIdx].global_index1);
-        RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
-        mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(eclNNCData[nIdx].global_index2);
-        transmissibilityValues[nIdx] = eclNNCData[nIdx].trans;
+        ecl_nnc_type * eclNNCData= new ecl_nnc_type[numNNC];
+
+        ecl_nnc_export(mainEclGrid, init_file, eclNNCData);
+
+        // Transform to our own datastructures
+        //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
+
+        mainGrid->nncData()->connections().resize(numNNC);
+        std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
+        for (int nIdx = 0; nIdx < numNNC; ++nIdx)
+        {
+            RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
+            mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(eclNNCData[nIdx].global_index1);
+            RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
+            mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(eclNNCData[nIdx].global_index2);
+            transmissibilityValues[nIdx] = eclNNCData[nIdx].trans;
+        }
+
+
+        delete[] eclNNCData;
     }
-
-
-    delete[] eclNNCData;
 }
 
 
