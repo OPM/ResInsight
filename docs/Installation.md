@@ -19,9 +19,6 @@ Currently tested and verified version on Windows is Octave 3.6.1.
 - Download and install Octave 3.6.1 for VS2010 from [release section on GitHub](https://github.com/OPM/ResInsight/releases/download/1.0.0/octave-3.6.1-vs2010-setup-1.2.exe)
 - Download an [additional library file](https://github.com/OPM/ResInsight/releases/download/1.0.0/dirent.lib) and copy it into Octave lib folder, typically **c:/Octave-3.6.1/lib/dirent.lib**
 
-<div class="note info">
-We are aware that this procedure is a bit cumbersome, and we are currently investigating improvements on how to install Octave on Windows. 
-</div>
 
 
 ## Linux
