@@ -78,6 +78,13 @@ class StringListTest(TestCase):
         s.append("C")
         self.assertEqual(list(s), ["A", "B", "C"])
 
+    def test_append_not_string(self):
+        s = StringList()
+        s.append(10)
+        self.assertEqual( len(s) , 1)
+        self.assertEqual(s[0] , "10")
+
+
     def test_negative_index(self):
         s = StringList(["A", "B", "C"])
 

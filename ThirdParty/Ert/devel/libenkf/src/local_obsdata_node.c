@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
+   Copyright (C) 2013  Statoil ASA, Norway.
+
    The file 'local_obsdata_node.c'
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 
@@ -23,7 +23,7 @@
 
 #include <ert/enkf/obs_tstep_list.h>
 #include <ert/enkf/local_obsdata_node.h>
-
+#include <ert/enkf/obs_vector.h>
 
 #define LOCAL_OBSDATA_NODE_TYPE_ID 84441309
 
@@ -88,6 +88,15 @@ const obs_tstep_list_type * local_obsdata_node_get_tstep_list( const local_obsda
 
 void local_obsdata_node_add_tstep( local_obsdata_node_type * node, int tstep) {
   obs_tstep_list_add_tstep( node->tstep_list , tstep );
+}
+
+
+void local_obsdata_node_add_active_tstep( local_obsdata_node_type * node, const obs_vector_type * obs_vector) {
+  const int_vector_type * active_tstep = obs_vector_get_step_list( obs_vector );
+  for (int i=0; i < int_vector_size( active_tstep ); i++) {
+    int tstep = int_vector_iget( active_tstep , i );
+    local_obsdata_node_add_tstep( node , tstep );
+  }
 }
 
 

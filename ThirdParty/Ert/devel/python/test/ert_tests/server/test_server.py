@@ -21,13 +21,14 @@ import os
 import signal
 import json
 import sys 
+import logging
 
 try:
     from unittest2 import skipIf, skipUnless, skipIf
 except ImportError:
     from unittest import skipIf, skipUnless, skipIf
 
-from ert.server import ErtServer,ErtCmdError
+from ert.server import ErtServer
 from ert.util import StringList, TimeVector, DoubleVector
 
 from ert.test import ExtendedTestCase , TestAreaContext
@@ -38,6 +39,8 @@ class ServerTest(ExtendedTestCase):
     def setUp(self):
         self.config_path = self.createTestPath("local/resopt/config/simple")
         self.config_file = "config"
+        self.logger = logging.getLogger("test")
+        self.logger.addHandler( logging.NullHandler )
 
 
     def testCreate(self):
@@ -45,24 +48,16 @@ class ServerTest(ExtendedTestCase):
             work_area.copy_directory_content(self.config_path)
 
             with self.assertRaises(IOError):
-                ert_server = ErtServer( "Does/not/exist" )
+                ert_server = ErtServer( "Does/not/exist" , self.logger)
                 
-            ert_server = ErtServer(self.config_file)
+            ert_server = ErtServer(self.config_file , self.logger)
             self.assertTrue( ert_server.isConnected() )
+            with self.assertRaises(KeyError):
+                res = ert_server.evalCmd( ["UNKNWON-COMMAND"])
+
             ert_server.close()
             self.assertTrue( not ert_server.isConnected() )
             
-            ert_server = ErtServer()
-            self.assertTrue( not ert_server.isConnected() )
-            ert_server.open( self.config_file )
-            self.assertTrue( ert_server.isConnected() )
-            
-            cmd = ["STATUS"]
-            res = ert_server.evalCmd( cmd )
-            self.assertEqual( res , ["READY"] )
-
-            with self.assertRaises(ErtCmdError):
-                res = ert_server.evalCmd( ["UNKNWON-COMMAND"])
             
 
     def testSimulations(self):
@@ -70,17 +65,22 @@ class ServerTest(ExtendedTestCase):
             work_area.copy_directory_content(self.config_path)
 
             
-            ert_server = ErtServer(self.config_file)
+            ert_server = ErtServer(self.config_file , self.logger)
             cmd = ["INIT_SIMULATIONS"]
-            with self.assertRaises(ErtCmdError):
+            with self.assertRaises(IndexError):
+                res = ert_server.evalCmd( cmd )
+
+            cmd = ["UNKNOWN_COMMAND"]
+            with self.assertRaises(KeyError):
                 res = ert_server.evalCmd( cmd )
                 
-            cmd = ["INIT_SIMULATIONS" , 100 , "Init_case"]
-            res = ert_server.evalCmd( cmd )
+            cmd = ["GET_RESULT"]   # Missing arguments
+            with self.assertRaises(IndexError):
+                res = ert_server.evalCmd( cmd )
 
-            cmd = ["STATUS"]
-            res = ert_server.evalCmd( cmd )
-            self.assertEqual( res , ["RUNNING" , 0 , 0 ])
-            
-            cmd = ["START_SIMULATION" , "0"]
-            
+            cmd = ["GET_RESULT" , 1 , 1 , "KW"]  #Missing keyword
+            with self.assertRaises(KeyError):
+                res = ert_server.evalCmd( cmd )
+                
+
+                        

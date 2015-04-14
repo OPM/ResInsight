@@ -15,8 +15,8 @@ class PlotScalesWidget(QWidget):
         self.__type_key = type_key
         self.__type = None
 
-        self.__double_spinner = self.createDoubleSpinner(minimum=-999999999.0, maximum=999999999.0)
-        self.__integer_spinner = self.createIntegerSpinner(minimum=0, maximum=999999999)
+        self.__double_spinner = self.createDoubleSpinner(minimum=-1e15, maximum=1e15)
+        self.__integer_spinner = self.createIntegerSpinner(minimum=0, maximum=1e10)
 
         self.__time_map = ReportStepsModel().getList()
         self.__time_index_map = {}

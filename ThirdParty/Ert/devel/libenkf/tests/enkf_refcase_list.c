@@ -26,7 +26,7 @@
 #include <ert/util/stringlist.h>
 #include <ert/util/arg_pack.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 
 #include <ert/ecl/ecl_sum.h>
 

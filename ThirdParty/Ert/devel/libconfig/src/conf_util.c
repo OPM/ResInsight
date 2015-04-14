@@ -44,7 +44,7 @@ char * __conf_util_fscanf_alloc_token_buffer(
   int           num_pad_keys,
   const char ** pad_keys)
 {
-  char * buffer_wrk   = parser_fread_alloc_file_content( file , NULL /* quote_set */  , NULL /* delete_set */ , "--" /* Comment start*/ , "\n" /* Comment end */);
+  char * buffer_wrk   = basic_parser_fread_alloc_file_content( file , NULL /* quote_set */  , NULL /* delete_set */ , "--" /* Comment start*/ , "\n" /* Comment end */);
   char ** padded_keys = util_calloc(num_pad_keys , sizeof * padded_keys);
   for(int key_nr = 0; key_nr < num_pad_keys; key_nr++)
   {

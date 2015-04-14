@@ -1,7 +1,6 @@
 from ert.cwrap import BaseCClass, CWrapper
-from ert.job_queue import JOB_QUEUE_LIB, ErtScript, FunctionErtScript
+from ert.job_queue import JOB_QUEUE_LIB, ErtScript, FunctionErtScript, ErtPlugin, ExternalErtScript
 from ert.config import ContentTypeEnum
-from ert.job_queue.external_ert_script import ExternalErtScript
 
 
 class WorkflowJob(BaseCClass):
@@ -12,6 +11,7 @@ class WorkflowJob(BaseCClass):
 
         self.__script = None
         """ :type: ErtScript """
+        self.__running = False
 
     def isInternal(self):
         """ @rtype: bool """
@@ -49,6 +49,15 @@ class WorkflowJob(BaseCClass):
         """ @rtype: str """
         return WorkflowJob.cNamespace().get_internal_script(self)
 
+    def isPlugin(self):
+        """ @rtype: bool """
+        if self.isInternalScript():
+            script_obj = ErtScript.loadScriptFromFile(self.getInternalScriptPath())
+            return issubclass(script_obj, ErtPlugin)
+
+        return False
+
+
     def argumentTypes(self):
         """ @rtype: list of type """
 
@@ -76,6 +85,7 @@ class WorkflowJob(BaseCClass):
         @type verbose: bool
         @rtype: ctypes.c_void_p
         """
+        self.__running = True
 
         min_arg = self.minimumArgumentCount()
         if min_arg > 0 and len(arguments) < min_arg:
@@ -89,25 +99,46 @@ class WorkflowJob(BaseCClass):
         if self.isInternalScript():
             script_obj = ErtScript.loadScriptFromFile(self.getInternalScriptPath())
             self.__script = script_obj(ert)
-            return self.__script.initializeAndRun(self.argumentTypes(), arguments, verbose=verbose)
+            result = self.__script.initializeAndRun(self.argumentTypes(), arguments, verbose=verbose)
 
         elif self.isInternal() and not self.isInternalScript():
             self.__script = FunctionErtScript(ert, self.functionName(), self.argumentTypes(), argument_count=len(arguments))
-            return self.__script.initializeAndRun(self.argumentTypes(), arguments, verbose=verbose)
+            result = self.__script.initializeAndRun(self.argumentTypes(), arguments, verbose=verbose)
 
         elif not self.isInternal():
             self.__script = ExternalErtScript(ert, self.executable())
-            return self.__script.initializeAndRun(self.argumentTypes(), arguments, verbose=verbose)
+            result = self.__script.initializeAndRun(self.argumentTypes(), arguments, verbose=verbose)
 
         else:
             raise UserWarning("Unknown script type!")
+
+        self.__running = False
+        return result
 
     def cancel(self):
         if self.__script is not None:
             self.__script.cancel()
 
+    def isRunning(self):
+        return self.__running
+
+    def isCancelled(self):
+        return self.__script.isCancelled()
+
+    def hasFailed(self):
+        """ @rtype: bool """
+        return self.__script.hasFailed()
+
     def free(self):
         WorkflowJob.cNamespace().free(self)
+
+
+    @classmethod
+    def createCReference(cls, c_pointer, parent=None):
+        workflow = super(WorkflowJob, cls).createCReference(c_pointer, parent)
+        workflow.__script = None
+        workflow.__running = False
+        return workflow
 
 
 CWrapper.registerObjectType("workflow_job", WorkflowJob)

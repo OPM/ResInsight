@@ -8,7 +8,7 @@ class XYZIo(object):
         """ @rtype: Polyline """
 
         if not os.path.exists(path):
-            raise ValueError("Path does not exist '%s'!" % path)
+            raise IOError("Path does not exist '%s'!" % path)
 
         name = os.path.basename(path)
 
@@ -35,7 +35,7 @@ class XYZIo(object):
         """ @rtype: Polyline """
 
         if not os.path.exists(path):
-            raise ValueError("Path does not exist '%s'!" % path)
+            raise IOError("Path does not exist '%s'!" % path)
 
         name = os.path.basename(path)
 

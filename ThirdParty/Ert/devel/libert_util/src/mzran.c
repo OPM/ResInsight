@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'mzran.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'mzran.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -71,18 +71,18 @@ unsigned int mzran_forward(void * __rng) {
   mzran_type * rng = (mzran_type *) __rng;
   {
     unsigned int s;
-  
-    if (rng->y > (rng->x + rng->c)) { 
-      s = rng->y - rng->x - rng->c;    
-      rng->c=0; 
-    } else  { 
-      s = rng->y - rng->x - rng->c - 18; 
-      rng->c=1; 
+
+    if (rng->y > (rng->x + rng->c)) {
+      s = rng->y - rng->x - rng->c;
+      rng->c=0;
+    } else  {
+      s = rng->y - rng->x - rng->c - 18;
+      rng->c=1;
     }
-    
-    rng->x = rng->y; 
-    rng->y = rng->z; 
-    rng->z = s; 
+
+    rng->x = rng->y;
+    rng->y = rng->z;
+    rng->z = s;
     rng->n = 69069*rng->n + 1013904243;
     return rng->z + rng->n;
   }
@@ -96,17 +96,17 @@ unsigned int mzran_forward(void * __rng) {
 /**
   This function will set the state of the rng, based on four input
   seeds.
-*/ 
-static void mzran_set_state4(mzran_type * rng , 
+*/
+static void mzran_set_state4(mzran_type * rng ,
                              unsigned int s0 , unsigned int s1,
                              unsigned int s2 , unsigned int s3) {
-  
+
   rng->x = s0;
   rng->y = s1;
   rng->z = s2;
   rng->n = s3;
-  rng->c = 1;  
-  
+  rng->c = 1;
+
 }
 
 
@@ -122,7 +122,7 @@ static unsigned int fscanf_4bytes( FILE * stream ) {
       char * filename = "<file>";
 #ifdef HAVE_FORK
       filename = util_alloc_filename_from_stream( stream );
-#endif      
+#endif
       util_abort("%s: reading byte from: %s failed \n",__func__ , filename);
     }
   }
@@ -173,7 +173,7 @@ void mzran_fprintf_state( const void * __rng , FILE * stream) {
 static void mzran_set_default_state( mzran_type * rng ) {
   mzran_set_state4( rng , DEFAULT_S0 , DEFAULT_S1 , DEFAULT_S2 , DEFAULT_S3);
 }
-                                       
+
 
 
 /**
@@ -206,12 +206,12 @@ void mzran_get_state(void * __rng , char * state_buffer) {
 
 /**
    Creates a new rng instance, the instance is initialized with the
-   default seed given by: 
+   default seed given by:
 
-       {DEFAULT_S0, DEFAULT_S1, DEFAULT_S2,DEFAULT_S3}. 
+       {DEFAULT_S0, DEFAULT_S1, DEFAULT_S2,DEFAULT_S3}.
 
    To recover a known state you must subsequently call one of the
-   mzran_set_state() functions. 
+   mzran_set_state() functions.
 */
 
 

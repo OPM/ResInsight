@@ -29,11 +29,13 @@ import datetime
 # regarding order of arguments: The C code generally takes the time
 # index as the first argument and the key/key_index as second
 # argument. In the python code this order has been reversed.
-from ert.cwrap import BaseCClass, CWrapper
+from ert.cwrap import BaseCClass, CWrapper, CFILE
 from ert.ecl.ecl_sum_vector import EclSumVector
 from ert.ecl.ecl_smspec_node import EclSMSPECNode
 from ert.util import StringList, CTime, DoubleVector, TimeVector, IntVector
 from ert.ecl import ECL_LIB
+#, EclSumKeyWordVector
+
 
 
 
@@ -98,7 +100,7 @@ class EclSum(BaseCClass):
         """
         c_pointer = EclSum.cNamespace().fread_alloc( load_case , join_string , include_restart)
         if c_pointer is None:
-            raise AssertionError("Failed to create summary instance from argument:%s" % load_case)
+            raise IOError("Failed to create summary instance from argument:%s" % load_case)
         else:
             super(EclSum, self).__init__(c_pointer)
             self._initialize()
@@ -359,15 +361,22 @@ class EclSum(BaseCClass):
         """
         Will check if the input date is in the time span [sim_start , sim_end].
         """
-        return EclSum.cNamespace().check_sim_time( self , CTime(date) )
+        if not isinstance(date, CTime):
+            date = CTime(date)
+        return EclSum.cNamespace().check_sim_time( self , date )
 
-    
+    def get_interp_direct(self,key , date):
+
+        if not isinstance(date, CTime):
+            date = CTime(date)
+        return EclSum.cNamespace().get_general_var_from_sim_time( self , date , key )
+
     def get_interp( self , key , days = None , date = None):
         """
         Will lookup vector @key at time given by @days or @date.
-        
+
         Requiers exactly one input argument @days or @date; will raise
-        exception ValueError if this is not satisfied. 
+        exception ValueError if this is not satisfied.
 
         The method will check that the time argument is within the
         time limits of the simulation; if else the method will raise
@@ -381,9 +390,11 @@ class EclSum(BaseCClass):
             raise ValueError("Must supply either days or date")
 
         if days is None:
-            if self.check_sim_time( date ):
-                return EclSum.cNamespace().get_general_var_from_sim_time( self , CTime(date) , key )
+            t = CTime(date)
+            if self.check_sim_time( t ):
+                return EclSum.cNamespace().get_general_var_from_sim_time( self , t , key )
             else:
+
                 raise ValueError("date:%s is outside range of simulation data" % date)
         elif date is None:
             if EclSum.cNamespace().check_sim_days( self , days ):
@@ -926,6 +937,16 @@ ime_index.
     def free(self):
         EclSum.cNamespace().free(self)
 
+    def dumpCSVLine(self, time, keywords, pfile):
+        """
+        Will dump a csv formatted line of the keywords in @keywords,
+        evaluated at the intertpolated time @time. @pfile should point to an open Python file handle.
+        """
+        cfile = CFILE(pfile ) 
+        ctime = CTime( time )
+        EclSum.cNamespace().dump_csv_line(self, ctime, keywords, cfile)
+        
+
     @classmethod
     def createCReference(cls, c_pointer, parent=None):
         result = super(EclSum, cls).createCReference(c_pointer, parent)
@@ -1002,3 +1023,6 @@ EclSum.cNamespace().create_group_list             = cwrapper.prototype("stringli
 EclSum.cNamespace().create_writer                 = cwrapper.prototype("ecl_sum_obj  ecl_sum_alloc_writer( char* , bool , bool , char* , time_t , int , int , int)")
 EclSum.cNamespace().add_variable                  = cwrapper.prototype("void         ecl_sum_add_var(ecl_sum , char* , char* , int , char*, double)")
 EclSum.cNamespace().add_tstep                     = cwrapper.prototype("c_void_p     ecl_sum_add_tstep(ecl_sum , int , double)")
+
+import ert.ecl.ecl_sum_keyword_vector
+EclSum.cNamespace().dump_csv_line                = cwrapper.prototype("void ecl_sum_dump_line_to_csv_file(ecl_sum , time_t , ecl_sum_vector, FILE)")

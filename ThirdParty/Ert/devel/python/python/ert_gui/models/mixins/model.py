@@ -6,11 +6,11 @@ class AbstractMethodError(NotImplementedError):
 
 
 class ModelMixin(object):
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         pass
         # print("%s init" % self.__class__.__name__)
 
-    def __new__(cls, *args):
+    def __new__(cls, *args, **kwargs):
         # print("Construct: %s" % cls.__name__)
         obj = super(ModelMixin, cls).__new__(cls)
         obj.__observable = Observable(cls.__name__)

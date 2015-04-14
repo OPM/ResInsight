@@ -24,8 +24,6 @@ class HelpedWidget(QWidget):
     def __init__(self, widget_label="", help_link=""):
         QWidget.__init__(self)
 
-
-
         if not widget_label == "":
             self.label = widget_label + ":"
         else:
@@ -40,7 +38,7 @@ class HelpedWidget(QWidget):
         self.setLayout(self.widget_layout)
         self.setMinimumHeight(20)
 
-        HelpedWidget.__error_popup = ErrorPopup()
+        self.__error_popup = ErrorPopup()
         self.destroyed.connect(self.cleanup)
 
 
@@ -67,13 +65,14 @@ class HelpedWidget(QWidget):
         if message == "":
             self.validation_type = None
             self.validation_message = None
-            HelpedWidget.__error_popup.hide()
+            self.__error_popup.hide()
             self.validationChanged.emit(True)
 
         else:
             self.validation_type = validation_type
             self.validation_message = message
-            HelpedWidget.__error_popup.presentError(self, self.validation_message)
+            if self.hasFocus() or self.underMouse():
+                self.__error_popup.presentError(self, self.validation_message)
             self.validationChanged.emit(False)
 
         # HelpCenter.getHelpCenter("ERT").setHelpMessageLink()
@@ -92,19 +91,24 @@ class HelpedWidget(QWidget):
         #     HelpedWidget.__error_popup = ErrorPopup()
 
         if self.validation_message is not None:
-            HelpedWidget.__error_popup.presentError(self, self.validation_message)
+            self.__error_popup.presentError(self, self.validation_message)
 
 
     def leaveEvent(self, event):
         QWidget.leaveEvent(self, event)
 
-        if HelpedWidget.__error_popup is not None:
-            HelpedWidget.__error_popup.hide()
+        if self.__error_popup is not None:
+            self.__error_popup.hide()
 
 
     def cleanup(self):
         """ Remove any model attachment or similar. Called when QT object is destroyed."""
         pass
+
+    def hideEvent(self, hide_event):
+        self.__error_popup.hide()
+        super(HelpedWidget, self).hideEvent(hide_event)
+
 
     @staticmethod
     def addHelpToWidget(widget, link):

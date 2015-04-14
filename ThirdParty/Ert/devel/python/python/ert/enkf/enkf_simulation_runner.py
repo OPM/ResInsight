@@ -10,7 +10,7 @@ class EnkfSimulationRunner(BaseCClass):
         assert isinstance(enkf_main, BaseCClass)
         super(EnkfSimulationRunner, self).__init__(enkf_main.from_param(enkf_main).value, parent=enkf_main, is_reference=True)
         self.ert = enkf_main
-        """:type: EnKFMain """
+        """:type: ert.enkf.EnKFMain """
 
     def runSimpleStep(self, active_realization_mask, initialization_mode, iter_nr):
         """ @rtype: bool """
@@ -19,8 +19,12 @@ class EnkfSimulationRunner(BaseCClass):
         return EnkfSimulationRunner.cNamespace().run_simple_step(self, active_realization_mask, initialization_mode , iter_nr)
 
 
-    def runEnsembleExperiment(self, active_realization_mask):
+    def runEnsembleExperiment(self, active_realization_mask=None):
         """ @rtype: bool """
+        if active_realization_mask is None:
+            count = self.ert.getEnsembleSize()
+            active_realization_mask = BoolVector(default_value=True, initial_size=count)
+
         iter_nr = 0
         return self.runSimpleStep(active_realization_mask, EnkfInitModeEnum.INIT_CONDITIONAL, iter_nr)
 

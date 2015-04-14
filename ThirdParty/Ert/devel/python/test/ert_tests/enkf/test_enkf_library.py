@@ -1,7 +1,7 @@
 import os
 from ert.ecl import EclSum
 from ert.enkf import AnalysisConfig, EclConfig, GenKwConfig, EnkfConfigNode, SiteConfig, ObsVector
-from ert.enkf import GenDataConfig, FieldConfig, EnkfFs, EnkfObs, EnKFState, EnsConfig
+from ert.enkf import GenDataConfig, FieldConfig, EnkfFs, EnkfObs, EnKFState, EnsembleConfig
 from ert.enkf import ErtTemplate, ErtTemplates, LocalConfig, ModelConfig, PlotConfig
 from ert.enkf.enkf_main import EnKFMain
 
@@ -12,12 +12,10 @@ from ert.test import ExtendedTestCase , TestAreaContext
 class EnKFLibraryTest(ExtendedTestCase):
     def setUp(self):
         self.case_directory = self.createTestPath("local/simple_config/")
-        self.site_config = os.getenv("ERT_SITE_CONFIG")
-
 
     def test_failed_class_creation(self):
         classes = [FieldConfig, GenDataConfig,
-                   EnkfConfigNode, EnkfObs, EnKFState, EnsConfig,
+                   EnkfConfigNode, EnkfObs, EnKFState, EnsembleConfig,
                    ErtTemplate, ErtTemplates, LocalConfig, ModelConfig, PlotConfig, SiteConfig]
 
         for cls in classes:
@@ -29,7 +27,7 @@ class EnKFLibraryTest(ExtendedTestCase):
         with TestAreaContext("enkf_library_test") as work_area:
             work_area.copy_directory(self.case_directory)
 
-            main = EnKFMain("simple_config/minimum_config", self.site_config)
+            main = EnKFMain("simple_config/minimum_config")
 
             self.assertIsInstance(main.analysisConfig(), AnalysisConfig)
             self.assertIsInstance(main.eclConfig(), EclConfig)
@@ -45,4 +43,15 @@ class EnKFLibraryTest(ExtendedTestCase):
             main.free()
 
 
+    def test_enkf_state(self):
+        with TestAreaContext("enkf_library_test") as work_area:
+            work_area.copy_directory(self.case_directory)
 
+            main = EnKFMain("simple_config/minimum_config")
+            state = main.getRealisation( 0 )
+            
+            with self.assertRaises(TypeError):
+                state.addSubstKeyword( "GEO_ID" , 45)
+            
+            state.addSubstKeyword("GEO_ID" , "45")
+            

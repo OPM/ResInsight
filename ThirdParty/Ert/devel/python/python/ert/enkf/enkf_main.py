@@ -15,14 +15,14 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 
-from ert.enkf import AnalysisConfig, EclConfig, EnkfObs, EnKFState, LocalConfig, ModelConfig, EnsConfig, PlotConfig, SiteConfig, ENKF_LIB, EnkfSimulationRunner, EnkfFsManager, ErtWorkflowList, PostSimulationHook
+from ert.enkf import AnalysisConfig, EclConfig, EnkfObs, EnKFState, LocalConfig, ModelConfig, EnsembleConfig, PlotConfig, SiteConfig, ENKF_LIB, EnkfSimulationRunner, EnkfFsManager, ErtWorkflowList, PostSimulationHook
 from ert.enkf.enums import EnkfInitModeEnum
 from ert.util import SubstitutionList, Log
 
 
 class EnKFMain(BaseCClass):
-    def __init__(self, model_config, site_config, strict=True):
-        c_ptr = EnKFMain.cNamespace().bootstrap(site_config, model_config, strict, False)
+    def __init__(self, model_config, strict=True):
+        c_ptr = EnKFMain.cNamespace().bootstrap(model_config, strict, False)
         super(EnKFMain, self).__init__(c_ptr)
 
         self.__simulation_runner = EnkfSimulationRunner(self)
@@ -43,7 +43,7 @@ class EnKFMain(BaseCClass):
 
     def getRealisation(self , iens):
         """ @rtype: EnKFState """
-        if 0 <= iens < len(self):
+        if 0 <= iens < self.getEnsembleSize():
             return EnKFMain.cNamespace().iget_state(self, iens).setParent(self)
         else:
             raise IndexError("iens value:%d invalid Valid range: [0,%d)" % (iens , len(self)))
@@ -67,7 +67,7 @@ class EnKFMain(BaseCClass):
         EnKFMain.cNamespace().resize_ensemble(self, value)
 
     def ensembleConfig(self):
-        """ @rtype: EnsConfig """
+        """ @rtype: EnsembleConfig """
         return EnKFMain.cNamespace().get_ens_config(self).setParent(self)
 
     def analysisConfig(self):
@@ -228,7 +228,7 @@ cwrapper.registerType("enkf_main", EnKFMain)
 cwrapper.registerType("enkf_main_ref", EnKFMain.createCReference)
 
 
-EnKFMain.cNamespace().bootstrap = cwrapper.prototype("c_void_p enkf_main_bootstrap(char*, char*, bool, bool)")
+EnKFMain.cNamespace().bootstrap = cwrapper.prototype("c_void_p enkf_main_bootstrap(char*, bool, bool)")
 EnKFMain.cNamespace().free = cwrapper.prototype("void enkf_main_free(enkf_main)")
 
 EnKFMain.cNamespace().get_ensemble_size = cwrapper.prototype("int enkf_main_get_ensemble_size( enkf_main )")

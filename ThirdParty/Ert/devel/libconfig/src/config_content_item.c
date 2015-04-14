@@ -250,8 +250,8 @@ void config_content_item_free( config_content_item_type * item ) {
 
 
 
-UTIL_SAFE_CAST_FUNCTION( config_content_item , CONFIG_CONTENT_ITEM_ID);
-
+UTIL_SAFE_CAST_FUNCTION( config_content_item , CONFIG_CONTENT_ITEM_ID)
+UTIL_IS_INSTANCE_FUNCTION( config_content_item , CONFIG_CONTENT_ITEM_ID)
 
 
 void config_content_item_free__( void * arg ) {

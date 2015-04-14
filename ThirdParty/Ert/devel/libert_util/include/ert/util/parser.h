@@ -20,7 +20,7 @@
 #define __PARSER_H__
 #include <ert/util/stringlist.h>
 
-typedef struct parser_struct parser_type;
+typedef struct basic_parser_struct basic_parser_type;
 
 
 /**
@@ -118,7 +118,7 @@ typedef struct parser_struct parser_type;
 */
 
 
-parser_type * parser_alloc(
+basic_parser_type * basic_parser_alloc(
   const char * whitespace,       /** Set to NULL if not interessting.         */
   const char * quoters,          /** Set to NULL if not interessting.         */
   const char * specials,         /** Set to NULL if not interessting.         */
@@ -127,33 +127,33 @@ parser_type * parser_alloc(
   const char * comment_end);     /** Set to NULL if not interessting.         */
 
 
-void       parser_set_splitters( parser_type * parser , const char * splitters );
-void       parser_set_quoters( parser_type * parser , const char * quoters );
-void       parser_set_specials( parser_type * parser , const char * specials );
-void       parser_set_delete_set( parser_type * parser , const char * delete_set );
-void       parser_set_comment_start( parser_type * parser , const char * comment_start );
-void       parser_set_comment_end( parser_type * parser , const char * comment_end );
+void       basic_parser_set_splitters( basic_parser_type * parser , const char * splitters );
+void       basic_parser_set_quoters( basic_parser_type * parser , const char * quoters );
+void       basic_parser_set_specials( basic_parser_type * parser , const char * specials );
+void       basic_parser_set_delete_set( basic_parser_type * parser , const char * delete_set );
+void       basic_parser_set_comment_start( basic_parser_type * parser , const char * comment_start );
+void       basic_parser_set_comment_end( basic_parser_type * parser , const char * comment_end );
 
 
-void parser_free(
-  parser_type * parser);
+void basic_parser_free(
+  basic_parser_type * parser);
 
 
-stringlist_type * parser_tokenize_buffer(
-  const parser_type * parser,
-  const char           * buffer,
-  bool                   strip_quote_marks);
+stringlist_type * basic_parser_tokenize_buffer(
+  const basic_parser_type * parser,
+  const char              * buffer,
+  bool                      strip_quote_marks);
 
 
-stringlist_type * parser_tokenize_file(
-  const parser_type * parser,
-  const char           * filename,
-  bool                   strip_quote_marks);
+stringlist_type * basic_parser_tokenize_file(
+  const basic_parser_type * parser,
+  const char              * filename,
+  bool                      strip_quote_marks);
 
 
 /* Pollution by Joakim: */
 
-void   parser_strip_buffer(const parser_type * parser , char ** __buffer);
-bool   parser_fseek_string(const parser_type * parser , FILE * stream , const char * string , bool skip_string , bool case_sensitive);
-char * parser_fread_alloc_file_content(const char * filename , const char * quote_set , const char * delete_set , const char * comment_start , const char * comment_end);
+void   basic_parser_strip_buffer(const basic_parser_type * parser , char ** __buffer);
+bool   basic_parser_fseek_string(const basic_parser_type * parser , FILE * stream , const char * string , bool skip_string , bool case_sensitive);
+char * basic_parser_fread_alloc_file_content(const char * filename , const char * quote_set , const char * delete_set , const char * comment_start , const char * comment_end);
 #endif

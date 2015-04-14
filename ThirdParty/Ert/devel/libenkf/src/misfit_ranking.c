@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'misfit_ranking.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'misfit_ranking.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -71,14 +71,14 @@ void misfit_ranking_display( const misfit_ranking_type * misfit_ranking , FILE *
       return;
     }
   }
-  
+
   {
     int i;
     double summed_up = 0.0;
     stringlist_type * obs_keys          = hash_alloc_stringlist( obs_hash );
     int num_obs                         = stringlist_get_size( obs_keys );
     int num_obs_total                   = num_obs * ens_size;  // SHould not count failed/missing members ...
-    
+
     fprintf(stream,"\n\n");
     fprintf(stream,"  #    Realization    Normalized misfit    Total misfit\n");
     fprintf(stream,"-------------------------------------------------------\n");
@@ -89,14 +89,14 @@ void misfit_ranking_display( const misfit_ranking_type * misfit_ranking , FILE *
       summed_up = summed_up+total_misfit;
       fprintf(stream,"%3d    %3d                   %10.3f      %10.3f  \n",i,iens,normalized_misfit,total_misfit);
     }
-    
+
     {
       double normalized_summed_up = sqrt(summed_up / (num_obs_total * ens_size));
       fprintf(stream,"        All                  %10.3f      %10.3f  \n",normalized_summed_up,summed_up);
     }
     fprintf(stream,"-------------------------------------------------------\n");
   }
-  
+
 }
 
 
@@ -107,10 +107,10 @@ void misfit_ranking_fprintf( const misfit_ranking_type * misfit_ranking , const 
   const int * permutations            = misfit_ranking->sort_permutation;
   double summed_up = 0.0;
   {
-    // All this whitespace is finely tuned and highly significant .... 
-    const char * key_fmt       = " %18s ";                                
+    // All this whitespace is finely tuned and highly significant ....
+    const char * key_fmt       = " %18s ";
     const char * value_fmt     = " %10.3f %8.3f";
-    const char * start_fmt     = " %2d       %3d     %7.3f %8.3f";  
+    const char * start_fmt     = " %2d       %3d     %7.3f %8.3f";
 
     hash_type * obs_hash       = vector_iget( misfit_ranking->ensemble , 0);
     stringlist_type * obs_keys = hash_alloc_stringlist( obs_hash );
@@ -120,14 +120,14 @@ void misfit_ranking_fprintf( const misfit_ranking_type * misfit_ranking , const 
 
     stringlist_sort( obs_keys , enkf_util_compare_keys__ );
     fprintf(stream , "                       Overall  ");
-    for (iobs =0; iobs < num_obs; iobs++) 
+    for (iobs =0; iobs < num_obs; iobs++)
       fprintf(stream , key_fmt , stringlist_iget( obs_keys , iobs ));
 
     fprintf(stream , "\n");
     fprintf(stream , "  #    Realization  Norm    Total");
-    for (iobs =0; iobs < num_obs; iobs++) 
+    for (iobs =0; iobs < num_obs; iobs++)
       fprintf(stream , "       Norm    Total");
-    
+
     fprintf(stream , "\n");
     for (int i = 0; i < ens_size; i++) {
       int iens = permutations[i];
@@ -146,8 +146,8 @@ void misfit_ranking_fprintf( const misfit_ranking_type * misfit_ranking , const 
     double summed_up_normalized = sqrt(summed_up / (num_obs_total * ens_size));
     fprintf(stream , "           All    %7.3f %8.3f" , summed_up_normalized , summed_up);
     for (iobs = 0; iobs < num_obs; iobs++){
-      double single_value_summed_up = 0.0;      
-      for (int i = 0; i < ens_size; i++) {  
+      double single_value_summed_up = 0.0;
+      for (int i = 0; i < ens_size; i++) {
         single_value_summed_up = single_value_summed_up + hash_get_double( obs_hash , stringlist_iget( obs_keys , iobs ));
       }
       double single_value_summed_up_normalized=sqrt(single_value_summed_up / (num_obs_total * ens_size));
@@ -178,10 +178,10 @@ misfit_ranking_type *  misfit_ranking_alloc(const misfit_ensemble_type * misfit_
   const int ens_size = misfit_ensemble_get_ens_size( misfit_ensemble );
   int iens;
   misfit_ranking_type * ranking = misfit_ranking_alloc_empty(ens_size);
-  
+
   for (iens = 0; iens < ens_size; iens++) {
     const misfit_member_type * misfit_member = misfit_ensemble_iget_member( misfit_ensemble , iens );  /* Lookup in the master ensemble. */
-    
+
     {
       double iens_valid = true;
       double total = 0;
@@ -196,7 +196,7 @@ misfit_ranking_type *  misfit_ranking_alloc(const misfit_ensemble_type * misfit_
         } else
           iens_valid = true;
       }
-      if (iens_valid) 
+      if (iens_valid)
         misfit_ranking_iset( ranking , iens , obs_hash , total );
       else
         misfit_ranking_iset_invalid( ranking , iens );
@@ -230,12 +230,12 @@ void misfit_ranking_free__( void * arg ) {
 void misfit_ranking_iset( misfit_ranking_type * misfit_ranking , int iens , hash_type * obs_hash , double total_misfit) {
   if (iens > vector_get_size(misfit_ranking->ensemble))
     vector_grow_NULL( misfit_ranking->ensemble , iens );
-  
+
   if (obs_hash != NULL)
     vector_iset_owned_ref( misfit_ranking->ensemble , iens , obs_hash , hash_free__ );
   else
     vector_iset_ref( misfit_ranking->ensemble , iens , NULL );
-  
+
   double_vector_iset( misfit_ranking->total , iens , total_misfit );
 }
 

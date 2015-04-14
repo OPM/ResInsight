@@ -1,0 +1,4 @@
+STDOUT aggregator.stdout
+STDERR aggregator.stderr
+
+EXECUTABLE aggregator.py

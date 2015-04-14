@@ -13,8 +13,21 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
-"""
-Convenience module for loading shared library.
+"""Convenience module for loading shared library.
+
+Observe that to ensure that all libraries are loaded through the same
+code path, all required libraries should be loaded explicitly through
+the use of import statements; i.e. the ert.geo package requires the
+libert_util librarary, to ensure that the correct version of the
+libert_util.so library file is loaded we should manually load that
+first as:
+
+   import ert.util
+   GEO_LIB = clib.ert_load("libert_geometry")
+
+Otherwise the standard operating system dependency resolve code will
+be invoked when loading libert_geometry, and that could in principle
+lead to loading a different version of libert_util.so
 """
 
 import platform
@@ -28,6 +41,18 @@ so_extension = {"linux"  : "so",
                 "win32"  : "dll",
                 "win64"  : "dll",
                 "darwin" : "dylib" }
+
+
+# Passing None to the CDLL() function means to open a lib handle to
+# the current runnning process, i.e. like dlopen( NULL ). We must
+# special case this to avoid creating the bogus argument 'None.so'.
+def lib_name(lib , platform_key):
+    if lib is None:
+        so_name = None
+    else:
+        so_name = "%s.%s" % (lib , so_extension[ platform_key ])
+    return so_name
+
 
 
 def __load( lib_list, ert_prefix):
@@ -50,12 +75,13 @@ def __load( lib_list, ert_prefix):
     dll = None
     platform_key = platform.system().lower()
     for lib in lib_list:
+        so_name = lib_name( lib , platform_key )
         try:
-            if ert_prefix:
-                ert_lib = os.path.join(ert_lib_path , "%s.%s" % (lib , so_extension[ platform_key ]))
+            if ert_prefix and so_name:
+                ert_lib = os.path.join(ert_lib_path , so_name)
                 dll = ctypes.CDLL(ert_lib, ctypes.RTLD_GLOBAL)
             else:
-                dll = ctypes.CDLL(lib, ctypes.RTLD_GLOBAL)
+                dll = ctypes.CDLL(so_name , ctypes.RTLD_GLOBAL)
             return dll
         except Exception, exc:
             error_list[lib] = exc

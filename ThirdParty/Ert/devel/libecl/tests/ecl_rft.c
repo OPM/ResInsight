@@ -23,9 +23,29 @@
 #include <ert/util/util.h>
 
 #include <ert/ecl/ecl_rft_file.h>
+#include <ert/util/vector.h>
+#include <ert/util/int_vector.h>
+#include <ert/util/test_work_area.h>
+#include <ert/ecl/ecl_rft_node.h>
 
 
-
+void test_rft_read_write(const char * rft_file){
+    ecl_rft_file_type * rft = ecl_rft_file_alloc( rft_file );
+    ecl_rft_node_type  ** nodes =(ecl_rft_node_type  **) malloc(sizeof(ecl_rft_node_type *) * 3);
+    int size = ecl_rft_file_get_size(rft);
+    for(int i =0;i<size;i++){
+        const ecl_rft_node_type * rft_node = ecl_rft_file_iget_node(rft, i);
+        nodes[i] =rft_node;
+    }
+    ecl_rft_node_type * old_node = ecl_rft_file_iget_node(rft, 0);
+    ecl_rft_node_type * new_node = ecl_rft_node_alloc_new("DUMMY", "R", ecl_rft_node_get_date(old_node), ecl_rft_node_get_days(old_node));
+    nodes[2]=new_node;
+    test_work_area_type * work_area = test_work_area_alloc("RFT_RW");
+    
+    ecl_rft_file_update("eclipse.rft", nodes,3, ERT_ECL_METRIC_UNITS);
+    test_work_area_free(work_area);
+    free(nodes);
+}
 
 // Hardcoded GURBAT values
 void test_rft( const char * rft_file ) {
@@ -135,8 +155,11 @@ int main( int argc , char ** argv) {
   const char * rft_file = argv[1];
   const char * mode_string = argv[2];
 
+
   if (strcmp( mode_string , "RFT") == 0)
     test_rft( rft_file );
+  else if (strcmp( mode_string , "RFT_RW") == 0)
+      test_rft_read_write(rft_file);
   else if (strcmp( mode_string , "PLT") == 0)
     test_plt( rft_file );
   else if (strcmp( mode_string , "MSW-PLT") == 0)

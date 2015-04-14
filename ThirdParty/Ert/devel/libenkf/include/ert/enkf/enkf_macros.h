@@ -297,8 +297,7 @@ void obs_prefix ## _measure__(const void * void_obs ,  const void * state , node
 #define VOID_CHI2(obs_prefix, state_prefix) \
   double obs_prefix ## _chi2__(const void * void_obs ,  const void * void_state, node_id_type node_id) { \
    const obs_prefix ## _type   * obs   = obs_prefix ## _safe_cast_const( void_obs );     \
-   const state_prefix ## _type * state = state_prefix ## _safe_cast_const( void_state ); \
-   return obs_prefix ## _chi2(obs , state , node_id);                           \
+   return obs_prefix ## _chi2(obs , void_state , node_id);                           \
 }
 
 #define VOID_CHI2_HEADER(obs_prefix) double obs_prefix ## _chi2__(const void * ,  const void *, node_id_type);

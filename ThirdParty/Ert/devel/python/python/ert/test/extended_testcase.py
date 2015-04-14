@@ -9,7 +9,7 @@ except ImportError:
     from unittest import TestCase
 
 from .source_enumerator import SourceEnumerator
-
+from ert.util import installAbortSignals
 
 """
 This class provides some extra functionality for testing values that are almost equal.
@@ -18,6 +18,7 @@ class ExtendedTestCase(TestCase):
     def __init__(self , *args , **kwargs):
         self.__testdata_root = None
         self.__share_root = None
+        installAbortSignals()
         super(ExtendedTestCase , self).__init__(*args , **kwargs)
 
 
@@ -113,17 +114,22 @@ class ExtendedTestCase(TestCase):
         if testdata_root is None and self.__testdata_root is None:
             file_path = os.path.realpath(__file__)
             build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../devel/test-data/"))
+            site_packages_build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../../../devel/test-data/"))
             src_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../test-data/"))
+            env_root = os.getenv("ERT_TEST_ROOT_PATH")
 
-            if os.path.exists( build_root ):
-                root = os.path.realpath( os.environ.get("ERT_TEST_ROOT_PATH", build_root) )
-            elif os.path.exists( src_root ):
-                root = os.path.realpath( os.environ.get("ERT_TEST_ROOT_PATH", src_root) )
+            if env_root is not None and os.path.exists(env_root):
+                root = os.path.realpath(env_root)
+            elif os.path.exists(build_root):
+                root = os.path.realpath(build_root)
+            elif os.path.exists(site_packages_build_root):
+                root = os.path.realpath(site_packages_build_root)
+            elif os.path.exists(src_root):
+                root = os.path.realpath(src_root)
             else:
                 root = None
 
-            self.setTestDataRoot( root )
-        
+            self.setTestDataRoot(root)
 
         root_path = self.__testdata_root 
         if testdata_root is not None:
@@ -140,16 +146,18 @@ class ExtendedTestCase(TestCase):
             file_path = os.path.realpath(__file__)
             build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../devel/share/"))
             src_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../share/"))
+            env_root = os.getenv("ERT_TEST_ROOT_PATH")
 
-            if os.path.exists(build_root):
-                root = os.path.realpath( os.environ.get("ERT_SHARE_PATH", build_root))
+            if env_root is not None and os.path.exists(env_root):
+                root = os.path.realpath(env_root)
+            elif os.path.exists(build_root):
+                root = os.path.realpath(build_root)
             elif os.path.exists(src_root):
-                root = os.path.realpath( os.environ.get("ERT_SHARE_PATH", src_root))
+                root = os.path.realpath(src_root)
             else:
                 root = None
 
             self.setShareRoot(root)
-
 
         root_path = self.__share_root
         if share_root is not None:
@@ -159,6 +167,14 @@ class ExtendedTestCase(TestCase):
             root_path = share_root
 
         return os.path.realpath(os.path.join(root_path , path))
+
+    
+    def assertNotRaises(self, func):
+        try:
+            func()
+        except:
+            self.fail()
+
 
     @staticmethod
     def slowTestShouldNotRun():

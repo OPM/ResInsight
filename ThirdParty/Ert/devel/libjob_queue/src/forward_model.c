@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'forward_model.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'forward_model.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -23,7 +23,7 @@
 
 #include <ert/util/util.h>
 #include <ert/util/subst_list.h>
-#include <ert/util/vector.h> 
+#include <ert/util/vector.h>
 #include <ert/util/parser.h>
 
 #include <ert/job_queue/ext_job.h>
@@ -47,7 +47,7 @@ struct forward_model_struct {
 
 forward_model_type * forward_model_alloc(const ext_joblist_type * ext_joblist) {
   forward_model_type * forward_model = util_malloc( sizeof * forward_model );
-  
+
   forward_model->jobs        = vector_alloc_new();
   forward_model->ext_joblist = ext_joblist;
 
@@ -66,7 +66,7 @@ stringlist_type * forward_model_alloc_joblist( const forward_model_type * forwar
     const ext_job_type * job = vector_iget_const( forward_model->jobs , i);
     stringlist_append_ref( names , ext_job_get_name( job ));
   }
-  
+
   return names;
 }
 
@@ -88,7 +88,7 @@ ext_job_type * forward_model_add_job(forward_model_type * forward_model , const 
 /**
    This function is used to set private argument values to jobs in the
    forward model (i.e. the argument values passed in with KEY=VALUE
-   pairs in the defining ().  
+   pairs in the defining ().
 
    The use of 'index' to get the job is unfortunate , however one
    forward model can contain several instances of the same job, it is
@@ -97,7 +97,7 @@ ext_job_type * forward_model_add_job(forward_model_type * forward_model , const 
 
 void forward_model_iset_job_arg( forward_model_type * forward_model , int job_index , const char * arg , const char * value) {
   ext_job_type * job = vector_iget( forward_model->jobs , job_index );
-  ext_job_set_private_arg(job , arg , value);  
+  ext_job_set_private_arg(job , arg , value);
 }
 
 
@@ -121,7 +121,7 @@ void forward_model_free( forward_model_type * forward_model) {
    job1  job2  job3(arg1 = value1, arg2 = value2, arg3= value3)
 
    and creates a forward model of it. observe the following rules:
-   
+
     * if the function takes private arguments it is not allowed with space
       between the end of the function name and the opening parenthesis.
 
@@ -138,7 +138,7 @@ void forward_model_parse_init(forward_model_type * forward_model , const char * 
   while (true) {
     ext_job_type *  current_job;
     char         * job_name;
-    int            job_index;          
+    int            job_index;
     {
       int job_length  = strcspn(p1 , " (");  /* scanning until we meet ' ' or '(' */
       job_name = util_alloc_substring_copy(p1 , 0 , job_length);
@@ -156,28 +156,28 @@ void forward_model_parse_init(forward_model_type * forward_model , const char * 
         ext_job_set_private_args_from_string( current_job , arg_string );
         p1 += (1 + arg_length);
       }
-    } 
+    }
     /*****************************************************************/
     /* At this point we are done with the parsing - the rest of the
        code in this while { } construct is only to check that the
-       input is well formed. */ 
+       input is well formed. */
 
     {
       int space_length = strspn(p1 , " ");
       p1 += space_length;
-      if (*p1 == '(') 
+      if (*p1 == '(')
         /* detected lonesome '(' */
         util_abort("%s: found space between job:%s and \'(\' - aborting \n",__func__ , job_name);
     }
 
-    /* 
-       now p1 should point at the next character after the job, 
+    /*
+       now p1 should point at the next character after the job,
        or after the ')' if the job has arguments.
     */
-    
+
     if (*p1 == '\0') { /* we have parsed the whole string. */
       free(job_name);
-      break;   
+      break;
     }
   }
 }
@@ -208,8 +208,8 @@ void forward_model_python_fprintf(const forward_model_type * forward_model , con
   free(module_file);
 }
 
-#undef DEFAULT_JOB_MODULE   
-#undef DEFAULT_JOBLIST_NAME 
+#undef DEFAULT_JOB_MODULE
+#undef DEFAULT_JOBLIST_NAME
 
 
 
@@ -223,7 +223,7 @@ forward_model_type * forward_model_alloc_copy(const forward_model_type * forward
     const ext_job_type * job = vector_iget_const( forward_model->jobs , ijob);
     vector_append_owned_ref( new->jobs , ext_job_alloc_copy( job ) , ext_job_free__);
   }
-  
+
   return new;
 }
 

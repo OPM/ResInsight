@@ -137,7 +137,7 @@ struct lsf_driver_struct {
 
   /*-----------------------------------------------------------------*/
   /* Fields used by the shell based functions */
-  
+  bool                debug_output;
   int                 bjobs_refresh_interval; 
   time_t              last_bjobs_update;
   hash_type         * my_jobs;            /* A hash table of all jobs submitted by this ERT instance - 
@@ -397,20 +397,32 @@ static int lsf_driver_submit_shell_job(lsf_driver_type * driver ,
                                        int           job_argc,
                                        const char ** job_argv) {
   int job_id;
-  char * tmp_file         = util_alloc_tmp_file("/tmp" , "enkf-submit" , true);
+  char * tmp_file = util_alloc_tmp_file("/tmp" , "enkf-submit" , true);
 
-  if (driver->remote_lsf_server != NULL) {
+  {
     stringlist_type * remote_argv = lsf_driver_alloc_cmd( driver , lsf_stdout , job_name , submit_cmd , num_cpu , job_argc , job_argv);
-
+    
     if (driver->submit_method == LSF_SUBMIT_REMOTE_SHELL) {
       char ** argv = util_calloc( 2 , sizeof * argv );
       argv[0] = driver->remote_lsf_server;
       argv[1] = stringlist_alloc_joined_string( remote_argv , " ");
+      
+      if (driver->debug_output) 
+        printf("Submitting: %s %s %s \n",driver->rsh_cmd , argv[0] , argv[1]);
+      
       util_fork_exec(driver->rsh_cmd , 2 , (const char **) argv , true , NULL , NULL , NULL , tmp_file , NULL);
+      
       free( argv[1] );
       free( argv );
     } else if (driver->submit_method == LSF_SUBMIT_LOCAL_SHELL) {
       char ** argv = stringlist_alloc_char_ref( remote_argv );
+      
+      if (driver->debug_output) {
+        printf("Submitting: %s ",driver->bsub_cmd);
+        stringlist_fprintf(remote_argv , " " , stdout);
+        printf("\n");
+      }
+      
       util_fork_exec(driver->bsub_cmd , stringlist_get_size( remote_argv) , (const char **) argv , true , NULL , NULL , NULL , tmp_file , tmp_file);
       free( argv );
     }
@@ -518,6 +530,8 @@ static int lsf_driver_get_job_status_libary(void * __driver , void * __job) {
     }
 #else
     lsf_driver_internal_error( driver );
+    /* the above function calls exit(), so this value is never returned */
+    status = JOB_QUEUE_FAILED;
 #endif
     
     return status;
@@ -682,6 +696,9 @@ void * lsf_driver_submit_job(void * __driver ,
       lsf_submit_method_enum submit_method = driver->submit_method;
       pthread_mutex_lock( &driver->submit_lock );
       
+      if (driver->debug_output)
+        printf("LSF DRIVER submitting using method:%d \n",submit_method);
+      
       if (submit_method == LSF_SUBMIT_INTERNAL) {
         job->lsf_jobnr = lsf_driver_submit_internal_job( driver , lsf_stdout , job_name , submit_cmd , num_cpu , argc, argv);
       } else {
@@ -808,6 +825,18 @@ lsf_submit_method_enum lsf_driver_get_submit_method( const lsf_driver_type * dri
   return driver->submit_method;
 }
 
+
+static bool lsf_driver_set_debug_output( lsf_driver_type * driver , const char * arg) {
+  bool debug_output;
+  bool OK = util_sscanf_bool( arg , &debug_output);
+  if (OK)
+    driver->debug_output = debug_output;
+  
+  return OK;
+}
+
+
+
 /*****************************************************************/
 /* Generic functions for runtime manipulation of options.        
 
@@ -836,6 +865,8 @@ bool lsf_driver_set_option( void * __driver , const char * option_key , const vo
       lsf_driver_set_bjobs_cmd( driver , value );
     else if (strcmp( LSF_BKILL_CMD , option_key) == 0)
       lsf_driver_set_bkill_cmd( driver , value );
+    else if (strcmp( LSF_DEBUG_OUTPUT , option_key) == 0)
+      lsf_driver_set_debug_output( driver , value );
     else 
       has_option = false;
   }
@@ -970,6 +1001,7 @@ void * lsf_driver_alloc( ) {
   lsf_driver_set_option( lsf_driver , LSF_BSUB_CMD  , DEFAULT_BSUB_CMD );
   lsf_driver_set_option( lsf_driver , LSF_BJOBS_CMD , DEFAULT_BJOBS_CMD );
   lsf_driver_set_option( lsf_driver , LSF_BKILL_CMD , DEFAULT_BKILL_CMD );
+  lsf_driver_set_option( lsf_driver , LSF_DEBUG_OUTPUT , "FALSE");
   return lsf_driver;
 }
 

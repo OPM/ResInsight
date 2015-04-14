@@ -117,6 +117,7 @@ class TimeMapTest(ExtendedTestCase):
             tm.lookupTime( datetime.date(1999,10,10))
 
 
+
     def test_lookupDays(self):
         tm = TimeMap()
 
@@ -130,7 +131,7 @@ class TimeMapTest(ExtendedTestCase):
         self.assertEqual( 0 , tm.lookupDays( 0 ))
         self.assertEqual( 1 , tm.lookupDays( 1 ))
         self.assertEqual( 2 , tm.lookupDays( 2 ))
-        
+
         with self.assertRaises(ValueError):
             tm.lookupDays( -1  )
 
@@ -139,8 +140,34 @@ class TimeMapTest(ExtendedTestCase):
 
         with self.assertRaises(ValueError):
             tm.lookupDays( 3  )
-
             
 
-        
+            
+    def test_nearest_date_lookup(self):
+        tm = TimeMap()
+        with self.assertRaises(ValueError):
+            tm.lookupTime(datetime.date( 1999 , 1 , 1))
 
+        with self.assertRaises(ValueError):
+            tm.lookupTime(datetime.date( 1999 , 1 , 1) , tolerance_seconds_before = 10 , tolerance_seconds_after = 10)
+
+        tm[0] = datetime.date(2000,1,1)
+        tm[1] = datetime.date(2000,2,1)
+        tm[2] = datetime.date(2000,3,1)
+
+        # Outside of total range will raise an exception, irrespective of
+        # the tolerances used.
+        with self.assertRaises(ValueError):
+            tm.lookupTime(datetime.date( 1999 , 1 , 1) , tolerance_seconds_before = -1 , tolerance_seconds_after = -1)
+
+        with self.assertRaises(ValueError):
+            tm.lookupTime(datetime.date( 2001 , 1 , 1) , tolerance_seconds_before = -1 , tolerance_seconds_after = -1)
+
+        self.assertEqual(0 , tm.lookupTime( datetime.datetime(2000 , 1 , 1 , 0 , 0 , 10) , tolerance_seconds_after = 15))
+        self.assertEqual(1 , tm.lookupTime( datetime.datetime(2000 , 1 , 1 , 0 , 0 , 10) , tolerance_seconds_before = 3600*24*40))
+
+        self.assertEqual(0 , tm.lookupTime( datetime.date( 2000 , 1 , 10) , tolerance_seconds_before = -1 , tolerance_seconds_after = -1))
+        self.assertEqual(1 , tm.lookupTime( datetime.date( 2000 , 1 , 20) , tolerance_seconds_before = -1 , tolerance_seconds_after = -1))
+
+        with self.assertRaises(ValueError):
+            tm.lookupTime(datetime.date( 2001 , 10 , 1) , tolerance_seconds_before = 10 , tolerance_seconds_after = 10)

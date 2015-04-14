@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_quantile.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_quantile.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #define  _GNU_SOURCE   /* Must define this to get access to pthread_rwlock_t */
@@ -32,7 +32,9 @@
 #include <ert/util/arg_pack.h>
 #include <ert/util/thread_pool.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
+#include <ert/config/config_content.h>
+#include <ert/config/config_error.h>
 #include <ert/config/config_content_item.h>
 #include <ert/config/config_content_node.h>
 
@@ -41,7 +43,7 @@
 #define DEFAULT_NUM_INTERP  50
 #define SUMMARY_JOIN       ":"
 #define MIN_SIZE            10
-#define LOAD_THREADS         4 
+#define LOAD_THREADS         4
 
 
 typedef enum {
@@ -62,7 +64,7 @@ typedef struct {
 
 /**
    Microscopic data structure representing one column of data;
-   i.e. one ECLIPSE summary key and one accompanying quantile value. 
+   i.e. one ECLIPSE summary key and one accompanying quantile value.
 */
 
 typedef struct {
@@ -124,7 +126,7 @@ sum_case_type * sum_case_fread_alloc( const char * data_file , const time_t_vect
 
   sum_case->ecl_sum     = ecl_sum_fread_alloc_case( data_file , SUMMARY_JOIN );
   sum_case->interp_data = double_vector_alloc(0 , 0);
-  sum_case->interp_time = interp_time; 
+  sum_case->interp_time = interp_time;
   sum_case->start_time  = ecl_sum_get_start_time( sum_case->ecl_sum );
   sum_case->end_time    = ecl_sum_get_end_time( sum_case->ecl_sum );
   return sum_case;
@@ -148,7 +150,7 @@ void sum_case_free__( void * sum_case) {
 
 void ensemble_add_case( ensemble_type * ensemble , const char * data_file ) {
   sum_case_type * sum_case = sum_case_fread_alloc( data_file , ensemble->interp_time );
-  
+
   pthread_rwlock_wrlock( &ensemble->rwlock );
   {
     printf("Loading case: %s \n", data_file );
@@ -157,7 +159,7 @@ void ensemble_add_case( ensemble_type * ensemble , const char * data_file ) {
       ensemble->start_time = util_time_t_min( ensemble->start_time , sum_case->start_time);
     else
       ensemble->start_time = ecl_sum_get_start_time( sum_case->ecl_sum );
-    
+
     ensemble->end_time   = util_time_t_max( ensemble->end_time   , sum_case->end_time);
   }
   pthread_rwlock_unlock( &ensemble->rwlock );
@@ -216,7 +218,7 @@ ensemble_type * ensemble_alloc( ) {
 }
 
 
-void ensemble_init( ensemble_type * ensemble , config_type * config) {
+void ensemble_init( ensemble_type * ensemble , config_content_type * config) {
 
   /*1 : Loading ensembles and settings from the config instance */
   /*1a: Loading the eclipse summary cases. */
@@ -224,33 +226,32 @@ void ensemble_init( ensemble_type * ensemble , config_type * config) {
     thread_pool_type * tp = thread_pool_alloc( LOAD_THREADS , true );
     {
       int i,j;
-      const config_content_item_type * case_item = config_get_content_item( config , "CASE_LIST" );
-
-      if (case_item != NULL) {
-        for (j=0; j < config_content_node_get_size( case_item ); j++) {
-          const config_content_node_type * case_node = config_content_item_iget_node( case_item );
-          for (i=0; i < config_content_node_get_size( case_node ) i++) {
+      if (config_content_has_item( config , "CASE_LIST")) {
+        const config_content_item_type * case_item = config_content_get_item( config , "CASE_LIST" );
+        for (j=0; j < config_content_item_get_size( case_item ); j++) {
+          const config_content_node_type * case_node = config_content_item_iget_node( case_item , j );
+          for (i=0; i < config_content_node_get_size( case_node ); i++) {
             const char * case_glob = config_content_node_iget( case_node , i );
             ensemble_load_from_glob( ensemble , case_glob , tp);
           }
         }
       }
-      
+
     }
     thread_pool_join( tp );
     thread_pool_free( tp );
   }
-    
+
   {
     const sum_case_type * tmp = vector_iget_const( ensemble->data , 0 );
     ensemble->refcase = tmp->ecl_sum;
   }
-  
+
   /*1b: Other config settings */
-  if (config_item_set( config , "NUM_INTERP" ))
-    ensemble->num_interp  = config_iget_as_int( config , "NUM_INTERP" , 0 , 0 );
-  
-  
+  if (config_content_has_item( config , "NUM_INTERP" ))
+    ensemble->num_interp  = config_content_iget_as_int( config , "NUM_INTERP" , 0 , 0 );
+
+
   /*2: Remaining initialization */
   ensemble_init_time_interp( ensemble );
   if (vector_get_size( ensemble->data ) < MIN_SIZE )
@@ -269,7 +270,7 @@ void ensemble_free( ensemble_type * ensemble ) {
 }
 
 /*****************************************************************/
- 
+
 static output_type * output_alloc( const char * file , const char * format_string) {
   output_type * output = util_malloc( sizeof * output );
   output->keys = vector_alloc_new();
@@ -289,7 +290,7 @@ static output_type * output_alloc( const char * file , const char * format_strin
     }
     output->format = format;
   }
-  
+
   return output;
 }
 
@@ -322,26 +323,26 @@ static void output_add_key( const ecl_sum_type * refcase , output_type * output 
   util_split_string( qkey , SUMMARY_JOIN , &tokens , &tmp);
   if (tokens == 1)
     util_exit("Hmmm - the key:%s is malformed - must be of the form SUMMARY_KEY:QUANTILE.\n",qkey);
-    
+
   if (!util_sscanf_double( tmp[tokens - 1] , &quantile))
     util_exit("Hmmmm - failed to interpret:%s as a quantile - must be a number (0,1).\n",tmp[tokens-1]);
-    
+
   if (quantile <= 0 || quantile >= 1.0)
     util_exit("Invalid quantile value:%g - must be in interval (0,1)\n", quantile);
-  
+
   sum_key = util_alloc_joined_string( (const char **) tmp , tokens - 1 , SUMMARY_JOIN);
   {
     stringlist_type * matching_keys = stringlist_alloc_new();
     int i;
     ecl_sum_select_matching_general_var_list( refcase , sum_key , matching_keys );
-    for (i=0; i < stringlist_get_size( matching_keys ); i++) 
+    for (i=0; i < stringlist_get_size( matching_keys ); i++)
       vector_append_owned_ref( output->keys , quant_key_alloc( stringlist_iget( matching_keys , i ) , quantile) , quant_key_free__ );
-    
+
     if (stringlist_get_size( matching_keys ) == 0)
       fprintf(stderr,"** Warning: No summary vectors matching:\'%s\' found?? \n", sum_key);
     stringlist_free( matching_keys );
   }
-      
+
   util_free_stringlist( tmp, tokens );
 }
 
@@ -354,21 +355,21 @@ static void output_add_key( const ecl_sum_type * refcase , output_type * output 
    OUTPUT  output_file    key.q    key.q    key.q    key.q    ...
 */
 
-void output_table_init( const ecl_sum_type * refcase, hash_type * output_table , const config_type * config ) {
+void output_table_init( const ecl_sum_type * refcase, hash_type * output_table , const config_content_type * config ) {
   int i,j;
-  const config_content_item_type * output_item = config_get_content_item( config , "OUTPUT");
-  if (output_item != NULL) {
+  if (config_content_has_item( config , "OUTPUT")) {
+    const config_content_item_type * output_item = config_content_get_item( config , "OUTPUT");
     for (i = 0; i < config_content_item_get_size( output_item ); i++) {
       const config_content_node_type * output_node = config_content_item_iget_node( output_item , i );
-      
+
       const char * file              = config_content_node_iget( output_node , 0 );
       const char * format_string     = config_content_node_iget( output_node , 1 );
       output_type * output           = output_alloc( file , format_string );
-    
+
       /* All the keys are just added - without any check. */
       for (j = 2; j < config_content_node_get_size( output_node ); j++)
         output_add_key( refcase , output , config_content_node_iget( output_node , j));
-      
+
       hash_insert_hash_owned_ref( output_table , file , output , output_free__ );
     }
   }
@@ -390,9 +391,9 @@ static void print_var( FILE * stream , const char * var , double q , const char 
 
 
 
-/* 
+/*
    ** The columns are <TAB> separated! **
-   
+
    An ECLIPSE summary variable is generally characterized by three
    variable values from SMSPEC vectors; the three vectors are
    KEYWORDS, WGNAMES and NUMS.
@@ -403,7 +404,7 @@ static void print_var( FILE * stream , const char * var , double q , const char 
    additional information from one, or both of WGNAMES and NUMS. For
    instance for a well variable or group variable we will need the
    well name from WGNAMES and for a block property we will need the
-   block number (as i + j*nx + k*nx*ny) from the NUMS vector. 
+   block number (as i + j*nx + k*nx*ny) from the NUMS vector.
 
    When writing the S3Graph header I don't understand how to enter the
    different parts of header information. The current implementation,
@@ -412,7 +413,7 @@ static void print_var( FILE * stream , const char * var , double q , const char 
      1. Write a line like this:
 
              DATE    TIME        KEYWORD1:xxx    KEYWORD2:xxx     KEYWORD3:xxxx
-          
+
         Here KEYWORD is an eclipse variable memnonic from the KEYWORDS
         array, i.e. FOPT or WWCT. The :xxx part is the quantile we are
         looking at, i.e. 0.10 or 0.90. It seems adding the quantile
@@ -420,16 +421,16 @@ static void print_var( FILE * stream , const char * var , double q , const char 
 
      2. Write a line with units:
 
-             DATE        TIME    KEYWORD1:xxx    KEYWORD2:xxx     KEYWORD3:xxxx 
+             DATE        TIME    KEYWORD1:xxx    KEYWORD2:xxx     KEYWORD3:xxxx
                          DAYS    UNIT1           UNIT2            UNIT2             <---- New line
 
 
      3. Write a line with keyword qualifiers, i.e. extra information:
 
              DATE    TIME        WOPR:xxx        FOPT:xxxx        BPR
-                     DAYS        UNIT1           UNIT2            UNIT2             
-                                 OP1                              1000              <---- New line 
- 
+                     DAYS        UNIT1           UNIT2            UNIT2
+                                 OP1                              1000              <---- New line
+
         Now - the totally confusing part is that it is not clear what
         S3Graph expects on this third line, in the case of well/group
         variables it is a well/group name from the WGNAMES array,
@@ -443,14 +444,14 @@ static void print_var( FILE * stream , const char * var , double q , const char 
 
 
    [*] : I do not really understand why it seems to work.
-   
+
 */
 
 
 
 
 void output_save_S3Graph( const output_type * output, ensemble_type * ensemble , const double ** data ) {
-  FILE * stream = util_mkdir_fopen( output->file , "w"); 
+  FILE * stream = util_mkdir_fopen( output->file , "w");
   const char * kw_fmt       = "\t%s";
   const char * unit_fmt     = "\t%s";
   const char * wgname_fmt   = "\t%s";
@@ -466,14 +467,14 @@ void output_save_S3Graph( const output_type * output, ensemble_type * ensemble ,
   const int    data_columns = vector_get_size( output->keys );
   const int    data_rows    = time_t_vector_size( ensemble->interp_time );
   int row_nr,column_nr;
-    
+
   {
-    char       * origin; 
+    char       * origin;
     util_alloc_file_components( output->file , NULL ,&origin , NULL);
     fprintf(stream , "ORIGIN %s\n", origin );
     free( origin );
   }
-  
+
   /* 1: Writing first header line with variables. */
   fprintf(stream , time_header );
   for (column_nr = 0; column_nr < data_columns; column_nr++) {
@@ -489,20 +490,20 @@ void output_save_S3Graph( const output_type * output, ensemble_type * ensemble ,
     fprintf(stream , unit_fmt , ecl_sum_get_unit( ensemble->refcase , qkey->sum_key ) );
   }
   fprintf(stream , "\n");
-  
-  /*3: Writing third header line with WGNAMES / NUMS - extra information - 
+
+  /*3: Writing third header line with WGNAMES / NUMS - extra information -
        breaks completely down with LGR information. */
   fprintf(stream , time_blank );
   {
     for (column_nr = 0; column_nr < data_columns; column_nr++) {
       const quant_key_type * qkey  = vector_iget( output->keys , column_nr );
       const char * ecl_key         = qkey->sum_key;
-      const char * wgname          = ecl_sum_get_wgname( ensemble->refcase , ecl_key ); 
+      const char * wgname          = ecl_sum_get_wgname( ensemble->refcase , ecl_key );
       int          num             = ecl_sum_get_num( ensemble->refcase , ecl_key );
       ecl_smspec_var_type var_type = ecl_sum_get_var_type( ensemble->refcase , ecl_key);
       bool need_num                = ecl_smspec_needs_num( var_type );
-      bool need_wgname             = ecl_smspec_needs_wgname( var_type );      
-      
+      bool need_wgname             = ecl_smspec_needs_wgname( var_type );
+
       if (need_num && need_wgname) {
         /** Do not know how to include both - will just create a
             mangled name as a combination. */
@@ -511,7 +512,7 @@ void output_save_S3Graph( const output_type * output, ensemble_type * ensemble ,
         free( wgname_num );
       } else if (need_num)
         fprintf(stream , num_fmt , num);
-      else if (need_wgname) 
+      else if (need_wgname)
         fprintf(stream , wgname_fmt , wgname);
       else
         fprintf(stream , empty_fmt );
@@ -528,7 +529,7 @@ void output_save_S3Graph( const output_type * output, ensemble_type * ensemble ,
       fprintf(stream , date_fmt , mday , month , year);
     }
     fprintf(stream , days_fmt , 1.0*(interp_time - ensemble->start_time) / 86400);
-      
+
     for (column_nr = 0; column_nr < data_columns; column_nr++) {
       fprintf(stream , float_fmt , data[row_nr][column_nr]);
     }
@@ -539,7 +540,7 @@ void output_save_S3Graph( const output_type * output, ensemble_type * ensemble ,
 
 
 void output_save_plain__( const output_type * output , ensemble_type * ensemble , const double ** data , bool add_header) {
-  FILE * stream = util_mkdir_fopen( output->file , "w"); 
+  FILE * stream = util_mkdir_fopen( output->file , "w");
   const char * key_fmt      = " %18s:%4.2f ";
   const char * time_header  = "--    DAYS      DATE    ";
   const char * time_dash    = "------------------------";
@@ -560,7 +561,7 @@ void output_save_plain__( const output_type * output , ensemble_type * ensemble 
     fprintf(stream , "\n");
 
     fprintf( stream , time_dash );
-    for (int i=0; i < vector_get_size( output->keys ); i++) 
+    for (int i=0; i < vector_get_size( output->keys ); i++)
       fprintf(stream , key_dash );
     fprintf(stream , "\n");
   }
@@ -574,7 +575,7 @@ void output_save_plain__( const output_type * output , ensemble_type * ensemble 
       util_set_datetime_values(interp_time , NULL , NULL , NULL , &mday , &month , &year);
       fprintf(stream , date_fmt , mday , month , year);
     }
-      
+
     for (column_nr = 0; column_nr < data_columns; column_nr++) {
       fprintf(stream , float_fmt , data[row_nr][column_nr]);
     }
@@ -600,13 +601,13 @@ void output_save( const output_type * output , ensemble_type * ensemble , const 
     util_exit("Sorry: output_format:%d not supported \n", output->format );
   }
 }
-      
+
 
 
 
 
 void output_run_line( const output_type * output , ensemble_type * ensemble) {
-  
+
   const int    data_columns = vector_get_size( output->keys );
   const int    data_rows    = time_t_vector_size( ensemble->interp_time );
   double     ** data;
@@ -615,15 +616,15 @@ void output_run_line( const output_type * output , ensemble_type * ensemble) {
   data = util_calloc( data_rows , sizeof * data );
   /*
     time-direction, i.e. the row index is the first index and the
-    column number (i.e. the different keys) is the second index. 
+    column number (i.e. the different keys) is the second index.
   */
   for (row_nr=0; row_nr < data_rows; row_nr++)
     data[row_nr] = util_calloc( data_columns , sizeof * data[row_nr] );
-  
+
   printf("Creating output file: %s \n",output->file );
 
-  
-  /* 
+
+  /*
      Go through all the cases and check that they have this key;
      exit if missing. Could also ignore the missing keys and just
      continue; and even defer the checking to the inner loop.
@@ -632,35 +633,35 @@ void output_run_line( const output_type * output , ensemble_type * ensemble) {
     const quant_key_type * qkey = vector_iget( output->keys , column_nr );
     {
       bool OK = true;
-      
+
       for (int iens = 0; iens < vector_get_size( ensemble->data ); iens++) {
         const sum_case_type * sum_case = vector_iget_const( ensemble->data , iens );
-        
+
         if (!ecl_sum_has_general_var(sum_case->ecl_sum , qkey->sum_key)) {
           OK = false;
           fprintf(stderr,"** Sorry: the case:%s does not have the summary key:%s \n", ecl_sum_get_case( sum_case->ecl_sum ), qkey->sum_key);
         }
       }
 
-      if (!OK) 
+      if (!OK)
         util_exit("Exiting due to missing summary vector(s).\n");
     }
   }
-  
-  
+
+
   /* The main loop - outer loop is running over time. */
   {
     /**
        In the quite typical case that we are asking for several
        quantiles of the quantity, i.e.
 
-       WWCT:OP_1:0.10  WWCT:OP_1:0.50  WWCT:OP_1:0.90 
+       WWCT:OP_1:0.10  WWCT:OP_1:0.50  WWCT:OP_1:0.90
 
        the interp_data_cache construction will ensure that the
        underlying ecl_sum object is only queried once; and also the
        sorting will be performed once.
     */
-    
+
     hash_type * interp_data_cache = hash_alloc();
 
     for (row_nr = 0; row_nr < data_rows; row_nr++) {
@@ -680,10 +681,10 @@ void output_run_line( const output_type * output , ensemble_type * ensemble) {
         if (double_vector_size( interp_data ) == 0) {
           for (int iens = 0; iens < vector_get_size( ensemble->data ); iens++) {
             const sum_case_type * sum_case = vector_iget_const( ensemble->data , iens );
-            
+
             if ((interp_time >= sum_case->start_time) && (interp_time <= sum_case->end_time))  /* We allow the different simulations to have differing length */
               double_vector_append( interp_data , ecl_sum_get_general_var_from_sim_time( sum_case->ecl_sum , interp_time , qkey->sum_key)) ;
-            
+
             double_vector_sort( interp_data );
           }
         }
@@ -693,7 +694,7 @@ void output_run_line( const output_type * output , ensemble_type * ensemble) {
     }
     hash_free( interp_data_cache );
   }
-  
+
   output_save( output , ensemble , (const double **) data);
   for (row_nr=0; row_nr < data_rows; row_nr++)
     free( data[row_nr] );
@@ -717,19 +718,19 @@ void output_table_run( hash_type * output_table , ensemble_type * ensemble ) {
 
 /*****************************************************************/
 
-void config_init( config_type * config ) {
+void config_init( config_parser_type * config ) {
 
 
-  config_add_schema_item( config , "CASE_LIST"      , true , true );
+  config_add_schema_item( config , "CASE_LIST"      , true );
   config_add_key_value( config , "NUM_INTERP" , false , CONFIG_INT);
-  
+
   {
     config_schema_item_type * item;
-    item = config_add_schema_item( config , "OUTPUT" , true , true );
-    config_schema_item_set_argc_minmax( item , 2 , CONFIG_DEFAULT_ARG_MAX , 0 , NULL );
+    item = config_add_schema_item( config , "OUTPUT" , true );
+    config_schema_item_set_argc_minmax( item , 2 , CONFIG_DEFAULT_ARG_MAX );
     config_schema_item_set_indexed_selection_set( item , 1 , 3 , (const char *[3]) { S3GRAPH_STRING , HEADER_STRING , PLAIN_STRING });
   }
-  
+
 }
 
 
@@ -737,7 +738,7 @@ void config_init( config_type * config ) {
 
 void usage() {
   fprintf(stderr, "\nUse:\n\n    ecl_quantile config_file\n\n");
-  
+
   printf("Help\n");
   printf("----\n");
   printf("\n");
@@ -786,7 +787,7 @@ void usage() {
   printf("\n");
   printf("     Q:   The quantile we are interested in, e.g 0.10 to get the P10\n");
   printf("          quantile and 0.90 to get the P90 quantile.\n");
-  printf("\n");  
+  printf("\n");
   printf("  For the 'VAR' and 'WG?' parts of the keys you can use shell-style\n");
   printf("  wildcards to get all summary vectors matching a criteria, i.e. \n");
   printf("  'WOPR:A-*:0.50' will give the P50 quantile of WOPR for all wells \n");
@@ -824,11 +825,14 @@ int main( int argc , char ** argv ) {
     hash_type     * output_table   = hash_alloc();
     ensemble_type * ensemble       = ensemble_alloc();
     {
-      config_type   * config      = config_alloc( );
+      config_parser_type   * config      = config_alloc( );
+      config_content_type   * content;
       const char    * config_arg  = argv[1];
-      
+
       config_init( config );
-      if (config_parse( config , config_arg , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN, true )) {
+      content = config_parse( config , config_arg , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN, true );
+
+      if (config_content_is_valid( content )) {
         char * config_path;
         util_alloc_file_components( config_arg , &config_path , NULL , NULL);
         if (config_path != NULL) {
@@ -836,17 +840,18 @@ int main( int argc , char ** argv ) {
           free( config_path );
         }
       } else {
-        config_fprintf_errors( config , stderr );
+        config_error_type * error = config_content_get_errors( content );
+        config_error_fprintf( error , true , stderr );
         exit(1);
       }
-        
 
-    
-      ensemble_init( ensemble , config );
-      output_table_init( ensemble_get_refcase( ensemble ) , output_table , config);
+
+
+      ensemble_init( ensemble , content );
+      output_table_init( ensemble_get_refcase( ensemble ) , output_table , content );
+      config_content_free( content );
       config_free( config );
-
-    } 
+    }
     output_table_run( output_table , ensemble );
     ensemble_free( ensemble );
     hash_free( output_table );

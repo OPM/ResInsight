@@ -38,6 +38,8 @@ struct geo_polygon_struct {
 
 
 static UTIL_SAFE_CAST_FUNCTION( geo_polygon , GEO_POLYGON_TYPE_ID );
+UTIL_IS_INSTANCE_FUNCTION( geo_polygon , GEO_POLYGON_TYPE_ID);
+
 
 geo_polygon_type * geo_polygon_alloc() {
   geo_polygon_type * polygon = util_malloc( sizeof * polygon );
@@ -66,6 +68,13 @@ void geo_polygon_free__( void * arg ) {
 void geo_polygon_add_point( geo_polygon_type * polygon , double x , double y) {
   double_vector_append( polygon->xcoord , x );
   double_vector_append( polygon->ycoord , y );
+}
+
+
+void geo_polygon_close( geo_polygon_type * polygon) {
+  double x = double_vector_get_first( polygon->xcoord );
+  double y = double_vector_get_first( polygon->ycoord );
+  geo_polygon_add_point( polygon , x , y );
 }
 
 
@@ -102,4 +111,25 @@ geo_polygon_type * geo_polygon_fload_alloc_irap( const char * filename ) {
     double_vector_pop( polygon->ycoord );
   }
   return polygon;
+}
+
+
+
+void geo_polygon_reset(geo_polygon_type * polygon ) {
+  double_vector_reset( polygon->xcoord );
+  double_vector_reset( polygon->ycoord );
+}
+
+
+
+void geo_polygon_shift(geo_polygon_type * polygon , double x0 , double y0) {
+  double_vector_shift( polygon->xcoord , x0 );
+  double_vector_shift( polygon->ycoord , y0 );
+}
+
+
+void geo_polygon_fprintf(const geo_polygon_type * polygon , FILE * stream) {
+  int i;
+  for (i=0; i < double_vector_size( polygon->xcoord ); i++)
+    fprintf(stream , "%10.3f  %10.3f \n", double_vector_iget( polygon->xcoord , i ) , double_vector_iget( polygon->ycoord , i));
 }

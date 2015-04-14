@@ -77,7 +77,7 @@ int main(int argc , char ** argv) {
   test_work_area_set_store(work_area, true); 
   
   bool strict = true;
-  enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , strict , true );
+  enkf_main_type * enkf_main = enkf_main_bootstrap( config_file , strict , true );
   enkf_fs_type * init_fs = enkf_main_get_fs(enkf_main);
   enkf_state_type * state = enkf_main_iget_state( enkf_main , 0 );
   run_arg_type * run_arg = run_arg_alloc_ENSEMBLE_EXPERIMENT( init_fs , 0 ,0 , "simulations/run0");

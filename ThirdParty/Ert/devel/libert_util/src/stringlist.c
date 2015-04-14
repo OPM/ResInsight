@@ -363,6 +363,22 @@ int stringlist_iget_as_int( const stringlist_type * stringlist , int index , boo
   return value;
 }
 
+
+double stringlist_iget_as_double( const stringlist_type * stringlist , int index , bool * valid) {
+  const char * string_value = stringlist_iget( stringlist , index );
+  double value = -1.0;
+
+  if (valid != NULL)
+    *valid = false;
+
+  if (util_sscanf_double(string_value , &value))
+    if (valid != NULL)
+      *valid = true;
+
+  return value;
+}
+
+
 bool stringlist_iget_as_bool( const stringlist_type * stringlist, int index, bool * valid) {
   const char * string_value = stringlist_iget( stringlist, index);
   bool value = false;

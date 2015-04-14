@@ -15,17 +15,13 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
-from ert.enkf.data import FieldConfig, GenDataConfig, GenKwConfig, SummaryConfig
+from ert.enkf.data import FieldConfig, GenDataConfig, GenKwConfig, SummaryConfig, CustomKWConfig
 from ert.enkf.enums import EnkfTruncationType, ErtImplType, LoadFailTypeEnum, EnkfVarType
 from ert.ecl import EclGrid
 
 
 
 class EnkfConfigNode(BaseCClass):
-    FIELD = 104
-    GEN_KW = 107
-    SUMMARY = 110
-    GEN_DATA = 113
 
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
@@ -57,6 +53,10 @@ class EnkfConfigNode(BaseCClass):
     def getKeywordModelConfig(self):
         """ @rtype: GenKWConfig """
         return GenKwConfig.createCReference(EnkfConfigNode.cNamespace().get_ref(self), parent=self)
+
+    def getCustomKeywordModelConfig(self):
+        """ @rtype: CustomKWConfig """
+        return CustomKWConfig.createCReference(EnkfConfigNode.cNamespace().get_ref(self), parent=self)
 
     # def get_enkf_infile(self):
     #     return EnkfConfigNode.cNamespace().get_enkf_infile(self)
@@ -100,13 +100,15 @@ class EnkfConfigNode(BaseCClass):
     def getModelConfig(self):
         implementation_type = self.getImplementationType()
 
-        if implementation_type == self.FIELD:
+        if implementation_type == ErtImplType.FIELD:
             return self.getFieldModelConfig()
-        elif implementation_type == self.GEN_DATA:
+        elif implementation_type == ErtImplType.GEN_DATA:
             return self.getDataModelConfig()
-        elif implementation_type == self.GEN_KW:
+        elif implementation_type == ErtImplType.GEN_KW:
             return self.getKeywordModelConfig()
-        elif implementation_type == self.SUMMARY:
+        elif implementation_type == ErtImplType.CUSTOM_KW:
+            return self.getCustomKeywordModelConfig()
+        elif implementation_type == ErtImplType.SUMMARY:
             return SummaryConfig.createCReference(self.getPointerReference(), parent=self)
         else:
             print("[EnkfConfigNode::getModelConfig()] Unhandled implementation model type: %i" % implementation_type)

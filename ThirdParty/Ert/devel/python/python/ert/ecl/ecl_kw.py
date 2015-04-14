@@ -39,6 +39,7 @@ the libecl library.
 """
 import ctypes
 import types
+import warnings
 
 import  numpy
 from ert.cwrap import CClass, CFILE, CWrapper, CWrapperNameSpace
@@ -157,9 +158,9 @@ class EclKW(CClass):
 
     
     @classmethod
-    def read_grdecl( cls , filename , kw , strict = True , ecl_type = None):
+    def read_grdecl( cls , fileH , kw , strict = True , ecl_type = None):
         """
-        Function to load an EclKW instance from a grdecl file.
+        Function to load an EclKW instance from a grdecl formatted filehandle.
 
         This constructor can be used to load an EclKW instance from a
         grdecl formatted file; the input files for petrophysical
@@ -226,7 +227,7 @@ class EclKW(CClass):
         it finds in the file.
         """
         
-        cfile  = CFILE( filename )
+        cfile  = CFILE( fileH )
         if kw:
             if len(kw) > 8:
                 raise TypeError("Sorry keyword:%s is too long, must be eight characters or less." % kw)
@@ -250,7 +251,7 @@ class EclKW(CClass):
             return None
 
     @classmethod
-    def fseek_grdecl( cls , filename , kw , rewind = False):
+    def fseek_grdecl( cls , fileH , kw , rewind = False):
         """
         Will search through the open file and look for string @kw.
 
@@ -274,7 +275,7 @@ class EclKW(CClass):
         true the function rewind to the beginning of the file and
         search from there after the initial search.
         """
-        cfile = CFILE( filename )
+        cfile = CFILE( fileH )
         return cfunc.fseek_grdecl( kw , rewind , cfile)
         
 
@@ -768,14 +769,37 @@ class EclKW(CClass):
         cfunc.set_header( self , name )
 
     def get_name( self ):
-        return cfunc.get_header( self )
+        return self.getName()
         
 
     name = property( get_name , set_name )
 
+    def getName(self):
+        return cfunc.get_header( self )
+
 
     @property    
     def min_max( self ):
+        warnings.warn("The min_max property has been renamed to method getMinMax()" , DeprecationWarning)
+        return self.getMinMax()
+
+
+    @property
+    def max( self ):
+        warnings.warn("The max property has been renamed to method getMax()" , DeprecationWarning)
+        mm = self.getMinMax()
+        return mm[1]
+    
+    
+    @property
+    def min( self ):
+        warnings.warn("The min property has been renamed to method getMin()" , DeprecationWarning)
+        mm = self.getMinMax()
+        return mm[0]
+
+       
+    
+    def getMinMax(self):
         """
         Will return a touple (min,max) for numerical types.
 
@@ -799,16 +823,17 @@ class EclKW(CClass):
         return (min.value , max.value)
 
 
-    @property
-    def max( self ):
-        return self.min_max[1]
+    def getMax( self ):
+        mm = self.getMinMax()
+        return mm[1]
     
     
-    @property
-    def min( self ):
-        return self.min_max[0]
-        
-    
+    def getMin( self ):
+        mm = self.getMinMax()
+        return mm[0]
+
+
+
     @property
     def numeric(self):
         if self.ecl_type == EclTypeEnum.ECL_FLOAT_TYPE:
@@ -833,6 +858,8 @@ class EclKW(CClass):
 
     def getEclType(self):
         return self.ecl_type
+
+        
 
     
     @property

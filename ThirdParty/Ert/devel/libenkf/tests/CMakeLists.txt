@@ -50,7 +50,7 @@ add_test( enkf_ert_workflow_list ${EXECUTABLE_OUTPUT_PATH}/enkf_ert_workflow_lis
 
 add_executable( enkf_obs_fs enkf_obs_fs.c )
 target_link_libraries( enkf_obs_fs enkf test_util )
-add_test( enkf_obs_fs ${EXECUTABLE_OUTPUT_PATH}/enkf_obs_fs ${PROJECT_SOURCE_DIR}/test-data/Statoil/config/with_data/config )
+add_test( enkf_obs_fs ${EXECUTABLE_OUTPUT_PATH}/enkf_obs_fs ${PROJECT_SOURCE_DIR}/test-data/Statoil/config/obs_testing/config )
 
 add_executable( enkf_magic_string_in_workflows enkf_magic_string_in_workflows.c )
 target_link_libraries( enkf_magic_string_in_workflows enkf test_util )
@@ -59,6 +59,10 @@ add_test( enkf_magic_string_in_workflows ${EXECUTABLE_OUTPUT_PATH}/enkf_magic_st
 add_executable( enkf_obs_vector_fs enkf_obs_vector_fs.c )
 target_link_libraries( enkf_obs_vector_fs enkf test_util )
 add_test( enkf_obs_vector_fs ${EXECUTABLE_OUTPUT_PATH}/enkf_obs_vector_fs ${PROJECT_SOURCE_DIR}/test-data/Statoil/config/obs_testing/config )
+
+add_executable( enkf_obs_vector enkf_obs_vector.c )
+target_link_libraries( enkf_obs_vector enkf test_util )
+add_test( enkf_obs_vector ${EXECUTABLE_OUTPUT_PATH}/enkf_obs_vector  )
 
 
 add_executable( enkf_plot_data_fs enkf_plot_data_fs.c )
@@ -99,9 +103,8 @@ add_test( enkf_analysis_config_ext_module ${EXECUTABLE_OUTPUT_PATH}/enkf_analysi
 
 add_executable( enkf_analysis_config_analysis_load enkf_analysis_config_analysis_load.c )
 target_link_libraries( enkf_analysis_config_analysis_load enkf test_util)
-add_test( enkf_analysis_config_analysis_load ${EXECUTABLE_OUTPUT_PATH}/enkf_analysis_config_analysis_load
-          ${CMAKE_CURRENT_SOURCE_DIR}/data/config/analysis_load_config
-          ${CMAKE_CURRENT_SOURCE_DIR}/data/config/analysis_load_site_config)
+add_test( enkf_analysis_config_analysis_load ${EXECUTABLE_OUTPUT_PATH}/enkf_analysis_config_analysis_load ${CMAKE_CURRENT_SOURCE_DIR}/data/config/analysis_load_config)
+set_property( TEST enkf_analysis_config_analysis_load PROPERTY ENVIRONMENT "ERT_SITE_CONFIG=${CMAKE_CURRENT_SOURCE_DIR}/data/config/analysis_load_site_config" )
 
 add_executable( enkf_state_map enkf_state_map.c )
 target_link_libraries( enkf_state_map enkf test_util )
@@ -210,6 +213,16 @@ target_link_libraries( gen_kw_test enkf test_util )
 add_test( gen_kw_test
           ${EXECUTABLE_OUTPUT_PATH}/gen_kw_test
           ${CMAKE_CURRENT_SOURCE_DIR}/data/config/forward/ert/config_GEN_KW_true)
+
+
+add_executable( gen_kw_logarithmic_test gen_kw_logarithmic_test.c )
+target_link_libraries( gen_kw_logarithmic_test enkf test_util )
+
+add_test( gen_kw_logarithmic_test
+          ${EXECUTABLE_OUTPUT_PATH}/gen_kw_logarithmic_test
+          ${CMAKE_CURRENT_SOURCE_DIR}/data/config/gen_kw_logarithmic/config_GEN_KW_logarithmic)
+
+
 
 #-----------------------------------------------------------------
 

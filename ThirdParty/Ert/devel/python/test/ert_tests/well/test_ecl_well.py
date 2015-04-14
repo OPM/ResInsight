@@ -173,11 +173,11 @@ class EclWellTest(ExtendedTestCase):
         sim_time = CTime(datetime.date(2000, 1, 1))
         open_states = {True: 0, False: 0}
         msw_states = {True: 0, False: 0}
-        well_types = {WellTypeEnum.UNDOCUMENTED_ZERO: 0,
-                      WellTypeEnum.PRODUCER: 0,
-                      WellTypeEnum.GAS_INJECTOR: 0,
-                      WellTypeEnum.OIL_INJECTOR: 0,
-                      WellTypeEnum.WATER_INJECTOR: 0}
+        well_types = {WellTypeEnum.ERT_UNDOCUMENTED_ZERO: 0,
+                      WellTypeEnum.ERT_PRODUCER: 0,
+                      WellTypeEnum.ERT_GAS_INJECTOR: 0,
+                      WellTypeEnum.ERT_OIL_INJECTOR: 0,
+                      WellTypeEnum.ERT_WATER_INJECTOR: 0}
 
         segments = set()
         branches = set()
@@ -214,11 +214,11 @@ class EclWellTest(ExtendedTestCase):
         self.assertEqual(msw_states[True], 169)
         self.assertEqual(msw_states[False], 53)
 
-        self.assertEqual(well_types[WellTypeEnum.UNDOCUMENTED_ZERO], 0)
-        self.assertEqual(well_types[WellTypeEnum.WATER_INJECTOR], 0)
-        self.assertEqual(well_types[WellTypeEnum.OIL_INJECTOR], 0)
-        self.assertEqual(well_types[WellTypeEnum.GAS_INJECTOR], 1)
-        self.assertEqual(well_types[WellTypeEnum.PRODUCER], 221)
+        self.assertEqual(well_types[WellTypeEnum.ERT_UNDOCUMENTED_ZERO], 0)
+        self.assertEqual(well_types[WellTypeEnum.ERT_WATER_INJECTOR], 0)
+        self.assertEqual(well_types[WellTypeEnum.ERT_OIL_INJECTOR], 0)
+        self.assertEqual(well_types[WellTypeEnum.ERT_GAS_INJECTOR], 1)
+        self.assertEqual(well_types[WellTypeEnum.ERT_PRODUCER], 221)
 
         self.assertEqual(len(connections), connections_count)
 

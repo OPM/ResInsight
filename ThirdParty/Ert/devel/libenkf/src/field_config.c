@@ -26,6 +26,7 @@
 #include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_endian_flip.h>
 
 #include <ert/rms/rms_file.h>
 #include <ert/rms/rms_util.h>
@@ -333,9 +334,10 @@ file. It can determine the following three types of files:
 field_file_format_type field_config_guess_file_type(const char * filename ) {
   bool fmt_file = util_fmt_bit8(filename );
   FILE * stream = util_fopen(filename , "r");
-
+  fortio_type * fortio = fortio_alloc_FILE_wrapper(NULL , ECL_ENDIAN_FLIP , fmt_file , false , stream);
   field_file_format_type file_type;
-  if (ecl_kw_is_kw_file(stream , fmt_file ))
+
+  if (ecl_kw_is_kw_file(fortio))
     file_type = ECL_KW_FILE;
   else if (rms_file_is_roff(stream))
     file_type = RMS_ROFF_FILE;
@@ -344,6 +346,7 @@ field_file_format_type field_config_guess_file_type(const char * filename ) {
   else
     file_type = UNDEFINED_FORMAT;              /* MUST Check on this return value */
 
+  fortio_free_FILE_wrapper( fortio );
   fclose(stream);
   return file_type;
 }
@@ -352,7 +355,7 @@ field_file_format_type field_config_guess_file_type(const char * filename ) {
 
 field_type * field_config_get_min_std( const field_config_type * field_config ) {
   return field_config->min_std;
-}  
+}
 
 
 field_file_format_type field_config_get_export_format(const field_config_type * field_config) {

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
+   Copyright (C) 2013  Statoil ASA, Norway.
+
    The file 'local_obsdata.c'
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 
@@ -81,7 +81,7 @@ int local_obsdata_get_size( const local_obsdata_type * data ) {
 bool local_obsdata_add_node( local_obsdata_type * data , local_obsdata_node_type * node ) {
   const char * key = local_obsdata_node_get_key( node );
   if (local_obsdata_has_node(data , key))
-    return false; 
+    return false;
   else {
     vector_append_owned_ref( data->nodes_list , node , local_obsdata_node_free__ );
     hash_insert_ref( data->nodes_map , key , node );

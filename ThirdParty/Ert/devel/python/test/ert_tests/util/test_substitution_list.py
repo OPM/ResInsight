@@ -22,3 +22,9 @@ class SubstitutionListTest(ExtendedTestCase):
         self.assertEqual(value, "Value")
         self.assertEqual(doc_string, "Doc String")
 
+        self.assertTrue("Key" in subst_list)
+        self.assertEqual(subst_list.indexForKey("Key"), 0)
+
+        with self.assertRaises(KeyError):
+            subst_list.indexForKey("AnotherKey")
+

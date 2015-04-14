@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'active_list.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'active_list.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -31,8 +31,8 @@
    elements of a node/observation which is active. At the lowest level
    the active elements in a node is just a list of integers. This
    list of integers, with som extra twists is what is implemented
-   here. 
-   
+   here.
+
    All the xxx_config objects have a pointer to an active_list
    instance. This pointer is passed to the enkf_serialize /
    enkf_deserialize routines.
@@ -57,7 +57,7 @@ a fault object. Then the code will be like:
    ....
 
    When this fault object is serialized/deserialized only the elements
-   0,4,5 are updated. 
+   0,4,5 are updated.
 */
 
 
@@ -191,7 +191,7 @@ const int * active_list_get_active(const active_list_type * active_list) {
   if (active_list->mode == PARTLY_ACTIVE)
     return int_vector_get_const_ptr( active_list->index_list );
   else
-    return NULL;  
+    return NULL;
 }
 
 
@@ -200,7 +200,7 @@ bool active_list_iget( const active_list_type * active_list , int index ) {
     return true;
   else if (active_list->mode == INACTIVE)
     return false;
-  else 
+  else
     return int_vector_iget( active_list->index_list , index );
 }
 
@@ -214,7 +214,7 @@ void active_list_fprintf( const active_list_type * active_list , bool obs , cons
       fprintf(stream , "%s  %s  %d\n" , local_config_get_cmd_string( ACTIVE_LIST_ADD_MANY_OBS_INDEX ) , key , int_vector_size( active_list->index_list ));
     else
       fprintf(stream , "%s  %s  %d\n" , local_config_get_cmd_string( ACTIVE_LIST_ADD_MANY_OBS_INDEX ) , key , int_vector_size( active_list->index_list ));
-    
+
     for (i = 0; i < int_vector_size( active_list->index_list ); i++) {
       fprintf(stream , "%6d " , int_vector_iget( active_list->index_list , i));
       if ((i % 10) == 9)

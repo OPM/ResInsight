@@ -6,7 +6,7 @@ if(POLICY CMP0042)
 endif()
 
 set( ERT_VERSION_MAJOR 1 )
-set( ERT_VERSION_MINOR 7 )
+set( ERT_VERSION_MINOR 8 )
 set( ERT_VERSION_MICRO X )
 
 
@@ -143,6 +143,10 @@ add_subdirectory( libecl_well )
 #-----------------------------------------------------------------
 if (BUILD_ERT)
 #-----------------------------------------------------------------
+   if (BUILD_TESTS)
+      option( ERT_LSF_SUBMIT_TEST "Build and run tests of LSF submit" OFF)
+   endif()
+
    include(cmake/ert_module_name.cmake)
 
    include_directories( ${PROJECT_SOURCE_DIR}/libconfig/include )

@@ -671,19 +671,22 @@ bool sched_history_well_open( const sched_history_type * sched_history , const c
 */
 
 bool sched_history_open( const sched_history_type * sched_history , const char * key , int report_step) {
-  const void * index = hash_get(sched_history->index , key );
-  if (well_index_is_instance( index )) {
-    const well_index_type * well_index = well_index_safe_cast_const( index );
-    const char * well_name = well_index_get_name( well_index );
-    return sched_history_well_open( sched_history , well_name , report_step);
-  } else if (group_index_is_instance( index )) {
-    const group_index_type * group_index = group_index_safe_cast_const( index );
-    const char * group_name = group_index_get_name( group_index );
-    return sched_history_group_exists( sched_history , group_name , report_step);
-  } else {
-    util_abort("%s: - hmm internal fuckup \n",__func__);
-    return false;
-  }
+    if(hash_has_key(sched_history->index, key)) {
+      const void * index = hash_get(sched_history->index , key );
+      if (well_index_is_instance( index )) {
+        const well_index_type * well_index = well_index_safe_cast_const( index );
+        const char * well_name = well_index_get_name( well_index );
+        return sched_history_well_open( sched_history , well_name , report_step);
+      } else if (group_index_is_instance( index )) {
+        const group_index_type * group_index = group_index_safe_cast_const( index );
+        const char * group_name = group_index_get_name( group_index );
+        return sched_history_group_exists( sched_history , group_name , report_step);
+      } else {
+        util_abort("%s: - hmm internal fuckup \n",__func__);
+        return false;
+      }
+    }
+   return false;
 }
 
 

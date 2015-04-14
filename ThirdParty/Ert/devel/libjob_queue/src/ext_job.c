@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ext_job.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ext_job.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -30,7 +30,9 @@
 #include <ert/util/subst_list.h>
 #include <ert/util/parser.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
+#include <ert/config/config_content.h>
+#include <ert/config/config_error.h>
 
 #include <ert/job_queue/ext_job.h>
 
@@ -44,7 +46,7 @@
    o ....
 
   These variables will then contain string values from when the job
-  configuration is read in, for example this little job 
+  configuration is read in, for example this little job
 
     STDOUT   my_stdout
     STDERR   my_stderr
@@ -70,8 +72,8 @@
 
   This can then be invoked several times, with different key=value
   arguments for the SRC_FILE and TARGET_FILE:
- 
-  
+
+
       COPY_FILE(SRC_FILE = file1 , TARGET_FILE = /tmp/file1)
       COPY_FILE(SRC_FILE = file2 , TARGET_FILE = /tmp/file2)
 
@@ -80,10 +82,10 @@
 
 
 /*
- 
+
 
 jobList = [
-    {"executable"  : None, 
+    {"executable"  : None,
      "environment" : {"LM_LICENSE_PATH" : "1700@osl001lic.hda.hydro.com:1700@osl002lic.hda.hydro.com:1700@osl003lic.hda.hydro.com",
                       "F_UFMTENDIAN"    : "big"},
      "target_file":"222",
@@ -108,19 +110,19 @@ struct ext_job_struct {
   char            * stdin_file;
   char            * stderr_file;
   char            * license_path;          /* If this is NULL - it will be unrestricted ... */
-  char            * license_root_path;     
-  char            * config_file; 
-  int               max_running;           /* 0 means unlimited. */ 
+  char            * license_root_path;
+  char            * config_file;
+  int               max_running;           /* 0 means unlimited. */
   int               max_running_minutes;   /* The maximum number of minutes this job is allowed to run - 0: unlimited. */
-  subst_list_type * private_args;          /* A substitution list of input arguments which is performed before the external substitutions - 
+  subst_list_type * private_args;          /* A substitution list of input arguments which is performed before the external substitutions -
                                               these are the arguments supplied as key=value pairs in the forward model call. */
   char            * private_args_string;
   char            * argv_string;
   stringlist_type * argv;                  /* This should *NOT* start with the executable */
   hash_type       * environment;
-  hash_type       * default_mapping; 
+  hash_type       * default_mapping;
   char            * help_text;
-  
+
   bool              private_job;           /* Can the current user/delete this job? (private_job == true) means the user can edit it. */
   bool              __valid;               /* Temporary variable consulted during the bootstrap - when the ext_job is completely initialized this should NOT be consulted anymore. */
 };
@@ -136,7 +138,7 @@ static UTIL_SAFE_CAST_FUNCTION( ext_job , EXT_JOB_TYPE_ID)
 
 static ext_job_type * ext_job_alloc__(const char * name , const char * license_root_path , bool private_job) {
   ext_job_type * ext_job = util_malloc(sizeof * ext_job );
-  
+
   UTIL_TYPE_ID_INIT( ext_job , EXT_JOB_TYPE_ID);
   ext_job->name                = util_alloc_string_copy( name );
   ext_job->license_root_path   = util_alloc_string_copy( license_root_path );
@@ -148,7 +150,7 @@ static ext_job_type * ext_job_alloc__(const char * name , const char * license_r
   ext_job->stdin_file          = NULL;
   ext_job->stderr_file         = NULL;
   ext_job->environment         = hash_alloc();
-  ext_job->default_mapping     = hash_alloc(); 
+  ext_job->default_mapping     = hash_alloc();
   ext_job->argv                = stringlist_alloc_new();
   ext_job->argv_string         = NULL;
   ext_job->__valid             = true;
@@ -156,13 +158,13 @@ static ext_job_type * ext_job_alloc__(const char * name , const char * license_r
   ext_job->config_file         = NULL;
   ext_job->max_running         = 0;                  /* 0 means unlimited. */
   ext_job->max_running_minutes = 0;                  /* 0 means unlimited. */
-  ext_job->private_job         = private_job;        /* If private_job == true the job is user editable. */ 
-  ext_job->help_text           = NULL; 
+  ext_job->private_job         = private_job;        /* If private_job == true the job is user editable. */
+  ext_job->help_text           = NULL;
   ext_job->private_args_string = NULL;
 
-  /* 
-     ext_job->private_args is set explicitly in the ext_job_alloc() 
-     and ext_job_alloc_copy() functions. 
+  /*
+     ext_job->private_args is set explicitly in the ext_job_alloc()
+     and ext_job_alloc_copy() functions.
   */
   return ext_job;
 }
@@ -180,7 +182,7 @@ void ext_job_set_help_text( ext_job_type * job , const char * help_text) {
   job->help_text = util_realloc_string_copy( job->help_text , help_text  );
 }
 
-/* 
+/*
    Exported function - must have name != NULL. Observe that the
    instance returned from this function is not really usable for
    anything.
@@ -200,7 +202,7 @@ ext_job_type * ext_job_alloc(const char * name , const char * license_root_path 
 
 ext_job_type * ext_job_alloc_copy(const ext_job_type * src_job) {
   ext_job_type * new_job  = ext_job_alloc__( src_job->name , src_job->license_root_path , true /* All copies are by default private jobs. */);
-  
+
   new_job->config_file    = util_alloc_string_copy(src_job->config_file);
   new_job->executable     = util_alloc_string_copy(src_job->executable);
   new_job->target_file    = util_alloc_string_copy(src_job->target_file);
@@ -209,7 +211,7 @@ ext_job_type * ext_job_alloc_copy(const ext_job_type * src_job) {
   new_job->stdout_file    = util_alloc_string_copy(src_job->stdout_file);
   new_job->stdin_file     = util_alloc_string_copy(src_job->stdin_file);
   new_job->stderr_file    = util_alloc_string_copy(src_job->stderr_file);
-  new_job->license_path   = util_alloc_string_copy(src_job->license_path);  
+  new_job->license_path   = util_alloc_string_copy(src_job->license_path);
 
   ext_job_set_help_text( new_job , src_job->help_text );
 
@@ -226,9 +228,9 @@ ext_job_type * ext_job_alloc_copy(const ext_job_type * src_job) {
       hash_insert_hash_owned_ref( new_job->environment , key , util_alloc_string_copy(value) , free);
       key = hash_iter_get_next_key(iter);
     }
-    hash_iter_free(iter); 
+    hash_iter_free(iter);
   }
-  
+
 
   /* The default mapping. */
   {
@@ -239,13 +241,13 @@ ext_job_type * ext_job_alloc_copy(const ext_job_type * src_job) {
       hash_insert_hash_owned_ref( new_job->default_mapping , key , util_alloc_string_copy(value) , free);
       key = hash_iter_get_next_key(iter);
     }
-    hash_iter_free(iter); 
+    hash_iter_free(iter);
   }
-  
+
 
 
   stringlist_deep_copy( new_job->argv , src_job->argv );
-  
+
   return new_job;
 }
 
@@ -266,7 +268,7 @@ void ext_job_free(ext_job_type * ext_job) {
   util_safe_free(ext_job->argv_string);
   util_safe_free(ext_job->help_text);
   util_safe_free(ext_job->private_args_string);
-  
+
   hash_free( ext_job->default_mapping);
   hash_free( ext_job->environment );
   stringlist_free(ext_job->argv);
@@ -285,9 +287,9 @@ static void __update_mode( const char * filename , mode_t add_mode) {
 
 
 /**
-   The license_path = 
-   
-   root_license_path / job_name / job_name 
+   The license_path =
+
+   root_license_path / job_name / job_name
 
 */
 
@@ -368,7 +370,7 @@ void ext_job_set_executable(ext_job_type * ext_job, const char * executable, con
     char * path_to_job_descr_file     = util_split_alloc_dirname(job_description_file);
     char * new_relative_path_to_exe   = util_alloc_rel_path(path_to_job_descr_file, full_path);
     char * relative_config_file       = util_alloc_rel_path(NULL , ext_job->config_file);
-    
+
     fprintf(stderr,"/----------------------------------------------------------------\n");
     fprintf(stderr,"|                        ** WARNING **                            \n");
     fprintf(stderr,"|\n");
@@ -381,11 +383,11 @@ void ext_job_set_executable(ext_job_type * ext_job, const char * executable, con
     fprintf(stderr,"| present form, but it is recommended to update: \n");
     fprintf(stderr,"|\n");
     fprintf(stderr,"|   1. Open the file:%s in an editor \n",relative_config_file);
-    fprintf(stderr,"|\n");  
+    fprintf(stderr,"|\n");
     fprintf(stderr,"|   2. Change the EXECUTABLE line to: \n");
-    fprintf(stderr,"|\n");      
+    fprintf(stderr,"|\n");
     fprintf(stderr,"|             EXECUTABLE  %s \n" , new_relative_path_to_exe);
-    fprintf(stderr,"|\n");      
+    fprintf(stderr,"|\n");
     fprintf(stderr,"| The main advantage with this change in behaviour is that the\n");
     fprintf(stderr,"| job description file and the executable can be relocated.\n");
     fprintf(stderr,"\\----------------------------------------------------------------\n\n");
@@ -568,9 +570,9 @@ static char * __alloc_filtered_string( const char * src_string , const subst_lis
     free( tmp1 );
   } else
     tmp2 = tmp1;
-    
+
   return tmp2;
-  
+
 }
 
 static void __fprintf_string(FILE * stream , const char * s , const subst_list_type * private_args, const subst_list_type * global_args) {
@@ -579,12 +581,12 @@ static void __fprintf_string(FILE * stream , const char * s , const subst_list_t
   free( filtered_string );
 }
 
- 
+
 static void __fprintf_python_string(FILE * stream , const char * id , const char * value, const subst_list_type * private_args, const subst_list_type * global_args) {
   fprintf(stream , "\"%s\" : " , id);
   if (value == NULL)
     fprintf(stream,"None");
-  else 
+  else
     __fprintf_string(stream , value , private_args , global_args);
 }
 
@@ -615,10 +617,10 @@ static void __fprintf_python_hash(FILE * stream , const char * id , hash_type * 
 
       fprintf(stream,"\"%s\" : " , key);
       __fprintf_string(stream , value , private_args , global_args);
-      
+
       if (counter < (hash_size - 1))
         fprintf(stream,",");
-      
+
       key = hash_iter_get_next_key(iter);
     }
     fprintf(stream,"}");
@@ -647,8 +649,8 @@ static void __indent(FILE * stream, int indent) {
 }
 
 
-/* 
-   This is special cased to support the default mapping. 
+/*
+   This is special cased to support the default mapping.
 */
 
 static void ext_job_fprintf_python_argList( const ext_job_type * ext_job , FILE * stream , const subst_list_type * global_args) {
@@ -659,11 +661,11 @@ static void ext_job_fprintf_python_argList( const ext_job_type * ext_job , FILE 
       char * filtered_string = __alloc_filtered_string(src_string , ext_job->private_args , global_args );
       if (hash_has_key( ext_job->default_mapping , filtered_string ))
         filtered_string = util_realloc_string_copy( filtered_string , hash_get( ext_job->default_mapping , filtered_string ));
-      
+
       fprintf(stream , "\"%s\"" , filtered_string );
       if (index < (stringlist_get_size( ext_job->argv) - 1))
         fprintf(stream , "," );
-      
+
       free( filtered_string );
     }
   }
@@ -677,8 +679,8 @@ static bool ext_job_check_executable( const ext_job_type * ext_job , const subst
   executable = subst_list_alloc_filtered_string( ext_job->private_args , ext_job->executable );
   if (global_args != NULL)
     subst_list_update_string( global_args , &executable );
-  
-  if (!util_is_executable( executable )) 
+
+  if (!util_is_executable( executable ))
     OK = false;
   free( executable );
   return OK;
@@ -688,7 +690,7 @@ static bool ext_job_check_executable( const ext_job_type * ext_job , const subst
 void ext_job_python_fprintf(const ext_job_type * ext_job, FILE * stream, const subst_list_type * global_args) {
   if (!ext_job_check_executable( ext_job , global_args ))
     fprintf(stderr," ** WARNING: The executable:%s could not be located on host computer - job will most probably fail.\n", ext_job->executable);
-  
+
   fprintf(stream," {");
   {
     __indent(stream, 0); __fprintf_python_string(stream , "name"                , ext_job->name                , ext_job->private_args , NULL);        __end_line(stream);
@@ -699,7 +701,7 @@ void ext_job_python_fprintf(const ext_job_type * ext_job, FILE * stream, const s
     __indent(stream, 2); __fprintf_python_string(stream , "stdout"              , ext_job->stdout_file         , ext_job->private_args, global_args);  __end_line(stream);
     __indent(stream, 2); __fprintf_python_string(stream , "stderr"              , ext_job->stderr_file         , ext_job->private_args, global_args);  __end_line(stream);
     __indent(stream, 2); __fprintf_python_string(stream , "stdin"               , ext_job->stdin_file          , ext_job->private_args, global_args);  __end_line(stream);
-    __indent(stream, 2); ext_job_fprintf_python_argList(ext_job , stream , global_args);                                                               __end_line(stream); 
+    __indent(stream, 2); ext_job_fprintf_python_argList(ext_job , stream , global_args);                                                               __end_line(stream);
     __indent(stream, 2); __fprintf_python_hash(stream   , "environment"         , ext_job->environment         , ext_job->private_args, global_args);  __end_line(stream);
     __indent(stream, 2); __fprintf_python_string(stream , "license_path"        , ext_job->license_path        , ext_job->private_args, global_args);  __end_line(stream);
     __indent(stream, 2); __fprintf_python_int( stream   , "max_running_minutes" , ext_job->max_running_minutes );                                      __end_line(stream);
@@ -715,8 +717,8 @@ if (value != NULL)                               \
    fprintf(stream , "%16s ", key);               \
    fprintf(stream , "%s\n" , value);             \
 }
-                                                                     
-                                        
+
+
 #define PRINT_KEY_INT( stream , key , value ) \
 if (value != 0)                               \
 {                                             \
@@ -776,7 +778,7 @@ void ext_job_fprintf(const ext_job_type * ext_job , FILE * stream) {
 }
 
 
-/** 
+/**
     The format variable @fmt should contain two '%s' placeholders -
     one for the job name, and one for the job description file.
 */
@@ -795,11 +797,11 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
     mode_t target_mode = S_IRUSR + S_IWUSR + S_IRGRP + S_IWGRP + S_IROTH;  /* u+rw  g+rw  o+r */
     __update_mode( config_file , target_mode );
   }
-  
+
   if (util_entry_readable( config_file)) {
     ext_job_type * ext_job = ext_job_alloc(name , license_root_path , private_job);
-    config_type  * config  = config_alloc(  );
-    
+    config_parser_type  * config  = config_alloc(  );
+
     ext_job_set_config_file( ext_job , config_file );
     {
       config_schema_item_type * item;
@@ -818,96 +820,101 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
     }
     config_add_alias(config , "EXECUTABLE" , "PORTABLE_EXE");
 
-    if (config_parse(config , config_file , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true)) {
-      if (config_item_set(config , "STDIN"))                 ext_job_set_stdin_file(ext_job       , config_iget(config  , "STDIN" , 0,0));
-      if (config_item_set(config , "STDOUT"))                ext_job_set_stdout_file(ext_job      , config_iget(config  , "STDOUT" , 0,0));
-      if (config_item_set(config , "STDERR"))                ext_job_set_stderr_file(ext_job      , config_iget(config  , "STDERR" , 0,0));
-      if (config_item_set(config , "ERROR_FILE"))            ext_job_set_error_file(ext_job       , config_iget(config  , "ERROR_FILE" , 0,0));
-      if (config_item_set(config , "TARGET_FILE"))           ext_job_set_target_file(ext_job      , config_iget(config  , "TARGET_FILE" , 0,0));
-      if (config_item_set(config , "START_FILE"))            ext_job_set_start_file(ext_job       , config_iget(config  , "START_FILE" , 0,0));
-      if (config_item_set(config , "MAX_RUNNING"))           ext_job_set_max_running(ext_job      , config_iget_as_int(config  , "MAX_RUNNING" , 0,0));
-      if (config_item_set(config , "MAX_RUNNING_MINUTES"))   ext_job_set_max_time(ext_job         , config_iget_as_int(config  , "MAX_RUNNING_MINUTES" , 0,0));
- 
-      
-      {
-          const char * executable     = config_get_value_as_abspath(config  , "EXECUTABLE");
-          const char * executable_raw = config_iget(config  , "EXECUTABLE" , 0,0);
+    {
+      config_content_type * content = config_parse(config , config_file , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true);
+      if (config_content_is_valid( content )) {
+        if (config_content_has_item(content , "STDIN"))                 ext_job_set_stdin_file(ext_job       , config_content_iget(content  , "STDIN" , 0,0));
+        if (config_content_has_item(content , "STDOUT"))                ext_job_set_stdout_file(ext_job      , config_content_iget(content  , "STDOUT" , 0,0));
+        if (config_content_has_item(content , "STDERR"))                ext_job_set_stderr_file(ext_job      , config_content_iget(content  , "STDERR" , 0,0));
+        if (config_content_has_item(content , "ERROR_FILE"))            ext_job_set_error_file(ext_job       , config_content_iget(content  , "ERROR_FILE" , 0,0));
+        if (config_content_has_item(content , "TARGET_FILE"))           ext_job_set_target_file(ext_job      , config_content_iget(content  , "TARGET_FILE" , 0,0));
+        if (config_content_has_item(content , "START_FILE"))            ext_job_set_start_file(ext_job       , config_content_iget(content  , "START_FILE" , 0,0));
+        if (config_content_has_item(content , "MAX_RUNNING"))           ext_job_set_max_running(ext_job      , config_content_iget_as_int(content  , "MAX_RUNNING" , 0,0));
+        if (config_content_has_item(content , "MAX_RUNNING_MINUTES"))   ext_job_set_max_time(ext_job         , config_content_iget_as_int(content  , "MAX_RUNNING_MINUTES" , 0,0));
+
+
+        {
+          const char * executable     = config_content_get_value_as_abspath(content  , "EXECUTABLE");
+          const char * executable_raw = config_content_iget(content  , "EXECUTABLE" , 0,0);
           ext_job_set_executable(ext_job , executable, executable_raw);
-      }
-
-
-      {
-        config_content_node_type * arg_node = config_get_value_node( config , "ARGLIST");
-        if (arg_node != NULL) {
-          int i;
-          for (i=0; i < config_content_node_get_size( arg_node ); i++)
-            stringlist_append_copy( ext_job->argv , config_content_node_iget( arg_node , i ));
         }
-      }
 
-        
-      /**
-         The code assumes that the hash tables are valid, can not be NULL:
-      */
-      {
-        const config_content_item_type * env_item = config_get_content_item( config , "ENV" );
-        if (env_item != NULL) {
-          for (int ivar = 0; ivar < config_content_item_get_size( env_item ); ivar++) {
-            const config_content_node_type * env_node = config_content_item_iget_node( env_item , ivar );
-            for (int i=0; i < config_content_node_get_size( env_node ); i+= 2) {
-              const char * key   = config_content_node_iget( env_node , i );
-              const char * value = config_content_node_iget( env_node , i + 1);
-              hash_insert_hash_owned_ref( ext_job->environment, key , util_alloc_string_copy( value ) , free);
+
+        {
+          if (config_content_has_item( content , "ARGLIST")) {
+            config_content_node_type * arg_node = config_content_get_value_node( content , "ARGLIST");
+            int i;
+            for (i=0; i < config_content_node_get_size( arg_node ); i++)
+              stringlist_append_copy( ext_job->argv , config_content_node_iget( arg_node , i ));
+          }
+        }
+
+
+        /**
+           The code assumes that the hash tables are valid, can not be NULL:
+        */
+        {
+          if (config_content_has_item( content , "ENV")) {
+            const config_content_item_type * env_item = config_content_get_item( content , "ENV" );
+            for (int ivar = 0; ivar < config_content_item_get_size( env_item ); ivar++) {
+              const config_content_node_type * env_node = config_content_item_iget_node( env_item , ivar );
+              for (int i=0; i < config_content_node_get_size( env_node ); i+= 2) {
+                const char * key   = config_content_node_iget( env_node , i );
+                const char * value = config_content_node_iget( env_node , i + 1);
+                hash_insert_hash_owned_ref( ext_job->environment, key , util_alloc_string_copy( value ) , free);
+              }
             }
           }
         }
-      }
-      
-      /* Default mappings; these are used to set values in the argList
-         which have not been supplied by the calling context. */
-      {
-        const config_content_item_type * default_item = config_get_content_item( config , "DEFAULT");
-        if (default_item != NULL) {
-          for (int ivar = 0; ivar < config_content_item_get_size( default_item ); ivar++) {
-            const config_content_node_type * default_node = config_content_item_iget_node( default_item , ivar );
-            for (int i=0; i < config_content_node_get_size( default_node ); i+= 2) {
-              const char * key   = config_content_node_iget( default_node , i );
-              const char * value = config_content_node_iget( default_node , i + 1);
-              hash_insert_hash_owned_ref( ext_job->default_mapping, key , util_alloc_string_copy( value ) , free);
+
+        /* Default mappings; these are used to set values in the argList
+           which have not been supplied by the calling context. */
+        {
+          if (config_content_has_item( content , "DEFAULT")) {
+            const config_content_item_type * default_item = config_content_get_item( content , "DEFAULT");
+            for (int ivar = 0; ivar < config_content_item_get_size( default_item ); ivar++) {
+              const config_content_node_type * default_node = config_content_item_iget_node( default_item , ivar );
+              for (int i=0; i < config_content_node_get_size( default_node ); i+= 2) {
+                const char * key   = config_content_node_iget( default_node , i );
+                const char * value = config_content_node_iget( default_node , i + 1);
+                hash_insert_hash_owned_ref( ext_job->default_mapping, key , util_alloc_string_copy( value ) , free);
+              }
             }
           }
         }
+      } else {
+        config_error_type * error = config_content_get_errors( content );
+        config_error_fprintf( error , true , stderr );
+        exit(1);
       }
-    } else {
-      config_fprintf_errors( config , true , stderr );
-      exit(1);
+      config_content_free( content );
     }
     config_free(config);
-    
+
     if (!ext_job->__valid) {
-      /* 
+      /*
          Something NOT OK (i.e. EXECUTABLE now); free the job instance and return NULL:
       */
       ext_job_free( ext_job );
       ext_job = NULL;
       fprintf(stderr,"** Warning: job: \'%s\' not available ... \n", name );
     }
-    
+
     return ext_job;
   } else {
     fprintf(stderr,"** Warning: you do not have permission to read file:\'%s\' - job:%s not available. \n", config_file , name);
     return NULL;
   }
 }
- 
- 
+
+
 const stringlist_type * ext_job_get_arglist( const ext_job_type * ext_job ) {
   return ext_job->argv;
 }
 
 
 /**
-   
+
 */
 
 //const char * ext_job_get_arglist_as_string( ext_job_type * ext_job ) {
@@ -929,19 +936,19 @@ const stringlist_type * ext_job_get_arglist( const ext_job_type * ext_job ) {
 //      buffer_fwrite_char_ptr( buffer , arg );
 //      if (quote)
 //        buffer_fwrite_char( buffer , ' ' );
-//      
+//
 //      if (i < (argc - 1))
 //        buffer_fwrite_char_ptr( buffer , sep );
-//    
+//
 //    buffer_fwrite_char( buffer , '\0');
 //    util_safe_free(ext_job->argv_string);
 //    ext_job->argv_string = buffer_alloc_data_copy( buffer );
 //    buffer_free( buffer );
-//    
+//
 //    return ext_job->argv_string;
 //  }
 //}
-// 
+//
 //
 //void ext_job_set_arglist_from_string( ext_job_type * ext_job , const char * argv_string ) {
 //  parser_type * parser = parser_alloc(" " , "\"" , NULL , NULL , NULL , NULL );

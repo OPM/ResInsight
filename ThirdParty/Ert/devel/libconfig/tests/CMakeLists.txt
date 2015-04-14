@@ -35,6 +35,10 @@ add_executable( config_error config_error.c)
 target_link_libraries( config_error config test_util )
 add_test( config_error ${EXECUTABLE_OUTPUT_PATH}/config_error )
 
+add_executable( config_content config_content.c)
+target_link_libraries( config_content config test_util )
+add_test( config_content ${EXECUTABLE_OUTPUT_PATH}/config_content )
+
 
 add_executable( config_config config_config.c)
 target_link_libraries( config_config config test_util )

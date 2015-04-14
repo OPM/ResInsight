@@ -72,18 +72,44 @@ except ImportError:
 
 required_version_hex = 0x02060000
 
-ert_lib_path = os.getenv("ERT_LIBRARY_PATH")
+
+# 1. Start by initialing the ert_lib_path variable to None
+ert_lib_path = None
+
+
+# 2. Try to load the __ert_lib_path module; this module has been
+#    configured by cmake during the build configuration process. The
+#    module should contain the variable lib_path pointing to the
+#    directory with shared object files.
+try:
+    import __ert_lib_path
+    ert_lib_path = __ert_lib_path.lib_path
+except ImportError:
+    pass
+
+
+# 3. Using the environment variable ERT_LIBRARY_PATH it is possible to
+#    override the default algorithms. If the ERT_LIBRARY_PATH is set
+#    to a non existing directory a warning will go to stderr and the
+#    setting will be ignored.
+env_lib_path = os.getenv("ERT_LIBRARY_PATH")
+if env_lib_path:
+    if os.path.isdir( env_lib_path ):
+        ert_lib_path = os.getenv("ERT_LIBRARY_PATH")
+    else:
+        sys.stderr.write("Warning: Environment variable ERT_LIBRARY_PATH points to nonexisting directory:%s - ignored" % env_lib_path)
+        
+
+# Check that the final ert_lib_path setting corresponds to an existing
+# directory.
 if ert_lib_path:
     if not os.path.exists( ert_lib_path ):
-        # Just use normal loading algorithm
         ert_lib_path = None
-    #else: look in ERT_LIBRARY_PATH
-else:
-    # Look in the default path "../../lib64"
-    ert_lib_path = os.path.realpath( os.path.join(os.path.dirname( os.path.abspath( __file__)) , "../../lib64") )
-    if not os.path.exists( ert_lib_path ):
-        ert_lib_path = None
-    
+        
+
+
+# Set the module variable ert_lib_path of the ert.cwrap.clib module;
+# this is where the actual loading will be performed.
 cwrap.clib.ert_lib_path = ert_lib_path
 
 if sys.hexversion < required_version_hex:

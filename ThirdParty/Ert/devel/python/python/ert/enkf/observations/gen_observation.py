@@ -22,24 +22,38 @@ class GenObservation(BaseCClass):
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
-    def getValue(self, index):
-        """ @rtype: float """
-        return GenObservation.cNamespace().get_data(self, index)
+    
+    def __len__(self):
+        return GenObservation.cNamespace().get_size(self)
 
-    def getStandardDeviation(self, index):
+    def __getitem__(self , obs_index):
+        if obs_index < 0:
+            obs_index += len(self)
+        
+        if 0 <= obs_index < len(self):
+            return (self.getValue(obs_index) , self.getStandardDeviation(obs_index) , self.getDataIndex( obs_index ))
+        else:
+            raise IndexError("Valid range: [0,%d)" % len(self))
+
+
+    def getValue(self, obs_index):
         """ @rtype: float """
-        return GenObservation.cNamespace().get_std(self, index)
+        return GenObservation.cNamespace().get_data(self, obs_index)
+
+    def getStandardDeviation(self, obs_index):
+        """ @rtype: float """
+        return GenObservation.cNamespace().get_std(self, obs_index)
 
     def getSize(self):
         """ @rtype: float """
-        return GenObservation.cNamespace().get_size(self)
+        return len(self)
 
-    def getIndex(self, index):
+    def getIndex(self, obs_index):
         """ @rtype: int """
-        return GenObservation.cNamespace().get_index(self, index)
-
-
-
+        return self.getDataIndex( obs_index )
+        
+    def getDataIndex(self, obs_index):
+        return GenObservation.cNamespace().get_data_index(self, obs_index)
 
 
 
@@ -53,4 +67,4 @@ GenObservation.cNamespace().get_value = cwrapper.prototype("double summary_obs_g
 GenObservation.cNamespace().get_std = cwrapper.prototype("double gen_obs_iget_std(gen_obs, int)")
 GenObservation.cNamespace().get_data = cwrapper.prototype("double gen_obs_iget_data(gen_obs, int)")
 GenObservation.cNamespace().get_size = cwrapper.prototype("int gen_obs_get_size(gen_obs)")
-GenObservation.cNamespace().get_index = cwrapper.prototype("int gen_obs_get_obs_index(gen_obs, int)")
+GenObservation.cNamespace().get_data_index = cwrapper.prototype("int gen_obs_get_obs_index(gen_obs, int)")

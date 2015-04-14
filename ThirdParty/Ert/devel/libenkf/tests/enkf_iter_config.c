@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
@@ -71,30 +71,33 @@ int main(int argc , char ** argv) {
   const char * runpath_fmt = "run/iter%d/real%d";
   const int iter_count = 10;
   char * config_file = create_config_file( enspath_fmt , runpath_fmt , iter_count);
-  
 
-  config_type * config = config_alloc();
+
+  config_parser_type * config = config_alloc();
+  config_content_type * content;
   analysis_iter_config_add_config_items( config );
-  
-  test_assert_true( config_parse( config , config_file , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_ERROR , true));
 
-  test_assert_true( config_item_set( config , ITER_CASE_KEY ));
-  test_assert_true( config_item_set( config , ITER_COUNT_KEY ));
+  content = config_parse( config , config_file , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_ERROR , true);
+  test_assert_true( config_content_is_valid( content) );
+
+  test_assert_true( config_content_has_item( content , ITER_CASE_KEY ));
+  test_assert_true( config_content_has_item( content , ITER_COUNT_KEY ));
 
   {
     analysis_iter_config_type * iter_config = analysis_iter_config_alloc();
     char itercase[50];
     sprintf(itercase,DEFAULT_ANALYSIS_ITER_CASE,5);
     test_assert_string_equal( analysis_iter_config_iget_case( iter_config , 5) , itercase );
-    analysis_iter_config_init( iter_config , config );
-    
+    analysis_iter_config_init( iter_config , content );
+
     test_assert_int_equal( analysis_iter_config_get_num_iterations( iter_config ) , iter_count );
     test_assert_string_equal( analysis_iter_config_iget_case( iter_config , 5) , "iter5");
-        
+
     analysis_iter_config_free( iter_config );
    }
   remove( config_file );
   free( config_file );
+  config_content_free( content );
   config_free( config );
 
   test_set();

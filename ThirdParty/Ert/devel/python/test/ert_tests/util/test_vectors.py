@@ -145,7 +145,7 @@ class UtilTest(TestCase):
 
 
     def test_activeMask(self):
-        active_list = BoolVector.active_mask("1 , 4 - 7 , 10")
+        active_list = BoolVector.createActiveMask("1 , 4 - 7 , 10")
         self.assertTrue(len(active_list) == 11)
         self.assertTrue(active_list[1])
         self.assertTrue(active_list[4])
@@ -155,7 +155,7 @@ class UtilTest(TestCase):
 
         self.assertEqual(6, active_list.count(True))
 
-        active_list = BoolVector.active_mask("1,4-7,10X")
+        active_list = BoolVector.createActiveMask("1,4-7,10X")
         self.assertFalse(active_list)
 
 
@@ -374,6 +374,18 @@ class UtilTest(TestCase):
 
 
 
+    def test_element_sum(self):
+        dv = DoubleVector()
+        iv = IntVector()
+        for i in range(10):
+            dv.append(i+1)
+            iv.append(i+1)
+
+        self.assertEqual( dv.elementSum() , 55 )
+        self.assertEqual( iv.elementSum() , 55 )
+
+        
+
     def test_time_vector_regular(self):
         start = datetime.datetime(2010 , 1 , 1 , 0,0,0)
         end = datetime.datetime(2010 , 2 , 1 , 0,0,0)
@@ -436,3 +448,19 @@ class UtilTest(TestCase):
 
         l = v.asList()
         self.assertListEqual( l , [100,10,1] )
+
+
+
+    def test_count_equal(self):
+        v = IntVector(default_value = 77)
+        v[0]  = 1
+        v[10] = 1
+        v[20] = 1
+        self.assertEqual( v.countEqual(1) , 3 )
+
+
+        v = DoubleVector(default_value = 77)
+        v[0]  = 1
+        v[10] = 1
+        v[20] = 1
+        self.assertEqual( v.countEqual(1) , 3 )

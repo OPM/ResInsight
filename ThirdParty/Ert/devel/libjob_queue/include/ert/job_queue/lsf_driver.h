@@ -37,6 +37,7 @@ extern "C" {
 #define LSF_BSUB_CMD     "BSUB_CMD"
 #define LSF_BJOBS_CMD    "BJOBS_CMD"
 #define LSF_BKILL_CMD    "BKILL_CMD"
+#define LSF_DEBUG_OUTPUT "DEBUG_OUTPUT"
 
 #define LOCAL_LSF_SERVER "LOCAL"
 #define NULL_LSF_SERVER  "NULL"

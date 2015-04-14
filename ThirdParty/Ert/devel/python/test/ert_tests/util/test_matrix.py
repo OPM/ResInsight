@@ -1,4 +1,5 @@
-from ert.util import Matrix
+from ert.util import Matrix , RandomNumberGenerator
+from ert.util.enums import RngAlgTypeEnum, RngInitModeEnum
 from ert.test import ExtendedTestCase
 
 class MatrixTest(ExtendedTestCase):
@@ -32,6 +33,30 @@ class MatrixTest(ExtendedTestCase):
         self.assertEqual( 99 , m1[1,1] )
         m2 = Matrix(2,2 , value = 99)
         self.assertEqual(m1,m2)
+
+
+    def test_matrix_random_init(self):
+        m = Matrix(10,10)
+        rng = RandomNumberGenerator(RngAlgTypeEnum.MZRAN, RngInitModeEnum.INIT_DEFAULT)
+        m.randomInit( rng )
+
+    def test_matrix_copy_column(self):
+        m = Matrix(10,2)
+        rng = RandomNumberGenerator(RngAlgTypeEnum.MZRAN, RngInitModeEnum.INIT_DEFAULT)
+        m.randomInit( rng )
+
+        with self.assertRaises(ValueError):
+            m.copyColumn(0,2)
+
+        with self.assertRaises(ValueError):
+            m.copyColumn(2,0)
+
+        with self.assertRaises(ValueError):
+            m.copyColumn(-2,0)
+            
+        m.copyColumn(1, 0)
+        for i in range(m.rows()):
+            self.assertEqual( m[i,0] , m[i,1] )
 
     
     def test_matrix_scale(self):
@@ -76,4 +101,3 @@ class MatrixTest(ExtendedTestCase):
         self.assertEqual(m, r)
 
 
-        

@@ -8,6 +8,7 @@ set(PYTHON_SOURCES
     closable_dialog.py
     cogwheel.py
     combo_choice.py
+    custom_dialog.py
     double_box.py
     double_spinner.py
     error_popup.py
@@ -16,6 +17,7 @@ set(PYTHON_SOURCES
     keyword_list.py
     keyword_table.py
     legend.py
+    list_edit_box.py
     list_spin_box.py
     path_chooser.py
     path_format.py

@@ -165,12 +165,13 @@ bool history_init_ts( const history_type * history , const char * summary_key , 
     
     for (int tstep = 0; tstep <= sched_history_get_last_history(history->sched_history); tstep++) {
       if (sched_history_open( history->sched_history , summary_key , tstep)) {
+        initOK = true;
         bool_vector_iset( valid , tstep , true );
         double_vector_iset( value , tstep , sched_history_iget( history->sched_history , summary_key , tstep));
       } else
         bool_vector_iset( valid , tstep , false );
     }
-    initOK = true;
+
 
   } else {
 

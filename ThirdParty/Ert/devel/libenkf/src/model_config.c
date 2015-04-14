@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'model_config.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'model_config.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <sys/types.h>
@@ -32,7 +32,8 @@
 #include <ert/sched/history.h>
 #include <ert/sched/sched_file.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
+#include <ert/config/config_content.h>
 
 #include <ert/ecl/ecl_sum.h>
 #include <ert/ecl/ecl_util.h>
@@ -77,24 +78,24 @@
 struct model_config_struct {
   UTIL_TYPE_ID_DECLARATION;
   stringlist_type      * case_names;                 /* A list of "iens -> name" mappings - can be NULL. */
-  char                 * case_table_file; 
-  forward_model_type   * forward_model;             /* The forward_model - as loaded from the config file. Each enkf_state object internalizes its private copy of the forward_model. */  
+  char                 * case_table_file;
+  forward_model_type   * forward_model;             /* The forward_model - as loaded from the config file. Each enkf_state object internalizes its private copy of the forward_model. */
   time_map_type        * external_time_map;
   history_type         * history;                   /* The history object. */
-  path_fmt_type        * current_runpath;           /* path_fmt instance for runpath - runtime the call gets arguments: (iens, report_step1 , report_step2) - i.e. at least one %d must be present.*/  
+  path_fmt_type        * current_runpath;           /* path_fmt instance for runpath - runtime the call gets arguments: (iens, report_step1 , report_step2) - i.e. at least one %d must be present.*/
   char                 * current_path_key;
-  hash_type            * runpath_map;                 
+  hash_type            * runpath_map;
   char                 * jobname_fmt;               /* Format string with one '%d' for the jobname - can be NULL in which case the eclbase name will be used. */
-  enkf_sched_type      * enkf_sched;                /* The enkf_sched object controlling when the enkf is ON|OFF, strides in report steps and special forward model - allocated on demand - right before use. */ 
+  enkf_sched_type      * enkf_sched;                /* The enkf_sched object controlling when the enkf is ON|OFF, strides in report steps and special forward model - allocated on demand - right before use. */
   char                 * enkf_sched_file;           /* THe name of file containg enkf schedule information - can be NULL to get default behaviour. */
   char                 * enspath;
   char                 * rftpath;
   char                 * select_case;
   fs_driver_impl         dbase_type;
-  bool                   has_prediction; 
+  bool                   has_prediction;
   int                    max_internal_submit;        /* How many times to retry if the load fails. */
   history_source_type    history_source;
-  const ecl_sum_type   * refcase;                    /* A pointer to the refcase - can be NULL. Observe that this ONLY a pointer 
+  const ecl_sum_type   * refcase;                    /* A pointer to the refcase - can be NULL. Observe that this ONLY a pointer
                                                         to the ecl_sum instance owned and held by the ecl_config object. */
   char                 * gen_kw_export_file_name;
 
@@ -138,7 +139,7 @@ void model_config_set_case_table( model_config_type * model_config , int ens_siz
   if (model_config->case_table_file != NULL) { /* Clear the current selection */
     free( model_config->case_table_file );
     stringlist_free( model_config->case_names );
-    
+
     model_config->case_table_file = NULL;
     model_config->case_names      = NULL;
   }
@@ -162,7 +163,7 @@ void model_config_set_case_table( model_config_type * model_config , int ens_siz
       for (int i = case_size; i < ens_size; i++)
         stringlist_append_owned_ref( model_config->case_names , util_alloc_sprintf("case_%04d" , i));
       fprintf(stderr, "** Warning: mismatch between NUM_REALIZATIONS:%d and size of CASE_TABLE:%d - using \'case_nnnn\' for the last cases %d.\n", ens_size , case_size , ens_size - case_size);
-    } else if (case_size > ens_size) 
+    } else if (case_size > ens_size)
       fprintf(stderr, "** Warning: mismatch between NUM_REALIZATIONS:%d and CASE_TABLE:%d - only the %d realizations will be used.\n", ens_size , case_size , ens_size);
 
   }
@@ -177,7 +178,7 @@ void model_config_add_runpath( model_config_type * model_config , const char * p
 
 /*
   If the path_key does not exists it will return false and stay
-  silent.  
+  silent.
 */
 
 bool model_config_select_runpath( model_config_type * model_config , const char * path_key) {
@@ -230,10 +231,10 @@ const char * model_config_get_gen_kw_export_file( const model_config_type * mode
      enkf_sched_free( model_config->enkf_sched );
 
    if (run_mode == ENKF_ASSIMILATION)
-     model_config->enkf_sched  = enkf_sched_fscanf_alloc(model_config->enkf_sched_file                   , 
-                                                         model_config_get_last_history_restart(model_config) , 
+     model_config->enkf_sched  = enkf_sched_fscanf_alloc(model_config->enkf_sched_file                   ,
+                                                         model_config_get_last_history_restart(model_config) ,
                                                          run_mode);
-   
+
  }
 
 
@@ -275,7 +276,7 @@ fs_driver_impl model_config_get_dbase_type(const model_config_type * model_confi
 }
 
 const ecl_sum_type * model_config_get_refcase( const model_config_type * model_config ) {
-  return model_config->refcase;  
+  return model_config->refcase;
 }
 
 void * model_config_get_dbase_args( const model_config_type * model_config ) {
@@ -297,9 +298,9 @@ history_source_type model_config_get_history_source( const model_config_type * m
 void model_config_select_schedule_history( model_config_type * model_config , const sched_file_type * sched_file) {
   if (model_config->history != NULL)
     history_free( model_config->history );
-  
+
   if (sched_file != NULL) {
-    model_config->history = history_alloc_from_sched_file( SUMMARY_KEY_JOIN_STRING , sched_file);  
+    model_config->history = history_alloc_from_sched_file( SUMMARY_KEY_JOIN_STRING , sched_file);
     model_config->history_source = SCHEDULE;
   } else
     util_abort("%s: internal error - trying to select HISTORY_SOURCE:SCHEDULE - but no Schedule file has been loaded.\n",__func__);
@@ -311,7 +312,7 @@ void model_config_select_refcase_history( model_config_type * model_config , con
     history_free( model_config->history );
 
   if (refcase != NULL) {
-    model_config->history = history_alloc_from_refcase( refcase , use_history );  
+    model_config->history = history_alloc_from_refcase( refcase , use_history );
     model_config->history_source = SCHEDULE;
   } else
     util_abort("%s: internal error - trying to load history from REFCASE - but no REFCASE has been loaded.\n",__func__);
@@ -347,18 +348,19 @@ model_config_type * model_config_alloc() {
   model_config->current_runpath           = NULL;
   model_config->current_path_key          = NULL;
   model_config->enkf_sched                = NULL;
-  model_config->enkf_sched_file           = NULL;   
+  model_config->enkf_sched_file           = NULL;
   model_config->case_table_file           = NULL;
-  model_config->select_case               = NULL;    
+  model_config->select_case               = NULL;
   model_config->history                   = NULL;
   model_config->jobname_fmt               = NULL;
   model_config->forward_model             = NULL;
   model_config->external_time_map         = NULL;
   model_config->internalize_state         = bool_vector_alloc( 0 , false );
-  model_config->__load_eclipse_restart    = bool_vector_alloc( 0 , false ); 
+  model_config->__load_eclipse_restart    = bool_vector_alloc( 0 , false );
   model_config->history_source            = HISTORY_SOURCE_INVALID;
-  model_config->runpath_map               = hash_alloc(); 
+  model_config->runpath_map               = hash_alloc();
   model_config->gen_kw_export_file_name   = NULL;
+  model_config->refcase                   = NULL;
 
   model_config_set_enspath( model_config        , DEFAULT_ENSPATH );
   model_config_set_rftpath( model_config        , DEFAULT_RFTPATH );
@@ -367,7 +369,7 @@ model_config_type * model_config_alloc() {
   model_config_add_runpath( model_config , DEFAULT_RUNPATH_KEY , DEFAULT_RUNPATH);
   model_config_select_runpath( model_config , DEFAULT_RUNPATH_KEY );
   model_config_set_gen_kw_export_file(model_config, DEFAULT_GEN_KW_EXPORT_FILE);
-  
+
   return model_config;
 }
 
@@ -376,18 +378,18 @@ bool model_config_select_history( model_config_type * model_config , history_sou
   bool selectOK = false;
 
   if (source_type == SCHEDULE && sched_file != NULL) {
-    model_config_select_schedule_history( model_config , sched_file ); 
+    model_config_select_schedule_history( model_config , sched_file );
     selectOK = true;
   }
 
   if (((source_type == REFCASE_HISTORY) || (source_type == REFCASE_SIMULATED)) && refcase != NULL) {
     if (source_type == REFCASE_HISTORY)
-      model_config_select_refcase_history( model_config , refcase , true); 
+      model_config_select_refcase_history( model_config , refcase , true);
     else
-      model_config_select_refcase_history( model_config , refcase , false); 
+      model_config_select_refcase_history( model_config , refcase , false);
     selectOK = true;
   }
-  
+
   return selectOK;
 }
 
@@ -396,50 +398,50 @@ static bool model_config_select_any_history( model_config_type * model_config , 
   bool selectOK = false;
 
   if (sched_file != NULL) {
-    model_config_select_schedule_history( model_config , sched_file ); 
+    model_config_select_schedule_history( model_config , sched_file );
     selectOK = true;
   } else if ( refcase != NULL ) {
-    model_config_select_refcase_history( model_config , refcase , true); 
+    model_config_select_refcase_history( model_config , refcase , true);
     selectOK = true;
   }
-  
+
   return selectOK;
 }
 
 
 
 
-void model_config_init(model_config_type * model_config , 
-                       const config_type * config , 
-                       int ens_size , 
-                       const ext_joblist_type * joblist , 
-                       int last_history_restart , 
-                       const sched_file_type * sched_file , 
+void model_config_init(model_config_type * model_config ,
+                       const config_content_type * config ,
+                       int ens_size ,
+                       const ext_joblist_type * joblist ,
+                       int last_history_restart ,
+                       const sched_file_type * sched_file ,
                        const ecl_sum_type * refcase) {
-  
+
   model_config->forward_model = forward_model_alloc(  joblist );
   model_config_set_refcase( model_config , refcase );
-  
 
-  if (config_item_set( config , FORWARD_MODEL_KEY )) {
-    char * config_string = config_alloc_joined_string( config , FORWARD_MODEL_KEY , " ");
+
+  if (config_content_has_item( config , FORWARD_MODEL_KEY )) {
+    char * config_string = config_content_alloc_joined_string( config , FORWARD_MODEL_KEY , " ");
     forward_model_parse_init( model_config->forward_model , config_string );
     free(config_string);
   }
 
-  if (config_item_set( config , ENKF_SCHED_FILE_KEY))
-    model_config_set_enkf_sched_file(model_config , config_get_value(config , ENKF_SCHED_FILE_KEY ));
-  
-  if (config_item_set( config, RUNPATH_KEY)) {
-    model_config_add_runpath( model_config , DEFAULT_RUNPATH_KEY , config_get_value(config , RUNPATH_KEY) );
+  if (config_content_has_item( config , ENKF_SCHED_FILE_KEY))
+    model_config_set_enkf_sched_file(model_config , config_content_get_value(config , ENKF_SCHED_FILE_KEY ));
+
+  if (config_content_has_item( config, RUNPATH_KEY)) {
+    model_config_add_runpath( model_config , DEFAULT_RUNPATH_KEY , config_content_get_value(config , RUNPATH_KEY) );
     model_config_select_runpath( model_config , DEFAULT_RUNPATH_KEY );
   }
 
   {
     history_source_type source_type = DEFAULT_HISTORY_SOURCE;
 
-    if (config_item_set( config , HISTORY_SOURCE_KEY)) {
-      const char * history_source = config_iget(config , HISTORY_SOURCE_KEY, 0,0);
+    if (config_content_has_item( config , HISTORY_SOURCE_KEY)) {
+      const char * history_source = config_content_iget(config , HISTORY_SOURCE_KEY, 0,0);
       source_type = history_get_source_type( history_source );
     }
 
@@ -447,17 +449,17 @@ void model_config_init(model_config_type * model_config ,
       if (!model_config_select_history( model_config , DEFAULT_HISTORY_SOURCE , sched_file , refcase ))
         if (!model_config_select_any_history( model_config , sched_file , refcase))
           fprintf(stderr,"** Warning:: Do not have enough information to select a history source \n");
-    
+
   }
-      
+
   if (model_config->history != NULL) {
     int num_restart = model_config_get_last_history_restart(model_config);
     bool_vector_iset( model_config->internalize_state , num_restart - 1 , false );
     bool_vector_iset( model_config->__load_eclipse_restart      , num_restart - 1 , false );
   }
 
-  if (config_item_set( config , TIME_MAP_KEY)) {
-    const char * filename = config_get_value_as_path( config , TIME_MAP_KEY);
+  if (config_content_has_item( config , TIME_MAP_KEY)) {
+    const char * filename = config_content_get_value_as_path( config , TIME_MAP_KEY);
     time_map_type * time_map = time_map_alloc();
     if (time_map_fscanf( time_map , filename))
       model_config->external_time_map = time_map;
@@ -466,7 +468,7 @@ void model_config_init(model_config_type * model_config ,
       fprintf(stderr,"** ERROR: Loading external time map from:%s failed \n", filename);
     }
   }
-  
+
 
 
   /*
@@ -475,42 +477,41 @@ void model_config_init(model_config_type * model_config ,
     as (quite) plain GEN_KW instance. Here we just check if it is
     present or not.
   */
-  
-  if (config_item_set(config ,  SCHEDULE_PREDICTION_FILE_KEY)) 
+
+  if (config_content_has_item(config ,  SCHEDULE_PREDICTION_FILE_KEY))
     model_config->has_prediction = true;
   else
     model_config->has_prediction = false;
 
 
-  if (config_item_set(config ,  CASE_TABLE_KEY)) 
-    model_config_set_case_table( model_config , ens_size , config_iget( config , CASE_TABLE_KEY , 0,0));
-  
-  if (config_item_set( config , ENSPATH_KEY))
-    model_config_set_enspath( model_config , config_get_value(config , ENSPATH_KEY));
+  if (config_content_has_item(config ,  CASE_TABLE_KEY))
+    model_config_set_case_table( model_config , ens_size , config_content_iget( config , CASE_TABLE_KEY , 0,0));
 
-  if (config_item_set( config , JOBNAME_KEY))
-    model_config_set_jobname_fmt( model_config , config_get_value(config , JOBNAME_KEY));
+  if (config_content_has_item( config , ENSPATH_KEY))
+    model_config_set_enspath( model_config , config_content_get_value(config , ENSPATH_KEY));
 
-  if (config_item_set( config , RFTPATH_KEY))
-    model_config_set_rftpath( model_config , config_get_value(config , RFTPATH_KEY));
-  
-  if (config_item_set( config , DBASE_TYPE_KEY))
-    model_config_set_dbase_type( model_config , config_get_value(config , DBASE_TYPE_KEY));
-  
-  if (config_item_set( config , MAX_RESAMPLE_KEY))
-    model_config_set_max_internal_submit( model_config , config_get_value_as_int( config , MAX_RESAMPLE_KEY ));
+  if (config_content_has_item( config , JOBNAME_KEY))
+    model_config_set_jobname_fmt( model_config , config_content_get_value(config , JOBNAME_KEY));
+
+  if (config_content_has_item( config , RFTPATH_KEY))
+    model_config_set_rftpath( model_config , config_content_get_value(config , RFTPATH_KEY));
+
+  if (config_content_has_item( config , DBASE_TYPE_KEY))
+    model_config_set_dbase_type( model_config , config_content_get_value(config , DBASE_TYPE_KEY));
+
+  if (config_content_has_item( config , MAX_RESAMPLE_KEY))
+    model_config_set_max_internal_submit( model_config , config_content_get_value_as_int( config , MAX_RESAMPLE_KEY ));
 
 
   {
     const char * export_file_name;
-    if (config_item_set( config , GEN_KW_EXPORT_FILE_KEY))
-      export_file_name = config_get_value(config, GEN_KW_EXPORT_FILE_KEY);
+    if (config_content_has_item( config , GEN_KW_EXPORT_FILE_KEY))
+      export_file_name = config_content_get_value(config, GEN_KW_EXPORT_FILE_KEY);
     else
       export_file_name = DEFAULT_GEN_KW_EXPORT_FILE;
 
     model_config_set_gen_kw_export_file(model_config, export_file_name);
    }
-  
 }
 
 
@@ -536,10 +537,10 @@ void model_config_free(model_config_type * model_config) {
 
   if (model_config->history)
     history_free(model_config->history);
-  
+
   if (model_config->forward_model)
     forward_model_free(model_config->forward_model);
-  
+
   if (model_config->external_time_map)
     time_map_free( model_config->external_time_map );
 
@@ -548,7 +549,7 @@ void model_config_free(model_config_type * model_config) {
   bool_vector_free(model_config->__load_eclipse_restart);
   hash_free(model_config->runpath_map);
 
-  if (model_config->case_names) 
+  if (model_config->case_names)
     stringlist_free( model_config->case_names );
   free(model_config);
 }
@@ -620,7 +621,7 @@ void model_config_init_internalization( model_config_type * config ) {
 /**
    This function sets the internalize_state flag to true for
    report_step. Because of the coupling to the __load_eclipse_restart variable
-   this function can __ONLY__ be used to set internalize to true. 
+   this function can __ONLY__ be used to set internalize to true.
 */
 
 void model_config_set_internalize_state( model_config_type * config , int report_step) {
@@ -659,7 +660,7 @@ void model_config_fprintf_config( const model_config_type * model_config , int e
     fprintf( stream , CONFIG_KEY_FORMAT      , CASE_TABLE_KEY );
     fprintf( stream , CONFIG_ENDVALUE_FORMAT , model_config->case_table_file );
   }
-  fprintf( stream , CONFIG_KEY_FORMAT      , FORWARD_MODEL_KEY);  
+  fprintf( stream , CONFIG_KEY_FORMAT      , FORWARD_MODEL_KEY);
   forward_model_fprintf( model_config->forward_model , stream );
 
   fprintf( stream , CONFIG_KEY_FORMAT      , RUNPATH_KEY );
@@ -669,7 +670,7 @@ void model_config_fprintf_config( const model_config_type * model_config , int e
     fprintf( stream , CONFIG_KEY_FORMAT      , ENKF_SCHED_FILE_KEY );
     fprintf( stream , CONFIG_ENDVALUE_FORMAT , model_config->enkf_sched_file );
   }
-    
+
   fprintf( stream , CONFIG_KEY_FORMAT      , ENSPATH_KEY );
   fprintf( stream , CONFIG_ENDVALUE_FORMAT , model_config->enspath );
 
@@ -681,13 +682,13 @@ void model_config_fprintf_config( const model_config_type * model_config , int e
     fprintf( stream , CONFIG_ENDVALUE_FORMAT , model_config->select_case );
   }
 
-  fprintf( stream , CONFIG_KEY_FORMAT      , MAX_RESAMPLE_KEY ); 
+  fprintf( stream , CONFIG_KEY_FORMAT      , MAX_RESAMPLE_KEY );
   {
     char max_retry_string[16];
     sprintf( max_retry_string , "%d" ,model_config->max_internal_submit);
     fprintf( stream , CONFIG_ENDVALUE_FORMAT , max_retry_string);
   }
-  
+
   fprintf(stream , CONFIG_KEY_FORMAT      , HISTORY_SOURCE_KEY);
   fprintf(stream , CONFIG_ENDVALUE_FORMAT , history_get_source_string( model_config->history_source ));
 

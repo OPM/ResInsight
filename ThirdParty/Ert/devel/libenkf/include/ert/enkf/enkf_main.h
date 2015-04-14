@@ -130,7 +130,7 @@ extern "C" {
   void                          enkf_main_set_state_run_path(const enkf_main_type * , int );
   void                          enkf_main_set_state_eclbase(const enkf_main_type * , int );
   void                          enkf_main_interactive_set_runpath__(void * );
-  enkf_main_type              * enkf_main_bootstrap(const char * , const char * , bool strict, bool verbose);
+  enkf_main_type              * enkf_main_bootstrap(const char * model_config, bool strict, bool verbose);
   void                          enkf_main_create_new_config( const char * config_file , const char * storage_path , const char * case_name , const char * dbase_type , int num_realizations);
   
   enkf_node_type             ** enkf_main_get_node_ensemble(const enkf_main_type * enkf_main , const char * key , int report_step , state_enum load_state);

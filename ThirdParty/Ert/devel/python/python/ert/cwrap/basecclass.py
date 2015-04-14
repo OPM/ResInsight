@@ -82,10 +82,14 @@ class BaseCClass(object):
         return self.__parent
 
     def __eq__(self, other):
+        # This is the last resort comparison function; it will do a
+        # plain pointer comparison on the underlying C object; or
+        # Python is-same-object comparison.
         if isinstance(other, BaseCClass):
             return self.__c_pointer == other.__c_pointer
+        else:
+            return super(BaseCClass , self).__eq__(other)
 
-        super(BaseCClass, self).__eq__(other)
 
     def free(self):
         raise NotImplementedError("A BaseCClass requires a free method implementation!")

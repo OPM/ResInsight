@@ -54,7 +54,7 @@ Connections, segments and branches
    +-----+
    |     |  <- Wellhead
    |     |
-   +-----+ _________ Segment 2  
+   +-----+ _________ Segment 2
       |\  /
       | \/         Segment 1               Segment 0
       |  \-----0---------------0--<----------------------O           <-- Branch: 0
@@ -66,7 +66,7 @@ Connections, segments and branches
            \
 Segment 5   \
              \
-              \        Segment 4                Segment 3    
+              \        Segment 4                Segment 3
                \-<--O-------<-------O----------------<------------O   <-- Branch: 1
                     |               |          |                  |
                  +-----+         +-----+    +-----+            +-----+
@@ -98,7 +98,7 @@ marked as Segment0 ... Segment5. The segments themselves are quite
 abstract objects not directly linked to the grid, but indriectly
 through the connections. In the figure the segment <-> connection
 links are as follows:
-    
+
   Segment0: C0, C1
   Segment1: C2
   Segment2: C3
@@ -107,7 +107,7 @@ links are as follows:
   Segment5: C7
 
 Each segment has an outlet segment, which will link the segments
-together into a geometry. 
+together into a geometry.
 
 The connection can in general be both to the main global grid, and to
 an LGR. Hence all questions about connections must be LGR aware. This
@@ -126,7 +126,7 @@ coupledte implementation these objects are modelled as such:
        if (connections) {
           well_conn_type * conn = well_conn_collection_iget( connections , 0 );
           printf("Have %d connections \n",well_conn_collection_get_size( connections );
-       }  
+       }
 
     The connections to the global grid are stored with the 'LGR' name
     given by the symbole ECL_GRID_GLOBAL_GRID, or alternatively the
@@ -139,21 +139,21 @@ coupledte implementation these objects are modelled as such:
     the well_state object for information about segments and branches:
 
        if (well_state_is_MSW( well_state )) {
-          well_segment_collection_type * segments = well_state_get_segments( well_state );  
+          well_segment_collection_type * segments = well_state_get_segments( well_state );
           well_branch_collection_type * branches = well_state_get_branches( well_state );
           int branch_nr;
-          
-          for (branch_nr = 0; branch_nr < well_branch_collection_get_size( branches ); branch_nr++) {             
+
+          for (branch_nr = 0; branch_nr < well_branch_collection_get_size( branches ); branch_nr++) {
               well_segment_type * segment = well_branch_collection_iget_start_segment( branches , branhc_nr );
               while (segment) {
-                  // Inspect the current segment. 
+                  // Inspect the current segment.
                   segment = well_segment_get_outlet( segment );
               }
           }
        }
 
-     
-    
+
+
 
 */
 
@@ -203,7 +203,7 @@ well_state_type * well_state_alloc(const char * well_name , int global_well_nr ,
   well_state->is_MSW_well = false;
 
   /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
-  if ((type == UNDOCUMENTED_ZERO) && open)
+  if ((type == ERT_UNDOCUMENTED_ZERO) && open)
     util_abort("%s: Invalid type value for open wells.\n",__func__ );
   return well_state;
 }
@@ -271,24 +271,24 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
 
 
 well_type_enum well_state_translate_ecl_type_int(int int_type) {
-  well_type_enum type = UNDOCUMENTED_ZERO;
+  well_type_enum type = ERT_UNDOCUMENTED_ZERO;
 
   switch (int_type) {
     /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
   case(IWEL_UNDOCUMENTED_ZERO):
-    type = UNDOCUMENTED_ZERO;
+    type = ERT_UNDOCUMENTED_ZERO;
     break;
   case(IWEL_PRODUCER):
-    type = PRODUCER;
+    type = ERT_PRODUCER;
     break;
   case(IWEL_OIL_INJECTOR):
-    type = OIL_INJECTOR;
+    type = ERT_OIL_INJECTOR;
     break;
   case(IWEL_GAS_INJECTOR):
-    type = GAS_INJECTOR;
+    type = ERT_GAS_INJECTOR;
     break;
   case(IWEL_WATER_INJECTOR):
-    type = WATER_INJECTOR;
+    type = ERT_WATER_INJECTOR;
     break;
   default:
     util_abort("%s: Invalid type value %d\n",__func__ , int_type);
@@ -313,7 +313,7 @@ static void well_state_add_connections__( well_state_type * well_state ,
   const ecl_kw_type * icon_kw  = ecl_file_iget_named_kw( rst_file , ICON_KW   , 0);
   const ecl_kw_type * iwel_kw  = ecl_file_iget_named_kw( rst_file , IWEL_KW   , 0);
 
-  
+
   well_state_add_wellhead( well_state , header , iwel_kw , well_nr , grid_name , grid_nr );
 
   if (!well_state_has_grid_connections( well_state , grid_name ))
@@ -324,7 +324,7 @@ static void well_state_add_connections__( well_state_type * well_state ,
     well_conn_collection_type * wellcc = hash_get( well_state->connections , grid_name );
     if (ecl_file_has_kw( rst_file , SCON_KW))
       scon_kw = ecl_file_iget_named_kw( rst_file , SCON_KW , 0);
-    
+
     well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , scon_kw , well_nr , header );
   }
   ecl_rsthead_free( header );
@@ -380,23 +380,23 @@ bool well_state_add_MSW( well_state_type * well_state ,
     const ecl_kw_type * iwel_kw = ecl_file_iget_named_kw( rst_file , IWEL_KW , 0);
     const ecl_kw_type * iseg_kw = ecl_file_iget_named_kw( rst_file , ISEG_KW , 0);
     well_rseg_loader_type * rseg_loader = NULL;
-    
+
     int segment_count;
 
     if (ecl_file_has_kw( rst_file , RSEG_KW )) {
       if (load_segment_information)
         rseg_loader = well_rseg_loader_alloc(rst_file);
-        
+
       segment_count = well_segment_collection_load_from_kw( well_state->segments ,
                                                             well_nr ,
                                                             iwel_kw ,
                                                             iseg_kw ,
                                                             rseg_loader ,
                                                             rst_head,
-                                                            load_segment_information , 
+                                                            load_segment_information ,
                                                             &well_state->is_MSW_well);
-      
-      
+
+
       if (segment_count > 0) {
         hash_iter_type * grid_iter = hash_iter_alloc( well_state->connections );
         while (!hash_iter_is_complete( grid_iter )) {
@@ -410,15 +410,15 @@ bool well_state_add_MSW( well_state_type * well_state ,
         well_segment_collection_add_branches( well_state->segments , well_state->branches );
       }
       ecl_rsthead_free( rst_head );
-      
+
       if (rseg_loader != NULL) {
         well_rseg_loader_free(rseg_loader);
       }
-      
+
       return true;
     }
-  } else
-    return false;
+  }
+  return false;
 }
 
 
@@ -445,7 +445,7 @@ well_state_type * well_state_alloc_from_file( ecl_file_type * ecl_file , const e
     {
       char * name;
       bool open;
-      well_type_enum type = UNDOCUMENTED_ZERO;
+      well_type_enum type = ERT_UNDOCUMENTED_ZERO;
       {
         int int_state = ecl_kw_iget_int( global_iwel_kw , iwel_offset + IWEL_STATUS_ITEM );
         if (int_state > 0)
@@ -470,7 +470,7 @@ well_state_type * well_state_alloc_from_file( ecl_file_type * ecl_file , const e
       well_state_add_connections( well_state , grid , ecl_file , global_well_nr);
       if (ecl_file_has_kw( ecl_file , ISEG_KW))
         well_state_add_MSW( well_state , ecl_file , global_well_nr , load_segment_information);
-      
+
 
     }
     ecl_rsthead_free( global_header );

@@ -22,6 +22,10 @@
 #include <math.h>
 
 #include <plplot/plplot.h>
+/* version 5.9.10 changes plwid to plwidth */
+#ifndef plwidth
+#define plwidth plwid
+#endif
 
 #include <ert/util/util.h>
 #include <ert/util/arg_pack.h>

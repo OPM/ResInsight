@@ -17,7 +17,8 @@ set( source_files
      ecl_sum_data.c 
      ecl_util.c 
      ecl_kw.c 
-     ecl_sum.c 
+     ecl_sum.c
+     ecl_sum_vector.c
      fortio.c 
      ecl_rft_file.c 
      ecl_rft_node.c 
@@ -57,7 +58,8 @@ set( header_files
      ecl_sum_data.h 
      ecl_util.h     
      ecl_kw.h 
-     ecl_sum.h 
+     ecl_sum.h
+     ecl_sum_vector.h
      fortio.h 
      ecl_rft_file.h 
      ecl_rft_node.h 

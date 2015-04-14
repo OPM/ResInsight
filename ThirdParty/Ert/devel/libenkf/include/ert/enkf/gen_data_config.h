@@ -1,24 +1,24 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'gen_data_config.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'gen_data_config.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef __GEN_DATA_CONFIG_H__
 #define __GEN_DATA_CONFIG_H__
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" {
 #endif
 #include <stdbool.h>
@@ -32,11 +32,11 @@ extern "C" {
 #include <ert/enkf/enkf_macros.h>
 #include <ert/enkf/gen_data_common.h>
 
-typedef enum { GEN_DATA_UNDEFINED = 0,  
+typedef enum { GEN_DATA_UNDEFINED = 0,
                ASCII              = 1,   /*   The file is ASCII file with a vector of numbers formatted with "%g".       */
                ASCII_TEMPLATE     = 2,   /*   The data is inserted into a user defined template file.                    */
                BINARY_DOUBLE      = 3,   /*   The data is in a binary file with doubles.                                 */
-               BINARY_FLOAT       = 4}   /*   The data is in a binary file with floats.                                  */          
+               BINARY_FLOAT       = 4}   /*   The data is in a binary file with floats.                                  */
   gen_data_file_format_type;
 
   bool                         gen_data_config_is_dynamic( const gen_data_config_type * config );
@@ -45,8 +45,8 @@ typedef enum { GEN_DATA_UNDEFINED = 0,
   bool                         gen_data_config_set_template( gen_data_config_type * config , const char * template_ecl_file , const char * template_data_key );
 
   bool gen_data_config_has_active_mask( const gen_data_config_type * config , enkf_fs_type * fs , int report_step);
-  
-  /* 
+
+  /*
      Observe that the format ASCII_template can *NOT* be used for
      loading files.
   */
@@ -81,14 +81,14 @@ typedef enum { GEN_DATA_UNDEFINED = 0,
   int                         gen_data_config_num_report_step( const gen_data_config_type * config );
   const char * gen_data_config_get_template_file( const gen_data_config_type * config );
   const char * gen_data_config_get_template_key( const gen_data_config_type * config );
-  void gen_data_config_fprintf_config( const gen_data_config_type * config , enkf_var_type var_type , const char * outfile , const char * infile , 
+  void gen_data_config_fprintf_config( const gen_data_config_type * config , enkf_var_type var_type , const char * outfile , const char * infile ,
                                        const char * min_std_file , FILE * stream);
 
   UTIL_IS_INSTANCE_HEADER(gen_data_config);
   UTIL_SAFE_CAST_HEADER(gen_data_config);
   UTIL_SAFE_CAST_HEADER_CONST(gen_data_config);
   VOID_FREE_HEADER(gen_data_config)
-  
+
 #ifdef __cplusplus
 }
 #endif

@@ -36,15 +36,33 @@ class JobQueueManager(BaseCClass):
     def startQueue(self , total_size , verbose = False):
         JobQueueManager.cNamespace().start_queue( self , total_size , verbose )
 
+    def getNumRunning(self):
+        return JobQueueManager.cNamespace().get_num_running( self )
+
+    def getNumComplete(self):
+        return JobQueueManager.cNamespace().get_num_complete( self )
+
+    def isRunning(self):
+        return JobQueueManager.cNamespace().is_running( self )
+
     def free(self):
         JobQueueManager.cNamespace().free(self)
 
+    def jobComplete(self , job_index):
+        return JobQueueManager.cNamespace().job_complete( self , job_index )
+        
+    
+        
 
 #################################################################
 
 cwrapper = CWrapper(JOB_QUEUE_LIB)
 cwrapper.registerObjectType("job_queue_manager", JobQueueManager)
 
-JobQueueManager.cNamespace().alloc           = cwrapper.prototype("c_void_p job_queue_manager_alloc( job_queue) ")
-JobQueueManager.cNamespace().free            = cwrapper.prototype("void job_queue_manager_free( job_queue_manager )")
-JobQueueManager.cNamespace().start_queue     = cwrapper.prototype("void job_queue_manager_start_queue( job_queue_manager , int , bool)")
+JobQueueManager.cNamespace().alloc             = cwrapper.prototype("c_void_p job_queue_manager_alloc( job_queue) ")
+JobQueueManager.cNamespace().free              = cwrapper.prototype("void job_queue_manager_free( job_queue_manager )")
+JobQueueManager.cNamespace().start_queue       = cwrapper.prototype("void job_queue_manager_start_queue( job_queue_manager , int , bool)")
+JobQueueManager.cNamespace().get_num_running   = cwrapper.prototype("int job_queue_manager_get_num_running( job_queue_manager )")
+JobQueueManager.cNamespace().get_num_complete  = cwrapper.prototype("int job_queue_manager_get_num_complete( job_queue_manager )")
+JobQueueManager.cNamespace().is_running        = cwrapper.prototype("bool job_queue_manager_is_running( job_queue_manager )")
+JobQueueManager.cNamespace().job_complete      = cwrapper.prototype("bool job_queue_manager_job_complete( job_queue_manager , int)")

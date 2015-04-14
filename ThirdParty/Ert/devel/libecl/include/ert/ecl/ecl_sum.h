@@ -136,9 +136,9 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   const char *      ecl_sum_get_general_var_unit( const ecl_sum_type * ecl_sum , const char * var);
   /***************/
   void              ecl_sum_fprintf(const ecl_sum_type * , FILE * , const stringlist_type * , bool report_only , const ecl_sum_fmt_type * fmt);
-  
-  
-  
+
+
+
   
   /* Time related functions */
   int    ecl_sum_get_first_gt( const ecl_sum_type * ecl_sum , int param_index , double limit); 

@@ -2,6 +2,7 @@ set(PYTHON_SOURCES
     __init__.py
     analysis_config.py
     analysis_iter_config.py
+    custom_kw_config_set.py
     ecl_config.py
     enkf_fs.py
     enkf_fs_manager.py
@@ -10,30 +11,36 @@ set(PYTHON_SOURCES
     enkf_obs.py
     enkf_simulation_runner.py
     enkf_state.py
-    ens_config.py
+    ensemble_config.py
     ert_log.py
+    ert_run_context.py
     ert_template.py
     ert_templates.py
     ert_workflow_list.py
     local_config.py
     local_obsdata.py
     local_obsdata_node.py
+    meas_block.py
     meas_data.py
     model_config.py
     node_id.py
+    obs_block.py
     obs_data.py
     plot_config.py
     post_simulation_hook.py
+    run_arg.py
+    runpath_list.py
     site_config.py
     state_map.py
-    run_arg.py
-    ert_run_context.py
+    summary_key_matcher.py
+    summary_key_set.py
 )
 
 add_python_package("python.ert.enkf"  ${PYTHON_INSTALL_PREFIX}/ert/enkf "${PYTHON_SOURCES}" True)
 
 add_subdirectory(data)
 add_subdirectory(enums)
+add_subdirectory(export)
 add_subdirectory(observations)
 add_subdirectory(plot)
 add_subdirectory(plot_data)

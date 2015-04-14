@@ -6,10 +6,12 @@ set(PYTHON_SOURCES
     double_vector.py
     hash.py
     int_vector.py
+    install_abort_signals.py
     latex.py
     log.py
     lookup_table.py
     matrix.py
+    profiler.py
     rng.py
     stat.py
     stringlist.py

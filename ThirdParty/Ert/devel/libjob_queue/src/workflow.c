@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'workflow.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'workflow.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
@@ -28,7 +28,7 @@
 #include <ert/util/vector.h>
 #include <ert/util/subst_list.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 
 #include <ert/job_queue/workflow.h>
 #include <ert/job_queue/workflow_job.h>
@@ -54,11 +54,11 @@ struct workflow_struct {
   UTIL_TYPE_ID_DECLARATION;
   time_t                 compile_time;
   bool                   compiled;
-  char                  * src_file; 
+  char                  * src_file;
   vector_type           * cmd_list;
   workflow_joblist_type * joblist;
   config_error_type     * last_error;
-  vector_type           * stack; 
+  vector_type           * stack;
 };
 
 /*****************************************************************/
@@ -74,7 +74,7 @@ static cmd_type * cmd_alloc( const workflow_job_type * workflow_job , const stri
 
 static UTIL_SAFE_CAST_FUNCTION( cmd , CMD_TYPE_ID );
 
-static void cmd_free( cmd_type * cmd ){ 
+static void cmd_free( cmd_type * cmd ){
   stringlist_free( cmd->arglist );
   free( cmd );
 }
@@ -125,48 +125,51 @@ bool workflow_try_compile( workflow_type * script , const subst_list_type * cont
         tmp_file = NULL;
       }
     }
-    
+
     {
       time_t src_mtime = util_file_mtime( script->src_file );
       if (script->compiled) {
-        if (util_difftime_seconds( src_mtime , script->compile_time ) > 0 ) 
+        if (util_difftime_seconds( src_mtime , script->compile_time ) > 0 )
           return true;
         else {
-          // Script has been compiled succesfully, but then changed afterwards. 
+          // Script has been compiled succesfully, but then changed afterwards.
           // We try to recompile; if that fails we are left with 'nothing'.
         }
       }
     }
-    
+
     {
       // Try to compile
-      config_type * config_compiler = workflow_joblist_get_compiler( script->joblist );
+      config_parser_type * config_compiler = workflow_joblist_get_compiler( script->joblist );
       script->compiled = false;
       workflow_clear( script );
-      config_clear( config_compiler );
       {
-        if (config_parse( config_compiler , src_file , WORKFLOW_COMMENT_STRING , WORKFLOW_INCLUDE , NULL , CONFIG_UNRECOGNIZED_ERROR , true )) {
+        config_content_type * content = config_parse( config_compiler , src_file , WORKFLOW_COMMENT_STRING , WORKFLOW_INCLUDE , NULL , CONFIG_UNRECOGNIZED_ERROR , true );
+
+        if (config_content_is_valid( content )) {
           int cmd_line;
-          for (cmd_line = 0; cmd_line < config_get_content_size(config_compiler); cmd_line++) {
-            const config_content_node_type * node = config_iget_content_node( config_compiler , cmd_line );
+          for (cmd_line = 0; cmd_line < config_content_get_size(content); cmd_line++) {
+            const config_content_node_type * node = config_content_iget_node( content , cmd_line );
             const char * jobname = config_content_node_get_kw( node );
             const workflow_job_type * job = workflow_joblist_get_job( script->joblist , jobname );
             cmd_type * cmd = cmd_alloc( job , config_content_node_get_stringlist( node ));
-            
+
             workflow_add_cmd( script , cmd );
           }
           script->compiled = true;
         } else
-          workflow_store_error( script , config_get_errors( config_compiler ));
+          workflow_store_error( script , config_content_get_errors( content ));
+
+        config_content_free( content );
       }
     }
-    
+
     if (tmp_file != NULL) {
       if (script->compiled)
         remove( tmp_file );
       free( tmp_file );
     }
-  } 
+  }
 
   // It is legal to remove the script after successfull compilation but
   // then the context will not be applied at subsequent invocations.
@@ -177,7 +180,7 @@ bool workflow_try_compile( workflow_type * script , const subst_list_type * cont
 bool workflow_run(workflow_type * workflow, void * self , bool verbose , const subst_list_type * context) {
   vector_clear( workflow->stack );
   workflow_try_compile( workflow , context);
-  
+
   if (workflow->compiled) {
     int icmd;
     for (icmd = 0; icmd < vector_get_size( workflow->cmd_list ); icmd++) {
@@ -186,7 +189,7 @@ bool workflow_run(workflow_type * workflow, void * self , bool verbose , const s
       vector_push_front_ref( workflow->stack , return_value );
     }
     return true;
-  } else 
+  } else
     return false;
 }
 
@@ -216,7 +219,7 @@ workflow_type * workflow_alloc( const char * src_file , workflow_joblist_type * 
   script->compiled        = false;
   script->last_error      = NULL;
   script->stack           = vector_alloc_new();
-  
+
   workflow_try_compile( script , NULL );
   return script;
 }

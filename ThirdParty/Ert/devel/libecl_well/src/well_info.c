@@ -56,7 +56,7 @@
        time. The well_state.c file contains further documentation of
        the concepts connections, branches and segments.
 
-              
+
                WELL1
 
                 | |
@@ -98,7 +98,7 @@
 
             a) It is perforated both in LGR1 and LGR2 in addition to
                the global grid.
-           
+
             b) It has two branches.
 
           In the well_state instance this will be represented as:
@@ -108,8 +108,8 @@
 
             ii) The well_path instances corresponding to the two LGRs
                 will have one branch only, whereas the well_path
-                corrseponding to the global grid will have two branches. 
-          
+                corrseponding to the global grid will have two branches.
+
            In pseudo json:
 
  well_state =  {
@@ -120,12 +120,12 @@
                   {well_path : LGR1
                             {branch : 0 [(1,5),(1,4),(1,3),(1,2),(1,1),(2,1),(3,1)] }
                   }
-                  {well_path : LGR2 : 
+                  {well_path : LGR2 :
                             {branch : 0 [(0,1),(1,1),(2,1)]}
                   }
                }
-                       
-                     
+
+
  [*] Observe that wells in LGR is quite constrained in ECLIPSE; the
      current libwell implementation handles the illustrated case - but
      it might be too complex for ECLIPSE.

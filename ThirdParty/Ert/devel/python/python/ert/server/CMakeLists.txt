@@ -2,6 +2,7 @@ set(PYTHON_SOURCES
     __init__.py
     ert_server.py
     ert_socket.py
+    ert_client.py
     run_context.py
  )
 

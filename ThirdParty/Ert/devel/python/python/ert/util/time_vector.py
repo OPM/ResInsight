@@ -129,7 +129,9 @@ class TimeVector(VectorTemplate):
             
         return timeVector
                 
-        
+
+    def getDataPtr(self):
+        raise NotImplementedError("The getDataPtr() function is not implemented for time_t vectors")
 
 
 #################################################################
@@ -180,3 +182,5 @@ TimeVector.cNamespace().sort_perm        = cwrapper.prototype("permutation_vecto
 TimeVector.cNamespace().rsort_perm       = cwrapper.prototype("permutation_vector_obj time_t_vector_alloc_rsort_perm(time_t_vector)")
 TimeVector.cNamespace().contains         = cwrapper.prototype("bool time_t_vector_contains(time_t_vector, time_t)")
 TimeVector.cNamespace().select_unique       = cwrapper.prototype("void time_t_vector_select_unique(time_t_vector)")
+TimeVector.cNamespace().element_sum       = cwrapper.prototype("time_t time_t_vector_sum(time_t_vector)")
+TimeVector.cNamespace().count_equal       = cwrapper.prototype("int time_t_vector_count_equal(time_t_vector, time_t)")

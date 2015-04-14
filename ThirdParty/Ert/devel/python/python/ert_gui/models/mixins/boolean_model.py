@@ -12,6 +12,6 @@ class BooleanModelMixin(ModelMixin):
         """ @rtype: bool """
         raise AbstractMethodError(self, "isTrue")
 
-    def setTrue(self, value):
+    def setState(self, value):
         raise AbstractMethodError(self, "setTrue")
 

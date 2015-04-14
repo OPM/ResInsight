@@ -75,55 +75,7 @@ class FortIOTest(ExtendedTestCase):
             w.close()
             w.close() # should not fail
 
-    def test_fortio_read_and_write(self):
-        with TestAreaContext("python/fortio/read_and_write"):
-            f = FortIO("test", FortIO.WRITE_MODE)
-
-            record_size = 4000
-
-            for i, c in enumerate("abcdefghijklmnopqrstuvwxyz"):
-                data = bytearray(c * record_size)
-                f.writeRecord(data)
-                position = f.getPosition()
-                self.assertEqual(position, (i + 1) * (record_size + 8))
-
-            f = FortIO("test", FortIO.READ_MODE)
-
-            for c in "abcdefghijklmnopqrstuvwxyz":
-                record = f.readRecordAsString(record_size)
-                self.assertEqual(record, c * record_size)
-
-
-    def test_fortio_read_and_write_and_rewrite(self):
-        with TestAreaContext("python/fortio/read_and_write_and_rewrite"):
-            record_size = 4000
-
-            f = FortIO("complete", FortIO.WRITE_MODE)
-            for c in "abcdefghijklmnopqrstuvwxyz":
-                data = bytearray(c * record_size)
-                f.writeRecord(data)
-
-
-            f = FortIO("test", FortIO.WRITE_MODE)
-
-            positions = {}
-            for c in "abcdefghij-lmnopqrstuvwxyz":
-                data = bytearray(c * record_size)
-                f.writeRecord(data)
-                positions[c] = f.getPosition()
-
-
-            f = FortIO("test", FortIO.READ_AND_WRITE_MODE)
-
-            f.seek(positions["j"])
-
-            new_data = bytearray("k" * record_size)
-            f.writeRecord(new_data)
-
-            f.close()
-
-            self.assertFilesAreEqual("test", "complete")
-
+    
 
 
 
@@ -141,3 +93,15 @@ class FortIOTest(ExtendedTestCase):
 
             self.assertTrue( kw1 == kw2 )
                 
+    
+    def test_is_fortran_file(self):
+        with TestAreaContext("python/fortio/guess"):
+            kw1 = EclKW.create("KW" , 12345 , EclTypeEnum.ECL_FLOAT_TYPE)
+            with openFortIO("fortran_file" , mode = FortIO.WRITE_MODE) as f:
+                kw1.fwrite( f )
+                
+            with open("text_file" , "w") as f:
+                kw1.write_grdecl( f )
+
+            self.assertTrue( FortIO.isFortranFile( "fortran_file" ))
+            self.assertFalse( FortIO.isFortranFile( "text_file" ))

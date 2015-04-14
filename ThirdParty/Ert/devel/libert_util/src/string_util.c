@@ -80,7 +80,7 @@ static int_vector_type * string_util_sscanf_alloc_active_list(const char * range
 
   if (valid)
   {
-    parser_type * parser = parser_alloc( ","   , /* No ordinary split characters. */
+    basic_parser_type * parser = basic_parser_alloc( ","   , /* No ordinary split characters. */
                                          NULL  , /* No quoters. */
                                          NULL  , /* No special split */
                                          " \t" , /* Removing ' ' and '\t' */
@@ -89,7 +89,7 @@ static int_vector_type * string_util_sscanf_alloc_active_list(const char * range
     stringlist_type * tokens;
     int item;
     active_list = int_vector_alloc(0,0);
-    tokens = parser_tokenize_buffer( parser , range_string , true);
+    tokens = basic_parser_tokenize_buffer( parser , range_string , true);
     
     for (item = 0; item < stringlist_get_size( tokens ); item++) {
       const char * string_item = stringlist_iget( tokens , item );
@@ -116,7 +116,7 @@ static int_vector_type * string_util_sscanf_alloc_active_list(const char * range
     
     
     stringlist_free( tokens );
-    parser_free( parser );
+    basic_parser_free( parser );
   }
   
   return active_list;

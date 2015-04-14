@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
+   Copyright (C) 2013  Statoil ASA, Norway.
+
    The file 'enkf_workflow_job_test.c' is part of ERT - Ensemble based Reservoir Tool.
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -31,7 +31,7 @@
 
 
 ert_test_context_type * create_context( const char * config_file, const char * name ) {
-  ert_test_context_type * test_context = ert_test_context_alloc(name , config_file , NULL);
+  ert_test_context_type * test_context = ert_test_context_alloc(name , config_file);
   test_assert_not_NULL(test_context);
   return test_context;
 }
@@ -60,7 +60,7 @@ void test_init_case_job(ert_test_context_type * test_context, const char * job_n
   {
     enkf_fs_type * cur_fs = enkf_main_mount_alt_fs( enkf_main , "new_current_case" , true );
     enkf_main_select_fs(enkf_main, "new_current_case");
-    
+
     test_assert_ptr_not_equal(cur_fs , enkf_main_get_fs( enkf_main ));
 
     stringlist_append_copy( args, "default"); //case to init from
@@ -194,21 +194,21 @@ void test_rank_realizations_on_data_job(ert_test_context_type * test_context , c
 void test_export_ranking(ert_test_context_type * test_context , const char * job_name , const char * job_file) {
   stringlist_type * args = stringlist_alloc_new();
   ert_test_context_install_workflow_job( test_context , job_name , job_file );
-  
+
   stringlist_append_copy( args , "NameOfDataRanking");
   stringlist_append_copy( args , "/tmp/fileToSaveDataRankingIn.txt");
   test_assert_true( ert_test_context_run_worklow_job( test_context , job_name , args) );
-  
+
   stringlist_clear(args);
   stringlist_append_copy( args , "NameOfObsRanking1");
   stringlist_append_copy( args , "/tmp/fileToSaveObservationRankingIn1.txt");
   test_assert_true( ert_test_context_run_worklow_job( test_context , job_name , args) );
-  
+
   stringlist_clear(args);
   stringlist_append_copy( args , "NameOfObsRanking6");
   stringlist_append_copy( args , "/tmp/fileToSaveObservationRankingIn6.txt");
   test_assert_true( ert_test_context_run_worklow_job( test_context , job_name , args) );
-  
+
   stringlist_free( args );
 }
 
@@ -216,17 +216,17 @@ void test_export_ranking(ert_test_context_type * test_context , const char * job
 void test_init_misfit_table(ert_test_context_type * test_context , const char * job_name , const char * job_file) {
   stringlist_type * args = stringlist_alloc_new();
   ert_test_context_install_workflow_job( test_context , job_name , job_file );
-  
+
   enkf_main_type * enkf_main = ert_test_context_get_main(test_context);
   enkf_fs_type               * fs              = enkf_main_get_fs(enkf_main);
-  
+
   misfit_ensemble_type * misfit_ensemble = enkf_fs_get_misfit_ensemble( fs );
   test_assert_false(misfit_ensemble_initialized(misfit_ensemble));
-  
+
   test_assert_true( ert_test_context_run_worklow_job( test_context , job_name , args) );
-  
+
   test_assert_true(misfit_ensemble_initialized(misfit_ensemble));
-  
+
   stringlist_free( args );
 }
 
@@ -461,7 +461,7 @@ void test_export_runpath_files(const char * config_file,
 
 int main(int argc , const char ** argv) {
   enkf_main_install_SIGNALS();
-  
+
   const char * config_file                  = argv[1];
   const char * config_file_iterations       = argv[2];
   const char * job_file_create_case         = argv[3];

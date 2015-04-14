@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-/* 
+/*
    This header file contains names and indices of ECLIPSE keywords
    which have special significance in various files. Observe that many
    of the keywords like e.g. INTEHEAD occur in many different file
@@ -24,37 +24,37 @@ extern "C" {
 #define DOUBHEAD_KW  "DOUBHEAD"
 #define RPORV_KW     "RPORV"
 #define PORV_KW      "PORV"
-#define PORMOD_KW    "PORV_MOD"  
+#define PORMOD_KW    "PORV_MOD"
 
 #define PVTNUM_KW    "PVTNUM"
 #define LGRHEADI_KW  "LGRHEADI"
 #define LGRHEADI_LGR_NR_INDEX 0
-#define LGRJOIN_KW   "LGRJOIN" 
+#define LGRJOIN_KW   "LGRJOIN"
 
-/* 
+/*
    Observe that many of the elements in the INTEHEAD keyword is shared
    between the restart and init files. The ones listed below here are
    in both the INIT and the restart files. In addition the restart
    files have many well related items which are only in the restart
    files.
 */
-   
-     
-#define INTEHEAD_UNIT_INDEX     2   
-#define INTEHEAD_NX_INDEX       8   
-#define INTEHEAD_NY_INDEX       9   
-#define INTEHEAD_NZ_INDEX      10   
-#define INTEHEAD_NACTIVE_INDEX 11   
-#define INTEHEAD_PHASE_INDEX   14   
-#define INTEHEAD_DAY_INDEX     64   
-#define INTEHEAD_MONTH_INDEX   65   
-#define INTEHEAD_YEAR_INDEX    66   
-#define INTEHEAD_IPROG_INDEX   94   
+
+
+#define INTEHEAD_UNIT_INDEX     2
+#define INTEHEAD_NX_INDEX       8
+#define INTEHEAD_NY_INDEX       9
+#define INTEHEAD_NZ_INDEX      10
+#define INTEHEAD_NACTIVE_INDEX 11
+#define INTEHEAD_PHASE_INDEX   14
+#define INTEHEAD_DAY_INDEX     64
+#define INTEHEAD_MONTH_INDEX   65
+#define INTEHEAD_YEAR_INDEX    66
+#define INTEHEAD_IPROG_INDEX   94
 
 
 #define INTEHEAD_METRIC_VALUE              1
 #define INTEHEAD_ECLIPSE100_VALUE        100
-#define INTEHEAD_ECLIPSE300_VALUE        300    
+#define INTEHEAD_ECLIPSE300_VALUE        300
 #define INTEHEAD_ECLIPSE300THERMAL_VALUE 500
 
 #define INTEHEAD_INIT_SIZE                95
@@ -63,18 +63,18 @@ extern "C" {
 #define LOGIHEAD_ECLIPSE300_RADIAL_INDEX   3
 #define LOGIHEAD_ECLIPSE100_RADIAL_INDEX   4
 #define LOGIHEAD_DUALP_INDEX              14
-#define LOGIHEAD_INIT_SIZE                80 
+#define LOGIHEAD_INIT_SIZE                80
 #define LOGIHEAD_RESTART_SIZE             15
 
 
-#define LOGIHEAD_RS_INDEX                           0  
+#define LOGIHEAD_RS_INDEX                           0
 #define LOGIHEAD_RV_INDEX                           1
-#define LOGIHEAD_DIR_RELPERM_INDEX                  2   
+#define LOGIHEAD_DIR_RELPERM_INDEX                  2
 /*-----------------------------------------------------------------*/
 #define LOGIHEAD_REV_RELPERM100_INDEX               3   /* The indices for reversible relperm and */
 #define LOGIHEAD_RADIAL100_INDEX                    4   /* use of radial grids is interchanged between */
 #define LOGIHEAD_REV_RELPERM300_INDEX               4   /* ECLIPSE100 and ECLIPSE300. */
-#define LOGIHEAD_RADIAL300_INDEX                    3   
+#define LOGIHEAD_RADIAL300_INDEX                    3
 /*-----------------------------------------------------------------*/
 #define LOGIHEAD_HYSTERISIS_INDEX                   6
 #define LOGIHEAD_DUALP_INDEX                       14
@@ -82,7 +82,7 @@ extern "C" {
 #define LOGIHEAD_DIR_ENDPOINT_SCALING_INDEX        17
 #define LOGIHEAD_REV_ENDPOINT_SCALING_INDEX        18
 #define LOGIHEAD_ALT_ENDPOINT_SCALING_INDEX        19
-#define LOGIHEAD_MISC_DISPLACEMENT_INDEX           35  
+#define LOGIHEAD_MISC_DISPLACEMENT_INDEX           35
 #define LOGIHEAD_SCALE_WATER_PC_AT_MAX_SAT_INDEX   55
 #define LOGIHEAD_SCALE_GAS_PC_AT_MAX_SAT_INDEX     56
 
@@ -101,7 +101,7 @@ extern "C" {
                                        present in non-unified files, where the report
                                        step must be inferred from the filename. */
 #define STARTSOL_KW  "STARTSOL"
-#define ENDSOL_KW    "ENDSOL"  
+#define ENDSOL_KW    "ENDSOL"
 
 #define IWEL_KW      "IWEL"
 #define ZWEL_KW      "ZWEL"
@@ -120,12 +120,12 @@ extern "C" {
 
 #define FIPGAS_KW               "FIPGAS"
 #define FIPWAT_KW               "FIPWAT"
-#define FIPOIL_KW               "FIPOIL"     
+#define FIPOIL_KW               "FIPOIL"
 #define RFIPGAS_KW              "RFIPGAS"
 #define RFIPWAT_KW              "RFIPWAT"
-#define RFIPOIL_KW              "RFIPOIL"     
+#define RFIPOIL_KW              "RFIPOIL"
 
-  
+
 #define INTEHEAD_NWELLS_INDEX  16     // Number of wells
 #define INTEHEAD_NIWELZ_INDEX  24     // Number of elements pr. well in the IWEL array.
 #define INTEHEAD_NZWELZ_INDEX  27     // Number of 8 character words pr. well
@@ -193,7 +193,7 @@ extern "C" {
 #define RESTART_KW    "RESTART"
 #define SUMMARY_RESTART_SIZE 8
 
-/* 
+/*
    There are no magic indices in the summary data files, for all
    interesting data the table created from the ecl_smspec file must be
    consulted.
@@ -210,7 +210,7 @@ extern "C" {
    special information for SEGMENT data is not internalized at all,
    and there are also several additional keywords for the PLTs which
    are not internalized. */
-  
+
 
 /* Common keywords */
 #define TIME_KW      "TIME"     /* The days since simulation start when
@@ -223,6 +223,7 @@ extern "C" {
 #define CONIPOS_KW   "CONIPOS"  /* The i-index of the connections in the well. */
 #define CONJPOS_KW   "CONJPOS"  /* The j-index ... */
 #define CONKPOS_KW   "CONKPOS"  /* The k-index ... */
+#define HOSTGRID_KW  "HOSTGRID"
 
 /* RFT keywords */
 #define SWAT_KW      "SWAT"     /* The kewyord containing SWAT. */
@@ -236,12 +237,12 @@ extern "C" {
 #define CONGRAT_KW   "CONGRAT"  /* Gas ... */
 #define CONORAT_KW   "CONORAT"  /* Oil ... */
 #define CONPRES_KW   "CONPRES"  /* Pressure ... */
-#define CONLENST_KW  "CONLENST" /* Length along MSW well */ 
-#define CONLENEN_KW  "CONLENEN" /* Length to connection end for MSW well */   
-#define CONVTUB_KW   "CONVTUB"  /* Volumetric flow at tubing head conditions. */ 
-#define CONOTUB_KW   "CONOTUB"  /* Volumetric oil flow at tubing head conditions. */ 
-#define CONGTUB_KW   "CONGTUB"  /* Volumetric gas flow at tubing head conditions. */ 
-#define CONWTUB_KW   "CONWTUB"  /* Volumetric water flow at tubing head conditions. */ 
+#define CONLENST_KW  "CONLENST" /* Length along MSW well */
+#define CONLENEN_KW  "CONLENEN" /* Length to connection end for MSW well */
+#define CONVTUB_KW   "CONVTUB"  /* Volumetric flow at tubing head conditions. */
+#define CONOTUB_KW   "CONOTUB"  /* Volumetric oil flow at tubing head conditions. */
+#define CONGTUB_KW   "CONGTUB"  /* Volumetric gas flow at tubing head conditions. */
+#define CONWTUB_KW   "CONWTUB"  /* Volumetric water flow at tubing head conditions. */
 
 
 #define WELLETC_TYPE_INDEX  5 /* At this keyword the WELLETC keyword contains a string
@@ -263,32 +264,32 @@ extern "C" {
 /* GRID and EGRID files have very different structure, and only a few
    keywords are shared. */
 
- 
+
 /* Common keywords */
 #define SPECGRID_KW    "SPECGRID"
-#define SPECGRID_NX_INDEX  0 
-#define SPECGRID_NY_INDEX  1 
-#define SPECGRID_NZ_INDEX  2 
+#define SPECGRID_NX_INDEX  0
+#define SPECGRID_NY_INDEX  1
+#define SPECGRID_NZ_INDEX  2
 #define MAPAXES_KW     "MAPAXES"    /* Keyword used to transform from grid coordinates to
                                        world coordinates. */
-#define LGR_KW         "LGR"        /* Name of LGR; for GRID files it can contain two elements, 
+#define LGR_KW         "LGR"        /* Name of LGR; for GRID files it can contain two elements,
                                        the second element will be the name of the parent. */
 #define MAPUNITS_KW    "MAPUNITS"
 #define GRIDUNIT_KW    "GRIDUNIT"
-  
-#define NNCHEAD_KW     "NNCHEAD"   /*Non-neighbour connection header*/           
-#define NNC1_KW        "NNC1"      /*Upstream cell numbers for non-neighbour connections*/           
-#define NNC2_KW        "NNC2"      /*Downstream cell numbers for non-neighbour connections*/    
-#define NNCL_KW        "NNCL"      /*Cell numbers for LGR cells that are connected to global grid cells*/           
-#define NNCG_KW        "NNCG"      /*Cell numbers for global cells connected to LGR cells*/     
+
+#define NNCHEAD_KW     "NNCHEAD"   /*Non-neighbour connection header*/
+#define NNC1_KW        "NNC1"      /*Upstream cell numbers for non-neighbour connections*/
+#define NNC2_KW        "NNC2"      /*Downstream cell numbers for non-neighbour connections*/
+#define NNCL_KW        "NNCL"      /*Cell numbers for LGR cells that are connected to global grid cells*/
+#define NNCG_KW        "NNCG"      /*Cell numbers for global cells connected to LGR cells*/
 #define NNCHEAD_NUMNNC_INDEX  0    /*Item 1 in non-neighbour connection header: number of NNCs. Only present for main grid*/
 #define NNCHEAD_LGR_INDEX     1    /*Item 2 in non-neighbour connection header: LGR number (0 for global grid)*/
 #define NNCHEADA_KW    "NNCHEADA"  /*Header for NNC's between two amalgamated LGRs*/
-#define NNA1_KW        "NNA1"      /*Cell numbers in connecting local grid ILOC1*/            
+#define NNA1_KW        "NNA1"      /*Cell numbers in connecting local grid ILOC1*/
 #define NNA2_KW        "NNA2"      /*Cell numbers in connecting local grid ILOC2*/
 #define NNCHEADA_ILOC1_INDEX 0     /*ILOC1: Index of first LGR*/
 #define NNCHEADA_ILOC2_INDEX 1     /*ILOC2: Index of second LGR*/
-#define NNA_NUMNNC_INDEX     0     /*Item 1 in NNA1 or NNA2 is number of NNCs*/  
+#define NNA_NUMNNC_INDEX     0     /*Item 1 in NNA1 or NNA2 is number of NNCs*/
 
 #define TRANNNC_KW     "TRANNNC"
 #define TRANGL_KW      "TRANGL"
@@ -305,7 +306,7 @@ extern "C" {
 #define ENDGRID_KW     "ENDGRID"
 #define ENDLGR_KW      "ENDLGR"
 #define CORSNUM_KW     "CORSNUM"
-  
+
 /* GRID keywords */
 #define GRIDHEAD_KW    "GRIDHEAD"   /* Header information for GRID files. */
 #define COORD_KW       "COORD"      /* Header information for one cell in GRID file. */
@@ -321,7 +322,7 @@ extern "C" {
 #define GRIDHEAD_NZ_INDEX     3
 #define GRIDHEAD_LGR_INDEX    4
 #define GRIDHEAD_SIZE       100
-  
+
 /* Observe that these indices are one value lower than the values used
    in the ecl_smspec file. */
 #define DIMENS_NX_INDEX     0
@@ -340,15 +341,15 @@ extern "C" {
 #define FILEHEAD_GRIDTYPE_CORNERPOINT 0 /*  <----/                        */
 
 #define FILEHEAD_ORGTYPE_CORNERPOINT  1
-#define FILEHEAD_SINGLE_POROSITY      0 
-#define FILEHEAD_DUAL_POROSITY        1 
-#define FILEHEAD_DUAL_PERMEABILITY    2 
+#define FILEHEAD_SINGLE_POROSITY      0
+#define FILEHEAD_DUAL_POROSITY        1
+#define FILEHEAD_DUAL_PERMEABILITY    2
 
 
-#define CELL_NOT_ACTIVE          0 
+#define CELL_NOT_ACTIVE          0
 #define CELL_ACTIVE_MATRIX       1
-#define CELL_ACTIVE              CELL_ACTIVE_MATRIX 
-#define CELL_ACTIVE_FRACTURE     2 
+#define CELL_ACTIVE              CELL_ACTIVE_MATRIX
+#define CELL_ACTIVE_FRACTURE     2
 
 
 

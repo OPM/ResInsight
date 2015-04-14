@@ -46,7 +46,7 @@ typedef struct ecl_smspec_struct ecl_smspec_type;
   const int_vector_type * ecl_smspec_get_index_map( const ecl_smspec_type * smspec );
   void                ecl_smspec_index_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node);
   void                ecl_smspec_insert_node(ecl_smspec_type * ecl_smspec, smspec_node_type * smspec_node);  
-  void ecl_smspec_add_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node );
+  void                ecl_smspec_add_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node );
   ecl_smspec_var_type ecl_smspec_iget_var_type( const ecl_smspec_type * smspec , int index );
   bool                ecl_smspec_needs_num( ecl_smspec_var_type var_type );
   bool                ecl_smspec_needs_wgname( ecl_smspec_var_type var_type );
@@ -133,6 +133,7 @@ typedef struct ecl_smspec_struct ecl_smspec_type;
 
   const int                * ecl_smspec_get_grid_dims( const ecl_smspec_type * smspec );
   int                        ecl_smspec_get_params_size( const ecl_smspec_type * smspec );
+  int                        ecl_smspec_num_nodes( const ecl_smspec_type * smspec);
   const   smspec_node_type * ecl_smspec_iget_node( const ecl_smspec_type * smspec , int index );
   void                       ecl_smspec_lock( ecl_smspec_type * smspec );
 

@@ -1,8 +1,8 @@
-/** 
+/**
     A small function used to redirect a file descriptior,
     only used as a helper utility for util_fork_exec().
 */
-    
+
 static void __util_redirect(int src_fd , const char * target_file , int open_flags) {
   int new_fd = open(target_file , open_flags , 0644);
   dup2(new_fd , src_fd);
@@ -44,7 +44,7 @@ static void __util_redirect(int src_fd , const char * target_file , int open_fla
    util_fork_exec("/local/gnu/bin/ls" , 1 , (const char *[1]) {"-l"} ,
    true , NULL , NULL , NULL , "listing" , NULL);
 
-   
+
    This program will run the command 'ls', with the argument '-l'. The
    main process will block, i.e. wait until the 'ls' process is
    complete, and the results of the 'ls' operation will be stored in
@@ -54,13 +54,13 @@ static void __util_redirect(int src_fd , const char * target_file , int open_fla
 */
 
 
-pid_t util_fork_exec(const char * executable , int argc , const char ** argv , 
-                     bool blocking , const char * target_file , const char  * run_path , 
+pid_t util_fork_exec(const char * executable , int argc , const char ** argv ,
+                     bool blocking , const char * target_file , const char  * run_path ,
                      const char * stdin_file , const char * stdout_file , const char * stderr_file) {
   const char  ** __argv = NULL;
   pid_t child_pid;
-  
-  if (target_file != NULL && blocking == false) 
+
+  if (target_file != NULL && blocking == false)
     util_abort("%s: When giving a target_file != NULL - you must use the blocking semantics. \n",__func__);
 
   child_pid = fork();
@@ -68,56 +68,56 @@ pid_t util_fork_exec(const char * executable , int argc , const char ** argv ,
     fprintf(stderr,"Error: %s(%d) \n",strerror(errno) , errno);
     util_abort("%s: fork() failed when trying to run external command:%s \n",__func__ , executable);
   }
-  
+
   if (child_pid == 0) {
     /* This is the child */
     int iarg;
 
     nice(19);    /* Remote process is run with nice(19). */
     if (run_path != NULL) {
-      if (util_chdir(run_path) != 0) 
+      if (util_chdir(run_path) != 0)
         util_abort("%s: failed to change to directory:%s  %s \n",__func__ , run_path , strerror(errno));
     }
 
-    if (stdout_file != NULL) 
+    if (stdout_file != NULL)
       __util_redirect(1 , stdout_file , O_WRONLY | O_TRUNC | O_CREAT);
-    
-    if (stderr_file != NULL) 
+
+    if (stderr_file != NULL)
       __util_redirect(2 , stderr_file , O_WRONLY | O_TRUNC | O_CREAT);
-    
-    if (stdin_file  != NULL) 
+
+    if (stdin_file  != NULL)
       __util_redirect(0 , stdin_file  , O_RDONLY);
-    
-    __argv        = util_malloc((argc + 2) * sizeof * __argv );  
+
+    __argv        = util_malloc((argc + 2) * sizeof * __argv );
     __argv[0]     = executable;
     for (iarg = 0; iarg < argc; iarg++)
       __argv[iarg+1] = argv[iarg];
     __argv[argc + 1] = NULL;
 
-    /* 
-       If executable is an absolute path, it is invoked directly, 
+    /*
+       If executable is an absolute path, it is invoked directly,
        otherwise PATH is used to locate the executable.
     */
     execvp( executable , (char **) __argv);
-    /* 
+    /*
        Exec should *NOT* return - if this code is executed
        the exec??? function has indeed returned, and this is
        an error.
     */
     util_abort("%s: failed to execute external command: \'%s\': %s \n",__func__ , executable , strerror(errno));
-    
+
   }  else  {
     /* Parent */
-    
+
     if (blocking) {
       waitpid(child_pid , NULL , 0);
-      
+
       if (target_file != NULL)
         if (!util_file_exists(target_file))
           util_abort("%s: %s failed to produce target_file:%s aborting \n",__func__ , executable , target_file);
     }
   }
-  
+
   util_safe_free( __argv );
   return child_pid;
 }
@@ -134,7 +134,7 @@ pid_t util_fork_exec(const char * executable , int argc , const char ** argv ,
 
    * In the current implementation a user can occur several times if
      the user has the file open in several processes.
-     
+
    * If a NFS mounted file is opened on a remote machine it will not
      appear in this listing. I.e. to check that an executable file can
      be safely modified you must iterate through the relevant
@@ -161,7 +161,7 @@ uid_t * util_alloc_file_users( const char * filename , int * __num_users) {
         }
         users[ num_users ] = uid;
         num_users++;
-      } else 
+      } else
         break; /* have reached the end of file - seems like we will not find the file descriptor we are looking for. */
     }
     fclose( stream );
@@ -178,7 +178,7 @@ uid_t * util_alloc_file_users( const char * filename , int * __num_users) {
 /**
    This function uses the external program lsof to (try) to associate
    an open FILE * instance with a filename in the filesystem.
-   
+
    If it succeds in finding the filename the function will allocate
    storage and return a (char *) pointer with the filename. If the
    filename can not be found, the function will return NULL.
@@ -187,14 +187,14 @@ uid_t * util_alloc_file_users( const char * filename , int * __num_users) {
    +++), and also quite fragile, it should therefor not be used in
    routine FILE -> name lookups, rather in situations where a FILE *
    operation has failed extraordinary, and we want to provide as much
-   information as possible before going down in flames.  
+   information as possible before going down in flames.
 */
-  
+
 char * util_alloc_filename_from_stream( FILE * input_stream ) {
   char * filename = NULL;
   const char * lsof_executable = "/usr/sbin/lsof";
   int   fd     = fileno( input_stream );
-    
+
   if (util_is_executable( lsof_executable ) && (fd != -1)) {
     char  * fd_string = util_alloc_sprintf("f%d" , fd);
     char    line_fd[32];
@@ -202,7 +202,7 @@ char * util_alloc_filename_from_stream( FILE * input_stream ) {
     char * pid_string = util_alloc_sprintf("%d" , getpid());
     char * tmp_file   = util_alloc_tmp_file("/tmp" , "lsof" , false);
 
-    /* 
+    /*
        The lsof executable is run as:
 
        bash% lsof -p pid -Ffn
@@ -219,7 +219,7 @@ char * util_alloc_filename_from_stream( FILE * input_stream ) {
             filename = util_alloc_string_copy( &line_file[1] );
             break;
           }
-        } else 
+        } else
           break; /* have reached the end of file - seems like we will not find the file descriptor we are looking for. */
       }
       fclose( stream );
@@ -238,7 +238,8 @@ char * util_alloc_filename_from_stream( FILE * input_stream ) {
    The PING_CMD is passed as -D from the build system.
 */
 
-bool util_ping(const char *hostname) { 
+#ifdef PING_CMD
+bool util_ping(const char *hostname) {
   pid_t ping_pid = util_fork_exec(PING_CMD , 4 , (const char *[4]) {"-c" , "3" , "-q", hostname} , false , NULL , NULL , NULL , "/dev/null" , "/dev/null");
   int wait_status;
   pid_t wait_pid = waitpid(ping_pid , &wait_status , 0);
@@ -256,7 +257,7 @@ bool util_ping(const char *hostname) {
       return false;
   }
 }
-
+#endif
 
 
 

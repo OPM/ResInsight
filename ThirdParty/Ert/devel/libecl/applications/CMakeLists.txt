@@ -32,6 +32,13 @@ if (BUILD_APPLICATIONS)
       set(program_list summary2csv2 summary2csv kw_extract grdecl_grid make_grid  sum_write load_test grdecl_test grid_dump_ascii select_test grid_dump convert kw_list grid_info summary)
    endif()
 
+   if (BUILD_ERT)
+      add_executable( ecl_quantile ecl_quantile.c )
+      include_directories( ../../libconfig/include )
+      target_link_libraries( ecl_quantile config )
+      list( APPEND program_list ecl_quantile )
+   endif()
+
 
    foreach(prog ${program_list})
       target_link_libraries( ${prog} ecl ert_util )

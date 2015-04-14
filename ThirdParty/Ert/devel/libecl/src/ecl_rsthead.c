@@ -37,6 +37,10 @@ time_t ecl_rsthead_date( const ecl_kw_type * intehead_kw ) {
 }
 
 
+double ecl_rsthead_get_sim_days( const ecl_rsthead_type * header ) {
+  return header->sim_days;
+}
+
 
 
 ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occurence) {
@@ -88,6 +92,42 @@ ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occu
 
 ecl_rsthead_type * ecl_rsthead_alloc( const ecl_file_type * rst_file) {
   return ecl_rsthead_ialloc( rst_file , 0 );
+}
+
+
+ecl_rsthead_type * ecl_rsthead_alloc_empty() {
+  ecl_rsthead_type * rsthead = util_malloc( sizeof * rsthead );
+
+  rsthead->day       = 0;
+  rsthead->month     = 0;
+  rsthead->year      = 0;
+  rsthead->version   = 0;
+  rsthead->phase_sum = 0;
+
+  rsthead->nx        = 0;
+  rsthead->ny        = 0;
+  rsthead->nz        = 0;
+  rsthead->nactive   = 0;
+
+  rsthead->nwells    = 0;
+  rsthead->niwelz    = 0;
+  rsthead->nzwelz    = 0;
+
+  rsthead->nsconz    = 0;
+  rsthead->niconz    = 0;
+  rsthead->ncwmax    = 0;
+
+  rsthead->nisegz    = 0;
+  rsthead->nsegmx    = 0;
+  rsthead->nswlmx    = 0;
+  rsthead->nrsegz    = 0;
+
+  rsthead->sim_time  = 0;
+
+  rsthead->dualp    = false;
+  rsthead->sim_days = 0.0;
+
+  return rsthead;
 }
 
 

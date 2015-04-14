@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ext_joblist.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ext_joblist.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -54,13 +54,13 @@
           shutdown can just be removed.
 
     2. For each job in the joblist a subdirectory is created under the
-       license_path. 
+       license_path.
 
     3. For each job a license_file is created, and for each time a new
        instance is checked out a hard_link to this license_file is
        created - i.e. the number of checked out licenses is a
-       hard_link count (-1). 
-       
+       hard_link count (-1).
+
        Step three here is implemented by the job_dispatch script
        actually running the jobs.
 
@@ -84,7 +84,7 @@ struct ext_joblist_struct {
 ext_joblist_type * ext_joblist_alloc( ) {
   ext_joblist_type * joblist = util_malloc( sizeof * joblist );
   joblist->jobs = hash_alloc();
-  return joblist; 
+  return joblist;
 }
 
 
@@ -110,7 +110,7 @@ ext_job_type * ext_joblist_get_job(const ext_joblist_type * joblist , const char
 
 
 ext_job_type * ext_joblist_get_job_copy(const ext_joblist_type * joblist , const char * job_name) {
-  if (hash_has_key(joblist->jobs , job_name)) 
+  if (hash_has_key(joblist->jobs , job_name))
     return ext_job_alloc_copy(hash_get(joblist->jobs , job_name));
   else {
     util_abort("%s: asked for job:%s which does not exist\n",__func__ , job_name);

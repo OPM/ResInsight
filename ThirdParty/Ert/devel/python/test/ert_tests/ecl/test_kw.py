@@ -42,6 +42,17 @@ class KWTest(ExtendedTestCase):
         stat = os.stat(unrst_file_path)
         self.assertTrue(size == stat.st_size)
 
+    def test_min_max(self):
+        kw = EclKW.new("TEST", 3, EclTypeEnum.ECL_INT_TYPE)
+        kw[0] = 10
+        kw[1] = 5
+        kw[2] = 0
+
+        self.assertEqual( 10 , kw.getMax())
+        self.assertEqual( 0  , kw.getMin())
+        self.assertEqual( (0,10)  , kw.getMinMax())
+
+        
 
     def test_equal(self):
         kw1 = EclKW.new("TEST", 3, EclTypeEnum.ECL_CHAR_TYPE)
@@ -211,6 +222,29 @@ class KWTest(ExtendedTestCase):
             ecl_file = EclFile("ECL_KW_TEST")
             kw5 = ecl_file["TEST"][0]
             self.assertTrue(kw.equal(kw5))
+
+
+
+    def test_fprintf_data(self):
+        with TestAreaContext("kw_no_header"):
+            kw = EclKW.create("REGIONS" , 10 , EclTypeEnum.ECL_INT_TYPE)
+            for i in range(len(kw)):
+                kw[i] = i
+                
+            fileH = open("test" , "w")
+            kw.fprintf_data( fileH )
+            fileH.close()
+
+            fileH = open("test" , "r")
+            data = []
+            for line in fileH.readlines():
+                tmp = line.split()
+                for elm in tmp:
+                    data.append( int(elm) )
+
+            for (v1,v2) in zip(data,kw):
+                self.assertEqual(v1,v2)
+
 
 
 #def cutoff( x , arg ):

@@ -3,6 +3,7 @@ from PyQt4.QtCore import Qt, pyqtSignal, QTimer, QSize
 from PyQt4.QtGui import QDialog, QVBoxLayout, QLayout, QMessageBox, QPushButton, QHBoxLayout, QColor, QLabel
 from ert_gui.models.connectors.run import SimulationsTracker
 from ert_gui.models.mixins.run_model import RunModelMixin
+from ert_gui.tools.plot.plot_tool import PlotTool
 from ert_gui.widgets import util
 from ert_gui.widgets.legend import Legend
 from ert_gui.widgets.progress import Progress
@@ -56,6 +57,11 @@ class RunDialog(QDialog):
 
         self.running_time = QLabel("")
 
+        self.plot_tool = PlotTool()
+        self.plot_tool.setParent(self)
+        self.plot_button = QPushButton(self.plot_tool.getName())
+        self.plot_button.clicked.connect(self.plot_tool.trigger)
+
         self.kill_button = QPushButton("Kill simulations")
         self.done_button = QPushButton("Done")
         self.done_button.setHidden(True)
@@ -76,6 +82,7 @@ class RunDialog(QDialog):
         button_layout.addWidget(self.processing_animation)
         button_layout.addWidget(self.running_time)
         button_layout.addStretch()
+        button_layout.addWidget(self.plot_button)
         button_layout.addWidget(self.kill_button)
         button_layout.addWidget(self.done_button)
 

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'matrix.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'matrix.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
@@ -75,8 +75,8 @@ struct matrix_struct {
   int                     alloc_columns;
   int                     row_stride;     /* The distance in data between two conscutive row values. */
   int                     column_stride;  /* The distance in data between to consecutive column values. */
-  
-  /* 
+
+  /*
      Observe that the stride is considered an internal property - if
      the matrix is stored to disk and then recovered the strides might
      change, and also matrix_alloc_copy() will not respect strides.
@@ -104,7 +104,7 @@ static void matrix_init_header(matrix_type * matrix , int rows , int columns , i
 
   if (!((column_stride * columns <= row_stride) || (row_stride * rows <= column_stride)))
     util_abort("%s: invalid stride combination \n",__func__);
-  
+
   matrix->data_size     = 0;
   matrix->alloc_rows    = rows;
   matrix->alloc_columns = columns;
@@ -127,7 +127,7 @@ static void matrix_init_header(matrix_type * matrix , int rows , int columns , i
        subsequently calling malloc() to get new storage. This is to
        avoid prohibitive temporary memory requirements during the
        realloc() call.
-       
+
     2. If the malloc() fails the function will return NULL, i.e. you
        will NOT keep the original data pointer. I.e. in this case the
        matrix will be invalid. It is the responsability of the calling
@@ -145,9 +145,9 @@ static void matrix_realloc_data__( matrix_type * matrix , bool safe_mode ) {
     if (matrix->data_size == data_size) return;
     if (matrix->data != NULL)
       free(matrix->data);
-    
+
     if (safe_mode) {
-      /* 
+      /*
          If safe_mode == true it is 'OK' to fail in the allocation,
          otherwise we use util_malloc() which will abort if the memory
          is not available.
@@ -155,14 +155,14 @@ static void matrix_realloc_data__( matrix_type * matrix , bool safe_mode ) {
       matrix->data = malloc( sizeof * matrix->data * data_size );
     } else
       matrix->data = util_malloc( sizeof * matrix->data * data_size );
-    
+
 
     /* Initializing matrix content to zero. */
     if (matrix->data != NULL) {
       size_t i;
                 for (i = 0; i < data_size; i++)
         matrix->data[i] = 0;
-    } else 
+    } else
       data_size = 0;
 
     /**
@@ -170,7 +170,7 @@ static void matrix_realloc_data__( matrix_type * matrix , bool safe_mode ) {
        be returned with data == NULL, and data_size == 0.
     */
     matrix->data_size = data_size;
-  } else 
+  } else
     util_abort("%s: can not manipulate memory when is not data owner\n",__func__);
 }
 
@@ -178,7 +178,7 @@ static void matrix_realloc_data__( matrix_type * matrix , bool safe_mode ) {
 UTIL_SAFE_CAST_FUNCTION( matrix , MATRIX_TYPE_ID )
 
 /**
-   The matrix objecty is NOT ready for use after this function. 
+   The matrix objecty is NOT ready for use after this function.
 */
 static matrix_type * matrix_alloc_empty( ) {
   matrix_type * matrix  = util_malloc( sizeof * matrix );
@@ -203,7 +203,7 @@ static matrix_type * matrix_alloc_with_stride(int rows , int columns , int row_s
     matrix->data_owner    = true;
     matrix_realloc_data__( matrix  , safe_mode );
     if (safe_mode) {
-      if (matrix->data == NULL) {  
+      if (matrix->data == NULL) {
         /* Allocation failed - we return NULL */
         matrix_free(matrix);
         matrix = NULL;
@@ -233,14 +233,14 @@ matrix_type * matrix_alloc_shared(const matrix_type * src , int row , int column
                src->rows , src->columns,
                row,column,
                rows,columns);
-  
+
   {
     matrix_type * matrix = matrix_alloc_empty();
-    
+
     matrix_init_header( matrix , rows , columns , src->row_stride , src->column_stride);
     matrix->data          = &src->data[ GET_INDEX(src , row , column) ];
     matrix->data_owner    = false;
-    
+
     return matrix;
   }
 }
@@ -248,11 +248,11 @@ matrix_type * matrix_alloc_shared(const matrix_type * src , int row , int column
 
 matrix_type * matrix_alloc_view(double * data , int rows , int columns) {
   matrix_type * matrix = matrix_alloc_empty();
-  
+
   matrix_init_header( matrix , rows , columns , 1 , rows);
   matrix->data          = data;
   matrix->data_owner    = false;
-  
+
   return matrix;
 }
 
@@ -265,17 +265,17 @@ matrix_type * matrix_alloc_view(double * data , int rows , int columns) {
    supplied pointer is too small it is immediately realloced ( in
    which case the pointer in the calling scope will be immediately
    invalid).
-*/   
+*/
 
 matrix_type * matrix_alloc_steal_data(int rows , int columns , double * data , int data_size) {
   matrix_type * matrix = matrix_alloc_empty();
-  matrix_init_header( matrix , rows , columns , 1 , rows );   
+  matrix_init_header( matrix , rows , columns , 1 , rows );
   matrix->data_size  = data_size;           /* Can in general be different from rows * columns */
   matrix->data_owner = true;
   matrix->data       = data;
-  if (data_size < rows * columns) 
+  if (data_size < rows * columns)
     matrix_realloc_data__(matrix , false);
-  
+
   return matrix;
 }
 
@@ -303,7 +303,7 @@ matrix_type * matrix_safe_alloc(int rows, int columns) {
 */
 static matrix_type * matrix_alloc_copy__( const matrix_type * src , bool safe_mode) {
   matrix_type * copy = matrix_alloc__( matrix_get_rows( src ), matrix_get_columns( src ) , safe_mode);
-  if (copy != NULL) 
+  if (copy != NULL)
     matrix_assign(copy , src);
   return copy;
 }
@@ -312,6 +312,39 @@ static matrix_type * matrix_alloc_copy__( const matrix_type * src , bool safe_mo
 matrix_type * matrix_alloc_copy(const matrix_type * src) {
   return matrix_alloc_copy__(src , false );
 }
+
+matrix_type * matrix_alloc_column_compressed_copy(const matrix_type * src, const bool_vector_type * mask) {
+  if (bool_vector_size( mask ) != matrix_get_columns( src ))
+    util_abort("%s: size mismatch. Src matrix has %d rows  mask has:%d elements\n", __func__ , matrix_get_rows( src ) , bool_vector_size( mask ));
+  {
+    int target_columns = bool_vector_count_equal( mask , true );
+    matrix_type * target = matrix_alloc( matrix_get_rows( src ) , target_columns );
+
+    matrix_column_compressed_memcpy( target , src , mask );
+    return target;
+  }
+}
+
+
+void matrix_column_compressed_memcpy(matrix_type * target, const matrix_type * src, const bool_vector_type * mask) {
+  if (bool_vector_count_equal( mask , true ) != matrix_get_columns( target ))
+    util_abort("%s: size mismatch. \n",__func__);
+
+  if (bool_vector_size( mask ) != matrix_get_columns( src))
+    util_abort("%s: size mismatch. \n",__func__);
+
+  {
+    int target_col = 0;
+    int src_col;
+    for (src_col = 0; src_col < bool_vector_size( mask ); src_col++) {
+      if (bool_vector_iget( mask , src_col)) {
+        matrix_copy_column( target , src , target_col , src_col);
+        target_col++;
+      }
+    }
+  }
+}
+
 
 
 matrix_type * matrix_realloc_copy(matrix_type * T , const matrix_type * src) {
@@ -328,7 +361,7 @@ matrix_type * matrix_realloc_copy(matrix_type * T , const matrix_type * src) {
 
 
 /**
-   Will return NULL if allocation of the copy failed. 
+   Will return NULL if allocation of the copy failed.
 */
 
 matrix_type * matrix_safe_alloc_copy(const matrix_type * src) {
@@ -343,7 +376,7 @@ void matrix_copy_block( matrix_type * target_matrix , int target_row , int targe
   matrix_free( target_view );
   matrix_free( src_view );
 }
-                        
+
 
 
 /*****************************************************************/
@@ -353,21 +386,21 @@ static bool matrix_resize__(matrix_type * matrix , int rows , int columns , bool
     util_abort("%s: sorry - can not resize shared matrizes. \n",__func__);
   {
     bool resize_OK = true;
-    
+
     if ((rows != matrix->rows) || (columns != matrix->columns)) {
       int copy_rows            = util_int_min( rows    , matrix->rows );
       int copy_columns         = util_int_min( columns , matrix->columns);
       matrix_type * copy_view  = NULL;
-      matrix_type * copy       = NULL;  
-      
+      matrix_type * copy       = NULL;
+
       if (copy_content) {
-        copy_view = matrix_alloc_shared( matrix , 0 , 0 , copy_rows , copy_columns);         /* This is the part of the old matrix which should be copied over to the new. */                   
+        copy_view = matrix_alloc_shared( matrix , 0 , 0 , copy_rows , copy_columns);         /* This is the part of the old matrix which should be copied over to the new. */
         copy      = matrix_alloc_copy__( copy_view , safe_mode );                            /* Now copy contains the part of the old matrix which should be copied over - with private storage. */
       }
       {
         int old_rows , old_columns, old_row_stride , old_column_stride;
         matrix_get_dims( matrix , &old_rows , &old_columns , &old_row_stride , &old_column_stride);        /* Storing the old header information - in case the realloc() fails. */
-        
+
         matrix_init_header(matrix , rows , columns , 1 , rows);                                            /* Resetting the header for the matrix */
         matrix_realloc_data__(matrix , safe_mode);
         if (matrix->data != NULL) {  /* Realloc succeeded */
@@ -376,13 +409,13 @@ static bool matrix_resize__(matrix_type * matrix , int rows , int columns , bool
             matrix_assign( target_view , copy);
             matrix_free( target_view );
           }
-        } else {                                                              
+        } else {
           /* Failed to realloc new storage; RETURNING AN INVALID MATRIX */
           matrix_init_header(matrix , old_rows , old_columns , old_row_stride , old_column_stride);
           resize_OK = false;
         }
       }
-      
+
       if (copy_content) {
         matrix_free(copy_view);
         matrix_free(copy);
@@ -393,11 +426,11 @@ static bool matrix_resize__(matrix_type * matrix , int rows , int columns , bool
 }
 
 
-/** 
+/**
     If copy content is true the content of the old matrix is carried
     over to the new one, otherwise the new matrix is cleared.
-    
-    Will always return true (or abort). 
+
+    Will always return true (or abort).
 */
 bool matrix_resize(matrix_type * matrix , int rows , int columns , bool copy_content) {
   return matrix_resize__(matrix , rows , columns , copy_content , false);
@@ -420,10 +453,10 @@ bool matrix_safe_resize(matrix_type * matrix , int rows , int columns , bool cop
 
 
 
-/** 
+/**
     This function will ensure that the matrix has at least 'rows'
     rows. If the present matrix already has >= rows it will return
-    immediately, otherwise the matrix will be resized. 
+    immediately, otherwise the matrix will be resized.
 */
 
 void matrix_ensure_rows(matrix_type * matrix, int rows, bool copy_content) {
@@ -433,7 +466,7 @@ void matrix_ensure_rows(matrix_type * matrix, int rows, bool copy_content) {
 
 
 
-/** 
+/**
     This function will reduce the size of the matrix. It will only
     affect the headers, and not touch the actual memory of the matrix.
 */
@@ -442,7 +475,7 @@ void matrix_shrink_header(matrix_type * matrix , int rows , int columns) {
 
   if (rows <= matrix->rows)
     matrix->rows = rows;
-  
+
   if (columns <= matrix->columns)
     matrix->columns = columns;
 
@@ -498,7 +531,7 @@ void matrix_pretty_fprint(const matrix_type * matrix , const char * name , const
       for (l = 0; l < strlen(name) + 2; l++)
         fprintf(stream ,  " ");
     }
-    
+
     fprintf(stream , " [");
     for (j=0; j < matrix->columns; j++)
       fprintf(stream , fmt , matrix_iget(matrix , i,j));
@@ -515,7 +548,7 @@ void matrix_pretty_print(const matrix_type * matrix , const char * name , const 
 void matrix_fprintf( const matrix_type * matrix , const char * fmt , FILE * stream ) {
   int i,j;
   for (i=0; i < matrix->rows; i++) {
-    for (j=0; j < matrix->columns; j++) 
+    for (j=0; j < matrix->columns; j++)
       fprintf(stream , fmt , matrix_iget( matrix , i , j));
     fprintf(stream , "\n");
   }
@@ -526,7 +559,7 @@ void matrix_fprintf( const matrix_type * matrix , const char * fmt , FILE * stre
 void matrix_fwrite(const matrix_type * matrix , FILE * stream) {
   util_fwrite_int( matrix->rows , stream );
   util_fwrite_int( matrix->columns , stream );
-  
+
   if (matrix->column_stride == matrix->rows)
     util_fwrite( matrix->data , sizeof * matrix->data , matrix->columns * matrix->rows , stream , __func__);
   else {
@@ -548,7 +581,7 @@ void matrix_fwrite(const matrix_type * matrix , FILE * stream) {
 void matrix_fread(matrix_type * matrix , FILE * stream) {
   int rows    = util_fread_int( stream );
   int columns = util_fread_int( stream );
-  
+
   matrix_resize( matrix , rows , columns , false);
   if (matrix->column_stride == matrix->rows)
     util_fread( matrix->data , sizeof * matrix->data , matrix->columns * matrix->rows , stream , __func__);
@@ -576,7 +609,7 @@ matrix_type * matrix_fread_alloc(FILE * stream) {
 
 /**
      [ a11   a12  ]
-     [ a21   a22  ] 
+     [ a21   a22  ]
 
 
 
@@ -595,7 +628,7 @@ matrix_type * matrix_fread_alloc(FILE * stream) {
    a_12
    a_21
    a_22
-   
+
 
    The @orw_major_order parameter ONLY affects the layout on the file,
    and NOT the memory layout of the matrix.
@@ -606,7 +639,7 @@ static void __fscanf_and_set( matrix_type * matrix , int row , int col , FILE * 
   double value;
   if (fscanf(stream , "%lg" , &value) == 1)
     matrix_iset( matrix , row , col , value );
-  else 
+  else
     util_abort("%s: reading of matrix failed at row:%d  col:%d \n",__func__ , row , col);
 }
 
@@ -617,13 +650,13 @@ void matrix_fscanf_data( matrix_type * matrix , bool row_major_order , FILE * st
     for (row = 0; row < matrix->columns; row++) {
       for (col = 0; col < matrix->columns; col++) {
         __fscanf_and_set( matrix , row , col ,stream);
-      } 
+      }
     }
   } else {
     for (row = 0; row < matrix->columns; row++) {
       for (col = 0; col < matrix->columns; col++) {
         __fscanf_and_set( matrix , row , col , stream);
-      } 
+      }
     }
   }
 }
@@ -634,7 +667,7 @@ void matrix_fscanf_data( matrix_type * matrix , bool row_major_order , FILE * st
 /* Functions which manipulate one element in the matrix.         */
 
 static void matrix_assert_ij( const matrix_type * matrix , int i , int j) {
-  if ((i < 0) || (i >= matrix->rows) || (j < 0) || (j >= matrix->columns)) 
+  if ((i < 0) || (i >= matrix->rows) || (j < 0) || (j >= matrix->columns))
     util_abort("%s: (i,j) = (%d,%d) invalid. Matrix size: %d x %d \n",__func__ , i,j,matrix->rows , matrix->columns);
 }
 
@@ -672,7 +705,7 @@ double matrix_iget_safe(const matrix_type * matrix , int i , int j) {
   matrix_assert_ij( matrix , i , j );
   return matrix_iget( matrix , i , j );
 }
-  
+
 
 void  matrix_iadd(matrix_type * matrix , int i , int j , double value) {
   matrix->data[ GET_INDEX(matrix , i,j) ] += value;
@@ -695,7 +728,7 @@ void  matrix_imul(matrix_type * matrix , int i , int j , double value) {
 void matrix_set(matrix_type * matrix, double value) {
   int i,j;
   for (j=0; j < matrix->columns; j++)
-    for (i=0; i < matrix->rows; i++) 
+    for (i=0; i < matrix->rows; i++)
       matrix_iset(matrix , i , j , value);
 }
 
@@ -703,7 +736,7 @@ void matrix_set(matrix_type * matrix, double value) {
 void matrix_shift(matrix_type * matrix, double value) {
   int i,j;
   for (j=0; j < matrix->columns; j++)
-    for (i=0; i < matrix->rows; i++) 
+    for (i=0; i < matrix->rows; i++)
       matrix_iadd(matrix , i , j , value);
 }
 
@@ -711,7 +744,7 @@ void matrix_shift(matrix_type * matrix, double value) {
 void matrix_scale(matrix_type * matrix, double value) {
   int i,j;
   for (j=0; j < matrix->columns; j++)
-    for (i=0; i < matrix->rows; i++) 
+    for (i=0; i < matrix->rows; i++)
       matrix_imul(matrix , i , j , value);
 }
 
@@ -752,16 +785,16 @@ void matrix_set_const_row(matrix_type * matrix , const double value , int row) {
 
 void matrix_copy_column(matrix_type * target_matrix, const matrix_type * src_matrix , int target_column, int src_column) {
   matrix_assert_equal_rows( target_matrix , src_matrix );
-  { 
+  {
     int row;
     for(row = 0; row < target_matrix->rows; row++)
       target_matrix->data[ GET_INDEX( target_matrix, row , target_column)] = src_matrix->data[ GET_INDEX( src_matrix, row, src_column)];
   }
-} 
+}
 
 
 void matrix_scale_column(matrix_type * matrix , int column  , double scale_factor) {
-  int row; 
+  int row;
   for (row = 0; row < matrix->rows; row++)
     matrix->data[ GET_INDEX( matrix , row , column) ] *= scale_factor;
 }
@@ -779,7 +812,7 @@ void matrix_copy_row(matrix_type * target_matrix, const matrix_type * src_matrix
     for(col = 0; col < target_matrix->columns; col++)
       target_matrix->data[ GET_INDEX( target_matrix , target_row , col)] = src_matrix->data[ GET_INDEX( src_matrix, src_row, col)];
   }
-} 
+}
 
 
 /*****************************************************************/
@@ -794,9 +827,9 @@ double matrix_column_column_dot_product(const matrix_type * m1 , int col1 , cons
   {
     int row;
     double sum = 0;
-    for( row = 0; row < m1->rows; row++) 
+    for( row = 0; row < m1->rows; row++)
       sum += m1->data[ GET_INDEX(m1 , row , col1) ] * m2->data[ GET_INDEX(m2, row , col2) ];
-    
+
     return sum;
   }
 }
@@ -809,9 +842,9 @@ double matrix_row_column_dot_product(const matrix_type * m1 , int row1 , const m
   {
     int k;
     double sum = 0;
-    for( k = 0; k < m1->columns; k++) 
+    for( k = 0; k < m1->columns; k++)
       sum += m1->data[ GET_INDEX(m1 , row1 , k) ] * m2->data[ GET_INDEX(m2, k , col2) ];
-    
+
     return sum;
   }
 }
@@ -827,7 +860,7 @@ double matrix_row_column_dot_product(const matrix_type * m1 , int row1 , const m
 void matrix_assign(matrix_type * A , const matrix_type * B) {
   if ((A->rows == B->rows) && (A->columns == B->columns)) {
     int i,j;
-    
+
     if (A->row_stride == B->row_stride) {
       if (A->columns == A->row_stride)  /** Memory is just one continous block */
         memcpy( A->data , B->data , A->rows * A->columns * sizeof * A->data);
@@ -835,29 +868,42 @@ void matrix_assign(matrix_type * A , const matrix_type * B) {
         /* Copying columns of data */
         for (j = 0; j < A->columns; j++)
           memcpy( &A->data[ GET_INDEX(A , 0 , j)] , &B->data[ GET_INDEX(B , 0 , j) ] , A->rows * sizeof * A->data);
-      } 
+      }
     } else {
       /* Copying element by element */
       for (j = 0; j < A->columns; j++)
         for (i=0; i < A->rows; i++)
           A->data[ GET_INDEX(A,i,j) ] = B->data[ GET_INDEX(B,i,j) ];
     }
-  } else 
+  } else
     util_abort("%s: size mismatch A:[%d,%d]  B:[%d,%d] \n",__func__ , A->rows , A->columns , B->rows , B->columns);
 }
 
 
 
+void matrix_inplace_sub_column(matrix_type * A , const matrix_type * B, int colA , int colB) {
+  if ((A->rows == B->rows) &&
+      (colA < A->columns) &&
+      (colB < B->columns)) {
+    int row;
+
+    for (row = 0; row < A->rows; row++)
+      A->data[ GET_INDEX(A , row , colA)] -= B->data[ GET_INDEX(B , row , colB)];
+
+  } else
+    util_abort("%s: size mismatch \n",__func__);
+}
+
 /* Updates matrix A by adding in matrix B - elementwise. */
 void matrix_inplace_add(matrix_type * A , const matrix_type * B) {
   if ((A->rows == B->rows) && (A->columns == B->columns)) {
     int i,j;
-    
+
     for (j = 0; j < A->columns; j++)
       for (i=0; i < A->rows; i++)
         A->data[ GET_INDEX(A,i,j) ] += B->data[ GET_INDEX(B,i,j) ];
-    
-  } else 
+
+  } else
     util_abort("%s: size mismatch \n",__func__);
 }
 
@@ -866,12 +912,12 @@ void matrix_inplace_add(matrix_type * A , const matrix_type * B) {
 void matrix_inplace_mul(matrix_type * A , const matrix_type * B) {
   if ((A->rows == B->rows) && (A->columns == B->columns)) {
     int i,j;
-    
+
     for (j = 0; j < A->columns; j++)
       for (i=0; i < A->rows; i++)
         A->data[ GET_INDEX(A,i,j) ] *= B->data[ GET_INDEX(B,i,j) ];
-    
-  } else 
+
+  } else
     util_abort("%s: size mismatch \n",__func__);
 }
 
@@ -883,12 +929,12 @@ void matrix_inplace_mul(matrix_type * A , const matrix_type * B) {
 void matrix_mul( matrix_type * A , const matrix_type * B , const matrix_type * C) {
   if ((A->rows == B->rows) && (A->columns == B->columns) && (A->rows == C->rows) && (A->columns == C->columns)) {
     int i,j;
-    
+
     for (j = 0; j < A->columns; j++)
       for (i=0; i < A->rows; i++)
         A->data[ GET_INDEX(A,i,j) ] = B->data[ GET_INDEX(B,i,j) ] * C->data[ GET_INDEX(B,i,j) ];
-    
-  } else 
+
+  } else
     util_abort("%s: size mismatch \n",__func__);
 }
 
@@ -898,13 +944,17 @@ void matrix_mul( matrix_type * A , const matrix_type * B , const matrix_type * C
 void matrix_inplace_sub(matrix_type * A , const matrix_type * B) {
   if ((A->rows == B->rows) && (A->columns == B->columns)) {
     int i,j;
-    
+
     for (j = 0; j < A->columns; j++)
       for (i=0; i < A->rows; i++)
         A->data[ GET_INDEX(A,i,j) ] -= B->data[ GET_INDEX(B,i,j) ];
-    
-  } else 
-    util_abort("%s: size mismatch \n",__func__);
+
+  } else
+    util_abort("%s: size mismatch  A:[%d,%d]   B:[%d,%d]\n",__func__ ,
+               matrix_get_rows(A),
+               matrix_get_columns(A),
+               matrix_get_rows(B),
+               matrix_get_columns(B));
 }
 
 
@@ -917,12 +967,12 @@ void matrix_inplace_sub(matrix_type * A , const matrix_type * B) {
 void matrix_sub(matrix_type * A , const matrix_type * B , const matrix_type * C) {
   if ((A->rows == B->rows) && (A->columns == B->columns) && (A->rows == C->rows) && (A->columns == C->columns)) {
     int i,j;
-    
+
     for (j = 0; j < A->columns; j++)
       for (i=0; i < A->rows; i++)
         A->data[ GET_INDEX(A,i,j) ] = B->data[ GET_INDEX(B,i,j) ] - C->data[ GET_INDEX(B,i,j) ];
-    
-  } else 
+
+  } else
     util_abort("%s: size mismatch \n",__func__);
 }
 
@@ -933,24 +983,24 @@ void matrix_sub(matrix_type * A , const matrix_type * B , const matrix_type * C)
 void matrix_inplace_div(matrix_type * A , const matrix_type * B) {
   if ((A->rows == B->rows) && (A->columns == B->columns)) {
     int i,j;
-    
+
     for (j = 0; j < A->columns; j++)
       for (i=0; i < A->rows; i++)
         A->data[ GET_INDEX(A,i,j) ] /= B->data[ GET_INDEX(B,i,j) ];
-    
-  } else 
+
+  } else
     util_abort("%s: size mismatch \n",__func__);
 }
 
 
 /**
    Observe that A and T should not overlap, i.e. the call
-   
+
          matrix_transpose(X , X)
 
    will fail in mysterious ways.
 */
-        
+
 void matrix_transpose(const matrix_type * A , matrix_type * T) {
   if ((A->columns == T->rows) && (A->rows == T->columns)) {
     int i,j;
@@ -958,7 +1008,7 @@ void matrix_transpose(const matrix_type * A , matrix_type * T) {
       for (j=0; j < A->columns; j++) {
         size_t src_index    = GET_INDEX(A , i , j );
         size_t target_index = GET_INDEX(T , j , i );
-        
+
         T->data[ target_index ] = A->data[ src_index ];
       }
     }
@@ -978,8 +1028,8 @@ matrix_type * matrix_alloc_transpose( const matrix_type * A) {
 /**
    For this function to work the following must be satisfied:
 
-     columns in A == rows in B == columns in B 
-  
+     columns in A == rows in B == columns in B
+
    For general matrix multiplactions where A = B * C all have
    different dimensions you can use matrix_matmul() (which calls the
    BLAS routine dgemm());
@@ -990,18 +1040,18 @@ void matrix_inplace_matmul(matrix_type * A, const matrix_type * B) {
   if ((A->columns == B->rows) && (B->rows == B->columns)) {
     double * tmp = util_malloc( sizeof * A->data * A->columns );
     int i,j,k;
-    
+
     for (i=0; i < A->rows; i++) {
-      
+
       /* Clearing the tmp vector */
       for (k=0; k < B->rows; k++)
         tmp[k] = 0;
 
       for (j=0; j < B->rows; j++) {
         double scalar_product = 0;
-        for (k=0; k < A->columns; k++) 
+        for (k=0; k < A->columns; k++)
           scalar_product += A->data[ GET_INDEX(A,i,k) ] * B->data[ GET_INDEX(B,k,j) ];
-        
+
         /* Assign first to tmp[j] */
         tmp[j] = scalar_product;
       }
@@ -1044,11 +1094,11 @@ static void * matrix_inplace_matmul_mt__(void * arg) {
         argument set to false.
 
      2. The thread_pool has been joined __without__ an interevening
-        call to thread_pool_restart().  
-     
+        call to thread_pool_restart().
+
    If the thread_pool has not been correctly prepared, according to
    this specification, it will be crash and burn.
-*/      
+*/
 
 void matrix_inplace_matmul_mt2(matrix_type * A, const matrix_type * B , thread_pool_type * thread_pool){
   int num_threads  = thread_pool_get_max_running( thread_pool );
@@ -1059,31 +1109,31 @@ void matrix_inplace_matmul_mt2(matrix_type * A, const matrix_type * B , thread_p
     int rows       = matrix_get_rows( A ) / num_threads;
     int rows_mod   = matrix_get_rows( A ) % num_threads;
     int row_offset = 0;
-    
+
     for (it = 0; it < num_threads; it++) {
       int row_size;
       arglist[it] = arg_pack_alloc();
       row_size = rows;
       if (it < rows_mod)
         row_size += 1;
-      
+
       arg_pack_append_int(arglist[it] , row_offset );
       arg_pack_append_int(arglist[it] , row_size   );
       arg_pack_append_ptr(arglist[it] , A );
       arg_pack_append_const_ptr(arglist[it] , B );
-      
+
       thread_pool_add_job( thread_pool , matrix_inplace_matmul_mt__ , arglist[it]);
       row_offset += row_size;
     }
   }
   thread_pool_join( thread_pool );
-  
-  for (it = 0; it < num_threads; it++) 
+
+  for (it = 0; it < num_threads; it++)
     arg_pack_free( arglist[it] );
   free( arglist );
-} 
+}
 
-void matrix_inplace_matmul_mt1(matrix_type * A, const matrix_type * B , int num_threads){ 
+void matrix_inplace_matmul_mt1(matrix_type * A, const matrix_type * B , int num_threads){
   thread_pool_type  * thread_pool = thread_pool_alloc( num_threads , false );
   matrix_inplace_matmul_mt2( A , B , thread_pool );
   thread_pool_free( thread_pool );
@@ -1091,7 +1141,7 @@ void matrix_inplace_matmul_mt1(matrix_type * A, const matrix_type * B , int num_
 
 #else
 
-void matrix_inplace_matmul_mt1(matrix_type * A, const matrix_type * B , int num_threads){ 
+void matrix_inplace_matmul_mt1(matrix_type * A, const matrix_type * B , int num_threads){
   matrix_inplace_matmul( A , B );
 }
 
@@ -1168,14 +1218,14 @@ double matrix_get_column_sum2(const matrix_type * matrix , int column) {
 
 void matrix_shift_column(matrix_type * matrix , int column, double shift) {
   int i;
-  for ( i=0; i < matrix->rows; i++) 
+  for ( i=0; i < matrix->rows; i++)
     matrix->data[ GET_INDEX( matrix , i , column) ] += shift;
 }
 
 
 void matrix_shift_row(matrix_type * matrix , int row , double shift) {
    int j;
-  for ( j=0; j < matrix->columns; j++) 
+  for ( j=0; j < matrix->columns; j++)
     matrix->data[ GET_INDEX( matrix , row , j ) ] += shift;
 }
 
@@ -1188,7 +1238,7 @@ void matrix_shift_row(matrix_type * matrix , int row , double shift) {
 */
 
 void matrix_subtract_row_mean(matrix_type * matrix) {
-		int i; 
+		int i;
 		for ( i=0; i < matrix->rows; i++) {
     double row_mean = matrix_get_row_sum(matrix , i) / matrix->columns;
     matrix_shift_row( matrix , i , -row_mean);
@@ -1212,9 +1262,9 @@ void matrix_imul_col( matrix_type * matrix , int column , double factor) {
 
 
 /*****************************************************************/
-/** 
+/**
    This function will return the double data pointer of the matrix,
-   when you use this explicitly you ARE ON YOUR OWN. 
+   when you use this explicitly you ARE ON YOUR OWN.
 */
 
 double * matrix_get_data(const matrix_type * matrix) {
@@ -1249,7 +1299,7 @@ void matrix_get_dims(const matrix_type * matrix ,  int * rows , int * columns , 
   *columns       = matrix->columns;
   *row_stride    = matrix->row_stride;
   *column_stride = matrix->column_stride;
-  
+
 }
 
 
@@ -1282,8 +1332,8 @@ void matrix_assert_finite( const matrix_type * matrix ) {
   if (!matrix_is_finite( matrix )) {
     if ((matrix->rows * matrix->columns) < 400)
       matrix_pretty_fprint( matrix , matrix->name , " %6.3f" , stdout);
-    
-    util_abort("%s: matrix:%s is not finite. \n",__func__ , matrix->name); 
+
+    util_abort("%s: matrix:%s is not finite. \n",__func__ , matrix->name);
   }
 }
 
@@ -1296,7 +1346,7 @@ void matrix_assert_finite( const matrix_type * matrix ) {
    conditions for the matrix - i.e. when this function returns
    0.000000 the matrix is perfectly orthonormal; otherwise it is the
    responsability of the calling scope to evaluate.
-*/ 
+*/
 
 double matrix_orthonormality( const matrix_type * matrix ) {
   double max_dev = 0.0;
@@ -1310,7 +1360,7 @@ double matrix_orthonormality( const matrix_type * matrix ) {
         dev = fabs( dot_product - 1.0 );
       else
         dev = fabs( dot_product );
-      
+
       if (dev > max_dev)
         max_dev = dev;
     }
@@ -1326,14 +1376,14 @@ double matrix_orthonormality( const matrix_type * matrix ) {
    Return true if the two matrices m1 and m2 are equal. The equality
    test is based on element-by-element memcmp() comparison, i.e. the
    there is ZERO numerical tolerance in the comparison.
-   
-   If the two matrices do not have equal dimension false is returned. 
+
+   If the two matrices do not have equal dimension false is returned.
 */
 
 bool matrix_equal( const matrix_type * m1 , const matrix_type * m2) {
   if (! ((m1->rows == m2->rows) && (m1->columns == m2->columns)))
     return false;
-  {    
+  {
     int i,j;
     for (i=0; i < m1->rows; i++) {
       for (j=0; j < m1->columns; j++) {
@@ -1341,8 +1391,8 @@ bool matrix_equal( const matrix_type * m1 , const matrix_type * m2) {
         int index2 = GET_INDEX(m2 , i , j);
         double d1 = m1->data[ index1 ];
         double d2 = m2->data[ index2 ];
-        
-        if (d1 != d2) 
+
+        if (d1 != d2)
           return false;
       }
     }
@@ -1357,7 +1407,7 @@ bool matrix_columns_equal( const matrix_type * m1 , int col1 , const matrix_type
   if (m1->rows != m2->rows)
     return false;
 
-  {    
+  {
     int row;
     for (row=0; row < m1->rows; row++) {
       if (memcmp( &m1->data[ GET_INDEX(m1 , row , col1)]  , &m2->data[ GET_INDEX(m2 , row , col2)] , sizeof * m1->data) != 0)
@@ -1373,7 +1423,7 @@ bool matrix_columns_equal( const matrix_type * m1 , int col1 , const matrix_type
 /* Various special matrices */
 
 
-/** 
+/**
     Will set the diagonal elements in matrix to the values in diag,
     and all remaining elements to zero. Assumes that matrix is
     rectangular.
@@ -1392,7 +1442,7 @@ void matrix_diag_set(matrix_type * matrix , const double * diag) {
 
 /**
    Will set the scalar @value on all the diagonal elements of the
-   matrix; all off-diagonal elements are explicitly set to zero.  
+   matrix; all off-diagonal elements are explicitly set to zero.
 */
 
 void matrix_diag_set_scalar(matrix_type * matrix , double value) {
@@ -1459,8 +1509,8 @@ void matrix_clear( matrix_type * matrix ) {
      m    = fread(fid , [dims(1) , dims(2)] , 'double');
      fclose(fid);
 
-   
-   >> A = load_matrix( 'filename' ); 
+
+   >> A = load_matrix( 'filename' );
 */
 
 
@@ -1480,9 +1530,9 @@ void matrix_matlab_dump(const matrix_type * matrix, const char * filename) {
 
 // Comment
 void matrix_inplace_diag_sqrt(matrix_type *Cd)
-{ 
+{
   int nrows = Cd->rows;
-    
+
   if (Cd->rows != Cd->columns) {
     util_abort("%s: size mismatch \n",__func__);
   }
@@ -1490,10 +1540,10 @@ void matrix_inplace_diag_sqrt(matrix_type *Cd)
     int i;
     for ( i=0; i<nrows; i++)
       {
-        Cd->data[GET_INDEX(Cd , i , i)] = sqrt(Cd->data[GET_INDEX(Cd , i , i)]); 
+        Cd->data[GET_INDEX(Cd , i , i)] = sqrt(Cd->data[GET_INDEX(Cd , i , i)]);
       }
   }
-}                                 
+}
 
 
 
@@ -1501,7 +1551,7 @@ double matrix_trace(const matrix_type *matrix) {
 
   int nrows  = matrix->rows;
   double sum = 0;
-    
+
   if (matrix->rows != matrix->columns) {
     util_abort("%s: matrix is not square \n",__func__);
   }
@@ -1509,7 +1559,7 @@ double matrix_trace(const matrix_type *matrix) {
     int i;
     for ( i=0; i<nrows; i++)
       {
-        sum = sum + matrix->data[GET_INDEX(matrix , i , i)]; 
+        sum = sum + matrix->data[GET_INDEX(matrix , i , i)];
       }
   }
   return sum;
@@ -1535,13 +1585,13 @@ double matrix_diag_std(const matrix_type * Sk,double mean)
     int nrows  = Sk->rows;
     double std = 0;
     int i;
-    
+
     for ( i=0; i<nrows; i++) {
       double d = Sk->data[GET_INDEX(Sk , i , i)] - mean;
       std += d*d;
     }
 
-    
+
     std = sqrt(std / nrows);
     return std;
   }
@@ -1564,7 +1614,7 @@ double matrix_det2( const matrix_type * A) {
 
     return a00 * a11 - a10 * a01;
   } else {
-    util_abort("%s: hardcoded for 2x2 matrices A is: %d x %d \n",__func__, A->rows , A->columns); 
+    util_abort("%s: hardcoded for 2x2 matrices A is: %d x %d \n",__func__, A->rows , A->columns);
     return 0;
   }
 }
@@ -1582,10 +1632,10 @@ double matrix_det3( const matrix_type * A) {
     double g = A->data[GET_INDEX(A,2,0)];
     double h = A->data[GET_INDEX(A,2,1)];
     double i = A->data[GET_INDEX(A,2,2)];
-    
+
     return a*e*i + b*f*g + c*d*h - c*e*g - b*d*i - a*f*h;
   } else {
-    util_abort("%s: hardcoded for 3x3 matrices A is: %d x %d \n",__func__, A->rows , A->columns); 
+    util_abort("%s: hardcoded for 3x3 matrices A is: %d x %d \n",__func__, A->rows , A->columns);
     return 0;
   }
 }
@@ -1609,11 +1659,11 @@ double matrix_det4( const matrix_type * A) {
     double a31 = A->data[GET_INDEX(A,3,1)];
     double a32 = A->data[GET_INDEX(A,3,2)];
     double a33 = A->data[GET_INDEX(A,3,3)];
-    
+
     /*
     double det = (a00*(a11*(a22*a33 - a23*a32)-a12*(a21*a33 - a23*a31)+a13*(a21*a32 - a22*a31)) -
-                  a01*(a10*(a22*a33 - a23*a32)-a12*(a20*a33 - a23*a30)+a13*(a20*a32 - a22*a30)) + 
-                  a02*(a10*(a21*a33 - a23*a31)-a11*(a20*a33 - a23*a30)+a13*(a20*a31 - a21*a30)) - 
+                  a01*(a10*(a22*a33 - a23*a32)-a12*(a20*a33 - a23*a30)+a13*(a20*a32 - a22*a30)) +
+                  a02*(a10*(a21*a33 - a23*a31)-a11*(a20*a33 - a23*a30)+a13*(a20*a31 - a21*a30)) -
                   a03*(a10*(a21*a32 - a22*a31)-a11*(a20*a32 - a22*a30)+a12*(a20*a31 - a21*a30)));
     */
     double det = 0;
@@ -1630,28 +1680,28 @@ double matrix_det4( const matrix_type * A) {
                                a02*a13*a20*a31,
                                a03*a10*a22*a31,
                                a03*a11*a20*a32,
-                               a03*a12*a21*a30 
+                               a03*a12*a21*a30
                               -a02*a13*a21*a30,
-                              -a03*a10*a21*a32, 
-                              -a03*a11*a22*a30, 
-                              -a03*a12*a20*a31, 
+                              -a03*a10*a21*a32,
+                              -a03*a11*a22*a30,
+                              -a03*a12*a20*a31,
                               -a00*a11*a23*a32,
                               -a00*a12*a21*a33,
                               -a00*a13*a22*a31,
-                              -a01*a10*a22*a33, 
-                              -a01*a12*a23*a30, 
-                              -a01*a13*a20*a32, 
-                              -a02*a10*a23*a31, 
+                              -a01*a10*a22*a33,
+                              -a01*a12*a23*a30,
+                              -a01*a13*a20*a32,
+                              -a02*a10*a23*a31,
                               -a02*a11*a20*a33};
       int i;
 
-      for (i = 0; i < 12; i++) 
+      for (i = 0; i < 12; i++)
         det += (factors[i] + factors[i + 12]);
     }
-    
+
     return det;
   } else {
-    util_abort("%s: hardcoded for 4x4 matrices A is: %d x %d \n",__func__, A->rows , A->columns); 
+    util_abort("%s: hardcoded for 4x4 matrices A is: %d x %d \n",__func__, A->rows , A->columns);
     return 0;
   }
 }

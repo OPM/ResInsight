@@ -30,11 +30,11 @@
 int main(int argc , char ** argv) {
   test_install_SIGNALS();
 
-  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_UNDOCUMENTED_ZERO) , UNDOCUMENTED_ZERO);
-  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_PRODUCER) , PRODUCER);
-  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_WATER_INJECTOR) , WATER_INJECTOR);
-  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_GAS_INJECTOR)   , GAS_INJECTOR);
-  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_OIL_INJECTOR)   , OIL_INJECTOR);
+  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_UNDOCUMENTED_ZERO) , ERT_UNDOCUMENTED_ZERO);
+  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_PRODUCER) , ERT_PRODUCER);
+  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_WATER_INJECTOR) , ERT_WATER_INJECTOR);
+  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_GAS_INJECTOR)   , ERT_GAS_INJECTOR);
+  test_assert_int_equal( well_state_translate_ecl_type_int( IWEL_OIL_INJECTOR)   , ERT_OIL_INJECTOR);
   
   {
     const char * well_name = "WELL";
@@ -42,7 +42,7 @@ int main(int argc , char ** argv) {
     int global_well_nr = 67;
     time_t valid_from = -1;
     bool open = false;
-    well_type_enum type = GAS_INJECTOR;
+    well_type_enum type = ERT_GAS_INJECTOR;
 
     well_state_type * well_state = well_state_alloc(well_name , global_well_nr , open , type , report_nr , valid_from);
     test_assert_true( well_state_is_instance( well_state) );

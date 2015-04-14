@@ -95,17 +95,30 @@ class StateMap(BaseCClass):
         StateMap.cNamespace().select_matching(self, select_target, select_mask)
 
 
+    def realizationList(self , state_value):
+        """
+        Will create a list of all realisations with state equal to state_value.
+
+        @type state_value: RealizationStateEnum
+        @rtype: ert.util.IntVector
+        """
+        mask = BoolVector(False, len(self))
+        self.selectMatching(mask, state_value)
+        return BoolVector.createActiveList(mask)
+
+
+
     def free(self):
         StateMap.cNamespace().free(self)
 
     
     def load(self,filename):
-        if not self.cNamespace().fread( self , filename):
+        if not self.cNamespace().fread(self, filename):
             raise IOError("Failed to load state map from:%s" % filename)
 
 
-    def save(self,filename):
-        self.cNamespace().fwrite( self , filename)        
+    def save(self, filename):
+        self.cNamespace().fwrite(self, filename)
 
 
 

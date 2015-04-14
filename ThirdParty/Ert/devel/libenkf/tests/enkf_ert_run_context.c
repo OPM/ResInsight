@@ -30,8 +30,6 @@ void test_create() {
   bool_vector_iset( iactive , 8 , false );
   {
     enkf_fs_type * init_fs = NULL;
-    enkf_fs_type * result_fs = NULL;
-    enkf_fs_type * update_target_fs = NULL;
     subst_list_type * subst_list = subst_list_alloc( NULL );
     path_fmt_type * runpath_fmt = path_fmt_alloc_directory_fmt("/tmp/path/%04d");
     ert_run_context_type * context = ert_run_context_alloc_INIT_ONLY( init_fs ,  iactive , runpath_fmt , subst_list , INIT_CONDITIONAL , 13 );

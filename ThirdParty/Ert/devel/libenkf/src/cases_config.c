@@ -24,7 +24,7 @@
 #include <ert/util/util.h>
 #include <ert/util/stringlist.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 
 #include <ert/enkf/enkf_defaults.h>
 #include <ert/enkf/config_keys.h>

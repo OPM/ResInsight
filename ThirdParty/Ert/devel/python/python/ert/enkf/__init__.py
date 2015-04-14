@@ -16,6 +16,16 @@
 
 
 import ert.cwrap.clib as clib
+import ert.util
+import ert.geo
+import ert.ecl
+import ert.rms
+import ert.analysis
+import ert.sched
+import ert.config
+import ert.job_queue
+
+
 
 ENKF_LIB = clib.ert_load("libenkf")
 
@@ -26,6 +36,8 @@ from .node_id import NodeId
 from .enkf_linalg import EnkfLinalg
 from .util import TimeMap
 from .state_map import StateMap
+from .summary_key_set import SummaryKeySet
+from .summary_key_matcher import SummaryKeyMatcher
 from .enkf_fs import EnkfFs
 
 from .ert_workflow_list import ErtWorkflowList
@@ -34,7 +46,9 @@ from .observations import SummaryObservation, ObsVector
 
 from .local_obsdata_node import LocalObsdataNode
 from .local_obsdata import LocalObsdata
+from .obs_block import ObsBlock
 from .obs_data import ObsData
+from .meas_block import MeasBlock
 from .meas_data import MeasData
 
 from .analysis_iter_config import AnalysisIterConfig
@@ -42,16 +56,17 @@ from .analysis_config import AnalysisConfig
 from .ecl_config import EclConfig
 
 from .data import *
-
+from .custom_kw_config_set import CustomKWConfigSet
 from .enkf_obs import EnkfObs
 from .enkf_state import EnKFState
-from .ens_config import EnsConfig
+from .ensemble_config import EnsembleConfig
 from .ert_template import ErtTemplate
 from .ert_templates import ErtTemplates
 from .local_config import LocalConfig
 from .model_config import ModelConfig
 from .plot_config import PlotConfig
 from .site_config import SiteConfig
+from .runpath_list import RunpathList, RunpathNode
 from .post_simulation_hook import PostSimulationHook
 
 from .enkf_simulation_runner import EnkfSimulationRunner
@@ -63,3 +78,4 @@ from .ert_log import ErtLog
 
 
 from ert.job_queue import ErtScript as ErtScript
+from ert.job_queue import ErtPlugin as ErtPlugin, CancelPluginException as CancelPluginException

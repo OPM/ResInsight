@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_smspec.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_smspec.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <string.h>
@@ -42,9 +42,9 @@
 
 
 /**
-   This file implements the indexing into the ECLIPSE summary files. 
+   This file implements the indexing into the ECLIPSE summary files.
 */
-   
+
 /*
   Supporting a new variable type:
   -------------------------------
@@ -68,7 +68,7 @@
       specfic lookup method has seen less use[*]. The final step in
       supporting a new variable is to update the function
       ecl_smspec_fread_header().
-      
+
       If you want to support specific lookup of the new variable type you
       must add the necessary datastructures to the ecl_smspec_struct
       structure and then subsequently fill that structure in the big
@@ -88,7 +88,7 @@
 
  */
 
-      
+
 
 #define ECL_SMSPEC_ID          806647
 #define PARAMS_GLOBAL_DEFAULT  -99
@@ -105,10 +105,10 @@ struct ecl_smspec_struct {
   hash_type          * well_var_index;             /* Indexes for all well variables: {well1: {var1: index1 , var2: index2} , well2: {var1: index1 , var2: index2}} */
   hash_type          * well_completion_var_index;  /* Indexes for completion indexes .*/
   hash_type          * group_var_index;            /* Indexes for group variables.*/
-  hash_type          * field_var_index;               
+  hash_type          * field_var_index;
   hash_type          * region_var_index;           /* The stored index is an offset. */
   hash_type          * misc_var_index;             /* Variables like 'TCPU' and 'NEWTON'. */
-  hash_type          * block_var_index;            /* Block variables like BPR */ 
+  hash_type          * block_var_index;            /* Block variables like BPR */
   hash_type          * gen_var_index;              /* This is "everything" - things can either be found as gen_var("WWCT:OP_X") or as well_var("WWCT" , "OP_X") */
 
 
@@ -120,11 +120,11 @@ struct ecl_smspec_struct {
 
   /*-----------------------------------------------------------------*/
 
-  int               grid_dims[3];                 /* Grid dimensions - in DIMENS[1,2,3] */ 
+  int               grid_dims[3];                 /* Grid dimensions - in DIMENS[1,2,3] */
   int               num_regions;
   int               Nwells , param_offset;
   int               params_size;
-  const char      * key_join_string;               /* The string used to join keys when building gen_key keys - typically ":" - 
+  const char      * key_join_string;               /* The string used to join keys when building gen_key keys - typically ":" -
                                                       but arbitrary - NOT necessary to be able to invert the joining. */
   char            * header_file;                   /* FULL path to the currenbtly loaded header_file. */
 
@@ -132,13 +132,13 @@ struct ecl_smspec_struct {
   time_t              sim_start_time;                /* When did the simulation start - worldtime. */
 
   int                 time_index;                    /* The fields time_index, day_index, month_index and year_index */
-  int                 day_index;                     /* are used by the ecl_sum_data object to locate per. timestep */  
-  int                 month_index;                   /* time information. */ 
+  int                 day_index;                     /* are used by the ecl_sum_data object to locate per. timestep */
+  int                 month_index;                   /* time information. */
   int                 year_index;
   bool                has_lgr;
   float_vector_type * params_default;
-  
-  stringlist_type   * restart_list;                  /* List of ECLBASE names of restart files this case has been restarted from (if any). */ 
+
+  stringlist_type   * restart_list;                  /* List of ECLBASE names of restart files this case has been restarted from (if any). */
 };
 
 
@@ -186,13 +186,13 @@ general_var:
 VAR_TYPE:(WELL_NAME|GROUP_NAME|NUMBER):NUMBER
 
 Field var:         VAR_TYPE
-Misc var:          VAR_TYPE  
+Misc var:          VAR_TYPE
 Well var:          VAR_TYPE:WELL_NAME
 Group var:         VAR_TYPE:GROUP_NAME
 Block var:         VAR_TYPE:i,j,k  (where i,j,k is calculated form NUM)
 Region var         VAR_TYPE:index  (where index is NOT from the nums vector, it it is just an offset).
 Completion var:    VAR_TYPE:WELL_NAME:NUM
-.... 
+....
 
 */
 
@@ -202,7 +202,7 @@ Completion var:    VAR_TYPE:WELL_NAME:NUM
    types, when the kewyord name is in conflict with the default vector
    naming convention; all the variables mentioned in the list below
    are given the type ECL_SMSPEC_MISC_VAR.
-   
+
    For instance the keyword 'NEWTON' starts with 'N' and is
    classified as a NETWORK type variable. However it should rather
    be classified as a MISC type variable. (What a fucking mess).
@@ -220,6 +220,21 @@ static const char* special_vars[] = {"NEWTON",
                                      "MAXDSW",
                                      "STEPTYPE"};
 
+
+/*
+  The smspec_required_keywords variable contains a list of keywords
+  which are *absolutely* required in the SMSPEC file, but observe that
+  depending on the content of the "KEYWORDS" array other keywords
+  might bre requred as well - this typically includes the NUMS
+  keyword. Such 'second-order' dependencies are not accounted for with
+  this simple list.
+*/
+
+static const char* smspec_required_keywords[] = {WGNAMES_KW,
+                                                 KEYWORDS_KW,
+                                                 STARTDAT_KW,
+                                                 UNITS_KW,
+                                                 DIMENS_KW};
 
 
 /*****************************************************************/
@@ -240,15 +255,15 @@ static ecl_smspec_type * ecl_smspec_alloc_empty(bool write_mode , const char * k
   ecl_smspec->sim_start_time                 = -1;
   ecl_smspec->key_join_string                = key_join_string;
   ecl_smspec->header_file                    = NULL;
-  
+
   ecl_smspec->smspec_nodes                   = vector_alloc_new();
-  
+
   ecl_smspec->time_index  = -1;
   ecl_smspec->day_index   = -1;
   ecl_smspec->year_index  = -1;
   ecl_smspec->month_index = -1;
   ecl_smspec->locked      = false;
-  
+
   ecl_smspec->index_map = int_vector_alloc(0,0);
   ecl_smspec->restart_list = stringlist_alloc_new();
   ecl_smspec->params_default = float_vector_alloc(0 , PARAMS_GLOBAL_DEFAULT);
@@ -306,7 +321,7 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
     int i;
     for (i=0; i < SUMMARY_RESTART_SIZE; i++)
       ecl_kw_iset_string8( restart_kw , i , "");
-    
+
     ecl_kw_fwrite( restart_kw , fortio );
     ecl_kw_free( restart_kw );
   }
@@ -331,7 +346,7 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
     ecl_kw_type * wgnames_kw  = ecl_kw_alloc( WGNAMES_KW  , num_nodes , ECL_CHAR_TYPE );
     ecl_kw_type * units_kw    = ecl_kw_alloc( UNITS_KW    , num_nodes , ECL_CHAR_TYPE );
     ecl_kw_type * nums_kw     = NULL;
-    
+
     if (smspec->need_nums)
       nums_kw = ecl_kw_alloc( NUMS_KW , num_nodes , ECL_INT_TYPE);
     {
@@ -383,8 +398,8 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
     if (nums_kw != NULL)
       ecl_kw_fwrite( nums_kw , fortio );
     ecl_kw_fwrite( units_kw , fortio );
-    
-    
+
+
     ecl_kw_free( keywords_kw );
     ecl_kw_free( wgnames_kw );
     ecl_kw_free( units_kw );
@@ -396,11 +411,11 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
     ecl_kw_type * startdat_kw = ecl_kw_alloc( STARTDAT_KW , STARTDAT_SIZE , ECL_INT_TYPE );
     int day,month,year;
     util_set_date_values( smspec->sim_start_time , &day, &month , &year);
-    
+
     ecl_kw_iset_int( startdat_kw , STARTDAT_DAY_INDEX   , day );
     ecl_kw_iset_int( startdat_kw , STARTDAT_MONTH_INDEX , month );
     ecl_kw_iset_int( startdat_kw , STARTDAT_YEAR_INDEX  , year );
-    
+
     ecl_kw_fwrite( startdat_kw , fortio );
     ecl_kw_free( startdat_kw );
   }
@@ -410,30 +425,30 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
 void ecl_smspec_fwrite( const ecl_smspec_type * smspec , const char * ecl_case , bool fmt_file ) {
   char * filename = ecl_util_alloc_filename( NULL , ecl_case , ECL_SUMMARY_HEADER_FILE , fmt_file , 0 );
   fortio_type * fortio = fortio_open_writer( filename , fmt_file , ECL_ENDIAN_FLIP);
-  
+
   ecl_smspec_fortio_fwrite( smspec , fortio );
-  
+
   fortio_fclose( fortio );
   free( filename );
 }
 
 ecl_smspec_type * ecl_smspec_alloc_writer( const char * key_join_string , time_t sim_start , int nx , int ny , int nz) {
   ecl_smspec_type * ecl_smspec = ecl_smspec_alloc_empty( true , key_join_string );
-  
+
   ecl_smspec->grid_dims[0] = nx;
   ecl_smspec->grid_dims[1] = ny;
   ecl_smspec->grid_dims[2] = nz;
   ecl_smspec->sim_start_time = sim_start;
-  
+
   {
-    smspec_node_type * time_node = smspec_node_alloc( ECL_SMSPEC_MISC_VAR , 
-                                                      NULL , 
-                                                      "TIME" , 
+    smspec_node_type * time_node = smspec_node_alloc( ECL_SMSPEC_MISC_VAR ,
+                                                      NULL ,
+                                                      "TIME" ,
                                                       "DAYS" , // There are significant hardcoded assumptions of days around; would have been cool to be able to set seconds.
-                                                      key_join_string , 
-                                                      ecl_smspec->grid_dims , 
-                                                      0  , 
-                                                      -1 ,    
+                                                      key_join_string ,
+                                                      ecl_smspec->grid_dims ,
+                                                      0  ,
+                                                      -1 ,
                                                       0 );
     ecl_smspec_add_node( ecl_smspec , time_node );
     ecl_smspec->time_index = smspec_node_get_params_index( time_node );
@@ -468,12 +483,12 @@ static ecl_smspec_var_type ecl_smspec_identify_special_var( const char * var ) {
       break;
     }
   }
-  
+
   return var_type;
 }
 
 
-/* 
+/*
    See table 3.4 in the ECLIPSE file format reference manual.
 
    Observe that the combined ecl_sum style keys like e.g. WWCT:OP1
@@ -485,7 +500,7 @@ static ecl_smspec_var_type ecl_smspec_identify_special_var( const char * var ) {
 
 ecl_smspec_var_type  ecl_smspec_identify_var_type(const char * var) {
   ecl_smspec_var_type var_type = ecl_smspec_identify_special_var( var );
-  int str_length = strlen(var); 
+  int str_length = strlen(var);
   if (var_type == ECL_SMSPEC_INVALID_VAR) {
     switch(var[0]) {
     case('A'):
@@ -529,7 +544,7 @@ ecl_smspec_var_type  ecl_smspec_identify_var_type(const char * var) {
       var_type = ECL_SMSPEC_NETWORK_VAR;
       break;
     case('R'):
-      if (((3 == str_length) && var[2] == 'F') || 
+      if (((3 == str_length) && var[2] == 'F') ||
           ((4 == str_length) && var[3] == 'F')) {
        var_type  = ECL_SMSPEC_REGION_2_REGION_VAR;
       }
@@ -559,7 +574,7 @@ static bool ecl_smspec_lgr_var_type( ecl_smspec_var_type var_type) {
   if ((var_type == ECL_SMSPEC_LOCAL_BLOCK_VAR) ||
       (var_type == ECL_SMSPEC_LOCAL_WELL_VAR) ||
       (var_type == ECL_SMSPEC_LOCAL_COMPLETION_VAR))
-    
+
     return true;
   else
     return false;
@@ -646,10 +661,10 @@ static int ecl_smspec_get_global_grid_index(const ecl_smspec_type * smspec , int
 /**
    This function takes a fully initialized smspec_node instance, generates the
    corresponding key and inserts smspec_node instance in the main hash table
-   smspec->gen_var_index. 
+   smspec->gen_var_index.
 
    The format strings used, i.e. VAR:WELL for well based variables is implicitly
-   defined through the format strings used in this function.  
+   defined through the format strings used in this function.
 */
 
 static void ecl_smspec_install_gen_keys( ecl_smspec_type * smspec , smspec_node_type * smspec_node ) {
@@ -663,17 +678,17 @@ static void ecl_smspec_install_gen_keys( ecl_smspec_type * smspec , smspec_node_
   /* Insert the (optional) extra mapping for block related variables and region_2_region variables: */
   {
     const char * gen_key2 = smspec_node_get_gen_key2( smspec_node );
-    if (gen_key2 != NULL) 
+    if (gen_key2 != NULL)
       hash_insert_ref(smspec->gen_var_index , gen_key2 , smspec_node);
   }
 }
 
 static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node) {
-  /** 
+  /**
       This large switch is for installing keys which have custom lookup
       paths, in addition to the lookup based on general keys. Examples
-      of this is e.g. well variables which can be looked up through: 
-      
+      of this is e.g. well variables which can be looked up through:
+
       ecl_smspec_get_well_var_index( smspec , well_name , var );
   */
 
@@ -682,7 +697,7 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
   const int num                = smspec_node_get_num(smspec_node);
   const char * keyword         = smspec_node_get_keyword(smspec_node);
   ecl_smspec_var_type var_type = smspec_node_get_var_type( smspec_node );
-  
+
   switch(var_type) {
   case(ECL_SMSPEC_COMPLETION_VAR):
     /* Three level indexing: variable -> well -> string(cell_nr)*/
@@ -715,7 +730,7 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
     }
     break;
   case(ECL_SMSPEC_REGION_VAR):
-    if (!hash_has_key(ecl_smspec->region_var_index , keyword)) 
+    if (!hash_has_key(ecl_smspec->region_var_index , keyword))
       hash_insert_hash_owned_ref( ecl_smspec->region_var_index , keyword , hash_alloc() , hash_free__);
     {
       hash_type * var_hash = hash_get(ecl_smspec->region_var_index , keyword);
@@ -748,7 +763,7 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
       hash_insert_ref(block_hash , block_nr , smspec_node);
     }
     break;
-    /** 
+    /**
         The variables below are ONLY accesable through the gen_key
         setup; but the must be mentioned in this switch statement,
         otherwise they will induce a hard failure in the default: target
@@ -769,7 +784,7 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
     break;
   }
 }
-  
+
 /**
    The usage of this functon breaks down completely if LGR's are involved.
 */
@@ -858,7 +873,7 @@ static bool ecl_smspec_kw_equal(const ecl_file_type * header , const ecl_file_ty
     if (ecl_file_has_kw( header , kw)) {
       ecl_kw_type *ecl_kw1  = ecl_file_iget_named_kw(header, kw , 0);
       ecl_kw_type *ecl_kw2  = ecl_file_iget_named_kw(restart_header, kw , 0);
-      
+
       return ecl_kw_block_equal( ecl_kw1 , ecl_kw2 , cmp_elements);
     } else
       return true;  // None of the headers have this keyword - that is equality!
@@ -872,7 +887,7 @@ static bool ecl_smspec_kw_equal(const ecl_file_type * header , const ecl_file_ty
    historical results is not internalized, i.e. it is essential that
    the historical case has identical header as the main case. This
    function compares the ecl_file represeantation of two SMSPEC
-   headers. 
+   headers.
 
    Unfortunately there are legitimate reasons why some of the headers
    can be different; in particular new well can appear. In the code
@@ -883,19 +898,19 @@ static bool ecl_smspec_kw_equal(const ecl_file_type * header , const ecl_file_ty
 static bool ecl_smspec_file_equal( const ecl_file_type * header1 , const ecl_file_type * header2) {
   if (! ecl_smspec_kw_equal( header1 , header2 , KEYWORDS_KW , 0))
     return false;
-  
+
   if (! ecl_smspec_kw_equal( header1 , header2 , STARTDAT_KW , 0))
     return false;
 
   if (! ecl_smspec_kw_equal( header1 , header2 , UNITS_KW , 0))
     return false;
-  
+
   if (! ecl_smspec_kw_equal( header1 , header2 , DIMENS_KW , 4))  // Only the first four elements are compared.
     return false;
-  
+
   if (!ecl_smspec_kw_equal( header1, header2 , LGRS_KW , 0))
     return false;
-  
+
   return true;
 }
 
@@ -903,7 +918,7 @@ static bool ecl_smspec_file_equal( const ecl_file_type * header1 , const ecl_fil
 /**
    This will iterate backwards through the RESTART header in the
    SMSPEC files to find names of the case(s) this case has been
-   restarted from. 
+   restarted from.
 
    The case names are internalized in the restart_list field of the
    ecl_smspec instance. The actual loading of the restart summary data
@@ -917,9 +932,9 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
     char * restart_base;
     int i;
     tmp_base[0] = '\0';
-    for (i=0; i < ecl_kw_get_size( restart_kw ); i++) 
+    for (i=0; i < ecl_kw_get_size( restart_kw ); i++)
       strcat( tmp_base , ecl_kw_iget_ptr( restart_kw , i ));
-    
+
     restart_base = util_alloc_strip_copy( tmp_base );
     if (strlen(restart_base)) {  /* We ignore the empty ones. */
       char * path;
@@ -927,27 +942,29 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
 
       util_alloc_file_components( ecl_smspec->header_file , &path , NULL , NULL );
       smspec_header = ecl_util_alloc_exfilename( path , restart_base , ECL_SUMMARY_HEADER_FILE , ecl_smspec->formatted , 0);
-      if (smspec_header == NULL) 
+      if (smspec_header == NULL)
         fprintf(stderr,"Warning - the header file: %s refers to restart from case: %s - which was not found.... \n", ecl_smspec->header_file , restart_base);
-      
+
       else {
         if (!util_same_file(smspec_header , ecl_smspec->header_file)) {   /* Restart from the current case is ignored. */
-          /* 
+          /*
              Verify that this smspec_header is not already in the list of restart
              cases. Don't know if this is at all possible, but this test
              nevertheless prevents against a recursive death.
           */
           if (!stringlist_contains( ecl_smspec->restart_list , restart_base)) {
             ecl_file_type * restart_header = ecl_file_open( smspec_header , 0);
-            
-            if (ecl_smspec_file_equal( header , restart_header)) {
-              stringlist_insert_copy( ecl_smspec->restart_list , 0 , restart_base );
-              ecl_smspec_load_restart( ecl_smspec , restart_header);   /* Recursive call */ 
-            } else 
-              fprintf(stderr,"** Warning: the historical case: %s is not compatible with the current case - ignored.\n" , 
-                      ecl_file_get_src_file( restart_header));
-            
-            ecl_file_close( restart_header );
+            if (restart_header) {
+              if (ecl_smspec_file_equal( header , restart_header)) {
+                stringlist_insert_copy( ecl_smspec->restart_list , 0 , restart_base );
+                ecl_smspec_load_restart( ecl_smspec , restart_header);   /* Recursive call */
+              } else
+                fprintf(stderr,"** Warning: the historical case: %s is not compatible with the current case - ignored.\n" ,
+                        ecl_file_get_src_file( restart_header));
+
+              ecl_file_close( restart_header );
+            } else
+              fprintf(stderr,"** Warning: failed to historical case:%s - ignored.\n", smspec_header);
           }
         }
       }
@@ -958,13 +975,13 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
   }
 }
 
-  
+
 
 void ecl_smspec_index_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node) {
   /*
     It is possible crate a node which is not fully specified, e.g. the
     well or group name can be left at NULL. In that case the node is
-    not installed in the different indexes. 
+    not installed in the different indexes.
   */
   // var_type == ECL_SMSPEC_INVALID_VAR??
   if (smspec_node_get_gen_key1( smspec_node ) != NULL) {
@@ -983,27 +1000,27 @@ static void ecl_smspec_set_params_size( ecl_smspec_type * ecl_smspec , int param
 
 
 
-void ecl_smspec_insert_node(ecl_smspec_type * ecl_smspec, smspec_node_type * smspec_node){ 
+void ecl_smspec_insert_node(ecl_smspec_type * ecl_smspec, smspec_node_type * smspec_node){
   if (!ecl_smspec->locked) {
     int internal_index = vector_get_size( ecl_smspec->smspec_nodes );
-    
+
     /* This IF test should only apply in write_mode. */
     if (smspec_node_get_params_index( smspec_node ) < 0) {
       if (!ecl_smspec->write_mode)
         util_abort("%s: internal error \n",__func__);
       smspec_node_set_params_index( smspec_node , internal_index);
-      
+
       if (internal_index >= ecl_smspec->params_size)
         ecl_smspec_set_params_size( ecl_smspec , internal_index + 1);
     }
     vector_append_owned_ref( ecl_smspec->smspec_nodes , smspec_node , smspec_node_free__ );
-    
+
     {
       int params_index = smspec_node_get_params_index( smspec_node );
-      
+
       /* This indexing must be used when writing. */
       int_vector_iset( ecl_smspec->index_map , internal_index , params_index);
-      
+
       float_vector_iset( ecl_smspec->params_default , params_index , smspec_node_get_default(smspec_node) );
     }
   } else
@@ -1030,12 +1047,25 @@ const int_vector_type * ecl_smspec_get_index_map( const ecl_smspec_type * smspec
   return smspec->index_map;
 }
 
+static bool ecl_smspec_check_header( ecl_file_type * header ) {
+  bool OK = true;
+  int num_required = sizeof( smspec_required_keywords ) / sizeof( smspec_required_keywords[0] );
+  int i;
+
+  for (i=0; i < num_required; i++) {
+    if (!ecl_file_has_kw( header , smspec_required_keywords[i])) {
+      OK = false;
+      break;
+    }
+  }
+
+  return OK;
+}
 
 
-
-static void ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * header_file , bool include_restart) {
+static bool ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * header_file , bool include_restart) {
   ecl_file_type * header = ecl_file_open( header_file , 0);
-  {
+  if (header && ecl_smspec_check_header( header )) {
     ecl_kw_type *wells     = ecl_file_iget_named_kw(header, WGNAMES_KW  , 0);
     ecl_kw_type *keywords  = ecl_file_iget_named_kw(header, KEYWORDS_KW , 0);
     ecl_kw_type *startdat  = ecl_file_iget_named_kw(header, STARTDAT_KW , 0);
@@ -1048,17 +1078,17 @@ static void ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
     ecl_kw_type *numlz     = NULL;
     int params_index;
     ecl_smspec->num_regions     = 0;
-    if (startdat == NULL) 
+    if (startdat == NULL)
       util_abort("%s: could not locate STARTDAT keyword in header - aborting \n",__func__);
-    
+
     if (ecl_file_has_kw(header , NUMS_KW))
       nums = ecl_file_iget_named_kw(header , NUMS_KW , 0);
-    
+
     if (ecl_file_has_kw( header , LGRS_KW )) {/* The file has LGR information. */
       lgrs  = ecl_file_iget_named_kw( header , LGRS_KW  , 0 );
-      numlx = ecl_file_iget_named_kw( header , NUMLX_KW , 0 ); 
-      numly = ecl_file_iget_named_kw( header , NUMLY_KW , 0 ); 
-      numlz = ecl_file_iget_named_kw( header , NUMLZ_KW , 0 ); 
+      numlx = ecl_file_iget_named_kw( header , NUMLX_KW , 0 );
+      numly = ecl_file_iget_named_kw( header , NUMLY_KW , 0 );
+      numlz = ecl_file_iget_named_kw( header , NUMLZ_KW , 0 );
       ecl_smspec->has_lgr = true;
     } else
       ecl_smspec->has_lgr = false;
@@ -1069,14 +1099,14 @@ static void ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
           date[STARTDAT_MONTH_INDEX] ,
           date[STARTDAT_YEAR_INDEX]);
     }
-    
+
     ecl_smspec->grid_dims[0] = ecl_kw_iget_int(dimens , DIMENS_SMSPEC_NX_INDEX );
     ecl_smspec->grid_dims[1] = ecl_kw_iget_int(dimens , DIMENS_SMSPEC_NY_INDEX );
     ecl_smspec->grid_dims[2] = ecl_kw_iget_int(dimens , DIMENS_SMSPEC_NZ_INDEX );
     ecl_smspec_set_params_size( ecl_smspec , ecl_kw_get_size(keywords));
-    
+
     ecl_util_get_file_type( header_file , &ecl_smspec->formatted , NULL );
-    
+
     {
       for (params_index=0; params_index < ecl_kw_get_size(wells); params_index++) {
         float default_value          = PARAMS_GLOBAL_DEFAULT;
@@ -1084,75 +1114,83 @@ static void ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
         char * well                  = util_alloc_strip_copy(ecl_kw_iget_ptr(wells    , params_index));
         char * kw                    = util_alloc_strip_copy(ecl_kw_iget_ptr(keywords , params_index));
         char * unit                  = util_alloc_strip_copy(ecl_kw_iget_ptr(units    , params_index));
-        char * lgr_name              = NULL;  
+        char * lgr_name              = NULL;
 
         smspec_node_type * smspec_node;
         ecl_smspec_var_type var_type = ecl_smspec_identify_var_type( kw );
         if (nums != NULL) num        = ecl_kw_iget_int(nums , params_index);
-        if (ecl_smspec_lgr_var_type( var_type )) {        
+        if (ecl_smspec_lgr_var_type( var_type )) {
           int lgr_i = ecl_kw_iget_int( numlx , params_index );
           int lgr_j = ecl_kw_iget_int( numly , params_index );
           int lgr_k = ecl_kw_iget_int( numlz , params_index );
           lgr_name  = util_alloc_strip_copy(  ecl_kw_iget_ptr( lgrs , params_index ));
           smspec_node = smspec_node_alloc_lgr( var_type , well , kw , unit , lgr_name , ecl_smspec->key_join_string , lgr_i , lgr_j , lgr_k , params_index, default_value);
-        } else 
+        } else
           smspec_node = smspec_node_alloc( var_type , well , kw , unit , ecl_smspec->key_join_string , ecl_smspec->grid_dims , num , params_index , default_value);
 
-        
+
         if (smspec_node != NULL) {
           /** OK - we know this is valid shit. */
           ecl_smspec_add_node( ecl_smspec , smspec_node );
         }
-        
+
         free( kw );
         free( well );
         free( unit );
         util_safe_free( lgr_name );
       }
     }
-  }
-  ecl_smspec->header_file = util_alloc_realpath( header_file );
-  if (include_restart)
-    ecl_smspec_load_restart( ecl_smspec , header );
-  
-  ecl_file_close( header );
+
+    ecl_smspec->header_file = util_alloc_realpath( header_file );
+    if (include_restart)
+      ecl_smspec_load_restart( ecl_smspec , header );
+
+    ecl_file_close( header );
+
+    return true;
+  } else
+    return false;
 }
 
 
 
 ecl_smspec_type * ecl_smspec_fread_alloc(const char *header_file, const char * key_join_string , bool include_restart) {
   ecl_smspec_type *ecl_smspec;
-  
+
   {
     char *path;
     util_alloc_file_components(header_file , &path , NULL , NULL);
     ecl_smspec = ecl_smspec_alloc_empty(false , key_join_string);
     util_safe_free(path);
   }
-  
-  ecl_smspec_fread_header(ecl_smspec , header_file , include_restart);
-  
-  if (hash_has_key( ecl_smspec->misc_var_index , "TIME"))
-    ecl_smspec->time_index = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "TIME") );
-  
-  if (hash_has_key(ecl_smspec->misc_var_index , "DAY")) {
-    ecl_smspec->day_index   = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "DAY") );
-    ecl_smspec->month_index = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "MONTH") );
-    ecl_smspec->year_index  = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "YEAR") );
-  } 
 
-  if ((ecl_smspec->time_index == -1) && ( ecl_smspec->day_index == -1)) {
-    /* Unusable configuration. 
-       
-       Seems the ECLIPSE file can also have time specified with
-       'YEARS' as basic time unit; that mode is not supported.
-    */
-    
-    util_abort("%s: Sorry the SMSPEC file seems to lack all time information, need either TIME, or DAY/MONTH/YEAR information. Can not proceed.",__func__);
+  if (ecl_smspec_fread_header(ecl_smspec , header_file , include_restart)) {
+
+    if (hash_has_key( ecl_smspec->misc_var_index , "TIME"))
+      ecl_smspec->time_index = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "TIME") );
+
+    if (hash_has_key(ecl_smspec->misc_var_index , "DAY")) {
+      ecl_smspec->day_index   = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "DAY") );
+      ecl_smspec->month_index = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "MONTH") );
+      ecl_smspec->year_index  = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "YEAR") );
+    }
+
+    if ((ecl_smspec->time_index == -1) && ( ecl_smspec->day_index == -1)) {
+      /* Unusable configuration.
+
+         Seems the ECLIPSE file can also have time specified with
+         'YEARS' as basic time unit; that mode is not supported.
+      */
+
+      util_abort("%s: Sorry the SMSPEC file seems to lack all time information, need either TIME, or DAY/MONTH/YEAR information. Can not proceed.",__func__);
+      return NULL;
+    }
+    return ecl_smspec;
+  } else {
+    /** Failed to load from disk. */
+    ecl_smspec_free( ecl_smspec );
     return NULL;
   }
-  
-  return ecl_smspec;
 }
 
 
@@ -1172,7 +1210,7 @@ int ecl_smspec_get_num_regions(const ecl_smspec_type * ecl_smspec) {
 
 
 /******************************************************************/
-/* 
+/*
    For each type of summary data (according to the types in
    ecl_smcspec_var_type there are a set accessor functions:
 
@@ -1272,7 +1310,7 @@ const smspec_node_type * ecl_smspec_get_field_var_node(const ecl_smspec_type * e
   const smspec_node_type * node = NULL;
   if (hash_has_key(ecl_smspec->field_var_index , var))
     node = hash_get(ecl_smspec->field_var_index , var);
-  
+
   return node;
 }
 
@@ -1296,7 +1334,7 @@ bool ecl_smspec_has_field_var(const ecl_smspec_type * ecl_smspec , const char *v
 /**
    Observe that block_nr is represented as char literal,
    i.e. "2345". This is because it will be used as a hash key.
-   
+
    This is the final low level function which actually consults the
    hash tables.
 */
@@ -1331,7 +1369,7 @@ const smspec_node_type * ecl_smspec_get_block_var_node_ijk(const ecl_smspec_type
 bool ecl_smspec_has_block_var(const ecl_smspec_type * ecl_smspec , const char * block_var , int block_nr) {
   const smspec_node_type * node = ecl_smspec_get_block_var_node( ecl_smspec , block_var , block_nr );
   NODE_RETURN_EXISTS(node);
-}  
+}
 
 
 bool ecl_smspec_has_block_var_ijk(const ecl_smspec_type * ecl_smspec , const char * block_var , int i , int j , int k) {
@@ -1343,7 +1381,7 @@ bool ecl_smspec_has_block_var_ijk(const ecl_smspec_type * ecl_smspec , const cha
 int ecl_smspec_get_block_var_params_index(const ecl_smspec_type * ecl_smspec , const char * block_var , int block_nr) {
   const smspec_node_type * node = ecl_smspec_get_block_var_node( ecl_smspec , block_var , block_nr );
   NODE_RETURN_INDEX(node);
-}  
+}
 
 
 int ecl_smspec_get_block_var_params_index_ijk(const ecl_smspec_type * ecl_smspec , const char * block_var , int i , int j , int k) {
@@ -1366,11 +1404,11 @@ const smspec_node_type * ecl_smspec_get_region_var_node(const ecl_smspec_type * 
   if (hash_has_key(ecl_smspec->region_var_index , region_var)) {
     char * nr_str = util_alloc_sprintf( "%d" , region_nr );
     hash_type * nr_hash = hash_get(ecl_smspec->region_var_index , region_var);
-    if (hash_has_key( nr_hash , nr_str)) 
+    if (hash_has_key( nr_hash , nr_str))
       node = hash_get( nr_hash , nr_str );
     free( nr_str );
   }
-  
+
   return node;
 }
 
@@ -1394,7 +1432,7 @@ const smspec_node_type * ecl_smspec_get_misc_var_node(const ecl_smspec_type * ec
 
   if (hash_has_key(ecl_smspec->misc_var_index , var))
     node = hash_get(ecl_smspec->misc_var_index , var);
-  
+
   return node;
 }
 
@@ -1420,7 +1458,7 @@ const smspec_node_type * ecl_smspec_get_well_completion_var_node(const ecl_smspe
   char * cell_str = util_alloc_sprintf("%d" , cell_nr);
   if (hash_has_key(ecl_smspec->well_completion_var_index , well)) {
     hash_type * cell_hash = hash_get(ecl_smspec->well_completion_var_index , well);
-    
+
     if (hash_has_key(cell_hash , cell_str)) {
       hash_type * var_hash = hash_get(cell_hash , cell_str);
       if (hash_has_key(var_hash , var))
@@ -1472,7 +1510,7 @@ int ecl_smspec_get_general_var_params_index(const ecl_smspec_type * ecl_smspec ,
 bool ecl_smspec_has_general_var(const ecl_smspec_type * ecl_smspec , const char * lookup_kw) {
   const smspec_node_type * node = ecl_smspec_get_general_var_node( ecl_smspec , lookup_kw );
   NODE_RETURN_EXISTS( node );
-} 
+}
 
 
 /** DIES if the lookup_kw is not present. */
@@ -1483,7 +1521,7 @@ const char * ecl_smspec_get_general_var_unit( const ecl_smspec_type * ecl_smspec
 
 
 /*****************************************************************/
-/* 
+/*
    Pure indexed lookup - these functions can be used after one of the
    ecl_smspec_get_xxx_index() functions has been used first.
 */
@@ -1609,7 +1647,7 @@ bool ecl_smspec_general_is_total( const ecl_smspec_type * smspec , const char * 
    unfortunately not as useful as one might think because ECLIPSE is
    quite stupid; it will for instance happily give you the WOPR for a
    water injector or WWIR for an oil producer.
-   
+
    The function can be called several times with different patterns,
    the stringlist is not cleared on startup; the keys in the list are
    unique - keys are not added multiple times. If pattern == NULL all
@@ -1620,7 +1658,7 @@ bool ecl_smspec_general_is_total( const ecl_smspec_type * smspec , const char * 
 void ecl_smspec_select_matching_general_var_list( const ecl_smspec_type * smspec , const char * pattern , stringlist_type * keys) {
   hash_type * ex_keys = hash_alloc( );
   int i;
-  for (i=0; i < stringlist_get_size( keys ); i++) 
+  for (i=0; i < stringlist_get_size( keys ); i++)
     hash_insert_int( ex_keys , stringlist_iget( keys , i ) , 1);
 
   {
@@ -1634,7 +1672,7 @@ void ecl_smspec_select_matching_general_var_list( const ecl_smspec_type * smspec
     }
     hash_iter_free( iter );
   }
-  
+
   hash_free( ex_keys );
 }
 
@@ -1658,12 +1696,12 @@ const char * ecl_smspec_get_join_string( const ecl_smspec_type * smspec) {
 
 
 
-/** 
+/**
     Returns a stringlist instance with all the (valid) well names. It
     is the responsability of the calling scope to free the stringlist
     with stringlist_free();
 
-    
+
     If @pattern is different from NULL only wells which 'match' the
     pattern is included; if @pattern == NULL all wells are
     included. The match is done with function fnmatch() -
@@ -1674,12 +1712,12 @@ stringlist_type * ecl_smspec_alloc_well_list( const ecl_smspec_type * smspec , c
   stringlist_type * well_list = stringlist_alloc_new( );
   {
     hash_iter_type * iter = hash_iter_alloc( smspec->well_var_index );
-    
+
     while (!hash_iter_is_complete( iter )) {
       const char * well_name = hash_iter_get_next_key( iter );
       if (pattern == NULL)
         stringlist_append_copy( well_list , well_name );
-      else if (util_fnmatch( pattern , well_name) == 0) 
+      else if (util_fnmatch( pattern , well_name) == 0)
         stringlist_append_copy( well_list , well_name );
     }
     hash_iter_free(iter);
@@ -1689,7 +1727,7 @@ stringlist_type * ecl_smspec_alloc_well_list( const ecl_smspec_type * smspec , c
 }
 
 
-/** 
+/**
     Returns a stringlist instance with all the (valid) group names. It
     is the responsability of the calling scope to free the stringlist
     with stringlist_free();
@@ -1699,12 +1737,12 @@ stringlist_type * ecl_smspec_alloc_group_list( const ecl_smspec_type * smspec , 
   stringlist_type * group_list = stringlist_alloc_new( );
   {
     hash_iter_type * iter = hash_iter_alloc( smspec->group_var_index );
-    
+
     while (!hash_iter_is_complete( iter )) {
       const char * group_name = hash_iter_get_next_key( iter );
       if (pattern == NULL)
         stringlist_append_copy( group_list , group_name );
-      else if (util_fnmatch( pattern , group_name) == 0) 
+      else if (util_fnmatch( pattern , group_name) == 0)
         stringlist_append_copy( group_list , group_name );
     }
     hash_iter_free(iter);
@@ -1715,7 +1753,7 @@ stringlist_type * ecl_smspec_alloc_group_list( const ecl_smspec_type * smspec , 
 
 
 
-/** 
+/**
     Returns a stringlist instance with all the well variables.  It is
     the responsability of the calling scope to free the stringlist
     with stringlist_free();

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'enkf_fs.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'enkf_fs.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <sys/types.h>
@@ -44,8 +44,10 @@
 #include <ert/enkf/gen_data.h>
 #include <ert/enkf/time_map.h>
 #include <ert/enkf/state_map.h>
+#include <ert/enkf/summary_key_set.h>
 #include <ert/enkf/misfit_ensemble.h>
 #include <ert/enkf/cases_config.h>
+#include <ert/enkf/custom_kw_config_set.h>
 
 /**
 
@@ -69,7 +71,7 @@
 
 
   The interface
-  -------------     
+  -------------
 
   The unit of storage in the enkf_fs system is one enkf_node instance. The
   interface between the storage system and the rest of the EnKF system is
@@ -86,7 +88,7 @@
 
     - iens        : ensemble member number
     - report_step : the report_step number we are interested in
-    - state       : whether we are considering an analyzed node or a forecast.  
+    - state       : whether we are considering an analyzed node or a forecast.
 
   In addition to the functions enkf_fs_fread_node() and enkf_fs_fwrite_node() there
   are higher level functions enkf_fs_fread_alloc_ensemble() to load an ensemble of
@@ -124,7 +126,7 @@
   This driver utilizes that parameters do not change during the forward model,
   i.e. (analyzed , t) = (forecast , t - 1). So, only one version of the data is
   actually stored; if you ask for the forecast you just get the data from the
-  previous report_step. 
+  previous report_step.
   To support spin-ups and such the driver will actually go backwards in
   report_time all the way until a node is found on disk.
 
@@ -173,7 +175,7 @@
   The enkf_mount_info file (BINARY) consists of four records (one for
   each driver, including the index). The format of each record is:
 
-     DRIVER_CATEGORY   DRIVER_ID    INFO 
+     DRIVER_CATEGORY   DRIVER_ID    INFO
      int               int          void *
 
   The driver category should be one of the four integer values in
@@ -187,7 +189,7 @@
   enkf_mount_info file, but when four records are read it checks that
   all drivers have been initialized, and aborts if that is not the
   case.
-  
+
   If the enkf_mount_info file is deleted you (might) be fucked. It
   is currently 'protected' with chomd a-w - but that is of course not
   foolprof.
@@ -203,12 +205,14 @@
 */
 
 
-#define ENKF_FS_TYPE_ID       1089763
-#define ENKF_MOUNT_MAP        "enkf_mount_info"
-#define TIME_MAP_FILE         "time-map"
-#define STATE_MAP_FILE        "state-map"
-#define MISFIT_ENSEMBLE_FILE  "misfit-ensemble"
-#define CASE_CONFIG_FILE      "case_config"
+#define ENKF_FS_TYPE_ID           1089763
+#define ENKF_MOUNT_MAP            "enkf_mount_info"
+#define SUMMARY_KEY_SET_FILE      "summary-key-set"
+#define TIME_MAP_FILE             "time-map"
+#define STATE_MAP_FILE            "state-map"
+#define MISFIT_ENSEMBLE_FILE      "misfit-ensemble"
+#define CASE_CONFIG_FILE          "case_config"
+#define CUSTOM_KW_CONFIG_SET_FILE "custom_kw_config_set"
 
 struct enkf_fs_struct {
   UTIL_TYPE_ID_DECLARATION;
@@ -218,20 +222,22 @@ struct enkf_fs_struct {
 
   char                   * lock_file;
   int                      lock_fd;
-  
+
   fs_driver_type         * dynamic_forecast;
   fs_driver_type         * dynamic_analyzed;
   fs_driver_type         * parameter;
   fs_driver_type         * eclipse_static;
   fs_driver_type         * index ;
 
-  bool                     read_only;             /* Whether this filesystem has been mounted read-only. */
-  time_map_type          * time_map;
-  cases_config_type      * cases_config;
-  state_map_type         * state_map;
-  misfit_ensemble_type   * misfit_ensemble;
-  /* 
-     The variables below here are for storing arbitrary files within 
+  bool                        read_only;             /* Whether this filesystem has been mounted read-only. */
+  time_map_type             * time_map;
+  cases_config_type         * cases_config;
+  state_map_type            * state_map;
+  summary_key_set_type      * summary_key_set;
+  misfit_ensemble_type      * misfit_ensemble;
+  custom_kw_config_set_type * custom_kw_config_set;
+  /*
+     The variables below here are for storing arbitrary files within
      the enkf_fs storage directory, but not as serialized enkf_nodes.
   */
   path_fmt_type             * case_fmt;
@@ -239,7 +245,8 @@ struct enkf_fs_struct {
   path_fmt_type             * case_tstep_fmt;
   path_fmt_type             * case_tstep_member_fmt;
 
-  int                         refcount; 
+  int                         refcount;
+  int                         writecount;
 };
 
 
@@ -264,7 +271,7 @@ int enkf_fs_decref( enkf_fs_type * fs ) {
 
   if (fs->refcount < 0)
     util_abort("%s: internal fuckup. The filesystem refcount:%d is < 0 \n",__func__ , fs->refcount);
-  
+
   if (refcount == 0)
     enkf_fs_umount( fs );
 
@@ -289,6 +296,8 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point ) {
   fs->time_map               = time_map_alloc(  );
   fs->cases_config           = cases_config_alloc();
   fs->state_map              = state_map_alloc();
+  fs->summary_key_set        = summary_key_set_alloc();
+  fs->custom_kw_config_set   = custom_kw_config_set_alloc();
   fs->misfit_ensemble        = misfit_ensemble_alloc();
   fs->index                  = NULL;
   fs->eclipse_static         = NULL;
@@ -298,8 +307,9 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point ) {
   fs->read_only              = true;
   fs->mount_point            = util_alloc_string_copy( mount_point );
   fs->refcount               = 0;
+  fs->writecount             = 0;
   fs->lock_fd                = 0;
-  
+
   if (mount_point == NULL)
     util_abort("%s: fatal internal error: mount_point == NULL \n",__func__);
   {
@@ -329,7 +339,7 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point ) {
 static int enkf_fs_fread_fs_version__(FILE * stream) {
   int version;
   long fs_tag = util_fread_long( stream );
-  if (fs_tag == FS_MAGIC_ID) 
+  if (fs_tag == FS_MAGIC_ID)
     version = util_fread_int(stream);
   else
     version = 0;
@@ -338,9 +348,9 @@ static int enkf_fs_fread_fs_version__(FILE * stream) {
 
 
 /**
-   -1 : No mount map found. 
+   -1 : No mount map found.
    0  : Old mount map without version info.
-   x  : Actual version info. 
+   x  : Actual version info.
 */
 
 static int enkf_fs_get_fs_version__(const char * config_file) {
@@ -349,16 +359,16 @@ static int enkf_fs_get_fs_version__(const char * config_file) {
     FILE * stream = util_fopen(config_file , "r");
     version = enkf_fs_fread_fs_version__(stream);
     fclose(stream);
-  } 
+  }
   return version;
 }
 
 /**
-   Function written to look for old (version <= 104) mount info maps. 
+   Function written to look for old (version <= 104) mount info maps.
 */
 
 int enkf_fs_get_version104( const char * path ) {
-  char * config_file = util_alloc_filename( path , ENKF_MOUNT_MAP, NULL);  
+  char * config_file = util_alloc_filename( path , ENKF_MOUNT_MAP, NULL);
   int version = enkf_fs_get_fs_version__( config_file );
   free( config_file );
   return version;
@@ -386,25 +396,25 @@ static void enkf_fs_init_path_fmt( enkf_fs_type * fs) {
 
 
 static void enkf_fs_create_plain_fs( FILE * stream , void * arg) {
-  
+
   plain_driver_create_fs( stream , DRIVER_PARAMETER        , DEFAULT_PLAIN_NODE_PARAMETER_PATH        , DEFAULT_PLAIN_VECTOR_PARAMETER_PATH);
   plain_driver_create_fs( stream , DRIVER_STATIC           , DEFAULT_PLAIN_NODE_STATIC_PATH           , DEFAULT_PLAIN_VECTOR_STATIC_PATH);
   plain_driver_create_fs( stream , DRIVER_DYNAMIC_FORECAST , DEFAULT_PLAIN_NODE_DYNAMIC_FORECAST_PATH , DEFAULT_PLAIN_VECTOR_DYNAMIC_FORECAST_PATH);
   plain_driver_create_fs( stream , DRIVER_DYNAMIC_ANALYZED , DEFAULT_PLAIN_NODE_DYNAMIC_ANALYZED_PATH , DEFAULT_PLAIN_VECTOR_DYNAMIC_ANALYZED_PATH);
   plain_driver_create_fs( stream , DRIVER_INDEX            , DEFAULT_PLAIN_NODE_INDEX_PATH            , DEFAULT_PLAIN_VECTOR_INDEX_PATH );
-  
+
 }
 
 
 
 static void enkf_fs_create_block_fs( FILE * stream , int num_drivers , const char * mount_point , void * arg) {
-  
+
   block_fs_driver_create_fs( stream , mount_point , DRIVER_PARAMETER        , num_drivers , "Ensemble/mod_%d" , "PARAMETER");
   block_fs_driver_create_fs( stream , mount_point , DRIVER_STATIC           , num_drivers , "Ensemble/mod_%d" , "STATIC");
   block_fs_driver_create_fs( stream , mount_point , DRIVER_DYNAMIC_FORECAST , num_drivers , "Ensemble/mod_%d" , "FORECAST");
   block_fs_driver_create_fs( stream , mount_point , DRIVER_DYNAMIC_ANALYZED , num_drivers , "Ensemble/mod_%d" , "ANALYZED");
   block_fs_driver_create_fs( stream , mount_point , DRIVER_INDEX            , 1           , "Index"           , "INDEX");
-  
+
 }
 
 
@@ -431,14 +441,14 @@ static void enkf_fs_assign_driver( enkf_fs_type * fs , fs_driver_type * driver ,
 
 static enkf_fs_type *  enkf_fs_mount_block_fs( FILE * fstab_stream , const char * mount_point  ) {
   enkf_fs_type * fs = enkf_fs_alloc_empty( mount_point );
-  
+
   {
     int driver_nr;
     for (driver_nr = 0; driver_nr < 5; driver_nr++) {
       fs_driver_enum driver_type = util_fread_int( fstab_stream );
 
       fs_driver_type * driver = block_fs_driver_open( fstab_stream , mount_point , driver_type , fs->read_only);
-      
+
       enkf_fs_assign_driver( fs , driver , driver_type );
     }
   }
@@ -453,7 +463,7 @@ static enkf_fs_type *  enkf_fs_mount_plain( FILE * fstab_stream , const char * m
     for (driver_nr = 0; driver_nr < 5; driver_nr++) {
       fs_driver_enum driver_type = util_fread_int( fstab_stream );
       fs_driver_type * driver = plain_driver_open( fstab_stream , mount_point );
-      
+
       enkf_fs_assign_driver( fs , driver , driver_type );
     }
   }
@@ -482,7 +492,7 @@ enkf_fs_type * enkf_fs_create_fs( const char * mount_point, fs_driver_impl drive
     fclose( stream );
   }
 
-  if (mount) 
+  if (mount)
     return enkf_fs_mount( mount_point );
   else
     return NULL;
@@ -515,7 +525,17 @@ static void enkf_fs_fsync_state_map( enkf_fs_type * fs ) {
   free( filename );
 }
 
+static void enkf_fs_fsync_summary_key_set( enkf_fs_type * fs ) {
+  char * filename = enkf_fs_alloc_case_filename( fs , SUMMARY_KEY_SET_FILE );
+  summary_key_set_fwrite( fs->summary_key_set , filename );
+  free( filename );
+}
 
+static void enkf_fs_fsync_custom_kw_config_set( enkf_fs_type * fs ) {
+  char * filename = enkf_fs_alloc_case_filename(fs, CUSTOM_KW_CONFIG_SET_FILE);
+  custom_kw_config_set_fwrite(fs->custom_kw_config_set, filename );
+  free( filename );
+}
 
 static void enkf_fs_fread_cases_config( enkf_fs_type * fs ) {
   char * filename = enkf_fs_alloc_case_filename( fs , CASE_CONFIG_FILE );
@@ -530,6 +550,17 @@ static void enkf_fs_fread_state_map( enkf_fs_type * fs ) {
   free( filename );
 }
 
+static void enkf_fs_fread_summary_key_set( enkf_fs_type * fs ) {
+  char * filename = enkf_fs_alloc_case_filename( fs , SUMMARY_KEY_SET_FILE );
+  summary_key_set_fread( fs->summary_key_set , filename );
+  free( filename );
+}
+
+static void enkf_fs_fread_custom_kw_config_set(enkf_fs_type * fs) {
+  char * filename = enkf_fs_alloc_case_filename(fs, CUSTOM_KW_CONFIG_SET_FILE);
+  custom_kw_config_set_fread(fs->custom_kw_config_set, filename);
+  free( filename );
+}
 
 state_map_type * enkf_fs_alloc_readonly_state_map( const char * mount_point ) {
   path_fmt_type * path_fmt = path_fmt_alloc_directory_fmt( DEFAULT_CASE_PATH );
@@ -542,6 +573,16 @@ state_map_type * enkf_fs_alloc_readonly_state_map( const char * mount_point ) {
   return state_map;
 }
 
+summary_key_set_type * enkf_fs_alloc_readonly_summary_key_set( const char * mount_point ) {
+  path_fmt_type * path_fmt = path_fmt_alloc_directory_fmt( DEFAULT_CASE_PATH );
+  char * filename = path_fmt_alloc_file( path_fmt , false , mount_point , SUMMARY_KEY_SET_FILE);
+
+  summary_key_set_type * summary_key_set = summary_key_set_alloc_from_file( filename, true );
+
+  path_fmt_free( path_fmt );
+  free( filename );
+  return summary_key_set;
+}
 
 time_map_type * enkf_fs_alloc_readonly_time_map( const char * mount_point ) {
   path_fmt_type * path_fmt = path_fmt_alloc_directory_fmt( DEFAULT_CASE_PATH );
@@ -581,14 +622,14 @@ static void enkf_fs_fwrite_misfit( enkf_fs_type * fs ) {
 
 enkf_fs_type * enkf_fs_mount( const char * mount_point ) {
   FILE * stream = fs_driver_open_fstab( mount_point , false );
-  
+
   if (stream != NULL) {
     enkf_fs_type * fs = NULL;
     fs_driver_assert_magic( stream );
     fs_driver_assert_version( stream , mount_point );
     {
       fs_driver_impl driver_id = util_fread_int( stream );
-    
+
       switch( driver_id ) {
       case( BLOCK_FS_DRIVER_ID ):
         fs = enkf_fs_mount_block_fs( stream , mount_point);
@@ -605,8 +646,10 @@ enkf_fs_type * enkf_fs_mount( const char * mount_point ) {
     enkf_fs_fread_time_map( fs );
     enkf_fs_fread_cases_config( fs );
     enkf_fs_fread_state_map( fs );
+    enkf_fs_fread_summary_key_set( fs );
+    enkf_fs_fread_custom_kw_config_set( fs );
     enkf_fs_fread_misfit( fs );
-    
+
     enkf_fs_get_ref( fs );
     return fs;
   }
@@ -616,7 +659,7 @@ enkf_fs_type * enkf_fs_mount( const char * mount_point ) {
 
 bool enkf_fs_exists( const char * mount_point ) {
   bool exists   = false;
-  
+
   FILE * stream = fs_driver_open_fstab( mount_point , false );
   if (stream != NULL) {
     exists = true;
@@ -652,7 +695,7 @@ static void enkf_fs_umount( enkf_fs_type * fs ) {
       enkf_fs_free_driver( fs->parameter );
       enkf_fs_free_driver( fs->eclipse_static );
       enkf_fs_free_driver( fs->index );
-      
+
       if (fs->lock_fd > 0) {
         close( fs->lock_fd );  // Closing the lock_file file descriptor - and releasing the lock.
         util_unlink_existing( fs->lock_file );
@@ -666,8 +709,9 @@ static void enkf_fs_umount( enkf_fs_type * fs ) {
       path_fmt_free( fs->case_member_fmt );
       path_fmt_free( fs->case_tstep_fmt );
       path_fmt_free( fs->case_tstep_member_fmt );
-      
+
       state_map_free( fs->state_map );
+      summary_key_set_free(fs->summary_key_set);
       time_map_free( fs->time_map );
       cases_config_free( fs->cases_config );
       misfit_ensemble_free( fs->misfit_ensemble );
@@ -682,13 +726,13 @@ static void enkf_fs_umount( enkf_fs_type * fs ) {
 static void * select_dynamic_driver(enkf_fs_type * fs , state_enum state ) {
   void * driver = NULL;
 
-  if (state == ANALYZED) 
+  if (state == ANALYZED)
     driver = fs->dynamic_analyzed;
-  else if (state == FORECAST) 
+  else if (state == FORECAST)
     driver = fs->dynamic_forecast;
-  else 
+  else
     util_abort("%s: tried to select dynamic driver according to ID:%d - invalid \n",__func__ , state);
-  
+
   return driver;
 }
 
@@ -737,6 +781,8 @@ void enkf_fs_fsync( enkf_fs_type * fs ) {
   enkf_fs_fsync_time_map( fs );
   enkf_fs_fsync_cases_config( fs) ;
   enkf_fs_fsync_state_map( fs );
+  enkf_fs_fsync_summary_key_set( fs );
+  enkf_fs_fsync_custom_kw_config_set(fs);
 }
 
 
@@ -758,9 +804,9 @@ static int __get_parameter_report_step( fs_driver_type * driver , const char * n
       seek backwards through the report numbers, all the way back to
       report_nr 0. The direct motivation for this functionality is the
       following situation:
-      
+
         1. We do a spin-up from report 0 to report R1.
-      
+
         2. We start the assimulation from R1, then we have to go all the
            way back to report 0 to get hold of the parameter.
 
@@ -775,28 +821,28 @@ static int __get_parameter_report_step( fs_driver_type * driver , const char * n
 }
 
 
-void enkf_fs_fread_node(enkf_fs_type * enkf_fs , buffer_type * buffer , 
-                        const char * node_key , 
-                        enkf_var_type var_type , 
-                        int report_step, 
-                        int iens , 
+void enkf_fs_fread_node(enkf_fs_type * enkf_fs , buffer_type * buffer ,
+                        const char * node_key ,
+                        enkf_var_type var_type ,
+                        int report_step,
+                        int iens ,
                         state_enum state) {
-  
+
   fs_driver_type * driver = enkf_fs_select_driver(enkf_fs , var_type , state , node_key );
   if (var_type == PARAMETER)
     report_step = __get_parameter_report_step(driver , node_key , report_step , iens , state);
-  
+
   buffer_rewind( buffer );
   driver->load_node(driver , node_key ,  report_step , iens , buffer);
 }
 
 
-void enkf_fs_fread_vector(enkf_fs_type * enkf_fs , buffer_type * buffer , 
-                          const char * node_key , 
-                          enkf_var_type var_type , 
-                          int iens , 
+void enkf_fs_fread_vector(enkf_fs_type * enkf_fs , buffer_type * buffer ,
+                          const char * node_key ,
+                          enkf_var_type var_type ,
+                          int iens ,
                           state_enum state) {
-  
+
   fs_driver_type * driver = enkf_fs_select_driver(enkf_fs , var_type , state , node_key );
 
   buffer_rewind( buffer );
@@ -807,16 +853,16 @@ void enkf_fs_fread_vector(enkf_fs_type * enkf_fs , buffer_type * buffer ,
 
 bool enkf_fs_has_node(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int report_step , int iens , state_enum state) {
   fs_driver_type * driver = fs_driver_safe_cast(enkf_fs_select_driver(enkf_fs , var_type , state , node_key));
-  return driver->has_node(driver , node_key , report_step , iens ); 
+  return driver->has_node(driver , node_key , report_step , iens );
 }
 
 
 bool enkf_fs_has_vector(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int iens , state_enum state) {
   fs_driver_type * driver = fs_driver_safe_cast(enkf_fs_select_driver(enkf_fs , var_type , state , node_key));
-  return driver->has_vector(driver , node_key , iens ); 
+  return driver->has_vector(driver , node_key , iens );
 }
 
-void enkf_fs_fwrite_node(enkf_fs_type * enkf_fs , buffer_type * buffer , const char * node_key, enkf_var_type var_type,  
+void enkf_fs_fwrite_node(enkf_fs_type * enkf_fs , buffer_type * buffer , const char * node_key, enkf_var_type var_type,
                          int report_step , int iens , state_enum state) {
   if (enkf_fs->read_only)
     util_abort("%s: attempt to write to read_only filesystem mounted at:%s - aborting. \n",__func__ , enkf_fs->mount_point);
@@ -830,7 +876,7 @@ void enkf_fs_fwrite_node(enkf_fs_type * enkf_fs , buffer_type * buffer , const c
 }
 
 
-void enkf_fs_fwrite_vector(enkf_fs_type * enkf_fs , buffer_type * buffer , const char * node_key, enkf_var_type var_type,  
+void enkf_fs_fwrite_vector(enkf_fs_type * enkf_fs , buffer_type * buffer , const char * node_key, enkf_var_type var_type,
                            int iens , state_enum state) {
   if (enkf_fs->read_only)
     util_abort("%s: attempt to write to read_only filesystem mounted at:%s - aborting. \n",__func__ , enkf_fs->mount_point);
@@ -955,7 +1001,7 @@ FILE * enkf_fs_open_case_member_file( const enkf_fs_type * fs , const char * inp
   free( filename );
   return stream;
 }
-  
+
 
 FILE * enkf_fs_open_case_tstep_file( const enkf_fs_type * fs , const char * input_name , int tstep , const char * mode) {
   char * filename = enkf_fs_alloc_case_tstep_filename( fs , tstep , input_name );
@@ -973,7 +1019,7 @@ FILE * enkf_fs_open_case_tstep_member_file( const enkf_fs_type * fs , const char
 }
 
 /*****************************************************************/
-/* 
+/*
    The open_exXXX functions will return NULL if the file does not
    already exist. These functions can only be used to open with 'r'
    mode.
@@ -1002,7 +1048,7 @@ FILE * enkf_fs_open_excase_member_file( const enkf_fs_type * fs , const char * i
   free( filename );
   return stream;
 }
-  
+
 
 FILE * enkf_fs_open_excase_tstep_file( const enkf_fs_type * fs , const char * input_name , int tstep ) {
   char * filename = enkf_fs_alloc_case_tstep_filename( fs , tstep , input_name );
@@ -1018,7 +1064,7 @@ FILE * enkf_fs_open_excase_tstep_member_file( const enkf_fs_type * fs , const ch
   free( filename );
   return stream;
 }
-  
+
 /*****************************************************************/
 
 time_map_type * enkf_fs_get_time_map( const enkf_fs_type * fs ) {
@@ -1033,8 +1079,27 @@ state_map_type * enkf_fs_get_state_map( const enkf_fs_type * fs ) {
   return fs->state_map;
 }
 
+summary_key_set_type * enkf_fs_get_summary_key_set( const enkf_fs_type * fs ) {
+  return fs->summary_key_set;
+}
+
+custom_kw_config_set_type * enkf_fs_get_custom_kw_config_set(const enkf_fs_type * fs) {
+  return fs->custom_kw_config_set;
+}
 
 misfit_ensemble_type * enkf_fs_get_misfit_ensemble( const enkf_fs_type * fs ) {
   return fs->misfit_ensemble;
+}
+
+void enkf_fs_increase_write_count(enkf_fs_type * fs) {
+  fs->writecount = fs->writecount + 1;
+}
+
+void enkf_fs_decrease_write_count(enkf_fs_type * fs) {
+  fs->writecount = fs->writecount - 1;
+}
+
+int enkf_fs_get_write_count(const enkf_fs_type * fs) {
+  return fs->writecount;
 }
 

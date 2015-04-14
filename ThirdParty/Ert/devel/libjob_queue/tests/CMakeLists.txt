@@ -35,37 +35,10 @@ target_link_libraries( job_queue_driver_test job_queue test_util )
 add_test( job_queue_driver_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_driver_test )
 
 
-# This should be a space separated list of servers which will be 
-# tried out when testing the LSF submit capability. The test program
-# will interpret the special strings 'NULL' and 'LOCAL' as follows:
-#
-#   NULL:  Submit using the linked in library functions.
-#   LOCAL: Submit using shell commands on the current server
-#
-set(LSF_SERVERS "LOCAL" CACHE STRING  "List of LSF servers for testing")
-
-if (HAVE_LSF_LIBRARY)
-   add_executable( job_lsf_test job_lsf_test.c )
-   target_link_libraries( job_lsf_test job_queue util test_util )
-   add_test( job_lsf_test ${EXECUTABLE_OUTPUT_PATH}/job_lsf_test )
+if (ERT_LSF_SUBMIT_TEST)
+   include( lsf_tests.cmake ) 
 endif()
 
-
-
-if (HAVE_LSF_LIBRARY)
-   add_executable( job_lsb job_lsb.c )
-   target_link_libraries( job_lsb job_queue util test_util )
-   add_test( job_lsb ${EXECUTABLE_OUTPUT_PATH}/job_lsb )
-endif()
-
-add_executable( job_lsf_submit_test job_lsf_submit_test.c )
-target_link_libraries( job_lsf_submit_test job_queue util test_util )
-add_executable( job_program job_program.c )
-
-if (LSF_SERVERS)
-   add_test( job_lsf_submit_test ${EXECUTABLE_OUTPUT_PATH}/job_lsf_submit_test ${EXECUTABLE_OUTPUT_PATH}/job_program ${LSF_SERVERS})
-   set_property( TEST job_lsf_submit_test PROPERTY LABELS LSF)
-endif()
 
 add_executable( job_torque_test job_torque_test.c )
 target_link_libraries( job_torque_test job_queue util test_util )
@@ -81,3 +54,5 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/qsub_emulators/ DESTINATION ${EXECUTA
 add_test(NAME job_torque_submit_test WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH} COMMAND ${EXECUTABLE_OUTPUT_PATH}/job_torque_submit_test dummyparam)
 set_property(TEST job_torque_submit_test PROPERTY ENVIRONMENT “setenv PATH ${EXECUTABLE_OUTPUT_PATH}:$PATH”)
 set_property(TEST ext_joblist_test PROPERTY LABELS StatoilData )
+
+

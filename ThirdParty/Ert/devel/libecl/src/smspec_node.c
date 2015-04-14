@@ -447,8 +447,8 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
   switch( smspec_node->var_type) {
   case(ECL_SMSPEC_COMPLETION_VAR):
     // KEYWORD:WGNAME:NUM
-    smspec_node->gen_key1 = smspec_alloc_completion_num_key( key_join_string , smspec_node->keyword , smspec_node->wgname , smspec_node->num);
-    smspec_node->gen_key2 = smspec_alloc_completion_ijk_key( key_join_string , smspec_node->keyword , smspec_node->wgname , smspec_node->ijk[0], smspec_node->ijk[1], smspec_node->ijk[2]);
+    smspec_node->gen_key1 = smspec_alloc_completion_ijk_key( key_join_string , smspec_node->keyword , smspec_node->wgname , smspec_node->ijk[0], smspec_node->ijk[1], smspec_node->ijk[2]);
+    smspec_node->gen_key2 = smspec_alloc_completion_num_key( key_join_string , smspec_node->keyword , smspec_node->wgname , smspec_node->num);
     break;
   case(ECL_SMSPEC_FIELD_VAR):
     // KEYWORD
@@ -472,12 +472,12 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
     break;
   case(ECL_SMSPEC_REGION_2_REGION_VAR):
     // KEYWORDS:RXF:NUM and RXF:R1-R2
-    smspec_node->gen_key1 = smspec_alloc_region_2_region_num_key( key_join_string , smspec_node->keyword , smspec_node->num);
     {
       int r1 = smspec_node->num % 32768;
       int r2 = ((smspec_node->num-r1) / 32768)-10;
-      smspec_node->gen_key2 = smspec_alloc_region_2_region_r1r2_key( key_join_string , smspec_node->keyword , r1, r2);
+      smspec_node->gen_key1 = smspec_alloc_region_2_region_r1r2_key( key_join_string , smspec_node->keyword , r1, r2);
     }
+    smspec_node->gen_key2 = smspec_alloc_region_2_region_num_key( key_join_string , smspec_node->keyword , smspec_node->num);
     break;
   case(ECL_SMSPEC_MISC_VAR):
     // KEYWORD
@@ -486,8 +486,8 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
     break;
   case(ECL_SMSPEC_BLOCK_VAR):
     // KEYWORD:NUM
-    smspec_node->gen_key1 = smspec_alloc_block_num_key( key_join_string , smspec_node->keyword , smspec_node->num);
-    smspec_node->gen_key2 = smspec_alloc_block_ijk_key( key_join_string , smspec_node->keyword , smspec_node->ijk[0], smspec_node->ijk[1], smspec_node->ijk[2]);
+    smspec_node->gen_key1 = smspec_alloc_block_ijk_key( key_join_string , smspec_node->keyword , smspec_node->ijk[0], smspec_node->ijk[1], smspec_node->ijk[2]);
+    smspec_node->gen_key2 = smspec_alloc_block_num_key( key_join_string , smspec_node->keyword , smspec_node->num);
     break;
   case(ECL_SMSPEC_LOCAL_WELL_VAR):
     /** KEYWORD:LGR:WGNAME */
@@ -733,7 +733,7 @@ smspec_node_type * smspec_node_alloc_lgr( ecl_smspec_var_type var_type ,
                                           int param_index , float default_value) {
   
   smspec_node_type * smspec_node = smspec_node_alloc_new( param_index , default_value );
-  if (smspec_node_init_lgr( smspec_node , var_type , wgname , keyword , lgr , unit , key_join_string , lgr_i, lgr_j , lgr_k))
+  if (smspec_node_init_lgr( smspec_node , var_type , wgname , keyword , unit , lgr , key_join_string , lgr_i, lgr_j , lgr_k))
     return smspec_node;
   else {
     smspec_node_free( smspec_node );

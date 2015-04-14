@@ -51,6 +51,18 @@ class EnKFState(BaseCClass):
         EnKFState.cNamespace().free(self)
 
 
+    def addSubstKeyword(self , key , value):
+        """
+        Will add a key -> value pair which can be used for search replace
+        operations in the data file. Observe that the key will be
+        surrounded by \'<\' and \'>\'.
+        """
+        doc_string = None
+        if isinstance(value , str):
+            EnKFState.cNamespace().add_subst_kw( self , key , value , doc_string )
+        else:
+            raise TypeError("The value argument must be a string")
+
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerType("enkf_state", EnKFState)
@@ -61,3 +73,4 @@ cwrapper.registerType("enkf_state_ref", EnKFState.createCReference)
 EnKFState.cNamespace().free     = cwrapper.prototype("void enkf_state_free( enkf_state )")
 EnKFState.cNamespace().has_key  = cwrapper.prototype("bool enkf_state_has_node( enkf_state , char* )")
 EnKFState.cNamespace().get_node = cwrapper.prototype("enkf_node_ref enkf_state_get_node( enkf_state , char* )")
+EnKFState.cNamespace().add_subst_kw = cwrapper.prototype("void enkf_state_add_subst_kw( enkf_state , char* , char* , char*)")

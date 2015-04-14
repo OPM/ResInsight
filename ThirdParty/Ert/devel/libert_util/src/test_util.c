@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-   
-   The file 'test_util.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'test_util.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -73,51 +73,62 @@ bool test_check_string_equal( const char * s1 , const char * s2 ) {
 
 void test_assert_string_equal__( const char * s1 , const char * s2 , const char * file, int line) {
   bool equal = test_check_string_equal( s1 , s2 );
-  if (!equal) 
+  if (!equal)
     test_error_exit( "%s:%d => String are different s1:[%s]  s2:[%s]\n" , file , line , s1 , s2 );
 }
 
 
 void test_assert_string_not_equal__( const char * s1 , const char * s2 , const char * file, int line) {
   bool equal = test_check_string_equal( s1 , s2 );
-  if (equal) 
+  if (equal)
     test_error_exit( "%s:%d => String are equal s1:[%s]  s2:[%s]\n" , file , line , s1 , s2 );
 }
 
 
+void test_assert_long_equal__( long i1 , long i2 , const char * file , long line) {
+  if (i1 != i2)
+    test_error_exit( "%s:%d => Long values are different i1:[%d]  i2:[%d]\n" , file , line , i1 , i2 );
+}
+
+
+void test_assert_long_not_equal__( long i1 , long i2 , const char * file , long line) {
+  if (i1 == i2)
+    test_error_exit( "%s:%d => Long values are equal i1:[%d]  i2:[%d]\n" , file , line , i1 , i2 );
+}
+
 
 void test_assert_int_equal__( int i1 , int i2 , const char * file , int line) {
-  if (i1 != i2) 
+  if (i1 != i2)
     test_error_exit( "%s:%d => Integers are different i1:[%d]  i2:[%d]\n" , file , line , i1 , i2 );
 }
 
 
 void test_assert_int_not_equal__( int i1 , int i2 , const char * file , int line) {
-  if (i1 == i2) 
+  if (i1 == i2)
     test_error_exit( "%s:%d => Integers are equal i1:[%d]  i2:[%d]\n" , file , line , i1 , i2 );
 }
 
 
 void test_assert_uint_equal__( unsigned int i1 , unsigned int i2 , const char * file , int line) {
-  if (i1 != i2) 
+  if (i1 != i2)
     test_error_exit( "%s:%d => Integers are different i1:[%d]  i2:[%d]\n" , file , line , i1 , i2 );
 }
 
 
 void test_assert_uint_not_equal__( unsigned int i1 , unsigned int i2 , const char * file , int line) {
-  if (i1 == i2) 
+  if (i1 == i2)
     test_error_exit( "%s:%d => Integers are equal i1:[%d]  i2:[%d]\n" , file , line , i1 , i2 );
 }
 
 
 void test_assert_bool_equal__( bool b1 , bool b2 , const char * file , int line) {
-  if (b1 != b2) 
+  if (b1 != b2)
     test_error_exit( "%s:%d => Booleans are different b1:[%d]  b2:[%d]\n" , file , line , b1 , b2 );
 }
 
 
 void test_assert_bool_not_equal__( bool b1 , bool b2 , const char * file , int line) {
-  if (b1 == b2) 
+  if (b1 == b2)
     test_error_exit( "%s:%d => Booleans are equal b1:[%d]  b2:[%d]\n" , file , line , b1 , b2 );
 }
 
@@ -126,13 +137,13 @@ void test_assert_bool_not_equal__( bool b1 , bool b2 , const char * file , int l
 /*****************************************************************/
 
 void test_assert_time_t_equal__( time_t t1 , time_t t2 , const char * file , int line) {
-  if (t1 != t2) 
+  if (t1 != t2)
     test_error_exit("%s:%d => time_t values are different t1:%d  t2:[%d]\n" , file , line , t1 , t2);
 }
 
 
 void test_assert_time_t_not_equal__( time_t t1 , time_t t2 , const char * file , int line) {
-  if (t1 == t2) 
+  if (t1 == t2)
     test_error_exit("%s:%d => time_t values are different t1:%d  t2:[%d]\n" , file , line , t1 , t2);
 }
 
@@ -141,13 +152,13 @@ void test_assert_time_t_not_equal__( time_t t1 , time_t t2 , const char * file ,
 /*****************************************************************/
 
 void test_assert_true__( bool value, const char * file , int line) {
-  if (!value) 
+  if (!value)
     test_error_exit("%s:%d => assert( true ) failed\n" , file , line);
 }
 
 
 void test_assert_false__( bool value, const char * file , int line) {
-  if (value) 
+  if (value)
     test_error_exit("%s:%d => assert( false ) failed" , file , line);
 }
 
@@ -156,26 +167,26 @@ void test_assert_false__( bool value, const char * file , int line) {
 
 void test_assert_ptr_equal__( const void * p1 , const void * p2 , const char * file , int line) {
   bool equal = (p1 == p2);
-  if (!equal) 
+  if (!equal)
     test_error_exit( "%s:%d => Pointers are different p1:[%p]  p2:[%p]\n" , file , line , p1 , p2 );
 }
 
 
 void test_assert_ptr_not_equal__( const void * p1 , const void * p2 , const char * file , int line) {
   bool equal = (p1 == p2);
-  if (equal) 
+  if (equal)
     test_error_exit( "%s:%d => Pointers are equal p1:[%p]  p2:[%p]\n" , file , line , p1 , p2 );
 }
 
 
 void test_assert_NULL__( const void * p , const char * file , int line) {
-  if (p != NULL) 
+  if (p != NULL)
     test_error_exit( "%s:%d => Pointer is != NULL \n" , file , line , p);
 }
 
 
 void test_assert_not_NULL__( const void * p , const char * file , int line) {
-  if (p == NULL) 
+  if (p == NULL)
     test_error_exit( "%s:%d => Pointer is NULL \n" , file , line , p);
 }
 
@@ -188,7 +199,7 @@ void test_assert_mem_equal__( const void * p1 , const void * p2 , size_t byte_si
 
     while( char_ptr1[offset] == char_ptr2[offset])
       offset++;
-    
+
     test_error_exit( "%s:%d => Memory regions have different content. First difference at offset:%ld\n" , file , line , offset);
   }
 }
@@ -240,7 +251,7 @@ void test_assert_float_not_equal__( float d1 , float d2, const char * file , int
 void test_install_SIGNALS(void) {
   signal(SIGSEGV , util_abort_signal);    /* Segmentation violation, i.e. overwriting memory ... */
   signal(SIGINT  , util_abort_signal);    /* Control C */
-  signal(SIGTERM , util_abort_signal);    /* If killing the program with SIGTERM (the default kill signal) you will get a backtrace. 
+  signal(SIGTERM , util_abort_signal);    /* If killing the program with SIGTERM (the default kill signal) you will get a backtrace.
                                              Killing with SIGKILL (-9) will not give a backtrace.*/
 }
 
@@ -255,13 +266,13 @@ void test_util_addr2line() {
   const char * func = __func__;
   int    line;
   const int max_bt = 50;
-  void *bt_addr[max_bt];  
+  void *bt_addr[max_bt];
   int size;
   char * func_name , * file_name;
   int line_nr;
-  
+
   line = __LINE__ + 2;
-  size = backtrace(bt_addr , max_bt);    
+  size = backtrace(bt_addr , max_bt);
   test_assert_int_equal( size , 4 );
   test_assert_true( util_addr2line_lookup( bt_addr[0] , &func_name , &file_name , &line_nr));
   test_assert_string_equal( func_name , func );
@@ -276,12 +287,12 @@ void test_assert_util_abort(const char * function_name , void call_func (void *)
   {
     jmp_buf * context = util_abort_test_jump_buffer();
     util_abort_test_set_intercept_function( function_name );
-    
-    if (setjmp(*context) == 0) 
+
+    if (setjmp(*context) == 0)
       call_func( arg );
-    else 
+    else
       util_abort_intercepted = true;
-    
+
     util_abort_test_set_intercept_function( NULL );
   }
 

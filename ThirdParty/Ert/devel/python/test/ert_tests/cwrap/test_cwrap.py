@@ -1,4 +1,4 @@
-from ert.cwrap import CWrapper, BaseCClass, clib
+from ert.cwrap import CWrapper, BaseCClass, clib, CWrapError
 from ert.test  import ExtendedTestCase
 
 test_lib  = clib.ert_load("libert_util") # create a local namespace (so we don't overwrite StringList)
@@ -61,6 +61,15 @@ class CWRapTest(ExtendedTestCase):
         self.assertEqual(StringListTest.cNamespace().pow, StringListTest.cNamespace()["pow"])
 
 
+    def test_invalid_function(self):
+        with self.assertRaises(CWrapError):
+            func = cwrapper.prototype("void stringlist_missing_function( )")
+    
+
+    def test_invalid_function(self):
+        with self.assertRaises(CWrapError):
+            stringlist_alloc = cwrapper.prototype("c_void_p stringlist_alloc_new( ")
+    
 
 
 

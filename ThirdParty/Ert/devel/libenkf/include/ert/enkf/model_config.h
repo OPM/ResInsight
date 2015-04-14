@@ -1,24 +1,24 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'model_config.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'model_config.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef __MODEL_CONFIG_H__
 #define __MODEL_CONFIG_H__
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -28,7 +28,8 @@ extern "C" {
 #include <ert/util/path_fmt.h>
 #include <ert/util/type_macros.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
+#include <ert/config/config_content.h>
 
 #include <ert/job_queue/ext_joblist.h>
 #include <ert/job_queue/forward_model.h>
@@ -57,7 +58,7 @@ extern "C" {
   const char           * model_config_get_enspath( const model_config_type * model_config);
   const char           * model_config_get_rftpath( const model_config_type * model_config);
   fs_driver_impl         model_config_get_dbase_type(const model_config_type * model_config );
-  const ecl_sum_type   * model_config_get_refcase( const model_config_type * model_config ); 
+  const ecl_sum_type   * model_config_get_refcase( const model_config_type * model_config );
   void                   model_config_init_internalization( model_config_type * );
   void                   model_config_set_internalize_state( model_config_type *  , int );
   void                   model_config_set_load_state( model_config_type *  , int );
@@ -66,7 +67,7 @@ extern "C" {
   bool                   model_config_has_history(const model_config_type * config);
   int                    model_config_get_last_history_restart(const model_config_type * );
   time_map_type        * model_config_get_external_time_map( const model_config_type * config);
-  void                   model_config_init(model_config_type * model_config , const config_type * , int ens_size , const ext_joblist_type * , int , const sched_file_type * , const ecl_sum_type * refcase);
+  void                   model_config_init(model_config_type * model_config , const config_content_type * , int ens_size , const ext_joblist_type * , int , const sched_file_type * , const ecl_sum_type * refcase);
   void                   model_config_free(model_config_type *);
   bool                   model_config_runpath_requires_iter( const model_config_type * model_config );
   path_fmt_type        * model_config_get_runpath_fmt(const model_config_type * );
@@ -95,7 +96,7 @@ extern "C" {
 
   UTIL_IS_INSTANCE_HEADER( model_config);
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 }
 #endif
 #endif

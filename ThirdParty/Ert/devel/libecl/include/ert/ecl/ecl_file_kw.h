@@ -49,7 +49,7 @@ typedef struct inv_map_struct inv_map_type;
   offset_type        ecl_file_kw_get_offset(const ecl_file_kw_type * file_kw);
   bool               ecl_file_kw_ptr_eq( const ecl_file_kw_type * file_kw , const ecl_kw_type * ecl_kw);
   void               ecl_file_kw_replace_kw( ecl_file_kw_type * file_kw , fortio_type * target , ecl_kw_type * new_kw );
-  void               ecl_file_kw_fskip_data( const ecl_file_kw_type * file_kw , fortio_type * fortio);
+  bool               ecl_file_kw_fskip_data( const ecl_file_kw_type * file_kw , fortio_type * fortio);
   void               ecl_file_kw_inplace_fwrite( ecl_file_kw_type * file_kw , fortio_type * fortio);
  
 #ifdef __cplusplus

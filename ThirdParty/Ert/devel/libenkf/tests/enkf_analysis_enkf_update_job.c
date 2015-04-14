@@ -29,7 +29,7 @@
 
 
 void test_update_default(const char * config_file , const char * job_file) {
-  ert_test_context_type * test_context = ert_test_context_alloc("AnalysisJob0" , config_file , NULL);
+  ert_test_context_type * test_context = ert_test_context_alloc("AnalysisJob0" , config_file);
 
   stringlist_type * args = stringlist_alloc_new();
   stringlist_append_copy( args , "20" );
@@ -43,7 +43,7 @@ void test_update_default(const char * config_file , const char * job_file) {
 
 
 void test_update_selected_step(const char * config_file , const char * job_file) {
-  ert_test_context_type * test_context = ert_test_context_alloc("AnalysisJob2" , config_file , NULL);
+  ert_test_context_type * test_context = ert_test_context_alloc("AnalysisJob2" , config_file);
 
   stringlist_type * args = stringlist_alloc_new();
   stringlist_append_copy( args , "50" );

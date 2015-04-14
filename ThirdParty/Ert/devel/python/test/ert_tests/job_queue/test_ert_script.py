@@ -15,6 +15,10 @@ class FailScript(ErtScript):
     def rum(self):
         pass
 
+class NoneScript(ErtScript):
+    def run(self, arg):
+        assert arg is None
+
 
 class ErtScriptTest(ExtendedTestCase):
 
@@ -69,3 +73,10 @@ class ErtScriptTest(ExtendedTestCase):
             self.assertIsNone(ErtScript.loadScriptFromFile("syntax_error_script.py"))
             self.assertIsNone(ErtScript.loadScriptFromFile("import_error_script.py"))
             self.assertIsNone(ErtScript.loadScriptFromFile("empty_script.py"))
+
+
+    def test_none_ert_script(self):
+        #Check if None is not converted to string "None"
+        script = NoneScript("ert")
+
+        script.initializeAndRun([str], [None])

@@ -84,11 +84,11 @@ static loop_type * loop_alloc( const char * buffer , int global_offset , regmatc
     int items_offset = global_offset + __items_offset.rm_so;
     int items_length = __items_offset.rm_eo - __items_offset.rm_so;
     char * items_string = util_alloc_substring_copy( buffer , items_offset , items_length );
-    parser_type * parser = parser_alloc("," , NULL , NULL , NULL , NULL , NULL); // Does not tolerate spaces around the splitting ","
+    basic_parser_type * parser = basic_parser_alloc("," , NULL , NULL , NULL , NULL , NULL); // Does not tolerate spaces around the splitting ","
 
-    loop->items          = parser_tokenize_buffer( parser , items_string , false);
+    loop->items          = basic_parser_tokenize_buffer( parser , items_string , false);
 
-    parser_free( parser );
+    basic_parser_free( parser );
     free( items_string );
   }
   return loop;

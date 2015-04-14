@@ -20,27 +20,36 @@
 
 #include <ert/util/test_util.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
+#include <ert/config/config_content.h>
 
 
 
 
 int main(int argc , char ** argv) {
   const char * config_file = argv[1];
-  config_type * config = config_alloc();
+  config_parser_type * config = config_alloc();
   config_schema_item_type * item = config_add_schema_item(config , "APPEND" , false );
   config_schema_item_set_argc_minmax( item , 1 , 1);
 
-  test_assert_true(config_parse(config , config_file , "--" , NULL , NULL , false , true ));
-
   {
-    test_assert_int_equal( config_get_occurences( config , "APPEND" ) , 3);
+    config_content_type * content = config_parse(config , config_file , "--" , NULL , NULL , false , true );
+    test_assert_true(config_content_is_instance( content ));
+    test_assert_true(config_content_is_valid( content ));
+    test_assert_int_equal( config_content_get_occurences( content , "APPEND" ) , 3);
+
     {
-      const char * value = config_get_value( config , "APPEND");
+      const char * value = config_content_get_value( content , "APPEND");
       test_assert_string_equal( value , "VALUE3");
     }
-  } 
 
-  test_assert_false( config_parse( config , "DoesNotExist" , "--" , NULL , NULL , false , true));
+    config_content_free( content );
+  }
+
+  {
+    config_content_type * content = config_parse( config , "DoesNotExist" , "--" , NULL , NULL , false , true);
+    test_assert_false( config_content_is_valid( content ));
+    config_content_free( content );
+  }
   exit(0);
 }

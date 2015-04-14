@@ -22,7 +22,6 @@ C based functions.
 import os
 import warnings
 from ert.ecl import EclRFTFile, EclGrid, EclSum, EclUtil, EclDefault
-from ert.ecl.ecl_queue import EclQueue
 
 
 

@@ -32,6 +32,10 @@ typedef struct job_queue_manager_struct job_queue_manager_type;
   void job_queue_manager_free( job_queue_manager_type * manager );
   void job_queue_manager_start_queue( job_queue_manager_type * manager , int num_total_run , bool verbose);
   void job_queue_manager_wait( job_queue_manager_type * manager);
+  int  job_queue_manager_get_num_running( const job_queue_manager_type * manager);
+  int  job_queue_manager_get_num_complete( const job_queue_manager_type * manager);
+  bool job_queue_manager_is_running( const job_queue_manager_type * manager);
+  bool job_queue_manager_job_complete( const job_queue_manager_type * manager , int job_index);
 
   UTIL_IS_INSTANCE_HEADER( job_queue_manager );
 

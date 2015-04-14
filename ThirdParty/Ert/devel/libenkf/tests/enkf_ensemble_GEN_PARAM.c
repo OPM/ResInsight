@@ -25,7 +25,8 @@
 #include <ert/util/thread_pool.h>
 #include <ert/util/arg_pack.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
+#include <ert/config/config_content.h>
 
 #include <ert/ecl/ecl_sum.h>
 
@@ -40,14 +41,18 @@
 
 int main(int argc , char ** argv) {
   const char * config_file = argv[1];
-  config_type * config = config_alloc();
+  config_parser_type * config = config_alloc();
+  config_content_type * content;
   ensemble_config_type * ensemble = ensemble_config_alloc();
 
   enkf_config_node_add_GEN_PARAM_config_schema( config );
-  test_assert_true( config_parse( config , config_file , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true ) );
 
-  ensemble_config_init_GEN_PARAM( ensemble, config );
-  
+  content = config_parse( config , config_file , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true );
+  test_assert_true( config_content_is_valid( content ) );
+
+  ensemble_config_init_GEN_PARAM( ensemble, content );
+
+  config_content_free( content );
   config_free( config );
   ensemble_config_free( ensemble );
   exit(0);

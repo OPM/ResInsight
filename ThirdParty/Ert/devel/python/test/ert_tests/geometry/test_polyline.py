@@ -70,7 +70,7 @@ class PolylineTest(ExtendedTestCase):
 
 
     def test_read_xyz_from_file(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(IOError):
             XYZIo.readXYZFile("does/not/exist.xyz")
 
         polyline = XYZIo.readXYZFile(self.polyline)

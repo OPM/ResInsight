@@ -83,13 +83,21 @@ class ModelConfig(BaseCClass):
     def getFSType(self):
         return ModelConfig.cNamespace().get_fs_type( self )
 
-    ##################################################################
+    def getGenKWExportFile(self):
+        """ @rtype: str """
+        return ModelConfig.cNamespace().gen_kw_export_file(self)
+
+    def runpathRequiresIterations(self):
+        """ @rtype: bool """
+        return ModelConfig.cNamespace().runpath_requires_iterations(self)
+
+    def getJobnameFormat(self):
+        """ @rtype: str """
+        return ModelConfig.cNamespace().get_jobname_fmt(self)
+
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("model_config", ModelConfig)
-cwrapper.registerType("model_config_obj", ModelConfig.createPythonObject)
-cwrapper.registerType("model_config_ref", ModelConfig.createCReference)
-
+cwrapper.registerObjectType("model_config", ModelConfig)
 
 ModelConfig.cNamespace().free = cwrapper.prototype("void model_config_free( model_config )")
 ModelConfig.cNamespace().get_enkf_sched_file = cwrapper.prototype("char* model_config_get_enkf_sched_file( model_config )")
@@ -107,4 +115,6 @@ ModelConfig.cNamespace().get_history = cwrapper.prototype("history_ref model_con
 ModelConfig.cNamespace().get_history_source = cwrapper.prototype("history_source_enum model_config_get_history_source(model_config)")
 ModelConfig.cNamespace().select_history = cwrapper.prototype("bool model_config_select_history(model_config, history_source_enum, sched_file, ecl_sum)")
 ModelConfig.cNamespace().has_history = cwrapper.prototype("bool model_config_has_history(model_config)")
-
+ModelConfig.cNamespace().gen_kw_export_file = cwrapper.prototype("char* model_config_get_gen_kw_export_file(model_config)")
+ModelConfig.cNamespace().runpath_requires_iterations = cwrapper.prototype("bool model_config_runpath_requires_iter(model_config)")
+ModelConfig.cNamespace().get_jobname_fmt = cwrapper.prototype("char* model_config_get_jobname_fmt(model_config)")

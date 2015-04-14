@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'ert_workflow_list.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'ert_workflow_list.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -29,7 +29,7 @@
 #include <ert/util/subst_list.h>
 #include <ert/util/type_macros.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 #include <ert/config/config_error.h>
 #include <ert/config/config_schema_item.h>
 
@@ -99,17 +99,17 @@ workflow_type * ert_workflow_list_add_workflow( ert_workflow_list_type * workflo
     workflow_type * workflow = workflow_alloc( workflow_file , workflow_list->joblist );
     char * name;
 
-    if (workflow_name == NULL) 
+    if (workflow_name == NULL)
       util_alloc_file_components( workflow_file , NULL , &name , NULL );
-    else 
+    else
       name = (char *) workflow_name;
 
 
-    hash_insert_hash_owned_ref( workflow_list->workflows , name , workflow , workflow_free__);    
+    hash_insert_hash_owned_ref( workflow_list->workflows , name , workflow , workflow_free__);
     if (hash_has_key( workflow_list->alias_map , name))
       hash_del( workflow_list->alias_map , name);
 
-    if (workflow_name == NULL) 
+    if (workflow_name == NULL)
       free( name );
 
     return workflow;
@@ -120,7 +120,7 @@ workflow_type * ert_workflow_list_add_workflow( ert_workflow_list_type * workflo
 
 
 void ert_workflow_list_add_alias( ert_workflow_list_type * workflow_list , const char * real_name , const char * alias) {
-  if (!util_string_equal( real_name , alias)) 
+  if (!util_string_equal( real_name , alias))
     hash_insert_ref( workflow_list->alias_map , alias , real_name );
 }
 
@@ -128,13 +128,13 @@ void ert_workflow_list_add_alias( ert_workflow_list_type * workflow_list , const
 void ert_workflow_list_add_job( ert_workflow_list_type * workflow_list , const char * job_name , const char * config_file ) {
   char * name = (char *) job_name;
 
-  if (job_name == NULL) 
+  if (job_name == NULL)
     util_alloc_file_components( config_file , NULL , &name , NULL );
-  
-  if (!workflow_joblist_add_job_from_file( workflow_list->joblist , name , config_file )) 
+
+  if (!workflow_joblist_add_job_from_file( workflow_list->joblist , name , config_file ))
     fprintf(stderr,"** Warning: failed to add workflow job:%s from:%s \n",name , config_file );
 
-  if (job_name == NULL) 
+  if (job_name == NULL)
     free(name);
 }
 
@@ -156,17 +156,17 @@ void ert_workflow_list_add_jobs_in_directory( ert_workflow_list_type * workflow_
       if (entry != NULL) {
         if ((strcmp(entry->d_name , ".") != 0) && (strcmp(entry->d_name , "..") != 0)) {
           char * full_path = util_alloc_filename( path , entry->d_name , NULL );
-          
+
           if (util_is_file( full_path )) {
            if (ert_log_is_open())
               ert_log_add_message( 1 , NULL , util_alloc_sprintf("Adding workflow job:%s " , full_path ), true);
 
             ert_workflow_list_add_job( workflow_list , entry->d_name , full_path );
           }
-          
+
           free( full_path );
         }
-      } else 
+      } else
         break;
     }
     closedir( dirH );
@@ -175,23 +175,28 @@ void ert_workflow_list_add_jobs_in_directory( ert_workflow_list_type * workflow_
 }
 
 
-void ert_workflow_list_init( ert_workflow_list_type * workflow_list , config_type * config ) {
+stringlist_type * ert_workflow_list_get_job_names(const ert_workflow_list_type * workflow_list) {
+    return  workflow_joblist_get_job_names(workflow_list->joblist);
+}
+
+
+void ert_workflow_list_init( ert_workflow_list_type * workflow_list , config_content_type * config ) {
   /* Adding jobs */
   {
-    const config_content_item_type * jobpath_item = config_get_content_item( config , WORKFLOW_JOB_DIRECTORY_KEY);
-    if (jobpath_item != NULL) {
+    if (config_content_has_item( config , WORKFLOW_JOB_DIRECTORY_KEY)) {
+      const config_content_item_type * jobpath_item = config_content_get_item( config , WORKFLOW_JOB_DIRECTORY_KEY);
       for (int i=0; i < config_content_item_get_size( jobpath_item ); i++) {
         config_content_node_type * path_node = config_content_item_iget_node( jobpath_item , i );
-               
-        for (int j=0; j < config_content_node_get_size( path_node ); j++) 
+
+        for (int j=0; j < config_content_node_get_size( path_node ); j++)
           ert_workflow_list_add_jobs_in_directory( workflow_list , config_content_node_iget_as_abspath( path_node , j ) );
       }
     }
   }
-  
+
   {
-    const config_content_item_type * job_item = config_get_content_item( config , LOAD_WORKFLOW_JOB_KEY);
-    if (job_item != NULL) {
+    if (config_content_has_item( config , LOAD_WORKFLOW_JOB_KEY)) {
+      const config_content_item_type * job_item = config_content_get_item( config , LOAD_WORKFLOW_JOB_KEY);
       for (int i=0; i < config_content_item_get_size( job_item ); i++) {
         config_content_node_type * job_node = config_content_item_iget_node( job_item , i );
         const char * config_file = config_content_node_iget_as_path( job_node , 0 );
@@ -200,18 +205,17 @@ void ert_workflow_list_init( ert_workflow_list_type * workflow_list , config_typ
       }
     }
   }
-  
+
 
   /* Adding workflows */
   {
-    const config_content_item_type * workflow_item = config_get_content_item( config , LOAD_WORKFLOW_KEY);
-
-    if (workflow_item != NULL) {
+    if (config_content_has_item( config , LOAD_WORKFLOW_KEY)) {
+      const config_content_item_type * workflow_item = config_content_get_item( config , LOAD_WORKFLOW_KEY);
       for (int i=0; i < config_content_item_get_size( workflow_item ); i++) {
         config_content_node_type * workflow_node = config_content_item_iget_node( workflow_item , i );
         const char * workflow_file = config_content_node_iget_as_path( workflow_node , 0 );
         const char * workflow_name = config_content_node_safe_iget( workflow_node , 1 );
-        
+
         ert_workflow_list_add_workflow( workflow_list , workflow_file , workflow_name );
       }
     }
@@ -219,7 +223,7 @@ void ert_workflow_list_init( ert_workflow_list_type * workflow_list , config_typ
 }
 
 
-void ert_workflow_list_add_config_items( config_type * config ) {
+void ert_workflow_list_add_config_items( config_parser_type * config ) {
   config_schema_item_type * item = config_add_schema_item( config , WORKFLOW_JOB_DIRECTORY_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , 1 );
   config_schema_item_iset_type( item , 0 , CONFIG_PATH );
@@ -227,7 +231,7 @@ void ert_workflow_list_add_config_items( config_type * config ) {
   item = config_add_schema_item( config , LOAD_WORKFLOW_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , 2 );
   config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH );
-  
+
   item = config_add_schema_item( config , LOAD_WORKFLOW_JOB_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , 2 );
   config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH );
@@ -245,8 +249,8 @@ workflow_type *  ert_workflow_list_get_workflow(ert_workflow_list_type * workflo
 }
 
 bool  ert_workflow_list_has_workflow(ert_workflow_list_type * workflow_list , const char * workflow_name ) {
-  return 
-    hash_has_key( workflow_list->workflows , workflow_name ) || 
+  return
+    hash_has_key( workflow_list->workflows , workflow_name ) ||
     hash_has_key( workflow_list->alias_map , workflow_name);
 }
 

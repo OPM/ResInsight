@@ -110,8 +110,35 @@ class TimeMap(BaseCClass):
             return False
 
 
-    def lookupTime(self , time):
-        index = TimeMap.cNamespace().lookup_time(self , CTime(time))
+    def lookupTime(self , time , tolerance_seconds_before = 0, tolerance_seconds_after = 0):
+        """Will look up the report step corresponding to input @time.
+        
+        If the tolerance arguments tolerance_seconds_before and
+        tolerance_seconds_after have the default value zero we require
+        an exact match between input time argument and the content of
+        the time map. 
+
+        If the tolerance arguments are supplied the function will
+        search through the time_map for the report step closest to the
+        time argument, which satisfies the tolerance criteria.  
+
+        With the call:
+
+            lookupTime( datetime.date(2010,1,10) , 3600*24 , 3600*7)
+
+        We will find the report step in the date interval 2010,1,9 -
+        2010,1,17 which is closest to 2010,1,10. The tolerance limits
+        are inclusive.
+
+        If no report step satisfying the criteria is found a
+        ValueError exception will be raised.
+
+        """
+        if tolerance_seconds_before == 0 and tolerance_seconds_after == 0:
+            index = TimeMap.cNamespace().lookup_time(self , CTime(time))
+        else:
+            index = TimeMap.cNamespace().lookup_time_with_tolerance(self , CTime(time) , tolerance_seconds_before , tolerance_seconds_after)
+
         if index >= 0:
             return index
         else:
@@ -168,4 +195,5 @@ TimeMap.cNamespace().try_update = cwrapper.prototype("bool time_map_try_update(t
 TimeMap.cNamespace().is_strict = cwrapper.prototype("bool time_map_is_strict( time_map )")
 TimeMap.cNamespace().set_strict = cwrapper.prototype("void time_map_set_strict( time_map , bool)")
 TimeMap.cNamespace().lookup_time = cwrapper.prototype("int time_map_lookup_time( time_map , time_t)")
+TimeMap.cNamespace().lookup_time_with_tolerance = cwrapper.prototype("int time_map_lookup_time_with_tolerance( time_map , time_t , int , int)")
 TimeMap.cNamespace().lookup_days = cwrapper.prototype("int time_map_lookup_days( time_map , double)")

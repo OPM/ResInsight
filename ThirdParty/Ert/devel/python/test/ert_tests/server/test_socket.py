@@ -22,14 +22,14 @@ import os
 import signal
 import json
 import sys 
+import logging
 
 try:
     from unittest2 import skipIf, skipUnless, skipIf
 except ImportError:
     from unittest import skipIf, skipUnless, skipIf
 
-from .test_client import TestClient
-from ert.server import ErtSocket
+from ert.server import ErtSocket, ErtClient
 from ert.util import StringList, TimeVector, DoubleVector
 
 from ert.test import ExtendedTestCase , TestAreaContext
@@ -44,17 +44,17 @@ class SocketTest(ExtendedTestCase):
          self.config_path = self.createTestPath("local/resopt/config/simple")
          self.config_file = "config"
          self.port = 9125
+         self.host = "localhost"
+         
+         self.logger = logging.Logger("ert-server-test")
+         self.logger.addHandler( logging.NullHandler() )
 
 
-    def sendRecv(self , send , expect):
-        recv = TestClient.sendRecv( self.port , json.dumps(send) + "\n")
-        self.assertEqual( json.loads(recv) , expect )
 
+    def runCommand(self , send , expect):
+        result = ErtClient.runCommand(send , self.port , self.host )
+        #self.assertEqual( result , expect )
 
-    def sendRecvRAW(self , send , expect):
-        recv = TestClient.sendRecv( self.port , send)
-        self.assertEqual( json.loads(recv) , expect )
-        
 
          
     def test_connect(self):
@@ -62,14 +62,17 @@ class SocketTest(ExtendedTestCase):
             work_area.copy_directory_content(self.config_path)
             pid = os.fork()
             if pid == 0:
-                s = ErtSocket(self.config_file , self.port)
+                s = ErtSocket.connect(self.config_file , self.port , self.host , self.logger)
                 s.listen( )
             else:
                 time.sleep(0.50)
                 
-                self.sendRecv( ["ECHO" ,  "HEI"] , ["HEI"] )
-                self.sendRecv( ["STATUS"] , ["OPEN"] )
-                self.sendRecvRAW( "INVALID\n" , {"input" : "INVALID" , "ERROR" : "No JSON object could be decoded"})
-                self.sendRecv( ["QUIT"] , ["QUIT"] )
+                self.runCommand( ["STATUS"] , ["OPEN"] )
+                self.runCommand( ["QUIT"] , ["QUIT"] )
             
-                
+                with self.assertRaises(Exception):
+                    self.runCommand( "INVALID" )
+                    
+                with self.assertRaises(Exception):
+                    self.runCommand( ["MISSING_COMMAND"] )
+

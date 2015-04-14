@@ -32,7 +32,7 @@
 
 
 void test_obs_check_report_steps(const char * config_file ) {
-  ert_test_context_type * test_context = ert_test_context_alloc( "GEN_OBS" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc( "GEN_OBS" , config_file );
   enkf_main_type * enkf_main = ert_test_context_get_main( test_context );
   enkf_obs_type * obs = enkf_main_get_obs( enkf_main );
   

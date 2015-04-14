@@ -89,6 +89,32 @@ void test_iget_as_int() {
   }
 }
 
+
+void test_iget_as_double() {
+  stringlist_type * s = stringlist_alloc_new();
+  stringlist_append_ref(s , "1000.90" );
+  stringlist_append_ref(s , "1000" );
+  stringlist_append_ref(s , "XXXX" );
+
+  {
+    double value;
+    bool valid;
+
+    value = stringlist_iget_as_double( s , 0 , &valid);
+    test_assert_double_equal( value , 1000.90);
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_double( s , 1 , &valid);
+    test_assert_double_equal( value , 1000.0);
+    test_assert_true( valid );
+
+    value = stringlist_iget_as_double( s , 2 , &valid);
+    test_assert_double_equal( value , -1);
+    test_assert_false( valid );
+  }
+}
+
+
 void test_iget_as_bool() {
   stringlist_type * s = stringlist_alloc_new();
   stringlist_append_ref(s , "TRUE" );
@@ -268,6 +294,7 @@ int main( int argc , char ** argv) {
   test_reverse();
   test_iget_as_int();
   test_iget_as_bool();
+  test_iget_as_double();
   test_split();
   test_matching();
   exit(0);

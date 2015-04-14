@@ -807,12 +807,18 @@ class EclRegion(CClass):
 
 
     def getActiveList(self):
+        """
+        IntVector instance with active indices in the region.
+        """
         active_list = cfunc.get_active_list(self)
         active_list.setParent(self)
         return active_list
 
 
     def getGlobalList(self):
+        """
+        IntVector instance with global indices in the region.
+        """
         global_list = cfunc.get_global_list(self)
         global_list.setParent(self)
         return global_list
@@ -820,17 +826,13 @@ class EclRegion(CClass):
 
     @property
     def active_list(self):
-        """
-        IntVector instance with active indices in the region.
-        """
+        warnings.warn("The active_list property is deprecated - use method \'getActiveList()\' instead." , DeprecationWarning)
         return self.getActiveList()
 
 
     @property
     def global_list(self):
-        """
-        IntVector instance with global indices in the region.
-        """
+        warnings.warn("The global_list property is deprecated - use method \'getGlobalList()\' instead." , DeprecationWarning)
         return self.getGlobalList()
 
 
@@ -839,16 +841,16 @@ class EclRegion(CClass):
         """
         Number of active cells in region.
         """
-        warnings.warn("The active_size property is deprecated - use \'active_list.size\' instead." , DeprecationWarning)
-        return self.active_list.size
+        warnings.warn("The active_size property is deprecated - use \'len(getActiveList())\' instead." , DeprecationWarning)
+        return len(self.getActiveList())
 
     @property
     def global_size( self ):
         """
         Number of global cells in region.
         """
-        warnings.warn("The global_size property is deprecated - use \'global_list.size\' instead." , DeprecationWarning)
-        return self.global_list.size    
+        warnings.warn("The global_size property is deprecated - use \'len(getGlobalList())\' instead." , DeprecationWarning)
+        return len(self.getGlobalList())
 
     def contains_ijk( self , i,j,k):
         """

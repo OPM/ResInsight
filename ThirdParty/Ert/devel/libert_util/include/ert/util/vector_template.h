@@ -119,7 +119,8 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   int                  @TYPE@_vector_count_equal( const @TYPE@_vector_type * vector , @TYPE@ cmp_value);
   int                  @TYPE@_vector_element_size( const @TYPE@_vector_type * vector );
   void                 @TYPE@_vector_range_fill(@TYPE@_vector_type * vector , @TYPE@ limit1 , @TYPE@ delta , @TYPE@ limit2);
-  
+  void                 @TYPE@_vector_shift(@TYPE@_vector_type * vector, @TYPE@ delta);
+
   UTIL_SAFE_CAST_HEADER( @TYPE@_vector );
   UTIL_IS_INSTANCE_HEADER( @TYPE@_vector );
 

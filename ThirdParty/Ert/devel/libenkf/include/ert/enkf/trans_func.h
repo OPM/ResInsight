@@ -33,7 +33,7 @@ typedef struct trans_func_struct  trans_func_type;
 typedef double (transform_ftype) (double , const arg_pack_type *);
 typedef bool   (validate_ftype)  (const trans_func_type * );
 
-trans_func_type  * trans_func_fscanf_alloc( FILE * stream );
+trans_func_type  * trans_func_fscanf_alloc( FILE * stream, const char * filename );
 double             trans_func_eval( const trans_func_type * trans_func , double x);
 
 void               trans_func_free( trans_func_type * trans_func );

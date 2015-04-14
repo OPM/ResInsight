@@ -20,64 +20,84 @@ import sys
 import threading
 import json
 import traceback
+import socket
 
-from ert.server import ErtServer
+from ert.server import ErtServer, SUCCESS , ERROR
 
 class ErtHandler(SocketServer.StreamRequestHandler):
     ert_server = None
     config_file = None
-    
+    logger = None
     
     def handle(self):
-        data = self.rfile.readline().strip()
+        string_data = self.rfile.readline().strip()
         try:
-            json_data = json.loads( data )
-            if json_data[0] == "QUIT":
-                self.handleQuit()
-            else:
-                self.evalJson( json_data )
+            data = json.loads( string_data )
         except Exception,e:
-            self.handleInvalidJSON(data , "%s %s" % (e , traceback.format_exc()))
+            self.returnString(ERROR( "Invalid JSON input" , exception = e))
+            return
             
-
-
-    def evalJson(self , json_data):
-        cmd = json_data[0]
-        if cmd == "ECHO":
-            self.wfile.write( json.dumps( json_data[1:] ))
+        if data[0] == "QUIT":
+            self.handleQuit()
         else:
-            result = self.ert_server.evalCmd( json_data )
-            self.wfile.write( json.dumps( result ))
-            
-
-    
-    def handleInvalidJSON(self , data , e):
-        json_string = json.dumps({"ERROR" : "%s" % e , "input" : "%s" % data})
-        self.wfile.write( json_string )
+            self.evalCmd( data )
 
 
+    def returnToClient(self , data):
+        self.wfile.write(json.dumps(data))
         
+
+    def evalCmd(self , data):
+        try:
+            result = self.ert_server.evalCmd( data )
+        except Exception,e:
+            result = ERROR( "Exception raised" , exception = e)
+
+        self.returnToClient( result )
+
+
+
     def handleQuit(self):
-        print "Handling QUIT - shutting down ert server"
-        self.wfile.write(json.dumps(["QUIT"]))
         shutdown_thread = threading.Thread( target = self.server.shutdown )
         shutdown_thread.start()
+        self.returnToClient( SUCCESS(["QUIT"]) )
 
 
 
+class ErtSocketServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    pass
+    
 
 class ErtSocket(object):
 
-    def __init__(self , config_file , port , host = "localhost"):
-        self.open(config_file)
-        self.server = SocketServer.TCPServer((host , port) , ErtHandler)
+    def __init__(self , config_file , port , host , logger):
+        self.server = ErtSocketServer((host , port) , ErtHandler)
+        self.open(config_file , logger)
 
-    def open(self , config_file):
-        try:
-            ert_server = ErtServer( config_file )
-        except Exception:
-            ert_server = ErtServer( )
-        ErtHandler.ert_server = ert_server
+
+    @staticmethod
+    def connect(config_file , port , host , logger , info_callback = None , timeout = 60 , sleep_time = 5):
+        start_time = time.time()
+        ert_socket = None
+        while True:
+            try:
+                ert_socket = ErtSocket(config_file , port, host , logger)
+                break
+            except socket.error:
+                if info_callback:
+                    info_callback( sleep_time , host , port )
+                    
+                if time.time() - start_time > timeout:
+                    break
+                    
+            time.sleep( sleep_time )
+        return ert_socket
+
+
+
+    def open(self , config_file , logger):
+        ErtHandler.ert_server = ErtServer( config_file , logger )
+
 
 
     def evalCmd(self , cmd):
@@ -86,4 +106,5 @@ class ErtSocket(object):
 
     def listen(self):
         self.server.serve_forever( )
+        
         

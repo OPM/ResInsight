@@ -25,6 +25,8 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include <ert/util/type_macros.h>
+
   typedef struct geo_polygon_struct geo_polygon_type;
   
   geo_polygon_type * geo_polygon_alloc( );
@@ -33,6 +35,12 @@ extern "C" {
   void               geo_polygon_add_point( geo_polygon_type * polygon , double x , double y );
   geo_polygon_type * geo_polygon_fload_alloc_irap( const char * filename );
   bool               geo_polygon_contains_point( const geo_polygon_type * polygon , double x , double y);
+  void               geo_polygon_reset(geo_polygon_type * polygon );
+  void               geo_polygon_fprintf(const geo_polygon_type * polygon , FILE * stream);
+  void               geo_polygon_shift(geo_polygon_type * polygon , double x0 , double y0);
+  void               geo_polygon_close( geo_polygon_type * polygoon);
+
+  UTIL_IS_INSTANCE_HEADER( geo_polygon );
 
 #ifdef __cplusplus
 }

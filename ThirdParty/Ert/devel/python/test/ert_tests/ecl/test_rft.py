@@ -18,6 +18,7 @@
 
 import datetime
 from ert.ecl import EclRFTFile, EclRFTCell, EclPLTCell
+from ert.ecl.rft import WellTrajectory
 from ert.test import ExtendedTestCase
 
 
@@ -77,3 +78,30 @@ class RFTTest(ExtendedTestCase):
         with self.assertRaises(IndexError):
             rftFile = EclRFTFile(self.RFT_file)
             rft = rftFile[100]
+
+
+    def test_trajectory(self):
+        with self.assertRaises(IOError):
+            WellTrajectory("/does/no/exist")
+
+        with self.assertRaises(UserWarning):
+            WellTrajectory( self.createTestPath("Statoil/ert-statoil/spotfire/gendata_rft_zone/invalid_float.txt") )
+
+        with self.assertRaises(UserWarning):
+            WellTrajectory( self.createTestPath("Statoil/ert-statoil/spotfire/gendata_rft_zone/missing_item.txt") )
+
+        wt = WellTrajectory( self.createTestPath("Statoil/ert-statoil/spotfire/gendata_rft_zone/E-3H.txt") )
+        self.assertEqual( len(wt) , 38)
+
+        with self.assertRaises(IndexError):
+            p = wt[38] 
+            
+        p0 = wt[0]
+        self.assertEqual( p0.utm_x ,  458920.671  )
+        self.assertEqual( p0.utm_y , 7324939.077  )
+        self.assertEqual( p0.measured_depth , 2707.5000 )
+        
+        pm1 = wt[-1]
+        p37 = wt[37]
+        self.assertEqual( p37 , pm1)
+        

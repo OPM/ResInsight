@@ -15,11 +15,8 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB, EnkfFs, NodeId
-from ert.enkf.data import EnkfConfigNode , GenKw , GenData
-from ert.enkf.data.gen_data_config import GenDataConfig
-from ert.enkf.enums import EnkfStateType
-from ert.enkf.enums.ert_impl_type_enum import ErtImplType
-
+from ert.enkf.data import EnkfConfigNode, GenKw, GenData, CustomKW
+from ert.enkf.enums import ErtImplType
 
 class EnkfNode(BaseCClass):
     def __init__(self, config_node, private=False):
@@ -32,13 +29,6 @@ class EnkfNode(BaseCClass):
 
         super(EnkfNode, self).__init__(c_pointer, config_node, True)
 
-    # def user_get(self, fs, key, report_step, iens, state, value):
-    #     return EnkfNode.cNamespace().user_get(self, fs, key, report_step, iens, state, value)
-    #
-    # def user_get_vector( self, fs, key, iens, state, vector):
-    #     return EnkfNode.cNamespace().user_get_vector(self, fs, key, iens, state, vector)
-
-
     def valuePointer(self):
         return EnkfNode.cNamespace().value_ptr(self)
 
@@ -49,23 +39,19 @@ class EnkfNode(BaseCClass):
 
         return GenData.createCReference(self.valuePointer(), self)
 
-
     def asGenKw(self):
+        """ @rtype: GenKw """
         impl_type = EnkfNode.cNamespace().get_impl_type(self)
         assert impl_type == ErtImplType.GEN_KW
 
         return GenKw.createCReference(self.valuePointer(), self)
 
+    def asCustomKW(self):
+        """ @rtype: CustomKW """
+        impl_type = EnkfNode.cNamespace().get_impl_type(self)
+        assert impl_type == ErtImplType.CUSTOM_KW
 
-
-    # def vector_storage(self):
-    #     return EnkfNode.cNamespace().vector_storage(self)
-
-    # def getConfig(self):
-    #     """ @rtype: EnkfConfigNode """
-    #     #todo: fix this!!!! wrong return type in prototype!
-    #     return EnkfNode.cNamespace().get_config(self).setParent(self)
-
+        return CustomKW.createCReference(self.valuePointer(), self)
 
     def tryLoad(self, fs, node_id):
         """
@@ -78,9 +64,18 @@ class EnkfNode(BaseCClass):
 
         return EnkfNode.cNamespace().try_load(self, fs, node_id)
 
-    def save(self , fs , node_id ):
-        EnkfNode.cNamespace().store(self , fs , True , node_id)
+    def name(self):
+        return EnkfNode.cNamespace().get_name(self)
 
+    def load(self, fs, node_id):
+        if not self.tryLoad(fs, node_id):
+            raise Exception("Could not load node: %s iens: %d report: %d" % (self.name(), node_id.iens, node_id.report_step))
+
+    def save(self, fs, node_id):
+        assert isinstance(fs, EnkfFs)
+        assert isinstance(node_id, NodeId)
+        
+        EnkfNode.cNamespace().store(self, fs, True, node_id)
 
     def free(self):
         EnkfNode.cNamespace().free(self)
@@ -89,17 +84,13 @@ class EnkfNode(BaseCClass):
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("enkf_node", EnkfNode)
 
-EnkfNode.cNamespace().free = cwrapper.prototype("void enkf_node_free( enkf_node )")
+EnkfNode.cNamespace().free = cwrapper.prototype("void enkf_node_free(enkf_node)")
 EnkfNode.cNamespace().alloc = cwrapper.prototype("c_void_p enkf_node_alloc(enkf_node)")
 EnkfNode.cNamespace().alloc_private = cwrapper.prototype("c_void_p enkf_node_alloc_private_container(enkf_node)")
+EnkfNode.cNamespace().get_name = cwrapper.prototype("char* enkf_node_get_key(enkf_node)")
 
-# EnkfNode.cNamespace().user_get = cwrapper.prototype("bool enkf_node_user_get_no_id(enkf_node , enkf_fs , char*  , int, int , c_uint, double*)")
-# EnkfNode.cNamespace().user_get_vector = cwrapper.prototype("bool enkf_node_user_get_vector( enkf_node , enkf_fs , char*, int, c_uint, double_vector)")
 EnkfNode.cNamespace().value_ptr = cwrapper.prototype("c_void_p enkf_node_value_ptr(enkf_node)")
-# EnkfNode.cNamespace().vector_storage = cwrapper.prototype("bool enkf_node_vector_storage(enkf_node)")
 
 EnkfNode.cNamespace().try_load = cwrapper.prototype("bool enkf_node_try_load(enkf_node, enkf_fs, node_id)")
 EnkfNode.cNamespace().get_impl_type = cwrapper.prototype("ert_impl_type_enum enkf_node_get_impl_type(enkf_node)")
-EnkfNode.cNamespace().store = cwrapper.prototype("void enkf_node_store(enkf_node, enkf_fs , bool , node_id)")
-#todo fix this
-# EnkfNode.cNamespace().get_config = cwrapper.prototype("c_void_p enkf_node_get_config(enkf_node)")
+EnkfNode.cNamespace().store = cwrapper.prototype("void enkf_node_store(enkf_node, enkf_fs, bool, node_id)")

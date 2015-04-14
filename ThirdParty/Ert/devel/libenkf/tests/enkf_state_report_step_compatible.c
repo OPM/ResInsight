@@ -61,7 +61,7 @@ int main(int argc , char ** argv) {
   test_work_area_copy_directory_content( work_area , root_path );
   
   bool strict = true;
-  enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , strict , true );
+  enkf_main_type * enkf_main = enkf_main_bootstrap( config_file , strict , true );
   
   
   test_assert_bool_equal(check_compatible , check_ecl_sum_compatible(enkf_main));

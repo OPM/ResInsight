@@ -138,7 +138,7 @@ void gen_kw_config_set_parameter_file( gen_kw_config_type * config , const char 
       fscanf_return = fscanf(stream , "%s" , parameter_name);
       if (fscanf_return == 1) {
         gen_kw_parameter_type * parameter  = gen_kw_parameter_alloc( parameter_name , config->tag_fmt);
-        trans_func_type       * trans_func = trans_func_fscanf_alloc( stream );
+        trans_func_type       * trans_func = trans_func_fscanf_alloc( stream, parameter_file );
         gen_kw_parameter_set_trans_func( parameter , trans_func );
 
         vector_append_owned_ref( config->parameters , parameter , gen_kw_parameter_free__ );

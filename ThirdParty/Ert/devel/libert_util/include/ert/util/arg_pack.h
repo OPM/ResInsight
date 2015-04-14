@@ -40,7 +40,7 @@ typedef void * (arg_node_copyc_ftype) (const void *);
   void            arg_pack_free__(void *);
   void            arg_pack_clear(arg_pack_type *);
   void            arg_pack_lock(arg_pack_type *);
-  void            arg_pack_fscanf(arg_pack_type * arg , FILE * stream);
+  void            arg_pack_fscanf(arg_pack_type * arg , FILE * stream, const char * filename);
   void            arg_pack_fprintf(const arg_pack_type * , FILE * );
   
   void            arg_pack_append_ptr(arg_pack_type * , void *);

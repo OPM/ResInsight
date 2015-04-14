@@ -21,10 +21,10 @@ void enkf_linalg_genX3(matrix_type * X3 , const matrix_type * W , const matrix_t
   for (i=0; i < nrmin; i++)
     for (j=0; j < nrobs; j++)
       matrix_iset(X1 , i , j , eig[i] * matrix_iget(W , j , i));
-  
+
   matrix_matmul(X2 , X1 , D); /*   X2 = X1 * D           (Eq. 14.31) */
-  matrix_matmul(X3 , W  , X2); /*  X3 = W * X2 = X1 * X2 (Eq. 14.31) */  
-  
+  matrix_matmul(X3 , W  , X2); /*  X3 = W * X2 = X1 * X2 (Eq. 14.31) */
+
   matrix_free( X1 );
   matrix_free( X2 );
 }
@@ -34,7 +34,7 @@ void enkf_linalg_genX2(matrix_type * X2 , const matrix_type * S , const matrix_t
   const int nrens = matrix_get_columns( S );
   const int idim  = matrix_get_rows( X2 );
   matrix_dgemm(X2 , W , S , true , false , 1.0 , 0.0);
-  { 
+  {
     int i,j;
     for (j=0; j < nrens; j++)
       for (i=0; i < idim; i++)
@@ -53,11 +53,11 @@ void enkf_linalg_genX2(matrix_type * X2 , const matrix_type * S , const matrix_t
 
      ncomp > 0 , truncation < 0: Use ncomp parameters.
      ncomp < 0 , truncation > 0: Truncate at level 'truncation'.
-     
+
    The singular values are returned in the inv_sig0 vector; the values
    we retain are inverted and the remaining elements in are explicitly
    set to zero.
-   
+
    The left-hand singular vectors are returned in the matrix
    U0. Depending on the value of the flag @store_V0T the right hand
    singular vectors are stored in the V0T matrix, or just
@@ -74,14 +74,14 @@ void enkf_linalg_genX2(matrix_type * X2 , const matrix_type * S , const matrix_t
 /*This function is similar to enkf_linalg_svdS but it returns the eigen values without its inverse and also give the matrices truncated U VT and Sig0*/
 
 // Trunc.SVD(S)  = U0 * Sig0 * V0T
-int enkf_linalg_svd_truncation(const matrix_type * S , 
-                               double truncation , 
+int enkf_linalg_svd_truncation(const matrix_type * S ,
+                               double truncation ,
                                int ncomp ,
-                               dgesvd_vector_enum store_V0T , 
-                               double * sig0, 
-                               matrix_type * U0 , 
+                               dgesvd_vector_enum store_V0T ,
+                               double * sig0,
+                               matrix_type * U0 ,
                                matrix_type * V0T) {
-  
+
   int num_significant = -1;
   int nrows = matrix_get_rows(S);
   int ncolumns= matrix_get_columns(S);
@@ -90,9 +90,9 @@ int enkf_linalg_svd_truncation(const matrix_type * S ,
       ((truncation < 0) && (ncomp > 0))) {
 
       int num_singular_values = util_int_min( matrix_get_rows( S ) , matrix_get_columns( S ));
-      {   
+      {
         matrix_type * workS = matrix_alloc_copy( S );
-        matrix_dgesvd(DGESVD_MIN_RETURN , store_V0T , workS , sig0 , U0 , V0T);  
+        matrix_dgesvd(DGESVD_MIN_RETURN , store_V0T , workS , sig0 , U0 , V0T);
         matrix_free( workS );
       }
       int i;
@@ -103,11 +103,11 @@ int enkf_linalg_svd_truncation(const matrix_type * S ,
         double total_sigma2    = 0;
         for (i=0; i < num_singular_values; i++)
           total_sigma2 += sig0[i];
-        
-        /* 
+
+        /*
            Determine the number of singular values by enforcing that
            less than a fraction @truncation of the total variance be
-           accounted for. 
+           accounted for.
         */
         num_significant = 0;
         {
@@ -116,40 +116,44 @@ int enkf_linalg_svd_truncation(const matrix_type * S ,
             if (running_sigma2 / total_sigma2 < truncation) {  /* Include one more singular value ? */
               num_significant++;
               running_sigma2 += sig0[i];
-            } else 
+            } else
               break;
           }
         }
       }
-      matrix_resize(U0 , nrows , num_significant , true);
-      matrix_resize(V0T , num_significant , ncolumns , true);
+      if (num_significant > 0) {
+        matrix_resize(U0 , nrows , num_significant , true);
+        matrix_resize(V0T , num_significant , ncolumns , true);
+      } else
+        util_abort("%s: zero significant singular values\n",__func__);
   }
-  else 
+  else
     util_abort("%s:  truncation:%g  ncomp:%d  - invalid ambigous input.\n",__func__ , truncation , ncomp );
+
   return num_significant;
 }
 
 
 
 
-int enkf_linalg_svdS(const matrix_type * S , 
-                     double truncation , 
+int enkf_linalg_svdS(const matrix_type * S ,
+                     double truncation ,
                      int ncomp ,
-                     dgesvd_vector_enum store_V0T , 
-                     double * inv_sig0, 
-                     matrix_type * U0 , 
+                     dgesvd_vector_enum store_V0T ,
+                     double * inv_sig0,
+                     matrix_type * U0 ,
                      matrix_type * V0T) {
-  
+
   double * sig0 = inv_sig0;
   int    num_significant = 0;
 
-  
+
   if (((truncation > 0) && (ncomp < 0)) ||
       ((truncation < 0) && (ncomp > 0))) {
       int num_singular_values = util_int_min( matrix_get_rows( S ) , matrix_get_columns( S ));
-      {   
+      {
         matrix_type * workS = matrix_alloc_copy( S );
-        matrix_dgesvd(DGESVD_MIN_RETURN , store_V0T , workS , sig0 , U0 , V0T);  
+        matrix_dgesvd(DGESVD_MIN_RETURN , store_V0T , workS , sig0 , U0 , V0T);
         matrix_free( workS );
       }
       int i;
@@ -158,13 +162,13 @@ int enkf_linalg_svdS(const matrix_type * S ,
         num_significant = ncomp;
       else {
         double total_sigma2    = 0;
-        for (i=0; i < num_singular_values; i++) 
+        for (i=0; i < num_singular_values; i++)
           total_sigma2 += sig0[i] * sig0[i];
-        
-        /* 
+
+        /*
            Determine the number of singular values by enforcing that
            less than a fraction @truncation of the total variance be
-           accounted for. 
+           accounted for.
         */
         num_significant = 0;
         {
@@ -173,7 +177,7 @@ int enkf_linalg_svdS(const matrix_type * S ,
             if (running_sigma2 / total_sigma2 < truncation) {  /* Include one more singular value ? */
               num_significant++;
               running_sigma2 += sig0[i] * sig0[i];
-            } else 
+            } else
               break;
           }
         }
@@ -185,9 +189,9 @@ int enkf_linalg_svdS(const matrix_type * S ,
 
       /* Explicitly setting the insignificant singular values to zero. */
       for (i=num_significant; i < num_singular_values; i++)
-        inv_sig0[i] = 0;                                     
-    
-  } else 
+        inv_sig0[i] = 0;
+
+  } else
     util_abort("%s:  truncation:%g  ncomp:%d  - invalid ambigous input.\n",__func__ , truncation , ncomp );
   return num_significant;
 }
@@ -200,14 +204,14 @@ void enkf_linalg_Cee(matrix_type * B, int nrens , const matrix_type * R , const 
     matrix_dgemm(X0 , U0 , R  , true  , false , 1.0 , 0.0);  /* X0 = U0^T * R */
     matrix_dgemm(B  , X0 , U0 , false , false , 1.0 , 0.0);  /* B = X0 * U0 */
     matrix_free( X0 );
-  }    
-  
+  }
+
   {
     int i ,j;
 
-    /* Funny code ?? 
+    /* Funny code ??
        Multiply B with S^(-1)from left and right
-       BHat =  S^(-1) * B * S^(-1) 
+       BHat =  S^(-1) * B * S^(-1)
     */
     for (j=0; j < matrix_get_columns( B ) ; j++)
       for (i=0; i < matrix_get_rows( B ); i++)
@@ -217,26 +221,26 @@ void enkf_linalg_Cee(matrix_type * B, int nrens , const matrix_type * R , const 
       for (i=0; i < matrix_get_rows( B ); i++)
         matrix_imul(B , i , j , inv_sig0[j]);
   }
-  
+
   matrix_scale(B , nrens - 1.0);
 }
 
 
 
 
-void enkf_linalg_lowrankCinv__(const matrix_type * S , 
-                               const matrix_type * R , 
-                               matrix_type * V0T , 
-                               matrix_type * Z, 
-                               double * eig , 
-                               matrix_type * U0, 
-                               double truncation, 
+void enkf_linalg_lowrankCinv__(const matrix_type * S ,
+                               const matrix_type * R ,
+                               matrix_type * V0T ,
+                               matrix_type * Z,
+                               double * eig ,
+                               matrix_type * U0,
+                               double truncation,
                                int ncomp) {
-  
+
   const int nrobs = matrix_get_rows( S );
   const int nrens = matrix_get_columns( S );
   const int nrmin = util_int_min( nrobs , nrens );
-  
+
   double * inv_sig0      = util_calloc( nrmin , sizeof * inv_sig0);
 
   if (V0T != NULL)
@@ -246,18 +250,18 @@ void enkf_linalg_lowrankCinv__(const matrix_type * S ,
 
   {
     matrix_type * B    = matrix_alloc( nrmin , nrmin );
-    enkf_linalg_Cee( B , nrens , R , U0 , inv_sig0);          /* B = Xo = (N-1) * Sigma0^(+) * U0'* Cee * U0 * Sigma0^(+')  (14.26)*/     
+    enkf_linalg_Cee( B , nrens , R , U0 , inv_sig0);          /* B = Xo = (N-1) * Sigma0^(+) * U0'* Cee * U0 * Sigma0^(+')  (14.26)*/
     matrix_dgesvd(DGESVD_MIN_RETURN , DGESVD_NONE, B , eig, Z , NULL);
     matrix_free( B );
   }
-  
+
   {
     int i,j;
     /* Lambda1 = (I + Lambda)^(-1) */
 
-    for (i=0; i < nrmin; i++) 
+    for (i=0; i < nrmin; i++)
       eig[i] = 1.0 / (1 + eig[i]);
-    
+
     for (j=0; j < nrmin; j++)
       for (i=0; i < nrmin; i++)
         matrix_imul(Z , i , j , inv_sig0[i]); /* Z2 =  Sigma0^(+) * Z; */
@@ -266,20 +270,20 @@ void enkf_linalg_lowrankCinv__(const matrix_type * S ,
 }
 
 
-void enkf_linalg_lowrankCinv(const matrix_type * S , 
-                             const matrix_type * R , 
+void enkf_linalg_lowrankCinv(const matrix_type * S ,
+                             const matrix_type * R ,
                              matrix_type * W       , /* Corresponding to X1 from Eq. 14.29 */
                              double * eig          , /* Corresponding to 1 / (1 + Lambda_1) (14.29) */
                              double truncation     ,
                              int    ncomp) {
-  
+
   const int nrobs = matrix_get_rows( S );
   const int nrens = matrix_get_columns( S );
   const int nrmin = util_int_min( nrobs , nrens );
 
   matrix_type * U0   = matrix_alloc( nrobs , nrmin );
   matrix_type * Z    = matrix_alloc( nrmin , nrmin );
-  
+
   enkf_linalg_lowrankCinv__( S , R , NULL , Z , eig , U0 , truncation , ncomp);
   matrix_matmul(W , U0 , Z); /* X1 = W = U0 * Z2 = U0 * Sigma0^(+') * Z    */
 
@@ -288,13 +292,13 @@ void enkf_linalg_lowrankCinv(const matrix_type * S ,
 }
 
 
-void enkf_linalg_meanX5(const matrix_type * S , 
-                        const matrix_type * W , 
-                        const double * eig    , 
-                        const matrix_type * dObs, 
+void enkf_linalg_meanX5(const matrix_type * S ,
+                        const matrix_type * W ,
+                        const double * eig    ,
+                        const matrix_type * dObs,
                         matrix_type * X5) {
 
-  
+
   const int nrens = matrix_get_columns( S );
   const int nrobs = matrix_get_rows( S );
   const int nrmin = util_int_min( nrobs , nrens );
@@ -304,8 +308,8 @@ void enkf_linalg_meanX5(const matrix_type * S ,
     double * y1 = &work[0];
     double * y2 = &work[nrmin];
     double * y3 = &work[2*nrmin];
-    double * y4 = &work[2*nrmin + nrobs]; 
-    
+    double * y4 = &work[2*nrmin + nrobs];
+
     if (nrobs == 1) {
       /* Is this special casing necessary ??? */
       y1[0] = matrix_iget(W , 0,0) * matrix_iget( innov , 0 , 0);
@@ -317,13 +321,13 @@ void enkf_linalg_meanX5(const matrix_type * S ,
       matrix_dgemv(W , matrix_get_data( innov ) , y1 , true , 1.0, 0.0);   /* y1 = Trans(W) * innov */
       for (int i= 0; i < nrmin; i++)
         y2[i] = eig[i] * y1[i];                         /* y2 = eig * y1      */
-      matrix_dgemv(W , y2 , y3 , false , 1.0 , 0.0);    /* y3 = W * y2;       */ 
+      matrix_dgemv(W , y2 , y3 , false , 1.0 , 0.0);    /* y3 = W * y2;       */
       matrix_dgemv(S , y3 , y4 , true  , 1.0 , 0.0);    /* y4 = Trans(S) * y3 */
     }
-    
+
     for (int iens = 0; iens < nrens; iens++)
       matrix_set_column(X5 , y4 , iens );
-    
+
     matrix_shift(X5 , 1.0/nrens);
   }
   free( work );
@@ -332,7 +336,7 @@ void enkf_linalg_meanX5(const matrix_type * S ,
 
 
 
-void enkf_linalg_X5sqrt(matrix_type * X2 , matrix_type * X5 , const matrix_type * randrot, int nrobs) { 
+void enkf_linalg_X5sqrt(matrix_type * X2 , matrix_type * X5 , const matrix_type * randrot, int nrobs) {
   const int nrens   = matrix_get_columns( X5 );
   const int nrmin   = util_int_min( nrobs , nrens );
   matrix_type * VT  = matrix_alloc( nrens , nrens );
@@ -348,24 +352,24 @@ void enkf_linalg_X5sqrt(matrix_type * X2 , matrix_type * X5 , const matrix_type 
     int i,j;
     for (i = 0; i < nrmin; i++)
       isig[i] = sqrt( util_double_max( 1.0 - sig[i]*sig[i]  ,0.0));
-    
+
     for (j = 0; j < nrens; j++)
       for (i = 0; i < nrens; i++)
         matrix_iset(X3 , i , j , matrix_iget(VT , j , i));
-    
+
     for (j=0; j< nrmin; j++)
       matrix_scale_column(X3 , j , isig[j]);
-    
+
     matrix_dgemm(X33 , X3 , VT , false , false , 1.0 , 0.0);        /* X33 = X3   * VT */
     if (randrot != NULL)
-      matrix_dgemm(X4  , X33 , randrot , false, false , 1.0 , 0.0);   /* X4  = X33  * Randrot */             
+      matrix_dgemm(X4  , X33 , randrot , false, false , 1.0 , 0.0);   /* X4  = X33  * Randrot */
     else
       matrix_assign(X4 , X33);
-    
+
     matrix_set(IenN , -1.0/ nrens);
     for (i = 0; i < nrens; i++)
       matrix_iadd(IenN , i , i , 1.0);
-    
+
     matrix_dgemm(X5  , IenN , X4 , false , false , 1.0 , 1.0);      /* X5  = IenN * X4 + X5 */
 
     matrix_free( X3   );
@@ -383,51 +387,51 @@ void enkf_linalg_X5sqrt(matrix_type * X2 , matrix_type * X5 , const matrix_type 
 matrix_type * enkf_linalg_alloc_innov( const matrix_type * dObs , const matrix_type * S) {
   matrix_type * innov = matrix_alloc_copy( dObs );
 
-  for (int iobs =0; iobs < matrix_get_row_sum( dObs , iobs); iobs++) 
+  for (int iobs =0; iobs < matrix_get_row_sum( dObs , iobs); iobs++)
     matrix_isub( innov , iobs , 0 , matrix_get_row_sum( S , iobs ));
 
   return innov;
 }
 
 
-void enkf_linalg_init_stdX( matrix_type * X , const matrix_type * S , const matrix_type * D , 
+void enkf_linalg_init_stdX( matrix_type * X , const matrix_type * S , const matrix_type * D ,
                             const matrix_type * W , const double * eig , bool bootstrap) {
-  
+
   int nrobs     =  matrix_get_rows( W );
   int ens_size  =  matrix_get_rows( X );
-  
+
   matrix_type * X3  = matrix_alloc(nrobs , ens_size);
   enkf_linalg_genX3(X3 , W , D , eig ); /*  X2 = diag(eig) * W' * D (Eq. 14.31, Evensen (2007)) */
-                                        /*  X3 = W * X2 = X1 * X2 (Eq. 14.31, Evensen (2007)) */  
-  
+                                        /*  X3 = W * X2 = X1 * X2 (Eq. 14.31, Evensen (2007)) */
+
   matrix_dgemm( X , S , X3 , true , false , 1.0 , 0.0);  /* X = S' * X3 */
   if (!bootstrap) {
     for (int i = 0; i < ens_size ; i++)
       matrix_iadd( X , i , i , 1.0);     /*X = I + X */
   }
-  
+
   matrix_free( X3 );
 }
 
 
 
-void enkf_linalg_init_sqrtX(matrix_type * X5      , 
-                            const matrix_type * S , 
-                            const matrix_type * randrot , 
-                            const matrix_type * innov , 
-                            const matrix_type * W , 
-                            const double * eig , 
+void enkf_linalg_init_sqrtX(matrix_type * X5      ,
+                            const matrix_type * S ,
+                            const matrix_type * randrot ,
+                            const matrix_type * innov ,
+                            const matrix_type * W ,
+                            const double * eig ,
                             bool bootstrap) {
-  
+
   const int nrobs   = matrix_get_rows( S );
   const int nrens   = matrix_get_columns( S );
   const int nrmin   = util_int_min( nrobs , nrens );
-  
+
   matrix_type * X2    = matrix_alloc(nrmin , nrens);
-  
+
   if (bootstrap)
     util_exit("%s: Sorry bootstrap support not fully implemented for SQRT scheme\n",__func__);
-  
+
   enkf_linalg_meanX5( S , W , eig , innov , X5 );
   enkf_linalg_genX2(X2 , S , W , eig);
   enkf_linalg_X5sqrt(X2 , X5 , randrot , nrobs);
@@ -450,14 +454,14 @@ void enkf_linalg_init_sqrtX(matrix_type * X5      ,
    2. Then the QR decomposition is computed, and Q will then be a random orthogonal matrix.
    3. The diagonal elements of R are extracted and we construct the diagonal matrix X(j,j)=R(j,j)/|R(j,j)|
    4. An updated Q'=Q X is computed, and this is now a random orthogonal matrix with a Haar measure.
-    
+
    The implementation is a plain reimplementation/copy of the old m_randrot.f90 function.
 */
 
 
 
 /**
-   NB: This should rather use the implementation in m_mean_preserving_rotation.f90. 
+   NB: This should rather use the implementation in m_mean_preserving_rotation.f90.
 */
 
 void enkf_linalg_set_randrot( matrix_type * Q  , rng_type * rng) {
@@ -465,8 +469,8 @@ void enkf_linalg_set_randrot( matrix_type * Q  , rng_type * rng) {
   double      * tau  = util_calloc( ens_size , sizeof * tau );
   int         * sign = util_calloc( ens_size , sizeof * sign);
 
-  for (int i = 0; i < ens_size; i++) 
-    for (int j = 0; j < ens_size; j++) 
+  for (int i = 0; i < ens_size; i++)
+    for (int j = 0; j < ens_size; j++)
       matrix_iset(Q , i , j , rng_std_normal( rng ));
 
   matrix_dgeqrf( Q , tau );  /* QR factorization */
@@ -482,7 +486,7 @@ void enkf_linalg_set_randrot( matrix_type * Q  , rng_type * rng) {
   }
 
   free( sign );
-  free( tau ); 
+  free( tau );
 }
 
 
@@ -492,7 +496,7 @@ void enkf_linalg_set_randrot( matrix_type * Q  , rng_type * rng) {
    Generates the mean preserving random rotation for the EnKF SQRT algorithm
    using the algorithm from Sakov 2006-07.  I.e, generate rotation Up such that
    Up*Up^T=I and Up*1=1 (all rows have sum = 1)  see eq 17.
-   From eq 18,    Up=B * Upb * B^T 
+   From eq 18,    Up=B * Upb * B^T
    B is a random orthonormal basis with the elements in the first column equals 1/sqrt(nrens)
 
    Upb = | 1  0 |
@@ -507,8 +511,8 @@ matrix_type * enkf_linalg_alloc_mp_randrot(int ens_size , rng_type * rng) {
     matrix_type * B   = matrix_alloc( ens_size , ens_size );
     matrix_type * Upb = matrix_alloc( ens_size , ens_size );
     matrix_type * U   = matrix_alloc_shared(Upb , 1 , 1 , ens_size - 1, ens_size - 1);
-    
-    
+
+
     {
       int k,j;
       matrix_type * R   = matrix_alloc( ens_size , ens_size );
@@ -517,7 +521,7 @@ matrix_type * enkf_linalg_alloc_mp_randrot(int ens_size , rng_type * rng) {
 
       /* modified_gram_schmidt is used to create the orthonormal basis in B.*/
       for (k=0; k < ens_size; k++) {
-        double Rkk = sqrt( matrix_column_column_dot_product( B , k , B , k));   
+        double Rkk = sqrt( matrix_column_column_dot_product( B , k , B , k));
         matrix_iset(R , k , k , Rkk);
         matrix_scale_column(B , k , 1.0/Rkk);
         for (j=k+1; j < ens_size; j++) {
@@ -535,23 +539,23 @@ matrix_type * enkf_linalg_alloc_mp_randrot(int ens_size , rng_type * rng) {
       }
       matrix_free( R );
     }
-    
+
     enkf_linalg_set_randrot( U , rng );
     matrix_iset( Upb , 0 , 0 , 1);
-    
-    
+
+
     {
       matrix_type * Q   = matrix_alloc( ens_size , ens_size );
       matrix_dgemm( Q  , B , Upb , false , false , 1, 0);   /* Q  = B * Ubp  */
       matrix_dgemm( Up , Q , B   , false , true  , 1, 0);   /* Up = Q * T(B) */
       matrix_free( Q );
     }
-    
+
     matrix_free( B );
     matrix_free( Upb );
     matrix_free( U );
   }
-  
+
   return Up;
 }
 
@@ -561,7 +565,7 @@ matrix_type * enkf_linalg_alloc_mp_randrot(int ens_size , rng_type * rng) {
 /**
    Checking that the sum through one row in the X matrix equals
    @target_sum. @target_sum will be 1 normally, and zero if we are doing
-   bootstrap.  
+   bootstrap.
 */
 
 void enkf_linalg_checkX(const matrix_type * X , bool bootstrap) {
@@ -572,10 +576,10 @@ void enkf_linalg_checkX(const matrix_type * X , bool bootstrap) {
       target_sum = 0;
     else
       target_sum = 1;
-    
+
     for (int icol = 0; icol < matrix_get_columns( X ); icol++) {
       double col_sum = matrix_get_column_sum(X , icol);
-      if (fabs(col_sum - target_sum) > 0.0001) 
+      if (fabs(col_sum - target_sum) > 0.0001)
         util_abort("%s: something is seriously broken. col:%d  col_sum = %g != %g - ABORTING\n",__func__ , icol , col_sum , target_sum);
     }
   }
@@ -584,14 +588,14 @@ void enkf_linalg_checkX(const matrix_type * X , bool bootstrap) {
 
 /*****************************************************************/
 
-void enkf_linalg_get_PC( const matrix_type * S0, 
-                         const matrix_type * dObs , 
+void enkf_linalg_get_PC( const matrix_type * S0,
+                         const matrix_type * dObs ,
                          double truncation,
-                         int ncomp, 
+                         int ncomp,
                          matrix_type * PC,
-                         matrix_type * PC_obs, 
+                         matrix_type * PC_obs,
                          double_vector_type * singular_values) {
-  
+
   const int nrobs   = matrix_get_rows( S0 );
   const int nrens   = matrix_get_columns( S0 );
   const int nrmin   = util_int_min( nrobs , nrens );
@@ -607,7 +611,7 @@ void enkf_linalg_get_PC( const matrix_type * S0,
   {
     matrix_type * S_mean = matrix_alloc( nrobs , 1 );
     int num_PC = enkf_linalg_svdS(S , truncation , ncomp, DGESVD_NONE , inv_sig0 , U0 , NULL);
-    
+
     matrix_assign( S , S0);  // The svd routine will overwrite S - we therefor must pick it up again from S0.
     matrix_subtract_and_store_row_mean( S , S_mean);
 
@@ -622,7 +626,7 @@ void enkf_linalg_get_PC( const matrix_type * S0,
       matrix_dgemm( PC , U0 , S , true , false , 1.0 , 0.0 );
     }
 
-    
+
     /* The observer projections. */
     {
       matrix_scale( S_mean , -1.0);
@@ -633,7 +637,7 @@ void enkf_linalg_get_PC( const matrix_type * S0,
 
     for (int i=0; i < double_vector_size( singular_values ); i++)
       inv_sig0[i] = 1.0 / inv_sig0[i];
-    
+
     matrix_free( S_mean );
   }
   matrix_free( S );
@@ -649,7 +653,7 @@ void enkf_linalg_rml_enkfX1(matrix_type *X1, matrix_type *Udr, matrix_type *D, m
     here the negative sign cancels with one needed in X3 matrix computation
   */
   matrix_type * tmp = matrix_alloc(matrix_get_columns(Udr),matrix_get_rows(R));
- 
+
   matrix_matmul_with_transpose( tmp, Udr, R, true, false);
   matrix_matmul( X1 , tmp, D);
 
@@ -661,23 +665,23 @@ void enkf_linalg_rml_enkfX1(matrix_type *X1, matrix_type *Udr, matrix_type *D, m
 void enkf_linalg_rml_enkfX2(matrix_type *X2 , double *Wdr , matrix_type * X1 , double a , int nsign)
 {
   /*
-    This routine computes X2 for RML_EnKF module as X2 = ((a*Ipd)+Wd^2)^-1  * X1   
+    This routine computes X2 for RML_EnKF module as X2 = ((a*Ipd)+Wd^2)^-1  * X1
     Since a+Ipd & Wd are diagonal in nature the computation is reduced to array operations
   */
-  
+
   for (int i=0; i< nsign ; i++) {
     double scale_factor = 1 / (a +  (Wdr[i]*Wdr[i]));
     matrix_scale_row(X1 , i , scale_factor);
   }
   matrix_assign(X2,X1);
-  
+
 }
 
 
 void enkf_linalg_rml_enkfX3(matrix_type *X3, matrix_type *VdTr, double *Wdr, matrix_type *X2, int nsign)
 {
   /*
-    This routine computes X3 for RML_EnKF module as X3 = Vd *Wd*X2 
+    This routine computes X3 for RML_EnKF module as X3 = Vd *Wd*X2
   */
 
 	printf("\nWd: ");
@@ -701,9 +705,9 @@ double enkf_linalg_data_mismatch(matrix_type *D , matrix_type *R , matrix_type *
   double mismatch;
   matrix_matmul_with_transpose(tmp, D, R,true, false); // tmp = D' * R, i.e. N-by-p
   matrix_matmul(Sk, tmp, D); // Sk = D' * R * D
-  // Calculate the mismatch 
+  // Calculate the mismatch
   mismatch = matrix_trace(Sk)/(matrix_get_columns(D));
-  
+
   return mismatch;
 }
 
@@ -718,7 +722,7 @@ void enkf_linalg_Covariance(matrix_type *Cd, const matrix_type *E, double nsc ,i
     }
   }
   nsc = nsc*nsc;
-  matrix_scale(Cd,nsc); 
+  matrix_scale(Cd,nsc);
 }
 
 
@@ -746,7 +750,7 @@ void enkf_linalg_rml_enkfX7(matrix_type * X7, matrix_type * VdT, double * Wdr, d
     double scale_factor = 1 / ( a + (Wdr[i]*Wdr[i]));
     matrix_scale_row( tmp1 , i , scale_factor);
   }
-  
+
 
   matrix_matmul_with_transpose(tmp2, tmp1, VdT, true, false);
   matrix_matmul(X7, tmp2, X6);

@@ -18,10 +18,7 @@
 import os
 import datetime
 
-try:
-    from unittest2 import skipIf, skipUnless, skipIf
-except ImportError:
-    from unittest import skipIf, skipUnless, skipIf
+from unittest import skipIf, skipUnless, skipIf
 
 from ert.ecl import EclSum
 
@@ -56,7 +53,7 @@ class SumTest(ExtendedTestCase):
 
 
     def test_invalid(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(IOError):
             sum = EclSum("Does/not/exist")
 
 

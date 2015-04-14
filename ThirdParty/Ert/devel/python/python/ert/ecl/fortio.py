@@ -76,20 +76,6 @@ class FortIO(BaseCClass):
             FortIO.cNamespace().close(self)
             self.__open = False
 
-    def writeRecord(self, data):
-        """
-        Not a good way of implementing this. ;-)
-        @type data: bytearray
-        """
-        buffer = (ctypes.c_char * len(data)).from_buffer(data)
-        FortIO.cNamespace().write_record(self, buffer, len(data))
-
-
-    def readRecordAsString(self, record_size):
-        """ @rtype: str """
-        chars = ctypes.create_string_buffer(record_size)
-        count = FortIO.cNamespace().read_record(self, chars)
-        return ctypes.string_at(chars, count)
 
 
     def getPosition(self):
@@ -102,6 +88,18 @@ class FortIO(BaseCClass):
         # SEEK_END = 2
         FortIO.cNamespace().seek(self, position, 0)
 
+    @classmethod
+    def isFortranFile(cls , filename , endian_flip = True):
+        """@rtype: bool
+        @type filename: str
+
+
+        Will use heuristics to try to guess if @filename is a binary
+        file written in fortran style. ASCII files will return false,
+        even if they are structured as ECLIPSE keywords.
+        """
+        return FortIO.cNamespace().guess_fortran( filename , endian_flip )
+        
 
     def free(self):
         self.close()
@@ -135,12 +133,11 @@ FortIO.cNamespace().open_readwrite = cwrapper.prototype("c_void_p fortio_open_re
 FortIO.cNamespace().open_append = cwrapper.prototype("c_void_p fortio_open_append(char*, bool, bool)")
 
 FortIO.cNamespace().write_record = cwrapper.prototype("void fortio_fwrite_record(fortio, char*, int)")
-FortIO.cNamespace().read_record = cwrapper.prototype("int fortio_fread_record(fortio, char*)")
 
 FortIO.cNamespace().get_position = cwrapper.prototype("long fortio_ftell(fortio)")
 FortIO.cNamespace().seek = cwrapper.prototype("void fortio_fseek(fortio, int)")
 
 FortIO.cNamespace().close = cwrapper.prototype("bool fortio_fclose(fortio)")
-
+FortIO.cNamespace().guess_fortran = cwrapper.prototype("bool fortio_looks_like_fortran_file(char* , bool)")
 
 

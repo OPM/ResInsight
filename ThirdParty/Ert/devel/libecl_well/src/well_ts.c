@@ -1,25 +1,25 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'well_ts.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'well_ts.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 /**
    The wells can typically change configuration during a simulation,
    new completions can be added, the well can be shut for a period, it
-   can change purpose from injector to producer and so on. 
+   can change purpose from injector to producer and so on.
 
    The well_ts datastructure is used to hold the complete history of
    one well; for each new report step a new well_state object is added
@@ -32,7 +32,7 @@
                   well_state0    well_state1   well_state2   well_state3
        [-------------x---------------x-------------x--------------]
                    0030            0060          0070           0090
-   
+
    The well in this example is added at report step 30; after that we
    have well_state information from each of the reported report steps
    60,70 and 90. If we query the well_ts object for well state
@@ -43,10 +43,10 @@
      o If we ask for the well state at step 30 we will get the
        well_state0 object; if we ask for the well state at step 75 we
        will get the well_state2 object.
-       
+
      o If we ask for the well_state before the well has appeared the
        first time we will get NULL.
-   
+
      o The restart files have no meta information of when the
        simulation ended, so there is no way to detect it if you ask
        for the well state way beyond the end of the simulation. If you
@@ -77,7 +77,7 @@
 typedef struct {
   UTIL_TYPE_ID_DECLARATION;
   int                  report_nr;
-  time_t               sim_time;  
+  time_t               sim_time;
   well_state_type    * well_state;  // The well_node instance owns the well_state instance.
 } well_node_type;
 
@@ -85,7 +85,7 @@ typedef struct {
 struct well_ts_struct {
   UTIL_TYPE_ID_DECLARATION;
   char               * well_name;
-  vector_type        * ts;    
+  vector_type        * ts;
 };
 
 /******************************************************************/
@@ -124,7 +124,7 @@ static int well_node_time_cmp( const void * arg1 , const void * arg2) {
     return 0;
   else
     return 1;
-  
+
 }
 
 
@@ -154,48 +154,48 @@ static int well_ts_get_index__( const well_ts_type * well_ts , int report_step ,
     return 0;
 
   else {
-    const well_node_type * first_node = vector_iget_const( well_ts->ts , 0 ); 
-    const well_node_type * last_node  = vector_get_last_const( well_ts->ts ); 
-    
+    const well_node_type * first_node = vector_iget_const( well_ts->ts , 0 );
+    const well_node_type * last_node  = vector_get_last_const( well_ts->ts );
+
     if (use_report) {
       if (report_step < first_node->report_nr)
         return -1;         // Before the start
-      
+
       if (report_step >= last_node->report_nr)
         return size - 1;   // After end
     } else {
       if (sim_time < first_node->sim_time)
         return -1;         // Before the start
-      
+
       if (sim_time >= last_node->sim_time)
         return size - 1;   // After end
     }
-    
-    // Binary search 
+
+    // Binary search
     {
       int lower_index  = 0;
       int upper_index  = size - 1;
-      
+
       while (true) {
         int center_index = (lower_index + upper_index) / 2;
-        const well_node_type * center_node = vector_iget_const( well_ts->ts , center_index );      
+        const well_node_type * center_node = vector_iget_const( well_ts->ts , center_index );
         double cmp;
         if (use_report)
           cmp = center_node->report_nr - report_step;
         else
           cmp = difftime( center_node->sim_time , sim_time );
-        
+
         if (cmp > 0) {
           if ((center_index - lower_index) == 1)    // We found an interval of length 1
             return lower_index;
-          else 
+          else
             upper_index = center_index;
-          
+
         } else {
-          
+
           if ((upper_index - center_index) == 1)    // We found an interval of length 1
             return center_index;
-          else 
+          else
             lower_index = center_index;
         }
       }
@@ -204,7 +204,7 @@ static int well_ts_get_index__( const well_ts_type * well_ts , int report_step ,
 }
 
 /*
-  
+
 Index:   0                1                 2
          |----------------|-----------------|
 Value:   0               50                76
@@ -223,14 +223,14 @@ static int well_ts_get_index( const well_ts_type * well_ts , int report_step , t
 
     if (index < (vector_get_size( well_ts->ts ) - 1))
       next_node = vector_iget( well_ts->ts , index + 1);
-    
+
     if (use_report) {
       if (index < 0) {
         if (report_step >= node->report_nr)
           OK = false;
       } else {
         if (report_step < node->report_nr)
-          OK = false; 
+          OK = false;
         else {
           if (next_node != NULL)
             if (next_node->report_nr <= report_step)
@@ -243,14 +243,14 @@ static int well_ts_get_index( const well_ts_type * well_ts , int report_step , t
           OK = false;
       } else {
         if (sim_time < node->sim_time)
-          OK = false; 
+          OK = false;
         else {
           if (next_node != NULL)
             if (next_node->sim_time <= sim_time)
               OK = false;
         }
     }
-    
+
     if (!OK)
       util_abort("%s: holy rider - internal error \n",__func__);
     }
@@ -266,7 +266,7 @@ void well_ts_add_well( well_ts_type * well_ts , well_state_type * well_state ) {
 
   if (vector_get_size( well_ts->ts ) > 1) {
     const well_node_type * last_node = vector_get_last_const(well_ts->ts );
-    if (new_node->sim_time < last_node->sim_time) 
+    if (new_node->sim_time < last_node->sim_time)
       // The new node is chronologically before the previous node;
       // i.e. we must sort the nodes in time. This should probably happen
       // quite seldom:
@@ -315,7 +315,7 @@ well_state_type * well_ts_get_state_from_report( const well_ts_type * well_ts , 
   int index = well_ts_get_index( well_ts , report_step , -1 , true );
   if (index < 0)
     return NULL;
-  else 
+  else
     return well_ts_iget_state( well_ts , index );
 }
 

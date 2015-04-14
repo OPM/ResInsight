@@ -55,12 +55,23 @@ class AnalysisModule(BaseCClass):
         return AnalysisModule.cNamespace().get_int(self, var)
 
     def getBool(self, var):
-            return AnalysisModule.cNamespace().get_bool(self, var)
+        return AnalysisModule.cNamespace().get_bool(self, var)
 
     def getStr(self, var):
-            test = AnalysisModule.cNamespace().get_str(self, var)
-            return str(test)
+        test = AnalysisModule.cNamespace().get_str(self, var)
+        return str(test)
 
+    def initUpdate(self , mask , S , R , dObs , E , D):
+        print "Running initUpdate"
+        AnalysisModule.cNamespace().init_update(self , mask , S , R , dObs , E , D )
+
+    def updateA(self , A , S , R , dObs , E , D):
+        print "Running updateA"
+        AnalysisModule.cNamespace().updateA(self , A , S , R , dObs , E , D )
+
+    def initX(self , X , A , S , R , dObs , E , D):
+        AnalysisModule.cNamespace().init_update(self , X , A , S , R , dObs , E , D )
+        
 
 cwrapper = CWrapper(ANALYSIS_LIB)
 cwrapper.registerType("analysis_module", AnalysisModule)
@@ -80,6 +91,12 @@ AnalysisModule.cNamespace().get_double          = cwrapper.prototype("double ana
 AnalysisModule.cNamespace().get_int             = cwrapper.prototype("int analysis_module_get_int(analysis_module, char*)")
 AnalysisModule.cNamespace().get_bool             = cwrapper.prototype("bool analysis_module_get_bool(analysis_module, char*)")
 AnalysisModule.cNamespace().get_str             = cwrapper.prototype("char* analysis_module_get_ptr(analysis_module, char*)")
+
+AnalysisModule.cNamespace().init_update         = cwrapper.prototype("void analysis_module_init_update(analysis_module, bool_vector , matrix , matrix , matrix , matrix, matrix)")
+AnalysisModule.cNamespace().updateA             = cwrapper.prototype("void analysis_module_updateA(analysis_module, matrix , matrix ,  matrix , matrix, matrix, matrix)")
+AnalysisModule.cNamespace().initX               = cwrapper.prototype("void analysis_module_initX(analysis_module, matrix , matrix , matrix , matrix , matrix, matrix, matrix)")
+
+
 
 
 

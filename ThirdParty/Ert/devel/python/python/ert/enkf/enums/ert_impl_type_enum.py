@@ -23,6 +23,7 @@ class ErtImplType(BaseCEnum):
     STATIC           = None       # MULTZ has been removed & MULTFLT
     FIELD            = None       # WELL has been removed
     GEN_KW           = None       # RELPERM has been removed & HAVANA_FAULT
+    CUSTOM_KW        = None
     SUMMARY          = None       # TPGZONE has been removed
     GEN_DATA         = None       # PILOT_POINT has been removed
     SURFACE          = None
@@ -34,6 +35,7 @@ ErtImplType.addEnum("IMPL_TYPE_OFFSET", 100)
 ErtImplType.addEnum("STATIC", 100)
 ErtImplType.addEnum("FIELD", 104)
 ErtImplType.addEnum("GEN_KW", 107)
+ErtImplType.addEnum("CUSTOM_KW", 108)
 ErtImplType.addEnum("SUMMARY", 110)
 ErtImplType.addEnum("GEN_DATA", 113)
 ErtImplType.addEnum("SURFACE", 114)

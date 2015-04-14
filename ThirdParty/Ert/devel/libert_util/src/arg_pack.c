@@ -568,7 +568,8 @@ int arg_pack_size( const arg_pack_type * arg_pack ) {
 
 
 
-void arg_pack_fscanf(arg_pack_type * arg , FILE * stream) {
+void arg_pack_fscanf(arg_pack_type * arg , FILE * stream, const char * filename) {
+
   int scan_count = 0;
   int iarg;
   char * fmt = NULL;
@@ -631,11 +632,13 @@ void arg_pack_fscanf(arg_pack_type * arg , FILE * stream) {
     }
 
   default:
-    util_abort("%s: sorry %s not allocated for %d arguments - pathetic ehhh?? \n",__func__ , __func__ , arg->size);
+    util_abort("%s: sorry %s not allocated for %d arguments from file %s\n",__func__ , __func__ , arg->size, filename);
+
   }
   
-  if (scan_count != arg->size) 
-    util_abort("%s: wanted %d arguments - only found: %d \n", __func__ , arg->size , scan_count);
+  if (scan_count != arg->size) {
+    util_abort("%s: wanted %d arguments - only found: %d in file %s \n", __func__ , arg->size , scan_count, filename);
+  }
     
   free(fmt);
 }

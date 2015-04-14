@@ -16,32 +16,42 @@
 
 from ert.job_queue import JobQueueManager
 from ert.enkf import RunArg
+from ert.util import BoolVector
 
 class RunContext(object):
-    def __init__(self , ert_handle , size , init_case):
+    def __init__(self , ert_handle , size , run_fs , run_count):
         self.ert_handle = ert_handle
         self.size = size
-        self.init_case = init_case
         self.runner = ert_handle.getEnkfSimulationRunner()
         
         site_config = self.ert_handle.siteConfig()
         self.queue_manager = JobQueueManager( site_config.getJobQueue() )
         self.queue_manager.startQueue( size , verbose = True )
 
-        fs = self.ert_handle.getEnkfFsManager().getCurrentFileSystem()
         mask = BoolVector( default_value = True )
         mask[size - 1] = True
-        self.ert_run_context = self.ert_handle.getRunContextENSEMPLE_EXPERIMENT( fs , mask )
         
+        self.ert_handle.addDataKW("<ELCO_RUN_COUNT>" , "%s" % run_count)
+        self.ert_run_context = self.ert_handle.getRunContextENSEMPLE_EXPERIMENT( run_fs , mask )
         
+
+    def isRunning(self):
+        return self.queue_manager.isRunning()
+
+
     def getNumRunning(self):
-        return 0
+        return self.queue_manager.getNumRunning()
 
 
     def getNumComplete(self):
-        return 0
+        return self.queue_manager.getNumComplete()
         
     
     def startSimulation(self , iens):
-        self.ert_handle.submitSimulation( self.ert_run_context.get(iens) )
-    
+        self.ert_handle.submitSimulation( self.ert_run_context.iensGet( iens ))
+
+
+    def realisationComplete(self, iens):
+        run_arg = self.ert_run_context.iensGet( iens )
+        queue_index = run_arg.getQueueIndex()
+        return self.queue_manager.jobComplete( queue_index )

@@ -41,7 +41,7 @@ typedef struct summary_plot_gui_struct {
     GtkTextBuffer *buffer;
     GtkWidget *text;
     GtkNotebook *nb;
-    config_type *config;
+    config_parser_type *config;
     const char *conf_file;
     list_type *list;
 } summary_plot_gui_type;
@@ -84,7 +84,7 @@ static gboolean summary_plot_timout(gpointer data);
 static char *summary_plot_get_timestamp();
 static void summary_plot_append_textbox(summary_plot_gui_type * spg,
                                         const char *str, ...);
-static config_type *summary_plot_init_config(const char *config_file);
+static config_parser_type *summary_plot_init_config(const char *config_file);
 static void summary_plot_initialize_ensembles(summary_plot_type * sp);
 static void summary_plot_setup_gui(summary_plot_gui_type * spg);
 static gboolean summary_plot_canvas_menu(GtkWidget * widget,
@@ -413,9 +413,9 @@ void summary_plot_append_textbox(summary_plot_gui_type * spg,
 }
 
 
-config_type *summary_plot_init_config(const char *config_file)
+config_parser_type *summary_plot_init_config(const char *config_file)
 {
-    config_type *config;
+    config_parser_type *config;
 
     config = config_alloc(false);
     config_init_item(config, "DATA_FILE", 0, NULL, true, false, 0, NULL, 1,

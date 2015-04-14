@@ -69,7 +69,7 @@ void perturb_wconinje( void * void_kw , int restart_nr , void * arg) {
 
 
 
-void config_init(config_type * config ) {
+void config_init(config_parser_type * config ) {
   config_item_type * item;
 
   config_add_key_value(config , "NUM_REALIZATIONS" , true , CONFIG_INT );
@@ -98,7 +98,7 @@ void config_init(config_type * config ) {
 
 
 
-void load_groups( const config_type * config , const sched_file_type * sched_file , hash_type * group_rates , const sched_history_type * sched_history , const time_t_vector_type * time_vector ) {
+void load_groups( const config_parser_type * config , const sched_file_type * sched_file , hash_type * group_rates , const sched_history_type * sched_history , const time_t_vector_type * time_vector ) {
   int i;
   for (i=0; i < config_get_occurences( config , "GROUP_RATE" ); i++) {
     const char * group_name   = config_iget( config , "GROUP_RATE" , i , 0 );
@@ -163,7 +163,7 @@ void debug (const time_t_vector_type * time_vector ) {
 
 int main( int argc , char ** argv ) {
   hash_type   * group_rates = hash_alloc();
-  config_type * config      = config_alloc();
+  config_parser_type * config      = config_alloc();
   char        * config_file;
   {
     char * config_base;

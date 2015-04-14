@@ -88,7 +88,7 @@ void enkf_tui_workflow_list( void * arg ) {
         else
           printf("  ");
 
-        printf( stringlist_iget( name_list , i ));
+        printf("%s", stringlist_iget( name_list , i ));
       }
     }
     stringlist_free( name_list );

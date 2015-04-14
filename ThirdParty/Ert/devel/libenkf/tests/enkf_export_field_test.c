@@ -121,7 +121,7 @@ int main(int argc , const char ** argv) {
   const char * job_file_export_field_ecl_grdecl = argv[3];
   const char * job_file_export_field_rms_roff   = argv[4];
 
-  ert_test_context_type * test_context = ert_test_context_alloc("ExportFieldsJobs" , config_file , NULL);
+  ert_test_context_type * test_context = ert_test_context_alloc("ExportFieldsJobs" , config_file);
   enkf_main_type * enkf_main = ert_test_context_get_main( test_context );
 
   enkf_main_select_fs( enkf_main , "default" );

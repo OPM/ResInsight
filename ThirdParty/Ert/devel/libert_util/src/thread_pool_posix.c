@@ -190,9 +190,9 @@ static void * thread_pool_start_job( void * arg ) {
   int slot_index                =  tp_arg->slot_index;
   void * func_arg               =  tp_arg->func_arg;
   start_func_ftype * func       =  tp_arg->func;
-  void * return_value;                     
+  void * return_value;
 
-  
+
   return_value = func( func_arg );                  /* Starting the real external function */
   tp->job_slots[ slot_index ].running = false;      /* We mark the job as completed. */
   free( arg );
@@ -231,14 +231,14 @@ static void * thread_pool_main_loop( void * arg ) {
           if (!job_slot->running) {
             /* OK thread[slot_index] is ready to take this job.*/
             thread_pool_arg_type * tp_arg;
-            
-            /* 
+
+            /*
                The queue might be updated by the main thread - we must
                take a copy of the node we are interested in.
             */
             pthread_rwlock_rdlock( &tp->queue_lock );
             tp_arg = util_alloc_copy( &tp->queue[ tp->queue_index ] , sizeof * tp_arg );
-            pthread_rwlock_unlock( &tp->queue_lock );            
+            pthread_rwlock_unlock( &tp->queue_lock );
 
             tp_arg->slot_index = slot_index;
             job_slot->running = true;
@@ -246,11 +246,11 @@ static void * thread_pool_main_loop( void * arg ) {
                Here is the actual pthread_create() call creating an
                additional running thread.
             */
-            
+
             /*Cleanup of previous run threads. Needed to avoid memory leak*/
             if (job_slot->run_count > 0)
-              pthread_join(job_slot->thread, NULL); 
-            
+              pthread_join(job_slot->thread, NULL);
+
             pthread_create( &job_slot->thread , NULL , thread_pool_start_job , tp_arg );
             job_slot->run_count += 1;
             tp->queue_index++;
@@ -260,10 +260,12 @@ static void * thread_pool_main_loop( void * arg ) {
             counter++;
         } while (!slot_found && (counter < tp->max_running));
         
-        if (!slot_found)
-          util_usleep( usleep_busy );  /* There are no available job slots. */
-      } else
-        util_usleep( usleep_init );    /* There are no jobs wanting to run. */
+        if (!slot_found) {
+            util_yield();
+        }
+      } else {
+          util_usleep(usleep_init);    /* There are no jobs wanting to run. */
+      }
 
       /*****************************************************************/
       /*
@@ -272,8 +274,7 @@ static void * thread_pool_main_loop( void * arg ) {
          1. tp->join       == true              :  The calling scope has signaled that it will not submit more jobs. 
          2. tp->queue_size == tp->queue_index   :  This function has submitted all the jobs in the queue.
       */
-      if ((tp->join) &&
-          (tp->queue_size == tp->queue_index))
+      if ((tp->join) && (tp->queue_size == tp->queue_index))
         break;
     } /* End of while() loop */
   }

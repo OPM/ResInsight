@@ -3,7 +3,7 @@ from ert_gui.tools import HelpCenter
 
 
 class Tool(object):
-    def __init__(self, name, help_link="", icon=None, enabled=True, checkable=False):
+    def __init__(self, name, help_link="", icon=None, enabled=True, checkable=False, popup_menu=False):
         super(Tool, self).__init__()
         self.__icon = icon
         self.__name = name
@@ -11,6 +11,7 @@ class Tool(object):
         self.__enabled = enabled
         self.__checkable = checkable
         self.__help_link = help_link
+        self.__is_popup_menu = popup_menu
 
         self.__action = QAction(self.getIcon(), self.getName(), None)
         self.__action.setIconText(self.getName())
@@ -51,3 +52,6 @@ class Tool(object):
 
     def setEnabled(self, enabled):
         self.__action.setEnabled(enabled)
+
+    def isPopupMenu(self):
+        return self.__is_popup_menu

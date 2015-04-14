@@ -89,3 +89,17 @@ class StateMapTest(ExtendedTestCase):
             StateMap.isLegalTransition("error", "exception")
 
 
+    def test_active_list(self):
+        state_map = StateMap()
+        state_map[0] = RealizationStateEnum.STATE_INITIALIZED
+        state_map[2] = RealizationStateEnum.STATE_INITIALIZED
+        state_map[2] = RealizationStateEnum.STATE_HAS_DATA
+    
+        initialized = state_map.realizationList( RealizationStateEnum.STATE_INITIALIZED )
+        self.assertEqual( len(initialized) , 1 )
+        self.assertEqual( initialized[0] , 0 )
+        
+        has_data = state_map.realizationList( RealizationStateEnum.STATE_HAS_DATA )
+        self.assertEqual( len(has_data) , 1 )
+        self.assertEqual( has_data[0] , 2)
+

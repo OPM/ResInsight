@@ -141,6 +141,7 @@ foreach (type int double bool long time_t size_t float)
   list( APPEND source_files ${src_target} )
 endforeach( type )
 
+find_program (PING_PATH ping)
 if (PING_PATH)
    add_definitions( -DPING_CMD=\"${PING_PATH}\")
 endif()

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'enkf_plot_data_fs.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'enkf_plot_data_fs.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -49,7 +49,7 @@ void test_load_GEN_KW( enkf_main_type * enkf_main , const char * key , const cha
       test_assert_true( enkf_plot_tvector_iget_active( plot_vector , 10 ));
       test_assert_true( enkf_plot_tvector_iget_active( plot_vector , 20 ));
       test_assert_true( enkf_plot_tvector_iget_active( plot_vector , 30 ));
-      
+
       test_assert_false( enkf_plot_tvector_iget_active( plot_vector ,  1 ));
       test_assert_false( enkf_plot_tvector_iget_active( plot_vector , 11 ));
       test_assert_false( enkf_plot_tvector_iget_active( plot_vector , 21 ));
@@ -66,7 +66,7 @@ void test_load_summary( enkf_main_type * enkf_main , const char * summary_key) {
   ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config( enkf_main );
   const enkf_config_node_type * config_node = ensemble_config_get_node( ensemble_config , summary_key );
   enkf_plot_data_type * plot_data = enkf_plot_data_alloc( config_node );
-  
+
   {
     enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , true );
     enkf_plot_data_load( plot_data , enkf_fs , NULL , FORECAST , NULL );
@@ -79,7 +79,7 @@ void test_load_summary( enkf_main_type * enkf_main , const char * summary_key) {
     }
     enkf_fs_decref( enkf_fs );
   }
-  
+
   {
     enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "default" , true  );
     enkf_plot_data_load( plot_data , enkf_fs , NULL , FORECAST , NULL );
@@ -104,20 +104,22 @@ void test_load_summary( enkf_main_type * enkf_main , const char * summary_key) {
 
 
 int main(int argc, char ** argv) {
-  const char * config_file = argv[1];
-  test_work_area_type * work_area = test_work_area_alloc( "enkf_main_fs" );
-  char * model_config;
-  util_alloc_file_components( config_file , NULL , &model_config , NULL);
-  test_work_area_set_store( work_area , true );
-  test_work_area_copy_parent_content( work_area , config_file );
+  util_install_signals();
   {
-    const char * site_config = "/project/res/etc/ERT/site-config";
-    enkf_main_type * enkf_main = enkf_main_bootstrap( site_config , model_config , false , false );
-    
-    test_load_summary(enkf_main , "WWCT:OP_3");
-    test_load_GEN_KW( enkf_main , "MULTFLT" , "F3");
-    enkf_main_free( enkf_main );
-  }  
-  test_work_area_free( work_area );
-  exit(0);
+    const char * config_file = argv[1];
+    test_work_area_type * work_area = test_work_area_alloc( "enkf_main_fs" );
+    char * model_config;
+    util_alloc_file_components( config_file , NULL , &model_config , NULL);
+    test_work_area_set_store( work_area , true );
+    test_work_area_copy_parent_content( work_area , config_file );
+    {
+      enkf_main_type * enkf_main = enkf_main_bootstrap( model_config , false , false );
+
+      test_load_summary(enkf_main , "WWCT:OP_3");
+      test_load_GEN_KW( enkf_main , "MULTFLT" , "F3");
+      enkf_main_free( enkf_main );
+    }
+    test_work_area_free( work_area );
+    exit(0);
+  }
 }

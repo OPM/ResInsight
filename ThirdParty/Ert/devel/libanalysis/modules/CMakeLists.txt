@@ -1,6 +1,8 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set( RML_SOURCE_FILES
+     rml_enkf_config.c
+     rml_enkf_log.c
      rml_enkf.c
      rml_enkf_common.c )
 

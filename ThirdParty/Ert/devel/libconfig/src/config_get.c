@@ -32,7 +32,7 @@
 */
 
 
-config_content_node_type * config_get_value_node( const config_type * config , const char * kw) {
+/*config_content_node_type * config_get_value_node( const config_parser_type * config , const char * kw) {
   config_content_item_type * item = config_get_content_item(config , kw);
   if (item != NULL) {
     config_content_node_type * node = config_content_item_get_last_node( item );
@@ -42,7 +42,7 @@ config_content_node_type * config_get_value_node( const config_type * config , c
     return NULL;  // Will return NULL on unset keywords - must check NULL return value?!
 }
 
-static config_content_node_type * config_get_value_node__( const config_type * config , const char * kw) {
+static config_content_node_type * config_get_value_node__( const config_parser_type * config , const char * kw) {
   config_content_node_type * node = config_get_value_node( config , kw );
   if (node == NULL) 
     util_abort("Tried to get value node from unset kw:%s \n",__func__ , kw );
@@ -50,65 +50,54 @@ static config_content_node_type * config_get_value_node__( const config_type * c
   return node;
 }
 
-bool config_get_value_as_bool(const config_type * config , const char * kw) {
+bool config_get_value_as_bool(const config_parser_type * config , const char * kw) {
   config_content_node_type * node = config_get_value_node__( config , kw );
   return config_content_node_iget_as_bool(node , 0);
 }
 
-int config_get_value_as_int(const config_type * config , const char * kw) {
+int config_get_value_as_int(const config_parser_type * config , const char * kw) {
   config_content_node_type * node = config_get_value_node__( config , kw );
   return config_content_node_iget_as_int(node , 0);
 }
 
-double config_get_value_as_double(const config_type * config , const char * kw) {
+double config_get_value_as_double(const config_parser_type * config , const char * kw) {
   config_content_node_type * node = config_get_value_node__( config , kw );
   return config_content_node_iget_as_double(node , 0);
 }
 
-const char * config_get_value_as_path( const config_type * config , const char * kw) {
+const char * config_get_value_as_path( const config_parser_type * config , const char * kw) {
   config_content_node_type * node = config_get_value_node__( config , kw );
   return config_content_node_iget_as_path(node , 0);
 }
 
-const char * config_get_value_as_abspath( const config_type * config , const char * kw) {
+const char * config_get_value_as_abspath( const config_parser_type * config , const char * kw) {
   config_content_node_type * node = config_get_value_node__( config , kw );
   return config_content_node_iget_as_abspath(node , 0);
 }
 
-const char * config_get_value_as_relpath( const config_type * config , const char * kw) {
+const char * config_get_value_as_relpath( const config_parser_type * config , const char * kw) {
   config_content_node_type * node = config_get_value_node__( config , kw );
   return config_content_node_iget_as_relpath(node , 0);
 }
 
 
-const char * config_get_value(const config_type * config , const char * kw) {
+const char * config_get_value(const config_parser_type * config , const char * kw) {
   config_content_node_type * node = config_get_value_node__( config , kw );
   return config_content_node_iget(node , 0);
 }
-
+*/
 
 /*****************************************************************/
 
-int config_get_content_size( const config_type * config ) {
-  return vector_get_size(config->content_list);
-}
-
-
-const config_content_node_type * config_iget_content_node( const config_type * config , int index) {
-  return vector_iget_const( config->content_list , index );
-}
 
 
 
 
 
-int config_get_schema_size( const config_type * config ) {
+int config_get_schema_size( const config_parser_type * config ) {
   return hash_get_size( config->schema_items );
 }
 
 
 
 
-config_error_type * config_get_errors( const config_type * config ) {
-  return config->parse_errors;
-}

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'summary_obs.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'summary_obs.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 /**
@@ -41,12 +41,12 @@ struct summary_obs_struct {
   UTIL_TYPE_ID_DECLARATION;
   char    * summary_key;    /** The observation, in summary.x syntax, e.g. GOPR:FIELD.    */
   char    * obs_key;
-  
+
   double    value;          /** Observation value. */
   double    std;            /** Standard deviation of observation. */
 
   auto_corrf_ftype   * auto_corrf;
-  double               auto_corrf_param;  
+  double               auto_corrf_param;
 };
 
 
@@ -92,12 +92,12 @@ static auto_corrf_ftype * summary_obs_lookup_auto_corrf( const char * fname ) {
   Should check summary_key on alloc.
 */
 summary_obs_type * summary_obs_alloc(const char   * summary_key,
-                                     const char   * obs_key , 
+                                     const char   * obs_key ,
                                      double value ,
                                      double std   ,
-                                     const char * auto_corrf_name , 
+                                     const char * auto_corrf_name ,
                                      double auto_corrf_param) {
-  
+
   summary_obs_type * obs = util_malloc(sizeof * obs );
   UTIL_TYPE_ID_INIT( obs , SUMMARY_OBS_TYPE_ID )
 
@@ -107,7 +107,7 @@ summary_obs_type * summary_obs_alloc(const char   * summary_key,
   obs->std              = std;
   obs->auto_corrf       = summary_obs_lookup_auto_corrf( auto_corrf_name );
   obs->auto_corrf_param = auto_corrf_param;
-  
+
   return obs;
 }
 
@@ -153,7 +153,7 @@ const char * summary_obs_get_summary_key(const summary_obs_type * summary_obs)
 void summary_obs_get_observations(const summary_obs_type * summary_obs,
                                   obs_data_type          * obs_data,
                                   enkf_fs_type * fs,
-                                  int report_step , 
+                                  int report_step ,
                                   const active_list_type * __active_list) {
 
   int active_size              = active_list_get_active_size( __active_list , OBS_SIZE );
@@ -173,10 +173,10 @@ void summary_obs_measure(const summary_obs_type * obs, const summary_type * summ
   }
 }
 
- 
+
 
 double summary_obs_chi2(const summary_obs_type * obs,
-                        const summary_type     * summary, 
+                        const summary_type     * summary,
                         node_id_type node_id) {
   double x = (summary_get(summary , node_id.report_step , node_id.state) - obs->value) / obs->std;
   return x*x;

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-   
-   The file 'well_conn_collection.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'well_conn_collection.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
@@ -51,7 +51,7 @@ well_conn_collection_type * well_conn_collection_alloc() {
 
 /*
   The collection takes ownership of the connection object and frees it
-  when the collection is discarded.  
+  when the collection is discarded.
 */
 
 void well_conn_collection_add( well_conn_collection_type * wellcc , well_conn_type * conn) {
@@ -59,7 +59,7 @@ void well_conn_collection_add( well_conn_collection_type * wellcc , well_conn_ty
 }
 
 /*
-  The collection only stores a refernce to the object, which will be destroyed by 'someone else'. 
+  The collection only stores a refernce to the object, which will be destroyed by 'someone else'.
 */
 
 void well_conn_collection_add_ref( well_conn_collection_type * wellcc , well_conn_type * conn) {
@@ -100,23 +100,23 @@ well_conn_type * well_conn_collection_iget(const well_conn_collection_type * wel
 }
 
 
-int well_conn_collection_load_from_kw( well_conn_collection_type * wellcc , 
-                                       const ecl_kw_type * iwel_kw , 
-                                       const ecl_kw_type * icon_kw , 
-                                       const ecl_kw_type * scon_kw , 
-                                       int iwell , 
+int well_conn_collection_load_from_kw( well_conn_collection_type * wellcc ,
+                                       const ecl_kw_type * iwel_kw ,
+                                       const ecl_kw_type * icon_kw ,
+                                       const ecl_kw_type * scon_kw ,
+                                       int iwell ,
                                        const ecl_rsthead_type * rst_head) {
-  
+
   const int iwel_offset = rst_head->niwelz * iwell;
   int num_connections   = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_CONNECTIONS_ITEM );
   int iconn;
 
   for (iconn = 0; iconn < num_connections; iconn++) {
-    well_conn_type * conn = well_conn_alloc_from_kw( icon_kw , scon_kw , rst_head , iwell , iconn ); 
+    well_conn_type * conn = well_conn_alloc_from_kw( icon_kw , scon_kw , rst_head , iwell , iconn );
     if (conn)
       well_conn_collection_add( wellcc , conn );
   }
   return num_connections;
-  
+
 }
 

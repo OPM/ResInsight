@@ -109,6 +109,9 @@ extern "C" {
 #define JOB_QUEUE_CAN_UPDATE_STATUS (JOB_QUEUE_RUNNING + JOB_QUEUE_PENDING + JOB_QUEUE_SUBMITTED)
 
 
+#define JOB_QUEUE_COMPLETE_STATUS (JOB_QUEUE_USER_EXIT + JOB_QUEUE_SUCCESS + JOB_QUEUE_FAILED)
+
+
   typedef struct queue_driver_struct queue_driver_type;
 
   typedef void * (submit_job_ftype) (void * data, const char * cmd, int num_cpu, const char * run_path, const char * job_name, int argc, const char ** argv);
