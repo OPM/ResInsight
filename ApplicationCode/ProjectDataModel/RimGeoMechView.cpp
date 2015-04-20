@@ -23,9 +23,16 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-#include "RimResultSlot.h"
+#include "RimGeoMechResultSlot.h"
 
+#include "RiuViewer.h"
+#include "RiuMainWindow.h"
+#include "cafCeetronPlusNavigation.h"
+#include "cafCadNavigation.h"
+#include "RimLegendConfig.h"
+#include "cvfOverlayScalarMapperLegend.h"
 
+#include "cvfViewport.h"
 
 namespace caf {
 
@@ -65,8 +72,8 @@ RimGeoMechView::RimGeoMechView(void)
 
     CAF_PDM_InitObject("Geomechanical View", ":/ReservoirView.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
-    cellResult = new RimResultSlot();
+    CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
+    cellResult = new RimGeoMechResultSlot();
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
@@ -76,6 +83,11 @@ RimGeoMechView::RimGeoMechView(void)
     double defaultScaleFactor = 1.0;
     if (preferences) defaultScaleFactor = preferences->defaultScaleFactorZ;
     CAF_PDM_InitField(&scaleZ,          "GridZScale", defaultScaleFactor,         "Z Scale",          "", "Scales the scene in the Z direction", "");
+    
+    CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
+    showWindow.setUiHidden(true);
+
+    CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
 
     caf::AppEnum<RimGeoMechView::MeshModeType> defaultMeshType = NO_MESH;
     if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
@@ -100,5 +112,98 @@ RimGeoMechView::~RimGeoMechView(void)
 caf::PdmFieldHandle* RimGeoMechView::userDescriptionField()
 {
     return &name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateViewerWidget()
+{
+    if (showWindow())
+    {
+        bool isViewerCreated = false;
+        if (!m_viewer)
+        {
+            QGLFormat glFormat;
+            glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+
+            m_viewer = new RiuViewer(glFormat, NULL);
+            //m_viewer->setOwnerReservoirView(this);
+
+            RiuMainWindow::instance()->addViewer(m_viewer);
+            m_viewer->setMinNearPlaneDistance(10);
+           
+
+            m_viewer->removeAllColorLegends();
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+
+            if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
+            {
+                m_viewer->setNavigationPolicy(new caf::CeetronPlusNavigation);
+            }
+            else
+            {
+                m_viewer->setNavigationPolicy(new caf::CadNavigation);
+            }
+
+            m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
+
+            //m_viewer->layoutWidget()->showMaximized();
+
+            isViewerCreated = true;
+        }
+
+        RiuMainWindow::instance()->setActiveViewer(m_viewer);
+
+        if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+
+        m_viewer->update();
+    }
+    else
+    {
+        if (m_viewer)
+        {
+            if (m_viewer->layoutWidget()->parentWidget())
+            {
+                m_viewer->layoutWidget()->parentWidget()->hide();
+            }
+            else
+            {
+                m_viewer->layoutWidget()->hide(); 
+            }
+        }
+    }
+
+    updateViewerWidgetWindowTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateViewerWidgetWindowTitle()
+{
+    if (m_viewer)
+    {
+        QString windowTitle;
+        if (false)//m_reservoir.notNull())
+        {
+        //    windowTitle = QString("%1 - %2").arg(m_reservoir->caseUserDescription()).arg(name);
+        }
+        else
+        {
+            windowTitle = name;
+        }
+
+        m_viewer->layoutWidget()->setWindowTitle(windowTitle);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::loadDataAndUpdate()
+{
+    updateViewerWidget();
 }
 

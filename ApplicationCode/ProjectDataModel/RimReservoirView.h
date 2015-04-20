@@ -69,6 +69,19 @@ enum PartRenderMaskEnum
     faultBit        = 0x00000004,
     meshFaultBit    = 0x00000008,
 };
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RimView : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    RimView(void);
+    virtual ~RimView(void);
+
+
+};
 
 
 //==================================================================================================
@@ -149,10 +162,12 @@ public:
 
     // 3D Viewer
     RiuViewer*                              viewer();
+private:
     void                                    updateViewerWidget();
     void                                    updateViewerWidgetWindowTitle();
     void                                    setDefaultView();
 
+public:
     void                                    setMeshOnlyDrawstyle();
     void                                    setMeshSurfDrawstyle();
     void                                    setSurfOnlyDrawstyle();

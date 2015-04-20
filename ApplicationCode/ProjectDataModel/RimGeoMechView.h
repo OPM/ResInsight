@@ -24,9 +24,11 @@
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"   
+#include "cafPdmFieldCvfMat4d.h"   
 
-class RimResultSlot;
+class RimGeoMechResultSlot;
 class Rim3dOverlayInfoConfig;
+class RiuViewer;
 
 //==================================================================================================
 ///  
@@ -54,13 +56,17 @@ public:
         FAULTS,
         NO_SURFACE
     };
+    void                                                loadDataAndUpdate();
 
-    caf::PdmField<RimResultSlot*>                       cellResult;
+    caf::PdmField<RimGeoMechResultSlot*>                cellResult;
     caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
 
      // Fields:                                        
     caf::PdmField<QString>                              name;
     caf::PdmField<double>                               scaleZ;
+    caf::PdmField<bool>                                 showWindow;
+    caf::PdmField<cvf::Mat4d>                           cameraPosition;
+
 
     caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
     caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
@@ -70,4 +76,7 @@ protected:
     virtual caf::PdmFieldHandle* userDescriptionField();
 
 private:
+   void                                    updateViewerWidget();
+   void                                    updateViewerWidgetWindowTitle();
+   QPointer<RiuViewer>                     m_viewer;
 };

@@ -54,6 +54,7 @@ ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechModels.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCase.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechView.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechResultSlot.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -106,6 +107,7 @@ ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechModels.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechView.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechResultSlot.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

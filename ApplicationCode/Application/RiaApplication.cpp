@@ -86,6 +86,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
+#include "RimGeoMechResultSlot.h"
 
 
 namespace caf
@@ -731,7 +732,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 
     RimGeoMechView* riv = geoMechCase->createAndAddReservoirView();
 
-    // riv->loadDataAndUpdate();
+    riv->loadDataAndUpdate();
 
     //if (!riv->cellResult()->hasResult())
     //{
