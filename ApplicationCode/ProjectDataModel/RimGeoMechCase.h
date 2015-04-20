@@ -1,8 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,23 +23,28 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-class RimWellPathCollection;
-class RimAnalysisModels;
-class RimGeoMechModels;
+class RimGeoMechView;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimOilField : public caf::PdmObject
+class RimGeoMechCase : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimOilField(void);
-    virtual ~RimOilField(void);
+    RimGeoMechCase(void);
+    virtual ~RimGeoMechCase(void);
 
-    caf::PdmField<RimAnalysisModels*>       analysisModels;
-    caf::PdmField<RimGeoMechModels*>        geoMechModels;
-	caf::PdmField<RimWellPathCollection*>   wellPathCollection;
+    RimGeoMechView* createAndAddReservoirView();
+
+    virtual caf::PdmFieldHandle* userDescriptionField();
+
+     // Fields:                                        
+    caf::PdmField<QString>                      caseUserDescription;
+    caf::PdmPointersField<RimGeoMechView*>      geoMechViews;
+
+private:
+    caf::PdmField<QString>      caseFileName;
 };

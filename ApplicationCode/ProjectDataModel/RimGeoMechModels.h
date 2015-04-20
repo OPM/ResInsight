@@ -1,8 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,23 +23,21 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-class RimWellPathCollection;
-class RimAnalysisModels;
-class RimGeoMechModels;
+class RimGeoMechCase;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimOilField : public caf::PdmObject
+class RimGeoMechModels : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimOilField(void);
-    virtual ~RimOilField(void);
+    RimGeoMechModels(void);
+    virtual ~RimGeoMechModels(void);
 
-    caf::PdmField<RimAnalysisModels*>       analysisModels;
-    caf::PdmField<RimGeoMechModels*>        geoMechModels;
-	caf::PdmField<RimWellPathCollection*>   wellPathCollection;
+    caf::PdmPointersField<RimGeoMechCase*>                     cases;
+
+private:
 };

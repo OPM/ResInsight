@@ -57,6 +57,7 @@
 #include "cafPdmUiPropertyView.h"
 
 #include "cvfTimer.h"
+#include "RimGeoMechModels.h"
 
 
 //==================================================================================================
@@ -184,6 +185,7 @@ void RiuMainWindow::createActions()
 
     m_importEclipseCaseAction     = new QAction(QIcon(":/Case48x48.png"), "Import &Eclipse Case", this);
     m_importInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "Import &Input Eclipse Case", this);
+    m_importGeoMechCaseAction     = new QAction(QIcon(":/GeoMechCase48x48.png"), "Import &Geo Mechanical Model", this);
     m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
     
     m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "Import &Well Paths from File", this);
@@ -220,6 +222,8 @@ void RiuMainWindow::createActions()
     connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
     connect(m_importEclipseCaseAction,	        SIGNAL(triggered()), SLOT(slotImportEclipseCase()));
+    connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
+
     connect(m_importInputEclipseFileAction,     SIGNAL(triggered()), SLOT(slotImportInputEclipseFiles()));
     connect(m_openMultipleEclipseCasesAction,   SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
     connect(m_importWellPathsFromFileAction,	SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
@@ -381,6 +385,8 @@ void RiuMainWindow::createMenus()
     importMenu->addAction(m_importEclipseCaseAction);
     importMenu->addAction(m_importInputEclipseFileAction);
     importMenu->addAction(m_openMultipleEclipseCasesAction);
+    importMenu->addSeparator();
+    importMenu->addAction(m_importGeoMechCaseAction);
     importMenu->addSeparator();
     importMenu->addAction(m_importWellPathsFromFileAction);
     importMenu->addAction(m_importWellPathsFromSSIHubAction);
@@ -834,6 +840,36 @@ void RiuMainWindow::slotImportInputEclipseFiles()
         app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
  
         app->openInputEclipseCaseFromFileNames(fileNames);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotImportGeoMechModel()
+{
+    if (checkForDocumentModifications())
+    {
+        RiaApplication* app = RiaApplication::instance();
+
+        QString defaultDir = app->defaultFileDialogDirectory("GEOMECH_MODEL");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)");
+        if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
+        app->setDefaultFileDialogDirectory("GEOMECH_MODEL", defaultDir);
+
+        int i;
+        for (i = 0; i < fileNames.size(); i++)
+        {
+            QString fileName = fileNames[i];
+
+            if (!fileNames.isEmpty())
+            {
+                if (app->openOdbCaseFromFile(fileName))
+                {
+                    addRecentFiles(fileName);
+                }
+            }
+        }
     }
 }
 
@@ -2010,6 +2046,10 @@ void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObje
         menu->addAction(m_importEclipseCaseAction);
         menu->addAction(m_importInputEclipseFileAction);
         menu->addAction(m_openMultipleEclipseCasesAction);
+    }
+    else if (dynamic_cast<RimGeoMechModels*>(pdmObject))
+    {
+        menu->addAction(m_importGeoMechCaseAction);
     }
 }
 

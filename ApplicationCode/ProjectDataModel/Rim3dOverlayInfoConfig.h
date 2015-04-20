@@ -41,7 +41,7 @@ public:
 
     void update3DInfo();
 
-    void setReservoirView(RimReservoirView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
+    void setReservoirView(RimReservoirView* ownerReservoirView);
 
     void                                        setPosition(cvf::Vec2ui position);
     caf::PdmField<bool>                         active;

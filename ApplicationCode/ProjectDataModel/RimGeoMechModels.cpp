@@ -1,8 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,34 +17,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimOilField.h"
-
-#include "RimAnalysisModels.h"
-#include "RimWellPathCollection.h"
 #include "RimGeoMechModels.h"
 
-CAF_PDM_SOURCE_INIT(RimOilField, "ResInsightOilField");
+#include "RimGeoMechCase.h"
+
+
+CAF_PDM_SOURCE_INIT(RimGeoMechModels, "ResInsightGeoMechModels");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimOilField::RimOilField(void)
+RimGeoMechModels::RimGeoMechModels(void)
 {
-    CAF_PDM_InitObject("Oil Field", "", "", "");
+    CAF_PDM_InitObject("Geomechanical Models", ":/GeoMechCases48x48.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&analysisModels, "AnalysisModels", "Grid Models", ":/GridModels.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&geoMechModels, "GeoMechModels", "Geo Mech Models", ":/GridModels.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
-    
-    analysisModels = new RimAnalysisModels();
+    CAF_PDM_InitFieldNoDefault(&cases, "Cases", "",  "", "", "");
+  
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimOilField::~RimOilField(void)
+RimGeoMechModels::~RimGeoMechModels(void)
 {
-    if (wellPathCollection()) delete wellPathCollection();
-    if (geoMechModels()) delete geoMechModels();
-    if (analysisModels()) delete analysisModels();
+    cases.deleteAllChildObjects();
 }
 

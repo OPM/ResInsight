@@ -83,6 +83,9 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 #include "RimCommandObject.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechModels.h"
+#include "RimGeoMechView.h"
 
 
 namespace caf
@@ -695,6 +698,49 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
     uiModel->updateUiSubTree(analysisModels);
+
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+
+    return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
+{
+   if (!QFile::exists(fileName)) return false;
+
+    QFileInfo gridFileName(fileName);
+    QString caseName = gridFileName.completeBaseName();
+
+    RimGeoMechCase* geoMechCase = new RimGeoMechCase();
+    geoMechCase->caseUserDescription = caseName;
+
+    RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels() : NULL;
+
+    // Create the geoMech model container if it is not there already
+    if (geoMechModelCollection == NULL)
+    {
+        geoMechModelCollection = new RimGeoMechModels();
+        m_project->activeOilField()->geoMechModels = geoMechModelCollection;
+    }
+
+    geoMechModelCollection->cases.push_back(geoMechCase);
+
+    RimGeoMechView* riv = geoMechCase->createAndAddReservoirView();
+
+    // riv->loadDataAndUpdate();
+
+    //if (!riv->cellResult()->hasResult())
+    //{
+    //    riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+    //}
+
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+
+    uiModel->updateUiSubTree(m_project);
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
@@ -2079,4 +2125,3 @@ void RiaApplication::regressionTestConfigureProject()
         }
     }
 }
-

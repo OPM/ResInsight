@@ -94,6 +94,8 @@ public:
     bool                addEclipseCases(const QStringList& fileNames);
     bool                openInputEclipseCaseFromFileNames(const QStringList& fileNames);
 
+    bool                openOdbCaseFromFile(const QString& fileName);
+
     QString             currentProjectFileName() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
     bool                loadProject(const QString& projectFileName);

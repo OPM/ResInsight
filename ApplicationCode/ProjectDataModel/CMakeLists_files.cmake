@@ -51,6 +51,9 @@ ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimFaultResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNNC.h
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechModels.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechCase.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechView.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -100,6 +103,9 @@ ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNNC.cpp
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechModels.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechCase.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechView.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

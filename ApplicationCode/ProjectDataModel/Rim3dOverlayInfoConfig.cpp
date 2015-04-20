@@ -245,3 +245,11 @@ caf::PdmFieldHandle* Rim3dOverlayInfoConfig::objectToggleField()
 {
     return &active;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dOverlayInfoConfig::setReservoirView(RimReservoirView* ownerReservoirView)
+{
+    m_reservoirView = ownerReservoirView;
+}
