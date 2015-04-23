@@ -24,6 +24,18 @@
 
 #include <odb_API.h>
 
+#include <map>
+
+std::map<std::string, RigElementType> initFemTypeMap()
+{
+    std::map<std::string, RigElementType> typeMap;
+    typeMap["C3D8R"] = HEX8;
+    typeMap["CAX4"] = CAX4;
+
+    return typeMap;
+}
+
+static std::map<std::string, RigElementType> odbElmTypeToRigElmTypeMap = initFemTypeMap();
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -50,13 +62,48 @@ void readOdbFile(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
     odb_Odb& odb = openOdb(path);
 
     odb_Assembly&  rootAssembly = odb.rootAssembly();
+    odb_InstanceRepository instanceRepository = odb.rootAssembly().instances();
 
-    RigFemPart* part = new RigFemPart;
+    odb_InstanceRepositoryIT iter(instanceRepository);
+    for (iter.first(); !iter.isDone(); iter.next())
+    {
+        odb_Instance& inst = instanceRepository[iter.currentKey()];
 
-    const odb_SequenceNode& nodes = rootAssembly.nodes();
+        RigFemPart* femPart = new RigFemPart;
 
-    const odb_SequenceElement& elements = rootAssembly.elements();
+        const odb_SequenceNode& odbNodes = inst.nodes();
 
+        int nodeCount = odbNodes.size();
+        femPart->nodes().nodeIds.resize(nodeCount);
+        femPart->nodes().coordinates.resize(nodeCount);
+
+        for (int nIdx = 0; nIdx < nodeCount; ++nIdx)
+        {
+            const odb_Node odbNode = odbNodes.node(nIdx);
+            femPart->nodes().nodeIds[nIdx] = odbNode.label();
+            const float * pos = odbNode.coordinates();
+            femPart->nodes().coordinates[nIdx].set(pos[0], pos[1], pos[2]);
+        }
+
+        const odb_SequenceElement& elements = inst.elements();
+
+        int elmCount = elements.size();
+        femPart->preAllocateElementStorage(elmCount);
+        std::map<std::string, RigElementType>::const_iterator it;
+        for (int elmIdx = 0; elmIdx < elmCount; ++elmIdx)
+        {
+            const odb_Element odbElm = elements.element(elmIdx);
+            it = odbElmTypeToRigElmTypeMap.find(odbElm.type().cStr());
+
+            if (it == odbElmTypeToRigElmTypeMap.end()) continue;
+
+            RigElementType elmType = it->second;
+            int nodeCount = 0;
+            femPart->appendElement(elmType, odbElm.label(), odbElm.connectivity(nodeCount));
+        }
+
+        geoMechCase->addFemPart(femPart);
+    }
 }
 
 

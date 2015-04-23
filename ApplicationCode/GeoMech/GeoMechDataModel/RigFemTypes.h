@@ -18,22 +18,24 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include <assert.h>
 
 enum RigElementType
 {
-    HEX8
+    HEX8,
+    CAX4
 };
 
 static const int elmentNodeCount(RigElementType elmType)
 {
-    static int elementTypeCounts[1] = {8};
+    static int elementTypeCounts[2] = {8,4};
 
     return elementTypeCounts[elmType];
 }
 
 static const int elmentFaceCount(RigElementType elmType)
 {
-    const static int elementFaceCounts[1] = {6};
+    const static int elementFaceCounts[2] = {6, 1};
 
     return elementFaceCounts[elmType];
 }
@@ -51,7 +53,22 @@ static const int elmentFaceCount(RigElementType elmType)
 static const int* elementLocalFaceIndices(RigElementType elmType, int faceIdx, int* faceNodeCount)
 {
     static const int HEX8_Faces[6][4] = { {1, 2, 6, 5 }, {0,4,7,3}, {3,7,6,2}, {0,1,5,4}, {4,5,6,7} ,{0,3,2,1} };
+    static const int CAX4_Faces[4] = {0, 1, 2, 3 };
 
-    (*faceNodeCount) = 4;
-    return HEX8_Faces[faceIdx];
+    switch (elmType)
+    {
+        case HEX8:
+            (*faceNodeCount) = 4;
+            return HEX8_Faces[faceIdx];
+            break;
+        case CAX4:
+            (*faceNodeCount) = 4;
+            return CAX4_Faces;
+            break;
+        default:
+            assert(false); // Element type not supported
+            break;
+    }
+
+    return CAX4_Faces;
 }

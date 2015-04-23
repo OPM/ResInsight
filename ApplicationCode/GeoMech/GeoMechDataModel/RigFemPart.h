@@ -38,13 +38,13 @@ class RigFemPart : public cvf::Object
 public:
     RigFemPart();
     virtual ~RigFemPart();
-
-    int                         appendElement(RigElementType elmType, int id, const int* connectivities);
+    void                        preAllocateElementStorage(int elementCount);
+    void                        appendElement(RigElementType elmType, int id, const int* connectivities);
 
     size_t                      elementCount() const                { return m_elementId.size(); }
     
     int                         elmId(size_t index) const           { return m_elementId[index]; }
-    RigElementType              elmentType(size_t index) const      { return m_elementTypes[index]; }
+    RigElementType              elementType(size_t index) const      { return m_elementTypes[index]; }
     const int*                  connectivities(size_t index) const  { return &m_allAlementConnectivities[m_elementConnectivityStartIndices[index]];}
 
     RigFemPartNodes&            nodes() {return m_nodes;}
