@@ -65,6 +65,7 @@ void readOdbFile(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
     odb_InstanceRepository instanceRepository = odb.rootAssembly().instances();
 
     odb_InstanceRepositoryIT iter(instanceRepository);
+
     for (iter.first(); !iter.isDone(); iter.next())
     {
         odb_Instance& inst = instanceRepository[iter.currentKey()];
@@ -102,6 +103,7 @@ void readOdbFile(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
             femPart->appendElement(elmType, odbElm.label(), odbElm.connectivity(nodeCount));
         }
 
+        femPart->setElementPartId(geoMechCase->partCount());
         geoMechCase->addFemPart(femPart);
     }
 }

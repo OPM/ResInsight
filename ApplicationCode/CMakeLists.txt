@@ -20,6 +20,9 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
+
     ${CMAKE_BINARY_DIR}/Generated
     ${CMAKE_CURRENT_BINARY_DIR}
 )
@@ -76,6 +79,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     FileInterface/CMakeLists_files.cmake
     ProjectDataModel/CMakeLists_files.cmake
     ModelVisualization/CMakeLists_files.cmake
+	GeoMech/GeoMechVisualization/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
@@ -88,6 +92,12 @@ list( APPEND CPP_SOURCES
 )
 
 add_subdirectory(WellPathImportSsihub)
+
+add_subdirectory(GeoMech/GeoMechDataModel)
+
+include(GeoMech/OdbReader/OdbSetup.cmake)
+
+add_subdirectory(GeoMech/OdbReader)
 
 
 # Define files for MOC-ing
@@ -273,6 +283,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
+
 
 # Copy Dlls
 if (MSVC)

@@ -38,6 +38,11 @@ class RigFemPart : public cvf::Object
 public:
     RigFemPart();
     virtual ~RigFemPart();
+
+    int elementPartId() const { return m_elementPartId; }
+    void setElementPartId(int partId) { m_elementPartId = partId; }
+
+
     void                        preAllocateElementStorage(int elementCount);
     void                        appendElement(RigElementType elmType, int id, const int* connectivities);
 
@@ -48,8 +53,10 @@ public:
     const int*                  connectivities(size_t index) const  { return &m_allAlementConnectivities[m_elementConnectivityStartIndices[index]];}
 
     RigFemPartNodes&            nodes() {return m_nodes;}
+    const RigFemPartNodes&      nodes() const {return m_nodes;}
     
 private:
+    int                         m_elementPartId;
     std::vector<int>            m_elementId;
     std::vector<RigElementType> m_elementTypes;
     std::vector<size_t>         m_elementConnectivityStartIndices;

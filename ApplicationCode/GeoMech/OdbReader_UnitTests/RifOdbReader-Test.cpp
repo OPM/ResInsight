@@ -31,7 +31,7 @@ TEST(OdbReaderTest, BasicTests)
     reader->open("C:\\pfRoot\\jjsOnJacobpcCsdep\\User\\Sigurd\\OdbApiExperiments\\viewer_tutorial.odb", femData.p());
 
     EXPECT_EQ(1, femData->partCount());
-    EXPECT_EQ(140, femData->part(0)->elementCount());
+    EXPECT_EQ(149, femData->part(0)->elementCount());
     EXPECT_EQ(CAX4, femData->part(0)->elementType(0));
 
 }

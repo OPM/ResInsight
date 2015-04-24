@@ -15,3 +15,5 @@ add_library( ${PROJECT_NAME}
 	RigGeoMechCaseData.h
 
 )
+
+target_link_libraries( ${PROJECT_NAME} LibCore )
