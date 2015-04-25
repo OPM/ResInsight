@@ -717,6 +717,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
     QString caseName = gridFileName.completeBaseName();
 
     RimGeoMechCase* geoMechCase = new RimGeoMechCase();
+    geoMechCase->setFileName(fileName);
     geoMechCase->caseUserDescription = caseName;
 
     RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels() : NULL;

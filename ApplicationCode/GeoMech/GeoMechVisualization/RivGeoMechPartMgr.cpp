@@ -22,30 +22,14 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
-#include "RigResultAccessorFactory.h"
-
-#include "RimCase.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimTernaryLegendConfig.h"
-#include "RimWellCollection.h"
 
-#include "RivCellEdgeEffectGenerator.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivSourceInfo.h"
-#include "RivTernaryScalarMapperEffectGenerator.h"
-#include "RivTernaryTextureCoordsCreator.h"
 #include "RivTextureCoordsCreator.h"
 
 #include "cafEffectGenerator.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafProgressInfo.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfMath.h"

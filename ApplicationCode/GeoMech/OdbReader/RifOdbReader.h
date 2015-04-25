@@ -36,10 +36,12 @@ public:
     RifOdbReader();
     virtual ~RifOdbReader();
 
-    virtual bool                 open(const std::string& fileName, RigGeoMechCaseData* geoMechCase);
+    virtual bool                 readFemParts(const std::string& fileName, RigGeoMechCaseData* geoMechCase);
     virtual void                 close();
    
     virtual std::vector<double>  timeSteps(); 
+    virtual std::vector<std::string> scalarNodeResultNames() {return std::vector<std::string> ();};
+    virtual void readScalarNodeResult(const std::string& resultName, int partIndex, int stepIndex, std::vector<float>* resultValues ) {};
 
 private:
 };

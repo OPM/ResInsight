@@ -112,7 +112,7 @@ void readOdbFile(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifOdbReader::open(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
+bool RifOdbReader::readFemParts(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
 {
     odb_initializeAPI();
 

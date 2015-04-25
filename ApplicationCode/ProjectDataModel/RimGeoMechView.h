@@ -73,7 +73,7 @@ public:
 
     caf::PdmField< cvf::Color3f >                       backgroundColor;
 protected:
-    virtual caf::PdmFieldHandle* userDescriptionField();
+    virtual caf::PdmFieldHandle*            userDescriptionField();
 
 private:
    void                                    updateViewerWidget();

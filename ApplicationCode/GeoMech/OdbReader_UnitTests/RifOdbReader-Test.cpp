@@ -28,7 +28,7 @@ TEST(OdbReaderTest, BasicTests)
 {
     cvf::ref<RifOdbReader> reader = new RifOdbReader;
     cvf::ref<RigGeoMechCaseData> femData = new RigGeoMechCaseData;
-    reader->open("C:\\pfRoot\\jjsOnJacobpcCsdep\\User\\Sigurd\\OdbApiExperiments\\viewer_tutorial.odb", femData.p());
+    reader->readFemParts("C:\\pfRoot\\jjsOnJacobpcCsdep\\User\\Sigurd\\OdbApiExperiments\\viewer_tutorial.odb", femData.p());
 
     EXPECT_EQ(1, femData->partCount());
     EXPECT_EQ(149, femData->part(0)->elementCount());

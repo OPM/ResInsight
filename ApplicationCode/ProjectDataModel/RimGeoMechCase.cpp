@@ -19,6 +19,11 @@
 
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+#include "RifOdbReader.h"
+#include "RigGeomechCaseData.h"
+#include <QFile>
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCase, "ResInsightGeoMechCase");
 //--------------------------------------------------------------------------------------------------
@@ -29,8 +34,8 @@ RimGeoMechCase::RimGeoMechCase(void)
     CAF_PDM_InitObject("Geomechanical Case", ":/GeoMechCase48x48.png", "", "");
 
     CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case name", "", "" ,"");
-    CAF_PDM_InitField(&caseFileName, "CaseFileName", QString(), "Case file name", "", "", "");
-    caseFileName.setUiReadOnly(true);
+    CAF_PDM_InitField(&m_caseFileName, "CaseFileName", QString(), "Case file name", "", "", "");
+    m_caseFileName.setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
 
 }
@@ -62,5 +67,36 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 caf::PdmFieldHandle* RimGeoMechCase::userDescriptionField()
 {
     return &caseUserDescription;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechCase::openGeoMechCase()
+{
+    // If read already, return
+
+    if (this->m_geoMechCaseData.notNull()) return true;
+
+    cvf::ref<RifGeoMechReaderInterface> readerInterface;
+
+    if (!QFile::exists(m_caseFileName()))
+    {
+        return false;
+    }
+
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    readerInterface = new RifOdbReader;
+
+    m_geoMechCaseData = new RigGeoMechCaseData;
+    if (!readerInterface->readFemParts(m_caseFileName().toStdString(), m_geoMechCaseData.p()))
+    {
+        return false;
+    }
+
+    // Todo: Default Results stuff, if needed
+
+    return true;
+
 }
 

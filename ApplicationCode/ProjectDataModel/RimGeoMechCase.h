@@ -22,9 +22,10 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cvfObject.h"
 
 class RimGeoMechView;
-
+class RigGeoMechCaseData;
 //==================================================================================================
 ///  
 ///  
@@ -36,6 +37,9 @@ class RimGeoMechCase : public caf::PdmObject
 public:
     RimGeoMechCase(void);
     virtual ~RimGeoMechCase(void);
+    
+    void setFileName(const QString& fileName) {m_caseFileName = fileName;}
+    bool openGeoMechCase();
 
     RimGeoMechView* createAndAddReservoirView();
 
@@ -46,5 +50,6 @@ public:
     caf::PdmPointersField<RimGeoMechView*>      geoMechViews;
 
 private:
-    caf::PdmField<QString>      caseFileName;
+    cvf::ref<RigGeoMechCaseData>                m_geoMechCaseData;
+    caf::PdmField<QString>                      m_caseFileName;
 };

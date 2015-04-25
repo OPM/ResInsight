@@ -37,11 +37,12 @@ public:
     RifGeoMechReaderInterface();
     virtual ~RifGeoMechReaderInterface();
 
-    virtual bool                open(const std::string& fileName, RigGeoMechCaseData* geoMechCase) = 0;
+    virtual bool                readFemParts(const std::string& fileName, RigGeoMechCaseData* geoMechCase) = 0;
     virtual void                close() = 0;
  
-    virtual std::vector<double>  timeSteps() = 0; 
-
+    virtual std::vector<double>  timeSteps() = 0;
+    virtual std::vector<std::string> scalarNodeResultNames() = 0; 
+    virtual void readScalarNodeResult(const std::string& resultName, int partIndex, int stepIndex, std::vector<float>* resultValues ) = 0;
 
 private:
 };
