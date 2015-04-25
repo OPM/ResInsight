@@ -94,8 +94,7 @@ list( APPEND CPP_SOURCES
 add_subdirectory(WellPathImportSsihub)
 
 add_subdirectory(GeoMech/GeoMechDataModel)
-
-include(GeoMech/OdbReader/OdbSetup.cmake)
+set(RI_ODB_API_DIR C:/pfRoot/jjsOnJacobpcCsdep/User/Sigurd/OdbApiExperiments/OdbApi/x64 CACHE PATH "Path tho the ODB api from Simulia")
 
 add_subdirectory(GeoMech/OdbReader)
 
@@ -264,6 +263,9 @@ set( LINK_LIBRARIES
     LibGeometry
     LibCore
 
+	RigGeoMechDataModel
+	RifOdbReader
+
     ecl
     ert_util
     ert_geometry
@@ -286,6 +288,27 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 
 # Copy Dlls
+# Copy Odb Dlls
+
+if (MSVC)
+	# Find all the dlls
+	file (GLOB  RI_ALL_ODB_DLLS  ${RI_ODB_API_DIR}/lib/*.dll)
+	
+	# Strip off the path
+	foreach (aDLL  ${RI_ALL_ODB_DLLS})
+		 get_filename_component(filenameWithExt ${aDLL} NAME)
+		 list(APPEND RI_ODB_DLLS ${filenameWithExt} )
+	endforeach(aDLL)
+
+	# Copy to target directory
+	foreach (aDLL ${RI_ODB_DLLS})
+        add_custom_command(TARGET ResInsight POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different  "${RI_ODB_API_DIR}/lib/${aDLL}"  "$<TARGET_FILE_DIR:ResInsight>")
+    endforeach()
+
+endif(MSVC)
+
+
 if (MSVC)
 
     # Qt DLLs

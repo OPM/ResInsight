@@ -1,7 +1,6 @@
 
 # Copy Odb Dlls
 
-set(RI_ODB_API_DIR C:/pfRoot/jjsOnJacobpcCsdep/User/Sigurd/OdbApiExperiments/OdbApi/x64 CACHE PATH "Path tho the ODB api from Simulia")
 if (MSVC)
 	# Find all the dlls
 	file (GLOB  RI_ALL_ODB_DLLS  ${RI_ODB_API_DIR}/lib/*.dll)

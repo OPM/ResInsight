@@ -5,6 +5,7 @@ project (RifOdbReader)
 add_definitions(-DHKS_NT)
 add_definitions(-DABQ_WIN86_64)
 
+
 include_directories(
 	${RI_ODB_API_DIR}/include
 	${RigGeoMechDataModel_SOURCE_DIR}
