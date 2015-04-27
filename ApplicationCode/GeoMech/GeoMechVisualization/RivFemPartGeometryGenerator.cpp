@@ -162,7 +162,7 @@ void RivFemPartGeometryGenerator::computeArrays()
         if (m_elmVisibility.isNull() || (*m_elmVisibility)[elmIdx])
         {
             RigElementType eType = m_part->elementType(elmIdx);
-            int faceCount = elmentFaceCount(eType);
+            int faceCount = RigFemTypes::elmentFaceCount(eType);
             int elmQuadCount = 0;
 
             const int* elmNodeIndices =  m_part->connectivities(elmIdx);
@@ -170,7 +170,7 @@ void RivFemPartGeometryGenerator::computeArrays()
             for (int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
             {
                 int faceNodeCount = 0;   
-                const int*  elmLocalFaceIndices = elementLocalFaceIndices(eType, lfIdx, &faceNodeCount);
+                const int*  elmLocalFaceIndices = RigFemTypes::elementLocalFaceIndices(eType, lfIdx, &faceNodeCount);
                 if (faceNodeCount == 4)
                 {
                 #if 0

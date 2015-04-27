@@ -11,6 +11,7 @@ add_library( ${PROJECT_NAME}
 	RigFemPart.h
 	RigFemPart.cpp
 	RigFemTypes.h
+	RigFemTypes.cpp
 	RigGeoMechCaseData.cpp
 	RigGeoMechCaseData.h
 	RigFemPartCollection.cpp

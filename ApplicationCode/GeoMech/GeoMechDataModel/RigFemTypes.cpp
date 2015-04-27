@@ -17,50 +17,63 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigFemPart.h"
+#include "RigFemTypes.h"
+
+
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemPart::RigFemPart()
-    :m_elementPartId(-1)
+const int RigFemTypes::elmentNodeCount(RigElementType elmType)
 {
+    static int elementTypeCounts[2] ={ 8, 4 };
 
+    return elementTypeCounts[elmType];
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemPart::~RigFemPart()
+const int RigFemTypes::elmentFaceCount(RigElementType elmType)
 {
+    const static int elementFaceCounts[2] ={ 6, 1 };
 
+    return elementFaceCounts[elmType];
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::preAllocateElementStorage(int elementCount)
+// HEX8
+//     7---------6               
+//    /|        /|     |k        
+//   / |       / |     | /j      
+//  4---------5  |     |/        
+//  |  3------|--2     *---i     
+//  | /       | /                
+//  |/        |/                 
+//  0---------1                
+
+const int* RigFemTypes::elementLocalFaceIndices(RigElementType elmType, int faceIdx, int* faceNodeCount)
 {
-    m_elementId.reserve(elementCount);
-    m_elementTypes.reserve(elementCount);
-    m_elementConnectivityStartIndices.reserve(elementCount);
+    static const int HEX8_Faces[6][4] ={ { 1, 2, 6, 5 }, { 0, 4, 7, 3 }, { 3, 7, 6, 2 }, { 0, 1, 5, 4 }, { 4, 5, 6, 7 }, { 0, 3, 2, 1 } };
+    static const int CAX4_Faces[4] ={ 0, 1, 2, 3 };
 
-    m_allAlementConnectivities.reserve(elementCount*8); 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPart::appendElement(RigElementType elmType, int id, const int* connectivities)
-{
-    m_elementId.push_back(id);
-    m_elementTypes.push_back(elmType);
-    m_elementConnectivityStartIndices.push_back(m_allAlementConnectivities.size());
-
-    int nodeCount = RigFemTypes::elmentNodeCount(elmType);
-    for (int lnIdx = 0; lnIdx < nodeCount; ++lnIdx)
+    switch (elmType)
     {
-        m_allAlementConnectivities.push_back(connectivities[lnIdx]);
+        case HEX8:
+            (*faceNodeCount) = 4;
+            return HEX8_Faces[faceIdx];
+            break;
+        case CAX4:
+            (*faceNodeCount) = 4;
+            return CAX4_Faces;
+            break;
+        default:
+            assert(false); // Element type not supported
+            break;
     }
+
+    return CAX4_Faces;
 }

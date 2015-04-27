@@ -111,7 +111,7 @@ void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
 
             int nodeCount = 0;
             const int* idBasedConnectivities = odbElm.connectivity(nodeCount);
-            CVF_TIGHT_ASSERT(nodeCount == elmentNodeCount(elmType));
+            CVF_TIGHT_ASSERT(nodeCount == RigFemTypes::elmentNodeCount(elmType));
 
             indexBasedConnectivities.resize(nodeCount);
             for (int lnIdx = 0; lnIdx < nodeCount; ++lnIdx)

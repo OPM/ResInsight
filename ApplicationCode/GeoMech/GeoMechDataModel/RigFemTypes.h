@@ -26,49 +26,11 @@ enum RigElementType
     CAX4
 };
 
-static const int elmentNodeCount(RigElementType elmType)
+class RigFemTypes
 {
-    static int elementTypeCounts[2] = {8,4};
+public:
+    static const int elmentNodeCount(RigElementType elmType);
+    static const int elmentFaceCount(RigElementType elmType);
+    static const int* elementLocalFaceIndices(RigElementType elmType, int faceIdx, int* faceNodeCount);
 
-    return elementTypeCounts[elmType];
-}
-
-static const int elmentFaceCount(RigElementType elmType)
-{
-    const static int elementFaceCounts[2] = {6, 1};
-
-    return elementFaceCounts[elmType];
-}
-
-    // HEX8
-    //     7---------6               
-    //    /|        /|     |k        
-    //   / |       / |     | /j      
-    //  4---------5  |     |/        
-    //  |  3------|--2     *---i     
-    //  | /       | /                
-    //  |/        |/                 
-    //  0---------1                    
-
-static const int* elementLocalFaceIndices(RigElementType elmType, int faceIdx, int* faceNodeCount)
-{
-    static const int HEX8_Faces[6][4] = { {1, 2, 6, 5 }, {0,4,7,3}, {3,7,6,2}, {0,1,5,4}, {4,5,6,7} ,{0,3,2,1} };
-    static const int CAX4_Faces[4] = {0, 1, 2, 3 };
-
-    switch (elmType)
-    {
-        case HEX8:
-            (*faceNodeCount) = 4;
-            return HEX8_Faces[faceIdx];
-            break;
-        case CAX4:
-            (*faceNodeCount) = 4;
-            return CAX4_Faces;
-            break;
-        default:
-            assert(false); // Element type not supported
-            break;
-    }
-
-    return CAX4_Faces;
-}
+};
