@@ -44,11 +44,11 @@ class RigFemPart;
 ///
 //==================================================================================================
 
-class RivGeoMechPartMgr: public cvf::Object
+class RivFemPartPartMgr: public cvf::Object
 {
 public:
-    RivGeoMechPartMgr(const RigFemPart* grid);
-    ~RivGeoMechPartMgr();
+    RivFemPartPartMgr(const RigFemPart* grid);
+    ~RivFemPartPartMgr();
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities );
     cvf::ref<cvf::UByteArray>  cellVisibility() { return  m_cellVisibility;}

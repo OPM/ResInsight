@@ -6,12 +6,12 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RivFemPartGeometryGenerator.h
-${CEE_CURRENT_LIST_DIR}RivGeoMechPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivFemPartPartMgr.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RivFemPartGeometryGenerator.cpp
-${CEE_CURRENT_LIST_DIR}RivGeoMechPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivFemPartPartMgr.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

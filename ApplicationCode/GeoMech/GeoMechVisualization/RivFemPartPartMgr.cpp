@@ -49,7 +49,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivGeoMechPartMgr::RivGeoMechPartMgr(const RigFemPart* grid)
+RivFemPartPartMgr::RivFemPartPartMgr(const RigFemPart* grid)
 :   m_surfaceGenerator(grid), 
     m_grid(grid),
     m_opacityLevel(1.0f),
@@ -64,7 +64,7 @@ RivGeoMechPartMgr::RivGeoMechPartMgr(const RigFemPart* grid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::setTransform(cvf::Transform* scaleTransform)
+void RivFemPartPartMgr::setTransform(cvf::Transform* scaleTransform)
 {
     m_scaleTransform = scaleTransform;
 }
@@ -72,7 +72,7 @@ void RivGeoMechPartMgr::setTransform(cvf::Transform* scaleTransform)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
+void RivFemPartPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 {
     CVF_ASSERT(m_scaleTransform.notNull());
     CVF_ASSERT(cellVisibilities);
@@ -84,7 +84,7 @@ void RivGeoMechPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
     generatePartGeometry(m_surfaceGenerator);
 }
 
-void RivGeoMechPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBuilder)
+void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBuilder)
 {
     bool useBufferObjects = true;
     // Surface geometry
@@ -158,7 +158,7 @@ void RivGeoMechPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
+void RivFemPartPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
     CVF_ASSERT(model != NULL);
 
@@ -169,7 +169,7 @@ void RivGeoMechPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::updateCellColor(cvf::Color4f color)
+void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 {
     if (m_surfaceFaces.isNull()) return;
 
@@ -203,7 +203,7 @@ void RivGeoMechPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot)
+void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot)
 {
     CVF_ASSERT(cellResultSlot);
 
@@ -238,7 +238,7 @@ void RivGeoMechPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivGeoMechPartMgr::~RivGeoMechPartMgr()
+RivFemPartPartMgr::~RivFemPartPartMgr()
 {
 
 }
