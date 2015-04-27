@@ -41,6 +41,9 @@ public:
     void setFileName(const QString& fileName) {m_caseFileName = fileName;}
     bool openGeoMechCase();
 
+    RigGeoMechCaseData* geoMechData() { return m_geoMechCaseData.p(); }
+    const RigGeoMechCaseData* geoMechData() const { return m_geoMechCaseData.p(); }
+
     RimGeoMechView* createAndAddReservoirView();
 
     virtual caf::PdmFieldHandle* userDescriptionField();

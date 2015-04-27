@@ -18,21 +18,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechView.h"
-#include "RimReservoirView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RimGeoMechResultSlot.h"
 
-#include "RiuViewer.h"
 #include "RiuMainWindow.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafCadNavigation.h"
 #include "RimLegendConfig.h"
 #include "cvfOverlayScalarMapperLegend.h"
 
+#include "RimGeoMechCase.h"
+#include "cvfPart.h"
 #include "cvfViewport.h"
+#include "cvfModelBasicList.h"
+#include "cvfScene.h"
+#include "RimReservoirView.h"
+#include "RiuViewer.h"
+#include "RivGeoMechPartMgr.h"
+#include "RigGeoMechCaseData.h"
+
 
 namespace caf {
 
@@ -204,6 +211,63 @@ void RimGeoMechView::updateViewerWidgetWindowTitle()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::loadDataAndUpdate()
 {
+    if (m_geomechCase)
+    {
+        m_geomechCase->openGeoMechCase();
+
+    }
     updateViewerWidget();
+
+    createDisplayModelAndRedraw();
+
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::createDisplayModelAndRedraw()
+{
+    if (m_viewer && m_geomechCase)
+    {
+        cvf::ref<cvf::Transform>  scaleTransform = new cvf::Transform();
+        scaleTransform->setLocalTransform(cvf::Mat4d::IDENTITY);
+
+        cvf::ref<cvf::ModelBasicList> cvfModel =  new cvf::ModelBasicList;
+        m_geoMechVizModel = new RivGeoMechPartMgr();
+        m_geoMechVizModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
+        for (int femPartIdx = 0; femPartIdx < m_geomechCase->geoMechData()->femParts()->partCount(); ++femPartIdx)
+        {
+            cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechVizModel->cellVisibility(femPartIdx);
+            m_geoMechVizModel->setTransform(scaleTransform.p());
+            RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(),  m_geomechCase->geoMechData()->femParts()->part(femPartIdx));
+            m_geoMechVizModel->setCellVisibility(femPartIdx, elmVisibility.p());
+        }
+        m_geoMechVizModel->appendGridPartsToModel(cvfModel.p());
+
+        cvf::ref<cvf::Scene> scene = new cvf::Scene;
+        scene->addModel(cvfModel.p());
+
+        m_viewer->setMainScene(scene.p());
+
+        m_viewer->update();
+    }
+    RiuMainWindow::instance()->refreshAnimationActions(); 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::setGeoMechCase(RimGeoMechCase* gmCase)
+{
+    m_geomechCase = gmCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivElmVisibilityCalculator::computeAllVisible(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart)
+{
+    elmVisibilities->resize(femPart->elementCount());
+    elmVisibilities->setAll(true);
+}

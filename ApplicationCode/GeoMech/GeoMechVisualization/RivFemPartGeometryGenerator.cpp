@@ -156,7 +156,7 @@ void RivFemPartGeometryGenerator::computeArrays()
     cvf::Vec3d offset = Vec3d::ZERO; //m_part->displayModelOffset();
     const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
-#pragma omp parallel for schedule(dynamic)
+//#pragma omp parallel for schedule(dynamic)
     for (int elmIdx = 0; elmIdx < static_cast<int>(m_part->elementCount()); elmIdx++)
     {
         if (m_elmVisibility.isNull() || (*m_elmVisibility)[elmIdx])

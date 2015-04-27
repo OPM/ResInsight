@@ -56,6 +56,8 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
     RimGeoMechView* gmv = new RimGeoMechView();
     size_t i = geoMechViews().size();
     gmv->name = QString("View %1").arg(i + 1);
+    
+    gmv->setGeoMechCase(this);
 
     geoMechViews.push_back(gmv);
     return gmv;

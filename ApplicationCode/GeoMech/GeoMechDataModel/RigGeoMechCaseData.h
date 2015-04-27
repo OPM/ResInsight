@@ -29,7 +29,8 @@ public:
     ~RigGeoMechCaseData();
 
     RigFemPartCollection* femParts();
-   
+    const RigFemPartCollection* femParts() const;
+
  
 private:
     cvf::ref<RigFemPartCollection> m_femParts;

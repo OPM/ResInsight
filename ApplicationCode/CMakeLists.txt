@@ -22,6 +22,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
 
     ${CMAKE_BINARY_DIR}/Generated
     ${CMAKE_CURRENT_BINARY_DIR}

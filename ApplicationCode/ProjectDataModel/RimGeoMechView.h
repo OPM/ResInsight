@@ -26,9 +26,15 @@
 #include "cafPdmFieldCvfColor.h"   
 #include "cafPdmFieldCvfMat4d.h"   
 
+#include "cvfObject.h"
+
 class RimGeoMechResultSlot;
 class Rim3dOverlayInfoConfig;
 class RiuViewer;
+class RimGeoMechCase;
+class RivGeoMechPartMgr;
+
+class RigFemPart;
 
 //==================================================================================================
 ///  
@@ -56,6 +62,8 @@ public:
         FAULTS,
         NO_SURFACE
     };
+
+    void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     void                                                loadDataAndUpdate();
 
     caf::PdmField<RimGeoMechResultSlot*>                cellResult;
@@ -78,5 +86,19 @@ protected:
 private:
    void                                    updateViewerWidget();
    void                                    updateViewerWidgetWindowTitle();
+   void                                    createDisplayModelAndRedraw();
+
    QPointer<RiuViewer>                     m_viewer;
+   caf::PdmPointer<RimGeoMechCase>         m_geomechCase;
+   cvf::ref<RivGeoMechPartMgr>             m_geoMechVizModel;
+};
+
+#include "cvfArray.h"
+
+class RivElmVisibilityCalculator
+{
+public:
+    static void computeAllVisible(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart );
+
+
 };

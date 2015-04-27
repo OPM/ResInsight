@@ -31,7 +31,9 @@ public:
 
     void addFemPart(RigFemPart* part);
     RigFemPart* part(size_t index);
-    size_t partCount();
+    const RigFemPart* part(size_t index) const ;
+
+    int partCount() const;
 
 private:
     cvf::Collection<RigFemPart> m_femParts;

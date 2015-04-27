@@ -47,7 +47,7 @@ class RigFemPart;
 class RivFemPartPartMgr: public cvf::Object
 {
 public:
-    RivFemPartPartMgr(const RigFemPart* grid);
+    RivFemPartPartMgr(const RigFemPart* femPart);
     ~RivFemPartPartMgr();
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities );

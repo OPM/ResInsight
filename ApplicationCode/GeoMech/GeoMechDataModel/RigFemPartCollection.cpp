@@ -56,9 +56,17 @@ RigFemPart* RigFemPartCollection::part(size_t index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigFemPartCollection::partCount()
+const RigFemPart* RigFemPartCollection::part(size_t index) const
 {
-    return m_femParts.size();
+    return m_femParts[index].p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RigFemPartCollection::partCount() const
+{
+    return static_cast<int>(m_femParts.size());
 }
 
 

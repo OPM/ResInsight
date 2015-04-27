@@ -42,3 +42,11 @@ RigFemPartCollection* RigGeoMechCaseData::femParts()
 {
     return m_femParts.p();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFemPartCollection* RigGeoMechCaseData::femParts() const
+{
+    return m_femParts.p();
+}
