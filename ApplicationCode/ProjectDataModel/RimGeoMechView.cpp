@@ -247,9 +247,10 @@ void RimGeoMechView::createDisplayModelAndRedraw()
 
         cvf::ref<cvf::Scene> scene = new cvf::Scene;
         scene->addModel(cvfModel.p());
+        scene->updateBoundingBoxesRecursive();
 
         m_viewer->setMainScene(scene.p());
-
+        m_viewer->zoomAll();
         m_viewer->update();
     }
     RiuMainWindow::instance()->refreshAnimationActions(); 

@@ -531,7 +531,12 @@ void RiuViewer::pickPointAndFace(int winPosX, int winPosY, cvf::Vec3d* localInte
     {
         CVF_ASSERT(hitItems.count() > 0);
 
-        double characteristicCellSize = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+        double characteristicCellSize = 5.0;
+        if (m_reservoirView && m_reservoirView->eclipseCase())
+        {
+            characteristicCellSize = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+        }
+
         double pickDepthThresholdSquared = characteristicCellSize / 100.0;
         pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
 
