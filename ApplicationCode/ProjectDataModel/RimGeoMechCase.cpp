@@ -89,7 +89,7 @@ bool RimGeoMechCase::openGeoMechCase()
     readerInterface = new RifOdbReader;
 
     m_geoMechCaseData = new RigGeoMechCaseData;
-    if (!readerInterface->readFemParts(m_caseFileName().toStdString(), m_geoMechCaseData.p()))
+    if (!readerInterface->readFemParts(m_caseFileName().toStdString(), m_geoMechCaseData->femParts()))
     {
         return false;
     }

@@ -23,7 +23,7 @@
 #include "cvfObject.h"
 #include <vector>
 
-class RigGeoMechCaseData;
+class RigFemPartCollection;
 
 
 //==================================================================================================
@@ -37,7 +37,7 @@ public:
     RifGeoMechReaderInterface();
     virtual ~RifGeoMechReaderInterface();
 
-    virtual bool                readFemParts(const std::string& fileName, RigGeoMechCaseData* geoMechCase) = 0;
+    virtual bool                readFemParts(const std::string& fileName, RigFemPartCollection* geoMechCase) = 0;
     virtual void                close() = 0;
  
     virtual std::vector<double>  timeSteps() = 0;

@@ -22,7 +22,7 @@
 #include "RifGeoMechReaderInterface.h"
 #include <string>
 
-class RigGeoMechCaseData;
+class RigFemPartCollection;
 
 //==================================================================================================
 //
@@ -36,7 +36,7 @@ public:
     RifOdbReader();
     virtual ~RifOdbReader();
 
-    virtual bool                 readFemParts(const std::string& fileName, RigGeoMechCaseData* geoMechCase);
+    virtual bool                 readFemParts(const std::string& fileName, RigFemPartCollection* femParts);
     virtual void                 close();
    
     virtual std::vector<double>  timeSteps(); 

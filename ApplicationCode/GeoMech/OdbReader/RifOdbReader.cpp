@@ -19,7 +19,7 @@
 
 #include "RifOdbReader.h"
 
-#include "RigGeoMechCaseData.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPart.h"
 
 #include <odb_API.h>
@@ -53,9 +53,9 @@ RifOdbReader::~RifOdbReader()
 
 }
 
-void readOdbFile(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
+void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
 {
-    CVF_ASSERT(geoMechCase);
+    CVF_ASSERT(femParts);
 
     odb_String path = fileName.c_str();
 
@@ -103,8 +103,8 @@ void readOdbFile(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
             femPart->appendElement(elmType, odbElm.label(), odbElm.connectivity(nodeCount));
         }
 
-        femPart->setElementPartId(geoMechCase->partCount());
-        geoMechCase->addFemPart(femPart);
+        femPart->setElementPartId(femParts->partCount());
+        femParts->addFemPart(femPart);
     }
 }
 
@@ -112,7 +112,7 @@ void readOdbFile(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifOdbReader::readFemParts(const std::string& fileName, RigGeoMechCaseData* geoMechCase)
+bool RifOdbReader::readFemParts(const std::string& fileName, RigFemPartCollection* femParts)
 {
     odb_initializeAPI();
 
@@ -120,7 +120,7 @@ bool RifOdbReader::readFemParts(const std::string& fileName, RigGeoMechCaseData*
 
     try 
     {
-        readOdbFile(fileName, geoMechCase);
+        readOdbFile(fileName, femParts);
     }
 
     catch (const nex_Exception& nex) 

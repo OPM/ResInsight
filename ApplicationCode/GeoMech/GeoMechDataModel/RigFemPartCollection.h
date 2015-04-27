@@ -19,20 +19,24 @@
 
 #pragma once
 
-#include "RigFemPartCollection.h"
+#include "RigFemPart.h"
+#include "cvfCollection.h"
 
 
-class RigGeoMechCaseData: public cvf::Object
+class RigFemPartCollection: public cvf::Object
 {
 public:
-    RigGeoMechCaseData();
-    ~RigGeoMechCaseData();
+    RigFemPartCollection();
+    ~RigFemPartCollection();
 
-    RigFemPartCollection* femParts();
-   
- 
+    void addFemPart(RigFemPart* part);
+    RigFemPart* part(size_t index);
+    size_t partCount();
+
 private:
-    cvf::ref<RigFemPartCollection> m_femParts;
+    cvf::Collection<RigFemPart> m_femParts;
 
 };
+
+
 
