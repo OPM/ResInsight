@@ -21,6 +21,7 @@
 
 #include "RifGeoMechReaderInterface.h"
 #include <string>
+#include <map>
 
 class RigFemPartCollection;
 

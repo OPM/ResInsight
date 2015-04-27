@@ -72,7 +72,10 @@ void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
 
         RigFemPart* femPart = new RigFemPart;
 
+        // Extract nodes
         const odb_SequenceNode& odbNodes = inst.nodes();
+
+        std::map<int, int> nodeIdToIdxMap;
 
         int nodeCount = odbNodes.size();
         femPart->nodes().nodeIds.resize(nodeCount);
@@ -84,23 +87,39 @@ void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
             femPart->nodes().nodeIds[nIdx] = odbNode.label();
             const float * pos = odbNode.coordinates();
             femPart->nodes().coordinates[nIdx].set(pos[0], pos[1], pos[2]);
+            nodeIdToIdxMap[odbNode.label()] = nIdx;
         }
 
+        // Extract elements
         const odb_SequenceElement& elements = inst.elements();
 
         int elmCount = elements.size();
         femPart->preAllocateElementStorage(elmCount);
         std::map<std::string, RigElementType>::const_iterator it;
+        std::vector<int> indexBasedConnectivities;
+
         for (int elmIdx = 0; elmIdx < elmCount; ++elmIdx)
         {
             const odb_Element odbElm = elements.element(elmIdx);
+
+            // Get the type
             it = odbElmTypeToRigElmTypeMap.find(odbElm.type().cStr());
 
-            if (it == odbElmTypeToRigElmTypeMap.end()) continue;
+            if (it == odbElmTypeToRigElmTypeMap.end()) continue; // Unsupported type
 
             RigElementType elmType = it->second;
+
             int nodeCount = 0;
-            femPart->appendElement(elmType, odbElm.label(), odbElm.connectivity(nodeCount));
+            const int* idBasedConnectivities = odbElm.connectivity(nodeCount);
+            CVF_TIGHT_ASSERT(nodeCount == elmentNodeCount(elmType));
+
+            indexBasedConnectivities.resize(nodeCount);
+            for (int lnIdx = 0; lnIdx < nodeCount; ++lnIdx)
+            {
+                indexBasedConnectivities[lnIdx] = nodeIdToIdxMap[idBasedConnectivities[lnIdx]];
+            }
+
+            femPart->appendElement(elmType, odbElm.label(), indexBasedConnectivities.data());
         }
 
         femPart->setElementPartId(femParts->partCount());
