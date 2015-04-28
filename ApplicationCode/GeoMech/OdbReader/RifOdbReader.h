@@ -38,7 +38,6 @@ public:
     virtual ~RifOdbReader();
 
     virtual bool                 readFemParts(const std::string& fileName, RigFemPartCollection* femParts);
-    virtual void                 close();
    
     virtual std::vector<double>  timeSteps(); 
     virtual std::vector<std::string> scalarNodeResultNames() {return std::vector<std::string> ();};

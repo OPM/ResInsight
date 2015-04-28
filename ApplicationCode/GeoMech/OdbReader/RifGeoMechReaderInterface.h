@@ -38,7 +38,6 @@ public:
     virtual ~RifGeoMechReaderInterface();
 
     virtual bool                readFemParts(const std::string& fileName, RigFemPartCollection* geoMechCase) = 0;
-    virtual void                close() = 0;
  
     virtual std::vector<double>  timeSteps() = 0;
     virtual std::vector<std::string> scalarNodeResultNames() = 0; 

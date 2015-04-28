@@ -25,11 +25,14 @@
 #include <odb_API.h>
 
 #include <map>
+#include <iostream>
 
 std::map<std::string, RigElementType> initFemTypeMap()
 {
     std::map<std::string, RigElementType> typeMap;
     typeMap["C3D8R"] = HEX8;
+    typeMap["C3D8"]  = HEX8;
+    typeMap["C3D8P"] = HEX8;
     typeMap["CAX4"] = CAX4;
 
     return typeMap;
@@ -105,7 +108,13 @@ void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
             // Get the type
             it = odbElmTypeToRigElmTypeMap.find(odbElm.type().cStr());
 
-            if (it == odbElmTypeToRigElmTypeMap.end()) continue; // Unsupported type
+            if (it == odbElmTypeToRigElmTypeMap.end()) 
+            {
+                #if 0
+                std::cout << "Unsupported element type :" << odbElm.type().cStr() << std::endl;
+                #endif
+                continue; // Unsupported type
+             }
 
             RigElementType elmType = it->second;
 
@@ -158,14 +167,6 @@ bool RifOdbReader::readFemParts(const std::string& fileName, RigFemPartCollectio
     odb_finalizeAPI();
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifOdbReader::close()
-{
-
 }
 
 //--------------------------------------------------------------------------------------------------
