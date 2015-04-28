@@ -3,7 +3,8 @@ cmake_minimum_required (VERSION 2.8)
 project ( OdbReader_UnitTests )
 
 set(RI_VIZ_FWK_ROOT ../../../Fwk/main/VizFwk  CACHE PATH "Path to VizFwk")
-set(RI_GTEST_ROOT ../../../ThirdParty  CACHE PATH "Path to forlder containing gtest folder")
+set(RI_GTEST_ROOT ../../../ThirdParty  CACHE PATH "Path to folder containing gtest folder")
+set(RI_TEST_FILE ""  CACHE PATH "Path to test file")
 
 include(${RI_VIZ_FWK_ROOT}/CMake/Utils/ceeDetermineCompilerFlags.cmake)
 
@@ -11,6 +12,7 @@ add_subdirectory(${RI_VIZ_FWK_ROOT}/LibCore buildVizFwk)
 add_subdirectory(../GeoMechDataModel buildGeoMechDataModel)
 add_subdirectory(../OdbReader buildOdbReader)
 
+add_definitions( -DTEST_FILE="${RI_TEST_FILE}")
 
 include_directories(${RI_VIZ_FWK_ROOT}/LibCore)
 include_directories(../GeoMechDataModel)

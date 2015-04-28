@@ -26,11 +26,12 @@
 //--------------------------------------------------------------------------------------------------
 TEST(OdbReaderTest, BasicTests)
 {
+    std::cout << TEST_FILE << std::endl;
+    std::cout << std::endl;
     cvf::ref<RifOdbReader> reader = new RifOdbReader;
     cvf::ref<RigGeoMechCaseData> femCase = new RigGeoMechCaseData;
     cvf::ref<RigFemPartCollection> femData = femCase->femParts();
-    reader->readFemParts("C:\\pfRoot\\jjsOnJacobpcCsdep\\User\\Sigurd\\OdbApiExperiments\\viewer_tutorial.odb", femData.p());
-
+    reader->readFemParts(TEST_FILE, femData.p());
     EXPECT_EQ(1, femData->partCount());
     EXPECT_EQ(149, femData->part(0)->elementCount());
     EXPECT_EQ(CAX4, femData->part(0)->elementType(0));
