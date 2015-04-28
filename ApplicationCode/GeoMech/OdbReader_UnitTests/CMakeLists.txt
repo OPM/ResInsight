@@ -2,9 +2,9 @@ cmake_minimum_required (VERSION 2.8)
 
 project ( OdbReader_UnitTests )
 
-set(RI_VIZ_FWK_ROOT ../../../Fwk/main/VizFwk  CACHE PATH "Path to VizFwk")
+set(RI_VIZ_FWK_ROOT ../../../Fwk/VizFwk  CACHE PATH "Path to VizFwk")
 set(RI_GTEST_ROOT ../../../ThirdParty  CACHE PATH "Path to folder containing gtest folder")
-set(RI_TEST_FILE ""  CACHE PATH "Path to test file")
+set(RI_TEST_FILE ""  CACHE FILEPATH "Path to test file")
 
 include(${RI_VIZ_FWK_ROOT}/CMake/Utils/ceeDetermineCompilerFlags.cmake)
 

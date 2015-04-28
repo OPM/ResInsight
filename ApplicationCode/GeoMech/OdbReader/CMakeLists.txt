@@ -7,7 +7,7 @@ add_definitions(-DABQ_WIN86_64)
 
 
 include_directories(
-	${RI_ODB_API_DIR}/include
+	${RESINSIGHT_ODB_API_DIR}/include
 	${RigGeoMechDataModel_SOURCE_DIR}
 	${LibCore_SOURCE_DIR}
 )
@@ -17,24 +17,25 @@ add_library( ${PROJECT_NAME}
 	RifOdbReader.cpp
 	RifGeoMechReaderInterface.h
 	RifGeoMechReaderInterface.cpp
+	OdbSetup.cmake
 )
 
 list(APPEND RI_ODB_LIBS
-${RI_ODB_API_DIR}/lib/ABQSMAOdbDdbOdb.lib 
-${RI_ODB_API_DIR}/lib/ABQSMAOdbApi.lib 
-${RI_ODB_API_DIR}/lib/ABQSMAOdbCore.lib 
-${RI_ODB_API_DIR}/lib/ABQSMAOdbCoreGeom.lib 
-${RI_ODB_API_DIR}/lib/ABQSMAOdbAttrEO.lib 
-${RI_ODB_API_DIR}/lib/ABQSMAAbuBasicUtils.lib 
-${RI_ODB_API_DIR}/lib/ABQSMABasShared.lib 
-${RI_ODB_API_DIR}/lib/ABQSMABasCoreUtils.lib 
-${RI_ODB_API_DIR}/lib/ABQSMAStiCAE_StableTime.lib 
-${RI_ODB_API_DIR}/lib/ABQSMABasMem.lib 
-${RI_ODB_API_DIR}/lib/ABQSMAAbuGeom.lib 
-${RI_ODB_API_DIR}/lib/ABQSMARomDiagEx.lib 
-${RI_ODB_API_DIR}/lib/ABQSMASspUmaCore.lib 
-${RI_ODB_API_DIR}/lib/ABQSMASimInterface.lib 
-${RI_ODB_API_DIR}/lib/ABQSMAMtxCoreModule.lib
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAOdbDdbOdb.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAOdbApi.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAOdbCore.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAOdbCoreGeom.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAOdbAttrEO.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAAbuBasicUtils.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMABasShared.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMABasCoreUtils.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAStiCAE_StableTime.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMABasMem.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAAbuGeom.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMARomDiagEx.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMASspUmaCore.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMASimInterface.lib 
+${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAMtxCoreModule.lib
 )
 
 target_link_libraries(${PROJECT_NAME} ${RI_ODB_LIBS} RigGeoMechDataModel LibCore)
