@@ -386,8 +386,10 @@ void RiuMainWindow::createMenus()
     importMenu->addAction(m_importInputEclipseFileAction);
     importMenu->addAction(m_openMultipleEclipseCasesAction);
     importMenu->addSeparator();
+    #ifdef USE_ODB_API
     importMenu->addAction(m_importGeoMechCaseAction);
     importMenu->addSeparator();
+    #endif
     importMenu->addAction(m_importWellPathsFromFileAction);
     importMenu->addAction(m_importWellPathsFromSSIHubAction);
 
@@ -1044,6 +1046,10 @@ void RiuMainWindow::slotOpenRecentFile()
         else if ( filename.contains(".egrid", Qt::CaseInsensitive) || filename.contains(".grid", Qt::CaseInsensitive) )
         {
             loadingSucceded = RiaApplication::instance()->openEclipseCaseFromFile(filename);
+        }
+        else if (filename.contains(".odb", Qt::CaseInsensitive) )
+        {
+            loadingSucceded = RiaApplication::instance()->openOdbCaseFromFile(filename);
         }
 
         if (loadingSucceded)
@@ -2049,7 +2055,9 @@ void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObje
     }
     else if (dynamic_cast<RimGeoMechModels*>(pdmObject))
     {
+    #ifdef USE_ODB_API
         menu->addAction(m_importGeoMechCaseAction);
+    #endif
     }
 }
 

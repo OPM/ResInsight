@@ -87,18 +87,21 @@ bool RimGeoMechCase::openGeoMechCase()
         return false;
     }
 
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+#ifdef USE_ODB_API    
     readerInterface = new RifOdbReader;
 
     m_geoMechCaseData = new RigGeoMechCaseData;
-    if (!readerInterface->readFemParts(m_caseFileName().toStdString(), m_geoMechCaseData->femParts()))
+    if (readerInterface->readFemParts(m_caseFileName().toStdString(), m_geoMechCaseData->femParts()))
     {
-        return false;
+    
+        // Todo: Default Results stuff, if needed
+
+        return true;
     }
+#endif
 
-    // Todo: Default Results stuff, if needed
-
-    return true;
+    return false;
 
 }
 

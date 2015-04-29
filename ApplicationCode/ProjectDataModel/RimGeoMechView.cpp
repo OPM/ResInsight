@@ -230,28 +230,40 @@ void RimGeoMechView::createDisplayModelAndRedraw()
 {
     if (m_viewer && m_geomechCase)
     {
-        cvf::ref<cvf::Transform>  scaleTransform = new cvf::Transform();
-        scaleTransform->setLocalTransform(cvf::Mat4d::IDENTITY);
-
-        cvf::ref<cvf::ModelBasicList> cvfModel =  new cvf::ModelBasicList;
-        m_geoMechVizModel = new RivGeoMechPartMgr();
-        m_geoMechVizModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
-        for (int femPartIdx = 0; femPartIdx < m_geomechCase->geoMechData()->femParts()->partCount(); ++femPartIdx)
+        int partCount = 0;
+        if (m_geomechCase->geoMechData() && m_geomechCase->geoMechData()->femParts())
         {
-            cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechVizModel->cellVisibility(femPartIdx);
-            m_geoMechVizModel->setTransform(scaleTransform.p());
-            RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(),  m_geomechCase->geoMechData()->femParts()->part(femPartIdx));
-            m_geoMechVizModel->setCellVisibility(femPartIdx, elmVisibility.p());
+            partCount = m_geomechCase->geoMechData()->femParts()->partCount();
         }
-        m_geoMechVizModel->appendGridPartsToModel(cvfModel.p());
 
-        cvf::ref<cvf::Scene> scene = new cvf::Scene;
-        scene->addModel(cvfModel.p());
-        scene->updateBoundingBoxesRecursive();
+        if (partCount >= 0)
+        {
+            cvf::ref<cvf::Transform>  scaleTransform = new cvf::Transform();
+            scaleTransform->setLocalTransform(cvf::Mat4d::IDENTITY);
 
-        m_viewer->setMainScene(scene.p());
-        m_viewer->zoomAll();
-        m_viewer->update();
+            cvf::ref<cvf::ModelBasicList> cvfModel =  new cvf::ModelBasicList;
+            m_geoMechVizModel = new RivGeoMechPartMgr();
+            m_geoMechVizModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
+
+            for (int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx)
+            {
+                cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechVizModel->cellVisibility(femPartIdx);
+                m_geoMechVizModel->setTransform(scaleTransform.p());
+                RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), m_geomechCase->geoMechData()->femParts()->part(femPartIdx));
+                m_geoMechVizModel->setCellVisibility(femPartIdx, elmVisibility.p());
+            }
+
+            m_geoMechVizModel->appendGridPartsToModel(cvfModel.p());
+
+            cvf::ref<cvf::Scene> scene = new cvf::Scene;
+            scene->addModel(cvfModel.p());
+            scene->updateBoundingBoxesRecursive();
+
+            m_viewer->setMainScene(scene.p());
+            m_viewer->zoomAll();
+            m_viewer->update();
+
+        }
     }
     RiuMainWindow::instance()->refreshAnimationActions(); 
 }

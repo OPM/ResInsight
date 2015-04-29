@@ -28,6 +28,9 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+#############################################################################
+# Defining all the source (and header) files
+#############################################################################
 
 # Use all h files in the subdirectories to make them available in the project
 file( GLOB_RECURSE HEADER_FILES *.h )
@@ -92,15 +95,28 @@ list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
 
+#############################################################################
+# Sub-directory projects
+#############################################################################
+
 add_subdirectory(WellPathImportSsihub)
 
 add_subdirectory(GeoMech/GeoMechDataModel)
-set(RESINSIGHT_ODB_API_DIR "" CACHE PATH "Path tho the ODB api from Simulia")
 
-add_subdirectory(GeoMech/OdbReader)
+#
+# Odb api
+#
+set(RESINSIGHT_ODB_API_DIR "" CACHE PATH "Path to the ODB api from Simulia")
+if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "") 
+	add_definitions(-DUSE_ODB_API)
+	add_subdirectory(GeoMech/OdbReader)
+	SET(RESINSIGHT_USE_ODB_API 1)
+endif()
+ 
+#############################################################################
+# Qt specifics: Moc, ui, resources
+#############################################################################
 
-
-# Define files for MOC-ing
 set ( QT_MOC_HEADERS
     Application/RiaApplication.h
     
@@ -209,6 +225,10 @@ source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 
 
+#############################################################################
+# Set up the main executable with its source files
+#############################################################################
+
 # Default behaviour for a Qt application is a console application, resulting in a console window always being launced at startup
 # The following statement is used to control this behaviour
 #   set_target_properties( MY_TARGET PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS")
@@ -236,7 +256,11 @@ set( EXE_FILES
 
 add_executable( ResInsight ${EXE_FILES} )
 
+
+#############################################################################
 # Application icon for MacOS X bundle
+#############################################################################
+
 if (APPLE)
     add_custom_command (OUTPUT Resources/ResInsight.icns
         COMMAND sips -s format icns ${CMAKE_CURRENT_SOURCE_DIR}/Resources/AppLogo48x48.png --out ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns
@@ -248,6 +272,10 @@ if (APPLE)
     set_target_properties (ResInsight PROPERTIES
         MACOSX_BUNDLE_ICON_FILE ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
 endif ()
+
+#############################################################################
+# Set up libraries and dependent projects to link with
+#############################################################################
 
 set( LINK_LIBRARIES
     WellPathImportSsihub
@@ -265,7 +293,6 @@ set( LINK_LIBRARIES
     LibCore
 
 	RigGeoMechDataModel
-	RifOdbReader
 
     ecl
     ert_util
@@ -285,13 +312,20 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 endif()
 
+# Add the odb reader if we are compiling with odb support
+IF (${RESINSIGHT_USE_ODB_API})
+	set ( LINK_LIBRARIES ${LINK_LIBRARIES} RifOdbReader)
+ENDIF()
+
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
+#############################################################################
+# Copy Dlls on MSVC
+#############################################################################
 
-# Copy Dlls
 # Copy Odb Dlls
 
-if (MSVC)
+if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
 	# Find all the dlls
 	file (GLOB  RI_ALL_ODB_DLLS  ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
 	
@@ -309,12 +343,12 @@ if (MSVC)
 						   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
     endforeach()
 
-endif(MSVC)
+endif()
 
+    # Qt DLLs
 
 if (MSVC)
 
-    # Qt DLLs
     set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
     foreach (qtlib ${QTLIBLIST})
         add_custom_command(TARGET ResInsight POST_BUILD
