@@ -5,6 +5,7 @@ project (ResInsight)
 
 set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 
 ################################################################################
@@ -98,6 +99,14 @@ else (ERT_EXTERNAL)
     )
 endif (ERT_EXTERNAL)
 
+set_property(TARGET  
+				ecl 
+				ecl_lfs 
+				ecl_well 
+				ert_geometry 
+				ert_util  
+			  PROPERTY FOLDER "ERT"
+)
 
 ################################################################################
 # Qt
@@ -156,6 +165,15 @@ include_directories(
     ${LibGuiQt_SOURCE_DIR}
 )
 
+set_property(TARGET  
+				LibCore 
+				LibGeometry 
+				LibGuiQt 
+				LibRender 
+				LibViewing  
+			  PROPERTY FOLDER "VizFwk"
+)
+
 
 ################################################################################
 # Application Framework
@@ -176,6 +194,17 @@ include_directories(
 	${cafAnimControl_SOURCE_DIR}
 	${cafViewer_SOURCE_DIR}
 )
+
+set_property(TARGET  
+	cafAnimControl 
+	cafPdmCvf 
+	cafProjectDataModel 
+	cafUserInterface 
+	cafViewer
+	CommonCode
+	PROPERTY FOLDER "AppFwk"
+)
+
 
 ################################################################################
 # Installation settings
@@ -202,8 +231,6 @@ endif (RESINSIGHT_PRIVATE_INSTALL)
 add_subdirectory(ApplicationCode)
 add_subdirectory(OctavePlugin)
 
-#
-
 ################################################################################
 # Unit tests
 ################################################################################
@@ -211,7 +238,12 @@ add_subdirectory(ApplicationCode/ReservoirDataModel/ReservoirDataModel_UnitTests
 add_subdirectory(ApplicationCode/FileInterface/FileInterface_UnitTests)
 add_subdirectory(ApplicationCode/ModelVisualization/ModelVisualization_UnitTests)
 
-
+set_property(TARGET  
+	ModelVisualization_UnitTests 
+	FileInterface_UnitTests 
+	RigReservoirDataModel_UnitTests 
+	PROPERTY FOLDER "UnitTests"
+)
 
 
 ################################################################################

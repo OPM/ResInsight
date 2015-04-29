@@ -250,7 +250,7 @@ set( EXE_FILES
     ${QRC_FILES_CPP}
     ${WIN_RESOURCE}
     ${HEADER_FILES}
-    ${REFERENCED_CMAKE_FILES}
+	${REFERENCED_CMAKE_FILES}
     ../ResInsightVersion.cmake
 )
 

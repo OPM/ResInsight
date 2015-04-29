@@ -253,6 +253,8 @@ void RimGeoMechView::createDisplayModelAndRedraw()
                 m_geoMechVizModel->setCellVisibility(femPartIdx, elmVisibility.p());
             }
 
+            m_geoMechVizModel->updateCellColor(cvf::Color4f(cvf::Color3f::ORANGE));
+
             m_geoMechVizModel->appendGridPartsToModel(cvfModel.p());
 
             cvf::ref<cvf::Scene> scene = new cvf::Scene;
