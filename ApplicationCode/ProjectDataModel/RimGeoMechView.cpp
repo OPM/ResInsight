@@ -81,28 +81,11 @@ RimGeoMechView::RimGeoMechView(void)
 
     CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
     cellResult = new RimGeoMechResultSlot();
-
-    CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
-    overlayInfoConfig = new Rim3dOverlayInfoConfig();
-
-    CAF_PDM_InitField(&name, "UserDescription", QString("View"), "Name", "", "", "");
-    
-    double defaultScaleFactor = 1.0;
-    if (preferences) defaultScaleFactor = preferences->defaultScaleFactorZ;
-    CAF_PDM_InitField(&scaleZ,          "GridZScale", defaultScaleFactor,         "Z Scale",          "", "Scales the scene in the Z direction", "");
-    
-    CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
-    showWindow.setUiHidden(true);
-
-    CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
-
+ 
     caf::AppEnum<RimGeoMechView::MeshModeType> defaultMeshType = NO_MESH;
     if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
-
-    cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  defBackgColor, "Background", "", "", "");
 
 }
 
@@ -111,14 +94,6 @@ RimGeoMechView::RimGeoMechView(void)
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::~RimGeoMechView(void)
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimGeoMechView::userDescriptionField()
-{
-    return &name;
 }
 
 //--------------------------------------------------------------------------------------------------

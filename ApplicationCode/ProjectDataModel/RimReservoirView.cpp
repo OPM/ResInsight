@@ -109,25 +109,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Separate Fault Result", "", "", "");
     faultResultSettings = new RimFaultResultSlot();
 
-    CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
-    overlayInfoConfig = new Rim3dOverlayInfoConfig();
-    overlayInfoConfig->setReservoirView(this);
-
-    CAF_PDM_InitField(&name,            "UserDescription", QString(""), "Name",             "", "", "");
-    
-    double defaultScaleFactor = 1.0;
-    if (preferences) defaultScaleFactor = preferences->defaultScaleFactorZ;
-    CAF_PDM_InitField(&scaleZ,          "GridZScale", defaultScaleFactor,         "Z Scale",          "", "Scales the scene in the Z direction", "");
-
-    CAF_PDM_InitField(&showWindow,      "ShowWindow",      true,        "Show 3D viewer",   "", "", "");
-    showWindow.setUiHidden(true);
-
-    CAF_PDM_InitField(&m_currentTimeStep, "CurrentTimeStep", 0,          "Current Time Step","", "", "");
-    m_currentTimeStep.setUiHidden(true);
-
-    CAF_PDM_InitField(&animationMode, "AnimationMode", false, "Animation Mode","", "", "");
-    animationMode.setUiHidden(true);
-
+  
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimWellCollection;
 
@@ -147,20 +129,11 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
-    CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum frame rate","", "", "");
-    maximumFrameRate.setUiHidden(true);
-
     // Visualization fields
     CAF_PDM_InitField(&showMainGrid,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
-    cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  defBackgColor, "Background", "", "", "");
-
-
-    CAF_PDM_InitField(&cameraPosition,      "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
-
-  
+   
     this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
 
@@ -223,13 +196,8 @@ void RimReservoirView::updateViewerWidget()
 
             RiuMainWindow::instance()->addViewer(m_viewer);
             m_viewer->setMinNearPlaneDistance(10);
-            this->cellResult()->legendConfig->recreateLegend();
-            this->cellResult()->ternaryLegendConfig->recreateLegend();
-            this->cellEdgeResult()->legendConfig->recreateLegend();
 
-            m_viewer->removeAllColorLegends();
-            m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
-            m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
+            this->resetLegendsInViewer();
 
             if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
             {
@@ -1027,14 +995,6 @@ void RimReservoirView::updateStaticCellColors(unsigned short geometryType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuViewer* RimReservoirView::viewer()
-{
-    return m_viewer;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateDisplayModelVisibility()
 {
     if (m_viewer.isNull()) return;
@@ -1659,13 +1619,6 @@ bool RimReservoirView::isGridVisualizationMode() const
             || this->meshMode()    == FULL_MESH);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimReservoirView::objectToggleField()
-{
-    return &showWindow;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1842,5 +1795,19 @@ RimResultSlot* RimReservoirView::currentFaultResultSlot()
     }
 
     return faultResultSlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::resetLegendsInViewer()
+{
+    this->cellResult()->legendConfig->recreateLegend();
+    this->cellResult()->ternaryLegendConfig->recreateLegend();
+    this->cellEdgeResult()->legendConfig->recreateLegend();
+
+    m_viewer->removeAllColorLegends();
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
 }
 

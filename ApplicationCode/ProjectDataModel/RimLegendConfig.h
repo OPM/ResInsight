@@ -39,7 +39,7 @@ namespace cvf
     class ScalarMapper;
 }
 
-class RimReservoirView;
+class RimView;
 
 //==================================================================================================
 ///  
@@ -52,7 +52,7 @@ public:
     RimLegendConfig();
     virtual ~RimLegendConfig();
 
-    void setReservoirView(RimReservoirView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
+    void setReservoirView(RimView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
 
     caf::PdmField<QString>                      resultVariableName; // Used internally to describe the variable this legend setup is used for
 
@@ -111,7 +111,7 @@ private:
 
 
 private:
-    caf::PdmPointer<RimReservoirView>           m_reservoirView;
+    caf::PdmPointer<RimView>                    m_reservoirView;
 
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
     cvf::ref<cvf::ScalarMapperDiscreteLog>      m_logDiscreteScalarMapper;

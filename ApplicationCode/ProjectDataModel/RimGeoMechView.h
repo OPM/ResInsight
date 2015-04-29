@@ -27,6 +27,7 @@
 #include "cafPdmFieldCvfMat4d.h"   
 
 #include "cvfObject.h"
+#include "RimView.h"
 
 class RimGeoMechResultSlot;
 class Rim3dOverlayInfoConfig;
@@ -40,14 +41,13 @@ class RigFemPart;
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechView : public caf::PdmObject
+class RimGeoMechView : public RimView
 {
      CAF_PDM_HEADER_INIT;
 
 public:
     RimGeoMechView(void);
     virtual ~RimGeoMechView(void);
-
 
     enum MeshModeType
     {
@@ -66,31 +66,22 @@ public:
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     void                                                loadDataAndUpdate();
 
+    virtual void                                        setCurrentTimeStep(int frameIdx){}
+    virtual void                                        updateCurrentTimeStepAndRedraw(){}
+    virtual void                                        endAnimation() {}
+
     caf::PdmField<RimGeoMechResultSlot*>                cellResult;
-    caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
-
-     // Fields:                                        
-    caf::PdmField<QString>                              name;
-    caf::PdmField<double>                               scaleZ;
-    caf::PdmField<bool>                                 showWindow;
-    caf::PdmField<cvf::Mat4d>                           cameraPosition;
-
 
     caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
     caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
 
-    caf::PdmField< cvf::Color3f >                       backgroundColor;
-protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField();
-
 private:
-   void                                    updateViewerWidget();
-   void                                    updateViewerWidgetWindowTitle();
-   void                                    createDisplayModelAndRedraw();
+   void                                                 updateViewerWidget();
+   void                                                 updateViewerWidgetWindowTitle();
+   void                                                 createDisplayModelAndRedraw();
 
-   QPointer<RiuViewer>                     m_viewer;
-   caf::PdmPointer<RimGeoMechCase>         m_geomechCase;
-   cvf::ref<RivGeoMechPartMgr>             m_geoMechVizModel;
+   caf::PdmPointer<RimGeoMechCase>                      m_geomechCase;
+   cvf::ref<RivGeoMechPartMgr>                          m_geoMechVizModel;
 };
 
 #include "cvfArray.h"

@@ -20,6 +20,16 @@
 #pragma once
 
 #include "cafPdmObject.h"
+#include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmFieldCvfMat4d.h"
+
+class RiuViewer;
+class Rim3dOverlayInfoConfig;
+
+#define CAF_PDM_ABSTRACT_SOURCE_INIT(ClassName, keyword) \
+    bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_HEADER_INIT_and_or_CAF_PDM_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
+    QString ClassName::classKeywordStatic() { assert(PdmObject::isValidXmlElementName(keyword)); return keyword;   } 
 
 //==================================================================================================
 ///  
@@ -32,7 +42,36 @@ public:
     RimView(void);
     virtual ~RimView(void);
 
+    // 3D Viewer
+    RiuViewer*                          viewer();
 
+    caf::PdmField<QString>              name;
+    caf::PdmField<double>               scaleZ;
+
+    caf::PdmField<bool>                 showWindow;
+    caf::PdmField<cvf::Mat4d>           cameraPosition;
+    caf::PdmField< cvf::Color3f >       backgroundColor;
+
+    caf::PdmField<int>                  maximumFrameRate;
+    caf::PdmField<bool>                 animationMode;
+
+    caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
+    // Animation
+    int                                 currentTimeStep()    { return m_currentTimeStep;}
+    virtual void                        setCurrentTimeStep(int frameIdx) = 0;
+    virtual void                        updateCurrentTimeStepAndRedraw() = 0;
+    virtual void                        endAnimation() = 0;
+
+
+public:
+    virtual caf::PdmFieldHandle*        objectToggleField()     { return &showWindow; }
+    virtual caf::PdmFieldHandle*        userDescriptionField()  { return &name; }
+protected:
+    //void                                updateViewerWidget();
+    //virtual void                        resetLegendsInViewer() = 0;
+
+    QPointer<RiuViewer>                     m_viewer;
+    caf::PdmField<int>                      m_currentTimeStep;
 };
 
 

@@ -33,6 +33,7 @@
 #include "cafPdmFieldCvfMat4d.h"
 
 #include "RivReservoirViewPartMgr.h"
+#include "RimView.h"
 
 class RigActiveCellInfo;
 class RigCaseCellResultsData;
@@ -74,7 +75,7 @@ enum PartRenderMaskEnum
 ///  
 ///  
 //==================================================================================================
-class RimReservoirView : public caf::PdmObject
+class RimReservoirView : public RimView
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -108,28 +109,12 @@ public:
 
     caf::PdmField<RimFaultCollection*>                  faultCollection;
 
-    caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
-
-    // Visualization setup fields
-
-    caf::PdmField<QString>                              name;
-    caf::PdmField<double>                               scaleZ;
-    caf::PdmField<bool>                                 showWindow;
-
     caf::PdmField<bool>                                 showInvalidCells;
     caf::PdmField<bool>                                 showInactiveCells;
     caf::PdmField<bool>                                 showMainGrid;
 
     caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
     caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
-
-    caf::PdmField< cvf::Color3f >                       backgroundColor;
-
-    caf::PdmField<cvf::Mat4d>                           cameraPosition;
-
-    caf::PdmField<int>                                  maximumFrameRate;
-    caf::PdmField<bool>                                 animationMode;
-
 
     // Access internal objects
     RimReservoirCellResultsStorage*         currentGridCellResults();
@@ -140,16 +125,18 @@ public:
     void                                    setEclipseCase(RimCase* reservoir);
     RimCase*                                eclipseCase();
 
-    // Animation
-    int                                     currentTimeStep()    { return m_currentTimeStep;}
-    void                                    setCurrentTimeStep(int frameIdx);
-    void                                    updateCurrentTimeStepAndRedraw();
-    void                                    endAnimation();
+    // Animation overrides from RimView
+   
+    virtual void                            setCurrentTimeStep(int frameIdx);
+    virtual void                            updateCurrentTimeStepAndRedraw();
+    virtual void                            endAnimation();
 
-    // 3D Viewer
-    RiuViewer*                              viewer();
+ 
 private:
     void                                    updateViewerWidget();
+    void                                    resetLegendsInViewer();
+
+
     void                                    updateViewerWidgetWindowTitle();
     void                                    setDefaultView();
 
@@ -203,8 +190,6 @@ private:
 
     // Overridden PDM methods:
 public:
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
-    virtual caf::PdmFieldHandle*            objectToggleField();
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 protected:
     virtual void                            initAfterRead();
@@ -217,8 +202,6 @@ private:
     void                                    clampCurrentTimestep();
 
 private:
-    caf::PdmField<int>                      m_currentTimeStep;
-    QPointer<RiuViewer>                     m_viewer;
     caf::PdmPointer<RimCase>                m_reservoir;
 
     bool                                    m_previousGridModeMeshLinesWasFaults;
