@@ -181,6 +181,8 @@ void RimGeoMechView::createDisplayModelAndRedraw()
             m_viewer->zoomAll();
             m_viewer->update();
 
+            updateLegends();
+            overlayInfoConfig()->update3DInfo();
         }
     }
     RiuMainWindow::instance()->refreshAnimationActions(); 
@@ -203,6 +205,18 @@ void RimGeoMechView::resetLegendsInViewer()
 
     m_viewer->removeAllColorLegends();
     m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateLegends()
+{
+  if (m_viewer)
+    {
+        m_viewer->removeAllColorLegends();
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------

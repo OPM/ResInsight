@@ -81,6 +81,7 @@ private:
    virtual void                                         createDisplayModelAndRedraw();
    virtual void                                         resetLegendsInViewer();
 
+   void                                                 updateLegends();
    caf::PdmPointer<RimGeoMechCase>                      m_geomechCase;
    cvf::ref<RivGeoMechPartMgr>                          m_geoMechVizModel;
 };

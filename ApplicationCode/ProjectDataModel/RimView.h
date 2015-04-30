@@ -55,7 +55,6 @@ public:
     caf::PdmField<int>                  maximumFrameRate;
     caf::PdmField<bool>                 animationMode;
 
-    caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
     // Animation
     int                                 currentTimeStep()    { return m_currentTimeStep;}
     virtual void                        setCurrentTimeStep(int frameIdx) = 0;
@@ -75,6 +74,8 @@ protected:
     virtual void                        updateViewerWidgetWindowTitle() = 0;
     QPointer<RiuViewer>                     m_viewer;
     caf::PdmField<int>                      m_currentTimeStep;
+    caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
+
 };
 
 
