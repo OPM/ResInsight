@@ -80,7 +80,6 @@ bool RimGeoMechCase::openGeoMechCase()
 
     if (this->m_geoMechCaseData.notNull()) return true;
 
-    cvf::ref<RifGeoMechReaderInterface> readerInterface;
 
     if (!QFile::exists(m_caseFileName()))
     {
@@ -89,10 +88,10 @@ bool RimGeoMechCase::openGeoMechCase()
 
 
 #ifdef USE_ODB_API    
-    readerInterface = new RifOdbReader;
+    m_readerInterface = new RifOdbReader;
 
     m_geoMechCaseData = new RigGeoMechCaseData;
-    if (readerInterface->readFemParts(m_caseFileName().toStdString(), m_geoMechCaseData->femParts()))
+    if (m_readerInterface->readFemParts(m_caseFileName().toStdString(), m_geoMechCaseData->femParts()))
     {
     
         // Todo: Default Results stuff, if needed
@@ -103,5 +102,13 @@ bool RimGeoMechCase::openGeoMechCase()
 
     return false;
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifGeoMechReaderInterface* RimGeoMechCase::readerInterface()
+{
+    return m_readerInterface.p();
 }
 

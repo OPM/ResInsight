@@ -26,6 +26,8 @@
 
 class RimGeoMechView;
 class RigGeoMechCaseData;
+class RifGeoMechReaderInterface;
+
 //==================================================================================================
 ///  
 ///  
@@ -47,7 +49,7 @@ public:
     RimGeoMechView* createAndAddReservoirView();
 
     virtual caf::PdmFieldHandle* userDescriptionField();
-
+    RifGeoMechReaderInterface* readerInterface();
      // Fields:                                        
     caf::PdmField<QString>                      caseUserDescription;
     caf::PdmPointersField<RimGeoMechView*>      geoMechViews;
@@ -55,4 +57,6 @@ public:
 private:
     cvf::ref<RigGeoMechCaseData>                m_geoMechCaseData;
     caf::PdmField<QString>                      m_caseFileName;
+
+    cvf::ref<RifGeoMechReaderInterface>         m_readerInterface;
 };

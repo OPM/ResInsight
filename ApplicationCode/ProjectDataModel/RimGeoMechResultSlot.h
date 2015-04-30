@@ -22,6 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafAppEnum.h"
 
 class RimLegendConfig;
 class RimGeoMechView;
@@ -42,13 +43,20 @@ public:
 
     caf::PdmField<RimLegendConfig*> legendConfig;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+
+    enum ResultPositionEnum {
+        NODAL,
+        ELEMENT_NODAL,
+        INTEGRATION_POINT
+    };
 
 private:
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
-    caf::PdmField<QString> m_resultType;
-    caf::PdmField<QString> m_resultVariable;
-    caf::PdmField<QString> m_componentName;
+
+    caf::PdmField<caf::AppEnum<ResultPositionEnum> > m_resultPositionType;
+    caf::PdmField<QString> m_resultFieldName;
+    caf::PdmField<QString> m_resultComponentName;
 
     caf::PdmPointer<RimGeoMechView>                               m_reservoirView;
 };

@@ -87,7 +87,7 @@ RimGeoMechView::RimGeoMechView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
-    //this->cellResult()->setReservoirView(this);
+    this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
     this->cellResult()->legendConfig()->setReservoirView(this);
 }

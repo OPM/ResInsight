@@ -21,8 +21,20 @@
 #include "RimGeoMechView.h"
 #include "RimLegendConfig.h"
 #include "RimDefines.h"
+#include "RimGeoMechCase.h"
+#include "RifGeoMechReaderInterface.h"
 
+namespace caf {
 
+template<>
+void caf::AppEnum< RimGeoMechResultSlot::ResultPositionEnum >::setUp()
+{
+    addItem(RimGeoMechResultSlot::NODAL,            "NODAL",            "Nodal");
+    addItem(RimGeoMechResultSlot::ELEMENT_NODAL,    "ELEMENT_NODAL",    "Element Nodal");
+    addItem(RimGeoMechResultSlot::INTEGRATION_POINT,"INTEGRATION_POINT","Integration Point");
+    setDefault(RimGeoMechResultSlot::NODAL);
+}
+}
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechResultSlot, "GeoMechResultSlot");
@@ -39,7 +51,9 @@ RimGeoMechResultSlot::RimGeoMechResultSlot(void)
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     this->legendConfig = new RimLegendConfig();
 
-    CAF_PDM_InitField(&m_resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_resultPositionType, "ResultPositionType" , "Result Position", "", "", "");
+    CAF_PDM_InitField(&m_resultFieldName, "ResultFieldName", RimDefines::undefinedResultName(), "Field Name", "", "", "");
+    CAF_PDM_InitField(&m_resultComponentName, "ResultComponentName", RimDefines::undefinedResultName(), "Component", "", "", "");
 
 }
 
@@ -60,17 +74,41 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultSlot::calculateValueOptions(const 
 
     if (m_reservoirView)
     {
-       // RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
+        RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
+        cvf::ref<RifGeoMechReaderInterface> reader = gmCase->readerInterface();
+        if (reader.notNull())
+        {
+            std::map<std::string, std::vector<std::string> >  fieldCompNames;
 
+            if (m_resultPositionType == NODAL)
+            {
+                fieldCompNames = reader->scalarNodeFieldAndComponentNames();
+            }
+
+            if (&m_resultFieldName == fieldNeedingOptions)
+            {
+                for (auto it = fieldCompNames.begin(); it != fieldCompNames.end(); ++it)
+                {
+                    options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(it->first), QString::fromStdString(it->first)));
+                }
+            }
+
+            if (&m_resultComponentName == fieldNeedingOptions)
+            {
+                auto fieldIt = fieldCompNames.find(m_resultFieldName().toAscii().data());
+                if (fieldIt != fieldCompNames.end())
+                {
+                    for (auto compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
+                    {
+                        options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(*compIt), QString::fromStdString(*compIt)));
+                    }
+                }
+
+                if (!options.size()) options.push_back(caf::PdmOptionItemInfo("Undefined", "Undefined"));
+            }
+        }
     }
 
-    if (&m_resultVariable == fieldNeedingOptions)
-    {
-        options.push_back(caf::PdmOptionItemInfo("Von Mises", QString("VonMises")) );
-        options.push_back(caf::PdmOptionItemInfo("Sigma XX", QString("SIGXX")) );
-        options.push_back(caf::PdmOptionItemInfo("Sigma YY", QString("SIGYY")) );
-
-    }
     return options;
 }
 
