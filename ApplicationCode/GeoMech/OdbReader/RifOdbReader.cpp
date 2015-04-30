@@ -99,8 +99,6 @@ void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
 {
     CVF_ASSERT(femParts);
 
-	RifOdbReader::initializeOdbAPI();
-
     odb_String path = fileName.c_str();
 
     odb_Odb& odb = openOdb(path);
@@ -239,6 +237,8 @@ std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(od
 //--------------------------------------------------------------------------------------------------
 bool RifOdbReader::readFemParts(const std::string& fileName, RigFemPartCollection* femParts)
 {
+	initializeOdbAPI();
+
     int status = 0;
 
     try 

@@ -55,15 +55,14 @@ public:
 
 	bool                                                     openFile(const std::string& fileName);
 
-    static void initializeOdbAPI();
-    static void finalizeOdbAPI();
-
 private:
-
     void                                                     close();
     size_t                                                   resultItemCount(const std::string& fieldName, int stepIndex, int frameIndex) const;
     odb_Frame                                                stepFrame(int stepIndex, int frameIndex) const;
     int                                                      componentIndex(const std::string& fieldName, const std::string& componentName) const;
+
+    static void initializeOdbAPI();
+    static void finalizeOdbAPI();
 
 private:
     odb_Odb*     m_odb;
