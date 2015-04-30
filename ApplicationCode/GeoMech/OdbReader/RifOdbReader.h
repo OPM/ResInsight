@@ -40,23 +40,30 @@ public:
     RifOdbReader();
     virtual ~RifOdbReader();
 
+    virtual bool                                             readFemParts(const std::string& fileName, RigFemPartCollection* geoMechCase);
+    virtual std::vector<std::string>                         stepNames();
+    virtual std::vector<double>                              frameTimes(int stepIndex);
+    
+    virtual std::map<std::string, std::vector<std::string> > scalarNodeFieldAndComponentNames() const; 
+    virtual std::map<std::string, std::vector<std::string> > scalarElementNodeFieldAndComponentNames() const; 
+    virtual std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldAndComponentNames() const; 
+	
+    virtual void                                             readScalarNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
+    virtual void                                             readScalarElementNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
+    virtual void                                             readScalarIntegrationPointField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
+    virtual void                                             readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
+
+	bool                                                     openFile(const std::string& fileName);
+
     static void initializeOdbAPI();
     static void finalizeOdbAPI();
 
-    virtual bool                                             readFemParts(const std::string& fileName, RigFemPartCollection* geoMechCase);
-    virtual std::vector<std::string>                         steps();
-    virtual std::vector<double>                              frameTimeValues(int stepIndex);
-    virtual std::map<std::string, std::vector<std::string> > scalarNodeResultNames() const; 
-	virtual void                                             readScalarNodeResult(const std::string& resultName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
-	virtual void                                             readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
-
-	bool         openFile(const std::string& fileName);
-
 private:
-    void         close();
-    size_t       resultItemCount(const std::string& resultName, int stepIndex, int frameIndex) const;
-    odb_Frame    stepFrame(int stepIndex, int frameIndex) const;
-    int          componentIndex(const std::string& resultName, const std::string& componentName) const;
+
+    void                                                     close();
+    size_t                                                   resultItemCount(const std::string& fieldName, int stepIndex, int frameIndex) const;
+    odb_Frame                                                stepFrame(int stepIndex, int frameIndex) const;
+    int                                                      componentIndex(const std::string& fieldName, const std::string& componentName) const;
 
 private:
     odb_Odb*     m_odb;

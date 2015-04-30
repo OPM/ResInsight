@@ -41,18 +41,24 @@ TEST(OdbReaderTest, BasicTests)
 
 	cvf::ref<RifOdbReader> reader2 = new RifOdbReader;
 	EXPECT_EQ(true, reader2->openFile(TEST_FILE));
-	EXPECT_EQ(true, reader2->steps().size() == 1);
+	EXPECT_EQ(true, reader2->stepNames().size() == 1);
 
-	std::vector<std::string> steps = reader2->steps();
+	std::vector<std::string> steps = reader2->stepNames();
 	EXPECT_EQ(true, steps.at(0).find("Date_20100930") >= 0);
-	EXPECT_EQ(2, reader2->frameTimeValues(0).size());
-	EXPECT_EQ(1.0, reader2->frameTimeValues(0)[1]);
+	EXPECT_EQ(2, reader2->frameTimes(0).size());
+	EXPECT_EQ(1.0, reader2->frameTimes(0)[1]);
 
-	std::map<std::string, std::vector<std::string> > resultNamesMap = reader2->scalarNodeResultNames();
-	EXPECT_EQ(8, resultNamesMap.size());
+	std::map<std::string, std::vector<std::string> > scalarNodeFieldsMap = reader2->scalarNodeFieldAndComponentNames();
+	EXPECT_EQ(3, scalarNodeFieldsMap.size());
+	
+	std::map<std::string, std::vector<std::string> > scalarElementNodeFieldsMap = reader2->scalarElementNodeFieldAndComponentNames();
+	EXPECT_EQ(0, scalarElementNodeFieldsMap.size());
+	
+	std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldsMap = reader2->scalarIntegrationPointFieldAndComponentNames();
+	EXPECT_EQ(6, scalarIntegrationPointFieldsMap.size());
 
 	std::vector<float> displacementValues;
-	reader2->readScalarNodeResult("U", "U2", 0, 0, 1, &displacementValues);
+	reader2->readScalarNodeField("U", "U2", 0, 0, 1, &displacementValues);
 	EXPECT_EQ(5168, displacementValues.size());
 
 	std::vector<cvf::Vec3f> displacements;
