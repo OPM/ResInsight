@@ -24,6 +24,7 @@
 #include "cafPdmPointer.h"
 
 class RimLegendConfig;
+class RimGeoMechView;
 
 //==================================================================================================
 ///  
@@ -37,11 +38,17 @@ public:
     RimGeoMechResultSlot(void);
     virtual ~RimGeoMechResultSlot(void);
 
+    void                    setReservoirView(RimGeoMechView* ownerReservoirView);
+
     caf::PdmField<RimLegendConfig*> legendConfig;
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 private:
 
+    caf::PdmField<QString> m_resultType;
     caf::PdmField<QString> m_resultVariable;
+    caf::PdmField<QString> m_componentName;
+
+    caf::PdmPointer<RimGeoMechView>                               m_reservoirView;
 };

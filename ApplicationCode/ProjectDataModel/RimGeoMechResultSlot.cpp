@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechResultSlot.h"
-#include "RimReservoirView.h"
+#include "RimGeoMechView.h"
 #include "RimLegendConfig.h"
 #include "RimDefines.h"
 
@@ -58,6 +58,12 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultSlot::calculateValueOptions(const 
 {
     QList<caf::PdmOptionItemInfo> options;
 
+    if (m_reservoirView)
+    {
+       // RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
+
+    }
+
     if (&m_resultVariable == fieldNeedingOptions)
     {
         options.push_back(caf::PdmOptionItemInfo("Von Mises", QString("VonMises")) );
@@ -66,4 +72,12 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultSlot::calculateValueOptions(const 
 
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultSlot::setReservoirView(RimGeoMechView* ownerReservoirView)
+{
+    m_reservoirView = ownerReservoirView;
 }

@@ -222,6 +222,14 @@ void RimGeoMechView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimGeoMechView::geoMechCase()
+{
+    return m_geomechCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivElmVisibilityCalculator::computeAllVisible(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart)
 {
     elmVisibilities->resize(femPart->elementCount());

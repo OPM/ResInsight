@@ -37,8 +37,6 @@ public:
 
     const RigFemPart*           activePart() { return m_part.p(); }
 
-    void                        textureCoordinates(cvf::Vec2fArray* textureCoords, const RigFemPartScalarDataAccess* resultAccessor, const cvf::ScalarMapper* mapper) const;
-
     // Generated geometry
     cvf::ref<cvf::DrawableGeo>  generateSurface();
     cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
@@ -57,6 +55,8 @@ private:
     // Created arrays
     cvf::ref<cvf::Vec3fArray>   m_quadVertices;
     //cvf::ref<cvf::Vec3fArray>   m_triangleVertices; // If needed, we will do it like this, I think
+    std::vector<size_t>            m_quadVerticesToNodeIdx;
+    std::vector<size_t>            m_quadVerticesToGlobalElmNodeIdx;
 
 };
 

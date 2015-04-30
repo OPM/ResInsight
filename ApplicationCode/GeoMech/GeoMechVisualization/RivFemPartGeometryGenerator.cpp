@@ -170,7 +170,7 @@ void RivFemPartGeometryGenerator::computeArrays()
             for (int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
             {
                 int faceNodeCount = 0;   
-                const int*  elmLocalFaceIndices = RigFemTypes::elementLocalFaceIndices(eType, lfIdx, &faceNodeCount);
+                const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, lfIdx, &faceNodeCount);
                 if (faceNodeCount == 4)
                 {
                 #if 0
@@ -183,10 +183,20 @@ void RivFemPartGeometryGenerator::computeArrays()
                 #endif
                    // Needs to get rid of opposite faces
 
-                   vertices.push_back(nodeCoordinates[ elmNodeIndices[elmLocalFaceIndices[0]] ]);
-                   vertices.push_back(nodeCoordinates[ elmNodeIndices[elmLocalFaceIndices[1]] ]);
-                   vertices.push_back(nodeCoordinates[ elmNodeIndices[elmLocalFaceIndices[2]] ]);
-                   vertices.push_back(nodeCoordinates[ elmNodeIndices[elmLocalFaceIndices[3]] ]);
+                   vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]);
+                   vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[1]] ]);
+                   vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[2]] ]);
+                   vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[3]] ]);
+
+                   m_quadVerticesToNodeIdx.push_back(elmNodeIndices[localElmNodeIndicesForFace[0]]);
+                   m_quadVerticesToNodeIdx.push_back(elmNodeIndices[localElmNodeIndicesForFace[1]]);
+                   m_quadVerticesToNodeIdx.push_back(elmNodeIndices[localElmNodeIndicesForFace[2]]);
+                   m_quadVerticesToNodeIdx.push_back(elmNodeIndices[localElmNodeIndicesForFace[3]]);
+
+                   m_quadVerticesToGlobalElmNodeIdx.push_back(m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[0]));
+                   m_quadVerticesToGlobalElmNodeIdx.push_back(m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[1]));
+                   m_quadVerticesToGlobalElmNodeIdx.push_back(m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[2]));
+                   m_quadVerticesToGlobalElmNodeIdx.push_back(m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[3]));
                 }
                 else
                 {
@@ -203,15 +213,6 @@ void RivFemPartGeometryGenerator::computeArrays()
 }
 
 
-
-//--------------------------------------------------------------------------------------------------
-/// Calculates the texture coordinates in a "nearly" one dimentional texture. 
-/// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
-//--------------------------------------------------------------------------------------------------
-void RivFemPartGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, const RigFemPartScalarDataAccess* resultAccessor, const ScalarMapper* mapper) const
-{
-
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
