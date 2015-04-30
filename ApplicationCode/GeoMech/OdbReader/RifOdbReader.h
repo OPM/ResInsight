@@ -53,16 +53,15 @@ public:
     virtual void                                             readScalarIntegrationPointField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
     virtual void                                             readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
 
-	bool                                                     openFile(const std::string& fileName);
-
 private:
     void                                                     close();
     size_t                                                   resultItemCount(const std::string& fieldName, int stepIndex, int frameIndex) const;
     odb_Frame                                                stepFrame(int stepIndex, int frameIndex) const;
     int                                                      componentIndex(const std::string& fieldName, const std::string& componentName) const;
+    void                                                     readOdbFile(const std::string& fileName, RigFemPartCollection* femParts);
 
-    static void initializeOdbAPI();
-    static void finalizeOdbAPI();
+    static void                                              initializeOdbAPI();
+    static void                                              finalizeOdbAPI();
 
 private:
     odb_Odb*     m_odb;

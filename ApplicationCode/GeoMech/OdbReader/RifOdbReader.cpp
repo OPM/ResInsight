@@ -95,13 +95,14 @@ void RifOdbReader::close()
 }
 
 
-void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
+void RifOdbReader::readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
 {
     CVF_ASSERT(femParts);
 
     odb_String path = fileName.c_str();
 
     odb_Odb& odb = openOdb(path);
+    m_odb = &odb;
 
     odb_Assembly&  rootAssembly = odb.rootAssembly();
     odb_InstanceRepository instanceRepository = odb.rootAssembly().instances();
@@ -243,7 +244,7 @@ bool RifOdbReader::readFemParts(const std::string& fileName, RigFemPartCollectio
 
     try 
     {
-        readOdbFile(fileName, femParts);
+        this->readOdbFile(fileName, femParts);
     }
 
     catch (const nex_Exception& nex) 
@@ -509,37 +510,3 @@ void RifOdbReader::readDisplacements(int partIndex, int stepIndex, int frameInde
 	}
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifOdbReader::openFile(const std::string& fileName)
-{
-	close();
-	CVF_ASSERT(m_odb == NULL);
-
-	if (!sm_odbAPIInitialized)
-	{
-		initializeOdbAPI();
-	}
-
-	odb_String path = fileName.c_str();
-
-	try
-	{
-		m_odb = &openOdb(path);
-	}
-
-	catch (const nex_Exception& nex) 
-    {
-        fprintf(stderr, "%s\n", nex.UserReport().CStr());
-        fprintf(stderr, "ODB Application exited with error(s)\n");
-    }
-
-    catch (...) 
-    {
-        fprintf(stderr, "ODB Application exited with error(s)\n");
-    }
-
-	return true;
-}
