@@ -21,6 +21,9 @@
 #include "RifOdbReader.h"
 #include "RigGeoMechCaseData.h"
 
+#include <vector>
+#include <string>
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -33,9 +36,29 @@ TEST(OdbReaderTest, BasicTests)
     cvf::ref<RigFemPartCollection> femData = femCase->femParts();
     reader->readFemParts(TEST_FILE, femData.p());
     EXPECT_EQ(1, femData->partCount());
-    EXPECT_EQ(149, femData->part(0)->elementCount());
-    EXPECT_EQ(CAX4, femData->part(0)->elementType(0));
+    EXPECT_EQ(4320, femData->part(0)->elementCount());
+    EXPECT_EQ(HEX8, femData->part(0)->elementType(0));
 
+	cvf::ref<RifOdbReader> reader2 = new RifOdbReader;
+	EXPECT_EQ(true, reader2->openFile(TEST_FILE));
+	EXPECT_EQ(true, reader2->steps().size() == 1);
+
+	std::vector<std::string> steps = reader2->steps();
+	EXPECT_EQ(true, steps.at(0).find("Date_20100930") >= 0);
+	EXPECT_EQ(2, reader2->frameTimeValues(0).size());
+	EXPECT_EQ(1.0, reader2->frameTimeValues(0)[1]);
+
+	std::map<std::string, std::vector<std::string> > resultNamesMap = reader2->scalarNodeResultNames();
+	EXPECT_EQ(8, resultNamesMap.size());
+
+	std::vector<float> displacementValues;
+	reader2->readScalarNodeResult("U", "U2", 0, 0, 1, &displacementValues);
+	EXPECT_EQ(5168, displacementValues.size());
+
+	std::vector<cvf::Vec3f> displacements;
+	reader2->readDisplacements(0, 0, 1, &displacements);
+	EXPECT_EQ(5168, displacements.size());
+	EXPECT_FLOAT_EQ(0.047638997, displacements[1].y());
 }
 
 

@@ -40,12 +40,14 @@ std::map<std::string, RigElementType> initFemTypeMap()
 
 static std::map<std::string, RigElementType> odbElmTypeToRigElmTypeMap = initFemTypeMap();
 
+bool RifOdbReader::sm_odbAPIInitialized = false;
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RifOdbReader::RifOdbReader()
 {
-
+	m_odb = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,12 +55,51 @@ RifOdbReader::RifOdbReader()
 //--------------------------------------------------------------------------------------------------
 RifOdbReader::~RifOdbReader()
 {
-
+	close();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::initializeOdbAPI()
+{
+	if (!sm_odbAPIInitialized)
+	{
+		odb_initializeAPI();
+		sm_odbAPIInitialized = true;
+	}
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::finalizeOdbAPI()
+{
+	if (sm_odbAPIInitialized)
+	{
+		odb_finalizeAPI();
+		sm_odbAPIInitialized = false;
+	}
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::close()
+{
+	if (m_odb)
+	{
+		m_odb->close();
+		m_odb = NULL;
+	}
+}
+
 
 void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
 {
     CVF_ASSERT(femParts);
+
+	RifOdbReader::initializeOdbAPI();
 
     odb_String path = fileName.c_str();
 
@@ -142,8 +183,6 @@ void readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
 //--------------------------------------------------------------------------------------------------
 bool RifOdbReader::readFemParts(const std::string& fileName, RigFemPartCollection* femParts)
 {
-    odb_initializeAPI();
-
     int status = 0;
 
     try 
@@ -164,15 +203,275 @@ bool RifOdbReader::readFemParts(const std::string& fileName, RigFemPartCollectio
         fprintf(stderr, "ODB Application exited with error(s)\n");
     }
 
-    odb_finalizeAPI();
-
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifOdbReader::timeSteps()
+std::vector<std::string> RifOdbReader::steps()
 {
-    return std::vector<double>();
+	CVF_ASSERT(m_odb != NULL);
+
+	std::vector<std::string> stepNames;
+
+	odb_StepRepository stepRepository = m_odb->steps();
+	odb_StepRepositoryIT sIter(stepRepository);
+	for (sIter.first(); !sIter.isDone(); sIter.next()) 
+	{
+		stepNames.push_back(stepRepository[sIter.currentKey()].name().CStr());
+	}
+
+	return stepNames;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RifOdbReader::frameTimeValues(int stepIndex)
+{
+	CVF_ASSERT(m_odb != NULL);
+
+	odb_StepRepository& stepRepository = m_odb->steps();
+
+	odb_StepList stepList = stepRepository.stepList();
+	odb_Step& step = stepList.Get(stepIndex);
+	
+	odb_SequenceFrame& stepFrames = step.frames();
+
+	std::vector<double> frameValues;
+
+	int numFrames = stepFrames.size();
+	for (int f = 0; f < numFrames; f++) 
+	{
+		odb_Frame frame = stepFrames.constGet(f);
+		frameValues.push_back(frame.frameValue());
+	}
+
+	return frameValues;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<std::string> > RifOdbReader::scalarNodeResultNames() const
+{
+	CVF_ASSERT(m_odb != NULL);
+
+	std::map<std::string, std::vector<std::string> > resultNamesMap;
+
+	odb_StepRepository stepRepository = m_odb->steps();
+	odb_StepRepositoryIT sIter(stepRepository);
+	for (sIter.first(); !sIter.isDone(); sIter.next()) 
+	{
+		odb_SequenceFrame& stepFrames = stepRepository[sIter.currentKey()].frames();
+
+		int numFrames = stepFrames.size();
+		for (int f = 0; f < numFrames; f++) 
+		{
+			odb_Frame frame = stepFrames.constGet(f);
+			
+			odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
+			odb_FieldOutputRepositoryIT fieldConIT(fieldCon);
+			for (fieldConIT.first(); !fieldConIT.isDone(); fieldConIT.next()) 
+			{
+				odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
+				
+				std::string fieldName = field.name().CStr();
+				odb_SequenceString components = field.componentLabels();
+				
+				std::vector<std::string> compVec;
+
+				int numComp = components.size();
+				for (int comp = 0; comp < numComp; comp++)
+				{
+					compVec.push_back(components[comp].CStr());
+				}
+
+				resultNamesMap.insert(std::make_pair(fieldName, compVec));
+			}
+		}
+	}
+
+	return resultNamesMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+odb_Frame RifOdbReader::stepFrame(int stepIndex, int frameIndex) const
+{
+	CVF_ASSERT(m_odb);
+
+	odb_StepRepository& stepRepository = m_odb->steps();
+	odb_StepList stepList = stepRepository.stepList();
+	odb_Step& step = stepList.Get(stepIndex);
+	odb_SequenceFrame& stepFrames = step.frames();
+
+	return stepFrames.constGet(frameIndex);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Get the number of result items (== #nodes or #elements)
+//--------------------------------------------------------------------------------------------------
+size_t RifOdbReader::resultItemCount(const std::string& resultName, int stepIndex, int frameIndex) const
+{
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_FieldOutputRepository& fieldOutputRepo = frame.fieldOutputs();
+	
+	odb_String fieldName = resultName.c_str();
+	CVF_ASSERT(fieldOutputRepo.isMember(fieldName));
+
+	const odb_FieldOutput& fieldOutput = fieldOutputRepo[fieldName];
+	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+
+	size_t resultItemCount = 0;
+	int numBlocks = seqFieldBulkData.size();
+
+	for (int block = 0; block < numBlocks; block++)
+	{
+		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+		resultItemCount += bulkData.length();
+	}
+
+	return resultItemCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RifOdbReader::componentIndex(const std::string& resultName, const std::string& componentName) const
+{
+	std::map<std::string, std::vector<std::string> > resultCompMap = scalarNodeResultNames();
+
+	std::vector<std::string> comps = resultCompMap.at(resultName);
+	
+	for (size_t i = 0; i < comps.size(); i++)
+	{
+		if (comps[i] == componentName)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::readScalarNodeResult(const std::string& resultName, const std::string& componentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues)
+{
+	CVF_ASSERT(resultValues);
+
+	size_t dataSize = resultItemCount(resultName, stepIndex, frameIndex);
+	if (dataSize > 0)
+	{
+		resultValues->resize(dataSize);
+	}
+
+	int compIndex = componentIndex(resultName, componentName);
+	CVF_ASSERT(compIndex >= 0);
+
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_FieldOutput& fieldOutput = frame.fieldOutputs()[resultName.c_str()];
+	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+
+	size_t dataIndex = 0;
+	int numBlocks = seqFieldBulkData.size();
+	for (int block = 0; block < numBlocks; block++)
+	{
+		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+
+		if (bulkData.numberOfNodes() > 0)
+		{
+			int numNodes = bulkData.length();
+			int numComp = bulkData.width();
+			float* data = bulkData.data();
+
+			for (int i = 0; i < numNodes; i++)
+			{
+				(*resultValues)[dataIndex++] = data[i*numComp + compIndex];
+			}
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements)
+{
+	CVF_ASSERT(displacements);
+
+	// 
+	size_t dataSize = resultItemCount("U", stepIndex, frameIndex);
+	if (dataSize > 0)
+	{
+		displacements->resize(dataSize);
+	}
+
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_FieldOutput& fieldOutput = frame.fieldOutputs()["U"];
+	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+
+	size_t dataIndex = 0;
+	int numBlocks = seqFieldBulkData.size();
+	for (int block = 0; block < numBlocks; block++)
+	{
+		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+
+		if (bulkData.numberOfNodes() > 0)
+		{
+			int numNodes = bulkData.length();
+			int numComp = bulkData.width();
+			float* data = bulkData.data();
+
+			for (int i = 0; i < numNodes; i++)
+			{
+				(*displacements)[i + dataIndex].set(data[i*numComp], data[i*numComp + 1], data[i*numComp + 2]);
+			}
+
+			dataIndex += numNodes*numComp;
+		}
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifOdbReader::openFile(const std::string& fileName)
+{
+	close();
+	CVF_ASSERT(m_odb == NULL);
+
+	if (!sm_odbAPIInitialized)
+	{
+		initializeOdbAPI();
+	}
+
+	odb_String path = fileName.c_str();
+
+	try
+	{
+		m_odb = &openOdb(path);
+	}
+
+	catch (const nex_Exception& nex) 
+    {
+        fprintf(stderr, "%s\n", nex.UserReport().CStr());
+        fprintf(stderr, "ODB Application exited with error(s)\n");
+    }
+
+    catch (...) 
+    {
+        fprintf(stderr, "ODB Application exited with error(s)\n");
+    }
+
+	return true;
 }

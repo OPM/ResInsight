@@ -21,7 +21,11 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
+#include "cvfVector3.h"
+
 #include <vector>
+#include <map>
+#include <string>
 
 class RigFemPartCollection;
 
@@ -37,11 +41,12 @@ public:
     RifGeoMechReaderInterface();
     virtual ~RifGeoMechReaderInterface();
 
-    virtual bool                readFemParts(const std::string& fileName, RigFemPartCollection* geoMechCase) = 0;
- 
-    virtual std::vector<double>  timeSteps() = 0;
-    virtual std::vector<std::string> scalarNodeResultNames() = 0; 
-    virtual void readScalarNodeResult(const std::string& resultName, int partIndex, int stepIndex, std::vector<float>* resultValues ) = 0;
+    virtual bool                                             readFemParts(const std::string& fileName, RigFemPartCollection* geoMechCase) = 0;
+    virtual std::vector<std::string>                         steps() = 0;
+    virtual std::vector<double>                              frameTimeValues(int stepIndex) = 0;
+    virtual std::map<std::string, std::vector<std::string> > scalarNodeResultNames() const = 0; 
+	virtual void                                             readScalarNodeResult(const std::string& resultName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues) = 0;
+	virtual void                                             readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements) = 0;
 
 private:
 };
