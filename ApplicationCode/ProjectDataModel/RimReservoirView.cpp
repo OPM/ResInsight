@@ -160,85 +160,17 @@ RimReservoirView::~RimReservoirView()
     delete this->faultResultSettings();
     delete this->cellResult();
     delete this->cellEdgeResult();
-    delete this->overlayInfoConfig();
 
     delete rangeFilterCollection();
     delete propertyFilterCollection();
     delete wellCollection();
     delete faultCollection();
 
-    if (m_viewer)
-    {
-        RiuMainWindow::instance()->removeViewer(m_viewer);
-    }
-
     m_reservoirGridPartManager->clearGeometryCache();
-    delete m_viewer;
-    
+
     m_reservoir = NULL;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateViewerWidget()
-{
-    if (showWindow())
-    {
-        bool isViewerCreated = false;
-        if (!m_viewer)
-        {
-            QGLFormat glFormat;
-            glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
-
-            m_viewer = new RiuViewer(glFormat, NULL);
-            m_viewer->setOwnerReservoirView(this);
-
-            RiuMainWindow::instance()->addViewer(m_viewer);
-            m_viewer->setMinNearPlaneDistance(10);
-
-            this->resetLegendsInViewer();
-
-            if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
-            {
-                m_viewer->setNavigationPolicy(new caf::CeetronPlusNavigation);
-            }
-            else
-            {
-                m_viewer->setNavigationPolicy(new caf::CadNavigation);
-            }
-
-            m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
-
-            //m_viewer->layoutWidget()->showMaximized();
-
-            isViewerCreated = true;
-        }
-
-        RiuMainWindow::instance()->setActiveViewer(m_viewer);
-
-        if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
-        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
-
-        m_viewer->update();
-    }
-    else
-    {
-        if (m_viewer)
-        {
-            if (m_viewer->layoutWidget()->parentWidget())
-            {
-                m_viewer->layoutWidget()->parentWidget()->hide();
-            }
-            else
-            {
-                m_viewer->layoutWidget()->hide(); 
-            }
-        }
-    }
-
-    updateViewerWidgetWindowTitle();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -276,14 +208,6 @@ void RimReservoirView::clampCurrentTimestep()
     }
 
     if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::scheduleCreateDisplayModelAndRedraw()
-{
-    RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
 }
 
 

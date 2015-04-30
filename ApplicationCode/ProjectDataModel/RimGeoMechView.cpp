@@ -87,6 +87,9 @@ RimGeoMechView::RimGeoMechView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
+    //this->cellResult()->setReservoirView(this);
+    this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
+    this->cellResult()->legendConfig()->setReservoirView(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,71 +97,9 @@ RimGeoMechView::RimGeoMechView(void)
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::~RimGeoMechView(void)
 {
+    m_geomechCase = NULL;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateViewerWidget()
-{
-    if (showWindow())
-    {
-        bool isViewerCreated = false;
-        if (!m_viewer)
-        {
-            QGLFormat glFormat;
-            glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
-
-            m_viewer = new RiuViewer(glFormat, NULL);
-            //m_viewer->setOwnerReservoirView(this);
-
-            RiuMainWindow::instance()->addViewer(m_viewer);
-            m_viewer->setMinNearPlaneDistance(10);
-           
-
-            m_viewer->removeAllColorLegends();
-            m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
-
-            if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
-            {
-                m_viewer->setNavigationPolicy(new caf::CeetronPlusNavigation);
-            }
-            else
-            {
-                m_viewer->setNavigationPolicy(new caf::CadNavigation);
-            }
-
-            m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
-
-            //m_viewer->layoutWidget()->showMaximized();
-
-            isViewerCreated = true;
-        }
-
-        RiuMainWindow::instance()->setActiveViewer(m_viewer);
-
-        if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
-        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
-
-        m_viewer->update();
-    }
-    else
-    {
-        if (m_viewer)
-        {
-            if (m_viewer->layoutWidget()->parentWidget())
-            {
-                m_viewer->layoutWidget()->parentWidget()->hide();
-            }
-            else
-            {
-                m_viewer->layoutWidget()->hide(); 
-            }
-        }
-    }
-
-    updateViewerWidgetWindowTitle();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -168,9 +109,9 @@ void RimGeoMechView::updateViewerWidgetWindowTitle()
     if (m_viewer)
     {
         QString windowTitle;
-        if (false)//m_reservoir.notNull())
+        if (m_geomechCase.notNull())
         {
-        //    windowTitle = QString("%1 - %2").arg(m_reservoir->caseUserDescription()).arg(name);
+            windowTitle = QString("%1 - %2").arg(m_geomechCase->caseUserDescription()).arg(name);
         }
         else
         {
@@ -251,6 +192,17 @@ void RimGeoMechView::createDisplayModelAndRedraw()
 void RimGeoMechView::setGeoMechCase(RimGeoMechCase* gmCase)
 {
     m_geomechCase = gmCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::resetLegendsInViewer()
+{
+    this->cellResult()->legendConfig->recreateLegend();
+
+    m_viewer->removeAllColorLegends();
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
 }
 
 //--------------------------------------------------------------------------------------------------

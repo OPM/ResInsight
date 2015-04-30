@@ -38,6 +38,7 @@ class Drawable;
 class RiaSocketServer;
 class RiaPreferences;
 class RimReservoirView;
+class RimView;
 class RimProject;
 class RimCommandObject;
 class RiaProjectModifier;
@@ -76,7 +77,7 @@ public:
     RimReservoirView*       activeReservoirView();
     const RimReservoirView* activeReservoirView() const;
 
-    void                scheduleDisplayModelUpdateAndRedraw(RimReservoirView* resViewToUpdate);
+    void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
     RimProject*         project(); 
 
@@ -174,7 +175,7 @@ private:
     caf::PdmPointer<RimReservoirView>   m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
 
-    std::vector<caf::PdmPointer<RimReservoirView> > m_resViewsToUpdate;
+    std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;
     QTimer*                             m_resViewUpdateTimer;
 
     RiaSocketServer*                    m_socketServer;

@@ -62,14 +62,17 @@ public:
     virtual void                        updateCurrentTimeStepAndRedraw() = 0;
     virtual void                        endAnimation() = 0;
 
+    void                                scheduleCreateDisplayModelAndRedraw();
+    virtual void                        createDisplayModelAndRedraw() = 0;
 
 public:
     virtual caf::PdmFieldHandle*        objectToggleField()     { return &showWindow; }
     virtual caf::PdmFieldHandle*        userDescriptionField()  { return &name; }
 protected:
     //void                                updateViewerWidget();
-    //virtual void                        resetLegendsInViewer() = 0;
-
+    virtual void                        resetLegendsInViewer() = 0;
+    void                                updateViewerWidget();
+    virtual void                        updateViewerWidgetWindowTitle() = 0;
     QPointer<RiuViewer>                     m_viewer;
     caf::PdmField<int>                      m_currentTimeStep;
 };

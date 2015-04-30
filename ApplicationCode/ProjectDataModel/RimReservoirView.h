@@ -133,11 +133,11 @@ public:
 
  
 private:
-    void                                    updateViewerWidget();
-    void                                    resetLegendsInViewer();
+    
+    virtual void                            resetLegendsInViewer();
 
 
-    void                                    updateViewerWidgetWindowTitle();
+    virtual void                            updateViewerWidgetWindowTitle();
     void                                    setDefaultView();
 
 public:
@@ -155,9 +155,8 @@ public:
 
     // Display model generation
 public:
+    virtual void                            createDisplayModelAndRedraw();
     void                                    loadDataAndUpdate();
-    void                                    createDisplayModelAndRedraw();
-    void                                    scheduleCreateDisplayModelAndRedraw();
     bool                                    isTimeStepDependentDataVisible() const;
 
     void                                    scheduleGeometryRegen(unsigned short geometryType);
@@ -171,6 +170,7 @@ public:
 
     // Display model generation
 private:
+
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();
     void                                    updateCurrentTimeStep();

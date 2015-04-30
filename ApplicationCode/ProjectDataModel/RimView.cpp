@@ -5,6 +5,11 @@
 #include "RiaPreferences.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiuViewer.h"
+#include "RiuMainWindow.h"
+#include "cafCeetronPlusNavigation.h"
+#include "cafCadNavigation.h"
+#include "cvfCamera.h"
+#include "cvfViewport.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT(RimView, "GenericView"); // Do not use. Abstract class 
 
@@ -51,7 +56,14 @@ RimView::RimView(void)
 //--------------------------------------------------------------------------------------------------
 RimView::~RimView(void)
 {
- 
+    delete this->overlayInfoConfig();
+
+    if (m_viewer)
+    {
+        RiuMainWindow::instance()->removeViewer(m_viewer);
+    }
+
+    delete m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,6 +73,76 @@ RiuViewer* RimView::viewer()
 {
     return m_viewer;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateViewerWidget()
+{
+    if (showWindow())
+    {
+        bool isViewerCreated = false;
+        if (!m_viewer)
+        {
+            QGLFormat glFormat;
+            glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+
+            m_viewer = new RiuViewer(glFormat, NULL);
+            m_viewer->setOwnerReservoirView(this);
+
+            RiuMainWindow::instance()->addViewer(m_viewer);
+            m_viewer->setMinNearPlaneDistance(10);
+           
+            this->resetLegendsInViewer();
+
+            if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
+            {
+                m_viewer->setNavigationPolicy(new caf::CeetronPlusNavigation);
+            }
+            else
+            {
+                m_viewer->setNavigationPolicy(new caf::CadNavigation);
+            }
+
+            m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
+
+            isViewerCreated = true;
+        }
+
+        RiuMainWindow::instance()->setActiveViewer(m_viewer);
+
+        if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+
+        m_viewer->update();
+    }
+    else
+    {
+        if (m_viewer)
+        {
+            if (m_viewer->layoutWidget()->parentWidget())
+            {
+                m_viewer->layoutWidget()->parentWidget()->hide();
+            }
+            else
+            {
+                m_viewer->layoutWidget()->hide(); 
+            }
+        }
+    }
+
+    updateViewerWidgetWindowTitle();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::scheduleCreateDisplayModelAndRedraw()
+{
+    RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
+}
+
 
 
 

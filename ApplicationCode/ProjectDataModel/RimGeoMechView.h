@@ -76,9 +76,10 @@ public:
     caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
 
 private:
-   void                                                 updateViewerWidget();
-   void                                                 updateViewerWidgetWindowTitle();
-   void                                                 createDisplayModelAndRedraw();
+   
+   virtual void                                         updateViewerWidgetWindowTitle();
+   virtual void                                         createDisplayModelAndRedraw();
+   virtual void                                         resetLegendsInViewer();
 
    caf::PdmPointer<RimGeoMechCase>                      m_geomechCase;
    cvf::ref<RivGeoMechPartMgr>                          m_geoMechVizModel;
