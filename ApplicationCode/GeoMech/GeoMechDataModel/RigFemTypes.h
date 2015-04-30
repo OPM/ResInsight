@@ -31,6 +31,6 @@ class RigFemTypes
 public:
     static const int elmentNodeCount(RigElementType elmType);
     static const int elmentFaceCount(RigElementType elmType);
-    static const int* elementLocalFaceIndices(RigElementType elmType, int faceIdx, int* faceNodeCount);
+    static const int* localElmNodeIndicesForFace(RigElementType elmType, int faceIdx, int* faceNodeCount);
 
 };

@@ -39,21 +39,21 @@ public:
     RigFemPart();
     virtual ~RigFemPart();
 
-    int elementPartId() const { return m_elementPartId; }
-    void setElementPartId(int partId) { m_elementPartId = partId; }
-
+    int                         elementPartId() const                      { return m_elementPartId; }
+    void                        setElementPartId(int partId)               { m_elementPartId = partId; }
 
     void                        preAllocateElementStorage(int elementCount);
-    void                        appendElement(RigElementType elmType, int id, const int* connectivities);
+    void                        appendElement(RigElementType elmType, int elementId, const int* connectivities);
 
-    size_t                      elementCount() const                { return m_elementId.size(); }
+    size_t                      elementCount() const                       { return m_elementId.size(); }
     
-    int                         elmId(size_t index) const           { return m_elementId[index]; }
-    RigElementType              elementType(size_t index) const      { return m_elementTypes[index]; }
-    const int*                  connectivities(size_t index) const  { return &m_allAlementConnectivities[m_elementConnectivityStartIndices[index]];}
+    int                         elmId(size_t elementIdx) const             { return m_elementId[elementIdx]; }
+    RigElementType              elementType(size_t elementIdx) const       { return m_elementTypes[elementIdx]; }
+    const int*                  connectivities(size_t elementIdx) const    { return &m_allAlementConnectivities[m_elementConnectivityStartIndices[elementIdx]];}
+    int                         elementNodeResultIdx(int elementIdx, int elmLocalNodeIdx) const { return m_elementConnectivityStartIndices[elementIdx];}
 
-    RigFemPartNodes&            nodes() {return m_nodes;}
-    const RigFemPartNodes&      nodes() const {return m_nodes;}
+    RigFemPartNodes&            nodes()                                    {return m_nodes;}
+    const RigFemPartNodes&      nodes() const                              {return m_nodes;}
     
 private:
     int                         m_elementPartId;

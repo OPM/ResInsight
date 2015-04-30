@@ -55,7 +55,7 @@ const int RigFemTypes::elmentFaceCount(RigElementType elmType)
 //  |/        |/                 
 //  0---------1                
 
-const int* RigFemTypes::elementLocalFaceIndices(RigElementType elmType, int faceIdx, int* faceNodeCount)
+const int* RigFemTypes::localElmNodeIndicesForFace(RigElementType elmType, int faceIdx, int* faceNodeCount)
 {
     static const int HEX8_Faces[6][4] ={ { 1, 2, 6, 5 }, { 0, 4, 7, 3 }, { 3, 7, 6, 2 }, { 0, 1, 5, 4 }, { 4, 5, 6, 7 }, { 0, 3, 2, 1 } };
     static const int CAX4_Faces[4] ={ 0, 1, 2, 3 };
