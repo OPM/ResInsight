@@ -41,7 +41,7 @@ public:
     RifGeoMechReaderInterface();
     virtual ~RifGeoMechReaderInterface();
 
-    virtual bool                                             readFemParts(const std::string& fileName, RigFemPartCollection* geoMechCase) = 0;
+    virtual bool                                             readFemParts(RigFemPartCollection* geoMechCase) = 0;
     virtual std::vector<std::string>                         stepNames() = 0;
     virtual std::vector<double>                              frameTimes(int stepIndex) = 0;
 

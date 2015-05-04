@@ -94,18 +94,106 @@ void RifOdbReader::close()
 	}
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifOdbReader::openFile(const std::string& fileName)
+{
+	close();
+	CVF_ASSERT(m_odb == NULL);
 
-void RifOdbReader::readOdbFile(const std::string& fileName, RigFemPartCollection* femParts)
+	if (!sm_odbAPIInitialized)
+	{
+		initializeOdbAPI();
+	}
+
+	odb_String path = fileName.c_str();
+
+	try
+	{
+		m_odb = &openOdb(path, true);
+	}
+
+	catch (const nex_Exception& nex) 
+    {
+        fprintf(stderr, "%s\n", nex.UserReport().CStr());
+        fprintf(stderr, "ODB Application exited with error(s)\n");
+    }
+
+    catch (...) 
+    {
+        fprintf(stderr, "ODB Application exited with error(s)\n");
+    }
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(odb_Odb* odb, odb_Enum::odb_ResultPositionEnum resultPosition)
+{
+	CVF_ASSERT(odb != NULL);
+
+	std::map<std::string, std::vector<std::string> > resultNamesMap;
+
+	odb_StepRepository stepRepository = odb->steps();
+	odb_StepRepositoryIT sIter(stepRepository);
+	for (sIter.first(); !sIter.isDone(); sIter.next()) 
+	{
+		odb_SequenceFrame& stepFrames = stepRepository[sIter.currentKey()].frames();
+
+		int numFrames = stepFrames.size();
+		for (int f = 0; f < numFrames; f++) 
+		{
+			odb_Frame frame = stepFrames.constGet(f);
+			
+			odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
+			odb_FieldOutputRepositoryIT fieldConIT(fieldCon);
+			for (fieldConIT.first(); !fieldConIT.isDone(); fieldConIT.next()) 
+			{
+				odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
+			
+				odb_SequenceFieldLocation fieldLocations = field.locations();
+				for (int loc = 0; loc < fieldLocations.size(); loc++)
+				{
+					const odb_FieldLocation& fieldLocation = fieldLocations.constGet(loc);
+					if (fieldLocation.position() == resultPosition || resultPosition == odb_Enum::odb_ResultPositionEnum::UNDEFINED_POSITION)
+					{
+						std::string fieldName = field.name().CStr();
+						odb_SequenceString components = field.componentLabels();
+
+						std::vector<std::string> compVec;
+
+						int numComp = components.size();
+						for (int comp = 0; comp < numComp; comp++)
+						{
+							compVec.push_back(components[comp].CStr());
+						}
+
+						resultNamesMap.insert(std::make_pair(fieldName, compVec));
+
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return resultNamesMap;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
 {
     CVF_ASSERT(femParts);
+	CVF_ASSERT(m_odb != NULL);
 
-    odb_String path = fileName.c_str();
-
-    odb_Odb& odb = openOdb(path);
-    m_odb = &odb;
-
-    odb_Assembly&  rootAssembly = odb.rootAssembly();
-    odb_InstanceRepository instanceRepository = odb.rootAssembly().instances();
+    odb_Assembly&  rootAssembly = m_odb->rootAssembly();
+    odb_InstanceRepository instanceRepository = m_odb->rootAssembly().instances();
 
     odb_InstanceRepositoryIT iter(instanceRepository);
 
@@ -174,93 +262,8 @@ void RifOdbReader::readOdbFile(const std::string& fileName, RigFemPartCollection
         femPart->setElementPartId(femParts->partCount());
         femParts->addFemPart(femPart);
     }
-}
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(odb_Odb* odb, odb_Enum::odb_ResultPositionEnum resultPosition)
-{
-	CVF_ASSERT(odb != NULL);
-
-	std::map<std::string, std::vector<std::string> > resultNamesMap;
-
-	odb_StepRepository stepRepository = odb->steps();
-	odb_StepRepositoryIT sIter(stepRepository);
-	for (sIter.first(); !sIter.isDone(); sIter.next()) 
-	{
-		odb_SequenceFrame& stepFrames = stepRepository[sIter.currentKey()].frames();
-
-		int numFrames = stepFrames.size();
-		for (int f = 0; f < numFrames; f++) 
-		{
-			odb_Frame frame = stepFrames.constGet(f);
-			
-			odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
-			odb_FieldOutputRepositoryIT fieldConIT(fieldCon);
-			for (fieldConIT.first(); !fieldConIT.isDone(); fieldConIT.next()) 
-			{
-				odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
-			
-				odb_SequenceFieldLocation fieldLocations = field.locations();
-				for (int loc = 0; loc < fieldLocations.size(); loc++)
-				{
-					const odb_FieldLocation& fieldLocation = fieldLocations.constGet(loc);
-					if (fieldLocation.position() == resultPosition || resultPosition == odb_Enum::odb_ResultPositionEnum::UNDEFINED_POSITION)
-					{
-						std::string fieldName = field.name().CStr();
-						odb_SequenceString components = field.componentLabels();
-
-						std::vector<std::string> compVec;
-
-						int numComp = components.size();
-						for (int comp = 0; comp < numComp; comp++)
-						{
-							compVec.push_back(components[comp].CStr());
-						}
-
-						resultNamesMap.insert(std::make_pair(fieldName, compVec));
-
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	return resultNamesMap;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifOdbReader::readFemParts(const std::string& fileName, RigFemPartCollection* femParts)
-{
-	initializeOdbAPI();
-
-    int status = 0;
-
-    try 
-    {
-        this->readOdbFile(fileName, femParts);
-    }
-
-    catch (const nex_Exception& nex) 
-    {
-        status = 1;
-        fprintf(stderr, "%s\n", nex.UserReport().CStr());
-        fprintf(stderr, "ODB Application exited with error(s)\n");
-    }
-
-    catch (...) 
-    {
-        status = 1;
-        fprintf(stderr, "ODB Application exited with error(s)\n");
-    }
-
-    return true;
+	return true;
 }
 
 //--------------------------------------------------------------------------------------------------

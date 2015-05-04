@@ -35,45 +35,35 @@ TEST(OdbReaderTest, BasicTests)
     cvf::ref<RigGeoMechCaseData> femCase = new RigGeoMechCaseData;
     cvf::ref<RigFemPartCollection> femData = femCase->femParts();
 
-    reader->readFemParts(TEST_FILE, femData.p());
+	reader->openFile(TEST_FILE);
+    reader->readFemParts(femData.p());
 
     EXPECT_EQ(1, femData->partCount());
     EXPECT_EQ(4320, femData->part(0)->elementCount());
     EXPECT_EQ(HEX8, femData->part(0)->elementType(0));
 
-    std::map<std::string, std::vector<std::string> > scalarNodeFieldsMap = reader->scalarNodeFieldAndComponentNames();
-	EXPECT_EQ(3, scalarNodeFieldsMap.size());
+	EXPECT_EQ(true, reader->stepNames().size() == 1);
 
-    cvf::ref<RigGeoMechCaseData> femCase2 = new RigGeoMechCaseData;
-    cvf::ref<RigFemPartCollection> femData2 = femCase->femParts();
-
-	cvf::ref<RifOdbReader> reader2 = new RifOdbReader;
-	EXPECT_EQ(true, reader2->readFemParts(TEST_FILE, femData2.p()));
-	EXPECT_EQ(true, reader2->stepNames().size() == 1);
-
-	std::vector<std::string> steps = reader2->stepNames();
+	std::vector<std::string> steps = reader->stepNames();
 	EXPECT_EQ(true, steps.at(0).find("Date_20100930") >= 0);
-	EXPECT_EQ(2, reader2->frameTimes(0).size());
-	EXPECT_EQ(1.0, reader2->frameTimes(0)[1]);
+	EXPECT_EQ(2, reader->frameTimes(0).size());
+	EXPECT_EQ(1.0, reader->frameTimes(0)[1]);
 
-	scalarNodeFieldsMap = reader2->scalarNodeFieldAndComponentNames();
+	std::map<std::string, std::vector<std::string> > scalarNodeFieldsMap = reader->scalarNodeFieldAndComponentNames();
 	EXPECT_EQ(3, scalarNodeFieldsMap.size());
 	
-	std::map<std::string, std::vector<std::string> > scalarElementNodeFieldsMap = reader2->scalarElementNodeFieldAndComponentNames();
+	std::map<std::string, std::vector<std::string> > scalarElementNodeFieldsMap = reader->scalarElementNodeFieldAndComponentNames();
 	EXPECT_EQ(0, scalarElementNodeFieldsMap.size());
 	
-	std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldsMap = reader2->scalarIntegrationPointFieldAndComponentNames();
+	std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldsMap = reader->scalarIntegrationPointFieldAndComponentNames();
 	EXPECT_EQ(6, scalarIntegrationPointFieldsMap.size());
 
 	std::vector<float> displacementValues;
-	reader2->readScalarNodeField("U", "U2", 0, 0, 1, &displacementValues);
+	reader->readScalarNodeField("U", "U2", 0, 0, 1, &displacementValues);
 	EXPECT_EQ(5168, displacementValues.size());
 
-    reader = NULL;
-
 	std::vector<cvf::Vec3f> displacements;
-	reader2->readDisplacements(0, 0, 1, &displacements);
-    reader2 = NULL;
+	reader->readDisplacements(0, 0, 1, &displacements);
 	EXPECT_EQ(5168, displacements.size());
 	EXPECT_FLOAT_EQ(0.047638997, displacements[1].y());
 }

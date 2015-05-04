@@ -40,7 +40,9 @@ public:
     RifOdbReader();
     virtual ~RifOdbReader();
 
-    virtual bool                                             readFemParts(const std::string& fileName, RigFemPartCollection* geoMechCase);
+	bool                                                     openFile(const std::string& fileName);
+
+    virtual bool                                             readFemParts(RigFemPartCollection* geoMechCase);
     virtual std::vector<std::string>                         stepNames();
     virtual std::vector<double>                              frameTimes(int stepIndex);
     
@@ -58,7 +60,6 @@ private:
     size_t                                                   resultItemCount(const std::string& fieldName, int stepIndex, int frameIndex) const;
     odb_Frame                                                stepFrame(int stepIndex, int frameIndex) const;
     int                                                      componentIndex(const std::string& fieldName, const std::string& componentName) const;
-    void                                                     readOdbFile(const std::string& fileName, RigFemPartCollection* femParts);
 
     static void                                              initializeOdbAPI();
     static void                                              finalizeOdbAPI();
