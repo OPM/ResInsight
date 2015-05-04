@@ -26,6 +26,7 @@
 
 class RimLegendConfig;
 class RimGeoMechView;
+class RifGeoMechReaderInterface;
 
 //==================================================================================================
 ///  
@@ -39,17 +40,22 @@ public:
     RimGeoMechResultSlot(void);
     virtual ~RimGeoMechResultSlot(void);
 
-    void                    setReservoirView(RimGeoMechView* ownerReservoirView);
+    void                       setReservoirView(RimGeoMechView* ownerReservoirView);
     RifGeoMechReaderInterface* resultReaderInterface();
-
-    caf::PdmField<RimLegendConfig*> legendConfig;
-
 
     enum ResultPositionEnum {
         NODAL,
         ELEMENT_NODAL,
         INTEGRATION_POINT
     };
+
+    ResultPositionEnum         resultPositionType()  { return m_resultPositionType();}
+    QString                    resultFieldName()     { return m_resultFieldName();}
+    QString                    resultComponentName() { return m_resultComponentName();}
+
+    caf::PdmField<RimLegendConfig*> legendConfig;
+
+
 
 private:
     virtual QList<caf::PdmOptionItemInfo>            calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 

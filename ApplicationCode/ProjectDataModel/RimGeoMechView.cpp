@@ -39,6 +39,7 @@
 #include "RiuViewer.h"
 #include "RivGeoMechPartMgr.h"
 #include "RigGeoMechCaseData.h"
+#include "cvfqtUtils.h"
 
 
 namespace caf {
@@ -170,7 +171,10 @@ void RimGeoMechView::createDisplayModelAndRedraw()
             }
 
             m_geoMechVizModel->updateCellColor(cvf::Color4f(cvf::Color3f::ORANGE));
-
+            if (cellResult()->resultFieldName() != "")
+            {
+                m_geoMechVizModel->updateCellResultColor(m_currentTimeStep(), this->cellResult());
+            }
             m_geoMechVizModel->appendGridPartsToModel(cvfModel.p());
 
             cvf::ref<cvf::Scene> scene = new cvf::Scene;
@@ -212,10 +216,53 @@ void RimGeoMechView::resetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateLegends()
 {
-  if (m_viewer)
+    if (m_viewer)
     {
         m_viewer->removeAllColorLegends();
     }
+
+    if (!m_geomechCase || !m_viewer || !m_geomechCase->geoMechData() )
+    {
+        return;
+    }
+
+    RigGeoMechCaseData* gmCase = m_geomechCase->geoMechData();
+    CVF_ASSERT(gmCase);
+
+
+    double localMin, localMax;
+    double localPosClosestToZero, localNegClosestToZero;
+#if 0
+
+    RigCaseCellResultsData* results = gmCase->results(porosityModel);
+    CVF_ASSERT(results);
+
+    if (cellResult->hasDynamicResult())
+    {
+        cellResultsData->minMaxCellScalarValues(cellResult->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
+        cellResultsData->posNegClosestToZero(cellResult->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+    }
+    else
+    {
+        localMin = globalMin;
+        localMax = globalMax;
+
+        localPosClosestToZero = globalPosClosestToZero;
+        localNegClosestToZero = globalNegClosestToZero;
+    }
+
+    cellResult->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+    cellResult->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+#endif
+    caf::AppEnum<RimGeoMechResultSlot::ResultPositionEnum> resPosType = cellResult->resultPositionType();
+    QString fieldName = cellResult->resultFieldName();
+    QString compName = cellResult->resultComponentName();
+
+    m_viewer->addColorLegendToBottomLeftCorner(cellResult->legendConfig->legend());
+
+    cellResult->legendConfig->legend()->setTitle(cvfqt::Utils::toString( resPosType.text() + "\n" + fieldName + " " + compName));
+
+
 
 }
 

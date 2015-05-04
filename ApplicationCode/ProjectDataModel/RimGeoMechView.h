@@ -67,6 +67,7 @@ public:
     RimGeoMechCase*                                     geoMechCase(); 
 
     void                                                loadDataAndUpdate();
+    virtual void                                        createDisplayModelAndRedraw();
 
     virtual void                                        setCurrentTimeStep(int frameIdx){}
     virtual void                                        updateCurrentTimeStepAndRedraw(){}
@@ -80,7 +81,6 @@ public:
 private:
    
    virtual void                                         updateViewerWidgetWindowTitle();
-   virtual void                                         createDisplayModelAndRedraw();
    virtual void                                         resetLegendsInViewer();
 
    void                                                 updateLegends();

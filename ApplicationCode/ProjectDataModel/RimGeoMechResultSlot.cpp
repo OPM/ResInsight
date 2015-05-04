@@ -259,4 +259,6 @@ RifGeoMechReaderInterface* RimGeoMechResultSlot::resultReaderInterface()
         }
 
     }
+
+    return NULL;
 }

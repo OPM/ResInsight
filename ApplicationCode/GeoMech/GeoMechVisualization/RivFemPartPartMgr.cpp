@@ -23,6 +23,8 @@
 #include "RiaPreferences.h"
 
 #include "RimReservoirView.h"
+#include "RimGeoMechResultSlot.h"
+#include "RimLegendConfig.h"
 
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
@@ -44,6 +46,7 @@
 #include "cvfShaderSourceRepository.h"
 #include "cvfStructGrid.h"
 #include "cvfUniform.h"
+#include "RifGeoMechReaderInterface.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -212,26 +215,39 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
     // Outer surface
-	if (m_surfaceFaces.notNull())
-	{
-		#if 0
-		{
-			RivTextureCoordsCreator texturer(cellResultSlot,
-				timeStepIndex,
-				m_grid->gridIndex(),
-				m_surfaceGenerator.quadToCellFaceMapper());
-			if (!texturer.isValid())
-			{
-				return;
-			}
+    if (m_surfaceFaces.notNull())
+    {
 
-			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
+        const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+        RifGeoMechReaderInterface* reader = cellResultSlot->resultReaderInterface();
+        std::vector<float> resultValues;
+        reader->readScalarNodeField(cellResultSlot->resultFieldName().toStdString(),
+                                    cellResultSlot->resultComponentName().toStdString(),
+                                    m_gridIdx, 0, timeStepIndex, &resultValues);
 
-			const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE);
-		}
-        #endif
-	}
+        const std::vector<size_t>& vxToResultMapping = m_surfaceGenerator.quadVerticesToNodeIdxMapping();
+        m_surfaceFacesTextureCoords->resize(vxToResultMapping.size());
+        cvf::Vec2f* rawPtr = m_surfaceFacesTextureCoords->ptr();
+
+        #pragma omp parallel for schedule(dynamic)
+        for (int vxIdx = 0; vxIdx < vxToResultMapping.size(); ++vxIdx)
+        {
+            float resultValue = resultValues[vxToResultMapping[vxIdx]];
+            if (resultValue == HUGE_VAL || resultValue != resultValue) // a != a is true for NAN's
+            {
+                rawPtr[vxIdx][1] = 1.0f;
+
+            }
+            else
+            {
+                rawPtr[vxIdx] =  mapper->mapToTextureCoord(resultValue);
+            }
+        }
+
+        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE);
+
+
+    }
 }
 
 
