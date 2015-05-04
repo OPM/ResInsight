@@ -23,6 +23,7 @@
 #include "RimDefines.h"
 #include "RimGeoMechCase.h"
 #include "RifGeoMechReaderInterface.h"
+#include "cafPdmUiListEditor.h"
 
 namespace caf {
 
@@ -52,9 +53,22 @@ RimGeoMechResultSlot::RimGeoMechResultSlot(void)
     this->legendConfig = new RimLegendConfig();
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionType, "ResultPositionType" , "Result Position", "", "", "");
-    CAF_PDM_InitField(&m_resultFieldName, "ResultFieldName", RimDefines::undefinedResultName(), "Field Name", "", "", "");
-    CAF_PDM_InitField(&m_resultComponentName, "ResultComponentName", RimDefines::undefinedResultName(), "Component", "", "", "");
+    m_resultPositionType.setUiHidden(true);
+    CAF_PDM_InitField(&m_resultFieldName, "ResultFieldName", QString(""), "Field Name", "", "", "");
+    m_resultFieldName.setUiHidden(true);
+    CAF_PDM_InitField(&m_resultComponentName, "ResultComponentName", QString(""), "Component", "", "", "");
+    m_resultComponentName.setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position", "", "", "");
+    m_resultPositionTypeUiField.setIOWritable(false);
+    m_resultPositionTypeUiField.setIOReadable(false);
+
+    CAF_PDM_InitField(&m_resultVariableUiField, "ResultVariableUI", QString(""), "Value", "", "", "");
+    m_resultVariableUiField.setIOWritable(false);
+    m_resultVariableUiField.setIOReadable(false);
+
+    m_resultVariableUiField.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_resultVariableUiField.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,46 +85,44 @@ RimGeoMechResultSlot::~RimGeoMechResultSlot(void)
 QList<caf::PdmOptionItemInfo> RimGeoMechResultSlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
+    *useOptionsOnly = true;
 
     if (m_reservoirView)
     {
-        RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
-        cvf::ref<RifGeoMechReaderInterface> reader = gmCase->readerInterface();
-        if (reader.notNull())
+
+       
+
+        if (&m_resultVariableUiField == fieldNeedingOptions)
         {
-            std::map<std::string, std::vector<std::string> >  fieldCompNames;
+            std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
+            QStringList uiVarNames;
+            QStringList varNames;
+            getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames);
 
-            if (m_resultPositionType == NODAL)
+            for (int oIdx = 0; oIdx < uiVarNames.size(); ++oIdx)
             {
-                fieldCompNames = reader->scalarNodeFieldAndComponentNames();
+                options.push_back(caf::PdmOptionItemInfo(uiVarNames[oIdx], varNames[oIdx]));
             }
 
-            if (&m_resultFieldName == fieldNeedingOptions)
+#if 0
+
+            for (auto fieldIt = fieldCompNames.begin(); fieldIt != fieldCompNames.end(); ++fieldIt)
             {
-                for (auto it = fieldCompNames.begin(); it != fieldCompNames.end(); ++it)
+                options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(fieldIt->first), QString::fromStdString(fieldIt->first)));
+
+                for (auto compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
                 {
-                    options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(it->first), QString::fromStdString(it->first)));
+                    options.push_back(caf::PdmOptionItemInfo(QString::fromStdString("   " +  *compIt), QString::fromStdString(fieldIt->first + " " + *compIt)));
                 }
             }
-
-            if (&m_resultComponentName == fieldNeedingOptions)
-            {
-                auto fieldIt = fieldCompNames.find(m_resultFieldName().toAscii().data());
-                if (fieldIt != fieldCompNames.end())
-                {
-                    for (auto compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
-                    {
-                        options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(*compIt), QString::fromStdString(*compIt)));
-                    }
-                }
-
-                if (!options.size()) options.push_back(caf::PdmOptionItemInfo("Undefined", "Undefined"));
-            }
+#endif
         }
     }
 
     return options;
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -118,4 +130,133 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultSlot::calculateValueOptions(const 
 void RimGeoMechResultSlot::setReservoirView(RimGeoMechView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if(&m_resultPositionTypeUiField == changedField)
+    {
+        std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
+        QStringList uiVarNames;
+        QStringList varNames;
+        getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames);
+
+        if (m_resultPositionTypeUiField() == m_resultPositionType()
+            && varNames.contains(composeUiVarString(m_resultFieldName(), m_resultComponentName())))
+        {
+            m_resultVariableUiField = composeUiVarString(m_resultFieldName(), m_resultComponentName());
+        }
+        else
+        {
+            m_resultVariableUiField = "";
+        }
+
+    }
+
+    if (&m_resultVariableUiField == changedField)
+    {
+        QStringList fieldComponentNames = m_resultVariableUiField().split(QRegExp("\\s+"));
+        if (fieldComponentNames.size() == 2)
+        {
+            m_resultPositionType = m_resultPositionTypeUiField;
+            m_resultFieldName = fieldComponentNames[0];
+            m_resultComponentName = fieldComponentNames[1];
+        }
+
+        // Todo: Read results into cache ?
+
+        if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
+       
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<std::string> > RimGeoMechResultSlot::getResultMetaDataForUIFieldSetting()
+{
+    std::map<std::string, std::vector<std::string> >  fieldCompNames;
+
+    RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
+    if (gmCase)
+    {
+        cvf::ref<RifGeoMechReaderInterface> reader = gmCase->readerInterface();
+        if (reader.notNull())
+        {
+            if (m_resultPositionTypeUiField == NODAL)
+            {
+                fieldCompNames = reader->scalarNodeFieldAndComponentNames();
+            }
+            else if (m_resultPositionTypeUiField == ELEMENT_NODAL)
+            {
+                fieldCompNames = reader->scalarElementNodeFieldAndComponentNames();
+            }
+            else if (m_resultPositionTypeUiField == INTEGRATION_POINT)
+            {
+                fieldCompNames = reader->scalarIntegrationPointFieldAndComponentNames();
+            }
+        }
+    }
+    return fieldCompNames;
+}
+
+void RimGeoMechResultSlot::getUiAndResultVariableStringList(QStringList* uiNames, QStringList* variableNames, 
+                                                            const std::map<std::string, std::vector<std::string> >&  fieldCompNames)
+{
+    CVF_ASSERT(uiNames && variableNames);
+
+    for (auto fieldIt = fieldCompNames.begin(); fieldIt != fieldCompNames.end(); ++fieldIt)
+    {
+        uiNames->push_back(QString::fromStdString(fieldIt->first));
+        variableNames->push_back(QString::fromStdString(fieldIt->first));
+
+        for (auto compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
+        {
+            uiNames->push_back(QString::fromStdString("   " +  *compIt));
+            variableNames->push_back(composeUiVarString(QString::fromStdString(fieldIt->first), QString::fromStdString(*compIt)));
+        }
+    }
+}
+
+QString RimGeoMechResultSlot::composeUiVarString(const QString& resultFieldName, const QString& resultComponentName)
+{
+    return resultFieldName + " " + resultComponentName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultSlot::initAfterRead()
+{
+    m_resultPositionTypeUiField = m_resultPositionType;
+    m_resultVariableUiField = composeUiVarString(m_resultFieldName(), m_resultComponentName());
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultSlot::loadResult()
+{
+   
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifGeoMechReaderInterface* RimGeoMechResultSlot::resultReaderInterface()
+{
+    if (m_reservoirView)
+    {
+        RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
+        if (gmCase)
+        {
+            return gmCase->readerInterface();
+        }
+
+    }
 }

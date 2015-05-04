@@ -40,6 +40,7 @@ public:
     virtual ~RimGeoMechResultSlot(void);
 
     void                    setReservoirView(RimGeoMechView* ownerReservoirView);
+    RifGeoMechReaderInterface* resultReaderInterface();
 
     caf::PdmField<RimLegendConfig*> legendConfig;
 
@@ -51,12 +52,24 @@ public:
     };
 
 private:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    virtual QList<caf::PdmOptionItemInfo>            calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+                                                                           bool * useOptionsOnly);
+    std::map<std::string, std::vector<std::string> > getResultMetaDataForUIFieldSetting();
 
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    static void getUiAndResultVariableStringList(QStringList* uiNames, QStringList* variableNames, 
+                                                 const std::map<std::string, std::vector<std::string> >& fieldCompNames);
+    static QString     composeUiVarString(const QString& resultFieldName, const QString& resultComponentName);
+
+    virtual void initAfterRead();
+    void loadResult();
 
     caf::PdmField<caf::AppEnum<ResultPositionEnum> > m_resultPositionType;
-    caf::PdmField<QString> m_resultFieldName;
-    caf::PdmField<QString> m_resultComponentName;
+    caf::PdmField<QString>                           m_resultFieldName;
+    caf::PdmField<QString>                           m_resultComponentName;
 
-    caf::PdmPointer<RimGeoMechView>                               m_reservoirView;
+    caf::PdmField<caf::AppEnum<ResultPositionEnum> > m_resultPositionTypeUiField;
+    caf::PdmField<QString>                           m_resultVariableUiField;
+
+    caf::PdmPointer<RimGeoMechView>                  m_reservoirView;
 };
