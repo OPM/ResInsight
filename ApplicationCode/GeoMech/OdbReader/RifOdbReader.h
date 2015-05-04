@@ -28,6 +28,13 @@ class RigFemPartCollection;
 class odb_Odb;
 class odb_Frame;
 
+enum RifOdbResultPosition
+{
+	NODAL,
+	ELEMENT_NODAL,
+	INTEGRATION_POINT
+};
+
 //==================================================================================================
 //
 // Data interface base class
@@ -40,15 +47,15 @@ public:
     RifOdbReader();
     virtual ~RifOdbReader();
 
-	bool                                                     openFile(const std::string& fileName);
+	virtual bool                                             openFile(const std::string& fileName);
 
     virtual bool                                             readFemParts(RigFemPartCollection* geoMechCase);
     virtual std::vector<std::string>                         stepNames();
     virtual std::vector<double>                              frameTimes(int stepIndex);
     
-    virtual std::map<std::string, std::vector<std::string> > scalarNodeFieldAndComponentNames() const; 
-    virtual std::map<std::string, std::vector<std::string> > scalarElementNodeFieldAndComponentNames() const; 
-    virtual std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldAndComponentNames() const; 
+    virtual std::map<std::string, std::vector<std::string> > scalarNodeFieldAndComponentNames(); 
+    virtual std::map<std::string, std::vector<std::string> > scalarElementNodeFieldAndComponentNames(); 
+    virtual std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldAndComponentNames(); 
 	
     virtual void                                             readScalarNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
     virtual void                                             readScalarElementNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
@@ -56,15 +63,20 @@ public:
     virtual void                                             readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
 
 private:
+    bool                                                     buildMetaData();
     void                                                     close();
     size_t                                                   resultItemCount(const std::string& fieldName, int stepIndex, int frameIndex) const;
     odb_Frame                                                stepFrame(int stepIndex, int frameIndex) const;
-    int                                                      componentIndex(const std::string& fieldName, const std::string& componentName) const;
+    int                                                      componentIndex(RifOdbResultPosition position, const std::string& fieldName, const std::string& componentName) const;
+    std::vector<std::string>                                 componentNames(RifOdbResultPosition position, const std::string& fieldName) const;
+	std::map<std::string, std::vector<std::string> >         fieldAndComponentNames(RifOdbResultPosition position);
 
     static void                                              initializeOdbAPI();
     static void                                              finalizeOdbAPI();
 
 private:
-    odb_Odb*     m_odb;
-    static bool  sm_odbAPIInitialized;
+    odb_Odb*                                                                           m_odb;
+	std::map< std::pair<RifOdbResultPosition, std::string>, std::vector<std::string> > m_resultsMetaData;
+    
+	static bool sm_odbAPIInitialized;
 };
