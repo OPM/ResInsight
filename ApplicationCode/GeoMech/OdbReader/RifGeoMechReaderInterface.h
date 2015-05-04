@@ -41,13 +41,15 @@ public:
     RifGeoMechReaderInterface();
     virtual ~RifGeoMechReaderInterface();
 
+    virtual bool                                             openFile(const std::string& fileName) = 0;
+
     virtual bool                                             readFemParts(RigFemPartCollection* geoMechCase) = 0;
     virtual std::vector<std::string>                         stepNames() = 0;
     virtual std::vector<double>                              frameTimes(int stepIndex) = 0;
 
-    virtual std::map<std::string, std::vector<std::string> > scalarNodeFieldAndComponentNames() const = 0; 
-    virtual std::map<std::string, std::vector<std::string> > scalarElementNodeFieldAndComponentNames() const = 0; 
-    virtual std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldAndComponentNames() const = 0; 
+    virtual std::map<std::string, std::vector<std::string> > scalarNodeFieldAndComponentNames() = 0; 
+    virtual std::map<std::string, std::vector<std::string> > scalarElementNodeFieldAndComponentNames() = 0; 
+    virtual std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldAndComponentNames() = 0; 
 
 	virtual void                                             readScalarNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues) = 0;
 	virtual void                                             readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements) = 0;
