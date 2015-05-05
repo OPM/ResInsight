@@ -462,6 +462,7 @@ size_t RifOdbReader::resultItemCount(const std::string& fieldName, int stepIndex
 	return resultItemCount;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -539,7 +540,7 @@ void RifOdbReader::readScalarNodeField(const std::string& fieldName, const std::
 	CVF_ASSERT(compIndex >= 0);
 
 	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
-	const odb_FieldOutput& fieldOutput = frame.fieldOutputs()[fieldName.c_str()];
+	const odb_FieldOutput& fieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(odb_Enum::NODAL);
 	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
 
 	size_t dataIndex = 0;
@@ -573,6 +574,38 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
 	// TODO:
 	// Need example files containing element node results for testing
 	// Or, consider reporting integration point results as element node results too, and extrapolate when requested
+
+	size_t dataSize = resultItemCount(fieldName, stepIndex, frameIndex);
+	if (dataSize > 0)
+	{
+		resultValues->resize(dataSize);
+	}
+
+	int compIndex = componentIndex(RifOdbResultPosition::ELEMENT_NODAL, fieldName, componentName);
+	CVF_ASSERT(compIndex >= 0);
+
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_FieldOutput& fieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(odb_Enum::ELEMENT_NODAL);
+	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+
+	size_t dataIndex = 0;
+	int numBlocks = seqFieldBulkData.size();
+	for (int block = 0; block < numBlocks; block++)
+	{
+		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+
+		if (bulkData.numberOfNodes() > 0)
+		{
+			int numNodes = bulkData.length();
+			int numComp = bulkData.width();
+			float* data = bulkData.data();
+
+			for (int i = 0; i < numNodes; i++)
+			{
+				(*resultValues)[dataIndex++] = data[i*numComp + compIndex];
+			}
+		}
+	}
 }
 
 
@@ -583,7 +616,34 @@ void RifOdbReader::readScalarIntegrationPointField(const std::string& fieldName,
 {
 	CVF_ASSERT(resultValues);
 
-	// TODO
+	size_t dataSize = resultItemCount(fieldName, stepIndex, frameIndex);
+	if (dataSize > 0)
+	{
+		resultValues->resize(dataSize);
+	}
+
+	int compIndex = componentIndex(RifOdbResultPosition::INTEGRATION_POINT, fieldName, componentName);
+	CVF_ASSERT(compIndex >= 0);
+
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_FieldOutput& fieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(odb_Enum::INTEGRATION_POINT);
+	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+
+	size_t dataIndex = 0;
+	int numBlocks = seqFieldBulkData.size();
+	for (int block = 0; block < numBlocks; block++)
+	{
+		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+
+		int numNodes = bulkData.length();
+		int numComp = bulkData.width();
+		float* data = bulkData.data();
+
+		for (int i = 0; i < numNodes; i++)
+		{
+			(*resultValues)[dataIndex++] = data[i*numComp + compIndex];
+		}
+	}
 }
 
 

@@ -62,6 +62,18 @@ TEST(OdbReaderTest, BasicTests)
 	reader->readScalarNodeField("U", "U2", 0, 0, 1, &displacementValues);
 	EXPECT_EQ(5168, displacementValues.size());
 
+	std::vector<float> integrationPointS22;
+	reader->readScalarIntegrationPointField("S", "22", 0, 0, 1, &integrationPointS22);
+	EXPECT_EQ(34560, integrationPointS22.size());
+
+	std::vector<float> integrationPointE33;
+	reader->readScalarIntegrationPointField("E", "33", 0, 0, 1, &integrationPointE33);
+	EXPECT_EQ(34560, integrationPointE33.size());
+
+	std::vector<float> integrationPointTEMP;
+	reader->readScalarIntegrationPointField("TEMP", "", 0, 0, 1, &integrationPointTEMP);
+	EXPECT_EQ(34560, integrationPointTEMP.size());
+
 	std::vector<cvf::Vec3f> displacements;
 	reader->readDisplacements(0, 0, 1, &displacements);
 	EXPECT_EQ(5168, displacements.size());
