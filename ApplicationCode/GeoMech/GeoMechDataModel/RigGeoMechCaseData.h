@@ -18,22 +18,41 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "cvfObject.h"
+#include <string>
+#include <map>
+#include <vector>
+#include "RigFemResultPosEnum.h"
+#include "cvfCollection.h"
+#include "RigFemPartResults.h"
 
-#include "RigFemPartCollection.h"
-
+class RifGeoMechReaderInterface;
+class RigFemPartCollection;
+class RigFemScalarResultFrames;
 
 class RigGeoMechCaseData: public cvf::Object
 {
 public:
-    RigGeoMechCaseData();
+    RigGeoMechCaseData(const std::string& fileName);
     ~RigGeoMechCaseData();
 
-    RigFemPartCollection* femParts();
-    const RigFemPartCollection* femParts() const;
+    bool                                 openAndReadFemParts();
 
- 
+    RigFemPartCollection*                femParts();
+    const RigFemPartCollection*          femParts() const;
+
+    std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
+    std::vector<std::string>             stepNames();
+    RigFemScalarResultFrames*            findOrLoadScalarResult(size_t partIndex, 
+                                                     size_t stepIndex,
+                                                     RigFemResultPosEnum resultPosType,
+                                                     const std::string& fieldName,
+                                                     const std::string& componentName);
+
 private:
-    cvf::ref<RigFemPartCollection> m_femParts;
-
+    std::string                          m_geoMechCaseFileName;
+    cvf::ref<RigFemPartCollection>       m_femParts;
+    cvf::Collection<RigFemPartResults>   m_femPartResults;
+    cvf::ref<RifGeoMechReaderInterface>  m_readerInterface;
 };
 

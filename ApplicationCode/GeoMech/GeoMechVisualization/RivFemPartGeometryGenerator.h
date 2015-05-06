@@ -43,6 +43,7 @@ public:
     cvf::ref<cvf::DrawableGeo>  createOutlineMeshDrawable(double creaseAngle);
 
     const std::vector<size_t>&  quadVerticesToNodeIdxMapping() const { return m_quadVerticesToNodeIdx;}
+    const std::vector<size_t>&  quadVerticesToGlobalElmNodeIdx() const { return m_quadVerticesToGlobalElmNodeIdx;}
 
 private:
     static cvf::ref<cvf::UIntArray> 

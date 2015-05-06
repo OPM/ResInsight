@@ -40,23 +40,22 @@ public:
     RimGeoMechCase(void);
     virtual ~RimGeoMechCase(void);
     
-    void setFileName(const QString& fileName) {m_caseFileName = fileName;}
-    bool openGeoMechCase();
+    void                                    setFileName(const QString& fileName) {m_caseFileName = fileName;}
+    bool                                    openGeoMechCase();
 
-    RigGeoMechCaseData* geoMechData() { return m_geoMechCaseData.p(); }
-    const RigGeoMechCaseData* geoMechData() const { return m_geoMechCaseData.p(); }
+    RigGeoMechCaseData*                     geoMechData() { return m_geoMechCaseData.p(); }
+    const RigGeoMechCaseData*               geoMechData() const { return m_geoMechCaseData.p(); }
 
-    RimGeoMechView* createAndAddReservoirView();
+    RimGeoMechView*                         createAndAddReservoirView();
 
-    virtual caf::PdmFieldHandle* userDescriptionField();
-    RifGeoMechReaderInterface* readerInterface();
-     // Fields:                                        
-    caf::PdmField<QString>                      caseUserDescription;
-    caf::PdmPointersField<RimGeoMechView*>      geoMechViews;
+    // Fields:                                        
+    caf::PdmField<QString>                  caseUserDescription;
+    caf::PdmPointersField<RimGeoMechView*>  geoMechViews;
 
 private:
-    cvf::ref<RigGeoMechCaseData>                m_geoMechCaseData;
-    caf::PdmField<QString>                      m_caseFileName;
+    virtual caf::PdmFieldHandle*            userDescriptionField();
 
-    cvf::ref<RifGeoMechReaderInterface>         m_readerInterface;
+private:
+    cvf::ref<RigGeoMechCaseData>            m_geoMechCaseData;
+    caf::PdmField<QString>                  m_caseFileName;
 };

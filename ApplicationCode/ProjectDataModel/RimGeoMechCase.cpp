@@ -86,29 +86,9 @@ bool RimGeoMechCase::openGeoMechCase()
         return false;
     }
 
+    m_geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().toStdString());
 
-#ifdef USE_ODB_API    
-    m_readerInterface = new RifOdbReader;
-
-    m_geoMechCaseData = new RigGeoMechCaseData;
-    if (m_readerInterface->readFemParts(m_caseFileName().toStdString(), m_geoMechCaseData->femParts()))
-    {
-    
-        // Todo: Default Results stuff, if needed
-
-        return true;
-    }
-#endif
-
-    return false;
-
+    return m_geoMechCaseData->openAndReadFemParts();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifGeoMechReaderInterface* RimGeoMechCase::readerInterface()
-{
-    return m_readerInterface.p();
-}
 

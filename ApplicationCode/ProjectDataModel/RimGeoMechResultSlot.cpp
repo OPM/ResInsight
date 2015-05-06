@@ -24,16 +24,17 @@
 #include "RimGeoMechCase.h"
 #include "RifGeoMechReaderInterface.h"
 #include "cafPdmUiListEditor.h"
+#include "RigGeoMechCaseData.h"
 
 namespace caf {
 
 template<>
-void caf::AppEnum< RimGeoMechResultSlot::ResultPositionEnum >::setUp()
+void caf::AppEnum< RigFemResultPosEnum >::setUp()
 {
-    addItem(RimGeoMechResultSlot::NODAL,            "NODAL",            "Nodal");
-    addItem(RimGeoMechResultSlot::ELEMENT_NODAL,    "ELEMENT_NODAL",    "Element Nodal");
-    addItem(RimGeoMechResultSlot::INTEGRATION_POINT,"INTEGRATION_POINT","Integration Point");
-    setDefault(RimGeoMechResultSlot::NODAL);
+    addItem(RIG_NODAL,            "NODAL",            "Nodal");
+    addItem(RIG_ELEMENT_NODAL,    "ELEMENT_NODAL",    "Element Nodal");
+    addItem(RIG_INTEGRATION_POINT,"INTEGRATION_POINT","Integration Point");
+    setDefault(RIG_NODAL);
 }
 }
 
@@ -178,29 +179,15 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RimGeoMechResultSlot::getResultMetaDataForUIFieldSetting()
 {
-    std::map<std::string, std::vector<std::string> >  fieldCompNames;
-
     RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
-    if (gmCase)
+    if (gmCase && gmCase->geoMechData())
     {
-        cvf::ref<RifGeoMechReaderInterface> reader = gmCase->readerInterface();
-        if (reader.notNull())
-        {
-            if (m_resultPositionTypeUiField == NODAL)
-            {
-                fieldCompNames = reader->scalarNodeFieldAndComponentNames();
-            }
-            else if (m_resultPositionTypeUiField == ELEMENT_NODAL)
-            {
-                fieldCompNames = reader->scalarElementNodeFieldAndComponentNames();
-            }
-            else if (m_resultPositionTypeUiField == INTEGRATION_POINT)
-            {
-                fieldCompNames = reader->scalarIntegrationPointFieldAndComponentNames();
-            }
-        }
+        return gmCase->geoMechData()->scalarFieldAndComponentNames(m_resultPositionTypeUiField());
     }
-    return fieldCompNames;
+    else
+    {
+        return std::map<std::string, std::vector<std::string> >() ;
+    }
 }
 
 void RimGeoMechResultSlot::getUiAndResultVariableStringList(QStringList* uiNames, QStringList* variableNames, 
@@ -248,17 +235,7 @@ void RimGeoMechResultSlot::loadResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifGeoMechReaderInterface* RimGeoMechResultSlot::resultReaderInterface()
+RigGeoMechCaseData* RimGeoMechResultSlot::ownerCaseData()
 {
-    if (m_reservoirView)
-    {
-        RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
-        if (gmCase)
-        {
-            return gmCase->readerInterface();
-        }
-
-    }
-
-    return NULL;
+    return m_reservoirView->geoMechCase()->geoMechData();
 }

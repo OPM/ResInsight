@@ -47,6 +47,8 @@
 #include "cvfStructGrid.h"
 #include "cvfUniform.h"
 #include "RifGeoMechReaderInterface.h"
+#include "RigGeomechCaseData.h"
+#include "RigFemScalarResultFrames.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -219,20 +221,33 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
     {
 
         const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
-        RifGeoMechReaderInterface* reader = cellResultSlot->resultReaderInterface();
-        std::vector<float> resultValues;
-        reader->readScalarNodeField(cellResultSlot->resultFieldName().toStdString(),
-                                    cellResultSlot->resultComponentName().toStdString(),
-                                    m_gridIdx, 0, timeStepIndex, &resultValues);
 
-        const std::vector<size_t>& vxToResultMapping = m_surfaceGenerator.quadVerticesToNodeIdxMapping();
-        m_surfaceFacesTextureCoords->resize(vxToResultMapping.size());
+        RigGeoMechCaseData* caseData = cellResultSlot->ownerCaseData();
+        
+        if (!caseData) return;
+
+        RigFemScalarResultFrames* scalarResults = caseData->findOrLoadScalarResult(m_gridIdx, 0, cellResultSlot->resultPositionType(), cellResultSlot->resultFieldName().toStdString(), cellResultSlot->resultComponentName().toStdString());
+        std::vector<float>& resultValues = scalarResults->frameData(timeStepIndex);
+
+        const std::vector<size_t>* vxToResultMapping = NULL;
+
+        if (cellResultSlot->resultPositionType() == RIG_NODAL)
+        {
+            vxToResultMapping = &(m_surfaceGenerator.quadVerticesToNodeIdxMapping());
+        }
+        else if (   cellResultSlot->resultPositionType() == RIG_ELEMENT_NODAL 
+                 || cellResultSlot->resultPositionType() == RIG_INTEGRATION_POINT)
+        {
+            vxToResultMapping = &(m_surfaceGenerator.quadVerticesToNodeIdxMapping());
+        }
+
+        m_surfaceFacesTextureCoords->resize(vxToResultMapping->size());
         cvf::Vec2f* rawPtr = m_surfaceFacesTextureCoords->ptr();
 
         #pragma omp parallel for schedule(dynamic)
-        for (int vxIdx = 0; vxIdx < vxToResultMapping.size(); ++vxIdx)
+        for (int vxIdx = 0; vxIdx < vxToResultMapping->size(); ++vxIdx)
         {
-            float resultValue = resultValues[vxToResultMapping[vxIdx]];
+            float resultValue = resultValues[(*vxToResultMapping)[vxIdx]];
             if (resultValue == HUGE_VAL || resultValue != resultValue) // a != a is true for NAN's
             {
                 rawPtr[vxIdx][1] = 1.0f;

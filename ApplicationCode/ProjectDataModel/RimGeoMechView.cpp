@@ -40,7 +40,7 @@
 #include "RivGeoMechPartMgr.h"
 #include "RigGeoMechCaseData.h"
 #include "cvfqtUtils.h"
-
+#include "RigFemPartCollection.h"
 
 namespace caf {
 
@@ -254,7 +254,7 @@ void RimGeoMechView::updateLegends()
     cellResult->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
     cellResult->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 #endif
-    caf::AppEnum<RimGeoMechResultSlot::ResultPositionEnum> resPosType = cellResult->resultPositionType();
+    caf::AppEnum<RigFemResultPosEnum> resPosType = cellResult->resultPositionType();
     QString fieldName = cellResult->resultFieldName();
     QString compName = cellResult->resultComponentName();
 

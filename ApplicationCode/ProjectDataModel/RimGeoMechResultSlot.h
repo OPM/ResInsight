@@ -23,11 +23,12 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
+#include "RigFemResultPosEnum.h"
 
 class RimLegendConfig;
 class RimGeoMechView;
 class RifGeoMechReaderInterface;
-
+class RigGeoMechCaseData;
 //==================================================================================================
 ///  
 ///  
@@ -41,20 +42,13 @@ public:
     virtual ~RimGeoMechResultSlot(void);
 
     void                       setReservoirView(RimGeoMechView* ownerReservoirView);
-    RifGeoMechReaderInterface* resultReaderInterface();
-
-    enum ResultPositionEnum {
-        NODAL,
-        ELEMENT_NODAL,
-        INTEGRATION_POINT
-    };
-
-    ResultPositionEnum         resultPositionType()  { return m_resultPositionType();}
+    RigGeoMechCaseData*        ownerCaseData();
+  
+    RigFemResultPosEnum        resultPositionType()  { return m_resultPositionType();}
     QString                    resultFieldName()     { return m_resultFieldName();}
     QString                    resultComponentName() { return m_resultComponentName();}
 
     caf::PdmField<RimLegendConfig*> legendConfig;
-
 
 
 private:
@@ -70,11 +64,11 @@ private:
     virtual void initAfterRead();
     void loadResult();
 
-    caf::PdmField<caf::AppEnum<ResultPositionEnum> > m_resultPositionType;
+    caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionType;
     caf::PdmField<QString>                           m_resultFieldName;
     caf::PdmField<QString>                           m_resultComponentName;
 
-    caf::PdmField<caf::AppEnum<ResultPositionEnum> > m_resultPositionTypeUiField;
+    caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionTypeUiField;
     caf::PdmField<QString>                           m_resultVariableUiField;
 
     caf::PdmPointer<RimGeoMechView>                  m_reservoirView;
