@@ -136,7 +136,8 @@ bool RifOdbReader::openFile(const std::string& fileName)
 	return true;
 }
 
-std::map< std::pair<RifOdbResultPosition, std::string>, std::vector<std::string> > resultsMetaData(odb_Odb* odb);
+std::map< RifOdbResultPosition, std::map<std::string, std::vector<std::string> > > resultsMetaData(odb_Odb* odb);
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -207,11 +208,11 @@ std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(od
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map< std::pair<RifOdbResultPosition, std::string>, std::vector<std::string> > resultsMetaData(odb_Odb* odb)
+std::map< RifOdbResultPosition, std::map<std::string, std::vector<std::string> > > resultsMetaData(odb_Odb* odb)
 {
 	CVF_ASSERT(odb != NULL);
 
-	std::map< std::pair<RifOdbResultPosition, std::string>, std::vector<std::string> > resultsMap;
+    std::map< RifOdbResultPosition, std::map<std::string, std::vector<std::string> > > resultsMap;
 
 	odb_StepRepository stepRepository = odb->steps();
 	odb_StepRepositoryIT sIter(stepRepository);
@@ -249,20 +250,20 @@ std::map< std::pair<RifOdbResultPosition, std::string>, std::vector<std::string>
 					switch (fieldLocation.position())
 					{
 						case odb_Enum::odb_ResultPositionEnum::NODAL:
-							resultsMap.insert(std::make_pair(std::make_pair(RifOdbResultPosition::NODAL, fieldName), compVec));
+                            resultsMap[RifOdbResultPosition::NODAL][fieldName] = compVec;
 							break;
 
 						case odb_Enum::odb_ResultPositionEnum::ELEMENT_NODAL:
-							resultsMap.insert(std::make_pair(std::make_pair(RifOdbResultPosition::ELEMENT_NODAL, fieldName), compVec));
+                            resultsMap[RifOdbResultPosition::ELEMENT_NODAL][fieldName] = compVec;
 							break;
 
 						case odb_Enum::odb_ResultPositionEnum::INTEGRATION_POINT:
-							resultsMap.insert(std::make_pair(std::make_pair(RifOdbResultPosition::INTEGRATION_POINT, fieldName), compVec));
+                            resultsMap[RifOdbResultPosition::INTEGRATION_POINT][fieldName] = compVec;
 							break;
 
 						default:
 							break;
-					}	
+					}
 				}
 			}
 		}
@@ -533,10 +534,14 @@ std::vector<std::string> RifOdbReader::componentNames(RifOdbResultPosition posit
 {
 	std::vector<std::string> compNames;
 
-	auto mapIt = m_resultsMetaData.find(std::make_pair(position, fieldName));
-	if (mapIt != m_resultsMetaData.end())
+  	auto posMapIt = m_resultsMetaData.find(position);
+	if (posMapIt != m_resultsMetaData.end())
 	{
-		compNames = mapIt->second;
+        auto fieldNameMapIt = posMapIt->second.find(fieldName);
+	    if (fieldNameMapIt != posMapIt->second.end())
+	    {
+            compNames = fieldNameMapIt->second;
+        }
 	}
 	
 	return compNames;
@@ -553,17 +558,7 @@ std::map<std::string, std::vector<std::string> > RifOdbReader::fieldAndComponent
 		buildMetaData();
 	}
 
-	std::map<std::string, std::vector<std::string> > fieldAndCompNames;
-
-	for (auto mapIt = m_resultsMetaData.begin(); mapIt != m_resultsMetaData.end(); mapIt++)
-	{
-		if (mapIt->first.first == position)
-		{
-			fieldAndCompNames.insert(std::make_pair(mapIt->first.second, mapIt->second));
-		}
-	}
-
-	return fieldAndCompNames;
+    return m_resultsMetaData[position];
 }
 
 

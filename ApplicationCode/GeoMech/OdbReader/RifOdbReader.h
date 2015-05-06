@@ -78,7 +78,7 @@ private:
 
 private:
     odb_Odb*                                                                           m_odb;
-	std::map< std::pair<RifOdbResultPosition, std::string>, std::vector<std::string> > m_resultsMetaData;
+	std::map< RifOdbResultPosition, std::map<std::string, std::vector<std::string> > > m_resultsMetaData;
     std::map< int, std::map<int, int> >                                                m_instanceToNodeIdToIdxMap;
     std::map< int, std::map<int, int> >                                                m_instanceToElementIdToIdxMap;
     
