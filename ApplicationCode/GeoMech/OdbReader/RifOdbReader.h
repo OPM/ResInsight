@@ -29,7 +29,7 @@ class odb_Odb;
 class odb_Frame;
 class odb_Instance;
 
-enum RifOdbResultPosition
+enum ResPos
 {
 	NODAL,
 	ELEMENT_NODAL,
@@ -64,23 +64,32 @@ public:
     virtual void                                             readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
 
 private:
-    bool                                                     buildMetaData();
-    void                                                     close();
-    size_t                                                   resultItemCount(const std::string& fieldName, int stepIndex, int frameIndex) const;
-    odb_Frame                                                stepFrame(int stepIndex, int frameIndex) const;
-    odb_Instance*									         instance(int instanceIndex);
-    int                                                      componentIndex(RifOdbResultPosition position, const std::string& fieldName, const std::string& componentName) const;
-    std::vector<std::string>                                 componentNames(RifOdbResultPosition position, const std::string& fieldName) const;
-	std::map<std::string, std::vector<std::string> >         fieldAndComponentNames(RifOdbResultPosition position);
 
-    static void                                              initializeOdbAPI();
-    static void                                              finalizeOdbAPI();
+    enum ResPos
+    {
+	    NODAL,
+	    ELEMENT_NODAL,
+	    INTEGRATION_POINT
+    };
+
+    bool                                                                                buildMetaData();
+    void                                                                                close();
+    size_t                                                                              resultItemCount(const std::string& fieldName, int stepIndex, int frameIndex) const;
+    odb_Frame                                                                           stepFrame(int stepIndex, int frameIndex) const;
+    odb_Instance*									                                    instance(int instanceIndex);
+    int                                                                                 componentIndex(ResPos position, const std::string& fieldName, const std::string& componentName) const;
+    std::vector<std::string>                                                            componentNames(ResPos position, const std::string& fieldName) const;
+	std::map<std::string, std::vector<std::string> >                                    fieldAndComponentNames(ResPos position);   
+    std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> > >  resultsMetaData(odb_Odb* odb);
+
+    static void initializeOdbAPI();
+    static void finalizeOdbAPI();
 
 private:
-    odb_Odb*                                                                           m_odb;
-	std::map< RifOdbResultPosition, std::map<std::string, std::vector<std::string> > > m_resultsMetaData;
-    std::map< int, std::map<int, int> >                                                m_instanceToNodeIdToIdxMap;
-    std::map< int, std::map<int, int> >                                                m_instanceToElementIdToIdxMap;
+    odb_Odb*                                                                m_odb;
+	std::map< ResPos, std::map<std::string, std::vector<std::string> > >    m_resultsMetaData;
+    std::map< int, std::map<int, int> >                                     m_instanceToNodeIdToIdxMap;
+    std::map< int, std::map<int, int> >                                     m_instanceToElementIdToIdxMap;
     
 	static bool sm_odbAPIInitialized;
 };
