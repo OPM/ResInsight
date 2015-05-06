@@ -33,6 +33,7 @@
 #include <map>
 #include <iostream>
 #include <limits>
+#include <sstream>
 
 
 std::map<std::string, RigElementType> initFemTypeMap()
@@ -105,7 +106,7 @@ void RifOdbReader::close()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifOdbReader::openFile(const std::string& fileName)
+bool RifOdbReader::openFile(const std::string& fileName, std::string* errorMessage)
 {
 	close();
 	CVF_ASSERT(m_odb == NULL);
@@ -124,13 +125,25 @@ bool RifOdbReader::openFile(const std::string& fileName)
 
 	catch (const nex_Exception& nex) 
     {
-        fprintf(stderr, "%s\n", nex.UserReport().CStr());
-        fprintf(stderr, "ODB Application exited with error(s)\n");
+        if (errorMessage)
+        {
+            *errorMessage = nex.UserReport().CStr();
+        }
+
+        return false;
     }
 
     catch (...) 
     {
-        fprintf(stderr, "ODB Application exited with error(s)\n");
+        if (errorMessage)
+        {
+            std::stringstream errStr;
+            errStr << "Unable to open file '" << fileName << "'.";
+
+            *errorMessage = errStr.str();
+        }
+
+        return false;
     }
 
 	return true;
