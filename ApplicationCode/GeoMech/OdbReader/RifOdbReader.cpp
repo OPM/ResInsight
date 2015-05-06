@@ -496,16 +496,14 @@ odb_Instance* RifOdbReader::instance(int instanceIndex)
 //--------------------------------------------------------------------------------------------------
 /// Get the number of result items (== #nodes or #elements)
 //--------------------------------------------------------------------------------------------------
-size_t RifOdbReader::resultItemCount(const std::string& fieldName, int stepIndex, int frameIndex) const
+size_t RifOdbReader::resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex)
 {
-	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
-	const odb_FieldOutputRepository& fieldOutputRepo = frame.fieldOutputs();
-	
-	odb_String fieldNameStr = fieldName.c_str();
-	CVF_ASSERT(fieldOutputRepo.isMember(fieldNameStr));
+    odb_Instance* partInstance = instance(partIndex);
+    CVF_ASSERT(partInstance != NULL);
 
-	const odb_FieldOutput& fieldOutput = fieldOutputRepo[fieldNameStr];
-	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(*partInstance);
+	const odb_SequenceFieldBulkData& seqFieldBulkData = instanceFieldOutput.bulkDataBlocks();
 
 	size_t resultItemCount = 0;
 	int numBlocks = seqFieldBulkData.size();
@@ -518,7 +516,6 @@ size_t RifOdbReader::resultItemCount(const std::string& fieldName, int stepIndex
 
 	return resultItemCount;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -637,7 +634,8 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
     auto elementIdToIdxMap = elementIdToIdxMapIt->second;
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
-   	size_t dataSize = resultItemCount(fieldName, stepIndex, frameIndex);
+
+    size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
 	if (dataSize > 0)
 	{
 		resultValues->resize(dataSize);
@@ -696,7 +694,7 @@ void RifOdbReader::readScalarIntegrationPointField(const std::string& fieldName,
     auto elementIdToIdxMap = elementIdToIdxMapIt->second;
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
-   	size_t dataSize = resultItemCount(fieldName, stepIndex, frameIndex);
+   	size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
 	if (dataSize > 0)
 	{
 		resultValues->resize(dataSize);
@@ -749,7 +747,7 @@ void RifOdbReader::readDisplacements(int partIndex, int stepIndex, int frameInde
     odb_Instance* partInstance = instance(partIndex);
     CVF_ASSERT(partInstance != NULL);
 
-	size_t dataSize = resultItemCount("U", stepIndex, frameIndex);
+	size_t dataSize = resultItemCount("U", partIndex, stepIndex, frameIndex);
 	if (dataSize > 0)
 	{
 		displacements->resize(dataSize);
