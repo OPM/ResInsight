@@ -29,12 +29,6 @@ class odb_Odb;
 class odb_Frame;
 class odb_Instance;
 
-enum ResPos
-{
-	NODAL,
-	ELEMENT_NODAL,
-	INTEGRATION_POINT
-};
 
 //==================================================================================================
 //
