@@ -17,6 +17,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+// Get rid of warnings from compilation of ODB API
+#ifdef _MSC_VER
+#pragma warning(disable: 4482)
+#pragma warning(disable: 4584)
+#endif
+
 #include "RifOdbReader.h"
 
 #include "RigFemPartCollection.h"
@@ -27,6 +33,7 @@
 #include <map>
 #include <iostream>
 #include <limits>
+
 
 std::map<std::string, RigElementType> initFemTypeMap()
 {
