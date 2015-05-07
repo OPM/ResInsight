@@ -634,7 +634,6 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
     auto elementIdToIdxMap = elementIdToIdxMapIt->second;
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
-
     size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
 	if (dataSize > 0)
 	{
