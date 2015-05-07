@@ -49,13 +49,18 @@ std::map<std::string, RigElementType> initFemTypeMap()
 
 static std::map<std::string, RigElementType> odbElmTypeToRigElmTypeMap = initFemTypeMap();
 
-bool RifOdbReader::sm_odbAPIInitialized = false;
+size_t RifOdbReader::sm_instanceCount = 0;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RifOdbReader::RifOdbReader()
 {
+    if (++sm_instanceCount == 1)
+    {
+        odb_initializeAPI();
+    }
+
 	m_odb = NULL;
 }
 
@@ -65,30 +70,11 @@ RifOdbReader::RifOdbReader()
 RifOdbReader::~RifOdbReader()
 {
 	close();
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifOdbReader::initializeOdbAPI()
-{
-	if (!sm_odbAPIInitialized)
-	{
-		odb_initializeAPI();
-		sm_odbAPIInitialized = true;
-	}
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifOdbReader::finalizeOdbAPI()
-{
-	if (sm_odbAPIInitialized)
-	{
-		odb_finalizeAPI();
-		sm_odbAPIInitialized = false;
-	}
+    if (--sm_instanceCount == 0)
+    {
+        odb_finalizeAPI();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,11 +96,6 @@ bool RifOdbReader::openFile(const std::string& fileName, std::string* errorMessa
 {
 	close();
 	CVF_ASSERT(m_odb == NULL);
-
-	if (!sm_odbAPIInitialized)
-	{
-		initializeOdbAPI();
-	}
 
 	odb_String path = fileName.c_str();
 

@@ -75,15 +75,12 @@ private:
     std::vector<std::string>                                                            componentNames(ResPos position, const std::string& fieldName) const;
 	std::map<std::string, std::vector<std::string> >                                    fieldAndComponentNames(ResPos position);   
     std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> > >  resultsMetaData(odb_Odb* odb);
-
-    static void initializeOdbAPI();
-    static void finalizeOdbAPI();
-
+ 
 private:
     odb_Odb*                                                                m_odb;
 	std::map< ResPos, std::map<std::string, std::vector<std::string> > >    m_resultsMetaData;
     std::map< int, std::map<int, int> >                                     m_instanceToNodeIdToIdxMap;
     std::map< int, std::map<int, int> >                                     m_instanceToElementIdToIdxMap;
     
-	static bool sm_odbAPIInitialized;
+	static size_t sm_instanceCount;
 };
