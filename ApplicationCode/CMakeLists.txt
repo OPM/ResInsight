@@ -101,8 +101,6 @@ list( APPEND CPP_SOURCES
 
 add_subdirectory(WellPathImportSsihub)
 
-add_subdirectory(GeoMech/GeoMechDataModel)
-
 #
 # Odb api
 #
@@ -112,7 +110,9 @@ if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
 	add_subdirectory(GeoMech/OdbReader)
 	SET(RESINSIGHT_USE_ODB_API 1)
 endif()
- 
+
+add_subdirectory(GeoMech/GeoMechDataModel)
+
 #############################################################################
 # Qt specifics: Moc, ui, resources
 #############################################################################
