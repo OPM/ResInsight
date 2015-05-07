@@ -34,3 +34,41 @@ RigFemPartResults::~RigFemPartResults()
 {
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResults::initResultStages(const std::vector<std::string>& stageNames)
+{
+    m_femAnalysisStages.clear();
+    m_femAnalysisStages.resize(stageNames.size());
+    for (size_t sIdx = 0; sIdx < stageNames.size(); ++sIdx)
+    {
+        m_femAnalysisStages[sIdx].stageName = stageNames[sIdx];
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResults::createScalarResult(size_t stageIndex, 
+                                                                RigFemResultPosEnum resultPosType, 
+                                                                const std::string& fieldName, 
+                                                                const std::string& componentName, 
+                                                                const std::vector<double>& frameTimes)
+{
+    RigFemScalarResultFrames * resFrames = new RigFemScalarResultFrames(frameTimes);
+    m_femAnalysisStages[stageIndex].resultSets[resultPosType][fieldName][componentName] = resFrames;
+    return resFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResults::findScalarResult(size_t stageIndex, 
+                                                              RigFemResultPosEnum resultPosType, 
+                                                              const std::string& fieldName, 
+                                                              const std::string& componentName)
+{
+    return m_femAnalysisStages[stageIndex].resultSets[resultPosType][fieldName][componentName].p();
+}

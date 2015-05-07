@@ -20,3 +20,52 @@
 #pragma once
 
 #include "RigFemScalarResultFrames.h"
+#include "RigFemNativeStatCalc.h"
+#include "RigStatisticsDataCache.h"
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames::RigFemScalarResultFrames(const std::vector<double>& frameTimes)
+: m_frameTimes(frameTimes)
+{
+    m_dataForEachFrame.resize(m_frameTimes.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames::~RigFemScalarResultFrames()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigFemScalarResultFrames::frameCount()
+{
+    return m_frameTimes.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigStatisticsDataCache* RigFemScalarResultFrames::statistics()
+{
+    if (m_statistics.isNull()) 
+    {
+        RigFemNativeStatCalc* calculator = new RigFemNativeStatCalc(this);
+        m_statistics = new RigStatisticsDataCache(calculator);
+    }
+
+    return m_statistics.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<float>& RigFemScalarResultFrames::frameData(size_t frameIndex)
+{
+    return m_dataForEachFrame[frameIndex];
+}

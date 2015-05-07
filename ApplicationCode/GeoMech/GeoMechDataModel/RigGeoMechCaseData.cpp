@@ -31,6 +31,7 @@
 RigGeoMechCaseData::RigGeoMechCaseData(const std::string& fileName)
 {
     m_geoMechCaseFileName = fileName;
+    m_femParts = new RigFemPartCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,6 +79,7 @@ bool RigGeoMechCaseData::openAndReadFemParts()
             std::vector<std::string> stepNames = m_readerInterface->stepNames();
             for (int pIdx = 0; pIdx < m_femPartResults.size(); ++pIdx)
             {
+                m_femPartResults[pIdx] = new RigFemPartResults;
                 m_femPartResults[pIdx]->initResultStages(stepNames);
             }
             return true;
@@ -121,11 +123,12 @@ RigFemScalarResultFrames* RigGeoMechCaseData::findOrLoadScalarResult(size_t part
                                                                       const std::string& componentName)
 {
     CVF_ASSERT(partIndex < m_femParts->partCount());
+    CVF_ASSERT(m_readerInterface.notNull());
 
     RigFemScalarResultFrames* frames = m_femPartResults[partIndex]->findScalarResult(stepIndex, resultPosType, fieldName, componentName);
     if (frames) return frames;
 
-    std::vector<double > frameTimes = m_readerInterface->frameTimes(stepIndex);
+    std::vector<double > frameTimes = m_readerInterface->frameTimes((int)stepIndex);
     frames = m_femPartResults[partIndex]->createScalarResult( stepIndex, resultPosType, fieldName, componentName, frameTimes);
 
     for (size_t fIdx = 0; fIdx < frameTimes.size(); ++fIdx)
@@ -134,7 +137,7 @@ RigFemScalarResultFrames* RigGeoMechCaseData::findOrLoadScalarResult(size_t part
         switch (resultPosType)
         {
             case RIG_NODAL:
-                m_readerInterface->readScalarNodeField(fieldName, componentName, partIndex, stepIndex, fIdx, frameData);
+                m_readerInterface->readScalarNodeField(fieldName, componentName, (int)partIndex, (int)stepIndex, (int)fIdx, frameData);
             break;
             case RIG_ELEMENT_NODAL:
                 //m_readerInterface->readScalarElementNodeField(fieldName, componentName, partIndex, stepIndex, fIdx, frameData);
@@ -144,4 +147,15 @@ RigFemScalarResultFrames* RigGeoMechCaseData::findOrLoadScalarResult(size_t part
            break;
         }
     }
+
+    return frames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigGeoMechCaseData::stepNames()
+{
+    CVF_ASSERT(m_readerInterface.notNull());
+    return m_readerInterface->stepNames();
 }
