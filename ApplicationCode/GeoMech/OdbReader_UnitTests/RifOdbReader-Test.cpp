@@ -21,6 +21,8 @@
 #include "RifOdbReader.h"
 #include "RigGeoMechCaseData.h"
 
+#include "cvfDebugTimer.h"
+
 #include <vector>
 #include <string>
 
@@ -34,6 +36,9 @@ TEST(OdbReaderTest, BasicTests)
     cvf::ref<RifOdbReader> reader = new RifOdbReader;
     cvf::ref<RigGeoMechCaseData> femCase = new RigGeoMechCaseData;
     cvf::ref<RigFemPartCollection> femData = femCase->femParts();
+
+    cvf::DebugTimer timer("DebugTimer");
+    timer.reportTime();
 
 	reader->openFile(TEST_FILE);
     reader->readFemParts(femData.p());
@@ -63,8 +68,26 @@ TEST(OdbReaderTest, BasicTests)
 	EXPECT_EQ(5168, displacementValues.size());
 
 	std::vector<float> integrationPointS22;
+    timer.restart();
 	reader->readScalarIntegrationPointField("S", "S22", 0, 0, 1, &integrationPointS22);
-	EXPECT_EQ(34560, integrationPointS22.size());
+    timer.reportLapTime("Read S/S22");
+    timer.restart();
+	reader->readScalarIntegrationPointField("S", "S22", 0, 0, 1, &integrationPointS22);
+    timer.reportLapTime("Read S/S22 2nd time");
+    timer.restart();
+	reader->readScalarIntegrationPointField("S", "S22", 0, 0, 1, &integrationPointS22);
+    timer.reportLapTime("Read S/S22 3rd time");
+    EXPECT_EQ(34560, integrationPointS22.size());
+	EXPECT_FLOAT_EQ(-1921117.3, integrationPointS22[0]);
+	EXPECT_FLOAT_EQ(-1408592.5, integrationPointS22[1]);
+	EXPECT_FLOAT_EQ(-1345666.9, integrationPointS22[2]);
+
+   	std::vector<float> elementNodeS11;
+    reader->readScalarElementNodeField("S", "S11", 0, 0, 1, &elementNodeS11);
+	EXPECT_EQ(34560, elementNodeS11.size());
+	EXPECT_FLOAT_EQ(-2074357.3, elementNodeS11[0]);
+	EXPECT_FLOAT_EQ(-1353137.5, elementNodeS11[1]);
+	EXPECT_FLOAT_EQ(-1144559.4, elementNodeS11[2]);
 
 	std::vector<float> integrationPointE33;
 	reader->readScalarIntegrationPointField("E", "E33", 0, 0, 1, &integrationPointE33);
@@ -78,10 +101,24 @@ TEST(OdbReaderTest, BasicTests)
 	reader->readDisplacements(0, 0, 1, &displacements);
 	EXPECT_EQ(5168, displacements.size());
 	EXPECT_FLOAT_EQ(0.047638997, displacements[1].y());
+	EXPECT_FLOAT_EQ(-0.0036307564, displacements[6].x());
+	EXPECT_FLOAT_EQ(0.065709047, displacements[6].y());
+	EXPECT_FLOAT_EQ(-0.059760433, displacements[6].z());
 
 	std::vector<float> porValues;
 	reader->readScalarNodeField("POR", "", 0, 0, 1, &porValues);
 	EXPECT_EQ(5168, porValues.size());
+
+	std::vector<float> voidrValues;
+	reader->readScalarIntegrationPointField("VOIDR", "", 0, 0, 0, &voidrValues);
+	EXPECT_EQ(34560, voidrValues.size());
+	EXPECT_FLOAT_EQ(0.22864963, voidrValues[0]);
+	EXPECT_FLOAT_EQ(0.23406270, voidrValues[1]);
+	EXPECT_FLOAT_EQ(0.24549910, voidrValues[2]);
+
+    timer.restart();
+   	reader->readScalarIntegrationPointField("S", "S22", 0, 0, 1, &integrationPointS22);
+    timer.reportLapTime("Read S/S22 final time");
 }
 
 
