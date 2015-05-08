@@ -25,6 +25,7 @@
 #include "RigFemResultPosEnum.h"
 #include "cvfCollection.h"
 #include "RigFemPartResults.h"
+#include "RigFemResultAddress.h"
 
 class RifGeoMechReaderInterface;
 class RigFemPartCollection;
@@ -43,16 +44,26 @@ public:
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
     std::vector<std::string>             stepNames();
-    RigFemScalarResultFrames*            findOrLoadScalarResult(size_t partIndex, 
-                                                     size_t stepIndex,
-                                                     RigFemResultPosEnum resultPosType,
-                                                     const std::string& fieldName,
-                                                     const std::string& componentName);
+    RigFemScalarResultFrames*            findOrLoadScalarResult(int partIndex, 
+                                                     int stepIndex,
+                                                     const RigFemResultAddress& resVarAddr);
+
+    size_t  frameCount(int stepIndex, const RigFemResultAddress& resVarAddr);
+    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex,  double* localMin, double* localMax);
+    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
+    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int stepIndex, double* globalMin, double* globalMax);
+    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int stepIndex, double* globalPosClosestToZero, double* globalNegClosestToZero);
 
 private:
+    void minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, 
+                                    double* overallMin, double* overallMax);
+    void posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, 
+                                     double* localPosClosestToZero, double* localNegClosestToZero);
+
     std::string                          m_geoMechCaseFileName;
     cvf::ref<RigFemPartCollection>       m_femParts;
     cvf::Collection<RigFemPartResults>   m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>  m_readerInterface;
+    cvf::ref<RigStatisticsDataCache>     m_statistics;
 };
 
