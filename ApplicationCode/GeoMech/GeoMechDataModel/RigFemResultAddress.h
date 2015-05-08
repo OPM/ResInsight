@@ -18,43 +18,41 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cvfObject.h"
+
 #include "RigFemResultPosEnum.h"
 #include <string>
-#include <vector>
-#include <map>
-
-#include "RigFemScalarResultFrames.h"
-#include "RigFemResultAddress.h"
 
 //==================================================================================================
 /// 
 //==================================================================================================
 
-class RigFemPartResults : public cvf::Object
+class RigFemResultAddress
 {
 public:
-    RigFemPartResults();
-    ~RigFemPartResults();
+RigFemResultAddress(RigFemResultPosEnum resPosType,
+                    const std::string& aFieldName,
+                    const std::string& aComponentName) 
+                    : resultPosType(resPosType), fieldName(aFieldName), componentName(aComponentName) 
+                    {}
 
-    void initResultStages( const std::vector<std::string>& stageNames);
+    RigFemResultPosEnum resultPosType;
+    std::string fieldName;
+    std::string componentName;
 
-    RigFemScalarResultFrames* createScalarResult( size_t stageIndex, 
-                                                  const RigFemResultAddress& resVarAddr,
-                                                  const std::vector<double>& frameTimes);
-
-    RigFemScalarResultFrames* findScalarResult( size_t stageIndex, 
-                                                const RigFemResultAddress& resVarAddr);
-
-private:
-
-    struct RigAnalysisStage
+    bool operator< (const RigFemResultAddress& other ) const
     {
-        std::string stageName;
-        std::map<RigFemResultAddress, cvf::ref<RigFemScalarResultFrames> >  resultSets;
-    };
+        if (resultPosType != other.resultPosType)
+        {
+            return (resultPosType < other.resultPosType);
+        }
 
-    std::vector<RigAnalysisStage> m_femAnalysisStages;
- 
+        if (fieldName != other.fieldName)
+        {
+            return (fieldName <  other.fieldName);
+        }
+
+        return (componentName <  other.componentName);
+    }
 };
+
 

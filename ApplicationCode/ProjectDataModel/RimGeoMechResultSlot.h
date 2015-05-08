@@ -24,6 +24,7 @@
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 #include "RigFemResultPosEnum.h"
+#include "RigFemResultAddress.h"
 
 class RimLegendConfig;
 class RimGeoMechView;
@@ -43,7 +44,9 @@ public:
 
     void                       setReservoirView(RimGeoMechView* ownerReservoirView);
     RigGeoMechCaseData*        ownerCaseData();
-  
+
+    RigFemResultAddress        resultAddress()       { return RigFemResultAddress(resultPositionType(), resultFieldName().toStdString(), resultComponentName().toStdString());}
+
     RigFemResultPosEnum        resultPositionType()  { return m_resultPositionType();}
     QString                    resultFieldName()     { return m_resultFieldName();}
     QString                    resultComponentName() { return m_resultComponentName();}

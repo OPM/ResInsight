@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFemPartResults.h"
+#include "RigFemResultAddress.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -52,13 +53,11 @@ void RigFemPartResults::initResultStages(const std::vector<std::string>& stageNa
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResults::createScalarResult(size_t stageIndex, 
-                                                                RigFemResultPosEnum resultPosType, 
-                                                                const std::string& fieldName, 
-                                                                const std::string& componentName, 
+                                                                const RigFemResultAddress& resVarAddr, 
                                                                 const std::vector<double>& frameTimes)
 {
     RigFemScalarResultFrames * resFrames = new RigFemScalarResultFrames(frameTimes);
-    m_femAnalysisStages[stageIndex].resultSets[resultPosType][fieldName][componentName] = resFrames;
+    m_femAnalysisStages[stageIndex].resultSets[resVarAddr] = resFrames;
     return resFrames;
 }
 
@@ -66,9 +65,7 @@ RigFemScalarResultFrames* RigFemPartResults::createScalarResult(size_t stageInde
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResults::findScalarResult(size_t stageIndex, 
-                                                              RigFemResultPosEnum resultPosType, 
-                                                              const std::string& fieldName, 
-                                                              const std::string& componentName)
+                                                              const RigFemResultAddress& resVarAddr)
 {
-    return m_femAnalysisStages[stageIndex].resultSets[resultPosType][fieldName][componentName].p();
+    return m_femAnalysisStages[stageIndex].resultSets[resVarAddr].p();
 }

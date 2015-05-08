@@ -169,7 +169,10 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
         // Todo: Read results into cache ?
 
-        if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
+        if (m_reservoirView)
+        {
+            m_reservoirView->createDisplayModelAndRedraw();
+        }
        
     }
 }
