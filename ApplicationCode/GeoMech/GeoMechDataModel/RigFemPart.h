@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <stdlib.h>
+
 #include "RigFemTypes.h"
 #include "cvfObject.h"
 #include "cvfAssert.h"
