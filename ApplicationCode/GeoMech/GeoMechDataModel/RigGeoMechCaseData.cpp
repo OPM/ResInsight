@@ -192,7 +192,7 @@ void RigGeoMechCaseData::minMaxScalarValuesInternal(const RigFemResultAddress& r
     {
         if (m_femPartResults[pIdx].notNull())
         {
-            RigFemScalarResultFrames* frames = m_femPartResults[pIdx]->findScalarResult(stepIndex, resVarAddr);
+            RigFemScalarResultFrames* frames = findOrLoadScalarResult(pIdx, stepIndex, resVarAddr);
             if (frames)
             {
                 double lmin; 
@@ -248,7 +248,7 @@ void RigGeoMechCaseData::posNegClosestToZeroInternal(const RigFemResultAddress& 
     {
         if (m_femPartResults[pIdx].notNull())
         {
-            RigFemScalarResultFrames* frames = m_femPartResults[pIdx]->findScalarResult(stepIndex, resVarAddr);
+            RigFemScalarResultFrames* frames = findOrLoadScalarResult(pIdx, stepIndex, resVarAddr);
             if (frames)
             {
                 double partNeg, partPos;

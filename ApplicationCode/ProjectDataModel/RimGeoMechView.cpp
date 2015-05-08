@@ -239,6 +239,7 @@ void RimGeoMechView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateCurrentTimeStep()
 {
+    updateLegends();
     if ((this->animationMode() && cellResult()->resultFieldName() != ""))
     {
         m_geoMechVizModel->updateCellResultColor(m_currentTimeStep(), this->cellResult());
@@ -247,6 +248,9 @@ void RimGeoMechView::updateCurrentTimeStep()
     {
         this->updateStaticCellColors();
     }
+
+    overlayInfoConfig()->update3DInfo();
+
 }
 
 //--------------------------------------------------------------------------------------------------
