@@ -17,6 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
 #include "RigGeoMechCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RifGeoMechReaderInterface.h"
@@ -26,6 +27,7 @@
 #endif
 #include "RigFemScalarResultFrames.h"
 #include "RigStatisticsDataCache.h"
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 

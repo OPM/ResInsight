@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <stdlib.h>
 #include "RigFemScalarResultFrames.h"
 #include "RigFemNativeStatCalc.h"
 #include "RigStatisticsDataCache.h"
