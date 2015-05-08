@@ -29,6 +29,7 @@
 #include "RigFemPart.h"
 
 #include <odb_API.h>
+#include <odb_Enum.h>
 
 #include <map>
 #include <iostream>
@@ -242,16 +243,16 @@ std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> >
 
 					switch (fieldLocation.position())
 					{
-						case odb_Enum::odb_ResultPositionEnum::NODAL:
-                            resultsMap[ResPos::NODAL][fieldName] = compVec;
+						case odb_Enum::NODAL:
+                            resultsMap[NODAL][fieldName] = compVec;
 							break;
 
-						case odb_Enum::odb_ResultPositionEnum::ELEMENT_NODAL:
-                            resultsMap[ResPos::ELEMENT_NODAL][fieldName] = compVec;
+                        case odb_Enum::ELEMENT_NODAL:
+                            resultsMap[ELEMENT_NODAL][fieldName] = compVec;
 							break;
 
-						case odb_Enum::odb_ResultPositionEnum::INTEGRATION_POINT:
-                            resultsMap[ResPos::INTEGRATION_POINT][fieldName] = compVec;
+						case odb_Enum::INTEGRATION_POINT:
+                            resultsMap[INTEGRATION_POINT][fieldName] = compVec;
 							break;
 
 						default:
@@ -305,7 +306,7 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
         }
 
         // Keep node id to index map per instance
-        m_instanceToNodeIdToIdxMap[instanceCount] = nodeIdToIdxMap;
+        m_nodeIdToIdxMaps.push_back(nodeIdToIdxMap);
 
         // Extract elements
         const odb_SequenceElement& elements = inst.elements();
@@ -349,7 +350,7 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
         }
 
         // Keep element id to index map per instance
-        m_instanceToElementIdToIdxMap[instanceCount] = elementIdToIdxMap;
+        m_elementIdToIdxMaps.push_back(elementIdToIdxMap);
 
         femPart->setElementPartId(femParts->partCount());
         femParts->addFemPart(femPart);
@@ -410,7 +411,7 @@ std::vector<double> RifOdbReader::frameTimes(int stepIndex)
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RifOdbReader::scalarNodeFieldAndComponentNames()
 {
-    return fieldAndComponentNames(ResPos::NODAL);
+    return fieldAndComponentNames(NODAL);
 }
 
 
@@ -419,7 +420,7 @@ std::map<std::string, std::vector<std::string> > RifOdbReader::scalarNodeFieldAn
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RifOdbReader::scalarElementNodeFieldAndComponentNames()
 {
-    return fieldAndComponentNames(ResPos::ELEMENT_NODAL);
+    return fieldAndComponentNames(ELEMENT_NODAL);
 }
 
 
@@ -428,7 +429,7 @@ std::map<std::string, std::vector<std::string> > RifOdbReader::scalarElementNode
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RifOdbReader::scalarIntegrationPointFieldAndComponentNames()
 {
-    return fieldAndComponentNames(ResPos::INTEGRATION_POINT);
+    return fieldAndComponentNames(INTEGRATION_POINT);
 }
 
 
@@ -524,10 +525,10 @@ std::vector<std::string> RifOdbReader::componentNames(ResPos position, const std
 {
 	std::vector<std::string> compNames;
 
-  	auto posMapIt = m_resultsMetaData.find(position);
+    std::map< ResPos, std::map<std::string, std::vector<std::string> > >::const_iterator posMapIt = m_resultsMetaData.find(position);
 	if (posMapIt != m_resultsMetaData.end())
 	{
-        auto fieldNameMapIt = posMapIt->second.find(fieldName);
+        std::map<std::string, std::vector<std::string> >::const_iterator fieldNameMapIt = posMapIt->second.find(fieldName);
 	    if (fieldNameMapIt != posMapIt->second.end())
 	    {
             compNames = fieldNameMapIt->second;
@@ -562,17 +563,14 @@ void RifOdbReader::readScalarNodeField(const std::string& fieldName, const std::
     odb_Instance* partInstance = instance(partIndex);
     CVF_ASSERT(partInstance != NULL);
 
-    auto nodeIdToIdxMapIt = m_instanceToNodeIdToIdxMap.find(partIndex);
-    CVF_ASSERT(nodeIdToIdxMapIt != m_instanceToNodeIdToIdxMap.end());
-
-    auto nodeIdToIdxMap = nodeIdToIdxMapIt->second;
+    std::map<int, int>& nodeIdToIdxMap = m_nodeIdToIdxMaps[partIndex];
     size_t dataSize = nodeIdToIdxMap.size();
     CVF_ASSERT(dataSize > 0);
 
 	resultValues->resize(dataSize);
     resultValues->assign(dataSize, std::numeric_limits<float>::infinity());
 
-	int compIndex = componentIndex(ResPos::NODAL, fieldName, componentName);
+	int compIndex = componentIndex(NODAL, fieldName, componentName);
 	CVF_ASSERT(compIndex >= 0);
 
 	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
@@ -609,10 +607,7 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
     odb_Instance* partInstance = instance(partIndex);
     CVF_ASSERT(partInstance != NULL);
 
-    auto elementIdToIdxMapIt = m_instanceToElementIdToIdxMap.find(partIndex);
-    CVF_ASSERT(elementIdToIdxMapIt != m_instanceToElementIdToIdxMap.end());
-
-    auto elementIdToIdxMap = elementIdToIdxMapIt->second;
+    std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
     size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
@@ -622,7 +617,7 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
         resultValues->assign(dataSize, std::numeric_limits<float>::infinity());
 	}
 
-	int compIndex = componentIndex(ResPos::ELEMENT_NODAL, fieldName, componentName);
+	int compIndex = componentIndex(ELEMENT_NODAL, fieldName, componentName);
 	CVF_ASSERT(compIndex >= 0);
 
 	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
@@ -668,10 +663,7 @@ void RifOdbReader::readScalarIntegrationPointField(const std::string& fieldName,
     odb_Instance* partInstance = instance(partIndex);
     CVF_ASSERT(partInstance != NULL);
 
-    auto elementIdToIdxMapIt = m_instanceToElementIdToIdxMap.find(partIndex);
-    CVF_ASSERT(elementIdToIdxMapIt != m_instanceToElementIdToIdxMap.end());
-
-    auto elementIdToIdxMap = elementIdToIdxMapIt->second;
+    std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
    	size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
@@ -681,7 +673,7 @@ void RifOdbReader::readScalarIntegrationPointField(const std::string& fieldName,
         resultValues->assign(dataSize, std::numeric_limits<float>::infinity());
 	}
 
-	int compIndex = componentIndex(ResPos::INTEGRATION_POINT, fieldName, componentName);
+	int compIndex = componentIndex(INTEGRATION_POINT, fieldName, componentName);
 	CVF_ASSERT(compIndex >= 0);
 
 	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
