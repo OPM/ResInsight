@@ -36,6 +36,9 @@ class RimGeoMechCase;
 class RivGeoMechPartMgr;
 
 class RigFemPart;
+namespace cvf {
+    class Transform;
+}
 
 //==================================================================================================
 ///  
@@ -43,7 +46,7 @@ class RigFemPart;
 //==================================================================================================
 class RimGeoMechView : public RimView
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
     RimGeoMechView(void);
@@ -64,13 +67,10 @@ public:
     };
 
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
-    RimGeoMechCase*                                     geoMechCase(); 
+    RimGeoMechCase*                                     geoMechCase();
 
     void                                                loadDataAndUpdate();
-    virtual void                                        createDisplayModelAndRedraw();
 
-    virtual void                                        setCurrentTimeStep(int frameIdx){}
-    virtual void                                        updateCurrentTimeStepAndRedraw(){}
     virtual void                                        endAnimation() {}
 
     caf::PdmField<RimGeoMechResultSlot*>                cellResult;
@@ -79,13 +79,24 @@ public:
     caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
 
 private:
-   
-   virtual void                                         updateViewerWidgetWindowTitle();
-   virtual void                                         resetLegendsInViewer();
+    virtual void                                        createDisplayModel();
+    virtual void                                        updateDisplayModelVisibility();
+    void                                                updateScaleTransform();
 
-   void                                                 updateLegends();
-   caf::PdmPointer<RimGeoMechCase>                      m_geomechCase;
-   cvf::ref<RivGeoMechPartMgr>                          m_geoMechVizModel;
+    virtual void                                        clampCurrentTimestep();
+
+    virtual void                                        updateCurrentTimeStep();
+    virtual void                                        updateStaticCellColors();
+
+    virtual void                                        updateViewerWidgetWindowTitle();
+    virtual void                                        resetLegendsInViewer();
+
+    void                                                updateLegends();
+    bool isTimeStepDependentDataVisible();
+    caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
+    cvf::ref<RivGeoMechPartMgr>                         m_geoMechVizModel;
+    cvf::ref<cvf::Transform>                                m_scaleTransform;
+
 };
 
 #include "cvfArray.h"

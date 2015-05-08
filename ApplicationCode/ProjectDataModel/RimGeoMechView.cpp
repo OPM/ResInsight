@@ -41,6 +41,7 @@
 #include "RigGeoMechCaseData.h"
 #include "cvfqtUtils.h"
 #include "RigFemPartCollection.h"
+#include "cafFrameAnimationControl.h"
 
 namespace caf {
 
@@ -91,6 +92,10 @@ RimGeoMechView::RimGeoMechView(void)
     this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
     this->cellResult()->legendConfig()->setReservoirView(this);
+
+    m_scaleTransform = new cvf::Transform();
+    m_geoMechVizModel = new RivGeoMechPartMgr();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,65 +136,195 @@ void RimGeoMechView::loadDataAndUpdate()
     if (m_geomechCase)
     {
         m_geomechCase->openGeoMechCase();
-
+        m_geoMechVizModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
     }
+
     updateViewerWidget();
 
     createDisplayModelAndRedraw();
 
+    if (cameraPosition().isIdentity())
+    {
+        setDefaultView();
+    }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+/// Todo: Work in progress
+/// 
+//--------------------------------------------------------------------------------------------------
+
+void RimGeoMechView::updateScaleTransform()
+{
+    CVF_ASSERT(m_scaleTransform.notNull());
+
+    cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
+    scale(2, 2) = scaleZ();
+
+    m_scaleTransform->setLocalTransform(scale);
+
+    if (m_viewer) m_viewer->updateCachedValuesInScene();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create display model,
+/// or at least empty scenes as frames that is delivered to the viewer
+/// The real geometry generation is done inside RivReservoirViewGeometry and friends
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::createDisplayModel()
+{
+   if (m_viewer.isNull()) return;
+
+   if (!(m_geomechCase 
+          && m_geomechCase->geoMechData() 
+          && m_geomechCase->geoMechData()->femParts())) 
+        return;
+
+   int partCount = m_geomechCase->geoMechData()->femParts()->partCount();
+
+   if (partCount <= 0) return;
+
+   // Define a vector containing time step indices to produce geometry for.
+   // First entry in this vector is used to define the geometry only result mode with no results.
+   std::vector<size_t> timeStepIndices;
+
+   // The one and only geometry entry
+   timeStepIndices.push_back(0);
+
+   // Find the number of time frames the animation needs to show the requested data.
+
+   if (isTimeStepDependentDataVisible())
+   {
+       size_t i;
+       for (i = 0; i < geoMechCase()->geoMechData()->frameCount(0, cellResult()->resultAddress()); i++)
+       {
+           timeStepIndices.push_back(i);
+       }
+   }
+
+    cvf::Collection<cvf::ModelBasicList> frameModels;
+    size_t timeIdx;
+    for (timeIdx = 0; timeIdx < timeStepIndices.size(); timeIdx++)
+    {
+        frameModels.push_back(new cvf::ModelBasicList);
+    }
+
+    // Remove all existing animation frames from the viewer. 
+    // The parts are still cached in the RivReservoir geometry and friends
+
+    bool isAnimationActive = m_viewer->isAnimationActive();
+    m_viewer->removeAllFrames();
+
+    for (int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx)
+    {
+        cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechVizModel->cellVisibility(femPartIdx);
+        m_geoMechVizModel->setTransform(m_scaleTransform.p());
+        RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), m_geomechCase->geoMechData()->femParts()->part(femPartIdx));
+        m_geoMechVizModel->setCellVisibility(femPartIdx, elmVisibility.p());
+    }
+
+    size_t frameIdx;
+    for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
+    {
+        m_geoMechVizModel->appendGridPartsToModel(frameModels[frameIdx].p());
+    }
+
+    // Set static colors 
+    this->updateStaticCellColors();
+
+   // Create Scenes from the frameModels
+   // Animation frames for results display, starts from frame 1
+
+   size_t frameIndex;
+   for (frameIndex = 0; frameIndex < frameModels.size(); frameIndex++)
+   {
+       cvf::ModelBasicList* model = frameModels.at(frameIndex);
+       model->updateBoundingBoxesRecursive();
+
+       cvf::ref<cvf::Scene> scene = new cvf::Scene;
+       scene->addModel(model);
+
+       if (frameIndex == 0)
+           m_viewer->setMainScene(scene.p());
+       else
+           m_viewer->addFrame(scene.p());
+   }
+
+   // If the animation was active before recreating everything, make viewer view current frame
+
+   if (isAnimationActive || cellResult->resultFieldName() != "")
+   {
+       m_viewer->slotSetCurrentFrame(m_currentTimeStep);
+   }
+
+   updateLegends();
+   overlayInfoConfig()->update3DInfo();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::createDisplayModelAndRedraw()
+void RimGeoMechView::updateCurrentTimeStep()
 {
-    if (m_viewer && m_geomechCase)
+    if ((this->animationMode() && cellResult()->resultFieldName() != ""))
     {
-        int partCount = 0;
-        if (m_geomechCase->geoMechData() && m_geomechCase->geoMechData()->femParts())
-        {
-            partCount = m_geomechCase->geoMechData()->femParts()->partCount();
-        }
-
-        if (partCount >= 0)
-        {
-            cvf::ref<cvf::Transform>  scaleTransform = new cvf::Transform();
-            scaleTransform->setLocalTransform(cvf::Mat4d::IDENTITY);
-
-            cvf::ref<cvf::ModelBasicList> cvfModel =  new cvf::ModelBasicList;
-            m_geoMechVizModel = new RivGeoMechPartMgr();
-            m_geoMechVizModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
-
-            for (int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx)
-            {
-                cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechVizModel->cellVisibility(femPartIdx);
-                m_geoMechVizModel->setTransform(scaleTransform.p());
-                RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), m_geomechCase->geoMechData()->femParts()->part(femPartIdx));
-                m_geoMechVizModel->setCellVisibility(femPartIdx, elmVisibility.p());
-            }
-
-            m_geoMechVizModel->updateCellColor(cvf::Color4f(cvf::Color3f::ORANGE));
-            if (cellResult()->resultFieldName() != "")
-            {
-                m_geoMechVizModel->updateCellResultColor(m_currentTimeStep(), this->cellResult());
-            }
-            m_geoMechVizModel->appendGridPartsToModel(cvfModel.p());
-
-            cvf::ref<cvf::Scene> scene = new cvf::Scene;
-            scene->addModel(cvfModel.p());
-            scene->updateBoundingBoxesRecursive();
-
-            m_viewer->setMainScene(scene.p());
-            m_viewer->zoomAll();
-            m_viewer->update();
-
-            updateLegends();
-            overlayInfoConfig()->update3DInfo();
-        }
+        m_geoMechVizModel->updateCellResultColor(m_currentTimeStep(), this->cellResult());
     }
-    RiuMainWindow::instance()->refreshAnimationActions(); 
+    else
+    {
+        this->updateStaticCellColors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateStaticCellColors()
+{
+    m_geoMechVizModel->updateCellColor(cvf::Color4f(cvf::Color3f::ORANGE));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateDisplayModelVisibility()
+{
+    if (m_viewer.isNull()) return;
+
+    const cvf::uint uintSurfaceBit      = surfaceBit;
+    const cvf::uint uintMeshSurfaceBit  = meshSurfaceBit;
+    const cvf::uint uintFaultBit        = faultBit;
+    const cvf::uint uintMeshFaultBit    = meshFaultBit;
+ 
+    // Initialize the mask to show everything except the the bits controlled here
+    unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit ;
+
+    // Then turn the appropriate bits on according to the user settings
+
+    if (surfaceMode == SURFACE)
+    {
+         mask |= uintSurfaceBit;
+         mask |= uintFaultBit;
+    }
+    else if (surfaceMode == FAULTS)
+    {
+        mask |= uintFaultBit;
+    }
+
+    if (meshMode == FULL_MESH)
+    {
+        mask |= uintMeshSurfaceBit;
+        mask |= uintMeshFaultBit;
+    }
+    else if (meshMode == FAULTS_MESH)
+    {
+        mask |= uintMeshFaultBit;
+    }
+
+    m_viewer->setEnableMask(mask);
+    m_viewer->update();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,36 +367,33 @@ void RimGeoMechView::updateLegends()
 
     double localMin, localMax;
     double localPosClosestToZero, localNegClosestToZero;
-#if 0
+    double globalMin, globalMax;
+    double globalPosClosestToZero, globalNegClosestToZero;
 
-    RigCaseCellResultsData* results = gmCase->results(porosityModel);
-    CVF_ASSERT(results);
-
-    if (cellResult->hasDynamicResult())
+    RigFemResultAddress resVarAddress = cellResult->resultAddress();
+    if (resVarAddress.fieldName != "")
     {
-        cellResultsData->minMaxCellScalarValues(cellResult->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
-        cellResultsData->posNegClosestToZero(cellResult->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+        gmCase->minMaxScalarValues(resVarAddress, 0, m_currentTimeStep, &localMin, &localMax);
+        gmCase->posNegClosestToZero(resVarAddress, 0, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+
+        gmCase->minMaxScalarValues(resVarAddress, 0, &globalMin, &globalMax);
+        gmCase->posNegClosestToZero(resVarAddress, 0, &globalPosClosestToZero, &globalNegClosestToZero);
+
+
+        cellResult->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        cellResult->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+        m_viewer->addColorLegendToBottomLeftCorner(cellResult->legendConfig->legend());
+
+        cellResult->legendConfig->legend()->setTitle(cvfqt::Utils::toString(
+        caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n" 
+        + cellResult->resultFieldName() + " " + cellResult->resultComponentName() ));
     }
     else
     {
-        localMin = globalMin;
-        localMax = globalMax;
-
-        localPosClosestToZero = globalPosClosestToZero;
-        localNegClosestToZero = globalNegClosestToZero;
+        cellResult->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
+        cellResult->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
-
-    cellResult->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-    cellResult->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-#endif
-    caf::AppEnum<RigFemResultPosEnum> resPosType = cellResult->resultPositionType();
-    QString fieldName = cellResult->resultFieldName();
-    QString compName = cellResult->resultComponentName();
-
-    m_viewer->addColorLegendToBottomLeftCorner(cellResult->legendConfig->legend());
-
-    cellResult->legendConfig->legend()->setTitle(cvfqt::Utils::toString( resPosType.text() + "\n" + fieldName + " " + compName));
-
 
 
 }
@@ -273,6 +405,26 @@ RimGeoMechCase* RimGeoMechView::geoMechCase()
 {
     return m_geomechCase;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Clamp the current timestep to actual possibilities
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::clampCurrentTimestep()
+{
+    size_t maxFrameCount = m_geomechCase->geoMechData()->frameCount(0,  cellResult()->resultAddress());
+
+    if (m_currentTimeStep >= maxFrameCount ) m_currentTimeStep = (int)(maxFrameCount -1);
+    if (m_currentTimeStep < 0 ) m_currentTimeStep = 0; 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechView::isTimeStepDependentDataVisible()
+{
+    return (cellResult->resultFieldName() != "");
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

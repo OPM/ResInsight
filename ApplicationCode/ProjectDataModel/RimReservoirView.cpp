@@ -194,11 +194,10 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Clamp the current timestep to actual possibilities
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::clampCurrentTimestep()
 {
-    // Clamp the current timestep to actual possibilities
     if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults()) 
     {
         if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->cellResults()->maxTimeStepCount()))
@@ -210,40 +209,6 @@ void RimReservoirView::clampCurrentTimestep()
     if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::createDisplayModelAndRedraw()
-{
-    if (m_viewer)
-    {
-        m_viewer->animationControl()->slotStop();
-
-        this->clampCurrentTimestep();
-
-        createDisplayModel();
-        updateDisplayModelVisibility();
-
-        if (m_viewer->frameCount() > 0)
-        {
-            m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
-        }
-    }
-
-    RiuMainWindow::instance()->refreshAnimationActions(); 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setDefaultView()
-{
-    if (m_viewer)
-    {
-        m_viewer->setDefaultView();
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -853,24 +818,6 @@ void RimReservoirView::initAfterRead()
     this->updateUiIconFromToggleField();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setCurrentTimeStep(int frameIndex)
-{
-    m_currentTimeStep = frameIndex;
-    this->animationMode = true;
-    this->updateCurrentTimeStep();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::endAnimation()
-{
-    this->animationMode = false;
-    this->updateStaticCellColors();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -960,18 +907,6 @@ void RimReservoirView::updateDisplayModelVisibility()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setupBeforeSave()
-{
-    if (m_viewer)
-    {
-        animationMode = m_viewer->isAnimationActive();
-        cameraPosition = m_viewer->mainCamera()->viewMatrix();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimReservoirView::currentGridCellResults()
@@ -1028,15 +963,6 @@ void RimReservoirView::schedulePipeGeometryRegen()
     m_pipesPartManager->scheduleGeometryRegen();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateCurrentTimeStepAndRedraw()
-{
-    this->updateCurrentTimeStep();
-    
-    if (m_viewer) m_viewer->update();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

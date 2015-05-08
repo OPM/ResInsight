@@ -124,21 +124,7 @@ public:
 
     void                                    setEclipseCase(RimCase* reservoir);
     RimCase*                                eclipseCase();
-
-    // Animation overrides from RimView
-   
-    virtual void                            setCurrentTimeStep(int frameIdx);
-    virtual void                            updateCurrentTimeStepAndRedraw();
-    virtual void                            endAnimation();
-
  
-private:
-    
-    virtual void                            resetLegendsInViewer();
-
-
-    virtual void                            updateViewerWidgetWindowTitle();
-    void                                    setDefaultView();
 
 public:
     void                                    setMeshOnlyDrawstyle();
@@ -155,7 +141,6 @@ public:
 
     // Display model generation
 public:
-    virtual void                            createDisplayModelAndRedraw();
     void                                    loadDataAndUpdate();
     bool                                    isTimeStepDependentDataVisible() const;
 
@@ -168,15 +153,21 @@ public:
                                             visibleGridParts() const { return m_visibleGridParts;}
     cvf::cref<RivReservoirViewPartMgr>      reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
+private:
+    
+    virtual void                            resetLegendsInViewer();
+    virtual void                            updateViewerWidgetWindowTitle();
+
     // Display model generation
 private:
 
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();
-    void                                    updateCurrentTimeStep();
+    virtual void                            updateCurrentTimeStep();
+
     void                                    indicesToVisibleGrids(std::vector<size_t>* gridIndices);
     void                                    updateScaleTransform();
-    void                                    updateStaticCellColors();
+    virtual void                            updateStaticCellColors();
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
     void                                    updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData);
@@ -193,7 +184,6 @@ public:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 protected:
     virtual void                            initAfterRead();
-    virtual void                            setupBeforeSave();
     virtual void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     // Really private

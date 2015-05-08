@@ -43,38 +43,54 @@ public:
     virtual ~RimView(void);
 
     // 3D Viewer
-    RiuViewer*                          viewer();
+    RiuViewer*                              viewer();
 
-    caf::PdmField<QString>              name;
-    caf::PdmField<double>               scaleZ;
+    caf::PdmField<QString>                  name;
+    caf::PdmField<double>                   scaleZ;
 
-    caf::PdmField<bool>                 showWindow;
-    caf::PdmField<cvf::Mat4d>           cameraPosition;
-    caf::PdmField< cvf::Color3f >       backgroundColor;
+    caf::PdmField<bool>                     showWindow;
+    caf::PdmField<cvf::Mat4d>               cameraPosition;
+    caf::PdmField< cvf::Color3f >           backgroundColor;
 
-    caf::PdmField<int>                  maximumFrameRate;
-    caf::PdmField<bool>                 animationMode;
+    caf::PdmField<int>                      maximumFrameRate;
+    caf::PdmField<bool>                     animationMode;
 
     // Animation
-    int                                 currentTimeStep()    { return m_currentTimeStep;}
-    virtual void                        setCurrentTimeStep(int frameIdx) = 0;
-    virtual void                        updateCurrentTimeStepAndRedraw() = 0;
-    virtual void                        endAnimation() = 0;
+    int                                     currentTimeStep()    { return m_currentTimeStep;}
+    void                                    setCurrentTimeStep(int frameIdx);
+    void                                    updateCurrentTimeStepAndRedraw();
+    void                                    endAnimation();
 
-    void                                scheduleCreateDisplayModelAndRedraw();
-    virtual void                        createDisplayModelAndRedraw() = 0;
+    void                                    scheduleCreateDisplayModelAndRedraw();
+    void                                    createDisplayModelAndRedraw();
 
 public:
-    virtual caf::PdmFieldHandle*        objectToggleField()     { return &showWindow; }
-    virtual caf::PdmFieldHandle*        userDescriptionField()  { return &name; }
+    virtual caf::PdmFieldHandle*            objectToggleField()     { return &showWindow; }
+    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
 protected:
-    //void                                updateViewerWidget();
-    virtual void                        resetLegendsInViewer() = 0;
-    void                                updateViewerWidget();
-    virtual void                        updateViewerWidgetWindowTitle() = 0;
+
+    void                                    setDefaultView();
+
+    virtual void                            createDisplayModel() = 0;
+    virtual void                            updateDisplayModelVisibility() = 0;
+    virtual void                            clampCurrentTimestep() = 0;
+
+    virtual void                            updateCurrentTimeStep() = 0;
+    virtual void                            updateStaticCellColors() = 0;
+ 
+    void                                    updateViewerWidget();
+    virtual void                            updateViewerWidgetWindowTitle() = 0;
+
+    virtual void                            resetLegendsInViewer() = 0;
+ 
     QPointer<RiuViewer>                     m_viewer;
+
     caf::PdmField<int>                      m_currentTimeStep;
-    caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
+    caf::PdmField<Rim3dOverlayInfoConfig*>  overlayInfoConfig;
+
+    // Overridden PDM methods:
+    virtual void                            setupBeforeSave();
+
 
 };
 

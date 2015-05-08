@@ -10,6 +10,7 @@
 #include "cafCadNavigation.h"
 #include "cvfCamera.h"
 #include "cvfViewport.h"
+#include "cafFrameAnimationControl.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT(RimView, "GenericView"); // Do not use. Abstract class 
 
@@ -143,6 +144,82 @@ void RimView::scheduleCreateDisplayModelAndRedraw()
     RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setCurrentTimeStep(int frameIndex)
+{
+    m_currentTimeStep = frameIndex;
+    this->animationMode = true;
+    this->updateCurrentTimeStep();
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateCurrentTimeStepAndRedraw()
+{
+    this->updateCurrentTimeStep();
+    
+    if (m_viewer) m_viewer->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::createDisplayModelAndRedraw()
+{
+    if (m_viewer)
+    {
+        m_viewer->animationControl()->slotStop();
+
+        this->clampCurrentTimestep();
+
+        createDisplayModel();
+        updateDisplayModelVisibility();
+
+        if (m_viewer->frameCount() > 0)
+        {
+            m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
+        }
+    }
+
+    RiuMainWindow::instance()->refreshAnimationActions(); 
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setDefaultView()
+{
+    if (m_viewer)
+    {
+        m_viewer->setDefaultView();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::endAnimation()
+{
+    this->animationMode = false;
+    this->updateStaticCellColors();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setupBeforeSave()
+{
+    if (m_viewer)
+    {
+        animationMode = m_viewer->isAnimationActive();
+        cameraPosition = m_viewer->mainCamera()->viewMatrix();
+    }
+}
 
 
 
