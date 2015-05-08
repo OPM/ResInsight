@@ -17,6 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
 #include "RivGeoMechPartMgr.h"
 #include "cvfPart.h"
 #include "cvfModelBasicList.h"
