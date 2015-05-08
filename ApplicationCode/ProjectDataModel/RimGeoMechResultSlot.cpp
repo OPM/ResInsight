@@ -202,12 +202,14 @@ void RimGeoMechResultSlot::getUiAndResultVariableStringList(QStringList* uiNames
 {
     CVF_ASSERT(uiNames && variableNames);
 
-    for (auto fieldIt = fieldCompNames.begin(); fieldIt != fieldCompNames.end(); ++fieldIt)
+    std::map<std::string, std::vector<std::string> >::const_iterator fieldIt;
+    for (fieldIt = fieldCompNames.begin(); fieldIt != fieldCompNames.end(); ++fieldIt)
     {
         uiNames->push_back(QString::fromStdString(fieldIt->first));
         variableNames->push_back(QString::fromStdString(fieldIt->first));
 
-        for (auto compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
+        std::vector<std::string>::const_iterator compIt;
+        for (compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
         {
             uiNames->push_back(QString::fromStdString("   " +  *compIt));
             variableNames->push_back(composeUiVarString(QString::fromStdString(fieldIt->first), QString::fromStdString(*compIt)));
