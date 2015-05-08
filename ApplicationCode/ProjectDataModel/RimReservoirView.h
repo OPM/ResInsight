@@ -82,20 +82,6 @@ public:
     RimReservoirView(void);
     virtual ~RimReservoirView(void);
 
-    enum MeshModeType
-    {
-        FULL_MESH,
-        FAULTS_MESH,
-        NO_MESH
-    };
-
-    enum SurfaceModeType
-    {
-        SURFACE,
-        FAULTS,
-        NO_SURFACE
-    };
-
     // Fields containing child objects :
 
     caf::PdmField<RimResultSlot*>                       cellResult;
@@ -113,8 +99,6 @@ public:
     caf::PdmField<bool>                                 showInactiveCells;
     caf::PdmField<bool>                                 showMainGrid;
 
-    caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
-    caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
 
     // Access internal objects
     RimReservoirCellResultsStorage*         currentGridCellResults();
@@ -127,14 +111,7 @@ public:
  
 
 public:
-    void                                    setMeshOnlyDrawstyle();
-    void                                    setMeshSurfDrawstyle();
-    void                                    setSurfOnlyDrawstyle();
-    void                                    setFaultMeshSurfDrawstyle();
-    void                                    setSurfaceDrawstyle();
-
-    void                                    setShowFaultsOnly(bool showFaults);
-    bool                                    isGridVisualizationMode() const;
+  
 
     // Does this belong here, really ?
     void                                    calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
@@ -194,7 +171,6 @@ private:
 private:
     caf::PdmPointer<RimCase>                m_reservoir;
 
-    bool                                    m_previousGridModeMeshLinesWasFaults;
 
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> m_visibleGridParts;
 };

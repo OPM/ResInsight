@@ -152,9 +152,10 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
 
     if (currCaseId < 0)
     {
-        if (RiaApplication::instance()->activeReservoirView())
+        RimReservoirView* riv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+        if (riv)
         {
-            return RiaApplication::instance()->activeReservoirView()->eclipseCase();
+            return riv->eclipseCase();
         }
     }
     else

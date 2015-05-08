@@ -23,6 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafAppEnum.h"
 
 class RiuViewer;
 class Rim3dOverlayInfoConfig;
@@ -54,6 +55,34 @@ public:
 
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     animationMode;
+
+    // Draw style 
+
+    enum MeshModeType
+    {
+        FULL_MESH,
+        FAULTS_MESH,
+        NO_MESH
+    };
+
+    enum SurfaceModeType
+    {
+        SURFACE,
+        FAULTS,
+        NO_SURFACE
+    };
+
+    caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
+    caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
+
+    void                                    setMeshOnlyDrawstyle();
+    void                                    setMeshSurfDrawstyle();
+    void                                    setSurfOnlyDrawstyle();
+    void                                    setFaultMeshSurfDrawstyle();
+    void                                    setSurfaceDrawstyle();
+   
+    void                                    setShowFaultsOnly(bool showFaults);
+    bool                                    isGridVisualizationMode() const;
 
     // Animation
     int                                     currentTimeStep()    { return m_currentTimeStep;}
@@ -91,6 +120,10 @@ protected:
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
 
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+private:
+    bool                                    m_previousGridModeMeshLinesWasFaults;
 
 };
 

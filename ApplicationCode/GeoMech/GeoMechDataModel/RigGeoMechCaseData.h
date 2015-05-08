@@ -44,11 +44,14 @@ public:
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
     std::vector<std::string>             stepNames();
+    void                                 assertResultsLoaded(int stepIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*            findOrLoadScalarResult(int partIndex, 
                                                      int stepIndex,
                                                      const RigFemResultAddress& resVarAddr);
 
     size_t  frameCount(int stepIndex, const RigFemResultAddress& resVarAddr);
+    std::vector<double> frameTimes(int stepIndex, const RigFemResultAddress& resVarAddr);
+
     void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex,  double* localMin, double* localMax);
     void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
     void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int stepIndex, double* globalMin, double* globalMax);

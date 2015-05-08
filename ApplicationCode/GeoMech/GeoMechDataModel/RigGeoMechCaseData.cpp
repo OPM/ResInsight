@@ -296,3 +296,17 @@ size_t RigGeoMechCaseData::frameCount(int stepIndex, const RigFemResultAddress& 
     return maxFrameCount;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigGeoMechCaseData::assertResultsLoaded(int stepIndex, const RigFemResultAddress& resVarAddr)
+{
+    for (int pIdx = 0; pIdx < m_femPartResults.size(); ++pIdx)
+    {
+        if (m_femPartResults[pIdx].notNull())
+        {
+            findOrLoadScalarResult(pIdx, stepIndex, resVarAddr);
+        }
+    }
+}
+

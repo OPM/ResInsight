@@ -12,6 +12,32 @@
 #include "cvfViewport.h"
 #include "cafFrameAnimationControl.h"
 
+
+namespace caf {
+
+template<>
+void caf::AppEnum< RimView::MeshModeType >::setUp()
+{
+    addItem(RimView::FULL_MESH,      "FULL_MESH",       "All");
+    addItem(RimView::FAULTS_MESH,    "FAULTS_MESH",      "Faults only");
+    addItem(RimView::NO_MESH,        "NO_MESH",        "None");
+    setDefault(RimView::FULL_MESH);
+}
+
+template<>
+void caf::AppEnum< RimView::SurfaceModeType >::setUp()
+{
+    addItem(RimView::SURFACE,              "SURFACE",             "All");
+    addItem(RimView::FAULTS,               "FAULTS",              "Faults only");
+    addItem(RimView::NO_SURFACE,           "NO_SURFACE",          "None");
+    setDefault(RimView::SURFACE);
+}
+
+} // End namespace caf
+
+
+
+
 CAF_PDM_ABSTRACT_SOURCE_INIT(RimView, "GenericView"); // Do not use. Abstract class 
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +75,12 @@ RimView::RimView(void)
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
     overlayInfoConfig->setReservoirView(this);
 
+    caf::AppEnum<RimView::MeshModeType> defaultMeshType = NO_MESH;
+    if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
+    CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
+    CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
+    m_previousGridModeMeshLinesWasFaults = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,6 +249,166 @@ void RimView::setupBeforeSave()
     {
         animationMode = m_viewer->isAnimationActive();
         cameraPosition = m_viewer->mainCamera()->viewMatrix();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+// Surf: No Fault Surf
+//  Mesh -------------
+//    No F  F     G
+// Fault F  F     G
+//  Mesh G  G     G
+//
+//--------------------------------------------------------------------------------------------------
+bool RimView::isGridVisualizationMode() const
+{
+    return (   this->surfaceMode() == SURFACE 
+            || this->meshMode()    == FULL_MESH);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setMeshOnlyDrawstyle()
+{
+    if (isGridVisualizationMode())
+    {
+        meshMode.setValueFromUi(FULL_MESH);
+    }
+    else
+    {
+        meshMode.setValueFromUi(FAULTS_MESH);
+    }
+
+    surfaceMode.setValueFromUi(NO_SURFACE);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setMeshSurfDrawstyle()
+{
+    if (isGridVisualizationMode())
+    {
+        surfaceMode.setValueFromUi(SURFACE);
+        meshMode.setValueFromUi(FULL_MESH);
+    }
+    else
+    {
+        surfaceMode.setValueFromUi(FAULTS);
+        meshMode.setValueFromUi(FAULTS_MESH);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setFaultMeshSurfDrawstyle()
+{
+    // Surf: No Fault Surf
+    //  Mesh -------------
+    //    No FF  FF    SF
+    // Fault FF  FF    SF
+    //  Mesh SF  SF    SF
+    if (this->isGridVisualizationMode())
+    {
+         surfaceMode.setValueFromUi(SURFACE);
+    }
+    else
+    {
+         surfaceMode.setValueFromUi(FAULTS);
+    }
+
+    meshMode.setValueFromUi(FAULTS_MESH);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setSurfOnlyDrawstyle()
+{
+    if (isGridVisualizationMode())
+    {
+        surfaceMode.setValueFromUi(SURFACE);
+    }
+    else
+    {
+        surfaceMode.setValueFromUi(FAULTS);
+    }
+    meshMode.setValueFromUi(NO_MESH);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setShowFaultsOnly(bool showFaults)
+{
+    if (showFaults)
+    {
+        m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(FAULTS);
+        if (meshMode() != NO_MESH) meshMode.setValueFromUi(FAULTS_MESH);
+    }
+    else
+    {
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
+        if (meshMode() != NO_MESH) meshMode.setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH: FULL_MESH);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setSurfaceDrawstyle()
+{
+    if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &meshMode)
+    {
+        createDisplayModel();
+        updateDisplayModelVisibility();
+        RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
+    else if (changedField == &surfaceMode)
+    {
+        createDisplayModel();
+        updateDisplayModelVisibility();
+        RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
+    else if (changedField == &name)
+    {
+        updateViewerWidgetWindowTitle();
+    }
+    else if (changedField == &m_currentTimeStep)
+    {
+        if (m_viewer)
+        {
+            m_viewer->update();
+        }
+    }
+    else if (changedField == &backgroundColor)
+    {
+        if (viewer() != NULL)
+        {
+            updateViewerWidget();
+        }
+    }
+    else if (changedField == &maximumFrameRate)
+    {
+        // !! Use cvf::UNDEFINED_INT or something if we end up with frame rate 0?
+        // !! Should be able to specify legal range for number properties
+        if (m_viewer)
+        {
+            m_viewer->animationControl()->setTimeout(maximumFrameRate != 0 ? 1000/maximumFrameRate : INT_MAX);
+        }
     }
 }
 

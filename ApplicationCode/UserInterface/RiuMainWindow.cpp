@@ -37,7 +37,11 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
+
 #include "RimResultSlot.h"
+#include "RimGeoMechResultSlot.h"
 #include "RimTools.h"
 #include "RimUiTreeModelPdm.h"
 #include "RimUiTreeView.h"
@@ -50,6 +54,8 @@
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
 
+#include "RigGeoMechCaseData.h"
+
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -58,6 +64,7 @@
 
 #include "cvfTimer.h"
 #include "RimGeoMechModels.h"
+#include "RimGeoMechView.h"
 
 
 //==================================================================================================
@@ -708,45 +715,67 @@ void RiuMainWindow::refreshAnimationActions()
     RiaApplication* app = RiaApplication::instance();
 
     bool enableAnimControls = false;
-    if (app->activeReservoirView() && 
-        app->activeReservoirView()->viewer() &&
-        app->activeReservoirView()->viewer()->frameCount())
+    RimView * activeView = app->activeReservoirView();
+    if (activeView && 
+        activeView->viewer() &&
+        activeView->viewer()->frameCount())
     {
         enableAnimControls = true;
+        RimReservoirView * activeRiv = dynamic_cast<RimReservoirView*>(activeView);
 
-        if (app->activeReservoirView()->currentGridCellResults())
+        if (activeRiv)
         {
-            if (app->activeReservoirView()->isTimeStepDependentDataVisible())
+            if (activeRiv->currentGridCellResults())
             {
-                std::vector<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->cellResults()->timeStepDates(0);
-                bool showHoursAndMinutes = false;
-                for (size_t i = 0; i < timeStepDates.size(); i++)
+                if (activeRiv->isTimeStepDependentDataVisible())
                 {
-                    if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+                    std::vector<QDateTime> timeStepDates = activeRiv->currentGridCellResults()->cellResults()->timeStepDates(0);
+                    bool showHoursAndMinutes = false;
+                    for (size_t i = 0; i < timeStepDates.size(); i++)
                     {
-                        showHoursAndMinutes = true;
+                        if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+                        {
+                            showHoursAndMinutes = true;
+                        }
+                    }
+
+                    QString formatString = "dd.MMM yyyy";
+                    if (showHoursAndMinutes)
+                    {
+                        formatString += " - hh:mm";
+                    }
+
+                    for (size_t i = 0; i < timeStepDates.size(); i++)
+                    {
+                        timeStepStrings += timeStepDates[i].toString(formatString);
+                    }
+                    currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
+                }
+                else
+                {
+                    timeStepStrings.push_back(tr("Static Property"));
+                }
+            }
+        }
+        else
+        {
+            RimGeoMechView * activeGmv = dynamic_cast<RimGeoMechView*>(activeView);
+            if (activeGmv)
+            {
+                if (activeGmv->isTimeStepDependentDataVisible())
+                {
+                    RigFemResultAddress resAddr = activeGmv->cellResult()->resultAddress();
+                    size_t frameCount = activeGmv->geoMechCase()->geoMechData()->frameCount(0, resAddr);
+                    for (size_t i = 0; i < frameCount; i++)
+                    {
+                        timeStepStrings += QString::number(i);
                     }
                 }
-
-                QString formatString = "dd.MMM yyyy";
-                if (showHoursAndMinutes)
-                {
-                    formatString += " - hh:mm";
-                }
-
-                for (size_t i = 0; i < timeStepDates.size(); i++)
-                {
-                    timeStepStrings += timeStepDates[i].toString(formatString);
-                }
-                currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
-            }
-            else
-            {
-                timeStepStrings.push_back(tr("Static Property"));
             }
         }
 
         // Animation control is only relevant for more than one time step
+
         if (timeStepStrings.size() < 2)
         {
             enableAnimControls = false;
@@ -1321,7 +1350,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                     riv->viewer()->layoutWidget() &&
                     riv->viewer()->layoutWidget()->parent() == subWindow)
                 {
-                    RimReservoirView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
+                    RimView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
                     RiaApplication::instance()->setActiveReservoirView(riv);
                     if (previousActiveReservoirView && previousActiveReservoirView != riv)
                     {
@@ -1475,7 +1504,7 @@ void RiuMainWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-    RimReservoirView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
+    RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
     QModelIndex activeViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(activeReservoirView);
 
     QModelIndex tmp = current;
@@ -1486,7 +1515,7 @@ void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModel
         caf::PdmUiTreeItem* treeItem = m_treeModelPdm->getTreeItemFromIndex(tmp);
         caf::PdmObject* pdmObject = treeItem->dataObject();
 
-        RimReservoirView* rimReservoirView = dynamic_cast<RimReservoirView*>(pdmObject);
+        RimView* rimReservoirView = dynamic_cast<RimView*>(pdmObject);
         if (rimReservoirView)
         {
             // If current selection is an item within a different reservoir view than active, 
@@ -1694,9 +1723,10 @@ void RiuMainWindow::slotToggleFaultsAction(bool showFaults)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 {
-    if (!RiaApplication::instance()->activeReservoirView()) return;
+    RimReservoirView* activeRiv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+    if (!activeRiv) return;
 
-    RiaApplication::instance()->activeReservoirView()->faultCollection->showFaultLabel.setValueFromUi(showLabels);
+    activeRiv->faultCollection->showFaultLabel.setValueFromUi(showLabels);
 
     refreshDrawStyleActions();
 }
@@ -1713,6 +1743,10 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleSurfOnlyAction->setEnabled(enable);
     m_drawStyleFaultLinesSolidAction->setEnabled(enable);
 
+    RimReservoirView* riv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+    
+    enable = enable && riv;
+
     m_drawStyleToggleFaultsAction->setEnabled(enable);
     m_toggleFaultsLabelAction->setEnabled(enable);
 
@@ -1720,7 +1754,7 @@ void RiuMainWindow::refreshDrawStyleActions()
 
     if (enable) 
     {
-        RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
+       
         m_drawStyleToggleFaultsAction->blockSignals(true);
         m_drawStyleToggleFaultsAction->setChecked(   !riv->isGridVisualizationMode());
         m_drawStyleToggleFaultsAction->blockSignals(false);
@@ -2009,7 +2043,7 @@ void RiuMainWindow::setDefaultWindowSize()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 {
-    RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
+    RimReservoirView* riv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
     if (riv)
     {
         caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> rangeAddType;

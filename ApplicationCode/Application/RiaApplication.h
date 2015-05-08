@@ -73,9 +73,9 @@ public:
 
     void                    executeRegressionTests(const QString& regressionTestPath);
 
-    void                    setActiveReservoirView(RimReservoirView*);
-    RimReservoirView*       activeReservoirView();
-    const RimReservoirView* activeReservoirView() const;
+    void                    setActiveReservoirView(RimView*);
+    RimView*                activeReservoirView();
+    const RimView*          activeReservoirView() const;
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
@@ -172,7 +172,7 @@ private slots:
     void                slotUpdateScheduledDisplayModels();
 
 private:
-    caf::PdmPointer<RimReservoirView>   m_activeReservoirView;
+    caf::PdmPointer<RimView>            m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
 
     std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;

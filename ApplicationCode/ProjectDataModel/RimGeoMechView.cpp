@@ -43,29 +43,6 @@
 #include "RigFemPartCollection.h"
 #include "cafFrameAnimationControl.h"
 
-namespace caf {
-
-template<>
-void caf::AppEnum< RimGeoMechView::MeshModeType >::setUp()
-{
-    addItem(RimGeoMechView::FULL_MESH,      "FULL_MESH",       "All");
-    addItem(RimGeoMechView::FAULTS_MESH,    "FAULTS_MESH",      "Faults only");
-    addItem(RimGeoMechView::NO_MESH,        "NO_MESH",        "None");
-    setDefault(RimGeoMechView::FULL_MESH);
-}
-
-template<>
-void caf::AppEnum< RimGeoMechView::SurfaceModeType >::setUp()
-{
-    addItem(RimGeoMechView::SURFACE,              "SURFACE",             "All");
-    addItem(RimGeoMechView::FAULTS,               "FAULTS",              "Faults only");
-    addItem(RimGeoMechView::NO_SURFACE,           "NO_SURFACE",          "None");
-    setDefault(RimGeoMechView::SURFACE);
-}
-
-} // End namespace caf
-
-
 
 
 
@@ -83,11 +60,6 @@ RimGeoMechView::RimGeoMechView(void)
 
     CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
     cellResult = new RimGeoMechResultSlot();
- 
-    caf::AppEnum<RimGeoMechView::MeshModeType> defaultMeshType = NO_MESH;
-    if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
-    CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
-    CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
     this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));

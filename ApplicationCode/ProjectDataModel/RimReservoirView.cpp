@@ -62,29 +62,6 @@
 
 #include <limits.h>
 
-namespace caf {
-
-template<>
-void caf::AppEnum< RimReservoirView::MeshModeType >::setUp()
-{
-    addItem(RimReservoirView::FULL_MESH,      "FULL_MESH",       "All");
-    addItem(RimReservoirView::FAULTS_MESH,    "FAULTS_MESH",      "Faults only");
-    addItem(RimReservoirView::NO_MESH,        "NO_MESH",        "None");
-    setDefault(RimReservoirView::FULL_MESH);
-}
-
-template<>
-void caf::AppEnum< RimReservoirView::SurfaceModeType >::setUp()
-{
-    addItem(RimReservoirView::SURFACE,              "SURFACE",             "All");
-    addItem(RimReservoirView::FAULTS,               "FAULTS",              "Faults only");
-    addItem(RimReservoirView::NO_SURFACE,           "NO_SURFACE",          "None");
-    setDefault(RimReservoirView::SURFACE);
-}
-
-} // End namespace caf
-
-
 
 
 
@@ -124,11 +101,6 @@ RimReservoirView::RimReservoirView()
     propertyFilterCollection = new RimCellPropertyFilterCollection();
     propertyFilterCollection->setReservoirView(this);
 
-    caf::AppEnum<RimReservoirView::MeshModeType> defaultMeshType = NO_MESH;
-    if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
-    CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
-    CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
-
     // Visualization fields
     CAF_PDM_InitField(&showMainGrid,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
@@ -149,7 +121,6 @@ RimReservoirView::RimReservoirView()
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
     m_reservoir = NULL;
 
-    m_previousGridModeMeshLinesWasFaults = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,13 +186,15 @@ void RimReservoirView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &scaleZ )
+    RimView::fieldChangedByUi(changedField, oldValue, newValue);
+
+    if (changedField == &scaleZ)
     {
         if (scaleZ < 1) scaleZ = 1;
 
         // Regenerate well paths
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
-		RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
+        RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
         if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
 
         if (m_viewer)
@@ -232,8 +205,8 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
             dir = m_viewer->mainCamera()->direction();
             up  = m_viewer->mainCamera()->up();
 
-            eye[2] = poi[2]*scaleZ()/m_reservoirGridPartManager->scaleTransform()->worldTransform()(2,2) + (eye[2] - poi[2]);
-            poi[2] = poi[2]*scaleZ()/m_reservoirGridPartManager->scaleTransform()->worldTransform()(2,2);
+            eye[2] = poi[2]*scaleZ()/m_reservoirGridPartManager->scaleTransform()->worldTransform()(2, 2) + (eye[2] - poi[2]);
+            poi[2] = poi[2]*scaleZ()/m_reservoirGridPartManager->scaleTransform()->worldTransform()(2, 2);
 
             m_viewer->mainCamera()->setFromLookAt(eye, eye + dir, up);
             m_viewer->setPointOfInterest(poi);
@@ -245,16 +218,7 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 
         RiuMainWindow::instance()->updateScaleValue();
     }
-    else if (changedField == &maximumFrameRate)
-    {
-        // !! Use cvf::UNDEFINED_INT or something if we end up with frame rate 0?
-        // !! Should be able to specify legal range for number properties
-        if (m_viewer)
-        {
-            m_viewer->animationControl()->setTimeout(maximumFrameRate != 0 ? 1000/maximumFrameRate : INT_MAX);
-        }
-    }
-    else if (changedField == &showWindow ) 
+    else if (changedField == &showWindow)
     {
         if (showWindow)
         {
@@ -277,67 +241,40 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 
         this->updateUiIconFromToggleField();
     }
-    else if (changedField == &backgroundColor ) 
-    {
-        if (viewer() != NULL)
-        {
-            updateViewerWidget();
-        }
-    }
-    else if (changedField == &m_currentTimeStep)
-    {
-        if (m_viewer)
-        {
-            m_viewer->update();
-        }
-    }
-    else if (changedField == &showInvalidCells )
+
+    else if (changedField == &showInvalidCells)
     {
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::INACTIVE);
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
         createDisplayModelAndRedraw();
-    } 
-    else if ( changedField == &showInactiveCells )
+    }
+    else if (changedField == &showInactiveCells)
     {
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::INACTIVE);
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
         createDisplayModelAndRedraw();
-    } 
-    else if ( changedField == &showMainGrid )
+    }
+    else if (changedField == &showMainGrid)
     {
         createDisplayModelAndRedraw();
-    } 
-    else if ( changedField == &rangeFilterCollection )
+    }
+    else if (changedField == &rangeFilterCollection)
     {
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
         scheduleCreateDisplayModelAndRedraw();
-    } 
-    else if ( changedField == &propertyFilterCollection)
+    }
+    else if (changedField == &propertyFilterCollection)
     {
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
 
         scheduleCreateDisplayModelAndRedraw();
-    } 
-    else if (changedField == &meshMode)
-    {
-        createDisplayModel();
-        updateDisplayModelVisibility();
-        RiuMainWindow::instance()->refreshDrawStyleActions();
-    } 
-    else if (changedField == &surfaceMode)
-    {
-        createDisplayModel();
-        updateDisplayModelVisibility();
-        RiuMainWindow::instance()->refreshDrawStyleActions();
     }
-    else if (changedField == &name)
-    {
-        updateViewerWidgetWindowTitle();
-    }
+
+
 }
 
 void RimReservoirView::updateScaleTransform()
@@ -1353,120 +1290,6 @@ void RimReservoirView::updateDisplayModelForWellResults()
 
     RiuMainWindow::instance()->refreshAnimationActions(); 
    
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setMeshOnlyDrawstyle()
-{
-    if (isGridVisualizationMode())
-    {
-        meshMode.setValueFromUi(FULL_MESH);
-    }
-    else
-    {
-        meshMode.setValueFromUi(FAULTS_MESH);
-    }
-
-    surfaceMode.setValueFromUi(NO_SURFACE);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setMeshSurfDrawstyle()
-{
-    if (isGridVisualizationMode())
-    {
-        surfaceMode.setValueFromUi(SURFACE);
-        meshMode.setValueFromUi(FULL_MESH);
-    }
-    else
-    {
-        surfaceMode.setValueFromUi(FAULTS);
-        meshMode.setValueFromUi(FAULTS_MESH);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setFaultMeshSurfDrawstyle()
-{
-    // Surf: No Fault Surf
-    //  Mesh -------------
-    //    No FF  FF    SF
-    // Fault FF  FF    SF
-    //  Mesh SF  SF    SF
-    if (this->isGridVisualizationMode())
-    {
-         surfaceMode.setValueFromUi(SURFACE);
-    }
-    else
-    {
-         surfaceMode.setValueFromUi(FAULTS);
-    }
-
-    meshMode.setValueFromUi(FAULTS_MESH);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setSurfOnlyDrawstyle()
-{
-    if (isGridVisualizationMode())
-    {
-        surfaceMode.setValueFromUi(SURFACE);
-    }
-    else
-    {
-        surfaceMode.setValueFromUi(FAULTS);
-    }
-    meshMode.setValueFromUi(NO_MESH);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setShowFaultsOnly(bool showFaults)
-{
-    if (showFaults)
-    {
-        m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
-        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(FAULTS);
-        if (meshMode() != NO_MESH) meshMode.setValueFromUi(FAULTS_MESH);
-    }
-    else
-    {
-        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
-        if (meshMode() != NO_MESH) meshMode.setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH: FULL_MESH);
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::setSurfaceDrawstyle()
-{
-    if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-// Surf: No Fault Surf
-//  Mesh -------------
-//    No F  F     G
-// Fault F  F     G
-//  Mesh G  G     G
-//
-//--------------------------------------------------------------------------------------------------
-bool RimReservoirView::isGridVisualizationMode() const
-{
-    return (   this->surfaceMode() == SURFACE 
-            || this->meshMode()    == FULL_MESH);
 }
 
 

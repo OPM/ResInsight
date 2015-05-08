@@ -50,10 +50,6 @@ public:
     caf::PdmPointersField<RimCommandObject*>            commandObjects;
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
-    caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
-    caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
-    caf::PdmPointersField<RimCase*>                     casesObsolete; // obsolete
-    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
 
     void            setScriptDirectories(const QString& scriptDirectories);
     QString         projectFileVersionString() const;
@@ -79,4 +75,11 @@ protected:
 
 private:
     caf::PdmField<QString>      m_projectFileVersionString;
+
+    caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
+    caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
+
+    caf::PdmPointersField<RimCase*>                     casesObsolete; // obsolete
+    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
+
 };

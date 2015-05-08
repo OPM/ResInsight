@@ -796,7 +796,7 @@ void RiaApplication::createInputMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimReservoirView* RiaApplication::activeReservoirView() const
+const RimView* RiaApplication::activeReservoirView() const
 {
     return m_activeReservoirView;
 }
@@ -804,7 +804,7 @@ const RimReservoirView* RiaApplication::activeReservoirView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RiaApplication::activeReservoirView()
+RimView* RiaApplication::activeReservoirView()
 {
    return m_activeReservoirView;
 }
@@ -812,7 +812,7 @@ RimReservoirView* RiaApplication::activeReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveReservoirView(RimReservoirView* rv)
+void RiaApplication::setActiveReservoirView(RimView* rv)
 {
     m_activeReservoirView = rv;
 }

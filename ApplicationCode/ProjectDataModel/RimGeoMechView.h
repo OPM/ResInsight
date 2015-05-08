@@ -52,20 +52,6 @@ public:
     RimGeoMechView(void);
     virtual ~RimGeoMechView(void);
 
-    enum MeshModeType
-    {
-        FULL_MESH,
-        FAULTS_MESH,
-        NO_MESH
-    };
-
-    enum SurfaceModeType
-    {
-        SURFACE,
-        FAULTS,
-        NO_SURFACE
-    };
-
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     RimGeoMechCase*                                     geoMechCase();
 
@@ -75,8 +61,8 @@ public:
 
     caf::PdmField<RimGeoMechResultSlot*>                cellResult;
 
-    caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
-    caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
+
+    bool                                                isTimeStepDependentDataVisible();
 
 private:
     virtual void                                        createDisplayModel();
@@ -92,7 +78,6 @@ private:
     virtual void                                        resetLegendsInViewer();
 
     void                                                updateLegends();
-    bool isTimeStepDependentDataVisible();
     caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
     cvf::ref<RivGeoMechPartMgr>                         m_geoMechVizModel;
     cvf::ref<cvf::Transform>                                m_scaleTransform;

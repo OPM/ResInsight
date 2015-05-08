@@ -160,20 +160,24 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
     if (&m_resultVariableUiField == changedField)
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split(QRegExp("\\s+"));
-        if (fieldComponentNames.size() == 2)
+        if (fieldComponentNames.size() > 0)
         {
             m_resultPositionType = m_resultPositionTypeUiField;
             m_resultFieldName = fieldComponentNames[0];
-            m_resultComponentName = fieldComponentNames[1];
-        }
+            if (fieldComponentNames.size() > 1)
+            {
+                m_resultComponentName = fieldComponentNames[1];
+            }
 
-        // Todo: Read results into cache ?
 
-        if (m_reservoirView)
-        {
-            m_reservoirView->createDisplayModelAndRedraw();
+
+            // Todo: Read results into cache ?
+
+            if (m_reservoirView)
+            {
+                m_reservoirView->createDisplayModelAndRedraw();
+            }
         }
-       
     }
 }
 
