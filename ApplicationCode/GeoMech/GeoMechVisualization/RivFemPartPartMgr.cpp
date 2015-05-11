@@ -244,7 +244,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
         else if (   cellResultSlot->resultPositionType() == RIG_ELEMENT_NODAL 
                  || cellResultSlot->resultPositionType() == RIG_INTEGRATION_POINT)
         {
-            vxToResultMapping = &(m_surfaceGenerator.quadVerticesToNodeIdxMapping());
+            vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmNodeIdx());
         }
 
         m_surfaceFacesTextureCoords->resize(vxToResultMapping->size());
