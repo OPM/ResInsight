@@ -4,6 +4,8 @@ project (RigGeoMechDataModel)
 
 include_directories(
 	${LibCore_SOURCE_DIR}
+	../../ResultStatisticsCache
+	../OdbReader
 )
 
 
@@ -24,4 +26,4 @@ add_library( ${PROJECT_NAME}
 	RigFemNativeStatCalc.cpp
 )
 
-target_link_libraries( ${PROJECT_NAME} LibCore )
+target_link_libraries( ${PROJECT_NAME} LibCore ResultStatisticsCache)

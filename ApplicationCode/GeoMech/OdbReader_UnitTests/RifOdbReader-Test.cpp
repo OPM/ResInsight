@@ -20,6 +20,7 @@
 #include "gtest/gtest.h"
 #include "RifOdbReader.h"
 #include "RigGeoMechCaseData.h"
+#include "RigFemPartCollection.h"
 
 #include "cvfDebugTimer.h"
 
@@ -34,7 +35,7 @@ TEST(OdbReaderTest, BasicTests)
     std::cout << TEST_FILE << std::endl;
     std::cout << std::endl;
     cvf::ref<RifOdbReader> reader = new RifOdbReader;
-    cvf::ref<RigGeoMechCaseData> femCase = new RigGeoMechCaseData;
+    cvf::ref<RigGeoMechCaseData> femCase = new RigGeoMechCaseData("");
     cvf::ref<RigFemPartCollection> femData = femCase->femParts();
 
     cvf::DebugTimer timer("DebugTimer");
