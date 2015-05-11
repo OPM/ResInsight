@@ -10,7 +10,8 @@ include (${QT_USE_FILE})
 
 include_directories(
     ${ResInsight_SOURCE_DIR}/ApplicationCode
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ResultStatisticsCache
+	${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel
     ${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ProjectDataModel
     ${ResInsight_SOURCE_DIR}/ThirdParty
@@ -62,6 +63,8 @@ set( UNIT_TEST_CPP_SOURCES
 set( LINK_LIBRARIES
     cafProjectDataModel
     CommonCode
+
+	ResultStatisticsCache
 
     LibViewing
     LibRender

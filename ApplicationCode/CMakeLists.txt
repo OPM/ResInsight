@@ -18,6 +18,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
+	${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
@@ -100,6 +101,7 @@ list( APPEND CPP_SOURCES
 #############################################################################
 
 add_subdirectory(WellPathImportSsihub)
+add_subdirectory(ResultStatisticsCache)
 
 #
 # Odb api
@@ -292,6 +294,7 @@ set( LINK_LIBRARIES
     LibGeometry
     LibCore
 
+	ResultStatisticsCache
 	RigGeoMechDataModel
 
     ecl

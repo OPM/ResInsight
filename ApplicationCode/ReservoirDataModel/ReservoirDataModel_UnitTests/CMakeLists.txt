@@ -14,6 +14,7 @@ include_directories(
     ${LibViewing_SOURCE_DIR}
 
     ${ResInsight_SOURCE_DIR}/ApplicationCode
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ResultStatisticsCache
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel
     ${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ProjectDataModel
@@ -52,6 +53,8 @@ source_group( "UnitTests"       FILES ${UNIT_TEST_CPP_SOURCES} )
 
 set( LINK_LIBRARIES
     CommonCode
+
+	ResultStatisticsCache
 
     LibViewing
     LibRender
