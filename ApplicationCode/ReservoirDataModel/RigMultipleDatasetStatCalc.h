@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RigStatisticsCalculator.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfCollection.h"
@@ -26,19 +28,27 @@
 #include <vector>
 
 class RigHistogramCalculator;
+class RigCaseCellResultsData;
+
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigStatisticsCalculator : public cvf::Object
+class RigMultipleDatasetStatCalc : public RigStatisticsCalculator
 {
 public:
-    virtual void	minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max) = 0;
-	virtual void	posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg) = 0;
-	
-	void	        meanCellScalarValue(double& meanValue);
-	virtual void	valueSumAndSampleCount(double& valueSum, size_t& sampleCount) = 0;
-	virtual void	addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator) = 0;
+    RigMultipleDatasetStatCalc();
+    void addStatisticsCalculator(RigStatisticsCalculator* statisticsCalculator);
+    void addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndices);
 
-    virtual size_t  timeStepCount() = 0;
+    virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
+    virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
+    
+    virtual void valueSumAndSampleCount(double& valueSum, size_t& sampleCount);
+    virtual void addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator);
+
+    virtual size_t  timeStepCount();
+
+private:
+    std::vector<RigStatisticsCalculator*> m_nativeStatisticsCalculators;
 };

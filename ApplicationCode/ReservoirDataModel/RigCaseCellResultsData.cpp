@@ -23,7 +23,8 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
-#include "RigStatisticsCalculator.h"
+#include "RigMultipleDatasetStatCalc.h"
+#include "RigNativeStatCalc.h"
 
 #include <QDateTime>
 #include <math.h>
