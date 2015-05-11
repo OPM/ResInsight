@@ -12,6 +12,8 @@
 #include "cvfViewport.h"
 #include "cafFrameAnimationControl.h"
 
+#include <limits.h>
+
 
 namespace caf {
 
