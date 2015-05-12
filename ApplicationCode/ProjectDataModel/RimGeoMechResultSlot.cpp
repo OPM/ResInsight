@@ -173,9 +173,7 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 m_resultComponentName = "";
             }
 
-
-
-            // Todo: Read results into cache ?
+            m_reservoirView->geoMechCase()->geoMechData()->assertResultsLoaded(0, this->resultAddress());
 
             if (m_reservoirView)
             {
