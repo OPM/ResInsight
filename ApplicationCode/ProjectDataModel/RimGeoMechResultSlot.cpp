@@ -168,6 +168,10 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             {
                 m_resultComponentName = fieldComponentNames[1];
             }
+            else
+            {
+                m_resultComponentName = "";
+            }
 
 
 
