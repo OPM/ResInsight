@@ -174,15 +174,8 @@ void RivFemPartGeometryGenerator::computeArrays()
                 const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, lfIdx, &faceNodeCount);
                 if (faceNodeCount == 4)
                 {
-                #if 0
-                   ++elmQuadCount; 
-                   int quad[4];
-                   quad[0] = elmNodeIndices[elmLocalFaceIndices[0]];
-                   quad[1] = elmNodeIndices[elmLocalFaceIndices[1]];
-                   quad[2] = elmNodeIndices[elmLocalFaceIndices[2]];
-                   quad[3] = elmNodeIndices[elmLocalFaceIndices[3]];
-                #endif
-                   // Needs to get rid of opposite faces
+ 
+                   // Todo: Needs to get rid of opposite faces
 
                    vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]);
                    vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[1]] ]);
