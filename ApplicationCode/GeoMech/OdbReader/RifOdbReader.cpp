@@ -37,6 +37,12 @@
 #include <sstream>
 
 
+size_t RifOdbReader::sm_instanceCount = 0;
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
 std::map<std::string, RigElementType> initFemTypeMap()
 {
     std::map<std::string, RigElementType> typeMap;
@@ -48,35 +54,13 @@ std::map<std::string, RigElementType> initFemTypeMap()
     return typeMap;
 }
 
-static std::map<std::string, RigElementType> odbElmTypeToRigElmTypeMap = initFemTypeMap();
-
-
-size_t RifOdbReader::sm_instanceCount = 0;
-
-const int* localElmNodeToIntegrationPointMapping(RigElementType elmType)
-{
-    static const int HEX8_Mapping[8] ={ 0, 1, 3, 2, 4, 5, 7, 6 };
-
-    switch (elmType)
-    {
-        case HEX8:
-            return HEX8_Mapping;
-            break;
-        case CAX4:
-            return HEX8_Mapping;
-            break;
-        default:
-            //assert(false); // Element type not supported
-            break;
-    }
-    return NULL;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RigElementType toRigElementType(const odb_String& odbTypeName)
 {
+    static std::map<std::string, RigElementType> odbElmTypeToRigElmTypeMap = initFemTypeMap();
+
     std::map<std::string, RigElementType>::iterator it = odbElmTypeToRigElmTypeMap.find(odbTypeName.cStr());
 
     if (it == odbElmTypeToRigElmTypeMap.end())
@@ -88,6 +72,29 @@ RigElementType toRigElementType(const odb_String& odbTypeName)
     }
 
     return  it->second;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+const int* localElmNodeToIntegrationPointMapping(RigElementType elmType)
+{
+    static const int HEX8_Mapping[8] ={ 0, 1, 3, 2, 4, 5, 7, 6 };
+
+    switch (elmType)
+    {
+        case HEX8:
+            return HEX8_Mapping;
+            break;
+        case CAX4:
+            return HEX8_Mapping; // First four is identical to HEX8
+            break;
+        default:
+            //assert(false); // Element type not supported
+            break;
+    }
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,18 +369,8 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
 
             elementIdToIdxMap[odbElm.label()] = elmIdx;
 
-            // Get the type
-            it = odbElmTypeToRigElmTypeMap.find(odbElm.type().cStr());
-
-            if (it == odbElmTypeToRigElmTypeMap.end()) 
-            {
-                #if 0
-                std::cout << "Unsupported element type :" << odbElm.type().cStr() << std::endl;
-                #endif
-                continue; // Unsupported type
-             }
-
-            RigElementType elmType = it->second;
+            RigElementType elmType = toRigElementType(odbElm.type());
+            if (elmType == UNKNOWN_ELM_TYPE) continue;
 
             int nodeCount = 0;
             const int* idBasedConnectivities = odbElm.connectivity(nodeCount);
