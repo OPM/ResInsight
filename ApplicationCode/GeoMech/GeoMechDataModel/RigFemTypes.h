@@ -23,7 +23,8 @@
 enum RigElementType
 {
     HEX8,
-    CAX4
+    CAX4,
+    UNKNOWN_ELM_TYPE
 };
 
 class RigFemTypes

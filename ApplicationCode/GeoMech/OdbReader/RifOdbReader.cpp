@@ -50,7 +50,45 @@ std::map<std::string, RigElementType> initFemTypeMap()
 
 static std::map<std::string, RigElementType> odbElmTypeToRigElmTypeMap = initFemTypeMap();
 
+
 size_t RifOdbReader::sm_instanceCount = 0;
+
+const int* localElmNodeToIntegrationPointMapping(RigElementType elmType)
+{
+    static const int HEX8_Mapping[8] ={ 0, 1, 3, 2, 4, 5, 7, 6 };
+
+    switch (elmType)
+    {
+        case HEX8:
+            return HEX8_Mapping;
+            break;
+        case CAX4:
+            return HEX8_Mapping;
+            break;
+        default:
+            //assert(false); // Element type not supported
+            break;
+    }
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigElementType toRigElementType(const odb_String& odbTypeName)
+{
+    std::map<std::string, RigElementType>::iterator it = odbElmTypeToRigElmTypeMap.find(odbTypeName.cStr());
+
+    if (it == odbElmTypeToRigElmTypeMap.end())
+    {
+#if 0
+        std::cout << "Unsupported element type :" << odbElm.type().cStr() << std::endl;
+#endif
+        return UNKNOWN_ELM_TYPE;
+    }
+
+    return  it->second;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -253,6 +291,7 @@ std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> >
 
 						case odb_Enum::INTEGRATION_POINT:
                             resultsMap[INTEGRATION_POINT][fieldName] = compVec;
+                            resultsMap[ELEMENT_NODAL][fieldName] = compVec;
 							break;
 
 						default:
@@ -641,11 +680,13 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
         for (int elem = 0; elem < elemCount; elem++)
         {
             int elementIdx = elementIdToIdxMap[elementLabels[elem*elemNodeCount]];
+            int elementResultStartDestIdx = elementIdx*elemNodeCount; // Ikke generellt riktig !
+            int elementResultStartSourceIdx = elem*elemNodeCount*numComp;
 
             for (int elemNode = 0; elemNode < elemNodeCount; elemNode++)
             {
-                int destIdx = elementIdx*elemNodeCount + elemNode;
-                int srcIdx = elem*elemNodeCount*numComp + elemNode*numComp + compIndex;
+                int destIdx = elementResultStartDestIdx + elemNode;
+                int srcIdx = elementResultStartSourceIdx + elemNode*numComp + compIndex;
                 (*resultValues)[destIdx] = data[srcIdx];
             }
         }
@@ -694,14 +735,22 @@ void RifOdbReader::readScalarIntegrationPointField(const std::string& fieldName,
 		int ipCount = numValues/elemCount;
 		int* elementLabels = bulkData.elementLabels();
 
+        RigElementType eType = toRigElementType(bulkData.baseElementType());
+        const int* elmNodeToIpResultMapping = localElmNodeToIntegrationPointMapping(eType);
+        if (!elmNodeToIpResultMapping) continue;
+
         for (int elem = 0; elem < elemCount; elem++)
         {
             int elementIdx = elementIdToIdxMap[elementLabels[elem*ipCount]];
+            int elementResultStartDestIdx = elementIdx*ipCount; // Ikke generellt riktig !
+            int elementResultStartSourceIdx = elem*ipCount*numComp;
 
-            for (int ip = 0; ip < ipCount; ip++)
+            for (int ipIdx = 0; ipIdx < ipCount; ipIdx++)
             {
-                int destIdx = elementIdx*ipCount + ip;
-                int srcIdx = elem*ipCount*numComp + ip*numComp + compIndex;
+                int resultIpIdx = elmNodeToIpResultMapping[ipIdx];
+                int destIdx = elementResultStartDestIdx + ipIdx; 
+                int srcIdx  = elementResultStartSourceIdx + resultIpIdx*numComp + compIndex;
+
                 (*resultValues)[destIdx] = data[srcIdx];
             }
         }
@@ -750,4 +799,3 @@ void RifOdbReader::readDisplacements(int partIndex, int stepIndex, int frameInde
 		}
 	}
 }
-
