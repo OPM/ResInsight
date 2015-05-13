@@ -79,8 +79,9 @@ private:
 
     void                                                updateLegends();
     caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
-    cvf::ref<RivGeoMechPartMgr>                         m_geoMechVizModel;
-    cvf::ref<cvf::Transform>                                m_scaleTransform;
+    cvf::ref<RivGeoMechPartMgr>                         m_geoMechFullModel;
+    bool                                                m_isGeoMechFullGenerated;
+    cvf::ref<cvf::Transform>                            m_scaleTransform;
 
 };
 

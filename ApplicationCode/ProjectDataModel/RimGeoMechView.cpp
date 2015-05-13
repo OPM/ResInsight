@@ -66,8 +66,9 @@ RimGeoMechView::RimGeoMechView(void)
     this->cellResult()->legendConfig()->setReservoirView(this);
 
     m_scaleTransform = new cvf::Transform();
-    m_geoMechVizModel = new RivGeoMechPartMgr();
+    m_geoMechFullModel = new RivGeoMechPartMgr();
 
+    m_isGeoMechFullGenerated = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +109,7 @@ void RimGeoMechView::loadDataAndUpdate()
     if (m_geomechCase)
     {
         m_geomechCase->openGeoMechCase();
-        m_geoMechVizModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
+        m_geoMechFullModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
     }
 
     updateViewerWidget();
@@ -188,18 +189,22 @@ void RimGeoMechView::createDisplayModel()
     bool isAnimationActive = m_viewer->isAnimationActive();
     m_viewer->removeAllFrames();
 
-    for (int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx)
+    if (!m_isGeoMechFullGenerated)
     {
-        cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechVizModel->cellVisibility(femPartIdx);
-        m_geoMechVizModel->setTransform(m_scaleTransform.p());
-        RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), m_geomechCase->geoMechData()->femParts()->part(femPartIdx));
-        m_geoMechVizModel->setCellVisibility(femPartIdx, elmVisibility.p());
+        for (int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx)
+        {
+            cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechFullModel->cellVisibility(femPartIdx);
+            m_geoMechFullModel->setTransform(m_scaleTransform.p());
+            RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), m_geomechCase->geoMechData()->femParts()->part(femPartIdx));
+            m_geoMechFullModel->setCellVisibility(femPartIdx, elmVisibility.p());
+        }
+        m_isGeoMechFullGenerated = true;
     }
 
     size_t frameIdx;
     for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
     {
-        m_geoMechVizModel->appendGridPartsToModel(frameModels[frameIdx].p());
+        m_geoMechFullModel->appendGridPartsToModel(frameModels[frameIdx].p());
     }
 
     // Set static colors 
@@ -242,7 +247,7 @@ void RimGeoMechView::updateCurrentTimeStep()
     updateLegends();
     if ((this->animationMode() && cellResult()->resultFieldName() != ""))
     {
-        m_geoMechVizModel->updateCellResultColor(m_currentTimeStep(), this->cellResult());
+        m_geoMechFullModel->updateCellResultColor(m_currentTimeStep(), this->cellResult());
     }
     else
     {
@@ -258,7 +263,7 @@ void RimGeoMechView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateStaticCellColors()
 {
-    m_geoMechVizModel->updateCellColor(cvf::Color4f(cvf::Color3f::ORANGE));
+    m_geoMechFullModel->updateCellColor(cvf::Color4f(cvf::Color3f::ORANGE));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -177,6 +177,7 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
             if (m_reservoirView)
             {
+                m_reservoirView->animationMode = true;
                 m_reservoirView->createDisplayModelAndRedraw();
             }
         }
