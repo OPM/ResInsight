@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RifOdbReader.h"
-#include "RigGeomechCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include <QFile>
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCase, "ResInsightGeoMechCase");
