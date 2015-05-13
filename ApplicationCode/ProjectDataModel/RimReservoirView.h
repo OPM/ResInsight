@@ -143,7 +143,9 @@ private:
     virtual void                            updateCurrentTimeStep();
 
     void                                    indicesToVisibleGrids(std::vector<size_t>* gridIndices);
-    void                                    updateScaleTransform();
+    virtual void                            updateScaleTransform();
+    virtual cvf::Transform*                 scaleTransform();
+
     virtual void                            updateStaticCellColors();
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();

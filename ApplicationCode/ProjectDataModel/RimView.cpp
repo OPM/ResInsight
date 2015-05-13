@@ -13,6 +13,10 @@
 #include "cafFrameAnimationControl.h"
 
 #include <limits.h>
+#include "RimOilField.h"
+#include "RimWellPathCollection.h"
+#include "RimProject.h"
+#include "RivWellPathCollectionPartMgr.h"
 
 
 namespace caf {
@@ -378,6 +382,36 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         createDisplayModel();
         updateDisplayModelVisibility();
         RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
+    else if (changedField == &scaleZ)
+    {
+        if (scaleZ < 1) scaleZ = 1;
+
+        // Regenerate well paths
+        RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
+        RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
+        if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
+
+        if (m_viewer)
+        {
+            cvf::Vec3d poi = m_viewer->pointOfInterest();
+            cvf::Vec3d eye, dir, up;
+            eye = m_viewer->mainCamera()->position();
+            dir = m_viewer->mainCamera()->direction();
+            up  = m_viewer->mainCamera()->up();
+
+            eye[2] = poi[2]*scaleZ()/this->scaleTransform()->worldTransform()(2, 2) + (eye[2] - poi[2]);
+            poi[2] = poi[2]*scaleZ()/this->scaleTransform()->worldTransform()(2, 2);
+
+            m_viewer->mainCamera()->setFromLookAt(eye, eye + dir, up);
+            m_viewer->setPointOfInterest(poi);
+
+            updateScaleTransform();
+            createDisplayModelAndRedraw();
+            m_viewer->update();
+        }
+
+        RiuMainWindow::instance()->updateScaleValue();
     }
     else if (changedField == &surfaceMode)
     {

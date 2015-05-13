@@ -188,37 +188,7 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 {
     RimView::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &scaleZ)
-    {
-        if (scaleZ < 1) scaleZ = 1;
-
-        // Regenerate well paths
-        RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
-        RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
-        if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
-
-        if (m_viewer)
-        {
-            cvf::Vec3d poi = m_viewer->pointOfInterest();
-            cvf::Vec3d eye, dir, up;
-            eye = m_viewer->mainCamera()->position();
-            dir = m_viewer->mainCamera()->direction();
-            up  = m_viewer->mainCamera()->up();
-
-            eye[2] = poi[2]*scaleZ()/m_reservoirGridPartManager->scaleTransform()->worldTransform()(2, 2) + (eye[2] - poi[2]);
-            poi[2] = poi[2]*scaleZ()/m_reservoirGridPartManager->scaleTransform()->worldTransform()(2, 2);
-
-            m_viewer->mainCamera()->setFromLookAt(eye, eye + dir, up);
-            m_viewer->setPointOfInterest(poi);
-
-            updateScaleTransform();
-            createDisplayModelAndRedraw();
-            m_viewer->update();
-        }
-
-        RiuMainWindow::instance()->updateScaleValue();
-    }
-    else if (changedField == &showWindow)
+    if (changedField == &showWindow)
     {
         if (showWindow)
         {
@@ -279,14 +249,11 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 
 void RimReservoirView::updateScaleTransform()
 {
-    CVF_ASSERT(m_reservoirGridPartManager.notNull());
-    CVF_ASSERT(m_pipesPartManager.notNull());
-
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale(2, 2) = scaleZ();
 
-    m_reservoirGridPartManager->setScaleTransform(scale);
-    m_pipesPartManager->setScaleTransform(m_reservoirGridPartManager->scaleTransform());
+    this->scaleTransform()->setLocalTransform(scale);
+    m_pipesPartManager->setScaleTransform(this->scaleTransform());
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
@@ -1482,5 +1449,13 @@ void RimReservoirView::resetLegendsInViewer()
     m_viewer->removeAllColorLegends();
     m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
     m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Transform* RimReservoirView::scaleTransform()
+{
+    return m_reservoirGridPartManager->scaleTransform();
 }
 

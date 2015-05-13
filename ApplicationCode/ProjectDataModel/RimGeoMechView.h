@@ -67,7 +67,8 @@ public:
 private:
     virtual void                                        createDisplayModel();
     virtual void                                        updateDisplayModelVisibility();
-    void                                                updateScaleTransform();
+    virtual void                                        updateScaleTransform();
+    virtual cvf::Transform*                             scaleTransform();
 
     virtual void                                        clampCurrentTimestep();
 
@@ -78,6 +79,7 @@ private:
     virtual void                                        resetLegendsInViewer();
 
     void                                                updateLegends();
+
     caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
     cvf::ref<RivGeoMechPartMgr>                         m_geoMechFullModel;
     bool                                                m_isGeoMechFullGenerated;

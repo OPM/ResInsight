@@ -37,7 +37,6 @@ public:
     RivReservoirViewPartMgr(RimReservoirView * resv);
 
     cvf::Transform*             scaleTransform() { return m_scaleTransform.p();}
-    void                        setScaleTransform(cvf::Mat4d scale) { m_scaleTransform->setLocalTransform(scale);}
 
     enum ReservoirGeometryCacheType
     {

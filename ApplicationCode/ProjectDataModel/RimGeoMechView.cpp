@@ -106,6 +106,8 @@ void RimGeoMechView::updateViewerWidgetWindowTitle()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::loadDataAndUpdate()
 {
+    updateScaleTransform();
+
     if (m_geomechCase)
     {
         m_geomechCase->openGeoMechCase();
@@ -130,12 +132,10 @@ void RimGeoMechView::loadDataAndUpdate()
 
 void RimGeoMechView::updateScaleTransform()
 {
-    CVF_ASSERT(m_scaleTransform.notNull());
-
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale(2, 2) = scaleZ();
 
-    m_scaleTransform->setLocalTransform(scale);
+    this->scaleTransform()->setLocalTransform(scale);
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
@@ -404,6 +404,14 @@ void RimGeoMechView::clampCurrentTimestep()
 bool RimGeoMechView::isTimeStepDependentDataVisible()
 {
     return (cellResult->resultFieldName() != "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Transform* RimGeoMechView::scaleTransform()
+{
+    return m_scaleTransform.p();
 }
 
 
