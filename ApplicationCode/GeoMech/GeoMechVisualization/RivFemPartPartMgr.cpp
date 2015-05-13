@@ -48,7 +48,7 @@
 #include "cvfStructGrid.h"
 #include "cvfUniform.h"
 #include "RifGeoMechReaderInterface.h"
-#include "RigGeomechCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include "RigFemScalarResultFrames.h"
 
 
