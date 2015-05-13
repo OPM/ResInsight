@@ -58,9 +58,9 @@ ScalarMapperRangeBased::ScalarMapperRangeBased()
     m_textureSize(2048), // Large enough, I guess and a power of two
     m_adjustLevels(true)
 {
-    m_colors.resize(m_textureSize);
-    m_colors.setAll(Color3ub::WHITE);
-    setColors(ScalarMapper::NORMAL);
+    m_interpolatedUserGradientColors.resize(m_textureSize);
+    m_interpolatedUserGradientColors.setAll(Color3ub::WHITE);
+    setColors(*normalColorTableArray(13));
 
 }
 
@@ -83,7 +83,7 @@ void ScalarMapperRangeBased::setRange(double min, double max)
 //--------------------------------------------------------------------------------------------------
 void ScalarMapperRangeBased::setColors(const Color3ubArray& colorArray)
 {
-    m_colors = *interpolateColorArray(colorArray, m_textureSize);
+    m_interpolatedUserGradientColors = *interpolateColorArray(colorArray, m_textureSize);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,10 +137,7 @@ Vec2f ScalarMapperRangeBased::mapToTextureCoord(double scalarValue) const
 //--------------------------------------------------------------------------------------------------
 Color3ub ScalarMapperRangeBased::mapToColor(double scalarValue) const
 {
-    size_t colorIdx = static_cast<size_t>(normalizedValue(scalarValue) * (m_textureSize - 1));
-
-    CVF_TIGHT_ASSERT(colorIdx <  m_colors.size());
-    return m_colors[colorIdx];
+    return colorFromUserColorGradient(normalizedValue(scalarValue));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,7 +167,7 @@ bool ScalarMapperRangeBased::updateTexture(TextureImage* image) const
     uint ic;
     for (ic = 0; ic < m_textureSize; ic++)
     {
-        const Color4ub clr(m_colors[ic], 255);
+        const Color4ub clr(mapToColor(domainValue(((double)ic)/(m_textureSize-1))), 255); 
         image->setPixel(ic, 0, clr);
     }
  
@@ -277,6 +274,19 @@ void ScalarMapperRangeBased::majorTickValues( std::vector<double>* domainValues)
         }
         domainValues->push_back(m_rangeMax);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3ub ScalarMapperRangeBased::colorFromUserColorGradient(double normalizedValue) const
+{
+    CVF_TIGHT_ASSERT(0.0 <= normalizedValue && normalizedValue <= 1.0);
+
+    size_t colorIdx = static_cast<size_t>(normalizedValue * (m_textureSize - 1));
+
+    CVF_TIGHT_ASSERT(colorIdx <  m_interpolatedUserGradientColors.size());
+    return m_interpolatedUserGradientColors[colorIdx];
 }
 
 

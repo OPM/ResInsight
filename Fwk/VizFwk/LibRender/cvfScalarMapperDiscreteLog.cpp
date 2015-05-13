@@ -58,23 +58,24 @@ ScalarMapperDiscreteLog::ScalarMapperDiscreteLog()
     m_decadeLevelCount = 2; 
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-Vec2f ScalarMapperDiscreteLog::mapToTextureCoord(double scalarValue) const
-{
-    double discVal = ScalarMapperDiscreteLinear::discretize(scalarValue, m_sortedLevels);
-    return ScalarMapperRangeBased::mapToTextureCoord(discVal);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 Color3ub ScalarMapperDiscreteLog::mapToColor(double scalarValue) const
 {
-    double discVal = ScalarMapperDiscreteLinear::discretize(scalarValue, m_sortedLevels);
-    return ScalarMapperRangeBased::mapToColor(discVal);
+    double discVal = ScalarMapperDiscreteLinear::discretizeToLevelBelow(scalarValue, m_sortedLevels);
+    std::set<double>::reverse_iterator it = m_sortedLevels.rbegin();
+    it++;
+    double levelUnderMax = *it;
+    double normDiscVal = normalizedValue(discVal);
+    double normSemiMaxVal = normalizedValue(levelUnderMax);
+    double adjustedNormVal = 0;
+    if (normSemiMaxVal != 0) adjustedNormVal = normDiscVal/normSemiMaxVal;
+
+    return colorFromUserColorGradient(adjustedNormVal);
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

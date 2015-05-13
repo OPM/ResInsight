@@ -57,35 +57,34 @@ ScalarMapperDiscreteLinear::ScalarMapperDiscreteLinear()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Vec2f ScalarMapperDiscreteLinear::mapToTextureCoord(double scalarValue) const
-{
-    double discVal = discretize(scalarValue, m_sortedLevels);
-    return ScalarMapperRangeBased::mapToTextureCoord(discVal);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 Color3ub ScalarMapperDiscreteLinear::mapToColor(double scalarValue) const
 {
-    double discVal = discretize(scalarValue, m_sortedLevels);
-    return ScalarMapperRangeBased::mapToColor(discVal);
+    double discVal = ScalarMapperDiscreteLinear::discretizeToLevelBelow(scalarValue, m_sortedLevels);
+    std::set<double>::reverse_iterator it = m_sortedLevels.rbegin();
+    it++;
+    double levelUnderMax = *it;
+    double normDiscVal = normalizedValue(discVal);
+    double normSemiMaxVal = normalizedValue(levelUnderMax);
+    double adjustedNormVal = 0;
+    if (normSemiMaxVal != 0) adjustedNormVal = cvf::Math::clamp(normDiscVal/normSemiMaxVal, 0.0, 1.0);
+
+    return colorFromUserColorGradient(adjustedNormVal);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double ScalarMapperDiscreteLinear::discretize(double scalarValue, const std::set<double>& sortedLevels) 
+double ScalarMapperDiscreteLinear::discretizeToLevelBelow(double scalarValue, const std::set<double>& sortedLevels) 
 {
     std::set<double>::iterator it;
 
     it = sortedLevels.upper_bound(scalarValue);
     if (it == sortedLevels.begin()) return (*it);
     if (it == sortedLevels.end()) return (*sortedLevels.rbegin());
-    double upperValue = *it;
     it--;
     double lowerValue = *it;
-    return 0.5 * (upperValue + lowerValue);
+
+    return lowerValue;
 }
 
 //--------------------------------------------------------------------------------------------------
