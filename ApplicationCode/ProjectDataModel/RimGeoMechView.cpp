@@ -414,6 +414,38 @@ cvf::Transform* RimGeoMechView::scaleTransform()
     return m_scaleTransform.p();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    RimView::fieldChangedByUi(changedField, oldValue, newValue);
+
+    if (changedField == &showWindow)
+    {
+        if (showWindow)
+        {
+            bool generateDisplayModel = (viewer() == NULL);
+            updateViewerWidget();
+            if (generateDisplayModel)
+            {
+                scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+        else
+        {
+            if (m_viewer)
+            {
+                RiuMainWindow::instance()->removeViewer(m_viewer);
+                delete m_viewer;
+                m_viewer = NULL;
+            }
+        }
+
+        this->updateUiIconFromToggleField();
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
