@@ -153,11 +153,18 @@ ref<UIntArray> RivFemPartGeometryGenerator::lineIndicesFromQuadVertexArray(const
 void RivFemPartGeometryGenerator::computeArrays()
 {
     std::vector<Vec3f> vertices;
+    m_quadVerticesToNodeIdx.clear();
+    m_quadVerticesToGlobalElmNodeIdx.clear();
+
+
+    vertices.reserve(estimatedQuadVxCount);
+    m_quadVerticesToNodeIdx.reserve(estimatedQuadVxCount);
+    m_quadVerticesToGlobalElmNodeIdx.reserve(estimatedQuadVxCount);
 
     cvf::Vec3d offset = Vec3d::ZERO; //m_part->displayModelOffset();
     const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
-//#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
     for (int elmIdx = 0; elmIdx < static_cast<int>(m_part->elementCount()); elmIdx++)
     {
         if (m_elmVisibility.isNull() || (*m_elmVisibility)[elmIdx])
@@ -177,20 +184,42 @@ void RivFemPartGeometryGenerator::computeArrays()
  
                    // Todo: Needs to get rid of opposite faces
 
-                   vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]);
-                   vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[1]] ]);
-                   vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[2]] ]);
-                   vertices.push_back(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[3]] ]);
+                   const cvf::Vec3f* quadVxs[4];
 
-                   m_quadVerticesToNodeIdx.push_back(elmNodeIndices[localElmNodeIndicesForFace[0]]);
-                   m_quadVerticesToNodeIdx.push_back(elmNodeIndices[localElmNodeIndicesForFace[1]]);
-                   m_quadVerticesToNodeIdx.push_back(elmNodeIndices[localElmNodeIndicesForFace[2]]);
-                   m_quadVerticesToNodeIdx.push_back(elmNodeIndices[localElmNodeIndicesForFace[3]]);
+                   quadVxs[0] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]);
+                   quadVxs[1] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[1]] ]);
+                   quadVxs[2] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[2]] ]);
+                   quadVxs[3] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[3]] ]);
 
-                   m_quadVerticesToGlobalElmNodeIdx.push_back(m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[0]));
-                   m_quadVerticesToGlobalElmNodeIdx.push_back(m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[1]));
-                   m_quadVerticesToGlobalElmNodeIdx.push_back(m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[2]));
-                   m_quadVerticesToGlobalElmNodeIdx.push_back(m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[3]));
+                   int qNodeIdx[4];
+                   qNodeIdx[0] = elmNodeIndices[localElmNodeIndicesForFace[0]];
+                   qNodeIdx[1] = elmNodeIndices[localElmNodeIndicesForFace[1]];
+                   qNodeIdx[2] = elmNodeIndices[localElmNodeIndicesForFace[2]];
+                   qNodeIdx[3] = elmNodeIndices[localElmNodeIndicesForFace[3]];
+
+                   size_t qElmNodeResIdx[4];
+                   qElmNodeResIdx[0] = m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[0]);
+                   qElmNodeResIdx[1] = m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[1]);
+                   qElmNodeResIdx[2] = m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[2]);
+                   qElmNodeResIdx[3] = m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[3]);
+
+                   #pragma omp critical
+                   {
+                       vertices.push_back(*quadVxs[0]);
+                       vertices.push_back(*quadVxs[1]);
+                       vertices.push_back(*quadVxs[2]);
+                       vertices.push_back(*quadVxs[3]);
+
+                       m_quadVerticesToNodeIdx.push_back(qNodeIdx[0]);
+                       m_quadVerticesToNodeIdx.push_back(qNodeIdx[1]);
+                       m_quadVerticesToNodeIdx.push_back(qNodeIdx[2]);
+                       m_quadVerticesToNodeIdx.push_back(qNodeIdx[3]);
+
+                       m_quadVerticesToGlobalElmNodeIdx.push_back(qNodeIdx[0]);
+                       m_quadVerticesToGlobalElmNodeIdx.push_back(qNodeIdx[1]);
+                       m_quadVerticesToGlobalElmNodeIdx.push_back(qNodeIdx[2]);
+                       m_quadVerticesToGlobalElmNodeIdx.push_back(qNodeIdx[3]);
+                   }
                 }
                 else
                 {

@@ -94,7 +94,9 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 {
     bool useBufferObjects = true;
     // Surface geometry
-    {
+    {   
+        m_surfaceFaces = NULL; // To possibly free memory before adding the new stuff
+
         cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface();
         if (geo.notNull())
         {
@@ -130,6 +132,8 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 
     // Mesh geometry
     {
+        m_surfaceGridLines = NULL; // To possibly free memory before adding the new stuff
+
         cvf::ref<cvf::DrawableGeo> geoMesh = geoBuilder.createMeshDrawable();
         if (geoMesh.notNull())
         {
