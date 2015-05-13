@@ -101,7 +101,6 @@ endif (ERT_EXTERNAL)
 
 set_property(TARGET  
 				ecl 
-				ecl_lfs 
 				ecl_well 
 				ert_geometry 
 				ert_util  
