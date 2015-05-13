@@ -156,6 +156,7 @@ void RivFemPartGeometryGenerator::computeArrays()
     m_quadVerticesToNodeIdx.clear();
     m_quadVerticesToGlobalElmNodeIdx.clear();
 
+    size_t estimatedQuadVxCount = m_part->elementCount()*6*4;
 
     vertices.reserve(estimatedQuadVxCount);
     m_quadVerticesToNodeIdx.reserve(estimatedQuadVxCount);
