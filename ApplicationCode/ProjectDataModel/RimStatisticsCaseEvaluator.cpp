@@ -153,7 +153,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 				cvf::Collection<RigResultAccessor> sourceDataAccessList;
                 for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                 {
-                    RimCase* sourceCase = m_sourceCases.at(caseIdx);
+                    RimEclipseCase* sourceCase = m_sourceCases.at(caseIdx);
 
 					// Trigger loading of dataset
 					sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
@@ -282,7 +282,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 
         for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
         {
-            RimCase* eclipseCase = m_sourceCases.at(caseIdx);
+            RimEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
 
             if (!eclipseCase->reservoirViews.size())
             {
@@ -303,7 +303,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCaseEvaluator::RimStatisticsCaseEvaluator(const std::vector<RimCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase) 
+RimStatisticsCaseEvaluator::RimStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase) 
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),

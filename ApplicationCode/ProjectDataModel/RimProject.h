@@ -23,7 +23,7 @@
 #include "cafPdmDocument.h"
 
 class RimOilField;
-class RimCase;
+class RimEclipseCase;
 class RigGridManager;
 class RimScriptCollection;
 class RimIdenticalGridCaseGroup;
@@ -57,10 +57,10 @@ public:
 
     void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
 
-    void            assignCaseIdToCase(RimCase* reservoirCase);
+    void            assignCaseIdToCase(RimEclipseCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
-    void            allCases(std::vector<RimCase*>& cases); // VL endre impl
+    void            allCases(std::vector<RimEclipseCase*>& cases); // VL endre impl
     void            createDisplayModelAndRedrawAllViews(); // VL endre impl
 
     void            computeUtmAreaOfInterest();
@@ -79,7 +79,7 @@ private:
     caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
     caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
 
-    caf::PdmPointersField<RimCase*>                     casesObsolete; // obsolete
+    caf::PdmPointersField<RimEclipseCase*>                     casesObsolete; // obsolete
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
 
 };

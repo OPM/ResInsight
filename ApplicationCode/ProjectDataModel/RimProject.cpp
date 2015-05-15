@@ -137,7 +137,7 @@ void RimProject::initScriptDirectories()
     {
         int largestId = -1;
 
-        std::vector<RimCase*> cases;
+        std::vector<RimEclipseCase*> cases;
         allCases(cases);
     
         for (size_t i = 0; i < cases.size(); i++)
@@ -234,7 +234,7 @@ void RimProject::initAfterRead()
     bool movedOneRimCase = false;
     for (size_t cIdx = 0; cIdx < casesObsolete().size(); ++cIdx)
     {
-        RimCase* sourceCase = casesObsolete[cIdx];
+        RimEclipseCase* sourceCase = casesObsolete[cIdx];
         if (analysisModels)
         {
             analysisModels->cases.push_back(sourceCase);
@@ -324,7 +324,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
 
     // Loop over all cases and update file path
 
-    std::vector<RimCase*> cases;
+    std::vector<RimEclipseCase*> cases;
     allCases(cases);
     for (size_t i = 0; i < cases.size(); i++)
     {
@@ -345,7 +345,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::assignCaseIdToCase(RimCase* reservoirCase)
+void RimProject::assignCaseIdToCase(RimEclipseCase* reservoirCase)
 {
     if (reservoirCase)
     {
@@ -371,7 +371,7 @@ void RimProject::assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allCases(std::vector<RimCase*>& cases)
+void RimProject::allCases(std::vector<RimEclipseCase*>& cases)
 {
     for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
     {
@@ -408,11 +408,11 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 void RimProject::createDisplayModelAndRedrawAllViews()
 {
-    std::vector<RimCase*> cases;
+    std::vector<RimEclipseCase*> cases;
     allCases(cases);
     for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
     {
-        RimCase* rimCase = cases[caseIdx];
+        RimEclipseCase* rimCase = cases[caseIdx];
         if (rimCase == NULL) continue;
 
         for (size_t viewIdx = 0; viewIdx < rimCase->reservoirViews.size(); viewIdx++)
@@ -439,14 +439,14 @@ RimOilField* RimProject::activeOilField()
 //--------------------------------------------------------------------------------------------------
 void RimProject::computeUtmAreaOfInterest()
 {
-    std::vector<RimCase*> cases;
+    std::vector<RimEclipseCase*> cases;
     allCases(cases);
 
     cvf::BoundingBox projectBB;
 
     for (size_t i = 0; i < cases.size(); i++)
     {
-        RimCase* rimCase = cases[i];
+        RimEclipseCase* rimCase = cases[i];
 
         if (rimCase && rimCase->reservoirData())
         {

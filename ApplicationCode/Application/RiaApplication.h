@@ -33,7 +33,7 @@
 
 class RIProcess;
 class RigCaseData;
-class RimCase;
+class RimEclipseCase;
 class Drawable;
 class RiaSocketServer;
 class RiaPreferences;

@@ -191,7 +191,7 @@ bool RiaProjectModifier::replaceSourceCases(RimProject* project)
 bool RiaProjectModifier::replaceCase(RimProject* project)
 {
     bool didReplacement = false;
-    std::vector<RimCase*> allCases;
+    std::vector<RimEclipseCase*> allCases;
     project->allCases(allCases);
 
     for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)

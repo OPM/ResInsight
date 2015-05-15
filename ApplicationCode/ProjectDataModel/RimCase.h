@@ -40,12 +40,12 @@ class RimReservoirCellResultsStorage;
 // Interface for reservoirs. 
 // 
 //==================================================================================================
-class RimCase : public caf::PdmObject
+class RimEclipseCase : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimCase();
-    virtual ~RimCase();
+    RimEclipseCase();
+    virtual ~RimEclipseCase();
 
 
     // Fields:                                        

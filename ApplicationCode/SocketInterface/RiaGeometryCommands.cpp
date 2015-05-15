@@ -52,7 +52,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         size_t argGridIndex = args[2].toUInt();
 
         if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
@@ -134,7 +134,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
         QString porosityModelName;
         porosityModelName = args[2];
@@ -214,7 +214,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         size_t argGridIndex = args[2].toUInt();
 
         if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
@@ -303,7 +303,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
         QString porosityModelName;
         porosityModelName = args[2];

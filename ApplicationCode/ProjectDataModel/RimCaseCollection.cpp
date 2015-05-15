@@ -63,7 +63,7 @@ RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimCaseCollection::findByDescription(const QString& caseDescription) const
+RimEclipseCase* RimCaseCollection::findByDescription(const QString& caseDescription) const
 {
     for (size_t i = 0; i < reservoirs.size(); i++)
     {

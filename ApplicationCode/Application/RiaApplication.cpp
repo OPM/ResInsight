@@ -363,14 +363,14 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     // Now load the ReservoirViews for the cases
     // Add all "native" cases in the project
-    std::vector<RimCase*> casesToLoad;
+    std::vector<RimEclipseCase*> casesToLoad;
     m_project->allCases(casesToLoad);
 
     caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
     
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
-        RimCase* ri = casesToLoad[cIdx];
+        RimEclipseCase* ri = casesToLoad[cIdx];
         CVF_ASSERT(ri);
 
         caseProgress.setProgressDescription(ri->caseUserDescription());
@@ -1526,12 +1526,12 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
     const QString absSnapshotPath = snapshotPath.absolutePath();
 
-    std::vector<RimCase*> projectCases;
+    std::vector<RimEclipseCase*> projectCases;
     m_project->allCases(projectCases);
 
     for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimCase* ri = projectCases[i];
+        RimEclipseCase* ri = projectCases[i];
         if (!ri) continue;
 
         for (size_t j = 0; j < ri->reservoirViews().size(); j++)
@@ -2104,12 +2104,12 @@ void RiaApplication::regressionTestConfigureProject()
 
     if (m_project.isNull()) return;
 
-    std::vector<RimCase*> projectCases;
+    std::vector<RimEclipseCase*> projectCases;
     m_project->allCases(projectCases);
 
     for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimCase* ri = projectCases[i];
+        RimEclipseCase* ri = projectCases[i];
         if (!ri) continue;
 
         for (size_t j = 0; j < ri->reservoirViews().size(); j++)

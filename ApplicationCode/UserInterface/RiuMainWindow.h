@@ -42,7 +42,7 @@ class RiuResultInfoPanel;
 class RiuProcessMonitor;
 class RimUiTreeModelPdm;
 class RimUiTreeView;
-class RimCase;
+class RimEclipseCase;
 
 namespace caf
 {
@@ -93,7 +93,7 @@ public:
 
     void            setCurrentObjectInTreeView(caf::PdmObject* object);
 
-    void            selectedCases(std::vector<RimCase*>& cases);
+    void            selectedCases(std::vector<RimEclipseCase*>& cases);
 
     void            setDefaultWindowSize();
 

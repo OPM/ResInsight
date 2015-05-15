@@ -40,7 +40,7 @@ class RigCaseCellResultsData;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class Rim3dOverlayInfoConfig;
-class RimCase;
+class RimEclipseCase;
 class RimCellEdgeResultSlot;
 class RimCellPropertyFilter;
 class RimCellPropertyFilterCollection;
@@ -106,8 +106,8 @@ public:
     RimResultSlot*                          currentFaultResultSlot();
 
 
-    void                                    setEclipseCase(RimCase* reservoir);
-    RimCase*                                eclipseCase();
+    void                                    setEclipseCase(RimEclipseCase* reservoir);
+    RimEclipseCase*                                eclipseCase();
  
 
 public:
@@ -171,7 +171,7 @@ private:
     void                                    clampCurrentTimestep();
 
 private:
-    caf::PdmPointer<RimCase>                m_reservoir;
+    caf::PdmPointer<RimEclipseCase>                m_reservoir;
 
 
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> m_visibleGridParts;

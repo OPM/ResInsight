@@ -142,7 +142,7 @@ void RiaSocketServer::slotNewClientConnection()
 //--------------------------------------------------------------------------------------------------
 /// Find the requested reservoir by caseId
 //--------------------------------------------------------------------------------------------------
-RimCase* RiaSocketServer::findReservoir(int caseId)
+RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
 {
     int currCaseId = caseId;
     if (caseId < 0)
@@ -163,7 +163,7 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
         RimProject* project =  RiaApplication::instance()->project();
         if (!project) return NULL;
 
-        std::vector<RimCase*> cases;
+        std::vector<RimEclipseCase*> cases;
         project->allCases(cases);
 
         for (size_t i = 0; i < cases.size(); i++)

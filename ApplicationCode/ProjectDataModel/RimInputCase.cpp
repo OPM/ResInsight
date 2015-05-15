@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT(RimInputCase, "RimInputReservoir");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimInputCase::RimInputCase()
-    : RimCase()
+    : RimEclipseCase()
 {
     CAF_PDM_InitObject("RimInputCase", ":/EclipseInput48x48.png", "", "");
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");

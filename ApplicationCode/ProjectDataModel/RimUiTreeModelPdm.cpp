@@ -228,7 +228,7 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
+void RimUiTreeModelPdm::deleteReservoir(RimEclipseCase* reservoir)
 {
     if (reservoir->parentCaseCollection())
     {
@@ -394,7 +394,7 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
         collectionIndex = itemIndex.parent();
         position = itemIndex.row();
     }
-    else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
     {
         collectionItem = currentItem;
         collectionIndex = itemIndex;
@@ -403,7 +403,7 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
 
     if (collectionItem)
     {
-        RimCase* rimReservoir = dynamic_cast<RimCase*>(collectionItem->dataObject().p());
+        RimEclipseCase* rimReservoir = dynamic_cast<RimEclipseCase*>(collectionItem->dataObject().p());
         RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
 
         // Must be run before buildViewItems, as wells are created in this function
@@ -590,7 +590,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
         RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
         proj->assignIdToCaseGroup(createdObject);
 
-        RimCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
+        RimEclipseCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
         proj->assignCaseIdToCase(createdReservoir);
         createdObject->name = QString("Grid Case Group %1").arg(analysisModels->caseGroups().size() + 1);
 
@@ -725,7 +725,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
             return;
         }
 
-        RimCase* rimCase = caseFromItemIndex(itemIndex);
+        RimEclipseCase* rimCase = caseFromItemIndex(itemIndex);
         QModelIndex collectionIndex = getModelIndexFromPdmObject(rimCase);
         caf::PdmUiTreeItem* collectionItem = getTreeItemFromIndex(collectionIndex);
 
@@ -770,7 +770,7 @@ void RimUiTreeModelPdm::moveObjects(const QModelIndex& itemIndex, caf::PdmObject
 
     for (size_t i = 0; i < typedObjects.size(); i++)
     {
-        RimCase* rimReservoir = typedObjects[i];
+        RimEclipseCase* rimReservoir = typedObjects[i];
         deleteReservoir(rimReservoir);
     }
 }
@@ -859,7 +859,7 @@ Qt::ItemFlags RimUiTreeModelPdm::flags(const QModelIndex &index) const
         {
             return Qt::ItemIsDropEnabled | defaultFlags;
         }
-        else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+        else if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
         {
             // TODO: Remember to handle reservoir holding the main grid
             return Qt::ItemIsDragEnabled | defaultFlags;
@@ -943,9 +943,9 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::gridCaseGroupFromItemIndex(const Q
 
         gridCaseGroup = caseCollection->parentCaseGroup();
     }
-    else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
     {
-        RimCase* rimReservoir = dynamic_cast<RimCase*>(currentItem->dataObject().p());
+        RimEclipseCase* rimReservoir = dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p());
         CVF_ASSERT(rimReservoir);
 
         RimCaseCollection* caseCollection = rimReservoir->parentCaseCollection();
@@ -980,15 +980,15 @@ void RimUiTreeModelPdm::addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTre
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemIndex)
+RimEclipseCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemIndex)
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
-    RimCase* rimCase = NULL;
+    RimEclipseCase* rimCase = NULL;
 
-    if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
     {
-        rimCase = dynamic_cast<RimCase*>(currentItem->dataObject().p());
+        rimCase = dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p());
     }
     else if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
     {

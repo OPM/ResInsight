@@ -57,7 +57,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
         QString propertyName = args[2];
         QString porosityModelName = args[3];
@@ -225,7 +225,7 @@ public:
         QString propertyName      = args[3];
         QString porosityModelName = args[4];
         
-        RimCase*rimCase = server->findReservoir(caseId);
+        RimEclipseCase*rimCase = server->findReservoir(caseId);
         if (rimCase == NULL)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID: \"%1\"").arg(caseId));
@@ -392,7 +392,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
         QString propertyName = args[2];
         QString porosityModelName = args[3];
@@ -680,7 +680,7 @@ public:
     }
 
 private:
-    RimCase*                            m_currentReservoir;
+    RimEclipseCase*                            m_currentReservoir;
     std::vector< std::vector<double> >* m_scalarResultsToAdd;
     size_t                              m_currentScalarIndex;
     QString                             m_currentPropertyName;
@@ -720,7 +720,7 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
     {
         int caseId = args[1].toInt();
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
@@ -1026,7 +1026,7 @@ public:
     }
 
 private:
-    RimCase*                            m_currentReservoir;
+    RimEclipseCase*                            m_currentReservoir;
     std::vector< std::vector<double> >* m_scalarResultsToAdd;
     size_t                              m_currentGridIndex;
     size_t                              m_currentScalarIndex;
@@ -1054,7 +1054,7 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
         int caseId = args[1].toInt();
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));

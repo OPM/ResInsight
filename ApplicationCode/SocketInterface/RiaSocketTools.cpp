@@ -48,9 +48,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args)
+RimEclipseCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args)
 {
-    RimCase* rimCase = NULL;
+    RimEclipseCase* rimCase = NULL;
     int caseId = -1;
 
     if (args.size() > 1)
@@ -72,7 +72,7 @@ RimCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const QList<Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId)
+void RiaSocketTools::getCaseInfoFromCase(RimEclipseCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId)
 {
     CVF_ASSERT(rimCase);
 

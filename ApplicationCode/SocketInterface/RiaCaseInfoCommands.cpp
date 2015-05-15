@@ -55,7 +55,7 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
 
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
 
         // Write data back to octave: I, J, K dimensions
@@ -91,7 +91,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
 
         RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
@@ -143,7 +143,7 @@ public:
         return true;
     }
 
-    static void calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, RifReaderInterface::PorosityModelResultType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& globalCoarseningBoxIdx)
+    static void calculateMatrixModelActiveCellInfo(RimEclipseCase* reservoirCase, RifReaderInterface::PorosityModelResultType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& globalCoarseningBoxIdx)
     {
         gridNumber.clear();
         cellI.clear();
@@ -268,7 +268,7 @@ public:
             argCaseGroupId = args[1].toInt();
         }
 
-        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        RimEclipseCase* rimCase = server->findReservoir(argCaseGroupId);
         if (!rimCase || !rimCase->reservoirData() || !rimCase->reservoirData()->mainGrid())
         {
             quint64 byteCount = 0;
@@ -340,7 +340,7 @@ public:
             argCaseGroupId = args[1].toInt();
         }
 
-        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        RimEclipseCase* rimCase = server->findReservoir(argCaseGroupId);
         if (!rimCase || !rimCase->reservoirData() || !rimCase->reservoirData()->mainGrid())
         {
             quint64 byteCount = 0;
@@ -399,7 +399,7 @@ public:
             argCaseGroupId = args[1].toInt();
         }
 
-        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        RimEclipseCase* rimCase = server->findReservoir(argCaseGroupId);
 
         bool canFetchData = true;
 
@@ -486,7 +486,7 @@ public:
             argCaseGroupId = args[1].toInt();
         }
 
-        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        RimEclipseCase* rimCase = server->findReservoir(argCaseGroupId);
 
         bool canFetchData = true;
 

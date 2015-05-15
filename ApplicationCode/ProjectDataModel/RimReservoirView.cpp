@@ -1043,7 +1043,7 @@ void RimReservoirView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::setEclipseCase(RimCase* reservoir)
+void RimReservoirView::setEclipseCase(RimEclipseCase* reservoir)
 {
     m_reservoir = reservoir;
 }
@@ -1051,7 +1051,7 @@ void RimReservoirView::setEclipseCase(RimCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimReservoirView::eclipseCase()
+RimEclipseCase* RimReservoirView::eclipseCase()
 {
     return m_reservoir;
 }
