@@ -34,6 +34,8 @@
 #include "RimWellPathImport.h"
 
 #include <QDir>
+#include "RimGeoMechModels.h"
+#include "RimGeoMechCase.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +139,7 @@ void RimProject::initScriptDirectories()
     {
         int largestId = -1;
 
-        std::vector<RimEclipseCase*> cases;
+        std::vector<RimCase*> cases;
         allCases(cases);
     
         for (size_t i = 0; i < cases.size(); i++)
@@ -324,7 +326,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
 
     // Loop over all cases and update file path
 
-    std::vector<RimEclipseCase*> cases;
+    std::vector<RimCase*> cases;
     allCases(cases);
     for (size_t i = 0; i < cases.size(); i++)
     {
@@ -345,7 +347,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::assignCaseIdToCase(RimEclipseCase* reservoirCase)
+void RimProject::assignCaseIdToCase(RimCase* reservoirCase)
 {
     if (reservoirCase)
     {
@@ -371,32 +373,44 @@ void RimProject::assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allCases(std::vector<RimEclipseCase*>& cases)
+void RimProject::allCases(std::vector<RimCase*>& cases)
 {
     for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
     {
         RimOilField* oilField = oilFields[oilFieldIdx];
-        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
-        if (analysisModels == NULL) continue;
+        if (!oilField) continue;
 
-        for (size_t caseIdx = 0; caseIdx < analysisModels->cases.size(); caseIdx++)
+        RimAnalysisModels* analysisModels = oilField->analysisModels();
+        if (analysisModels ) 
         {
-            cases.push_back(analysisModels->cases[caseIdx]);
-        }
-        for (size_t cgIdx = 0; cgIdx < analysisModels->caseGroups.size(); cgIdx++)
-        {
-            // Load the Main case of each IdenticalGridCaseGroup
-            RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups[cgIdx];
-            if (cg == NULL) continue;
-
-            for (size_t caseIdx = 0; caseIdx < cg->statisticsCaseCollection()->reservoirs.size(); caseIdx++)
+            for (size_t caseIdx = 0; caseIdx < analysisModels->cases.size(); caseIdx++)
             {
-                cases.push_back(cg->statisticsCaseCollection()->reservoirs[caseIdx]);
+                cases.push_back(analysisModels->cases[caseIdx]);
             }
-
-            for (size_t caseIdx = 0; caseIdx < cg->caseCollection()->reservoirs.size(); caseIdx++)
+            for (size_t cgIdx = 0; cgIdx < analysisModels->caseGroups.size(); cgIdx++)
             {
-                cases.push_back(cg->caseCollection()->reservoirs[caseIdx]);
+                // Load the Main case of each IdenticalGridCaseGroup
+                RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups[cgIdx];
+                if (cg == NULL) continue;
+
+                for (size_t caseIdx = 0; caseIdx < cg->statisticsCaseCollection()->reservoirs.size(); caseIdx++)
+                {
+                    cases.push_back(cg->statisticsCaseCollection()->reservoirs[caseIdx]);
+                }
+
+                for (size_t caseIdx = 0; caseIdx < cg->caseCollection()->reservoirs.size(); caseIdx++)
+                {
+                    cases.push_back(cg->caseCollection()->reservoirs[caseIdx]);
+                }
+            }
+        }
+
+        RimGeoMechModels* geomModels = oilField->geoMechModels();
+        if (geomModels)
+        {
+            for (size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++)
+            {
+                cases.push_back(geomModels->cases[caseIdx]);
             }
         }
     }
@@ -408,17 +422,17 @@ void RimProject::allCases(std::vector<RimEclipseCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 void RimProject::createDisplayModelAndRedrawAllViews()
 {
-    std::vector<RimEclipseCase*> cases;
+    std::vector<RimCase*> cases;
     allCases(cases);
     for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
     {
-        RimEclipseCase* rimCase = cases[caseIdx];
+        RimCase* rimCase = cases[caseIdx];
         if (rimCase == NULL) continue;
+        std::vector<RimView*> views = rimCase->views();
 
-        for (size_t viewIdx = 0; viewIdx < rimCase->reservoirViews.size(); viewIdx++)
+        for (size_t viewIdx = 0; viewIdx < views.size(); viewIdx++)
         {
-            RimReservoirView* reservoirView = rimCase->reservoirViews[viewIdx];
-            reservoirView->scheduleCreateDisplayModelAndRedraw();
+            views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
         }
     }
 }
@@ -439,14 +453,14 @@ RimOilField* RimProject::activeOilField()
 //--------------------------------------------------------------------------------------------------
 void RimProject::computeUtmAreaOfInterest()
 {
-    std::vector<RimEclipseCase*> cases;
+    std::vector<RimCase*> cases;
     allCases(cases);
 
     cvf::BoundingBox projectBB;
 
     for (size_t i = 0; i < cases.size(); i++)
     {
-        RimEclipseCase* rimCase = cases[i];
+        RimEclipseCase* rimCase = dynamic_cast<RimEclipseCase*>(cases[i]);
 
         if (rimCase && rimCase->reservoirData())
         {
@@ -456,6 +470,10 @@ void RimProject::computeUtmAreaOfInterest()
 
                 projectBB.add(rigGrid->boundingBox());
             }
+        }
+        else
+        {
+            // Todo : calculate BBox of GeoMechCase
         }
     }
 

@@ -55,7 +55,7 @@ public:
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     RimGeoMechCase*                                     geoMechCase();
 
-    void                                                loadDataAndUpdate();
+    virtual void                                        loadDataAndUpdate();
 
     virtual void                                        endAnimation() {}
 

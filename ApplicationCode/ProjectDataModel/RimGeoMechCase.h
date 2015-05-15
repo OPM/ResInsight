@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "RimCase.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -32,7 +33,7 @@ class RifGeoMechReaderInterface;
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechCase : public caf::PdmObject
+class RimGeoMechCase : public RimCase
 {
      CAF_PDM_HEADER_INIT;
 
@@ -47,6 +48,9 @@ public:
     const RigGeoMechCaseData*               geoMechData() const { return m_geoMechCaseData.p(); }
 
     RimGeoMechView*                         createAndAddReservoirView();
+
+    virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
+    virtual std::vector<RimView*>           views();
 
     // Fields:                                        
     caf::PdmField<QString>                  caseUserDescription;

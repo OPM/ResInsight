@@ -241,7 +241,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
             if (ruiMainWindow)
             {
-                std::vector<RimEclipseCase*> cases;
+                std::vector<RimCase*> cases;
                 ruiMainWindow->selectedCases(cases);
 
                 if (cases.size() > 0)

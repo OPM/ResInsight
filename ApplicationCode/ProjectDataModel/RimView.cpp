@@ -42,7 +42,7 @@ void caf::AppEnum< RimView::SurfaceModeType >::setUp()
 } // End namespace caf
 
 
-
+#include "cafPdmAbstractClassSourceInit.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT(RimView, "GenericView"); // Do not use. Abstract class 
 

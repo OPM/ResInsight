@@ -72,14 +72,20 @@ RimEclipseCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSocketTools::getCaseInfoFromCase(RimEclipseCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId)
+void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId)
 {
     CVF_ASSERT(rimCase);
 
     caseId = rimCase->caseId;
     caseName = rimCase->caseUserDescription;
 
-    RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
+    RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*> (rimCase);
+    RimCaseCollection* caseCollection = NULL;
+    if (eclCase)
+    {
+        caseCollection = eclCase->parentCaseCollection();
+    }
+
     if (caseCollection)
     {
         caseGroupId = caseCollection->parentCaseGroup()->groupId;
@@ -100,6 +106,10 @@ void RiaSocketTools::getCaseInfoFromCase(RimEclipseCase* rimCase, qint64& caseId
         if (dynamic_cast<RimInputCase*>(rimCase))
         {
             caseType = "InputCase";
+        }
+        else if (eclCase)
+        {
+            caseType = "GeoMechCase";
         }
         else
         {

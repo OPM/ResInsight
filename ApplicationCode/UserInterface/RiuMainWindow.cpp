@@ -1329,18 +1329,20 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     if (!proj) return;
 
     // Iterate all cases in each oil field
-    std::vector<RimEclipseCase*> allCases;
+    std::vector<RimCase*> allCases;
     proj->allCases(allCases);
 
     for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)
     {
-        RimEclipseCase* reservoirCase = allCases[caseIdx];
+        RimCase* reservoirCase = allCases[caseIdx];
         if (reservoirCase == NULL) continue;
+        
+        std::vector<RimView*> views = reservoirCase->views();
 
         size_t viewIdx;
-        for (viewIdx = 0; viewIdx < reservoirCase->reservoirViews().size(); viewIdx++)
+        for (viewIdx = 0; viewIdx < views.size(); viewIdx++)
         {
-            RimReservoirView* riv = reservoirCase->reservoirViews()[viewIdx];
+            RimView* riv = views[viewIdx];
 
             if (riv &&
                 riv->viewer() &&
@@ -1858,7 +1860,7 @@ void RiuMainWindow::updateScaleValue()
 //--------------------------------------------------------------------------------------------------
 /// TODO: This function will be moved to a class responsible for handling the application selection concept
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectedCases(std::vector<RimEclipseCase*>& cases)
+void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 {
     if (m_treeView && m_treeView->selectionModel())
     {
@@ -1867,7 +1869,7 @@ void RiuMainWindow::selectedCases(std::vector<RimEclipseCase*>& cases)
         caf::PdmObjectGroup group;
         m_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndexes, &group);
 
-        std::vector<caf::PdmPointer<RimEclipseCase> > typedObjects;
+        std::vector<caf::PdmPointer<RimCase> > typedObjects;
         group.objectsByType(&typedObjects);
 
         for (size_t i = 0; i < typedObjects.size(); i++)

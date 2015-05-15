@@ -91,4 +91,35 @@ bool RimGeoMechCase::openGeoMechCase()
     return m_geoMechCaseData->openAndReadFemParts();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+{
+    bool foundFile = false;
+    std::vector<QString> searchedPaths;
+
+    // Update filename and folder paths when opening project from a different file location
+    m_caseFileName = relocateFile(m_caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    
+#if 0 // Output the search path for debugging
+    for (size_t i = 0; i < searchedPaths.size(); ++i)
+       qDebug() << searchedPaths[i];
+#endif 
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimView*> RimGeoMechCase::views()
+{
+    std::vector<RimView*> views;
+    for (size_t vIdx = 0; vIdx < geoMechViews.size(); ++vIdx)
+    {
+        views.push_back(geoMechViews[vIdx]);
+    }
+    return views;
+}
 

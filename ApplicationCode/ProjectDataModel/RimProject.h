@@ -24,6 +24,7 @@
 
 class RimOilField;
 class RimEclipseCase;
+class RimCase;
 class RigGridManager;
 class RimScriptCollection;
 class RimIdenticalGridCaseGroup;
@@ -57,11 +58,11 @@ public:
 
     void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
 
-    void            assignCaseIdToCase(RimEclipseCase* reservoirCase);
+    void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
-    void            allCases(std::vector<RimEclipseCase*>& cases); // VL endre impl
-    void            createDisplayModelAndRedrawAllViews(); // VL endre impl
+    void            allCases(std::vector<RimCase*>& cases); 
+    void            createDisplayModelAndRedrawAllViews(); 
 
     void            computeUtmAreaOfInterest();
 

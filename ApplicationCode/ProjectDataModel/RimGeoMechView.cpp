@@ -392,7 +392,11 @@ RimGeoMechCase* RimGeoMechView::geoMechCase()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::clampCurrentTimestep()
 {
-    size_t maxFrameCount = m_geomechCase->geoMechData()->frameCount(0,  cellResult()->resultAddress());
+    size_t maxFrameCount = 0;
+    
+    if (m_geomechCase){
+        maxFrameCount = m_geomechCase->geoMechData()->frameCount(0, cellResult()->resultAddress());
+    }
 
     if (m_currentTimeStep >= maxFrameCount ) m_currentTimeStep = (int)(maxFrameCount -1);
     if (m_currentTimeStep < 0 ) m_currentTimeStep = 0; 
@@ -455,3 +459,4 @@ void RivElmVisibilityCalculator::computeAllVisible(cvf::UByteArray* elmVisibilit
     elmVisibilities->resize(femPart->elementCount());
     elmVisibilities->setAll(true);
 }
+

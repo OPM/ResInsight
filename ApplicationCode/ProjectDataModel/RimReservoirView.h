@@ -118,7 +118,7 @@ public:
 
     // Display model generation
 public:
-    void                                    loadDataAndUpdate();
+    virtual void                            loadDataAndUpdate();
     bool                                    isTimeStepDependentDataVisible() const;
 
     void                                    scheduleGeometryRegen(unsigned short geometryType);

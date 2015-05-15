@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-class RimEclipseCase;
+class RimCase;
 class RiaSocketServer;
 class QTcpSocket;
 
@@ -28,7 +28,7 @@ class RiaSocketTools
 {
 public:
     static RimEclipseCase* findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args);
-    static void getCaseInfoFromCase(RimEclipseCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
+    static void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
     
     static bool writeBlockData(RiaSocketServer* server, QTcpSocket* socket, const char* data, quint64 bytesToWrite);
 };

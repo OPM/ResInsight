@@ -50,11 +50,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void getCaseInfoFromCases(std::vector<RimEclipseCase*>& cases, std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<QString> &caseTypes, std::vector<qint64>& caseGroupIds)
+void getCaseInfoFromCases(std::vector<RimCase*>& cases, std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<QString> &caseTypes, std::vector<qint64>& caseGroupIds)
 {
     for (size_t i = 0; i < cases.size(); i++)
     {
-        RimEclipseCase* rimCase = cases[i];
+        RimCase* rimCase = cases[i];
 
         qint64  caseId = -1;
         QString caseName;
@@ -125,7 +125,7 @@ public:
         RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
         if (ruiMainWindow)
         {
-            std::vector<RimEclipseCase*> cases;
+            std::vector<RimCase*> cases;
             ruiMainWindow->selectedCases(cases);
 
             std::vector<qint64>  caseIds;
@@ -243,7 +243,7 @@ public:
         if (analysisModels)
         {
 
-            std::vector<RimEclipseCase*> cases;
+            std::vector<RimCase*> cases;
             if (argCaseGroupId == -1)
             {
                 proj->allCases(cases);

@@ -28,6 +28,7 @@
 #include "RigFemScalarResultFrames.h"
 #include "RigStatisticsDataCache.h"
 #include <cmath>
+#include "cvfBoundingBox.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -311,4 +312,3 @@ void RigGeoMechCaseData::assertResultsLoaded(int stepIndex, const RigFemResultAd
         }
     }
 }
-

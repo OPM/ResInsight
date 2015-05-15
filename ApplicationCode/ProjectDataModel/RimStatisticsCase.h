@@ -70,6 +70,7 @@ public:
     };
 
     caf::PdmField< bool >                                          m_calculateEditCommand;
+    virtual void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath){}
  
 private:
     RimIdenticalGridCaseGroup* caseGroup();

@@ -163,14 +163,14 @@ RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
         RimProject* project =  RiaApplication::instance()->project();
         if (!project) return NULL;
 
-        std::vector<RimEclipseCase*> cases;
+        std::vector<RimCase*> cases;
         project->allCases(cases);
 
         for (size_t i = 0; i < cases.size(); i++)
         {
             if (cases[i]->caseId == currCaseId)
             {
-                return cases[i];
+                return dynamic_cast<RimEclipseCase*>(cases[i]);
             }
         }
     }

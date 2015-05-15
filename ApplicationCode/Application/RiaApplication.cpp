@@ -363,24 +363,24 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     // Now load the ReservoirViews for the cases
     // Add all "native" cases in the project
-    std::vector<RimEclipseCase*> casesToLoad;
+    std::vector<RimCase*> casesToLoad;
     m_project->allCases(casesToLoad);
 
     caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
     
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
-        RimEclipseCase* ri = casesToLoad[cIdx];
-        CVF_ASSERT(ri);
+        RimCase* cas = casesToLoad[cIdx];
+        CVF_ASSERT(cas);
 
-        caseProgress.setProgressDescription(ri->caseUserDescription());
-
-        caf::ProgressInfo viewProgress(ri->reservoirViews().size() , "Creating Views");
+        caseProgress.setProgressDescription(cas->caseUserDescription());
+        std::vector<RimView*> views = cas->views();
+        caf::ProgressInfo viewProgress(views.size() , "Creating Views");
 
         size_t j;
-        for (j = 0; j < ri->reservoirViews().size(); j++)
+        for (j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews[j];
+            RimView* riv = views[j];
             CVF_ASSERT(riv);
 
             viewProgress.setProgressDescription(riv->name());
@@ -1526,17 +1526,19 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
     const QString absSnapshotPath = snapshotPath.absolutePath();
 
-    std::vector<RimEclipseCase*> projectCases;
+    std::vector<RimCase*> projectCases;
     m_project->allCases(projectCases);
 
     for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimEclipseCase* ri = projectCases[i];
-        if (!ri) continue;
+        RimCase* cas = projectCases[i];
+        if (!cas) continue;
 
-        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        std::vector<RimView*> views = cas->views();
+
+        for (size_t j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews()[j];
+            RimView* riv = views[j];
 
             if (riv && riv->viewer())
             {
@@ -1548,7 +1550,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 // Process all events to avoid a black image when grabbing frame buffer
                 QCoreApplication::processEvents();
 
-                QString fileName = ri->caseUserDescription() + "-" + riv->name();
+                QString fileName = cas->caseUserDescription() + "-" + riv->name();
                 fileName.replace(" ", "_");
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
@@ -2104,17 +2106,20 @@ void RiaApplication::regressionTestConfigureProject()
 
     if (m_project.isNull()) return;
 
-    std::vector<RimEclipseCase*> projectCases;
+    std::vector<RimCase*> projectCases;
     m_project->allCases(projectCases);
+
 
     for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimEclipseCase* ri = projectCases[i];
-        if (!ri) continue;
+        RimCase* cas = projectCases[i];
+        if (!cas) continue;
 
-        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        std::vector<RimView*> views = cas->views();
+
+        for (size_t j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews()[j];
+            RimView* riv = views[j];
 
             if (riv && riv->viewer())
             {
@@ -2122,8 +2127,13 @@ void RiaApplication::regressionTestConfigureProject()
                 riv->viewer()->setFixedSize(1000, 745);
             }
 
-            riv->faultCollection->setShowFaultsOutsideFilters(false);
-            riv->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+            RimReservoirView* resvView = dynamic_cast<RimReservoirView*>(riv);
+
+            if (resvView)
+            {
+                resvView->faultCollection->setShowFaultsOutsideFilters(false);
+                resvView->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+            }
         }
     }
 }

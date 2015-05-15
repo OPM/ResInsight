@@ -20,12 +20,13 @@
 
 #pragma once
 
+#include "RimCase.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "RifReaderInterface.h"
-
 class QString;
 
 class RigCaseData;
@@ -35,12 +36,13 @@ class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 
+
 //==================================================================================================
 // 
 // Interface for reservoirs. 
 // 
 //==================================================================================================
-class RimEclipseCase : public caf::PdmObject
+class RimEclipseCase : public RimCase
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -49,8 +51,6 @@ public:
 
 
     // Fields:                                        
-    caf::PdmField<QString>                      caseUserDescription;
-    caf::PdmField<int>                          caseId;
     caf::PdmField<bool>                         releaseResultMemory;
     caf::PdmPointersField<RimReservoirView*>    reservoirViews;
     caf::PdmField<bool>                         flipXAxis;
@@ -60,7 +60,7 @@ public:
 
 
     bool                                        openReserviorCase();
-    virtual bool                                openEclipseGridFile() { return false; }; // Should be pure virtual but PDM does not allow that.
+    virtual bool                                openEclipseGridFile() = 0;
                                                       
     RigCaseData*                                reservoirData();
     const RigCaseData*                          reservoirData() const;
@@ -75,11 +75,11 @@ public:
     virtual QString                             locationOnDisc() const      { return QString(); }
     virtual QString                             gridFileName() const      { return QString(); }
 
-    virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) { };
 
     RimCaseCollection*                          parentCaseCollection();
     RimIdenticalGridCaseGroup*                  parentGridCaseGroup();
                                                      
+    virtual std::vector<RimView*>               views();
                                                      
     // Overridden methods from PdmObject
 public:
@@ -92,8 +92,7 @@ protected:
 protected:
     void                                        computeCachedData();
     void                                        setReservoirData(RigCaseData* eclipseCase);
-    static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 
-                                                             bool* foundFile, std::vector<QString>* searchedPaths);
+
 
 private:
     cvf::ref<RigCaseData>                       m_rigEclipseCase;
