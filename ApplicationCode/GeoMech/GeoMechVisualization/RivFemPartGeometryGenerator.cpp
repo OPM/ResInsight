@@ -216,10 +216,10 @@ void RivFemPartGeometryGenerator::computeArrays()
                        m_quadVerticesToNodeIdx.push_back(qNodeIdx[2]);
                        m_quadVerticesToNodeIdx.push_back(qNodeIdx[3]);
 
-                       m_quadVerticesToGlobalElmNodeIdx.push_back(qNodeIdx[0]);
-                       m_quadVerticesToGlobalElmNodeIdx.push_back(qNodeIdx[1]);
-                       m_quadVerticesToGlobalElmNodeIdx.push_back(qNodeIdx[2]);
-                       m_quadVerticesToGlobalElmNodeIdx.push_back(qNodeIdx[3]);
+                       m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[0]);
+                       m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[1]);
+                       m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[2]);
+                       m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[3]);
                    }
                 }
                 else
