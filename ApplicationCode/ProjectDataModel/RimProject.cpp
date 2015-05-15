@@ -24,7 +24,7 @@
 #include "RiaVersionInfo.h"
 #include "RigCaseData.h"
 #include "RimAnalysisModels.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"

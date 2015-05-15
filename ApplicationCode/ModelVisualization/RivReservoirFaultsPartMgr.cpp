@@ -31,7 +31,7 @@
 #include "RimFaultResultSlot.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RigCaseData.h"
 
 //--------------------------------------------------------------------------------------------------

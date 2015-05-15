@@ -16,7 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RimDefines.h
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimOilField.h
 ${CEE_CURRENT_LIST_DIR}RimProject.h
-${CEE_CURRENT_LIST_DIR}RimCase.h
+${CEE_CURRENT_LIST_DIR}RimEclipseCase.h
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.h
 ${CEE_CURRENT_LIST_DIR}RimInputProperty.h
 ${CEE_CURRENT_LIST_DIR}RimInputPropertyCollection.h
@@ -71,7 +71,7 @@ ${CEE_CURRENT_LIST_DIR}RimDefines.cpp
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimOilField.cpp
 ${CEE_CURRENT_LIST_DIR}RimProject.cpp
-${CEE_CURRENT_LIST_DIR}RimCase.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.cpp
 ${CEE_CURRENT_LIST_DIR}RimInputProperty.cpp
 ${CEE_CURRENT_LIST_DIR}RimInputPropertyCollection.cpp

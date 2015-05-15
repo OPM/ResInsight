@@ -22,7 +22,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimFaultCollection.h"

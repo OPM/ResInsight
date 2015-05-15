@@ -33,7 +33,7 @@
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimInputCase.h"
 #include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"

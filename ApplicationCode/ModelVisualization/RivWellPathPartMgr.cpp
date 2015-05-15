@@ -22,7 +22,7 @@
 #include "cvfLibCore.h"
 
 #include "RiaApplication.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
 #include "RimReservoirCellResultsStorage.h"

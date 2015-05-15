@@ -32,7 +32,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 

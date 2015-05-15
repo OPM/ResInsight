@@ -28,7 +28,7 @@
 #include "RiaRegressionTest.h"
 #include "RigCaseCellResultsData.h"
 #include "RimAnalysisModels.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCommandObject.h"

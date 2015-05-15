@@ -26,7 +26,7 @@
 #include "cafPdmObject.h"
 #include "cafAppEnum.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimDefines.h"
 
 class RimIdenticalGridCaseGroup;

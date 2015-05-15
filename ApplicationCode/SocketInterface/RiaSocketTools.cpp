@@ -25,7 +25,7 @@
 
 #include "RiaSocketTools.h"
 #include "RiaSocketServer.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimInputCase.h"

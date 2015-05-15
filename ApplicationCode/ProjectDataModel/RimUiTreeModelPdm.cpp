@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RigGridManager.h"
 #include "RimAnalysisModels.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"

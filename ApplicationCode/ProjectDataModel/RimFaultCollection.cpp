@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RigCaseData.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimNoCommonAreaNNC.h"
 #include "RimNoCommonAreaNncCollection.h"
 #include "RimReservoirView.h"

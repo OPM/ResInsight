@@ -29,7 +29,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RimReservoirCellResultsStorage.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimInputCase.h"
 #include "RimInputPropertyCollection.h"
 #include "RimUiTreeModelPdm.h"

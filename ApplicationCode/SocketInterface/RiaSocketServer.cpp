@@ -32,7 +32,7 @@
 #include "RiuMainWindow.h"
 #include "RimReservoirView.h"
 #include "RimProject.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"

@@ -20,7 +20,7 @@
 
 #include "RimCaseCollection.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 
 

@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RigCaseData.h"
 #include "RigGridManager.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"

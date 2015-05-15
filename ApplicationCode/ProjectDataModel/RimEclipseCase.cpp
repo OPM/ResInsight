@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"

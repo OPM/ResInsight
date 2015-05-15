@@ -24,7 +24,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigGridManager.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimReservoirCellResultsStorage.h"

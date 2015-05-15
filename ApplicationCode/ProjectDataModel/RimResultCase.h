@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 
 class RifReaderInterface;
 class RigMainGrid;

@@ -28,7 +28,7 @@
 #include "RimReservoirView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"

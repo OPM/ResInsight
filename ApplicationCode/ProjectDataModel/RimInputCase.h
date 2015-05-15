@@ -23,7 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 
 class RifReaderInterface;
 class RimInputPropertyCollection;

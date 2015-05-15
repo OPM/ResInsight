@@ -25,7 +25,7 @@
 #include "RigCell.h"
 #include "RigMainGrid.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimTools.h"
 
 #include "cafProgressInfo.h"
