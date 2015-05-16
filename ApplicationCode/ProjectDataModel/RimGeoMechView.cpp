@@ -42,6 +42,7 @@
 #include "cvfqtUtils.h"
 #include "RigFemPartCollection.h"
 #include "cafFrameAnimationControl.h"
+#include <QMessageBox>
 
 
 
