@@ -42,6 +42,7 @@ public:
     virtual ~RimGeoMechCase(void);
     
     void                                    setFileName(const QString& fileName) {m_caseFileName = fileName;}
+    QString                                 caseFileName() const  {return m_caseFileName();}
     bool                                    openGeoMechCase();
 
     RigGeoMechCaseData*                     geoMechData() { return m_geoMechCaseData.p(); }

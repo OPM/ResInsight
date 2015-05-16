@@ -110,9 +110,19 @@ void RimGeoMechView::loadDataAndUpdate()
 
     if (m_geomechCase)
     {
-        m_geomechCase->openGeoMechCase();
+         if (!m_geomechCase->openGeoMechCase())
+         {
+            QMessageBox::warning(RiuMainWindow::instance(), 
+                                "Error when opening project file", 
+                                "Could not open the Odb file: \n"+ m_geomechCase->caseFileName());
+            m_geomechCase = NULL;
+            return;
+         }
         m_geoMechFullModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
     }
+
+    CVF_ASSERT(this->cellResult() != NULL);
+    m_geomechCase->geoMechData()->assertResultsLoaded(0, this->cellResult()->resultAddress());
 
     updateViewerWidget();
 
