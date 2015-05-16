@@ -72,6 +72,7 @@ Color3ub ScalarMapperDiscreteLog::mapToColor(double scalarValue) const
     double normSemiMaxVal = normalizedValue(levelUnderMax);
     double adjustedNormVal = 0;
     if (normSemiMaxVal != 0) adjustedNormVal = normDiscVal/normSemiMaxVal;
+    adjustedNormVal = cvf::Math::clamp(adjustedNormVal, 0.0, 1.0);
 
     return colorFromUserColorGradient(adjustedNormVal);
 }
