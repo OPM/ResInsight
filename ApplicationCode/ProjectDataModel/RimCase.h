@@ -39,6 +39,7 @@ public:
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
 
+    virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseUserDescription; }
 protected:
     static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 
                                                              bool* foundFile, std::vector<QString>* searchedPaths);

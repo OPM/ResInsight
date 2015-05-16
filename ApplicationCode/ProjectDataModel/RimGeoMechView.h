@@ -81,6 +81,7 @@ private:
     void                                                updateLegends();
 
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                                        initAfterRead();
 
     caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
     cvf::ref<RivGeoMechPartMgr>                         m_geoMechFullModel;

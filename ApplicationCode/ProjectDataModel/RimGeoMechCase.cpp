@@ -33,7 +33,6 @@ RimGeoMechCase::RimGeoMechCase(void)
 {
     CAF_PDM_InitObject("Geomechanical Case", ":/GeoMechCase48x48.png", "", "");
 
-    CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case name", "", "" ,"");
     CAF_PDM_InitField(&m_caseFileName, "CaseFileName", QString(), "Case file name", "", "", "");
     m_caseFileName.setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
@@ -61,14 +60,6 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 
     geoMechViews.push_back(gmv);
     return gmv;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimGeoMechCase::userDescriptionField()
-{
-    return &caseUserDescription;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,3 +114,18 @@ std::vector<RimView*> RimGeoMechCase::views()
     return views;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::initAfterRead()
+{
+    size_t j;
+    for (j = 0; j < geoMechViews().size(); j++)
+    {
+        RimGeoMechView* riv = geoMechViews()[j];
+        CVF_ASSERT(riv);
+
+        riv->setGeoMechCase(this);
+    }
+
+}

@@ -450,6 +450,16 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::initAfterRead()
+{
+    this->cellResult()->setReservoirView(this);
+
+    this->updateUiIconFromToggleField();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

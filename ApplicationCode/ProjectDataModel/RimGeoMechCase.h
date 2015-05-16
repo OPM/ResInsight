@@ -53,12 +53,10 @@ public:
     virtual std::vector<RimView*>           views();
 
     // Fields:                                        
-    caf::PdmField<QString>                  caseUserDescription;
     caf::PdmPointersField<RimGeoMechView*>  geoMechViews;
 
 private:
-    virtual caf::PdmFieldHandle*            userDescriptionField();
-
+    virtual void                            initAfterRead();
 private:
     cvf::ref<RigGeoMechCaseData>            m_geoMechCaseData;
     caf::PdmField<QString>                  m_caseFileName;

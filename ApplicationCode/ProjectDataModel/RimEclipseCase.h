@@ -83,7 +83,7 @@ public:
                                                      
     // Overridden methods from PdmObject
 public:
-    virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseUserDescription; }
+
 protected:
     virtual void                                initAfterRead();
     virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
