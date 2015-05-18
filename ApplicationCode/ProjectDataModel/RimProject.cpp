@@ -393,14 +393,19 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
                 RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups[cgIdx];
                 if (cg == NULL) continue;
 
-                for (size_t caseIdx = 0; caseIdx < cg->statisticsCaseCollection()->reservoirs.size(); caseIdx++)
+                if (cg->statisticsCaseCollection())
                 {
-                    cases.push_back(cg->statisticsCaseCollection()->reservoirs[caseIdx]);
+                    for (size_t caseIdx = 0; caseIdx < cg->statisticsCaseCollection()->reservoirs.size(); caseIdx++)
+                    {
+                        cases.push_back(cg->statisticsCaseCollection()->reservoirs[caseIdx]);
+                    }
                 }
-
-                for (size_t caseIdx = 0; caseIdx < cg->caseCollection()->reservoirs.size(); caseIdx++)
+                if (cg->caseCollection())
                 {
-                    cases.push_back(cg->caseCollection()->reservoirs[caseIdx]);
+                    for (size_t caseIdx = 0; caseIdx < cg->caseCollection()->reservoirs.size(); caseIdx++)
+                    {
+                        cases.push_back(cg->caseCollection()->reservoirs[caseIdx]);
+                    }
                 }
             }
         }

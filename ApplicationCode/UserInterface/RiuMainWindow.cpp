@@ -1327,6 +1327,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
+    if (!subWindow) return;
 
     // Iterate all cases in each oil field
     std::vector<RimCase*> allCases;
