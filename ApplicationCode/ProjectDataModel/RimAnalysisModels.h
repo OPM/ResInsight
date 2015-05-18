@@ -26,7 +26,7 @@
 
 #include "cvfObject.h"
 
-class RimCase;
+class RimEclipseCase;
 class RigGridManager;
 class RimIdenticalGridCaseGroup;
 class RigMainGrid;
@@ -45,15 +45,15 @@ public:
     RimAnalysisModels(void);
     virtual ~RimAnalysisModels(void);
 
-    caf::PdmPointersField<RimCase*>                     cases;
+    caf::PdmPointersField<RimEclipseCase*>                     cases;
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
 
     void                                                close();
 
-    RimIdenticalGridCaseGroup*                          createIdenticalCaseGroupFromMainCase(RimCase* mainCase);
-    void                                                insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir);
-    void                                                moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
-    void                                                removeCaseFromAllGroups(RimCase* rimReservoir);
+    RimIdenticalGridCaseGroup*                          createIdenticalCaseGroupFromMainCase(RimEclipseCase* mainCase);
+    void                                                insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimEclipseCase* rimReservoir);
+    void                                                moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimReservoir);
+    void                                                removeCaseFromAllGroups(RimEclipseCase* rimReservoir);
 
     void                                                recomputeStatisticsForAllCaseGroups();
 

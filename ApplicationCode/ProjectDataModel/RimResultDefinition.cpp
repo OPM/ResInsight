@@ -22,7 +22,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
 

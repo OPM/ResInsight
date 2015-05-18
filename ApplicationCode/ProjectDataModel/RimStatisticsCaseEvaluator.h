@@ -27,7 +27,7 @@
 #include <math.h>
 
 
-class RimCase;
+class RimEclipseCase;
 class RigCaseData;
 class RigCaseCellResultsData;
 
@@ -56,7 +56,7 @@ public:
 class RimStatisticsCaseEvaluator
 {
 public:
-    RimStatisticsCaseEvaluator(const std::vector<RimCase*>& sourceCases,
+    RimStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases,
                                const std::vector<size_t>& timeStepIndices,
                                const RimStatisticsConfig& statisticsConfig,
                                RigCaseData* destinationCase);
@@ -82,7 +82,7 @@ private:
     enum StatisticsParamType { MIN, MAX, RANGE, MEAN, STDEV, PMIN, PMID, PMAX, STAT_PARAM_COUNT };
 
 private:
-    std::vector<RimCase*>  m_sourceCases;
+    std::vector<RimEclipseCase*>  m_sourceCases;
     std::vector<size_t>    m_timeStepIndices;
 
     size_t                 m_reservoirCellCount;

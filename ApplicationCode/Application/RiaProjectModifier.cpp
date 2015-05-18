@@ -191,30 +191,24 @@ bool RiaProjectModifier::replaceSourceCases(RimProject* project)
 bool RiaProjectModifier::replaceCase(RimProject* project)
 {
     bool didReplacement = false;
+    std::vector<RimCase*> allCases;
+    project->allCases(allCases);
 
-    for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
+    for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)
     {
-        RimOilField* oilField = project->oilFields[oilFieldIdx];
-        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
-        if (analysisModels)
+        RimResultCase* resultCase = dynamic_cast<RimResultCase*>(allCases[caseIdx]);
+        if (resultCase)
         {
-            for (size_t caseIdx = 0; caseIdx < analysisModels->cases.size(); ++caseIdx)
+            if (m_replaceCase_caseId == FIRST_OCCURENCE ||
+                m_replaceCase_caseId == resultCase->caseId())
             {
-                RimResultCase* resultCase = dynamic_cast<RimResultCase*>(analysisModels->cases[caseIdx]);
-                if (resultCase)
-                {
-                    if (m_replaceCase_caseId == FIRST_OCCURENCE ||
-                        m_replaceCase_caseId == resultCase->caseId())
-                    {
-                        resultCase->setGridFileName(m_replaceCase_gridFileName);
-                        resultCase->caseUserDescription = caseNameFromGridFileName(m_replaceCase_gridFileName);
-                        didReplacement = true;
+                resultCase->setGridFileName(m_replaceCase_gridFileName);
+                resultCase->caseUserDescription = caseNameFromGridFileName(m_replaceCase_gridFileName);
+                didReplacement = true;
 
-                        if (m_replaceCase_caseId == FIRST_OCCURENCE)
-                        {
-                            return true;
-                        }
-                    }
+                if (m_replaceCase_caseId == FIRST_OCCURENCE)
+                {
+                    return true;
                 }
             }
         }

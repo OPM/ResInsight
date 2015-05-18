@@ -25,7 +25,7 @@
 #include "RigCell.h"
 #include "RigMainGrid.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimTools.h"
 
 #include "cafProgressInfo.h"
@@ -1489,7 +1489,7 @@ double RimReservoirCellResultsStorage::darchysValue()
 
     double darchy = 0.008527; // (ECLIPSE 100) (METRIC)
 
-    RimCase* rimCase = NULL;
+    RimEclipseCase* rimCase = NULL;
     this->firstAncestorOfType(rimCase);
 
     if (rimCase && rimCase->reservoirData())

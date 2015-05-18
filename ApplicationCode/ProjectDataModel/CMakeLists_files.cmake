@@ -16,7 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RimDefines.h
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimOilField.h
 ${CEE_CURRENT_LIST_DIR}RimProject.h
-${CEE_CURRENT_LIST_DIR}RimCase.h
+${CEE_CURRENT_LIST_DIR}RimEclipseCase.h
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.h
 ${CEE_CURRENT_LIST_DIR}RimInputProperty.h
 ${CEE_CURRENT_LIST_DIR}RimInputPropertyCollection.h
@@ -51,6 +51,12 @@ ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimFaultResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNNC.h
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechModels.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechCase.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechView.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechResultSlot.h
+${CEE_CURRENT_LIST_DIR}RimView.h
+${CEE_CURRENT_LIST_DIR}RimCase.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -65,7 +71,7 @@ ${CEE_CURRENT_LIST_DIR}RimDefines.cpp
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimOilField.cpp
 ${CEE_CURRENT_LIST_DIR}RimProject.cpp
-${CEE_CURRENT_LIST_DIR}RimCase.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.cpp
 ${CEE_CURRENT_LIST_DIR}RimInputProperty.cpp
 ${CEE_CURRENT_LIST_DIR}RimInputPropertyCollection.cpp
@@ -100,6 +106,12 @@ ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNNC.cpp
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechModels.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechCase.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechView.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechResultSlot.cpp
+${CEE_CURRENT_LIST_DIR}RimView.cpp
+${CEE_CURRENT_LIST_DIR}RimCase.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -110,4 +122,4 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-source_group( "ProjectDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} )
+source_group( "ProjectDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )

@@ -44,7 +44,7 @@ CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimResultCase::RimResultCase()
-    : RimCase()
+    : RimEclipseCase()
 {
     CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
@@ -358,7 +358,7 @@ void RimResultCase::setCaseInfo(const QString& userDescription, const QString& c
 //--------------------------------------------------------------------------------------------------
 void RimResultCase::initAfterRead()
 {
-    RimCase::initAfterRead();
+    RimEclipseCase::initAfterRead();
 
     // Convert from old (9.0.2) way of storing the case file
     if (caseFileName().isEmpty())

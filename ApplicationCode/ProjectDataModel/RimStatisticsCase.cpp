@@ -54,7 +54,7 @@ CAF_PDM_SOURCE_INIT(RimStatisticsCase, "RimStatisticalCalculation");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimStatisticsCase::RimStatisticsCase()
-    : RimCase()
+    : RimEclipseCase()
 {
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
 
@@ -186,7 +186,7 @@ void RimStatisticsCase::computeStatistics()
     CVF_ASSERT(gridCaseGroup);
     gridCaseGroup->computeUnionOfActiveCells();
 
-    std::vector<RimCase*> sourceCases;
+    std::vector<RimEclipseCase*> sourceCases;
 
     getSourceCases(sourceCases);
 
@@ -279,7 +279,7 @@ void RimStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::getSourceCases(std::vector<RimCase*>& sourceCases)
+void RimStatisticsCase::getSourceCases(std::vector<RimEclipseCase*>& sourceCases)
 {
     RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
     if (gridCaseGroup)
@@ -290,7 +290,7 @@ void RimStatisticsCase::getSourceCases(std::vector<RimCase*>& sourceCases)
             CVF_ASSERT(gridCaseGroup->caseCollection);
             CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]);
 
-            RimCase* sourceCase = gridCaseGroup->caseCollection->reservoirs[i];
+            RimEclipseCase* sourceCase = gridCaseGroup->caseCollection->reservoirs[i];
             sourceCases.push_back(sourceCase);
         }
     }
@@ -462,7 +462,7 @@ void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
 
         // Find or load well data for given case
-        RimCase* sourceResultCase = caseGroup()->caseCollection()->findByDescription(m_wellDataSourceCase);
+        RimEclipseCase* sourceResultCase = caseGroup()->caseCollection()->findByDescription(m_wellDataSourceCase);
         if (sourceResultCase)
         {
             sourceResultCase->openEclipseGridFile();

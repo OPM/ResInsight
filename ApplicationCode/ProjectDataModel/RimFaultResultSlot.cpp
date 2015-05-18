@@ -22,7 +22,7 @@
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 #include "RimUiTreeModelPdm.h"

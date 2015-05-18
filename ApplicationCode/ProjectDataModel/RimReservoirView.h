@@ -33,13 +33,14 @@
 #include "cafPdmFieldCvfMat4d.h"
 
 #include "RivReservoirViewPartMgr.h"
+#include "RimView.h"
 
 class RigActiveCellInfo;
 class RigCaseCellResultsData;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class Rim3dOverlayInfoConfig;
-class RimCase;
+class RimEclipseCase;
 class RimCellEdgeResultSlot;
 class RimCellPropertyFilter;
 class RimCellPropertyFilterCollection;
@@ -70,31 +71,16 @@ enum PartRenderMaskEnum
     meshFaultBit    = 0x00000008,
 };
 
-
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimReservoirView : public caf::PdmObject
+class RimReservoirView : public RimView
 {
     CAF_PDM_HEADER_INIT;
 public:
     RimReservoirView(void);
     virtual ~RimReservoirView(void);
-
-    enum MeshModeType
-    {
-        FULL_MESH,
-        FAULTS_MESH,
-        NO_MESH
-    };
-
-    enum SurfaceModeType
-    {
-        SURFACE,
-        FAULTS,
-        NO_SURFACE
-    };
 
     // Fields containing child objects :
 
@@ -109,27 +95,9 @@ public:
 
     caf::PdmField<RimFaultCollection*>                  faultCollection;
 
-    caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
-
-    // Visualization setup fields
-
-    caf::PdmField<QString>                              name;
-    caf::PdmField<double>                               scaleZ;
-    caf::PdmField<bool>                                 showWindow;
-
     caf::PdmField<bool>                                 showInvalidCells;
     caf::PdmField<bool>                                 showInactiveCells;
     caf::PdmField<bool>                                 showMainGrid;
-
-    caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
-    caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
-
-    caf::PdmField< cvf::Color3f >                       backgroundColor;
-
-    caf::PdmField<cvf::Mat4d>                           cameraPosition;
-
-    caf::PdmField<int>                                  maximumFrameRate;
-    caf::PdmField<bool>                                 animationMode;
 
 
     // Access internal objects
@@ -138,38 +106,19 @@ public:
     RimResultSlot*                          currentFaultResultSlot();
 
 
-    void                                    setEclipseCase(RimCase* reservoir);
-    RimCase*                                eclipseCase();
+    void                                    setEclipseCase(RimEclipseCase* reservoir);
+    RimEclipseCase*                                eclipseCase();
+ 
 
-    // Animation
-    int                                     currentTimeStep()    { return m_currentTimeStep;}
-    void                                    setCurrentTimeStep(int frameIdx);
-    void                                    updateCurrentTimeStepAndRedraw();
-    void                                    endAnimation();
-
-    // 3D Viewer
-    RiuViewer*                              viewer();
-    void                                    updateViewerWidget();
-    void                                    updateViewerWidgetWindowTitle();
-    void                                    setDefaultView();
-
-    void                                    setMeshOnlyDrawstyle();
-    void                                    setMeshSurfDrawstyle();
-    void                                    setSurfOnlyDrawstyle();
-    void                                    setFaultMeshSurfDrawstyle();
-    void                                    setSurfaceDrawstyle();
-
-    void                                    setShowFaultsOnly(bool showFaults);
-    bool                                    isGridVisualizationMode() const;
+public:
+  
 
     // Does this belong here, really ?
     void                                    calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
 
     // Display model generation
 public:
-    void                                    loadDataAndUpdate();
-    void                                    createDisplayModelAndRedraw();
-    void                                    scheduleCreateDisplayModelAndRedraw();
+    virtual void                            loadDataAndUpdate();
     bool                                    isTimeStepDependentDataVisible() const;
 
     void                                    scheduleGeometryRegen(unsigned short geometryType);
@@ -181,14 +130,23 @@ public:
                                             visibleGridParts() const { return m_visibleGridParts;}
     cvf::cref<RivReservoirViewPartMgr>      reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
+private:
+    
+    virtual void                            resetLegendsInViewer();
+    virtual void                            updateViewerWidgetWindowTitle();
+
     // Display model generation
 private:
+
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();
-    void                                    updateCurrentTimeStep();
+    virtual void                            updateCurrentTimeStep();
+
     void                                    indicesToVisibleGrids(std::vector<size_t>* gridIndices);
-    void                                    updateScaleTransform();
-    void                                    updateStaticCellColors();
+    virtual void                            updateScaleTransform();
+    virtual cvf::Transform*                 scaleTransform();
+
+    virtual void                            updateStaticCellColors();
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
     void                                    updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData);
@@ -202,12 +160,9 @@ private:
 
     // Overridden PDM methods:
 public:
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
-    virtual caf::PdmFieldHandle*            objectToggleField();
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 protected:
     virtual void                            initAfterRead();
-    virtual void                            setupBeforeSave();
     virtual void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     // Really private
@@ -216,11 +171,8 @@ private:
     void                                    clampCurrentTimestep();
 
 private:
-    caf::PdmField<int>                      m_currentTimeStep;
-    QPointer<RiuViewer>                     m_viewer;
-    caf::PdmPointer<RimCase>                m_reservoir;
+    caf::PdmPointer<RimEclipseCase>                m_reservoir;
 
-    bool                                    m_previousGridModeMeshLinesWasFaults;
 
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> m_visibleGridParts;
 };

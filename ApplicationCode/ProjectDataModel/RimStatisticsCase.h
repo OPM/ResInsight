@@ -26,7 +26,7 @@
 #include "cafPdmObject.h"
 #include "cafAppEnum.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimDefines.h"
 
 class RimIdenticalGridCaseGroup;
@@ -41,7 +41,7 @@ class RigSingleWellResultsData;
 // 
 //
 //==================================================================================================
-class RimStatisticsCase : public RimCase
+class RimStatisticsCase : public RimEclipseCase
 {
     CAF_PDM_HEADER_INIT;
 
@@ -70,11 +70,12 @@ public:
     };
 
     caf::PdmField< bool >                                          m_calculateEditCommand;
+    virtual void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath){}
  
 private:
     RimIdenticalGridCaseGroup* caseGroup();
 
-    void getSourceCases(std::vector<RimCase*>& sourceCases);
+    void getSourceCases(std::vector<RimEclipseCase*>& sourceCases);
 
     void populateWithDefaultsIfNeeded();
 

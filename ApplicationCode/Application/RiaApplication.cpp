@@ -83,6 +83,10 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 #include "RimCommandObject.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechModels.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechResultSlot.h"
 
 
 namespace caf
@@ -366,17 +370,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
-        RimCase* ri = casesToLoad[cIdx];
-        CVF_ASSERT(ri);
+        RimCase* cas = casesToLoad[cIdx];
+        CVF_ASSERT(cas);
 
-        caseProgress.setProgressDescription(ri->caseUserDescription());
-
-        caf::ProgressInfo viewProgress(ri->reservoirViews().size() , "Creating Views");
+        caseProgress.setProgressDescription(cas->caseUserDescription());
+        std::vector<RimView*> views = cas->views();
+        caf::ProgressInfo viewProgress(views.size() , "Creating Views");
 
         size_t j;
-        for (j = 0; j < ri->reservoirViews().size(); j++)
+        for (j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews[j];
+            RimView* riv = views[j];
             CVF_ASSERT(riv);
 
             viewProgress.setProgressDescription(riv->name());
@@ -702,6 +706,50 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
+{
+   if (!QFile::exists(fileName)) return false;
+
+    QFileInfo gridFileName(fileName);
+    QString caseName = gridFileName.completeBaseName();
+
+    RimGeoMechCase* geoMechCase = new RimGeoMechCase();
+    geoMechCase->setFileName(fileName);
+    geoMechCase->caseUserDescription = caseName;
+
+    RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels() : NULL;
+
+    // Create the geoMech model container if it is not there already
+    if (geoMechModelCollection == NULL)
+    {
+        geoMechModelCollection = new RimGeoMechModels();
+        m_project->activeOilField()->geoMechModels = geoMechModelCollection;
+    }
+
+    geoMechModelCollection->cases.push_back(geoMechCase);
+
+    RimGeoMechView* riv = geoMechCase->createAndAddReservoirView();
+
+    riv->loadDataAndUpdate();
+
+    //if (!riv->cellResult()->hasResult())
+    //{
+    //    riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+    //}
+
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+
+    uiModel->updateUiSubTree(m_project);
+
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+
+    return true;
+}
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -748,7 +796,7 @@ void RiaApplication::createInputMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimReservoirView* RiaApplication::activeReservoirView() const
+const RimView* RiaApplication::activeReservoirView() const
 {
     return m_activeReservoirView;
 }
@@ -756,7 +804,7 @@ const RimReservoirView* RiaApplication::activeReservoirView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RiaApplication::activeReservoirView()
+RimView* RiaApplication::activeReservoirView()
 {
    return m_activeReservoirView;
 }
@@ -764,7 +812,7 @@ RimReservoirView* RiaApplication::activeReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveReservoirView(RimReservoirView* rv)
+void RiaApplication::setActiveReservoirView(RimView* rv)
 {
     m_activeReservoirView = rv;
 }
@@ -1483,12 +1531,14 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
     for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimCase* ri = projectCases[i];
-        if (!ri) continue;
+        RimCase* cas = projectCases[i];
+        if (!cas) continue;
 
-        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        std::vector<RimView*> views = cas->views();
+
+        for (size_t j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews()[j];
+            RimView* riv = views[j];
 
             if (riv && riv->viewer())
             {
@@ -1500,7 +1550,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 // Process all events to avoid a black image when grabbing frame buffer
                 QCoreApplication::processEvents();
 
-                QString fileName = ri->caseUserDescription() + "-" + riv->name();
+                QString fileName = cas->caseUserDescription() + "-" + riv->name();
                 fileName.replace(" ", "_");
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
@@ -1921,7 +1971,7 @@ QString RiaApplication::commandLineParameterHelp() const
 /// Schedule a creation of the Display model and redraw of the reservoir view
 /// The redraw will happen as soon as the event loop is entered
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimReservoirView* resViewToUpdate)
+void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate)
 {
     m_resViewsToUpdate.push_back(resViewToUpdate);
 
@@ -1944,13 +1994,13 @@ void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimReservoirView* resVi
 void RiaApplication::slotUpdateScheduledDisplayModels()
 {
     // Compress to remove duplicates
-    std::set<RimReservoirView*> resViewsToUpdate;
+    std::set<RimView*> resViewsToUpdate;
     for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
     {
         resViewsToUpdate.insert(m_resViewsToUpdate[i]);
     }
 
-    for (std::set<RimReservoirView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it )
+    for (std::set<RimView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it )
     {
         if (*it)
         {
@@ -2059,14 +2109,17 @@ void RiaApplication::regressionTestConfigureProject()
     std::vector<RimCase*> projectCases;
     m_project->allCases(projectCases);
 
+
     for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimCase* ri = projectCases[i];
-        if (!ri) continue;
+        RimCase* cas = projectCases[i];
+        if (!cas) continue;
 
-        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        std::vector<RimView*> views = cas->views();
+
+        for (size_t j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews()[j];
+            RimView* riv = views[j];
 
             if (riv && riv->viewer())
             {
@@ -2074,9 +2127,13 @@ void RiaApplication::regressionTestConfigureProject()
                 riv->viewer()->setFixedSize(1000, 745);
             }
 
-            riv->faultCollection->setShowFaultsOutsideFilters(false);
-            riv->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+            RimReservoirView* resvView = dynamic_cast<RimReservoirView*>(riv);
+
+            if (resvView)
+            {
+                resvView->faultCollection->setShowFaultsOutsideFilters(false);
+                resvView->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+            }
         }
     }
 }
-

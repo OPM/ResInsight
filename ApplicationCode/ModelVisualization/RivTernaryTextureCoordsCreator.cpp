@@ -25,7 +25,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigTernaryResultAccessor2d.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 #include "RimTernaryLegendConfig.h"

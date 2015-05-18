@@ -32,7 +32,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 #include "RiuMainWindow.h"
@@ -84,7 +84,7 @@ public:
         QString caseType;
         qint64  caseGroupId = -1;
 
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
 
         if (rimCase)
         {

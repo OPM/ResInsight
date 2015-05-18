@@ -42,6 +42,7 @@ class RiuResultInfoPanel;
 class RiuProcessMonitor;
 class RimUiTreeModelPdm;
 class RimUiTreeView;
+class RimEclipseCase;
 class RimCase;
 
 namespace caf
@@ -132,6 +133,7 @@ private:
     // File actions
     QAction*		    m_importEclipseCaseAction;
     QAction*		    m_importInputEclipseFileAction;
+    QAction*            m_importGeoMechCaseAction;
     QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
@@ -206,6 +208,7 @@ private slots:
     // File slots
     void    slotImportEclipseCase();
     void    slotImportInputEclipseFiles();
+    void    slotImportGeoMechModel();
     void    slotOpenMultipleCases();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
@@ -279,7 +282,6 @@ private slots:
     // Pdm System :
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
-
 private:
     RimUiTreeView*              m_treeView;
     RimUiTreeModelPdm*          m_treeModelPdm;

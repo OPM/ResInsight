@@ -25,7 +25,7 @@
 
 #include "RiaSocketTools.h"
 #include "RiaSocketServer.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimInputCase.h"
@@ -48,9 +48,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args)
+RimEclipseCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args)
 {
-    RimCase* rimCase = NULL;
+    RimEclipseCase* rimCase = NULL;
     int caseId = -1;
 
     if (args.size() > 1)
@@ -79,7 +79,13 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
     caseId = rimCase->caseId;
     caseName = rimCase->caseUserDescription;
 
-    RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
+    RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*> (rimCase);
+    RimCaseCollection* caseCollection = NULL;
+    if (eclCase)
+    {
+        caseCollection = eclCase->parentCaseCollection();
+    }
+
     if (caseCollection)
     {
         caseGroupId = caseCollection->parentCaseGroup()->groupId;
@@ -100,6 +106,10 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
         if (dynamic_cast<RimInputCase*>(rimCase))
         {
             caseType = "InputCase";
+        }
+        else if (eclCase)
+        {
+            caseType = "GeoMechCase";
         }
         else
         {

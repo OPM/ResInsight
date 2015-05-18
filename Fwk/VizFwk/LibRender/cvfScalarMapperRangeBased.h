@@ -67,6 +67,7 @@ public:
     
 protected:
     virtual void        rangeUpdated() {}; //< Called when the range is changed. Subclasses can reimplment to recalculate cached values
+    Color3ub            colorFromUserColorGradient(double normalizedValue) const;
 
     double              m_rangeMin;
     double              m_rangeMax;
@@ -81,7 +82,7 @@ private:
     bool                m_adjustLevels;     //< Toggles wether to round tick positions to nice numbers
     std::set<double>    m_userDefinedLevelValues;
 
-    Color3ubArray       m_colors;
+    Color3ubArray       m_interpolatedUserGradientColors; //< Table of smooth interpolated colors as a result of the users color request
     uint                m_textureSize;      // The size of texture that updateTexture() will produce. 
 };
 

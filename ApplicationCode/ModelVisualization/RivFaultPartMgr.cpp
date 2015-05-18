@@ -26,7 +26,7 @@
 #include "RigCaseData.h"
 #include "RigResultAccessor.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimFaultCollection.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"

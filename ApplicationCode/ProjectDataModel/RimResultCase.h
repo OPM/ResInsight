@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 
 class RifReaderInterface;
 class RigMainGrid;
@@ -30,7 +30,7 @@ class RigMainGrid;
 // 
 //
 //==================================================================================================
-class RimResultCase : public RimCase
+class RimResultCase : public RimEclipseCase
 {
     CAF_PDM_HEADER_INIT;
 

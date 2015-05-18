@@ -33,11 +33,12 @@
 
 class RIProcess;
 class RigCaseData;
-class RimCase;
+class RimEclipseCase;
 class Drawable;
 class RiaSocketServer;
 class RiaPreferences;
 class RimReservoirView;
+class RimView;
 class RimProject;
 class RimCommandObject;
 class RiaProjectModifier;
@@ -72,11 +73,11 @@ public:
 
     void                    executeRegressionTests(const QString& regressionTestPath);
 
-    void                    setActiveReservoirView(RimReservoirView*);
-    RimReservoirView*       activeReservoirView();
-    const RimReservoirView* activeReservoirView() const;
+    void                    setActiveReservoirView(RimView*);
+    RimView*                activeReservoirView();
+    const RimView*          activeReservoirView() const;
 
-    void                scheduleDisplayModelUpdateAndRedraw(RimReservoirView* resViewToUpdate);
+    void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
     RimProject*         project(); 
 
@@ -93,6 +94,8 @@ public:
     bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
     bool                addEclipseCases(const QStringList& fileNames);
     bool                openInputEclipseCaseFromFileNames(const QStringList& fileNames);
+
+    bool                openOdbCaseFromFile(const QString& fileName);
 
     QString             currentProjectFileName() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
@@ -169,10 +172,10 @@ private slots:
     void                slotUpdateScheduledDisplayModels();
 
 private:
-    caf::PdmPointer<RimReservoirView>   m_activeReservoirView;
+    caf::PdmPointer<RimView>            m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
 
-    std::vector<caf::PdmPointer<RimReservoirView> > m_resViewsToUpdate;
+    std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;
     QTimer*                             m_resViewUpdateTimer;
 
     RiaSocketServer*                    m_socketServer;

@@ -193,7 +193,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
             }
-            else if (dynamic_cast<RimCase*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Copy"), this, SLOT(slotCopyPdmObjectToClipboard()));
                 menu.addAction(m_pasteAction);
@@ -604,12 +604,12 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
 
                 myModel->populateObjectGroupFromModelIndexList(mil, &group);
 
-                std::vector<caf::PdmPointer<RimCase> > typedObjects;
+                std::vector<caf::PdmPointer<RimEclipseCase> > typedObjects;
                 group.objectsByType(&typedObjects);
 
                 for (size_t i = 0; i < typedObjects.size(); i++)
                 {
-                    RimCase* rimReservoir = typedObjects[i];
+                    RimEclipseCase* rimReservoir = typedObjects[i];
                     caseIdsInSelection.push_back(rimReservoir->caseId);
                 }
             }
@@ -895,12 +895,12 @@ void RimUiTreeView::slotCloseCase()
             QModelIndexList mil = m->selectedRows();
             myModel->populateObjectGroupFromModelIndexList(mil, &group);
 
-            std::vector<caf::PdmPointer<RimCase> > typedObjects;
+            std::vector<caf::PdmPointer<RimEclipseCase> > typedObjects;
             group.objectsByType(&typedObjects);
 
             for (size_t i = 0; i < typedObjects.size(); i++)
             {
-                RimCase* rimReservoir = typedObjects[i];
+                RimEclipseCase* rimReservoir = typedObjects[i];
                 myModel->deleteReservoir(rimReservoir);
             }
         }
@@ -1050,7 +1050,7 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
     if (uiItem)
     {
-        if (dynamic_cast<RimCase*>(uiItem->dataObject().p())
+        if (dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p())
             || dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
         {
             if (keyEvent->matches(QKeySequence::Copy))
@@ -1064,7 +1064,7 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
 
         if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p())
             || dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p())
-            || dynamic_cast<RimCase*>(uiItem->dataObject().p())
+            || dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p())
             || dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
         {
             if (keyEvent->matches(QKeySequence::Paste))

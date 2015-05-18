@@ -28,7 +28,7 @@
 #include "RiaRegressionTest.h"
 #include "RigCaseCellResultsData.h"
 #include "RimAnalysisModels.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCommandObject.h"
@@ -37,7 +37,11 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
+
 #include "RimResultSlot.h"
+#include "RimGeoMechResultSlot.h"
 #include "RimTools.h"
 #include "RimUiTreeModelPdm.h"
 #include "RimUiTreeView.h"
@@ -50,6 +54,8 @@
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
 
+#include "RigGeoMechCaseData.h"
+
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -57,6 +63,8 @@
 #include "cafPdmUiPropertyView.h"
 
 #include "cvfTimer.h"
+#include "RimGeoMechModels.h"
+#include "RimGeoMechView.h"
 
 
 //==================================================================================================
@@ -184,6 +192,7 @@ void RiuMainWindow::createActions()
 
     m_importEclipseCaseAction     = new QAction(QIcon(":/Case48x48.png"), "Import &Eclipse Case", this);
     m_importInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "Import &Input Eclipse Case", this);
+    m_importGeoMechCaseAction     = new QAction(QIcon(":/GeoMechCase48x48.png"), "Import &Geo Mechanical Model", this);
     m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
     
     m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "Import &Well Paths from File", this);
@@ -220,6 +229,8 @@ void RiuMainWindow::createActions()
     connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
     connect(m_importEclipseCaseAction,	        SIGNAL(triggered()), SLOT(slotImportEclipseCase()));
+    connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
+
     connect(m_importInputEclipseFileAction,     SIGNAL(triggered()), SLOT(slotImportInputEclipseFiles()));
     connect(m_openMultipleEclipseCasesAction,   SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
     connect(m_importWellPathsFromFileAction,	SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
@@ -382,6 +393,10 @@ void RiuMainWindow::createMenus()
     importMenu->addAction(m_importInputEclipseFileAction);
     importMenu->addAction(m_openMultipleEclipseCasesAction);
     importMenu->addSeparator();
+    #ifdef USE_ODB_API
+    importMenu->addAction(m_importGeoMechCaseAction);
+    importMenu->addSeparator();
+    #endif
     importMenu->addAction(m_importWellPathsFromFileAction);
     importMenu->addAction(m_importWellPathsFromSSIHubAction);
 
@@ -700,45 +715,67 @@ void RiuMainWindow::refreshAnimationActions()
     RiaApplication* app = RiaApplication::instance();
 
     bool enableAnimControls = false;
-    if (app->activeReservoirView() && 
-        app->activeReservoirView()->viewer() &&
-        app->activeReservoirView()->viewer()->frameCount())
+    RimView * activeView = app->activeReservoirView();
+    if (activeView && 
+        activeView->viewer() &&
+        activeView->viewer()->frameCount())
     {
         enableAnimControls = true;
+        RimReservoirView * activeRiv = dynamic_cast<RimReservoirView*>(activeView);
 
-        if (app->activeReservoirView()->currentGridCellResults())
+        if (activeRiv)
         {
-            if (app->activeReservoirView()->isTimeStepDependentDataVisible())
+            if (activeRiv->currentGridCellResults())
             {
-                std::vector<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->cellResults()->timeStepDates(0);
-                bool showHoursAndMinutes = false;
-                for (size_t i = 0; i < timeStepDates.size(); i++)
+                if (activeRiv->isTimeStepDependentDataVisible())
                 {
-                    if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+                    std::vector<QDateTime> timeStepDates = activeRiv->currentGridCellResults()->cellResults()->timeStepDates(0);
+                    bool showHoursAndMinutes = false;
+                    for (size_t i = 0; i < timeStepDates.size(); i++)
                     {
-                        showHoursAndMinutes = true;
+                        if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+                        {
+                            showHoursAndMinutes = true;
+                        }
+                    }
+
+                    QString formatString = "dd.MMM yyyy";
+                    if (showHoursAndMinutes)
+                    {
+                        formatString += " - hh:mm";
+                    }
+
+                    for (size_t i = 0; i < timeStepDates.size(); i++)
+                    {
+                        timeStepStrings += timeStepDates[i].toString(formatString);
+                    }
+                    currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
+                }
+                else
+                {
+                    timeStepStrings.push_back(tr("Static Property"));
+                }
+            }
+        }
+        else
+        {
+            RimGeoMechView * activeGmv = dynamic_cast<RimGeoMechView*>(activeView);
+            if (activeGmv)
+            {
+                if (activeGmv->isTimeStepDependentDataVisible())
+                {
+                    RigFemResultAddress resAddr = activeGmv->cellResult()->resultAddress();
+                    size_t frameCount = activeGmv->geoMechCase()->geoMechData()->frameCount(0, resAddr);
+                    for (size_t i = 0; i < frameCount; i++)
+                    {
+                        timeStepStrings += QString::number(i);
                     }
                 }
-
-                QString formatString = "dd.MMM yyyy";
-                if (showHoursAndMinutes)
-                {
-                    formatString += " - hh:mm";
-                }
-
-                for (size_t i = 0; i < timeStepDates.size(); i++)
-                {
-                    timeStepStrings += timeStepDates[i].toString(formatString);
-                }
-                currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
-            }
-            else
-            {
-                timeStepStrings.push_back(tr("Static Property"));
             }
         }
 
         // Animation control is only relevant for more than one time step
+
         if (timeStepStrings.size() < 2)
         {
             enableAnimControls = false;
@@ -834,6 +871,36 @@ void RiuMainWindow::slotImportInputEclipseFiles()
         app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
  
         app->openInputEclipseCaseFromFileNames(fileNames);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotImportGeoMechModel()
+{
+    if (checkForDocumentModifications())
+    {
+        RiaApplication* app = RiaApplication::instance();
+
+        QString defaultDir = app->defaultFileDialogDirectory("GEOMECH_MODEL");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)");
+        if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
+        app->setDefaultFileDialogDirectory("GEOMECH_MODEL", defaultDir);
+
+        int i;
+        for (i = 0; i < fileNames.size(); i++)
+        {
+            QString fileName = fileNames[i];
+
+            if (!fileNames.isEmpty())
+            {
+                if (app->openOdbCaseFromFile(fileName))
+                {
+                    addRecentFiles(fileName);
+                }
+            }
+        }
     }
 }
 
@@ -1008,6 +1075,10 @@ void RiuMainWindow::slotOpenRecentFile()
         else if ( filename.contains(".egrid", Qt::CaseInsensitive) || filename.contains(".grid", Qt::CaseInsensitive) )
         {
             loadingSucceded = RiaApplication::instance()->openEclipseCaseFromFile(filename);
+        }
+        else if (filename.contains(".odb", Qt::CaseInsensitive) )
+        {
+            loadingSucceded = RiaApplication::instance()->openOdbCaseFromFile(filename);
         }
 
         if (loadingSucceded)
@@ -1256,89 +1327,88 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
+    if (!subWindow) return;
 
     // Iterate all cases in each oil field
-    for (size_t oilFieldIdx = 0; oilFieldIdx < proj->oilFields().size(); oilFieldIdx++)
+    std::vector<RimCase*> allCases;
+    proj->allCases(allCases);
+
+    for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)
     {
-        RimOilField* oilField = proj->oilFields[oilFieldIdx];
-        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
-        if (analysisModels == NULL) continue;
+        RimCase* reservoirCase = allCases[caseIdx];
+        if (reservoirCase == NULL) continue;
+        
+        std::vector<RimView*> views = reservoirCase->views();
 
-        for (size_t caseIdx = 0; caseIdx < analysisModels->cases().size(); caseIdx++)
+        size_t viewIdx;
+        for (viewIdx = 0; viewIdx < views.size(); viewIdx++)
         {
-            RimCase* reservoirCase = analysisModels->cases[caseIdx];
-            if (reservoirCase == NULL) continue;
+            RimView* riv = views[viewIdx];
 
-            size_t viewIdx;
-            for (viewIdx = 0; viewIdx < reservoirCase->reservoirViews().size(); viewIdx++)
+            if (riv &&
+                riv->viewer() &&
+                riv->viewer()->layoutWidget() &&
+                riv->viewer()->layoutWidget()->parent() == subWindow)
             {
-                RimReservoirView* riv = reservoirCase->reservoirViews()[viewIdx];
-
-                if (riv &&
-                    riv->viewer() &&
-                    riv->viewer()->layoutWidget() &&
-                    riv->viewer()->layoutWidget()->parent() == subWindow)
+                RimView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
+                RiaApplication::instance()->setActiveReservoirView(riv);
+                if (previousActiveReservoirView && previousActiveReservoirView != riv)
                 {
-                    RimReservoirView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
-                    RiaApplication::instance()->setActiveReservoirView(riv);
-                    if (previousActiveReservoirView && previousActiveReservoirView != riv)
+                    QModelIndex previousViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(previousActiveReservoirView);
+                    QModelIndex newViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(riv);
+
+                    QModelIndex newSelectionIndex = newViewModelIndex;
+                    QModelIndex currentSelectionIndex = m_treeView->selectionModel()->currentIndex();
+
+                    if (currentSelectionIndex != newViewModelIndex &&
+                        currentSelectionIndex.isValid())
                     {
-                        QModelIndex previousViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(previousActiveReservoirView);
-                        QModelIndex newViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(riv);
+                        QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
 
-                        QModelIndex newSelectionIndex = newViewModelIndex;
-                        QModelIndex currentSelectionIndex = m_treeView->selectionModel()->currentIndex();
+                        QModelIndex tmpModelIndex = currentSelectionIndex;
 
-                        if (currentSelectionIndex != newViewModelIndex &&
-                            currentSelectionIndex.isValid())
+                        while (tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex)
                         {
-                            QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+                            // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
+                            route.push_front(tmpModelIndex);
 
-                            QModelIndex tmpModelIndex = currentSelectionIndex;
+                            tmpModelIndex = tmpModelIndex.parent();
+                        }
 
-                            while (tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex)
+                        // Traverse model indices from new view index to currently selected item
+                        int i;
+                        for (i = 0; i < route.size(); i++)
+                        {
+                            QModelIndex tmp = route[i];
+                            if (newSelectionIndex.isValid())
                             {
-                                // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
-                                route.push_front(tmpModelIndex);    
-
-                                tmpModelIndex = tmpModelIndex.parent();
-                            }
-
-                            // Traverse model indices from new view index to currently selected item
-                            int i;
-                            for (i = 0; i < route.size(); i++)
-                            {
-                                QModelIndex tmp = route[i];
-                                if (newSelectionIndex.isValid())
-                                {
-                                    newSelectionIndex = m_treeModelPdm->index(tmp.row(), tmp.column(), newSelectionIndex);
-                                }
-                            }
-
-                            // Use view model index if anything goes wrong
-                            if (!newSelectionIndex.isValid())
-                            {
-                                newSelectionIndex = newViewModelIndex;
+                                newSelectionIndex = m_treeModelPdm->index(tmp.row(), tmp.column(), newSelectionIndex);
                             }
                         }
 
-                        m_treeView->setCurrentIndex(newSelectionIndex);
-                        if (newSelectionIndex != newViewModelIndex)
+                        // Use view model index if anything goes wrong
+                        if (!newSelectionIndex.isValid())
                         {
-                            m_treeView->setExpanded(newViewModelIndex, true);
+                            newSelectionIndex = newViewModelIndex;
                         }
                     }
 
-                    slotRefreshViewActions();
-                    refreshAnimationActions();
-                    refreshDrawStyleActions();
-                    break;
+                    m_treeView->setCurrentIndex(newSelectionIndex);
+                    if (newSelectionIndex != newViewModelIndex)
+                    {
+                        m_treeView->setExpanded(newViewModelIndex, true);
+                    }
                 }
+
+                slotRefreshViewActions();
+                refreshAnimationActions();
+                refreshDrawStyleActions();
+                break;
             }
         }
-
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1433,7 +1503,7 @@ void RiuMainWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-    RimReservoirView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
+    RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
     QModelIndex activeViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(activeReservoirView);
 
     QModelIndex tmp = current;
@@ -1444,7 +1514,7 @@ void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModel
         caf::PdmUiTreeItem* treeItem = m_treeModelPdm->getTreeItemFromIndex(tmp);
         caf::PdmObject* pdmObject = treeItem->dataObject();
 
-        RimReservoirView* rimReservoirView = dynamic_cast<RimReservoirView*>(pdmObject);
+        RimView* rimReservoirView = dynamic_cast<RimView*>(pdmObject);
         if (rimReservoirView)
         {
             // If current selection is an item within a different reservoir view than active, 
@@ -1652,9 +1722,10 @@ void RiuMainWindow::slotToggleFaultsAction(bool showFaults)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 {
-    if (!RiaApplication::instance()->activeReservoirView()) return;
+    RimReservoirView* activeRiv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+    if (!activeRiv) return;
 
-    RiaApplication::instance()->activeReservoirView()->faultCollection->showFaultLabel.setValueFromUi(showLabels);
+    activeRiv->faultCollection->showFaultLabel.setValueFromUi(showLabels);
 
     refreshDrawStyleActions();
 }
@@ -1671,6 +1742,10 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleSurfOnlyAction->setEnabled(enable);
     m_drawStyleFaultLinesSolidAction->setEnabled(enable);
 
+    RimReservoirView* riv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+    
+    enable = enable && riv;
+
     m_drawStyleToggleFaultsAction->setEnabled(enable);
     m_toggleFaultsLabelAction->setEnabled(enable);
 
@@ -1678,7 +1753,7 @@ void RiuMainWindow::refreshDrawStyleActions()
 
     if (enable) 
     {
-        RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
+       
         m_drawStyleToggleFaultsAction->blockSignals(true);
         m_drawStyleToggleFaultsAction->setChecked(   !riv->isGridVisualizationMode());
         m_drawStyleToggleFaultsAction->blockSignals(false);
@@ -1967,7 +2042,7 @@ void RiuMainWindow::setDefaultWindowSize()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 {
-    RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
+    RimReservoirView* riv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
     if (riv)
     {
         caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> rangeAddType;
@@ -2010,6 +2085,12 @@ void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObje
         menu->addAction(m_importEclipseCaseAction);
         menu->addAction(m_importInputEclipseFileAction);
         menu->addAction(m_openMultipleEclipseCasesAction);
+    }
+    else if (dynamic_cast<RimGeoMechModels*>(pdmObject))
+    {
+    #ifdef USE_ODB_API
+        menu->addAction(m_importGeoMechCaseAction);
+    #endif
     }
 }
 

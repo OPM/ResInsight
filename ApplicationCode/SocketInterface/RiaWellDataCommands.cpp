@@ -29,7 +29,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RimReservoirCellResultsStorage.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimInputCase.h"
 #include "RimInputPropertyCollection.h"
 #include "RimUiTreeModelPdm.h"
@@ -55,7 +55,7 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
         int caseId = args[1].toInt();
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
@@ -109,7 +109,7 @@ public:
         int caseId          = args[1].toInt();
         QString wellName    = args[2];
 
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
@@ -248,7 +248,7 @@ public:
         QString wellName    = args[2];
         size_t timeStepIdx  = args[3].toInt() - 1; // Interpret timeStepIdx from octave as 1-based
 
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));

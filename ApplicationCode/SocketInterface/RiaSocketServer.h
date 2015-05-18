@@ -31,7 +31,7 @@ class QTcpSocket;
 class QNetworkSession;
 class QErrorMessage;
 class QTimer;
-class RimCase;
+class RimEclipseCase;
 class RiaSocketCommand;
 
 namespace riOctavePlugin
@@ -51,7 +51,7 @@ public:
     ~RiaSocketServer();
 
     unsigned short      serverPort();
-    RimCase*            findReservoir(int caseId);
+    RimEclipseCase*            findReservoir(int caseId);
     QErrorMessage*      errorMessageDialog() { return m_errorMessageDialog; }
     QTcpSocket*         currentClient() { return m_currentClient; }
 

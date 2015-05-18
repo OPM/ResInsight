@@ -28,7 +28,7 @@
 #include "RimReservoirView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
@@ -139,9 +139,11 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuViewer::~RiuViewer()
 {
-    m_reservoirView->showWindow = false;
-    m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
-
+    if (m_reservoirView)
+    {
+        m_reservoirView->showWindow = false;
+        m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
+    }
     delete m_InfoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
@@ -202,6 +204,9 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
     }
     else if (event->button() == Qt::RightButton)
     {
+        RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+        if (!eclipseView) return;
+
         m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
         m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -242,7 +247,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
                             menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
                             menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
 
-                            const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
+                            const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
                             const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
                             if (fault)
                             {
@@ -263,10 +268,13 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Todo: Move this to a command instead
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterI()
 {
+    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    if (!eclipseView) return;
+
     size_t i, j, k;
     ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
 
@@ -274,7 +282,7 @@ void RiuViewer::slotRangeFilterI()
     RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
     if (myModel)
     {
-        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
+        RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
 
         QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
 
@@ -294,7 +302,7 @@ void RiuViewer::slotRangeFilterI()
         mainWindow->setCurrentObjectInTreeView(rangeFilter);
     }
 
-    m_reservoirView->setSurfaceDrawstyle();
+    eclipseView->setSurfaceDrawstyle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,6 +310,9 @@ void RiuViewer::slotRangeFilterI()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterJ()
 {
+    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    if (!eclipseView) return;
+
     size_t i, j, k;
     ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
 
@@ -309,7 +320,7 @@ void RiuViewer::slotRangeFilterJ()
     RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
     if (myModel)
     {
-        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
+        RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
 
         QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
 
@@ -329,7 +340,7 @@ void RiuViewer::slotRangeFilterJ()
         mainWindow->setCurrentObjectInTreeView(rangeFilter);
     }
 
-    m_reservoirView->setSurfaceDrawstyle();
+    eclipseView->setSurfaceDrawstyle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,6 +348,9 @@ void RiuViewer::slotRangeFilterJ()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterK()
 {
+    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    if (!eclipseView) return;
+
     size_t i, j, k;
     ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
 
@@ -344,7 +358,7 @@ void RiuViewer::slotRangeFilterK()
     RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
     if (myModel)
     {
-        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
+        RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
 
         QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
 
@@ -364,7 +378,7 @@ void RiuViewer::slotRangeFilterK()
         mainWindow->setCurrentObjectInTreeView(rangeFilter);
     }
 
-    m_reservoirView->setSurfaceDrawstyle();
+    eclipseView->setSurfaceDrawstyle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -384,6 +398,8 @@ void RiuViewer::keyPressEvent(QKeyEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::handlePickAction(int winPosX, int winPosY)
 {
+    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+
     RiaApplication* app = RiaApplication::instance();
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
@@ -442,7 +458,7 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
 
     if (cellIndex != cvf::UNDEFINED_SIZE_T)
     {
-        RiuResultTextBuilder textBuilder(m_reservoirView, gridIndex, cellIndex, m_reservoirView->currentTimeStep());
+        RiuResultTextBuilder textBuilder(eclipseView, gridIndex, cellIndex, eclipseView->currentTimeStep());
         textBuilder.setFace(face);
         textBuilder.setNncIndex(nncIndex);
         textBuilder.setIntersectionPoint(localIntersectionPoint);
@@ -504,7 +520,7 @@ void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setOwnerReservoirView(RimReservoirView * owner)
+void RiuViewer::setOwnerReservoirView(RimView * owner)
 {
     m_reservoirView = owner;
 }
@@ -522,6 +538,9 @@ void RiuViewer::setEnableMask(unsigned int mask)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::pickPointAndFace(int winPosX, int winPosY, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit)
 {
+    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    if(!eclipseView) return;
+
     cvf::HitItemCollection hitItems;
     bool isSomethingHit = rayPick(winPosX, winPosY, &hitItems);
 
@@ -529,7 +548,12 @@ void RiuViewer::pickPointAndFace(int winPosX, int winPosY, cvf::Vec3d* localInte
     {
         CVF_ASSERT(hitItems.count() > 0);
 
-        double characteristicCellSize = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+        double characteristicCellSize = 5.0;
+        if (eclipseView && eclipseView->eclipseCase())
+        {
+            characteristicCellSize = eclipseView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+        }
+
         double pickDepthThresholdSquared = characteristicCellSize / 100.0;
         pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
 
@@ -711,9 +735,13 @@ void RiuViewer::showHistogram(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size_t* i, size_t* j, size_t* k)
 {
-    if (m_reservoirView->eclipseCase())
+    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    if(!eclipseView) return;
+
+
+    if (eclipseView->eclipseCase())
     {
-        m_reservoirView->eclipseCase()->reservoirData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
+        eclipseView->eclipseCase()->reservoirData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
     }
 }
 
@@ -731,13 +759,17 @@ void RiuViewer::mousePressEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotHideFault()
 {
-    const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
+    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    if(!eclipseView) return;
+
+
+    const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
     const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
     if (fault)
     {
         QString faultName = fault->name();
 
-        RimFault* rimFault = m_reservoirView->faultCollection()->findFaultByName(faultName);
+        RimFault* rimFault = eclipseView->faultCollection()->findFaultByName(faultName);
         if (rimFault)
         {
             rimFault->showFault.setValueFromUi(!rimFault->showFault);

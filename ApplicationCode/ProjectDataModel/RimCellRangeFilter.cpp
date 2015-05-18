@@ -25,7 +25,7 @@
 #include "RigCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimReservoirView.h"
 

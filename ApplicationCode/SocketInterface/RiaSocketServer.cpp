@@ -32,7 +32,7 @@
 #include "RiuMainWindow.h"
 #include "RimReservoirView.h"
 #include "RimProject.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
@@ -142,7 +142,7 @@ void RiaSocketServer::slotNewClientConnection()
 //--------------------------------------------------------------------------------------------------
 /// Find the requested reservoir by caseId
 //--------------------------------------------------------------------------------------------------
-RimCase* RiaSocketServer::findReservoir(int caseId)
+RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
 {
     int currCaseId = caseId;
     if (caseId < 0)
@@ -152,9 +152,10 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
 
     if (currCaseId < 0)
     {
-        if (RiaApplication::instance()->activeReservoirView())
+        RimReservoirView* riv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+        if (riv)
         {
-            return RiaApplication::instance()->activeReservoirView()->eclipseCase();
+            return riv->eclipseCase();
         }
     }
     else
@@ -169,7 +170,7 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
         {
             if (cases[i]->caseId == currCaseId)
             {
-                return cases[i];
+                return dynamic_cast<RimEclipseCase*>(cases[i]);
             }
         }
     }

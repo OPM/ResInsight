@@ -28,7 +28,7 @@
 #include "cafMouseState.h"
 #include "cvfStructGrid.h"
 
-class RimReservoirView;
+class RimView;
 class QLabel;
 class QProgressBar;
 class RiuSimpleHistogramWidget;
@@ -56,7 +56,7 @@ public:
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
-    void            setOwnerReservoirView(RimReservoirView * owner);
+    void            setOwnerReservoirView(RimView * owner);
     void            setEnableMask(unsigned int mask);
 
     void            showInfoText(bool enable);
@@ -109,7 +109,7 @@ private:
 
     cvf::Collection<cvf::OverlayItem> m_visibleLegends;
 
-    caf::PdmPointer<RimReservoirView> m_reservoirView;
+    caf::PdmPointer<RimView> m_reservoirView;
 
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;

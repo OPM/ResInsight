@@ -30,7 +30,7 @@
 class RimCaseCollection;
 class RimStatisticsCase;
 
-class RimCase;
+class RimEclipseCase;
 class RigMainGrid;
 class RigActiveCellInfo;
 
@@ -52,16 +52,16 @@ public:
     caf::PdmField<RimCaseCollection*>   caseCollection;
     caf::PdmField<RimCaseCollection*>   statisticsCaseCollection;
 
-    void                                addCase(RimCase* reservoir);
-    void                                removeCase(RimCase* reservoir);
+    void                                addCase(RimEclipseCase* reservoir);
+    void                                removeCase(RimEclipseCase* reservoir);
 
-    bool                                contains(RimCase* reservoir) const;
-    bool                                canCaseBeAdded(RimCase* reservoir) const;
+    bool                                contains(RimEclipseCase* reservoir) const;
+    bool                                canCaseBeAdded(RimEclipseCase* reservoir) const;
 
     RimStatisticsCase*                  createAndAppendStatisticsCase();
 
 
-    RimCase*                            mainCase();
+    RimEclipseCase*                            mainCase();
     void                                loadMainCaseAndActiveCellInfo();
 
     RigMainGrid*                        mainGrid();

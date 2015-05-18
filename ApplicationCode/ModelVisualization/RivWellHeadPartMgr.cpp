@@ -47,7 +47,7 @@
 #include "RimResultSlot.h"
 #include "RimLegendConfig.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimWell.h"
 
 #include "RigCaseData.h"

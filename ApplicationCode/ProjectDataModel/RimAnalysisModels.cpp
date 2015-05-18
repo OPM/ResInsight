@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RigCaseData.h"
 #include "RigGridManager.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
@@ -66,7 +66,7 @@ void RimAnalysisModels::close()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimAnalysisModels::createIdenticalCaseGroupFromMainCase(RimCase* mainCase)
+RimIdenticalGridCaseGroup* RimAnalysisModels::createIdenticalCaseGroupFromMainCase(RimEclipseCase* mainCase)
 {
     CVF_ASSERT(mainCase);
 
@@ -78,7 +78,7 @@ RimIdenticalGridCaseGroup* RimAnalysisModels::createIdenticalCaseGroupFromMainCa
     assert(RiaApplication::instance()->project());
     RiaApplication::instance()->project()->assignIdToCaseGroup(group);
 
-    RimCase* createdCase = group->createAndAppendStatisticsCase();
+    RimEclipseCase* createdCase = group->createAndAppendStatisticsCase();
     RiaApplication::instance()->project()->assignCaseIdToCase(createdCase);
 
     group->addCase(mainCase);
@@ -90,7 +90,7 @@ RimIdenticalGridCaseGroup* RimAnalysisModels::createIdenticalCaseGroupFromMainCa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisModels::moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir)
+void RimAnalysisModels::moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimReservoir)
 {
     CVF_ASSERT(rimReservoir);
 
@@ -130,7 +130,7 @@ void RimAnalysisModels::moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisModels::removeCaseFromAllGroups(RimCase* reservoir)
+void RimAnalysisModels::removeCaseFromAllGroups(RimEclipseCase* reservoir)
 {
     m_gridCollection->removeCase(reservoir->reservoirData());
 
@@ -177,7 +177,7 @@ RigMainGrid* RimAnalysisModels::registerCaseInGridCollection(RigCaseData* rigEcl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisModels::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir)
+void RimAnalysisModels::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimEclipseCase* rimReservoir)
 {
     CVF_ASSERT(rimReservoir);
 
