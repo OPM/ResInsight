@@ -111,6 +111,7 @@ if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
 	add_definitions(-DUSE_ODB_API)
 	add_subdirectory(GeoMech/OdbReader)
 	SET(RESINSIGHT_USE_ODB_API 1)
+	MESSAGE( STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}" )
 endif()
 
 add_subdirectory(GeoMech/GeoMechDataModel)
@@ -376,7 +377,15 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       # tell binary to first attempt to load libraries from its own directory
-      set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
+
+	  if (${RESINSIGHT_USE_ODB_API})
+		# This is a "hack" to make ResInsight runtime find the ODB so files used when compiling.
+		# statoil wanted it this way, but we should probbly make a different installoptions that does things this way,
+		# and really do copy them when doing PRIVATE_INSTALL
+		set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN;${RESINSIGHT_ODB_API_DIR}/lib")
+	  else()
+		set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
+      endif()
 
         # Find Qt libraries and sym links
         file (GLOB RESINSIGHT_FILES
