@@ -88,7 +88,7 @@ if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
 
     STRING(REPLACE "/bin" "" OCTAVE_QT_ROOT ${OCTAVE_QMAKE_DIR})
 
-    message("Compiling Octave plugins using custom Qt located at ${OCTAVE_QT_ROOT}")
+    message(STATUS "Compiling Octave plugins using custom Qt located at ${OCTAVE_QT_ROOT}")
 
     SET(OCTAVE_QT_INCLUDE_DIR            ${OCTAVE_QT_ROOT}/include)
     SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${OCTAVE_QT_ROOT}/include/QtCore)
@@ -97,7 +97,7 @@ if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
 else()
     set (RESINSIGHT_OCTAVE_PLUGIN_QMAKE ${QT_QMAKE_EXECUTABLE})
 
-    message("Compiling Octave plugins using system Qt - include path located at ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE}")
+    message(STATUS "Compiling Octave plugins using system Qt - include path located at ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE}")
 
     SET(OCTAVE_QT_INCLUDE_DIR            ${QT_INCLUDE_DIR})
     SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${QT_QTCORE_INCLUDE_DIR})
