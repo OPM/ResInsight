@@ -35,6 +35,8 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include "cafProgressInfo.h"
+#include <QString>
 
 
 size_t RifOdbReader::sm_instanceCount = 0;
@@ -321,14 +323,19 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
     CVF_ASSERT(femParts);
 	CVF_ASSERT(m_odb != NULL);
 
+
     odb_Assembly&  rootAssembly = m_odb->rootAssembly();
     odb_InstanceRepository instanceRepository = m_odb->rootAssembly().instances();
-
     odb_InstanceRepositoryIT iter(instanceRepository);
+
+    caf::ProgressInfo modelProgress(instanceRepository.size()*(2+4), "Reading Odb Parts");
 
     int instanceCount = 0;
     for (iter.first(); !iter.isDone(); iter.next(), instanceCount++)
     {
+        modelProgress.setProgressDescription(QString (iter.currentKey().cStr()) + ": Reading Nodes");
+        m_nodeIdToIdxMaps.push_back(std::map<int, int>());
+
         odb_Instance& inst = instanceRepository[iter.currentKey()];
 
         RigFemPart* femPart = new RigFemPart;
@@ -336,7 +343,7 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
         // Extract nodes
         const odb_SequenceNode& odbNodes = inst.nodes();
 
-        std::map<int, int> nodeIdToIdxMap;
+        std::map<int, int>& nodeIdToIdxMap = m_nodeIdToIdxMaps.back();
 
         int nodeCount = odbNodes.size();
         femPart->nodes().nodeIds.resize(nodeCount);
@@ -349,10 +356,16 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
             const float * pos = odbNode.coordinates();
             femPart->nodes().coordinates[nIdx].set(pos[0], pos[1], pos[2]);
             nodeIdToIdxMap[odbNode.label()] = nIdx;
+
+            // Progress reporting
+            if(nIdx == nodeCount/2)
+            {
+                modelProgress.incrementProgress();
+            }
         }
 
-        // Keep node id to index map per instance
-        m_nodeIdToIdxMaps.push_back(nodeIdToIdxMap);
+        modelProgress.incrementProgress();
+        modelProgress.setProgressDescription(QString (iter.currentKey().cStr()) + ": Reading Elements");
 
         // Extract elements
         const odb_SequenceElement& elements = inst.elements();
@@ -361,7 +374,9 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
         femPart->preAllocateElementStorage(elmCount);
         std::map<std::string, RigElementType>::const_iterator it;
         std::vector<int> indexBasedConnectivities;
-        std::map<int, int> elementIdToIdxMap;
+
+        m_elementIdToIdxMaps.push_back(std::map<int, int>());
+        std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps.back();
 
         for (int elmIdx = 0; elmIdx < elmCount; ++elmIdx)
         {
@@ -383,15 +398,20 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
             }
 
             femPart->appendElement(elmType, odbElm.label(), indexBasedConnectivities.data());
-        }
 
-        // Keep element id to index map per instance
-        m_elementIdToIdxMaps.push_back(elementIdToIdxMap);
+            // Progress reporting
+            if (elmIdx == elmCount/4 || elmIdx == elmCount/2 || elmIdx == 3*elmCount/4)
+            {
+                modelProgress.incrementProgress();
+            }
+        }
 
         femPart->setElementPartId(femParts->partCount());
         femParts->addFemPart(femPart);
-    }
 
+        modelProgress.incrementProgress();
+    }
+    
 	return true;
 }
 
@@ -546,7 +566,7 @@ int RifOdbReader::componentIndex(ResPos position, const std::string& fieldName, 
 	{
 		if (compNames[i] == componentName)
 		{
-			return i;
+			return static_cast<int>(i);
 		}
 	}
 

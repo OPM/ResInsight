@@ -43,6 +43,7 @@
 #include "RigFemPartCollection.h"
 #include "cafFrameAnimationControl.h"
 #include <QMessageBox>
+#include "cafProgressInfo.h"
 
 
 
@@ -107,6 +108,8 @@ void RimGeoMechView::updateViewerWidgetWindowTitle()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::loadDataAndUpdate()
 {
+    caf::ProgressInfo progress(7, "Loading Case");
+    progress.setNextProgressIncrement(5);
     updateScaleTransform();
 
     if (m_geomechCase)
@@ -121,10 +124,16 @@ void RimGeoMechView::loadDataAndUpdate()
          }
         m_geoMechFullModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
     }
+    progress.incrementProgress();
+
+    progress.setProgressDescription("Reading Current Result");
 
     CVF_ASSERT(this->cellResult() != NULL);
     m_geomechCase->geoMechData()->assertResultsLoaded(0, this->cellResult()->resultAddress());
-
+    
+    progress.incrementProgress();
+    progress.setProgressDescription("Create Display model");
+   
     updateViewerWidget();
 
     createDisplayModelAndRedraw();
@@ -133,6 +142,8 @@ void RimGeoMechView::loadDataAndUpdate()
     {
         setDefaultView();
     }
+
+    progress.incrementProgress();
 }
 
 //--------------------------------------------------------------------------------------------------
