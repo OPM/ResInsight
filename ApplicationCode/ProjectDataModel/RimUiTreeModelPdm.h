@@ -35,6 +35,8 @@ class RimInputProperty;
 class RimStatisticsCase;
 class RimIdenticalGridCaseGroup;
 
+class RimView;
+
     
 //==================================================================================================
 ///
@@ -47,21 +49,20 @@ class RimUiTreeModelPdm : public caf::UiTreeModelPdm
 public:
     RimUiTreeModelPdm(QObject* parent);
 
-
-    // TO BE DELETED, NOT USED
-    virtual bool                insertRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
-
     // Special edit methods
     bool                        deleteRangeFilter(const QModelIndex& itemIndex);
     bool                        deletePropertyFilter(const QModelIndex& itemIndex);
-    bool                        deleteReservoirView(const QModelIndex& itemIndex);
+
     void                        deleteInputProperty(const QModelIndex& itemIndex);
     void                        deleteReservoir(RimEclipseCase* reservoir);
     void                        deleteAllWellPaths(const QModelIndex& itemIndex);
 
     RimCellPropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
-    RimReservoirView*           addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+
+    RimView*                    addReservoirView(const std::vector<caf::PdmUiItem*>& treeSelection);
+    void                        deleteReservoirViews(const std::vector<caf::PdmUiItem*>& treeSelection);
+
     void                        addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
     
     void                        addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* pdmObject);

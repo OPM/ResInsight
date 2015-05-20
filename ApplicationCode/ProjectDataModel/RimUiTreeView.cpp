@@ -68,6 +68,8 @@
 #include "RimAnalysisModels.h"
 #include "RimInputProperty.h"
 #include "RigSingleWellResultsData.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -114,8 +116,14 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
         {
             QMenu menu;
 
-            // Range filters
-            if (dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
+            if (dynamic_cast<RimGeoMechView*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("New View"), this, SLOT(slotAddView()));
+                //menu.addAction(QString("Copy View"), this, SLOT(slotCopyPdmObjectToClipboard()));
+                //menu.addAction(m_pasteAction);
+                menu.addAction(QString("Delete"), this, SLOT(slotDeleteView()));
+            }
+            else if (dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Copy View"), this, SLOT(slotCopyPdmObjectToClipboard()));
@@ -192,6 +200,10 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
+            }
+            else if (dynamic_cast<RimGeoMechCase*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("New View"), this, SLOT(slotAddView()));
             }
             else if (dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p()))
             {
@@ -628,13 +640,13 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotAddView()
 {
-    QModelIndex index = currentIndex();
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    
-    QModelIndex insertedIndex;
-    myModel->addReservoirView(index, insertedIndex);
-    
+    std::vector<caf::PdmUiItem*> selection;
+    this->selectedUiItems(selection);
+
+    RimView* newView = myModel->addReservoirView(selection);
+    QModelIndex insertedIndex = myModel->getModelIndexFromPdmObject(newView);
+
     // Expand parent collection and inserted view item
     setExpandedUpToRoot(insertedIndex);
     
@@ -647,13 +659,12 @@ void RimUiTreeView::slotAddView()
 void RimUiTreeView::slotDeleteView()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        myModel->deleteReservoirView(currentIndex());
+    std::vector<caf::PdmUiItem*> selection;
+    this->selectedUiItems(selection);
+    myModel->deleteReservoirViews(selection);
 
-        RiaApplication* app = RiaApplication::instance();
-        app->setActiveReservoirView(NULL);
-    }
+    RiaApplication* app = RiaApplication::instance();
+    app->setActiveReservoirView(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1587,3 +1598,21 @@ void RimUiTreeView::slotDeleteAllWellPaths()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::selectedUiItems(std::vector<caf::PdmUiItem*>& objects)
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    QModelIndexList idxList = this->selectionModel()->selectedIndexes();
+
+    for (int i = 0; i < idxList.size(); i++)
+    {
+        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(idxList[i]);
+        if (uiItem)
+        {
+            caf::PdmUiItem* item = uiItem->dataObject();
+            objects.push_back(item);
+        }
+    }
+}

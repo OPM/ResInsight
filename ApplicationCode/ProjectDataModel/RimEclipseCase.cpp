@@ -150,30 +150,6 @@ RimReservoirView* RimEclipseCase::createAndAddReservoirView()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TODO: Move this functionality to PdmPointersField
-//--------------------------------------------------------------------------------------------------
-void RimEclipseCase::removeReservoirView(RimReservoirView* reservoirView)
-{
-    std::vector<size_t> indices;
-
-    size_t i;
-    for (i = 0; i < reservoirViews().size(); i++)
-    {
-        if (reservoirViews()[i] == reservoirView)
-        {
-            indices.push_back(i);
-        }
-    }
-
-    // NB! Make sure the ordering goes from large to low index
-    while (!indices.empty())
-    {
-        reservoirViews().erase(indices.back());
-        indices.pop_back();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::removeResult(const QString& resultName)

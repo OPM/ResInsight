@@ -44,6 +44,9 @@ public:
 
     virtual void setModel(QAbstractItemModel* model);
 
+    void selectedUiItems(std::vector<caf::PdmUiItem*>& objects);
+
+
     void applyTreeViewStateFromString(const QString& treeViewState);
     void storeTreeViewStateToString(QString& treeViewState);
 

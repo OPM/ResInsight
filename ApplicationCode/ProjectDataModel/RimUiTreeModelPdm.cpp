@@ -41,11 +41,13 @@
 #include "RimUiTreeView.h"
 #include "RimWellCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimGeoMechView.h"
 
 #include "cvfAssert.h"
 
 #include <QClipboard>
 #include <QFileSystemWatcher>
+#include "RimGeoMechCase.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -58,60 +60,6 @@ RimUiTreeModelPdm::RimUiTreeModelPdm(QObject* parent)
     this->updateScriptPaths();
     connect(m_scriptChangeDetector, SIGNAL(directoryChanged(QString)), this, SLOT(slotRefreshScriptTree(QString)));
     connect(m_scriptChangeDetector, SIGNAL(fileChanged(QString)), this, SLOT(slotRefreshScriptTree(QString)));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// TO BE DELETED
-//--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::insertRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
-{
-    caf::PdmUiTreeItem* parentItem = getTreeItemFromIndex(parent);
-    
-    bool canCreateChildren = false;
-    QModelIndex parentIndex = parent;
-
-    if (dynamic_cast<RimCellRangeFilterCollection*>(parentItem->dataObject().p()) ||
-        dynamic_cast<RimCellPropertyFilterCollection*>(parentItem->dataObject().p()))
-    {
-        canCreateChildren = true;
-    }
-    else if (dynamic_cast<RimCellFilter*>(parentItem->dataObject().p()))
-    {
-        parentItem = parentItem->parent();
-        parentIndex = parent.parent();
-
-        canCreateChildren = true;
-    }
-
-    if (canCreateChildren)
-    {
-        beginInsertRows(parent, position, position + rows - 1);
-        
-        int i;
-        for (i = 0; i < rows; i++)
-        {
-            if (dynamic_cast<RimCellRangeFilterCollection*>(parentItem->dataObject().p()))
-            {
-                RimCellRangeFilterCollection* rangeFilterCollection = dynamic_cast<RimCellRangeFilterCollection*>(parentItem->dataObject().p());
-                
-                RimCellRangeFilter* rangeFilter = rangeFilterCollection->createAndAppendRangeFilter();
-
-                caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentItem, position + i, rangeFilter);
-            }
-            else if (dynamic_cast<RimCellPropertyFilterCollection*>(parentItem->dataObject().p()))
-            {
-                RimCellPropertyFilterCollection* propertyFilterCollection = dynamic_cast<RimCellPropertyFilterCollection*>(parentItem->dataObject().p());
-
-                RimCellPropertyFilter* propertyFilter = propertyFilterCollection->createAndAppendPropertyFilter();
-
-                caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentItem, position + i, propertyFilter);
-            }
-
-        }
-        endInsertRows();
-    }
-
-    return canCreateChildren;
 }
 
 
@@ -203,26 +151,26 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
+void RimUiTreeModelPdm::deleteReservoirViews(const std::vector<caf::PdmUiItem*>& treeSelection)
 {
-    CVF_ASSERT(itemIndex.isValid());
+    std::set<RimCase*> ownerCases;
 
-    caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
-    CVF_ASSERT(uiItem);
+    for (size_t sIdx = 0; sIdx < treeSelection.size(); ++sIdx)
+    {
+        RimView* reservoirView = dynamic_cast<RimView*>(treeSelection[sIdx]);
+        ownerCases.insert(reservoirView->ownerCase());
 
-    RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(uiItem->dataObject().p());
-    CVF_ASSERT(reservoirView);
+        reservoirView->removeFromParentFields();
+        delete reservoirView;
+        
+    }
 
-    // Remove Ui items pointing at the pdm object to delete
-    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
+    for (std::set<RimCase*>::iterator it = ownerCases.begin(); it != ownerCases.end(); ++it)
+    {
+        updateUiSubTree(*it); 
+    }
 
-    reservoirView->eclipseCase()->removeReservoirView(reservoirView);
-    delete reservoirView;
-
-    // updateUiSubTree(reservoirView->eclipseCase()); // To be enabled
     clearClipboard();
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,51 +326,43 @@ RimCellRangeFilter* RimUiTreeModelPdm::addRangeFilter(const QModelIndex& itemInd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+RimView* RimUiTreeModelPdm::addReservoirView(const std::vector<caf::PdmUiItem*>& treeSelection)
 {
-    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
-    if (!currentItem) return NULL;
+    if (!treeSelection.size() || treeSelection[0] == NULL) return NULL;
 
-    caf::PdmUiTreeItem* collectionItem = NULL;
+    caf::PdmUiItem* currentItem = treeSelection[0];
 
-    bool itemIndexIsCollection = false;
-    QModelIndex collectionIndex;
-    int position = 0;
-    if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
+    // Establish type of selected object
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(currentItem);
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(currentItem);
+    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(currentItem);
+    RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(currentItem);
+
+    // Find case to insert into
+
+    if (geoMechView) geomCase = geoMechView->geoMechCase();   
+    if (reservoirView) eclipseCase = reservoirView->eclipseCase();
+
+    RimView* insertedView = NULL;
+
+    if (eclipseCase)
     {
-        collectionItem = currentItem->parent();
-        collectionIndex = itemIndex.parent();
-        position = itemIndex.row();
+        insertedView = eclipseCase->createAndAddReservoirView();
     }
-    else if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
+    else if (geomCase)
     {
-        collectionItem = currentItem;
-        collectionIndex = itemIndex;
-        position = collectionItem->childCount();
-    }
-
-    if (collectionItem)
-    {
-        RimEclipseCase* rimReservoir = dynamic_cast<RimEclipseCase*>(collectionItem->dataObject().p());
-        RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
-
-        // Must be run before buildViewItems, as wells are created in this function
-        insertedView->loadDataAndUpdate(); 
-
-        beginInsertRows(collectionIndex, position, position);
-
-        // NOTE: -1 as second argument indicates append
-        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, position, insertedView);
-        
-        endInsertRows();
-
-        insertedModelIndex = index(position, 0, collectionIndex);
-
-        return insertedView;
+        insertedView = geomCase->createAndAddReservoirView();
     }
 
-    return NULL;
-}
+    // Must be run before buildViewItems, as wells are created in this function
+    
+    insertedView->loadDataAndUpdate();
+
+    if (eclipseCase ) this->updateUiSubTree(eclipseCase);
+    if (geomCase )    this->updateUiSubTree(geomCase);
+   
+    return insertedView;
+}    
 
 
 //--------------------------------------------------------------------------------------------------

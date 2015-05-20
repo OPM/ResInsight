@@ -68,7 +68,6 @@ public:
     RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
     RimReservoirView*                           createAndAddReservoirView();
-    void                                        removeReservoirView(RimReservoirView* reservoirView);
 
     void                                        removeResult(const QString& resultName);
 
