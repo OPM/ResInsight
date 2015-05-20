@@ -35,6 +35,9 @@
 #include "RigCaseCellResultsData.h"
 
 #include "cafProgressInfo.h"
+#include "RiuMainWindow.h"
+#include <QMessageBox>
+#include <QDir>
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
 
@@ -156,21 +159,18 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // When reading active cell info, only the total cell count is tested for consistency
 
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
-    mainCase->openEclipseGridFile();
-    RigCaseData* rigCaseData = mainCase->reservoirData();
-    if (rigCaseData)
+    if (!mainCase->openReserviorCase())
     {
-        RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
-        RimReservoirCellResultsStorage* cellResultsStorage = mainCase->results(poroModel);
-
-        cellResultsStorage->cellResults()->createPlaceholderResultEntries();
-    }
-    else
-    {
-        // Error message
+        QMessageBox::warning(RiuMainWindow::instance(),
+                             "Error when opening project file",
+                             "Could not open the Eclipse Grid file: \n"+ mainCase->gridFileName() + "\n"+ 
+                             "Current working directory is: \n" +
+                             QDir::currentPath());
         return;
     }
 
+    RigCaseData* rigCaseData = mainCase->reservoirData();
+    CVF_ASSERT(rigCaseData);
 
     // Action A : Read active cell info
     // Read active cell info from all source cases. The file access is optimized for this purpose, and result meta data
