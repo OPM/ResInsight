@@ -170,6 +170,8 @@ private:
     void                                    syncronizeWellsWithResults();
     void                                    clampCurrentTimestep();
 
+    virtual RimCase*                        ownerCase();
+
 private:
     caf::PdmPointer<RimEclipseCase>                m_reservoir;
 

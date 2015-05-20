@@ -1459,3 +1459,11 @@ cvf::Transform* RimReservoirView::scaleTransform()
     return m_reservoirGridPartManager->scaleTransform();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCase* RimReservoirView::ownerCase()
+{
+    return eclipseCase();
+}
+

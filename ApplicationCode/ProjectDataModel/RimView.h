@@ -27,6 +27,7 @@
 
 class RiuViewer;
 class Rim3dOverlayInfoConfig;
+class RimCase;
 
 namespace cvf
 {
@@ -96,6 +97,7 @@ public:
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
+    virtual RimCase*                        ownerCase() = 0;
 
     virtual caf::PdmFieldHandle*            objectToggleField()     { return &showWindow; }
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }

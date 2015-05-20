@@ -83,6 +83,8 @@ private:
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                        initAfterRead();
 
+    virtual RimCase*                                    ownerCase();
+
     caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
     cvf::ref<RivGeoMechPartMgr>                         m_geoMechFullModel;
     bool                                                m_isGeoMechFullGenerated;
