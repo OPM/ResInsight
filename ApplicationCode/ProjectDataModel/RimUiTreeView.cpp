@@ -204,6 +204,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             else if (dynamic_cast<RimGeoMechCase*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
+                menu.addAction(QString("Close"), this, SLOT(slotCloseGeomechCase()));
             }
             else if (dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p()))
             {
@@ -1615,4 +1616,16 @@ void RimUiTreeView::selectedUiItems(std::vector<caf::PdmUiItem*>& objects)
             objects.push_back(item);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotCloseGeomechCase()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    std::vector<caf::PdmUiItem*> selection;
+    this->selectedUiItems(selection);
+    myModel->deleteGeoMechCases(selection);
+
 }

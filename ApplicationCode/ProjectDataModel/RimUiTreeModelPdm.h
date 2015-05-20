@@ -62,6 +62,7 @@ public:
 
     RimView*                    addReservoirView(const std::vector<caf::PdmUiItem*>& treeSelection);
     void                        deleteReservoirViews(const std::vector<caf::PdmUiItem*>& treeSelection);
+    void                        deleteGeoMechCases(const std::vector<caf::PdmUiItem*>& treeSelection);
 
     void                        addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
     

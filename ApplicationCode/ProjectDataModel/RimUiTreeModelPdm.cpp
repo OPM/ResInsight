@@ -176,6 +176,37 @@ void RimUiTreeModelPdm::deleteReservoirViews(const std::vector<caf::PdmUiItem*>&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::deleteGeoMechCases(const std::vector<caf::PdmUiItem*>& treeSelection)
+{
+    std::set<caf::PdmObject*> allParents;
+    
+    for (size_t sIdx = 0; sIdx < treeSelection.size(); ++sIdx)
+    {
+        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(treeSelection[sIdx]);
+        if (!geomCase) continue;
+
+        std::vector<caf::PdmObject*> parents;
+        geomCase->parentObjects(parents);
+        for (size_t pIdx = 0; pIdx < treeSelection.size(); ++pIdx)
+        {
+            allParents.insert(parents[pIdx]);
+        }
+
+        geomCase->removeFromParentFields();
+        delete geomCase;
+    }
+
+    for (std::set<caf::PdmObject*>::iterator it = allParents.begin(); it != allParents.end(); ++it)
+    {
+        updateUiSubTree(*it); 
+    }
+
+    clearClipboard();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimUiTreeModelPdm::deleteReservoir(RimEclipseCase* reservoir)
 {
     if (reservoir->parentCaseCollection())
@@ -231,6 +262,7 @@ void RimUiTreeModelPdm::deleteReservoir(RimEclipseCase* reservoir)
 
     clearClipboard();
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

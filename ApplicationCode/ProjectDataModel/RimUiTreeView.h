@@ -83,6 +83,7 @@ private slots:
     void slotWriteBinaryResultAsInputProperty();
 
     void slotCloseCase();
+    void slotCloseGeomechCase();
 
     void slotNewStatisticsCase();
     void slotComputeStatistics();
