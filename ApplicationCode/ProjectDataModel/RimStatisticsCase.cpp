@@ -25,7 +25,7 @@
 #include "RimCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimStatisticsCaseEvaluator.h"
 #include "RimUiTreeModelPdm.h"

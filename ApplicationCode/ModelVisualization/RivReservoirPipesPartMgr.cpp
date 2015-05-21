@@ -21,7 +21,7 @@
 #include "RiaStdInclude.h"
 
 #include "RivReservoirPipesPartMgr.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimWell.h"
 #include "RimWellCollection.h"
 #include "RivWellPipesPartMgr.h"

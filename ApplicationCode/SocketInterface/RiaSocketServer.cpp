@@ -30,7 +30,7 @@
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimProject.h"
 #include "RimEclipseCase.h"
 

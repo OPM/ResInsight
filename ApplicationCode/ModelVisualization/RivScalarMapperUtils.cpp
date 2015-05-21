@@ -21,7 +21,7 @@
 
 #include "RimCellEdgeResultSlot.h"
 #include "RimLegendConfig.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimTernaryLegendConfig.h"
 

@@ -28,7 +28,7 @@
 #include "RimCaseCollection.h"
 #include "RimResultCase.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimWellPathCollection.h"
 #include "RimScriptCollection.h"
 #include "RimCellPropertyFilterCollection.h"

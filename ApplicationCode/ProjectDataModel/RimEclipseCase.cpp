@@ -31,7 +31,7 @@
 #include "RimCellPropertyFilter.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 
 #include "cafPdmDocument.h"

@@ -28,7 +28,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimFaultCollection.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimTernaryLegendConfig.h"
 

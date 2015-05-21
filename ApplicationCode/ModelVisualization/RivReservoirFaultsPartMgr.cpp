@@ -29,7 +29,7 @@
 #include "RigMainGrid.h"
 #include "RimFaultCollection.h"
 #include "RimFaultResultSlot.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimEclipseCase.h"
 #include "RigCaseData.h"

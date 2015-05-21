@@ -30,7 +30,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimInputCase.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"

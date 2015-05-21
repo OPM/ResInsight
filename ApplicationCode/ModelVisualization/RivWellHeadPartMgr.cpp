@@ -36,7 +36,7 @@
 #include "cvfFixedAtlasFont.h"
 #include "cvfqtUtils.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimWellCollection.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "RimCellEdgeResultSlot.h"

@@ -27,7 +27,7 @@
 #include "RigMainGrid.h"
 #include "RimEclipseCase.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 
 #include "cafPdmUiSliderEditor.h"
 #include "cvfAssert.h"

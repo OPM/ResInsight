@@ -35,7 +35,7 @@
 #include <cmath>
 
 #include "RiaApplication.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");

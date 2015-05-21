@@ -26,7 +26,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"

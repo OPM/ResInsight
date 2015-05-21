@@ -36,7 +36,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
 

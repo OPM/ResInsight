@@ -28,7 +28,7 @@
 #include "RimCaseCollection.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultCase.h"
 #include "RimResultSlot.h"
 #include "RimStatisticsCase.h"

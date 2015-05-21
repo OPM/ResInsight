@@ -33,7 +33,7 @@
 #include "RimInputCase.h"
 #include "RimInputPropertyCollection.h"
 #include "RimUiTreeModelPdm.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"

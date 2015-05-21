@@ -23,7 +23,7 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"

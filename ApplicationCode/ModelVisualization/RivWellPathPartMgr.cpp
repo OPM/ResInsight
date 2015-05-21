@@ -35,7 +35,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RigCaseData.h"
 #include "RigCell.h"
 #include "RivWellPathPartMgr.h"

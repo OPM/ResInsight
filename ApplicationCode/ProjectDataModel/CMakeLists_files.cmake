@@ -22,7 +22,7 @@ ${CEE_CURRENT_LIST_DIR}RimInputProperty.h
 ${CEE_CURRENT_LIST_DIR}RimInputPropertyCollection.h
 ${CEE_CURRENT_LIST_DIR}RimInputCase.h
 ${CEE_CURRENT_LIST_DIR}RimResultCase.h
-${CEE_CURRENT_LIST_DIR}RimReservoirView.h
+${CEE_CURRENT_LIST_DIR}RimEclipseView.h
 ${CEE_CURRENT_LIST_DIR}RimResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.h
@@ -77,7 +77,7 @@ ${CEE_CURRENT_LIST_DIR}RimInputProperty.cpp
 ${CEE_CURRENT_LIST_DIR}RimInputPropertyCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimInputCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimResultCase.cpp
-${CEE_CURRENT_LIST_DIR}RimReservoirView.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseView.cpp
 ${CEE_CURRENT_LIST_DIR}RimResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.cpp

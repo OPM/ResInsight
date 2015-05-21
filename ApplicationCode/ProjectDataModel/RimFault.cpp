@@ -21,7 +21,7 @@
 
 #include "RigFault.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 
 CAF_PDM_SOURCE_INIT(RimFault, "Fault");
 

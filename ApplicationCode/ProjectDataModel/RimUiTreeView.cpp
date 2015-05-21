@@ -35,7 +35,7 @@
 
 #include "RimUiTreeView.h"
 #include "RimUiTreeModelPdm.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimCalcScript.h"
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"

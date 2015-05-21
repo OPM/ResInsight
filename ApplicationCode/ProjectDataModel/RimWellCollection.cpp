@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RigSingleWellResultsData.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimWell.h"
 #include "RivReservoirViewPartMgr.h"
 

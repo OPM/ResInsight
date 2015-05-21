@@ -34,7 +34,7 @@
 #include "RimMimeData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultCase.h"
 #include "RimScriptCollection.h"
 #include "RimStatisticsCase.h"

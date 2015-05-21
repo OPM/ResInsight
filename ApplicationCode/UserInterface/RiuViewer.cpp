@@ -25,7 +25,7 @@
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseCase.h"

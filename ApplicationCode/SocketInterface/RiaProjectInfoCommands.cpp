@@ -23,7 +23,7 @@
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"

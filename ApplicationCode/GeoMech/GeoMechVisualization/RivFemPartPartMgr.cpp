@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimGeoMechResultSlot.h"
 #include "RimLegendConfig.h"
 

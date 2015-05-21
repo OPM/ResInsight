@@ -20,7 +20,7 @@
 
 #include "RimCellPropertyFilterCollection.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultDefinition.h"
 #include "RimResultSlot.h"
 

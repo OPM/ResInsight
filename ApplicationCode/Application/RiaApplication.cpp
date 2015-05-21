@@ -36,7 +36,7 @@
 //
 #include "RimResultCase.h"
 #include "RimInputCase.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimOilField.h"

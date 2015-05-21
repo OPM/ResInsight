@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"

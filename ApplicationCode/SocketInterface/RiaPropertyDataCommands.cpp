@@ -38,7 +38,7 @@
 #include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 #include "RimUiTreeModelPdm.h"
 

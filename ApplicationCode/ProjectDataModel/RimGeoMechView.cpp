@@ -35,7 +35,7 @@
 #include "cvfViewport.h"
 #include "cvfModelBasicList.h"
 #include "cvfScene.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RiuViewer.h"
 #include "RivGeoMechPartMgr.h"
 #include "RigGeoMechCaseData.h"

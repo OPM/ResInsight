@@ -25,7 +25,7 @@
 #include "RimEclipseCase.h"
 #include "RimNoCommonAreaNNC.h"
 #include "RimNoCommonAreaNncCollection.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RiuMainWindow.h"
 #include "RivColorTableArray.h"
 

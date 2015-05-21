@@ -34,7 +34,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimFaultCollection.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultDefinition.h"
 #include "RimResultSlot.h"
 #include "RimWellCollection.h"

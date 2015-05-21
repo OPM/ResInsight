@@ -21,7 +21,7 @@
 #include "RimWell.h"
 
 #include "RigSingleWellResultsData.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimWellCollection.h"
 
 #include "cvfMath.h"

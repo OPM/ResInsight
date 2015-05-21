@@ -29,7 +29,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimFaultResultSlot.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimResultSlot.h"
 
 

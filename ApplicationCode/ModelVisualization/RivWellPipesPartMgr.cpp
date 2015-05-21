@@ -37,7 +37,7 @@
 #include "RivPipeGeometryGenerator.h"
 
 #include "RimEclipseCase.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimWell.h"
 #include "RimWellCollection.h"
 #include "RimReservoirCellResultsStorage.h"

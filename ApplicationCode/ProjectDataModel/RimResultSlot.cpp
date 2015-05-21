@@ -20,7 +20,7 @@
 
 #include "RimResultSlot.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
