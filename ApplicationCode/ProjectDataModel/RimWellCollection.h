@@ -30,7 +30,7 @@
 
 #include <QString>
 
-class RimReservoirView;
+class RimEclipseView;
 class RimWell;
 
 //==================================================================================================
@@ -45,7 +45,7 @@ public:
     RimWellCollection();
     virtual ~RimWellCollection();
 
-    void                                setReservoirView(RimReservoirView* ownerReservoirView);
+    void                                setReservoirView(RimEclipseView* ownerReservoirView);
 
     enum WellVisibilityType
     {
@@ -117,7 +117,7 @@ private:
 
     void                                calculateIsWellPipesVisible(size_t frameIndex);
 
-    RimReservoirView*   m_reservoirView;
+    RimEclipseView*   m_reservoirView;
     std::vector< std::vector< cvf::ubyte > >             
                                         m_isWellPipesVisible;  
 };

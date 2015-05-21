@@ -43,8 +43,8 @@ public:
     bool                    hasActiveFilters() const; 
     bool                    hasActiveDynamicFilters() const; 
 
-    void                    setReservoirView(RimReservoirView* reservoirView);
-    RimReservoirView*       reservoirView();
+    void                    setReservoirView(RimEclipseView* reservoirView);
+    RimEclipseView*       reservoirView();
 
     void                    loadAndInitializePropertyFilters();
 
@@ -58,5 +58,5 @@ protected:
     virtual void initAfterRead();
 
 private:
-    caf::PdmPointer<RimReservoirView> m_reservoirView;
+    caf::PdmPointer<RimEclipseView> m_reservoirView;
 };

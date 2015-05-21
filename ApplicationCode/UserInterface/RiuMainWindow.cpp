@@ -721,7 +721,7 @@ void RiuMainWindow::refreshAnimationActions()
         activeView->viewer()->frameCount())
     {
         enableAnimControls = true;
-        RimReservoirView * activeRiv = dynamic_cast<RimReservoirView*>(activeView);
+        RimEclipseView * activeRiv = dynamic_cast<RimEclipseView*>(activeView);
 
         if (activeRiv)
         {
@@ -1722,7 +1722,7 @@ void RiuMainWindow::slotToggleFaultsAction(bool showFaults)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 {
-    RimReservoirView* activeRiv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeRiv) return;
 
     activeRiv->faultCollection->showFaultLabel.setValueFromUi(showLabels);
@@ -1742,7 +1742,7 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleSurfOnlyAction->setEnabled(enable);
     m_drawStyleFaultLinesSolidAction->setEnabled(enable);
 
-    RimReservoirView* riv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+    RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     
     enable = enable && riv;
 
@@ -2042,7 +2042,7 @@ void RiuMainWindow::setDefaultWindowSize()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 {
-    RimReservoirView* riv = dynamic_cast<RimReservoirView*>(RiaApplication::instance()->activeReservoirView());
+    RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (riv)
     {
         caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> rangeAddType;

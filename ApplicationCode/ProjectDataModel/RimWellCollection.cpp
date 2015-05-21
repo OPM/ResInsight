@@ -257,7 +257,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellCollection::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimWellCollection::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 }

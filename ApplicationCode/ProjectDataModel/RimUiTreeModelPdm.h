@@ -30,7 +30,7 @@ class QFileSystemWatcher;
 class RimCellPropertyFilter;
 class RimCellRangeFilter;
 class RimEclipseCase;
-class RimReservoirView;
+class RimEclipseView;
 class RimInputProperty;
 class RimStatisticsCase;
 class RimIdenticalGridCaseGroup;

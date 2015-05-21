@@ -28,7 +28,7 @@
 
 class RigCaseCellResultsData;
 class RimLegendConfig;
-class RimReservoirView;
+class RimEclipseView;
 
 
 //==================================================================================================
@@ -51,7 +51,7 @@ public:
 
     typedef  caf::AppEnum<RimCellEdgeResultSlot::EdgeFaceType> EdgeFaceEnum;
 
-    void                                  setReservoirView(RimReservoirView* ownerReservoirView);
+    void                                  setReservoirView(RimEclipseView* ownerReservoirView);
 
     caf::PdmField<QString>                resultVariable;
     caf::PdmField<bool>                   useXVariable;
@@ -78,7 +78,7 @@ private:
     void                                  updateIgnoredScalarValue();
 protected:
     caf::FixedArray<std::pair<QString, size_t>, 6 >  m_resultNameToIndexPairs;
-    caf::PdmPointer<RimReservoirView>                m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                m_reservoirView;
     double                                           m_ignoredResultScalar;
 };
 

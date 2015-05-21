@@ -24,7 +24,7 @@
 #include "cvfStructGrid.h"
 
 
-class RimReservoirView;
+class RimEclipseView;
 class RimResultSlot;
 class QString;
 class RigCaseData;
@@ -40,7 +40,7 @@ namespace cvf {
 class RiuResultTextBuilder
 {
 public:
-	RiuResultTextBuilder(RimReservoirView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex);
+	RiuResultTextBuilder(RimEclipseView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex);
     void setFace(cvf::StructGridInterface::FaceType face);
     void setNncIndex(size_t nncIndex);
     void setIntersectionPoint(cvf::Vec3d intersectionPoint);
@@ -67,7 +67,7 @@ private:
 	void appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimResultSlot* resultSlot, QString* resultInfoText);
 
 private:
-    caf::PdmPointer<RimReservoirView> m_reservoirView;
+    caf::PdmPointer<RimEclipseView> m_reservoirView;
 
 	size_t m_gridIndex;
 	size_t m_cellIndex;

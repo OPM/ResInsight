@@ -33,12 +33,12 @@ namespace cvf
 }
 
 class RimWell;
-class RimReservoirView;
+class RimEclipseView;
 
 class RivWellHeadPartMgr : public cvf::Object
 {
 public:
-    RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well);
+    RivWellHeadPartMgr(RimEclipseView* reservoirView, RimWell* well);
     ~RivWellHeadPartMgr();
 
     void setScaleTransform(cvf::Transform * scaleTransform) { m_scaleTransform = scaleTransform;}
@@ -51,7 +51,7 @@ private:
 
 
 private:
-    caf::PdmPointer<RimReservoirView>   m_rimReservoirView;
+    caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
     caf::PdmPointer<RimWell>            m_rimWell;
     
     cvf::ref<cvf::Transform>            m_scaleTransform; 

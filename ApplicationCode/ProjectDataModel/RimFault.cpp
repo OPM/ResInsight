@@ -68,7 +68,7 @@ void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const Q
 
     if (&faultColor == changedField || &showFault == changedField)
     {
-        RimReservoirView* reservoirView = NULL;
+        RimEclipseView* reservoirView = NULL;
         this->firstAncestorOfType(reservoirView);
 
         if (reservoirView) 

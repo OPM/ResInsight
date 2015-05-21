@@ -75,12 +75,12 @@ enum PartRenderMaskEnum
 ///  
 ///  
 //==================================================================================================
-class RimReservoirView : public RimView
+class RimEclipseView : public RimView
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimReservoirView(void);
-    virtual ~RimReservoirView(void);
+    RimEclipseView(void);
+    virtual ~RimEclipseView(void);
 
     // Fields containing child objects :
 

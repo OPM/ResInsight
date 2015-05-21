@@ -25,7 +25,7 @@
 #include "cvfArray.h"
 #include "cafPdmObject.h"
 
-class RimReservoirView;
+class RimEclipseView;
 class RigGridBase;
 class RimCellRangeFilterCollection;
 class RimCellPropertyFilterCollection;
@@ -34,7 +34,7 @@ class RigActiveCellInfo;
 class RivReservoirViewPartMgr: public cvf::Object
 {
 public:
-    RivReservoirViewPartMgr(RimReservoirView * resv);
+    RivReservoirViewPartMgr(RimEclipseView * resv);
 
     cvf::Transform*             scaleTransform() { return m_scaleTransform.p();}
 
@@ -114,6 +114,6 @@ private:
     std::vector<uchar>                                      m_propFilteredWellGeometryFramesNeedsRegen;
 
     cvf::ref<cvf::Transform>                                m_scaleTransform;
-    caf::PdmPointer<RimReservoirView>                       m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                       m_reservoirView;
 
 };

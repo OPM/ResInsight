@@ -55,7 +55,7 @@ RimCellRangeFilterCollection::~RimCellRangeFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::setReservoirView(RimReservoirView* reservoirView)
+void RimCellRangeFilterCollection::setReservoirView(RimEclipseView* reservoirView)
 {
     m_reservoirView = reservoirView;
 }
@@ -170,7 +170,7 @@ RimCellRangeFilter* RimCellRangeFilterCollection::createAndAppendRangeFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RimCellRangeFilterCollection::reservoirView()
+RimEclipseView* RimCellRangeFilterCollection::reservoirView()
 {
     return m_reservoirView;
 }

@@ -33,7 +33,7 @@
 #include <QString>
 
 class RimFault;
-class RimReservoirView;
+class RimEclipseView;
 class RimNoCommonAreaNncCollection;
 
 //==================================================================================================
@@ -55,7 +55,7 @@ public:
     RimFaultCollection();
     virtual ~RimFaultCollection();
 
-    void                                setReservoirView(RimReservoirView* ownerReservoirView);
+    void                                setReservoirView(RimEclipseView* ownerReservoirView);
     void                                syncronizeFaults();
 
     void                                addMockData();
@@ -91,6 +91,6 @@ private:
 
 private:
     caf::PdmField<bool>     m_showFaultsOutsideFilters;
-    RimReservoirView*       m_reservoirView;
+    RimEclipseView*       m_reservoirView;
 
 };

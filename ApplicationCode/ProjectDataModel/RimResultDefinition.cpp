@@ -70,7 +70,7 @@ RimResultDefinition::~RimResultDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultDefinition::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimResultDefinition::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 
@@ -290,7 +290,7 @@ bool RimResultDefinition::hasDynamicResult() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RimResultDefinition::reservoirView()
+RimEclipseView* RimResultDefinition::reservoirView()
 {
     return m_reservoirView;
 }

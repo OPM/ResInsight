@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, RimReservoirView* reservoirView)
+void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, RimEclipseView* reservoirView)
 {
     m_allGrids.clear();
 

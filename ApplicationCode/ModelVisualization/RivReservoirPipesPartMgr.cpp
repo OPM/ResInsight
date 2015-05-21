@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimReservoirView* reservoirView)
+RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimEclipseView* reservoirView)
 {
     m_reservoirView = reservoirView;
 

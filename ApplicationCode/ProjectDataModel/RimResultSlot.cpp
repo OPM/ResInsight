@@ -154,7 +154,7 @@ void RimResultSlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     RimResultDefinition::setReservoirView(ownerReservoirView);
 

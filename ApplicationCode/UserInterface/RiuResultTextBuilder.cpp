@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuResultTextBuilder::RiuResultTextBuilder(RimReservoirView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex)
+RiuResultTextBuilder::RiuResultTextBuilder(RimEclipseView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex)
 {
     CVF_ASSERT(reservoirView);
     

@@ -51,7 +51,7 @@ RimCellPropertyFilterCollection::~RimCellPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilterCollection::setReservoirView(RimReservoirView* reservoirView)
+void RimCellPropertyFilterCollection::setReservoirView(RimEclipseView* reservoirView)
 {
     m_reservoirView = reservoirView;
 
@@ -67,7 +67,7 @@ void RimCellPropertyFilterCollection::setReservoirView(RimReservoirView* reservo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RimCellPropertyFilterCollection::reservoirView()
+RimEclipseView* RimCellPropertyFilterCollection::reservoirView()
 {
     CVF_ASSERT(!m_reservoirView.isNull());
     return m_reservoirView;

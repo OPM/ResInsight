@@ -132,7 +132,7 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultCollection::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimFaultCollection::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 }

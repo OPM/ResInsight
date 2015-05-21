@@ -24,7 +24,7 @@
 #include "cafPdmObject.h"
 
 class RimResultSlot;
-class RimReservoirView;
+class RimEclipseView;
 
 //==================================================================================================
 ///  
@@ -38,7 +38,7 @@ public:
     RimFaultResultSlot();
     virtual ~RimFaultResultSlot();
     
-    void setReservoirView(RimReservoirView* ownerReservoirView);
+    void setReservoirView(RimEclipseView* ownerReservoirView);
 
     caf::PdmField<bool>     showCustomFaultResult;
 
@@ -57,6 +57,6 @@ protected:
 
 private:
     caf::PdmField<RimResultSlot*>       m_customFaultResult;
-    caf::PdmPointer<RimReservoirView>   m_reservoirView;
+    caf::PdmPointer<RimEclipseView>   m_reservoirView;
 };
 

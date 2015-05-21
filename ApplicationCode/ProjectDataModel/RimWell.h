@@ -31,7 +31,7 @@
 #include "cafPdmFieldCvfColor.h"    
 
 class RigSingleWellResultsData;
-class RimReservoirView;
+class RimEclipseView;
 
 //==================================================================================================
 ///  
@@ -45,7 +45,7 @@ public:
     RimWell();
     virtual ~RimWell();
     
-    void                                setReservoirView(RimReservoirView* ownerReservoirView);
+    void                                setReservoirView(RimEclipseView* ownerReservoirView);
     void                                setWellIndex(size_t val) { m_wellIndex = val; }
 
     void                                setWellResults(RigSingleWellResultsData* wellResults) { m_wellResults = wellResults;}
@@ -77,5 +77,5 @@ private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;
     size_t                              m_wellIndex;
 
-    RimReservoirView*                   m_reservoirView;
+    RimEclipseView*                   m_reservoirView;
 };

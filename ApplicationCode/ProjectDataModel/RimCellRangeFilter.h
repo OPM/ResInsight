@@ -25,7 +25,7 @@
 class RigGridBase;
 class RigMainGrid;
 class RimCellRangeFilterCollection;
-class RimReservoirView;
+class RimEclipseView;
 
 namespace cvf
 {

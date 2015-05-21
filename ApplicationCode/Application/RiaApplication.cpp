@@ -642,7 +642,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     analysisModels->cases.push_back(rimResultReservoir);
 
-    RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
+    RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
 
     // Select SOIL as default result variable
     riv->cellResult()->setResultType(RimDefines::DYNAMIC_NATIVE);
@@ -685,7 +685,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 
     analysisModels->cases.push_back(rimInputReservoir);
 
-    RimReservoirView* riv = rimInputReservoir->createAndAddReservoirView();
+    RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
 
     riv->cellResult()->setResultType(RimDefines::INPUT_PROPERTY);
     riv->animationMode = true;
@@ -2127,7 +2127,7 @@ void RiaApplication::regressionTestConfigureProject()
                 riv->viewer()->setFixedSize(1000, 745);
             }
 
-            RimReservoirView* resvView = dynamic_cast<RimReservoirView*>(riv);
+            RimEclipseView* resvView = dynamic_cast<RimEclipseView*>(riv);
 
             if (resvView)
             {

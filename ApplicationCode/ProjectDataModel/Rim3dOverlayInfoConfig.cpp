@@ -104,7 +104,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     m_viewDef->viewer()->showHistogram(false);
     m_viewDef->viewer()->showAnimationProgress(showAnimProgress());
 
-    RimReservoirView * reservoirView = dynamic_cast<RimReservoirView*>(m_viewDef.p());
+    RimEclipseView * reservoirView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     if (reservoirView) updateReservoir3DInfo(reservoirView);
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
     if (geoMechView) updateGeoMech3DInfo(geoMechView);
@@ -129,7 +129,7 @@ void Rim3dOverlayInfoConfig::setReservoirView(RimView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimReservoirView * reservoirView)
+void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirView)
 {
     if (showInfoText())
     {

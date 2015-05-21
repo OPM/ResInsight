@@ -23,14 +23,14 @@
 
 #include "cvfCollection.h"
 
-class RimReservoirView;
+class RimEclipseView;
 class RivWellPipesPartMgr;
 class RivWellHeadPartMgr;
 
 class RivReservoirPipesPartMgr : public cvf::Object
 {
 public:
-    RivReservoirPipesPartMgr(RimReservoirView* reservoirView);
+    RivReservoirPipesPartMgr(RimEclipseView* reservoirView);
     ~RivReservoirPipesPartMgr();
 
     void clearGeometryCache();
@@ -42,7 +42,7 @@ public:
     void updatePipeResultColor(size_t frameIndex);
 
 private:
-    caf::PdmPointer<RimReservoirView>   m_reservoirView;
+    caf::PdmPointer<RimEclipseView>   m_reservoirView;
     cvf::ref<cvf::Transform>            m_scaleTransform; 
 
     cvf::Collection< RivWellPipesPartMgr >  m_wellPipesPartMgrs;

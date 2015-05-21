@@ -44,7 +44,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirViewPartMgr::RivReservoirViewPartMgr(RimReservoirView * resv) :
+RivReservoirViewPartMgr::RivReservoirViewPartMgr(RimEclipseView * resv) :
 m_reservoirView(resv)
 {
     m_scaleTransform = new cvf::Transform();

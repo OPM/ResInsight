@@ -119,7 +119,7 @@ void RimEclipseCase::initAfterRead()
     size_t j;
     for (j = 0; j < reservoirViews().size(); j++)
     {
-        RimReservoirView* riv = reservoirViews()[j];
+        RimEclipseView* riv = reservoirViews()[j];
         CVF_ASSERT(riv);
 
         riv->setEclipseCase(this);
@@ -134,9 +134,9 @@ void RimEclipseCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RimEclipseCase::createAndAddReservoirView()
+RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
-    RimReservoirView* riv = new RimReservoirView();
+    RimEclipseView* riv = new RimEclipseView();
     riv->setEclipseCase(this);
 
     caf::PdmDocument::updateUiIconStateRecursively(riv);
@@ -157,7 +157,7 @@ void RimEclipseCase::removeResult(const QString& resultName)
     size_t i;
     for (i = 0; i < reservoirViews().size(); i++)
     {
-        RimReservoirView* reservoirView = reservoirViews()[i];
+        RimEclipseView* reservoirView = reservoirViews()[i];
         CVF_ASSERT(reservoirView);
 
         RimResultSlot* result = reservoirView->cellResult;
@@ -211,7 +211,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             for (size_t i = 0; i < reservoirViews().size(); i++)
             {
-                RimReservoirView* reservoirView = reservoirViews()[i];
+                RimEclipseView* reservoirView = reservoirViews()[i];
                 CVF_ASSERT(reservoirView);
 
                 RimResultSlot* result = reservoirView->cellResult;
@@ -255,7 +255,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
             for (size_t i = 0; i < reservoirViews().size(); i++)
             {
-                RimReservoirView* reservoirView = reservoirViews()[i];
+                RimEclipseView* reservoirView = reservoirViews()[i];
 
                 reservoirView->scheduleReservoirGridGeometryRegen();
                 reservoirView->schedulePipeGeometryRegen();

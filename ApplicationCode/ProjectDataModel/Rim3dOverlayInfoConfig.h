@@ -27,7 +27,7 @@
 
 #include "cvfVector2.h"
 
-class RimReservoirView;
+class RimEclipseView;
 class RimGeoMechView;
 class RimView;
 
@@ -57,7 +57,7 @@ protected:
     virtual caf::PdmFieldHandle*                objectToggleField();
 private:
 
-    void updateReservoir3DInfo(RimReservoirView * reservoirView);
+    void updateReservoir3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
 
 

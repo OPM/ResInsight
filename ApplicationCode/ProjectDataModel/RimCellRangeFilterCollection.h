@@ -46,8 +46,8 @@ public:
     bool                hasActiveFilters() const;
     bool                hasActiveIncludeFilters() const;
 
-    void                setReservoirView(RimReservoirView* reservoirView);
-    RimReservoirView*   reservoirView();
+    void                setReservoirView(RimEclipseView* reservoirView);
+    RimEclipseView*   reservoirView();
     RigMainGrid*        mainGrid() const;
     RigActiveCellInfo*  activeCellInfo() const;
 
@@ -61,5 +61,5 @@ protected:
 
 
 private:
-    RimReservoirView* m_reservoirView;
+    RimEclipseView* m_reservoirView;
 };

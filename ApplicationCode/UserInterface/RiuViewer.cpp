@@ -204,7 +204,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
     }
     else if (event->button() == Qt::RightButton)
     {
-        RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
         if (!eclipseView) return;
 
         m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
@@ -272,7 +272,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterI()
 {
-    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if (!eclipseView) return;
 
     size_t i, j, k;
@@ -310,7 +310,7 @@ void RiuViewer::slotRangeFilterI()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterJ()
 {
-    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if (!eclipseView) return;
 
     size_t i, j, k;
@@ -348,7 +348,7 @@ void RiuViewer::slotRangeFilterJ()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterK()
 {
-    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if (!eclipseView) return;
 
     size_t i, j, k;
@@ -398,7 +398,7 @@ void RiuViewer::keyPressEvent(QKeyEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::handlePickAction(int winPosX, int winPosY)
 {
-    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
 
     RiaApplication* app = RiaApplication::instance();
 
@@ -538,7 +538,7 @@ void RiuViewer::setEnableMask(unsigned int mask)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::pickPointAndFace(int winPosX, int winPosY, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit)
 {
-    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if(!eclipseView) return;
 
     cvf::HitItemCollection hitItems;
@@ -735,7 +735,7 @@ void RiuViewer::showHistogram(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size_t* i, size_t* j, size_t* k)
 {
-    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if(!eclipseView) return;
 
 
@@ -759,7 +759,7 @@ void RiuViewer::mousePressEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotHideFault()
 {
-    RimReservoirView* eclipseView = dynamic_cast<RimReservoirView*>(m_reservoirView.p());
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if(!eclipseView) return;
 
 

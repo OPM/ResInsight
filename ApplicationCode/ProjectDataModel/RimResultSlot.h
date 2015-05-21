@@ -37,7 +37,7 @@ public:
     RimResultSlot();
     virtual ~RimResultSlot();
 
-    virtual void setReservoirView(RimReservoirView* ownerReservoirView);
+    virtual void setReservoirView(RimEclipseView* ownerReservoirView);
     caf::PdmField<RimLegendConfig*> legendConfig;
     caf::PdmField<RimTernaryLegendConfig*> ternaryLegendConfig;
 

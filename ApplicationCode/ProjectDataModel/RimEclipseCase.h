@@ -31,7 +31,7 @@ class QString;
 
 class RigCaseData;
 class RigGridBase;
-class RimReservoirView;
+class RimEclipseView;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
@@ -52,7 +52,7 @@ public:
 
     // Fields:                                        
     caf::PdmField<bool>                         releaseResultMemory;
-    caf::PdmPointersField<RimReservoirView*>    reservoirViews;
+    caf::PdmPointersField<RimEclipseView*>    reservoirViews;
     caf::PdmField<bool>                         flipXAxis;
     caf::PdmField<bool>                         flipYAxis;
     
@@ -67,7 +67,7 @@ public:
 
     RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
-    RimReservoirView*                           createAndAddReservoirView();
+    RimEclipseView*                           createAndAddReservoirView();
 
     void                                        removeResult(const QString& resultName);
 

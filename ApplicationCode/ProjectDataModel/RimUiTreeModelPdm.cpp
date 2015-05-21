@@ -368,7 +368,7 @@ RimView* RimUiTreeModelPdm::addReservoirView(const std::vector<caf::PdmUiItem*>&
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(currentItem);
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(currentItem);
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(currentItem);
-    RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(currentItem);
+    RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>(currentItem);
 
     // Find case to insert into
 
@@ -682,14 +682,14 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
 
             for (size_t rvIdx = 0; rvIdx < rimResultReservoir->reservoirViews.size(); rvIdx++)
             {
-                RimReservoirView* riv = rimResultReservoir->reservoirViews()[rvIdx];
+                RimEclipseView* riv = rimResultReservoir->reservoirViews()[rvIdx];
                 riv->loadDataAndUpdate();
             }
         }
     }
     else if (caseFromItemIndex(itemIndex))
     {
-        std::vector<caf::PdmPointer<RimReservoirView> > typedObjects;
+        std::vector<caf::PdmPointer<RimEclipseView> > typedObjects;
         pdmObjects.createCopyByType(&typedObjects);
 
         if (typedObjects.size() == 0)
@@ -704,7 +704,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
         // Add cases to case group
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
-            RimReservoirView* rimReservoirView = typedObjects[i];
+            RimEclipseView* rimReservoirView = typedObjects[i];
             QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
             rimReservoirView->name = nameOfCopy;
             rimCase->reservoirViews().push_back(rimReservoirView);
@@ -962,9 +962,9 @@ RimEclipseCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemInde
     {
         rimCase = dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p());
     }
-    else if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimEclipseView*>(currentItem->dataObject().p()))
     {
-        RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(currentItem->dataObject().p());
+        RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>(currentItem->dataObject().p());
         CVF_ASSERT(reservoirView);
 
         rimCase = reservoirView->eclipseCase();
@@ -980,7 +980,7 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
 {
     bool toggleOn = (state == Qt::Checked);
 
-    std::set<RimReservoirView*> resViewsToUpdate;
+    std::set<RimEclipseView*> resViewsToUpdate;
 
     foreach (QModelIndex index, selectedIndexes)
     {

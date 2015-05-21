@@ -22,7 +22,7 @@
 
 #include "RimCellFilter.h"
 
-class RimReservoirView;
+class RimEclipseView;
 class RimCellPropertyFilterCollection;
 class RimResultDefinition;
 

@@ -74,7 +74,7 @@ caf::PdmFieldHandle* RimWell::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWell::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimWell::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 }

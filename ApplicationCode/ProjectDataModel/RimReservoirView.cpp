@@ -65,11 +65,11 @@
 
 
 
-CAF_PDM_SOURCE_INIT(RimReservoirView, "ReservoirView");
+CAF_PDM_SOURCE_INIT(RimEclipseView, "ReservoirView");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView::RimReservoirView()
+RimEclipseView::RimEclipseView()
 {
     RiaApplication* app = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -126,7 +126,7 @@ RimReservoirView::RimReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView::~RimReservoirView()
+RimEclipseView::~RimEclipseView()
 {
     delete this->faultResultSettings();
     delete this->cellResult();
@@ -146,7 +146,7 @@ RimReservoirView::~RimReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateViewerWidgetWindowTitle()
+void RimEclipseView::updateViewerWidgetWindowTitle()
 {
     if (m_viewer)
     {
@@ -167,7 +167,7 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// Clamp the current timestep to actual possibilities
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::clampCurrentTimestep()
+void RimEclipseView::clampCurrentTimestep()
 {
     if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults()) 
     {
@@ -184,7 +184,7 @@ void RimReservoirView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimView::fieldChangedByUi(changedField, oldValue, newValue);
 
@@ -247,7 +247,7 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 
 }
 
-void RimReservoirView::updateScaleTransform()
+void RimEclipseView::updateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale(2, 2) = scaleZ();
@@ -265,7 +265,7 @@ void RimReservoirView::updateScaleTransform()
 /// or at least empty scenes as frames that is delivered to the viewer
 /// The real geometry generation is done inside RivReservoirViewGeometry and friends
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::createDisplayModel()
+void RimEclipseView::createDisplayModel()
 {
     if (m_viewer.isNull()) return;
 
@@ -461,7 +461,7 @@ void RimReservoirView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateCurrentTimeStep()
+void RimEclipseView::updateCurrentTimeStep()
 {
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometriesToRecolor;
 
@@ -661,7 +661,7 @@ void RimReservoirView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::loadDataAndUpdate()
+void RimEclipseView::loadDataAndUpdate()
 {
     updateScaleTransform();
 
@@ -711,7 +711,7 @@ void RimReservoirView::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::initAfterRead()
+void RimEclipseView::initAfterRead()
 {
     this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
@@ -726,7 +726,7 @@ void RimReservoirView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateStaticCellColors()
+void RimEclipseView::updateStaticCellColors()
 {
     updateStaticCellColors( RivReservoirViewPartMgr::ACTIVE);
     updateStaticCellColors( RivReservoirViewPartMgr::ALL_WELL_CELLS);
@@ -743,7 +743,7 @@ void RimReservoirView::updateStaticCellColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateStaticCellColors(unsigned short geometryType)
+void RimEclipseView::updateStaticCellColors(unsigned short geometryType)
 {
     float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
     cvf::Color4f color(cvf::Color3::ORANGE);
@@ -770,7 +770,7 @@ void RimReservoirView::updateStaticCellColors(unsigned short geometryType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateDisplayModelVisibility()
+void RimEclipseView::updateDisplayModelVisibility()
 {
     if (m_viewer.isNull()) return;
 
@@ -813,7 +813,7 @@ void RimReservoirView::updateDisplayModelVisibility()
 //--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage* RimReservoirView::currentGridCellResults()
+RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
 {
     if (m_reservoir)
     {
@@ -828,7 +828,7 @@ RimReservoirCellResultsStorage* RimReservoirView::currentGridCellResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RimReservoirView::currentActiveCellInfo()
+RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
 {
     if (m_reservoir &&
         m_reservoir->reservoirData()
@@ -846,7 +846,7 @@ RigActiveCellInfo* RimReservoirView::currentActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::scheduleGeometryRegen(unsigned short geometryType)
+void RimEclipseView::scheduleGeometryRegen(unsigned short geometryType)
 {
     m_reservoirGridPartManager->scheduleGeometryRegen(static_cast<RivReservoirViewPartMgr::ReservoirGeometryCacheType>(geometryType));
 }
@@ -854,7 +854,7 @@ void RimReservoirView::scheduleGeometryRegen(unsigned short geometryType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::scheduleReservoirGridGeometryRegen()
+void RimEclipseView::scheduleReservoirGridGeometryRegen()
 {
     m_reservoirGridPartManager->clearGeometryCache();
 }
@@ -862,7 +862,7 @@ void RimReservoirView::scheduleReservoirGridGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::schedulePipeGeometryRegen()
+void RimEclipseView::schedulePipeGeometryRegen()
 {
     m_pipesPartManager->scheduleGeometryRegen();
 }
@@ -871,7 +871,7 @@ void RimReservoirView::schedulePipeGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
+void RimEclipseView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
 {
     CVF_ASSERT(gridIndices != NULL);
 
@@ -895,7 +895,7 @@ void RimReservoirView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateLegends()
+void RimEclipseView::updateLegends()
 {
     if (m_viewer)
     {
@@ -943,7 +943,7 @@ void RimReservoirView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData)
+void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData)
 {
     if (resultSlot->hasResult())
     {
@@ -1043,7 +1043,7 @@ void RimReservoirView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::setEclipseCase(RimEclipseCase* reservoir)
+void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 {
     m_reservoir = reservoir;
 }
@@ -1051,7 +1051,7 @@ void RimReservoirView::setEclipseCase(RimEclipseCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimReservoirView::eclipseCase()
+RimEclipseCase* RimEclipseView::eclipseCase()
 {
     return m_reservoir;
 }
@@ -1069,7 +1069,7 @@ RimEclipseCase* RimReservoirView::eclipseCase()
 
 */
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::syncronizeWellsWithResults()
+void RimEclipseView::syncronizeWellsWithResults()
 {
     if (!(m_reservoir && m_reservoir->reservoirData()) ) return;
 
@@ -1130,7 +1130,7 @@ void RimReservoirView::syncronizeWellsWithResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid)
+void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid)
 {
     CVF_ASSERT(visibleCells != NULL);
 
@@ -1240,7 +1240,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateDisplayModelForWellResults()
+void RimEclipseView::updateDisplayModelForWellResults()
 {
     m_reservoirGridPartManager->clearGeometryCache();
     m_pipesPartManager->clearGeometryCache();
@@ -1263,7 +1263,7 @@ void RimReservoirView::updateDisplayModelForWellResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
     viewGroup->add(&name);
@@ -1283,7 +1283,7 @@ void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 ///     
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateFaultForcedVisibility()
+void RimEclipseView::updateFaultForcedVisibility()
 {
     // Force visibility of faults based on application state
     // As fault geometry is visible in grid visualization mode, fault geometry must be forced visible
@@ -1302,7 +1302,7 @@ void RimReservoirView::updateFaultForcedVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirView::visibleFaultGeometryTypes() const
+std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimEclipseView::visibleFaultGeometryTypes() const
 {
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts;
 
@@ -1377,7 +1377,7 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirVie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::updateFaultColors()
+void RimEclipseView::updateFaultColors()
 {
     // Update all fault geometry
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
@@ -1401,7 +1401,7 @@ void RimReservoirView::updateFaultColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimReservoirView::isTimeStepDependentDataVisible() const
+bool RimEclipseView::isTimeStepDependentDataVisible() const
 {
     if (this->cellResult()->hasDynamicResult()) return true;
 
@@ -1425,7 +1425,7 @@ bool RimReservoirView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultSlot* RimReservoirView::currentFaultResultSlot()
+RimResultSlot* RimEclipseView::currentFaultResultSlot()
 {
     RimResultSlot* faultResultSlot = this->cellResult();
 
@@ -1440,7 +1440,7 @@ RimResultSlot* RimReservoirView::currentFaultResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::resetLegendsInViewer()
+void RimEclipseView::resetLegendsInViewer()
 {
     this->cellResult()->legendConfig->recreateLegend();
     this->cellResult()->ternaryLegendConfig->recreateLegend();
@@ -1454,7 +1454,7 @@ void RimReservoirView::resetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Transform* RimReservoirView::scaleTransform()
+cvf::Transform* RimEclipseView::scaleTransform()
 {
     return m_reservoirGridPartManager->scaleTransform();
 }
@@ -1462,7 +1462,7 @@ cvf::Transform* RimReservoirView::scaleTransform()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimReservoirView::ownerCase()
+RimCase* RimEclipseView::ownerCase()
 {
     return eclipseCase();
 }

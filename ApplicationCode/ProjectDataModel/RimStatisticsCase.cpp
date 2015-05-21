@@ -270,7 +270,7 @@ void RimStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 {
     for (size_t i = 0; i < reservoirViews().size(); i++)
     {
-        RimReservoirView* reservoirView = reservoirViews()[i];
+        RimEclipseView* reservoirView = reservoirViews()[i];
         CVF_ASSERT(reservoirView);
 
         reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::ACTIVE);
@@ -496,7 +496,7 @@ void RimStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSi
     // Update views
     for (size_t i = 0; i < reservoirViews().size(); i++)
     {
-        RimReservoirView* reservoirView = reservoirViews()[i];
+        RimEclipseView* reservoirView = reservoirViews()[i];
         CVF_ASSERT(reservoirView);
 
         reservoirView->wellCollection()->wells.deleteAllChildObjects();

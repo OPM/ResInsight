@@ -64,7 +64,7 @@ RimCellEdgeResultSlot::~RimCellEdgeResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimCellEdgeResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
     this->legendConfig()->setReservoirView(ownerReservoirView);

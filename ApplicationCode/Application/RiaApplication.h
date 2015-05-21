@@ -37,7 +37,7 @@ class RimEclipseCase;
 class Drawable;
 class RiaSocketServer;
 class RiaPreferences;
-class RimReservoirView;
+class RimEclipseView;
 class RimView;
 class RimProject;
 class RimCommandObject;

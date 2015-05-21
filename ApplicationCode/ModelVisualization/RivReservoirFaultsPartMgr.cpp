@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  RimReservoirView* reservoirView)
+RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  RimEclipseView* reservoirView)
 :   m_reservoirView(reservoirView)
 {
     CVF_ASSERT(grid);

@@ -32,7 +32,7 @@ namespace cvf
 
 class RimResultSlot;
 class RimCellEdgeResultSlot;
-class RimReservoirView;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -40,7 +40,7 @@ class RimReservoirView;
 class RivReservoirFaultsPartMgr : public cvf::Object
 {
 public:
-    RivReservoirFaultsPartMgr(const RigMainGrid* grid, RimReservoirView* reservoirView);
+    RivReservoirFaultsPartMgr(const RigMainGrid* grid, RimEclipseView* reservoirView);
     ~RivReservoirFaultsPartMgr();
 
     void setTransform(cvf::Transform* scaleTransform);
@@ -60,7 +60,7 @@ public:
 
 private:
     cvf::ref<cvf::Transform>            m_scaleTransform;
-    caf::PdmPointer<RimReservoirView>   m_reservoirView;
+    caf::PdmPointer<RimEclipseView>   m_reservoirView;
     cvf::Collection<RivFaultPartMgr>    m_faultParts;
     bool                                m_forceVisibility;
 };

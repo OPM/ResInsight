@@ -28,7 +28,7 @@
 #include "cafPdmPointer.h"
 
 
-class RimReservoirView;
+class RimEclipseView;
 class RigCaseCellResultsData;
 class RimReservoirCellResultsStorage;
 //==================================================================================================
@@ -42,8 +42,8 @@ public:
     RimResultDefinition();
     virtual ~RimResultDefinition();
 
-    virtual void                    setReservoirView(RimReservoirView* ownerReservoirView);
-    RimReservoirView*               reservoirView();
+    virtual void                    setReservoirView(RimEclipseView* ownerReservoirView);
+    RimEclipseView*               reservoirView();
 
     RimDefines::ResultCatType       resultType() const { return m_resultType(); }
     void                            setResultType(RimDefines::ResultCatType val);
@@ -78,7 +78,7 @@ protected:
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
-    caf::PdmPointer<RimReservoirView>                               m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                               m_reservoirView;
 
 protected:
     void updateFieldVisibility();

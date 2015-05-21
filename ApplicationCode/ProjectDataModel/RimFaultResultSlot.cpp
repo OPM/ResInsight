@@ -66,7 +66,7 @@ RimFaultResultSlot::~RimFaultResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimFaultResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
     m_customFaultResult->setReservoirView(ownerReservoirView);
