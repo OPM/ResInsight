@@ -70,7 +70,7 @@ public:
 
 
 public:
-    StructGridInterface();;
+    StructGridInterface();
 
     virtual size_t   gridPointCountI() const = 0;
     virtual size_t   gridPointCountJ() const = 0;
