@@ -42,7 +42,7 @@ public:
     RimCellRangeFilter* createAndAppendRangeFilter();
     void                remove(RimCellRangeFilter* rangeFilter);
 
-    void                compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, const RigGridBase* grid) const;
+    void                compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex) const;
     bool                hasActiveFilters() const;
     bool                hasActiveIncludeFilters() const;
 

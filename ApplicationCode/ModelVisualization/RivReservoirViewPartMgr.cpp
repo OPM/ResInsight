@@ -608,8 +608,11 @@ void RivReservoirViewPartMgr::copyByteArray(cvf::UByteArray* destination, const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType geometryType, cvf::UByteArray* cellVisibility, const RigGridBase* grid, 
-    const cvf::UByteArray* nativeVisibility, const RimCellRangeFilterCollection* rangeFilterColl) 
+void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType geometryType, 
+                                                     cvf::UByteArray* cellVisibility, 
+                                                     const RigGridBase* grid, 
+                                                     const cvf::UByteArray* nativeVisibility, 
+                                                     const RimCellRangeFilterCollection* rangeFilterColl) 
 {
     CVF_ASSERT(cellVisibility != NULL);
     CVF_ASSERT(nativeVisibility != NULL);
@@ -625,7 +628,7 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
     {
         // Build range filter for current grid
         cvf::CellRangeFilter gridCellRangeFilter;
-        rangeFilterColl->compoundCellRangeFilter(&gridCellRangeFilter, grid);
+        rangeFilterColl->compoundCellRangeFilter(&gridCellRangeFilter, grid->gridIndex());
 
         const RigLocalGrid* lgr = NULL;
         cvf::ref<cvf::UByteArray> parentGridVisibilities;

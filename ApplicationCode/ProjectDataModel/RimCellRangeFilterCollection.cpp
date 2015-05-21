@@ -65,7 +65,7 @@ void RimCellRangeFilterCollection::setReservoirView(RimEclipseView* reservoirVie
 /// RimCellRangeFilter is using Eclipse 1-based indexing, adjust filter values before 
 //  populating cvf::CellRangeFilter (which is 0-based)
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, const RigGridBase* grid) const
+void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex) const
 {
     CVF_ASSERT(cellRangeFilter);
 
@@ -74,7 +74,7 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
     {
         RimCellRangeFilter* rangeFilter = *it;
 
-        if (rangeFilter && rangeFilter->isActive() && static_cast<size_t>(rangeFilter->gridIndex()) == grid->gridIndex())
+        if (rangeFilter && rangeFilter->isActive() && static_cast<size_t>(rangeFilter->gridIndex()) == gridIndex)
         {
             if (rangeFilter->filterMode == RimCellFilter::INCLUDE)
             {
