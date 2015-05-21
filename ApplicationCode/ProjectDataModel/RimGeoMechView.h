@@ -34,8 +34,10 @@ class Rim3dOverlayInfoConfig;
 class RiuViewer;
 class RimGeoMechCase;
 class RivGeoMechPartMgr;
+class RimCellRangeFilterCollection;
 
 class RigFemPart;
+
 namespace cvf {
     class Transform;
 }
@@ -60,11 +62,13 @@ public:
     virtual void                                        endAnimation() {}
 
     caf::PdmField<RimGeoMechResultSlot*>                cellResult;
+    caf::PdmField<RimCellRangeFilterCollection*>        rangeFilterCollection;
 
 
     bool                                                isTimeStepDependentDataVisible();
 
 private:
+    virtual void                                        scheduleGeometryRegen(unsigned short geometryType){}
     virtual void                                        createDisplayModel();
     virtual void                                        updateDisplayModelVisibility();
     virtual void                                        updateScaleTransform();

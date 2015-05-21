@@ -92,6 +92,7 @@ public:
     void                                    updateCurrentTimeStepAndRedraw();
     void                                    endAnimation();
 
+    virtual void                            scheduleGeometryRegen(unsigned short geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
 

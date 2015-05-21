@@ -24,6 +24,10 @@
 #include "RigGridBase.h"
 #include "RimEclipseView.h"
 #include "RigCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
+#include "RigGeomechCaseData.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
@@ -55,7 +59,7 @@ RimCellRangeFilterCollection::~RimCellRangeFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::setReservoirView(RimEclipseView* reservoirView)
+void RimCellRangeFilterCollection::setReservoirView(RimView* reservoirView)
 {
     m_reservoirView = reservoirView;
 }
@@ -108,13 +112,14 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
 {
-    if (m_reservoirView &&
-        m_reservoirView->eclipseCase() &&
-        m_reservoirView->eclipseCase()->reservoirData() &&
-        m_reservoirView->eclipseCase()->reservoirData()->mainGrid())
+    RimEclipseView* eclipseView = this->eclipseView();
+    if (eclipseView &&
+        eclipseView->eclipseCase() &&
+        eclipseView->eclipseCase()->reservoirData() &&
+        eclipseView->eclipseCase()->reservoirData()->mainGrid())
     {
 
-        return m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+        return eclipseView->eclipseCase()->reservoirData()->mainGrid();
     }
 
     return NULL;
@@ -126,9 +131,10 @@ RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 {
-    if (m_reservoirView )
+    RimEclipseView* eclipseView = this->eclipseView();
+    if (eclipseView )
     {
-        return m_reservoirView->currentActiveCellInfo();
+        return eclipseView->currentActiveCellInfo();
     }
 
     return NULL;
@@ -140,6 +146,7 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+
     this->updateUiIconFromToggleField();
 
     CVF_ASSERT(m_reservoirView);
@@ -166,13 +173,20 @@ RimCellRangeFilter* RimCellRangeFilterCollection::createAndAppendRangeFilter()
 
     return rangeFilter;
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimView* RimCellRangeFilterCollection::reservoirView()
+{
+    return m_reservoirView;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RimCellRangeFilterCollection::reservoirView()
+RimEclipseView* RimCellRangeFilterCollection::eclipseView() const
 {
-    return m_reservoirView;
+    return dynamic_cast<RimEclipseView*>(m_reservoirView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,5 +252,92 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 
     return false;
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const cvf::StructGridInterface* RimCellRangeFilterCollection::gridByIndex(int gridIndex) const
+{
+    RigMainGrid* mnGrid = mainGrid();
+    RigFemPartCollection* femPartColl = this->femPartColl();
+
+    if (mnGrid)
+    {
+        RigGridBase* grid = NULL;
+
+        grid = mnGrid->gridByIndex(gridIndex);
+
+        CVF_ASSERT(grid);
+
+        return grid;
+    }
+    else if (femPartColl)
+    {
+        if (gridIndex < femPartColl->partCount())
+            return femPartColl->part(gridIndex)->structGrid();
+        else 
+            return NULL;
+    }
+    
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimCellRangeFilterCollection::gridCount() const
+{
+    RigMainGrid* mnGrid = mainGrid();
+    RigFemPartCollection* femPartColl = this->femPartColl();
+
+    if (mnGrid)
+    {
+        return (int)mnGrid->gridCount();
+    }
+    else if (femPartColl)
+    {
+        return femPartColl->partCount();
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimCellRangeFilterCollection::gridName(int gridIndex) const
+{
+    RigMainGrid* mnGrid = mainGrid();
+    RigFemPartCollection* femPartColl = this->femPartColl();
+
+    if (mnGrid)
+    {
+        return mnGrid->gridByIndex(gridIndex)->gridName().c_str();
+    }
+    else if (femPartColl)
+    {
+        return QString::number(gridIndex);
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemPartCollection* RimCellRangeFilterCollection::femPartColl() const
+{
+       RimGeoMechView* eclipseView = dynamic_cast<RimGeoMechView*>(m_reservoirView);
+
+    if (eclipseView &&
+        eclipseView->geoMechCase() &&
+        eclipseView->geoMechCase()->geoMechData() )
+    {
+
+        return eclipseView->geoMechCase()->geoMechData()->femParts();
+    }
+
+    return NULL;
 }
 

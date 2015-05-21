@@ -30,6 +30,7 @@ class RimEclipseView;
 namespace cvf
 {
     class CellRangeFilter;
+    class StructGridInterface;
 }
 
 //==================================================================================================
@@ -67,7 +68,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
 
 private:
-    RigGridBase*            selectedGrid();
+    const cvf::StructGridInterface*            selectedGrid();
 
     RimCellRangeFilterCollection* m_parentContainer;
 };

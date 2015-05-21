@@ -44,6 +44,7 @@
 #include "cafFrameAnimationControl.h"
 #include <QMessageBox>
 #include "cafProgressInfo.h"
+#include "RimCellRangeFilterCollection.h"
 
 
 
@@ -62,6 +63,11 @@ RimGeoMechView::RimGeoMechView(void)
 
     CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
     cellResult = new RimGeoMechResultSlot();
+
+    CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
+    rangeFilterCollection = new RimCellRangeFilterCollection();
+    rangeFilterCollection->setReservoirView(this);
+
 
     this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
