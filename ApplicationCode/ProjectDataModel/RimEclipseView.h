@@ -84,98 +84,86 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmField<RimResultSlot*>                       cellResult;
-    caf::PdmField<RimCellEdgeResultSlot*>               cellEdgeResult;
-    caf::PdmField<RimFaultResultSlot*>                  faultResultSettings;
+    caf::PdmField<RimResultSlot*>                   cellResult;
+    caf::PdmField<RimCellEdgeResultSlot*>           cellEdgeResult;
+    caf::PdmField<RimFaultResultSlot*>              faultResultSettings;
 
-    caf::PdmField<RimCellRangeFilterCollection*>        rangeFilterCollection;
-    caf::PdmField<RimCellPropertyFilterCollection*>     propertyFilterCollection;
+    caf::PdmField<RimCellRangeFilterCollection*>    rangeFilterCollection;
+    caf::PdmField<RimCellPropertyFilterCollection*> propertyFilterCollection;
 
-    caf::PdmField<RimWellCollection*>                   wellCollection;
+    caf::PdmField<RimWellCollection*>               wellCollection;
+    caf::PdmField<RimFaultCollection*>              faultCollection;
 
-    caf::PdmField<RimFaultCollection*>                  faultCollection;
+    // Fields
 
-    caf::PdmField<bool>                                 showInvalidCells;
-    caf::PdmField<bool>                                 showInactiveCells;
-    caf::PdmField<bool>                                 showMainGrid;
-
+    caf::PdmField<bool>                             showInvalidCells;
+    caf::PdmField<bool>                             showInactiveCells;
+    caf::PdmField<bool>                             showMainGrid;
 
     // Access internal objects
-    RimReservoirCellResultsStorage*         currentGridCellResults();
-    RigActiveCellInfo*                      currentActiveCellInfo();
-    RimResultSlot*                          currentFaultResultSlot();
 
+    RimReservoirCellResultsStorage*                 currentGridCellResults();
+    RigActiveCellInfo*                              currentActiveCellInfo();
+    RimResultSlot*                                  currentFaultResultSlot();
 
-    void                                    setEclipseCase(RimEclipseCase* reservoir);
-    RimEclipseCase*                                eclipseCase();
- 
-
-public:
-  
-
-    // Does this belong here, really ?
-    void                                    calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
+    void                                            setEclipseCase(RimEclipseCase* reservoir);
+    RimEclipseCase*                                 eclipseCase();
 
     // Display model generation
-public:
-    virtual void                            loadDataAndUpdate();
-    bool                                    isTimeStepDependentDataVisible() const;
 
-    virtual void                            scheduleGeometryRegen(unsigned short geometryType);
-    void                                    scheduleReservoirGridGeometryRegen();
-    void                                    schedulePipeGeometryRegen();
-    void                                    updateDisplayModelForWellResults();
+    virtual void                                    loadDataAndUpdate();
+    bool                                            isTimeStepDependentDataVisible() const;
+
+    virtual void                                    scheduleGeometryRegen(unsigned short geometryType);
+    void                                            scheduleReservoirGridGeometryRegen();
+    void                                            schedulePipeGeometryRegen();
+    void                                            updateDisplayModelForWellResults();
 
     const std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType>&
-                                            visibleGridParts() const { return m_visibleGridParts;}
-    cvf::cref<RivReservoirViewPartMgr>      reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
+                                                    visibleGridParts() const { return m_visibleGridParts;}
+    cvf::cref<RivReservoirViewPartMgr>              reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
-private:
-    
-    virtual void                            resetLegendsInViewer();
-    virtual void                            updateViewerWidgetWindowTitle();
-
-    // Display model generation
-private:
-
-    void                                    createDisplayModel();
-    void                                    updateDisplayModelVisibility();
-    virtual void                            updateCurrentTimeStep();
-
-    void                                    indicesToVisibleGrids(std::vector<size_t>* gridIndices);
-    virtual void                            updateScaleTransform();
-    virtual cvf::Transform*                 scaleTransform();
-
-    virtual void                            updateStaticCellColors();
-    void                                    updateStaticCellColors(unsigned short geometryType);
-    void                                    updateLegends();
-    void                                    updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData);
-
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultGeometryTypes() const;
-    void                                    updateFaultForcedVisibility();
-    void                                    updateFaultColors();
-
-    cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
-    cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
+    // Does this belong here, really ?
+    void                                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
 
     // Overridden PDM methods:
-public:
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 protected:
-    virtual void                            initAfterRead();
-    virtual void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
-
-    // Really private
-private:
-    void                                    syncronizeWellsWithResults();
-    void                                    clampCurrentTimestep();
-
-    virtual RimCase*                        ownerCase();
+    virtual void                                    initAfterRead();
+    virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 private:
-    caf::PdmPointer<RimEclipseCase>                m_reservoir;
+    void                                            createDisplayModel();
+    void                                            updateDisplayModelVisibility();
+    virtual void                                    updateCurrentTimeStep();
 
+    void                                            indicesToVisibleGrids(std::vector<size_t>* gridIndices);
+    virtual void                                    updateScaleTransform();
+    virtual cvf::Transform*                         scaleTransform();
 
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> m_visibleGridParts;
+    virtual void                                    updateStaticCellColors();
+    void                                            updateStaticCellColors(unsigned short geometryType);
+    void                                            updateLegends();
+    void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData);
+    virtual void                                    resetLegendsInViewer();
+    virtual void                                    updateViewerWidgetWindowTitle();
+
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> 
+                                                    visibleFaultGeometryTypes() const;
+    void                                            updateFaultForcedVisibility();
+    void                                            updateFaultColors();
+
+    void                                            syncronizeWellsWithResults();
+    void                                            clampCurrentTimestep();
+
+    virtual RimCase*                                ownerCase();
+
+    caf::PdmPointer<RimEclipseCase>                 m_reservoir;
+
+    cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
+    cvf::ref<RivReservoirPipesPartMgr>              m_pipesPartManager;
+
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> 
+                                                    m_visibleGridParts;
 };
 
