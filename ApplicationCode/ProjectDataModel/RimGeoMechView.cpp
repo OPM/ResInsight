@@ -45,6 +45,8 @@
 #include <QMessageBox>
 #include "cafProgressInfo.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RivGeoMechPartMgrCache.h"
+#include "RivGeoMechVizLogic.h"
 
 
 
@@ -74,9 +76,8 @@ RimGeoMechView::RimGeoMechView(void)
     this->cellResult()->legendConfig()->setReservoirView(this);
 
     m_scaleTransform = new cvf::Transform();
-    m_geoMechFullModel = new RivGeoMechPartMgr();
+    m_vizLogic = new RivGeoMechVizLogic(this);
 
-    m_isGeoMechFullGenerated = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +129,7 @@ void RimGeoMechView::loadDataAndUpdate()
             m_geomechCase = NULL;
             return;
          }
-        m_geoMechFullModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
+       // m_geoMechFullModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
     }
     progress.incrementProgress();
 
@@ -217,26 +218,8 @@ void RimGeoMechView::createDisplayModel()
     bool isAnimationActive = m_viewer->isAnimationActive();
     m_viewer->removeAllFrames();
 
-    if (!m_isGeoMechFullGenerated)
-    {
-        for (int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx)
-        {
-            cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechFullModel->cellVisibility(femPartIdx);
-            m_geoMechFullModel->setTransform(m_scaleTransform.p());
-            RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), m_geomechCase->geoMechData()->femParts()->part(femPartIdx));
-            m_geoMechFullModel->setCellVisibility(femPartIdx, elmVisibility.p());
-        }
-        m_isGeoMechFullGenerated = true;
-    }
-
-    size_t frameIdx;
-    for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
-    {
-        m_geoMechFullModel->appendGridPartsToModel(frameModels[frameIdx].p());
-    }
-
-    // Set static colors 
-    this->updateStaticCellColors();
+    m_vizLogic->appendNoAnimPartsToModel(frameModels[0].p());
+    m_vizLogic->updateStaticCellColors();
 
    // Create Scenes from the frameModels
    // Animation frames for results display, starts from frame 1
@@ -258,7 +241,7 @@ void RimGeoMechView::createDisplayModel()
 
    // If the animation was active before recreating everything, make viewer view current frame
 
-   if (isAnimationActive || cellResult->resultFieldName() != "")
+   if (isAnimationActive && cellResult->resultFieldName() != "")
    {
        m_viewer->slotSetCurrentFrame(m_currentTimeStep);
    }
@@ -275,7 +258,21 @@ void RimGeoMechView::updateCurrentTimeStep()
     updateLegends();
     if ((this->animationMode() && cellResult()->resultFieldName() != ""))
     {
-        m_geoMechFullModel->updateCellResultColor(m_currentTimeStep(), this->cellResult());
+        if (m_viewer)
+        {
+            cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+            if (frameScene)
+            {
+                cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+                m_vizLogic->appendPartsToModel(m_currentTimeStep, frameParts.p());
+
+                frameParts->updateBoundingBoxesRecursive();
+                frameScene->removeAllModels();
+                frameScene->addModel(frameParts.p());
+            }
+        }
+
+        m_vizLogic->updateCellResultColor(m_currentTimeStep(), this->cellResult());
     }
     else
     {
@@ -291,7 +288,7 @@ void RimGeoMechView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateStaticCellColors()
 {
-    m_geoMechFullModel->updateCellColor(cvf::Color4f(cvf::Color3f::ORANGE));
+    m_vizLogic->updateStaticCellColors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -504,5 +501,13 @@ void RivElmVisibilityCalculator::computeAllVisible(cvf::UByteArray* elmVisibilit
 {
     elmVisibilities->resize(femPart->elementCount());
     elmVisibilities->setAll(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivElmVisibilityCalculator::computeRangeVisibility(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart, const cvf::CellRangeFilter& rangeFilter)
+{
+
 }
 

@@ -47,7 +47,8 @@ public:
     RivGeoMechPartMgr();
     ~RivGeoMechPartMgr();
 
-    void   clearAndSetReservoir(const RigGeoMechCaseData* geoMechCase, RimGeoMechView* geomechView);
+    int    initializedFemPartCount() { return static_cast<int>(m_femPartPartMgrs.size());}
+    void   clearAndSetReservoir(const RigGeoMechCaseData* geoMechCase);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t partIndex, cvf::UByteArray* cellVisibilities );
 

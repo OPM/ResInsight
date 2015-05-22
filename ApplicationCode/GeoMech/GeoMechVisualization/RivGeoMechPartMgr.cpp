@@ -46,7 +46,7 @@ RivGeoMechPartMgr::~RivGeoMechPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::clearAndSetReservoir(const RigGeoMechCaseData* geoMechCase, RimGeoMechView* geomechView)
+void RivGeoMechPartMgr::clearAndSetReservoir(const RigGeoMechCaseData* geoMechCase)
 {
     m_femPartPartMgrs.clear();
 

@@ -35,11 +35,13 @@ class RiuViewer;
 class RimGeoMechCase;
 class RivGeoMechPartMgr;
 class RimCellRangeFilterCollection;
+class RivGeoMechVizLogic;
 
 class RigFemPart;
 
 namespace cvf {
     class Transform;
+    class CellRangeFilter;
 }
 
 //==================================================================================================
@@ -66,13 +68,14 @@ public:
 
 
     bool                                                isTimeStepDependentDataVisible();
+    virtual cvf::Transform*                             scaleTransform();
 
 private:
     virtual void                                        scheduleGeometryRegen(unsigned short geometryType){}
     virtual void                                        createDisplayModel();
     virtual void                                        updateDisplayModelVisibility();
     virtual void                                        updateScaleTransform();
-    virtual cvf::Transform*                             scaleTransform();
+
 
     virtual void                                        clampCurrentTimestep();
 
@@ -90,18 +93,22 @@ private:
     virtual RimCase*                                    ownerCase();
 
     caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
-    cvf::ref<RivGeoMechPartMgr>                         m_geoMechFullModel;
-    bool                                                m_isGeoMechFullGenerated;
+    cvf::ref<RivGeoMechVizLogic>                        m_vizLogic;
     cvf::ref<cvf::Transform>                            m_scaleTransform;
 
 };
 
 #include "cvfArray.h"
 
+namespace cvf {
+    class CellRangeFilter;
+}
+
+
 class RivElmVisibilityCalculator
 {
 public:
     static void computeAllVisible(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart );
-
+    static void computeRangeVisibility(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart,  const cvf::CellRangeFilter& rangeFilter);
 
 };
