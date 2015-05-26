@@ -35,6 +35,8 @@ class RigFemPartNodes
 public:
      std::vector<int>           nodeIds;
      std::vector<cvf::Vec3f>    coordinates;
+
+     
 };
 
 class RigFemPart : public cvf::Object
@@ -59,10 +61,18 @@ public:
     RigFemPartNodes&            nodes()                                    {return m_nodes;}
     const RigFemPartNodes&      nodes() const                              {return m_nodes;}
 
-    const RigFemPartGrid*       structGrid();      
+    void                        assertNodeToElmIndicesIsCalculated();
+    const size_t*               elementsUsingNode(int nodeIndex);
+    int                         numElementsUsingNode(int nodeIndex);
     
+    void                        assertElmNeighborsIsCalculated();
+    int                         elementNeighbor(int elementIndex, int faceIndex)
+                                { return m_elmNeighbors[elementIndex].idxToNeighborElmPrFace[faceIndex]; }
+    const RigFemPartGrid*       structGrid();   
+
 private:
     int                         m_elementPartId;
+
     std::vector<int>            m_elementId;
     std::vector<RigElementType> m_elementTypes;
     std::vector<size_t>         m_elementConnectivityStartIndices;
@@ -71,37 +81,11 @@ private:
     RigFemPartNodes             m_nodes;
 
     cvf::ref<RigFemPartGrid>    m_structGrid;
-};
 
-#include "cvfStructGrid.h"
-
-class RigFemPartGrid : public cvf::StructGridInterface
-{
-public:
-    RigFemPartGrid(RigFemPart* femPart);
-    virtual ~RigFemPartGrid();
-
-    virtual size_t      gridPointCountI() const;
-    virtual size_t      gridPointCountJ() const;
-    virtual size_t      gridPointCountK() const;
-
-    virtual bool        isCellValid(size_t i, size_t j, size_t k) const;
-    virtual cvf::Vec3d  minCoordinate() const;
-    virtual cvf::Vec3d  maxCoordinate() const;
-    virtual bool        cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex) const;
-    virtual size_t      cellIndexFromIJK(size_t i, size_t j, size_t k) const;
-    virtual bool        ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const;
-    virtual bool        cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k) const;
-    virtual void        cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const;
-    virtual cvf::Vec3d  cellCentroid(size_t cellIndex) const;
-    virtual void        cellMinMaxCordinates(size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate) const;
-    virtual size_t      gridPointIndexFromIJK(size_t i, size_t j, size_t k) const;
-    virtual cvf::Vec3d  gridPointCoordinate(size_t i, size_t j, size_t k) const;
-
- 
- private:
-    void generateStructGridData();
-
-
-    RigFemPart* m_femPart;
+    void calculateNodeToElmRefs();
+    std::vector<std::vector<size_t>> m_nodeToElmRefs; // Needs a more memory friendly structure
+  
+    void calculateElmNeighbors();
+    struct Neighbors { int idxToNeighborElmPrFace[6]; };
+    std::vector<  Neighbors > m_elmNeighbors;
 };

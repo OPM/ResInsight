@@ -19,6 +19,7 @@
 
 #include "RigFemPart.h"
 
+#include "RigFemPartGrid.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -78,162 +79,124 @@ const RigFemPartGrid* RigFemPart::structGrid()
     return m_structGrid.p();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemPartGrid::RigFemPartGrid(RigFemPart* femPart)
+void RigFemPart::assertNodeToElmIndicesIsCalculated()
 {
-    m_femPart = femPart;
-    generateStructGridData();
+    if (m_nodeToElmRefs.size() != nodes().nodeIds.size())
+    {
+        this->calculateNodeToElmRefs();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemPartGrid::~RigFemPartGrid()
+void RigFemPart::calculateNodeToElmRefs()
 {
+    m_nodeToElmRefs.resize(nodes().nodeIds.size());
 
+    for (size_t eIdx = 0; eIdx < m_elementId.size(); ++eIdx)
+    {
+        int elmNodeCount = RigFemTypes::elmentNodeCount(elementType(eIdx));
+        const int* elmNodes = connectivities(eIdx);
+        for (int enIdx = 0; enIdx < elmNodeCount; enIdx)
+        {
+            m_nodeToElmRefs[elmNodes[enIdx]].push_back(eIdx);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemPartGrid::generateStructGridData()
+const size_t* RigFemPart::elementsUsingNode(int nodeIndex)
 {
-
+   return &(m_nodeToElmRefs[nodeIndex][0]);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigFemPartGrid::gridPointCountI() const
+int RigFemPart::numElementsUsingNode(int nodeIndex)
 {
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
+    return static_cast<int>(m_nodeToElmRefs[nodeIndex].size());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigFemPartGrid::gridPointCountJ() const
+void RigFemPart::assertElmNeighborsIsCalculated()
 {
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
+    if (m_elmNeighbors.size() != m_elementId.size())
+    {
+        this->calculateElmNeighbors();
+    }
 }
 
+#include "RigFemFaceComparator.h"
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigFemPartGrid::gridPointCountK() const
+void RigFemPart::calculateElmNeighbors()
 {
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
+    // Calculate elm neighbors: elmIdxs matching each face of the element
+
+    RigFemFaceComparator fComp; // Outside loop to avoid memory alloc/dealloc. Rember to set as private in opm parallelization
+    
+    m_elmNeighbors.resize(this->elementCount());
+
+    for (cvf::uint eIdx = 0; eIdx < this->elementCount(); ++eIdx)
+    {
+        RigElementType elmType = this->elementType(eIdx);
+        const int* elmNodes = this->connectivities(eIdx);
+
+        int faceCount = RigFemTypes::elmentFaceCount(elmType);
+
+        for (int faceIdx = 0; faceIdx < faceCount; ++faceIdx)
+        {
+            m_elmNeighbors[eIdx].idxToNeighborElmPrFace[faceIdx] = -1;
+
+            int faceNodeCount = 0;
+            const int* localFaceIndices = RigFemTypes::localElmNodeIndicesForFace(elmType, faceIdx, &faceNodeCount);
+
+            // Get neighbor candidates
+            int firstNodeIdxOfFace = elmNodes[localFaceIndices[0]];
+            int neigborCandidateCount = this->numElementsUsingNode(firstNodeIdxOfFace);
+            const size_t* candidates = this->elementsUsingNode(firstNodeIdxOfFace);
+            if (neigborCandidateCount)
+            {
+                fComp.setMainFace(elmNodes, localFaceIndices, faceNodeCount);
+            }
+
+            // Check if any of the neighbor candidates faces matches 
+            for (int nbcIdx = 0; nbcIdx < neigborCandidateCount; ++nbcIdx)
+            {
+                int nbcElmIdx = candidates[neigborCandidateCount];
+
+                RigElementType nbcElmType = this->elementType(nbcElmIdx);
+                const int* nbcElmNodes = this->connectivities(nbcElmIdx);
+
+                int nbcFaceCount = RigFemTypes::elmentFaceCount(nbcElmType);
+                bool isNeighborFound = false;
+                for (int nbcFaceIdx = 0; nbcFaceIdx < nbcFaceCount; ++nbcFaceIdx)
+                {
+                    int nbcFaceNodeCount = 0;
+                    const int* nbcLocalFaceIndices = RigFemTypes::localElmNodeIndicesForFace(nbcElmType, nbcFaceIdx, &nbcFaceNodeCount);
+
+                    // Compare faces
+                    if (fComp.isSameButOposite(nbcElmNodes, nbcLocalFaceIndices, nbcFaceNodeCount))
+                    {
+                        m_elmNeighbors[eIdx].idxToNeighborElmPrFace[faceIdx] = nbcElmIdx;
+                        isNeighborFound = true;
+                        break;
+                    }
+                }
+
+                if (isNeighborFound) break;
+            }
+        }
+    }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigFemPartGrid::isCellValid(size_t i, size_t j, size_t k) const
-{
-    CVF_ASSERT(false);
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigFemPartGrid::minCoordinate() const
-{
-    CVF_ASSERT(false);
-    return cvf::Vec3d::ZERO;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigFemPartGrid::maxCoordinate() const
-{
-    CVF_ASSERT(false);
-    return cvf::Vec3d::ZERO;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigFemPartGrid::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex) const
-{
-    CVF_ASSERT(false);
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigFemPartGrid::cellIndexFromIJK(size_t i, size_t j, size_t k) const
-{
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigFemPartGrid::ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const
-{
-    CVF_ASSERT(false);
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigFemPartGrid::cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k) const
-{
-    CVF_ASSERT(false);
-    return false;
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPartGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const
-{
-    CVF_ASSERT(false);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigFemPartGrid::cellCentroid(size_t cellIndex) const
-{
-    CVF_ASSERT(false);
-    return cvf::Vec3d::ZERO;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPartGrid::cellMinMaxCordinates(size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate) const
-{
-    CVF_ASSERT(false);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigFemPartGrid::gridPointIndexFromIJK(size_t i, size_t j, size_t k) const
-{
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigFemPartGrid::gridPointCoordinate(size_t i, size_t j, size_t k) const
-{
-    CVF_ASSERT(false);
-    return cvf::Vec3d::ZERO;
-}

@@ -24,6 +24,9 @@ add_library( ${PROJECT_NAME}
 	RigFemScalarResultFrames.cpp
 	RigFemNativeStatCalc.h
 	RigFemNativeStatCalc.cpp
+	RigFemFaceComparator.h
+	RigFemPartGrid.h
+	RigFemPartGrid.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME} LibCore ResultStatisticsCache)

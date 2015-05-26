@@ -28,7 +28,8 @@
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
 #include "RigGeomechCaseData.h"
-
+#include "RigFemPart.h"
+#include "RigFemPartGrid.h"
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
 
