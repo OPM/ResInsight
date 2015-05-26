@@ -87,6 +87,13 @@ bool RigGeoMechCaseData::openAndReadFemParts()
                 m_femPartResults[pIdx] = new RigFemPartResults;
                 m_femPartResults[pIdx]->initResultStages(stepNames);
             }
+
+            // Calculate derived Fem data
+            for (int pIdx = 0; pIdx < m_femParts->partCount(); ++pIdx)
+            {
+                m_femParts->part(pIdx)->assertNodeToElmIndicesIsCalculated();
+                m_femParts->part(pIdx)->assertElmNeighborsIsCalculated();
+            }
             return true;
         }
     }

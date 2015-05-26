@@ -28,70 +28,65 @@ class RigFemFaceComparator
 public:
     void setMainFace(const int* elmNodes, const int * localFaceIndices, int faceNodeCount)
     {
-        canonizeFace(elmNodes, localFaceIndices, faceNodeCount, &m_canonizedMainFaceIdxes);
-    }
-
-    bool isSameButOposite(const int* elmNodes, const int * localFaceIndices, int faceNodeCount)
-    {
-        canonizeOpositeFace(elmNodes, localFaceIndices, faceNodeCount, &m_canonizedOtherFaceIdxes);
-
-        return m_canonizedMainFaceIdxes == m_canonizedOtherFaceIdxes;
-    }
-
-private:
-    void canonizeFace( const int* elmNodes, 
-                       const int * localFaceIndices, 
-                       int faceNodeCount, 
-                       std::vector<int>* canonizedFace)
-    {
-        canonizedFace->resize(faceNodeCount);
-        int minNodeIdx = INT_MAX;
-        int faceIdxToMinNodeIdx = 0;
+        m_canonizedMainFaceIdxes.resize(faceNodeCount);
+        m_minMainFaceNodeIdx = INT_MAX;
+        m_faceIdxToMinMainFaceNodeIdx = 0;
 
         for(int fnIdx = 0; fnIdx < faceNodeCount; ++fnIdx)
         {
             int nodeIdx = elmNodes[localFaceIndices[fnIdx]];
-            (*canonizedFace)[fnIdx] = nodeIdx;
-            if (nodeIdx < minNodeIdx) 
+            m_canonizedMainFaceIdxes[fnIdx] = nodeIdx;
+            if (nodeIdx < m_minMainFaceNodeIdx) 
+            {
+                m_minMainFaceNodeIdx = nodeIdx;
+                m_faceIdxToMinMainFaceNodeIdx = fnIdx;
+            }
+        }
+    }
+
+    bool isSameButOposite(const int* elmNodes, const int * localFaceIndices, int faceNodeCount)
+    {
+        if (faceNodeCount != m_canonizedMainFaceIdxes.size()) return false;
+
+        // Find min node index in face
+        int minNodeIdx = INT_MAX;
+        int faceIdxToMinNodeIdx = 0;
+
+        for (int fnIdx = 0; fnIdx < faceNodeCount; ++fnIdx)
+        {
+            int nodeIdx = elmNodes[localFaceIndices[fnIdx]];
+            if (nodeIdx < minNodeIdx)
             {
                 minNodeIdx = nodeIdx;
                 faceIdxToMinNodeIdx = fnIdx;
             }
         }
 
-        std::rotate(canonizedFace->begin(),
-                    canonizedFace->begin() + faceIdxToMinNodeIdx,
-                    canonizedFace->end());
-    }
-
-    void canonizeOpositeFace(const int* elmNodes,
-                       const int * localFaceIndices, 
-                       int faceNodeCount, 
-                       std::vector<int>* canonizedFace)
-    {
-        canonizedFace->resize(faceNodeCount);
-        int minNodeIdx = INT_MAX;
-        int faceIdxToMinNodeIdx = 0;
-
-        int canFaceIdx = 0;
-        for(int fnIdx = faceNodeCount -1; fnIdx >= 0; --fnIdx, ++canFaceIdx)
+        // Compare faces
         {
-            int nodeIdx = elmNodes[localFaceIndices[fnIdx]];
-            (*canonizedFace)[canFaceIdx] = nodeIdx;
-            if (nodeIdx < minNodeIdx) 
-            {
-                minNodeIdx = nodeIdx;
-                faceIdxToMinNodeIdx = canFaceIdx;
-            }
-        }
+            if (minNodeIdx != m_minMainFaceNodeIdx )  return false;
 
-        std::rotate(canonizedFace->begin(),
-                    canonizedFace->begin() + faceIdxToMinNodeIdx,
-                    canonizedFace->end());
+            int canFaceIdx = m_faceIdxToMinMainFaceNodeIdx;
+            int fnIdx = faceIdxToMinNodeIdx;
+            int count = 0;
+
+            for (; count < faceNodeCount;
+                 --fnIdx, ++canFaceIdx, ++count)
+            {
+                if (fnIdx < 0) fnIdx = faceNodeCount - 1;
+                if (canFaceIdx == faceNodeCount) canFaceIdx = 0;
+
+                if (elmNodes[localFaceIndices[fnIdx]] != m_canonizedMainFaceIdxes[canFaceIdx]) return false;
+            }
+
+            return true;
+        }
     }
 
+private:
     std::vector<int> m_canonizedMainFaceIdxes;
-    std::vector<int> m_canonizedOtherFaceIdxes;
+    int m_minMainFaceNodeIdx;
+    int m_faceIdxToMinMainFaceNodeIdx;
 };
 
 

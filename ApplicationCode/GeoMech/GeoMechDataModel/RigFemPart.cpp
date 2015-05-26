@@ -101,7 +101,7 @@ void RigFemPart::calculateNodeToElmRefs()
     {
         int elmNodeCount = RigFemTypes::elmentNodeCount(elementType(eIdx));
         const int* elmNodes = connectivities(eIdx);
-        for (int enIdx = 0; enIdx < elmNodeCount; enIdx)
+        for (int enIdx = 0; enIdx < elmNodeCount; ++enIdx)
         {
             m_nodeToElmRefs[elmNodes[enIdx]].push_back(eIdx);
         }
@@ -144,7 +144,8 @@ void RigFemPart::calculateElmNeighbors()
     // Calculate elm neighbors: elmIdxs matching each face of the element
 
     RigFemFaceComparator fComp; // Outside loop to avoid memory alloc/dealloc. Rember to set as private in opm parallelization
-    
+    std::vector<int> candidates;//
+
     m_elmNeighbors.resize(this->elementCount());
 
     for (cvf::uint eIdx = 0; eIdx < this->elementCount(); ++eIdx)
@@ -162,18 +163,51 @@ void RigFemPart::calculateElmNeighbors()
             const int* localFaceIndices = RigFemTypes::localElmNodeIndicesForFace(elmType, faceIdx, &faceNodeCount);
 
             // Get neighbor candidates
-            int firstNodeIdxOfFace = elmNodes[localFaceIndices[0]];
-            int neigborCandidateCount = this->numElementsUsingNode(firstNodeIdxOfFace);
-            const size_t* candidates = this->elementsUsingNode(firstNodeIdxOfFace);
-            if (neigborCandidateCount)
+            candidates.clear();
+            {
+                int firstNodeIdxOfFace = elmNodes[localFaceIndices[0]];
+                int candidateCount1 = this->numElementsUsingNode(firstNodeIdxOfFace);
+                const size_t* candidates1 = this->elementsUsingNode(firstNodeIdxOfFace);
+
+                if (candidateCount1)
+                {
+                    // Get neighbor candidates from the diagonal node
+
+                    int thirdNodeIdxOfFace = elmNodes[localFaceIndices[3]];
+                    int candidateCount2 = this->numElementsUsingNode(thirdNodeIdxOfFace);
+                    const size_t* candidates2 = this->elementsUsingNode(thirdNodeIdxOfFace);
+
+                    // The candidates are sorted from smallest to largest, so we do a linear search to find the 
+                    // (two) common cells in the two arrays, and leaving this element out, we have one candidate left
+
+                    int idx1 = 0;
+                    int idx2 = 0;
+
+                    while (idx1 < candidateCount1 && idx2 < candidateCount2)
+                    {
+                        if (candidates1[idx1] < candidates2[idx2]){ ++idx1; continue; }
+                        if (candidates1[idx1] > candidates2[idx2]){ ++idx2; continue; }
+                        if (candidates1[idx1] == candidates2[idx2])
+                        {
+                            if (candidates1[idx1] != eIdx)
+                            {
+                                candidates.push_back(candidates1[idx1]);
+                            }
+                            ++idx1; ++idx2;
+                        }
+                    }
+                }
+            }
+
+            if (candidates.size()) 
             {
                 fComp.setMainFace(elmNodes, localFaceIndices, faceNodeCount);
             }
 
             // Check if any of the neighbor candidates faces matches 
-            for (int nbcIdx = 0; nbcIdx < neigborCandidateCount; ++nbcIdx)
+            for (int nbcIdx = 0; nbcIdx < candidates.size(); ++nbcIdx)
             {
-                int nbcElmIdx = candidates[neigborCandidateCount];
+                int nbcElmIdx = candidates[nbcIdx];
 
                 RigElementType nbcElmType = this->elementType(nbcElmIdx);
                 const int* nbcElmNodes = this->connectivities(nbcElmIdx);

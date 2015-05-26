@@ -162,6 +162,8 @@ void RivFemPartGeometryGenerator::computeArrays()
     m_quadVerticesToNodeIdx.reserve(estimatedQuadVxCount);
     m_quadVerticesToGlobalElmNodeIdx.reserve(estimatedQuadVxCount);
 
+
+
     cvf::Vec3d offset = Vec3d::ZERO; //m_part->displayModelOffset();
     const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
@@ -178,6 +180,13 @@ void RivFemPartGeometryGenerator::computeArrays()
 
             for (int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
             {
+                int elmNeighbor = m_part->elementNeighbor(elmIdx, lfIdx);
+
+                if (elmNeighbor != -1 && (m_elmVisibility.isNull() || (*m_elmVisibility)[elmNeighbor]))
+                {
+                    continue; // Invisible face
+                }
+
                 int faceNodeCount = 0;   
                 const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, lfIdx, &faceNodeCount);
                 if (faceNodeCount == 4)

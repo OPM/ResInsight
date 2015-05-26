@@ -66,7 +66,7 @@ public:
     int                         numElementsUsingNode(int nodeIndex);
     
     void                        assertElmNeighborsIsCalculated();
-    int                         elementNeighbor(int elementIndex, int faceIndex)
+    int                         elementNeighbor(int elementIndex, int faceIndex) const
                                 { return m_elmNeighbors[elementIndex].idxToNeighborElmPrFace[faceIndex]; }
     const RigFemPartGrid*       structGrid();   
 
