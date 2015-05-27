@@ -780,7 +780,7 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
 
     // Set up which component to compute
 
-    cvf::StructGridInterface::FaceType faceId;
+    cvf::StructGridInterface::FaceType faceId = cvf::StructGridInterface::NO_FACE;
     QString permCompName;
 
     if (riTransComponentResultName == RimDefines::riTranXResultName())
@@ -1220,7 +1220,7 @@ void RimReservoirCellResultsStorage::computeRiTRANSbyAreaComponent(const QString
 
     // Set up which component to compute
 
-    cvf::StructGridInterface::FaceType faceId;
+    cvf::StructGridInterface::FaceType faceId = cvf::StructGridInterface::NO_FACE;
     QString transCompName;
 
     if (riTransByAreaCompResultName == RimDefines::riAreaNormTranXResultName())
