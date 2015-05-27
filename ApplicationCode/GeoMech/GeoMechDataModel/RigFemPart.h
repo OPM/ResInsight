@@ -67,7 +67,11 @@ public:
     
     void                        assertElmNeighborsIsCalculated();
     int                         elementNeighbor(int elementIndex, int faceIndex) const
-                                { return m_elmNeighbors[elementIndex].idxToNeighborElmPrFace[faceIndex]; }
+                                { return m_elmNeighbors[elementIndex].indicesToNeighborElms[faceIndex]; }
+    const std::vector<int>&     possibleGridCornerElements() const { return m_possibleGridCornerElements; }
+
+    cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex);
+
     const RigFemPartGrid*       structGrid();   
 
 private:
@@ -86,6 +90,8 @@ private:
     std::vector<std::vector<size_t> > m_nodeToElmRefs; // Needs a more memory friendly structure
   
     void calculateElmNeighbors();
-    struct Neighbors { int idxToNeighborElmPrFace[6]; };
+    struct Neighbors { int indicesToNeighborElms[6]; char faceInNeighborElm[6];};
     std::vector<  Neighbors > m_elmNeighbors;
+    std::vector<int> m_possibleGridCornerElements;
+
 };

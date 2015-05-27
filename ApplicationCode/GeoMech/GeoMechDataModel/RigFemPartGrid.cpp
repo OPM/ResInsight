@@ -43,6 +43,33 @@ RigFemPartGrid::~RigFemPartGrid()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+
+cvf::StructGridInterface::FaceType RigFemPartGrid::findGridFace(cvf::Vec3d faceNormal )
+{
+    FaceType bestFace = cvf::StructGridInterface::POS_I;
+
+    double maxComponent = fabs(faceNormal[0]);
+    bestFace = (faceNormal[0] < 0) ? cvf::StructGridInterface::NEG_I: cvf::StructGridInterface::POS_I;
+
+    double absComp = fabs(faceNormal[1]);
+    if ( absComp > maxComponent)
+    {
+        maxComponent = absComp;
+        bestFace = (faceNormal[1] < 0) ? cvf::StructGridInterface::NEG_J: cvf::StructGridInterface::POS_J;
+    }
+
+    absComp = fabs(faceNormal[2]);
+    if ( absComp > maxComponent)
+    {
+        bestFace = (faceNormal[2] < 0) ? cvf::StructGridInterface::NEG_K: cvf::StructGridInterface::POS_K;
+    }
+
+    return bestFace;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigFemPartGrid::generateStructGridData()
 {
     // 1. Calculate neighbors for each element
@@ -62,9 +89,29 @@ void RigFemPartGrid::generateStructGridData()
     // 6. If IJK to elm idx is needed, allocate "grid" with maxI,maxJ,maxZ values
     //    Loop over elms, assign elmIdx to IJK address in grid
     
+    const std::vector<int>& possibleGridCorners = m_femPart->possibleGridCornerElements();
+    size_t possibleCornerCount = possibleGridCorners.size();
+    const std::vector<cvf::Vec3f>& nodeCoordinates = m_femPart->nodes().coordinates;
+
+    // Find corner cell closest to origo
+    size_t gridCornerClosestToOrigo = cvf::UNDEFINED_SIZE_T;
+    double minDistance =  HUGE_VAL;
+    for (size_t pcIdx = 0; pcIdx < possibleCornerCount; ++pcIdx)
+    {
+        int elmIdx =  possibleGridCorners[pcIdx];
+
+        const int* elmNodeIndices =  m_femPart->connectivities(elmIdx);
+        cvf::Vec3f firstNodePos = nodeCoordinates[elmNodeIndices[0]];
+        float distSq = firstNodePos.lengthSquared();
+        if (distSq < minDistance)
+        {
+            minDistance = distSq;
+            gridCornerClosestToOrigo = pcIdx;
+        }
+    }
+
 
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

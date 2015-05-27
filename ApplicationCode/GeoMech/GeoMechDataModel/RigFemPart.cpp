@@ -154,11 +154,11 @@ void RigFemPart::calculateElmNeighbors()
         const int* elmNodes = this->connectivities(eIdx);
 
         int faceCount = RigFemTypes::elmentFaceCount(elmType);
-
+        int neighborCount = 0;
         for (int faceIdx = 0; faceIdx < faceCount; ++faceIdx)
         {
-            m_elmNeighbors[eIdx].idxToNeighborElmPrFace[faceIdx] = -1;
-
+            m_elmNeighbors[eIdx].indicesToNeighborElms[faceIdx] = -1;
+            m_elmNeighbors[eIdx].faceInNeighborElm[faceIdx] = -1;
             int faceNodeCount = 0;
             const int* localFaceIndices = RigFemTypes::localElmNodeIndicesForFace(elmType, faceIdx, &faceNodeCount);
 
@@ -222,15 +222,59 @@ void RigFemPart::calculateElmNeighbors()
                     // Compare faces
                     if (fComp.isSameButOposite(nbcElmNodes, nbcLocalFaceIndices, nbcFaceNodeCount))
                     {
-                        m_elmNeighbors[eIdx].idxToNeighborElmPrFace[faceIdx] = nbcElmIdx;
+                        m_elmNeighbors[eIdx].indicesToNeighborElms[faceIdx] = nbcElmIdx;
+                        m_elmNeighbors[eIdx].faceInNeighborElm[faceIdx] = nbcFaceIdx;
                         isNeighborFound = true;
+                       
                         break;
                     }
                 }
 
-                if (isNeighborFound) break;
+                if (isNeighborFound)
+                {
+                    ++neighborCount;
+                    break;
+                }
             }
         }
+
+        if ((faceCount - neighborCount) >= 3)
+        {
+            m_possibleGridCornerElements.push_back(eIdx);
+        }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx)
+{
+    const std::vector<cvf::Vec3f>& nodeCoordinates = this->nodes().coordinates;
+
+    RigElementType eType = this->elementType(elmIdx);
+    const int* elmNodeIndices = this->connectivities(elmIdx);
+
+    int faceNodeCount = 0;
+    const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, faceIdx, &faceNodeCount);
+    
+    if (faceNodeCount == 4)
+    {
+        const cvf::Vec3f* quadVxs[4];
+
+        quadVxs[0] = &(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]]);
+        quadVxs[1] = &(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]]);
+        quadVxs[2] = &(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]);
+        quadVxs[3] = &(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
+
+        cvf::Vec3f normal = (*(quadVxs[2]) -  *(quadVxs[0])) ^ (*(quadVxs[3]) - *(quadVxs[1]));
+        return normal;
+    }
+    else if (faceNodeCount != 4)
+    {
+        CVF_ASSERT(false);
+    }
+
+    return cvf::Vec3f::ZERO;
 }
 

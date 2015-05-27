@@ -77,3 +77,23 @@ const int* RigFemTypes::localElmNodeIndicesForFace(RigElementType elmType, int f
 
     return CAX4_Faces;
 }
+
+int RigFemTypes::oppositeFace(RigElementType elmType, int faceIdx)
+{
+    static const int HEX8_OppositeFaces[6]={ 1, 0, 3, 2, 5, 4};
+ 
+    switch (elmType)
+    {
+        case HEX8:
+            return HEX8_OppositeFaces[faceIdx];
+            break;
+        case CAX4:
+            return faceIdx;
+            break;
+        default:
+            assert(false); // Element type not supported
+            break;
+    }
+
+    return faceIdx;
+}

@@ -50,7 +50,7 @@ public:
  
  private:
     void generateStructGridData();
-
+    static FaceType findGridFace(cvf::Vec3d faceNormal);
 
     RigFemPart* m_femPart;
 };

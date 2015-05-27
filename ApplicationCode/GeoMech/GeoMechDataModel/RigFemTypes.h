@@ -33,5 +33,5 @@ public:
     static int elmentNodeCount(RigElementType elmType);
     static int elmentFaceCount(RigElementType elmType);
     static const int* localElmNodeIndicesForFace(RigElementType elmType, int faceIdx, int* faceNodeCount);
-
+    static int opositeFace(RigElementType elmType, int faceIdx);
 };
