@@ -21,7 +21,7 @@
 
 #include <vector>
 #include <algorithm>
-
+#include <climits>
 
 class RigFemFaceComparator
 {
@@ -46,7 +46,7 @@ public:
 
     bool isSameButOposite(const int* elmNodes, const int * localFaceIndices, int faceNodeCount)
     {
-        if (faceNodeCount != m_canonizedMainFaceIdxes.size()) return false;
+        if (faceNodeCount != static_cast<int>(m_canonizedMainFaceIdxes.size())) return false;
 
         // Find min node index in face
         int minNodeIdx = INT_MAX;

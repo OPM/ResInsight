@@ -644,7 +644,7 @@ QString RiuResultTextBuilder::wellResultText()
         {
             RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
 
-            if (m_timeStepIndex < static_cast<int>(singleWellResultData->firstResultTimeStep()))
+            if (m_timeStepIndex < singleWellResultData->firstResultTimeStep())
             {
                 continue;
             }

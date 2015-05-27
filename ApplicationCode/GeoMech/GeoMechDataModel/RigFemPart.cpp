@@ -205,7 +205,7 @@ void RigFemPart::calculateElmNeighbors()
             }
 
             // Check if any of the neighbor candidates faces matches 
-            for (int nbcIdx = 0; nbcIdx < candidates.size(); ++nbcIdx)
+            for (int nbcIdx = 0; nbcIdx < static_cast<int>(candidates.size()); ++nbcIdx)
             {
                 int nbcElmIdx = candidates[nbcIdx];
 

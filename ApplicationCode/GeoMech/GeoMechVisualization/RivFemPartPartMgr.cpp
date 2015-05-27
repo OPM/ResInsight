@@ -254,8 +254,9 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
         m_surfaceFacesTextureCoords->resize(vxToResultMapping->size());
         cvf::Vec2f* rawPtr = m_surfaceFacesTextureCoords->ptr();
 
+        int vxCount = static_cast<int>(vxToResultMapping->size());
         #pragma omp parallel for schedule(dynamic)
-        for (int vxIdx = 0; vxIdx < vxToResultMapping->size(); ++vxIdx)
+        for (int vxIdx = 0; vxIdx < vxCount; ++vxIdx)
         {
             float resultValue = resultValues[(*vxToResultMapping)[vxIdx]];
             if (resultValue == HUGE_VAL || resultValue != resultValue) // a != a is true for NAN's

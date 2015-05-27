@@ -49,7 +49,7 @@ public:
                                                      int stepIndex,
                                                      const RigFemResultAddress& resVarAddr);
 
-    size_t  frameCount(int stepIndex, const RigFemResultAddress& resVarAddr);
+    int frameCount(int stepIndex, const RigFemResultAddress& resVarAddr);
     std::vector<double> frameTimes(int stepIndex, const RigFemResultAddress& resVarAddr);
 
     void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex,  double* localMin, double* localMax);

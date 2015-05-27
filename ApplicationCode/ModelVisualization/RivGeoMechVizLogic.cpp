@@ -27,7 +27,7 @@
 #include "RivReservoirViewPartMgr.h"
 #include "RimGeoMechCase.h"
 #include "RigFemPartCollection.h"
-#include "RigGeomechCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include "RimCellRangeFilterCollection.h"
 
 //--------------------------------------------------------------------------------------------------

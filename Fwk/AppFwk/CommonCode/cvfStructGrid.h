@@ -37,6 +37,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include "cvfObject.h"
 #include "cvfVector3.h"
 

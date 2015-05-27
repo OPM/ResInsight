@@ -54,7 +54,7 @@ void RivGeoMechPartMgr::clearAndSetReservoir(const RigGeoMechCaseData* geoMechCa
     {
         const RigFemPartCollection* femParts = geoMechCase->femParts();
         
-        for (size_t i = 0; i < femParts->partCount();  ++i)
+        for (int i = 0; i < femParts->partCount();  ++i)
         {
             m_femPartPartMgrs.push_back(new RivFemPartPartMgr(femParts->part(i)));
         }

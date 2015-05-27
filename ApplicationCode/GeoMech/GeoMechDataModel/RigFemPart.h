@@ -83,7 +83,7 @@ private:
     cvf::ref<RigFemPartGrid>    m_structGrid;
 
     void calculateNodeToElmRefs();
-    std::vector<std::vector<size_t>> m_nodeToElmRefs; // Needs a more memory friendly structure
+    std::vector<std::vector<size_t> > m_nodeToElmRefs; // Needs a more memory friendly structure
   
     void calculateElmNeighbors();
     struct Neighbors { int idxToNeighborElmPrFace[6]; };

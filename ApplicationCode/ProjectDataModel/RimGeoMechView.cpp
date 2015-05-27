@@ -189,7 +189,7 @@ void RimGeoMechView::createDisplayModel()
 
    // Define a vector containing time step indices to produce geometry for.
    // First entry in this vector is used to define the geometry only result mode with no results.
-   std::vector<size_t> timeStepIndices;
+   std::vector<int> timeStepIndices;
 
    // The one and only geometry entry
    timeStepIndices.push_back(0);
@@ -198,7 +198,7 @@ void RimGeoMechView::createDisplayModel()
 
    if (isTimeStepDependentDataVisible())
    {
-       size_t i;
+       int i;
        for (i = 0; i < geoMechCase()->geoMechData()->frameCount(0, cellResult()->resultAddress()); i++)
        {
            timeStepIndices.push_back(i);
@@ -417,13 +417,13 @@ RimGeoMechCase* RimGeoMechView::geoMechCase()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::clampCurrentTimestep()
 {
-    size_t maxFrameCount = 0;
+    int maxFrameCount = 0;
     
     if (m_geomechCase){
         maxFrameCount = m_geomechCase->geoMechData()->frameCount(0, cellResult()->resultAddress());
     }
 
-    if (m_currentTimeStep >= maxFrameCount ) m_currentTimeStep = (int)(maxFrameCount -1);
+    if (m_currentTimeStep >= maxFrameCount ) m_currentTimeStep = maxFrameCount -1;
     if (m_currentTimeStep < 0 ) m_currentTimeStep = 0; 
 }
 

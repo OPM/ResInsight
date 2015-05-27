@@ -30,8 +30,8 @@ enum RigElementType
 class RigFemTypes
 {
 public:
-    static const int elmentNodeCount(RigElementType elmType);
-    static const int elmentFaceCount(RigElementType elmType);
+    static int elmentNodeCount(RigElementType elmType);
+    static int elmentFaceCount(RigElementType elmType);
     static const int* localElmNodeIndicesForFace(RigElementType elmType, int faceIdx, int* faceNodeCount);
 
 };

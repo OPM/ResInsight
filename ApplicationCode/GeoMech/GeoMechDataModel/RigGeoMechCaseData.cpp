@@ -82,7 +82,7 @@ bool RigGeoMechCaseData::openAndReadFemParts()
             // Initialize results containers
             m_femPartResults.resize(m_femParts->partCount());
             std::vector<std::string> stepNames = m_readerInterface->stepNames();
-            for (int pIdx = 0; pIdx < m_femPartResults.size(); ++pIdx)
+            for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
             {
                 m_femPartResults[pIdx] = new RigFemPartResults;
                 m_femPartResults[pIdx]->initResultStages(stepNames);
@@ -198,7 +198,7 @@ void RigGeoMechCaseData::minMaxScalarValuesInternal(const RigFemResultAddress& r
     double min = HUGE_VAL;
     double max = -HUGE_VAL;
 
-    for (int pIdx = 0; pIdx < m_femPartResults.size(); ++pIdx)
+    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
     {
         if (m_femPartResults[pIdx].notNull())
         {
@@ -254,7 +254,7 @@ void RigGeoMechCaseData::posNegClosestToZeroInternal(const RigFemResultAddress& 
     double posClosestToZero = HUGE_VAL;
     double negClosestToZero = -HUGE_VAL;
 
-    for (int pIdx = 0; pIdx < m_femPartResults.size(); ++pIdx)
+    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
     {
         if (m_femPartResults[pIdx].notNull())
         {
@@ -287,10 +287,10 @@ void RigGeoMechCaseData::posNegClosestToZeroInternal(const RigFemResultAddress& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigGeoMechCaseData::frameCount(int stepIndex, const RigFemResultAddress& resVarAddr)
+int RigGeoMechCaseData::frameCount(int stepIndex, const RigFemResultAddress& resVarAddr)
 {
     size_t maxFrameCount = 0;
-    for (int pIdx = 0; pIdx < m_femPartResults.size(); ++pIdx)
+    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
     {
         if (m_femPartResults[pIdx].notNull())
         {
@@ -303,7 +303,7 @@ size_t RigGeoMechCaseData::frameCount(int stepIndex, const RigFemResultAddress& 
         }
     }
 
-    return maxFrameCount;
+    return static_cast<int>(maxFrameCount);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ size_t RigGeoMechCaseData::frameCount(int stepIndex, const RigFemResultAddress& 
 //--------------------------------------------------------------------------------------------------
 void RigGeoMechCaseData::assertResultsLoaded(int stepIndex, const RigFemResultAddress& resVarAddr)
 {
-    for (int pIdx = 0; pIdx < m_femPartResults.size(); ++pIdx)
+    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
     {
         if (m_femPartResults[pIdx].notNull())
         {

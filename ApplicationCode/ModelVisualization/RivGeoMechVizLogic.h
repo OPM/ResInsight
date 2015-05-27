@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include "cvfObject.h"
 #include "cvfColor4.h"
 #include "RivGeoMechPartMgrCache.h"
