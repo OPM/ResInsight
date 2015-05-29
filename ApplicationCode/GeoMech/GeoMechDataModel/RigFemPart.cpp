@@ -148,7 +148,7 @@ void RigFemPart::calculateElmNeighbors()
 
     m_elmNeighbors.resize(this->elementCount());
 
-    for (cvf::uint eIdx = 0; eIdx < this->elementCount(); ++eIdx)
+    for (int eIdx = 0; eIdx < this->elementCount(); ++eIdx)
     {
         RigElementType elmType = this->elementType(eIdx);
         const int* elmNodes = this->connectivities(eIdx);

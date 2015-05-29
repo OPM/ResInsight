@@ -51,7 +51,7 @@ public:
     void                        preAllocateElementStorage(int elementCount);
     void                        appendElement(RigElementType elmType, int elementId, const int* connectivities);
 
-    size_t                      elementCount() const                       { return m_elementId.size(); }
+    int                         elementCount() const                       { return static_cast<int>(m_elementId.size()); }
     
     int                         elmId(size_t elementIdx) const             { return m_elementId[elementIdx]; }
     RigElementType              elementType(size_t elementIdx) const       { return m_elementTypes[elementIdx]; }

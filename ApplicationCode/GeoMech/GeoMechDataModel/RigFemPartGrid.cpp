@@ -21,7 +21,7 @@
 
 
 #include "RigFemPart.h"
-
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -122,7 +122,7 @@ void RigFemPartGrid::generateStructGridData()
 
                 // Scoped to show that nothing bleeds further to K-loop
                 {
-                    if (iCoord > m_elmentIJKCounts[0]) m_elmentIJKCounts[0] = iCoord;
+                    if (iCoord > static_cast<int>(m_elmentIJKCounts[0])) m_elmentIJKCounts[0] = iCoord;
 
                     ++jCoord;
 
@@ -146,7 +146,7 @@ void RigFemPartGrid::generateStructGridData()
             }
 
             {
-                if (jCoord > m_elmentIJKCounts[1]) m_elmentIJKCounts[1] = jCoord;
+                if (jCoord > static_cast<int>(m_elmentIJKCounts[1])) m_elmentIJKCounts[1] = jCoord;
 
                 ++kCoord;
 
@@ -170,7 +170,7 @@ void RigFemPartGrid::generateStructGridData()
             }
         }
 
-        if (kCoord > m_elmentIJKCounts[2]) m_elmentIJKCounts[2] = kCoord;
+        if (kCoord > static_cast<int>(m_elmentIJKCounts[2])) m_elmentIJKCounts[2] = kCoord;
     }
 }
 
@@ -228,6 +228,10 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex)
     }
     else
     {
+        mainElmDirections[0] = cvf::Vec3f::ZERO;
+        mainElmDirections[1] = cvf::Vec3f::ZERO;
+        mainElmDirections[2] = cvf::Vec3f::ZERO;
+
         CVF_ASSERT(false);
     }
 
