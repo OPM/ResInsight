@@ -49,7 +49,9 @@ void RigFemPartGrid::generateStructGridData()
     //[X]    record the ones with 3 or fewer neighbors as possible grid corners
     //[X] 2. Loop over the possible corner cells, 
     //[X]    find the one that corresponds to IJK = 000 
-    //[X]    by finding the one closest to origo
+    //[X]    by finding the one closest to origo // Does not work
+    //[X]    by Determining what surfs correspond to NEG IJK surfaces in that element,
+    //       and that none of those faces have a neighbor
     //[X] 4. Assign IJK = 000 to that element 
     //[X]    Store IJK in elm idx array
     //[X] 5. Loop along POS I surfaces increment I for each element and assign IJK
@@ -61,98 +63,27 @@ void RigFemPartGrid::generateStructGridData()
     //[ ] 6. If IJK to elm idx is needed, allocate "grid" with maxI,maxJ,maxZ values
     //[ ]    Loop over elms, assign elmIdx to IJK address in grid
  
-    int gridCornerClosestToOrigo = findElmIdxOfGridCornerClosestToOrigo();
+    int elmIdxForIJK_000 = findElmIdxForIJK000(); 
    
-    if (gridCornerClosestToOrigo == cvf::UNDEFINED_SIZE_T) return;
+    CVF_ASSERT (elmIdxForIJK_000 != -1); // Debug. When we have run enough tests, remove
+
+    if (elmIdxForIJK_000 == -1) return;
 
     // Find the IJK faces based on the corner cell
 
-    cvf::Vec3i ijkMainFaceIdx = cvf::Vec3i(-1,-1,-1);
-
-    {
-        RigElementType eType = m_femPart->elementType(gridCornerClosestToOrigo);
-        int faceCount = RigFemTypes::elmentFaceCount(eType);
-        std::vector<cvf::Vec3f> normals(faceCount);
-        for (int faceIdx = 0; faceIdx < faceCount; ++faceIdx)
-        {
-            normals[faceIdx] = m_femPart->faceNormal(gridCornerClosestToOrigo, faceIdx);
-        }
-
-        // Record three independent main direction vectors for the element, and what face they are created from
-        cvf::Vec3f mainElmDirections[3];
-        int mainElmDirOriginFaces[3];
-        if (eType == HEX8)
-        {
-            mainElmDirections[0] = normals[0] - normals[1]; // To get a better "average" direction vector
-            mainElmDirections[1] = normals[2] - normals[3];    
-            mainElmDirections[2] = normals[4] - normals[5];    
-            mainElmDirOriginFaces[0] = 0;
-            mainElmDirOriginFaces[1] = 2;
-            mainElmDirOriginFaces[2] = 4;
-                
-        }
-        else
-        {
-            CVF_ASSERT(false);
-        }
-        
-        // Match the element main directions with best XYZ match (IJK respectively)
-        // Find the max component of a mainElmDirection. 
-        // Assign the index of that mainElmDirection to the mainElmDirectionIdxForIJK at the index of the max component.
-         
-        int mainElmDirectionIdxForIJK[3] = { -1, -1, -1};
-        for (int dIdx = 0; dIdx < 3; ++dIdx)
-        {
-            double maxAbsComp = 0;
-            for (int cIdx = 2; cIdx >= 0 ; --cIdx)
-            {
-                float absComp = fabs(mainElmDirections[dIdx][cIdx]);
-                if (absComp > maxAbsComp)
-                {
-                    maxAbsComp = absComp;
-                    mainElmDirectionIdxForIJK[cIdx] = dIdx;
-                }
-            }
-        }
-
-        // make sure all the main directions are used
-
-        bool mainDirsUsed[3] = { false, false, false};
-        mainDirsUsed[mainElmDirectionIdxForIJK[0]] = true;
-        mainDirsUsed[mainElmDirectionIdxForIJK[1]] = true;
-        mainDirsUsed[mainElmDirectionIdxForIJK[2]] = true;
-
-        int unusedDir = -1;
-        if (!mainDirsUsed[0]) unusedDir = 0;
-        if (!mainDirsUsed[1]) unusedDir = 1;
-        if (!mainDirsUsed[2]) unusedDir = 2;
-
-        if (unusedDir >= 0)
-        {
-                 if (mainElmDirectionIdxForIJK[0] == mainElmDirectionIdxForIJK[1]) mainElmDirectionIdxForIJK[0] = unusedDir;
-            else if (mainElmDirectionIdxForIJK[1] == mainElmDirectionIdxForIJK[2]) mainElmDirectionIdxForIJK[1] = unusedDir;
-            else if (mainElmDirectionIdxForIJK[2] == mainElmDirectionIdxForIJK[0]) mainElmDirectionIdxForIJK[2] = unusedDir;
-        }
-
-        // Assign the correct face based on the main direction
-
-        ijkMainFaceIdx[0] = (mainElmDirections[mainElmDirectionIdxForIJK[0]] * cvf::Vec3f::X_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]);
-        ijkMainFaceIdx[1] = (mainElmDirections[mainElmDirectionIdxForIJK[1]] * cvf::Vec3f::Y_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]);
-        ijkMainFaceIdx[2] = (mainElmDirections[mainElmDirectionIdxForIJK[2]] * -cvf::Vec3f::Z_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]);
-
-    }
+    cvf::Vec3i ijkMainFaceIndices = findMainIJKFaces(elmIdxForIJK_000);
 
     // assign ijk to cells
     {
         m_ijkPrElement.resize(m_femPart->elementCount(), cvf::Vec3i(-1,-1,-1));
 
-        int posIFaceIdx = ijkMainFaceIdx[0];
-        int posJFaceIdx = ijkMainFaceIdx[1];
-        int posKFaceIdx = ijkMainFaceIdx[2];
+        int posIFaceIdx = ijkMainFaceIndices[0];
+        int posJFaceIdx = ijkMainFaceIndices[1];
+        int posKFaceIdx = ijkMainFaceIndices[2];
 
         m_elmentIJKCounts = cvf::Vec3st(0, 0, 0);
 
-        int elmIdxInK = gridCornerClosestToOrigo;
+        int elmIdxInK = elmIdxForIJK_000;
         cvf::Vec3f posKNormal = m_femPart->faceNormal(elmIdxInK, posKFaceIdx);
         int kCoord = 0;
         while (true)
@@ -246,31 +177,105 @@ void RigFemPartGrid::generateStructGridData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RigFemPartGrid::findElmIdxOfGridCornerClosestToOrigo()
+int RigFemPartGrid::findElmIdxForIJK000()
 {
     const std::vector<int>& possibleGridCorners = m_femPart->possibleGridCornerElements();
     size_t possibleCornerCount = possibleGridCorners.size();
-    const std::vector<cvf::Vec3f>& nodeCoordinates = m_femPart->nodes().coordinates;
 
-    int elmIdxToClosestCorner = -1;
-
-    // Find corner cell closest to origo
-    double minSqDistance =  HUGE_VAL;
     for (size_t pcIdx = 0; pcIdx < possibleCornerCount; ++pcIdx)
     {
-        int elmIdx =  possibleGridCorners[pcIdx];
+        int elmIdx = possibleGridCorners[pcIdx];
+        cvf::Vec3i ijkMainFaceIndices = findMainIJKFaces(elmIdx);
 
-        const int* elmNodeIndices =  m_femPart->connectivities(elmIdx);
-        cvf::Vec3f firstNodePos = nodeCoordinates[elmNodeIndices[0]];
-        float distSq = firstNodePos.lengthSquared();
-        if (distSq < minSqDistance)
+        if (   m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1
+            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1
+            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1 ) 
         {
-            minSqDistance = distSq;
-            elmIdxToClosestCorner = elmIdx;
+            return elmIdx;
         }
     }
 
-    return elmIdxToClosestCorner;
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex)
+{
+    cvf::Vec3i ijkMainFaceIndices = cvf::Vec3i(-1, -1, -1);
+
+    RigElementType eType = m_femPart->elementType(elementIndex);
+    int faceCount = RigFemTypes::elmentFaceCount(eType);
+    std::vector<cvf::Vec3f> normals(faceCount);
+    for (int faceIdx = 0; faceIdx < faceCount; ++faceIdx)
+    {
+        normals[faceIdx] = m_femPart->faceNormal(elementIndex, faceIdx);
+    }
+
+    // Record three independent main direction vectors for the element, and what face they are created from
+    cvf::Vec3f mainElmDirections[3];
+    int mainElmDirOriginFaces[3];
+    if (eType == HEX8)
+    {
+        mainElmDirections[0] = normals[0] - normals[1]; // To get a better "average" direction vector
+        mainElmDirections[1] = normals[2] - normals[3];
+        mainElmDirections[2] = normals[4] - normals[5];
+        mainElmDirOriginFaces[0] = 0;
+        mainElmDirOriginFaces[1] = 2;
+        mainElmDirOriginFaces[2] = 4;
+
+    }
+    else
+    {
+        CVF_ASSERT(false);
+    }
+
+    // Match the element main directions with best XYZ match (IJK respectively)
+    // Find the max component of a mainElmDirection. 
+    // Assign the index of that mainElmDirection to the mainElmDirectionIdxForIJK at the index of the max component.
+
+    int mainElmDirectionIdxForIJK[3] ={ -1, -1, -1 };
+    for (int dIdx = 0; dIdx < 3; ++dIdx)
+    {
+        double maxAbsComp = 0;
+        for (int cIdx = 2; cIdx >= 0 ; --cIdx)
+        {
+            float absComp = fabs(mainElmDirections[dIdx][cIdx]);
+            if (absComp > maxAbsComp)
+            {
+                maxAbsComp = absComp;
+                mainElmDirectionIdxForIJK[cIdx] = dIdx;
+            }
+        }
+    }
+
+    // make sure all the main directions are used
+
+    bool mainDirsUsed[3] ={ false, false, false };
+    mainDirsUsed[mainElmDirectionIdxForIJK[0]] = true;
+    mainDirsUsed[mainElmDirectionIdxForIJK[1]] = true;
+    mainDirsUsed[mainElmDirectionIdxForIJK[2]] = true;
+
+    int unusedDir = -1;
+    if (!mainDirsUsed[0]) unusedDir = 0;
+    if (!mainDirsUsed[1]) unusedDir = 1;
+    if (!mainDirsUsed[2]) unusedDir = 2;
+
+    if (unusedDir >= 0)
+    {
+        if (mainElmDirectionIdxForIJK[0] == mainElmDirectionIdxForIJK[1]) mainElmDirectionIdxForIJK[0] = unusedDir;
+        else if (mainElmDirectionIdxForIJK[1] == mainElmDirectionIdxForIJK[2]) mainElmDirectionIdxForIJK[1] = unusedDir;
+        else if (mainElmDirectionIdxForIJK[2] == mainElmDirectionIdxForIJK[0]) mainElmDirectionIdxForIJK[2] = unusedDir;
+    }
+
+    // Assign the correct face based on the main direction
+
+    ijkMainFaceIndices[0] = (mainElmDirections[mainElmDirectionIdxForIJK[0]] * cvf::Vec3f::X_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]);
+    ijkMainFaceIndices[1] = (mainElmDirections[mainElmDirectionIdxForIJK[1]] * cvf::Vec3f::Y_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]);
+    ijkMainFaceIndices[2] = (mainElmDirections[mainElmDirectionIdxForIJK[2]] * -cvf::Vec3f::Z_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]);
+
+    return ijkMainFaceIndices;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -51,9 +51,11 @@ public:
  private:
     void                generateStructGridData();
 
-    int                 findElmIdxOfGridCornerClosestToOrigo();
-    int                 perpendicularFaceInDirection(cvf::Vec3f direction, int perpFaceIdx, int elmIdx);
+    cvf::Vec3i          findMainIJKFaces(int elementIndex);
 
+    int                 findElmIdxForIJK000();
+
+    int                 perpendicularFaceInDirection(cvf::Vec3f direction, int perpFaceIdx, int elmIdx);
     RigFemPart*         m_femPart;
 
     std::vector<cvf::Vec3i> m_ijkPrElement;
