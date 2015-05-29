@@ -47,6 +47,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RivGeoMechPartMgrCache.h"
 #include "RivGeoMechVizLogic.h"
+#include "RigFemPartGrid.h"
 
 
 
@@ -493,6 +494,14 @@ RimCase* RimGeoMechView::ownerCase()
     return m_geomechCase;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::scheduleGeometryRegen(unsigned short geometryType)
+{
+    m_vizLogic->scheduleGeometryRegen(geometryType);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -506,8 +515,23 @@ void RivElmVisibilityCalculator::computeAllVisible(cvf::UByteArray* elmVisibilit
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivElmVisibilityCalculator::computeRangeVisibility(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart, const cvf::CellRangeFilter& rangeFilter)
+void RivElmVisibilityCalculator::computeRangeVisibility(cvf::UByteArray* elmVisibilities, RigFemPart* femPart, 
+                                                        const cvf::CellRangeFilter& rangeFilter)
 {
+
+    elmVisibilities->resize(femPart->elementCount());
+    
+    const RigFemPartGrid* grid = femPart->structGrid();
+ 
+    for (int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx)
+    {
+        size_t mainGridI;
+        size_t mainGridJ;
+        size_t mainGridK;
+
+        grid->ijkFromCellIndex(elmIdx, &mainGridI, &mainGridJ, &mainGridK);
+        (*elmVisibilities)[elmIdx] = rangeFilter.isCellVisible(mainGridI, mainGridJ, mainGridK, false);
+    }
 
 }
 

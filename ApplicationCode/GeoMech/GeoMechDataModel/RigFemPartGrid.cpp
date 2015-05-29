@@ -43,25 +43,263 @@ RigFemPartGrid::~RigFemPartGrid()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
-cvf::StructGridInterface::FaceType RigFemPartGrid::findGridFace(cvf::Vec3d faceNormal )
+void RigFemPartGrid::generateStructGridData()
 {
-    FaceType bestFace = cvf::StructGridInterface::POS_I;
+    //[X] 1. Calculate neighbors for each element
+    //[X]    record the ones with 3 or fewer neighbors as possible grid corners
+    //[X] 2. Loop over the possible corner cells, 
+    //[X]    find the one that corresponds to IJK = 000 
+    //[X]    by finding the one closest to origo
+    //[X] 4. Assign IJK = 000 to that element 
+    //[X]    Store IJK in elm idx array
+    //[X] 5. Loop along POS I surfaces increment I for each element and assign IJK
+    //[X]    when at end, go to POS J neighbor, increment J, repeat above.
+    //[X]    etc for POS Z
+    //[X]    Find max IJK as you go, 
+    //[ ]    also assert that there are no NEG I/NEG J/NEG Z neighbors when starting on a new row
+    //[ ]    (Need to find min, and offset IJK values if there exists such)
+    //[ ] 6. If IJK to elm idx is needed, allocate "grid" with maxI,maxJ,maxZ values
+    //[ ]    Loop over elms, assign elmIdx to IJK address in grid
+ 
+    int gridCornerClosestToOrigo = findElmIdxOfGridCornerClosestToOrigo();
+   
+    if (gridCornerClosestToOrigo == cvf::UNDEFINED_SIZE_T) return;
 
-    double maxComponent = fabs(faceNormal[0]);
-    bestFace = (faceNormal[0] < 0) ? cvf::StructGridInterface::NEG_I: cvf::StructGridInterface::POS_I;
+    // Find the IJK faces based on the corner cell
 
-    double absComp = fabs(faceNormal[1]);
-    if ( absComp > maxComponent)
+    cvf::Vec3i ijkMainFaceIdx = cvf::Vec3i(-1,-1,-1);
+
     {
-        maxComponent = absComp;
-        bestFace = (faceNormal[1] < 0) ? cvf::StructGridInterface::NEG_J: cvf::StructGridInterface::POS_J;
+        RigElementType eType = m_femPart->elementType(gridCornerClosestToOrigo);
+        int faceCount = RigFemTypes::elmentFaceCount(eType);
+        std::vector<cvf::Vec3f> normals(faceCount);
+        for (int faceIdx = 0; faceIdx < faceCount; ++faceIdx)
+        {
+            normals[faceIdx] = m_femPart->faceNormal(gridCornerClosestToOrigo, faceIdx);
+        }
+
+        // Record three independent main direction vectors for the element, and what face they are created from
+        cvf::Vec3f mainElmDirections[3];
+        int mainElmDirOriginFaces[3];
+        if (eType == HEX8)
+        {
+            mainElmDirections[0] = normals[0] - normals[1]; // To get a better "average" direction vector
+            mainElmDirections[1] = normals[2] - normals[3];    
+            mainElmDirections[2] = normals[4] - normals[5];    
+            mainElmDirOriginFaces[0] = 0;
+            mainElmDirOriginFaces[1] = 2;
+            mainElmDirOriginFaces[2] = 4;
+                
+        }
+        else
+        {
+            CVF_ASSERT(false);
+        }
+        
+        // Match the element main directions with best XYZ match (IJK respectively)
+        // Find the max component of a mainElmDirection. 
+        // Assign the index of that mainElmDirection to the mainElmDirectionIdxForIJK at the index of the max component.
+         
+        int mainElmDirectionIdxForIJK[3] = { -1, -1, -1};
+        for (int dIdx = 0; dIdx < 3; ++dIdx)
+        {
+            double maxAbsComp = 0;
+            for (int cIdx = 2; cIdx >= 0 ; --cIdx)
+            {
+                float absComp = fabs(mainElmDirections[dIdx][cIdx]);
+                if (absComp > maxAbsComp)
+                {
+                    maxAbsComp = absComp;
+                    mainElmDirectionIdxForIJK[cIdx] = dIdx;
+                }
+            }
+        }
+
+        // make sure all the main directions are used
+
+        bool mainDirsUsed[3] = { false, false, false};
+        mainDirsUsed[mainElmDirectionIdxForIJK[0]] = true;
+        mainDirsUsed[mainElmDirectionIdxForIJK[1]] = true;
+        mainDirsUsed[mainElmDirectionIdxForIJK[2]] = true;
+
+        int unusedDir = -1;
+        if (!mainDirsUsed[0]) unusedDir = 0;
+        if (!mainDirsUsed[1]) unusedDir = 1;
+        if (!mainDirsUsed[2]) unusedDir = 2;
+
+        if (unusedDir >= 0)
+        {
+                 if (mainElmDirectionIdxForIJK[0] == mainElmDirectionIdxForIJK[1]) mainElmDirectionIdxForIJK[0] = unusedDir;
+            else if (mainElmDirectionIdxForIJK[1] == mainElmDirectionIdxForIJK[2]) mainElmDirectionIdxForIJK[1] = unusedDir;
+            else if (mainElmDirectionIdxForIJK[2] == mainElmDirectionIdxForIJK[0]) mainElmDirectionIdxForIJK[2] = unusedDir;
+        }
+
+        // Assign the correct face based on the main direction
+
+        ijkMainFaceIdx[0] = (mainElmDirections[mainElmDirectionIdxForIJK[0]] * cvf::Vec3f::X_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]);
+        ijkMainFaceIdx[1] = (mainElmDirections[mainElmDirectionIdxForIJK[1]] * cvf::Vec3f::Y_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]);
+        ijkMainFaceIdx[2] = (mainElmDirections[mainElmDirectionIdxForIJK[2]] * -cvf::Vec3f::Z_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]:  RigFemTypes::oppositeFace(eType, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]);
+
     }
 
-    absComp = fabs(faceNormal[2]);
-    if ( absComp > maxComponent)
+    // assign ijk to cells
     {
-        bestFace = (faceNormal[2] < 0) ? cvf::StructGridInterface::NEG_K: cvf::StructGridInterface::POS_K;
+        m_ijkPrElement.resize(m_femPart->elementCount(), cvf::Vec3i(-1,-1,-1));
+
+        int posIFaceIdx = ijkMainFaceIdx[0];
+        int posJFaceIdx = ijkMainFaceIdx[1];
+        int posKFaceIdx = ijkMainFaceIdx[2];
+
+        m_elmentIJKCounts = cvf::Vec3st(0, 0, 0);
+
+        int elmIdxInK = gridCornerClosestToOrigo;
+        cvf::Vec3f posKNormal = m_femPart->faceNormal(elmIdxInK, posKFaceIdx);
+        int kCoord = 0;
+        while (true)
+        {
+            int elmIdxInJ = elmIdxInK;
+            cvf::Vec3f startElmInKNormalJ = m_femPart->faceNormal(elmIdxInJ, posJFaceIdx);
+            cvf::Vec3f startElmInKNormalI = m_femPart->faceNormal(elmIdxInJ, posIFaceIdx);
+
+            int jCoord = 0;
+            while (true)
+            {
+                int elmIdxInI = elmIdxInJ;
+                cvf::Vec3f startElmInJNormalI = m_femPart->faceNormal(elmIdxInI, posIFaceIdx);
+                int iCoord = 0;
+                while (true)
+                {
+                    // Assign ijk coordinate
+                    m_ijkPrElement[elmIdxInI] = cvf::Vec3i(iCoord, jCoord, kCoord);
+
+                    ++iCoord;
+
+                    // Find neighbor and exit if at end
+                    int neighborElmIdx = m_femPart->elementNeighbor(elmIdxInI, posIFaceIdx);
+                    if (neighborElmIdx == -1) break;
+
+                    // Find the continuing face in the neighbor element (opposite of the neighbor face)
+                    int neighborNegFaceIdx = m_femPart->neighborFace(elmIdxInI, posIFaceIdx);
+
+                    RigElementType eType = m_femPart->elementType(neighborElmIdx);
+                    posIFaceIdx = RigFemTypes::oppositeFace(eType, neighborNegFaceIdx);
+
+                    // Step to neighbor
+                    elmIdxInI = neighborElmIdx;
+                   
+                }
+
+                // Scoped to show that nothing bleeds further to K-loop
+                {
+                    if (iCoord > m_elmentIJKCounts[0]) m_elmentIJKCounts[0] = iCoord;
+
+                    ++jCoord;
+
+                    // Find neighbor and exit if at end
+                    int neighborElmIdx = m_femPart->elementNeighbor(elmIdxInJ, posJFaceIdx);
+                    if (neighborElmIdx == -1) break;
+
+                    // Find the continuing face in the neighbor element (opposite of the neighbor face)
+                    int neighborNegFaceIdx = m_femPart->neighborFace(elmIdxInJ, posJFaceIdx);
+
+                    RigElementType eType = m_femPart->elementType(neighborElmIdx);
+                    posJFaceIdx = RigFemTypes::oppositeFace(eType, neighborNegFaceIdx);
+
+                    // Now where is posIFace of the new J cell ?
+                    posIFaceIdx = perpendicularFaceInDirection(startElmInJNormalI, neighborNegFaceIdx, neighborElmIdx);
+
+                    // Step to neighbor
+                    elmIdxInJ = neighborElmIdx;
+                   
+                }
+            }
+
+            {
+                if (jCoord > m_elmentIJKCounts[1]) m_elmentIJKCounts[1] = jCoord;
+
+                ++kCoord;
+
+                // Find neighbor and exit if at end
+                int neighborElmIdx = m_femPart->elementNeighbor(elmIdxInK, posKFaceIdx);
+                if (neighborElmIdx == -1) break;
+
+                // Find the continuing face in the neighbor element (opposite of the neighbor face)
+                int neighborNegFaceIdx = m_femPart->neighborFace(elmIdxInK, posKFaceIdx);
+
+                RigElementType eType = m_femPart->elementType(neighborElmIdx);
+                posKFaceIdx = RigFemTypes::oppositeFace(eType, neighborNegFaceIdx);
+
+                // Now where is posJFace of the new K cell ?
+                posJFaceIdx = perpendicularFaceInDirection(startElmInKNormalJ, neighborNegFaceIdx, neighborElmIdx);
+                posIFaceIdx = perpendicularFaceInDirection(startElmInKNormalI, neighborNegFaceIdx, neighborElmIdx);
+
+                // Step to neighbor
+                elmIdxInK = neighborElmIdx;
+               
+            }
+        }
+
+        if (kCoord > m_elmentIJKCounts[2]) m_elmentIJKCounts[2] = kCoord;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RigFemPartGrid::findElmIdxOfGridCornerClosestToOrigo()
+{
+    const std::vector<int>& possibleGridCorners = m_femPart->possibleGridCornerElements();
+    size_t possibleCornerCount = possibleGridCorners.size();
+    const std::vector<cvf::Vec3f>& nodeCoordinates = m_femPart->nodes().coordinates;
+
+    int elmIdxToClosestCorner = -1;
+
+    // Find corner cell closest to origo
+    double minSqDistance =  HUGE_VAL;
+    for (size_t pcIdx = 0; pcIdx < possibleCornerCount; ++pcIdx)
+    {
+        int elmIdx =  possibleGridCorners[pcIdx];
+
+        const int* elmNodeIndices =  m_femPart->connectivities(elmIdx);
+        cvf::Vec3f firstNodePos = nodeCoordinates[elmNodeIndices[0]];
+        float distSq = firstNodePos.lengthSquared();
+        if (distSq < minSqDistance)
+        {
+            minSqDistance = distSq;
+            elmIdxToClosestCorner = elmIdx;
+        }
+    }
+
+    return elmIdxToClosestCorner;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find the face that is not perpFaceIdx or its opposite, and has normal closest to direction
+//--------------------------------------------------------------------------------------------------
+
+int RigFemPartGrid::perpendicularFaceInDirection(cvf::Vec3f direction, int perpFaceIdx, int elmIdx)
+{
+    RigElementType eType = m_femPart->elementType(elmIdx);
+    int faceCount = RigFemTypes::elmentFaceCount(eType);
+
+    int oppFace = RigFemTypes::oppositeFace(eType, perpFaceIdx);
+
+    double minDiffSqLength = HUGE_VAL;
+    cvf::Vec3f faceNormal;
+    direction.normalize();
+    int bestFace = -1;
+    for (int faceIdx = 0; faceIdx < faceCount; ++faceIdx)
+    {
+        if (faceIdx == perpFaceIdx || faceIdx == oppFace) continue;
+
+        faceNormal = m_femPart->faceNormal(elmIdx, faceIdx);
+        faceNormal.normalize();
+        float diffSqLength = (direction - faceNormal).lengthSquared();
+        if (diffSqLength < minDiffSqLength)
+        {
+            bestFace = faceIdx;
+            minDiffSqLength = diffSqLength;
+        }
     }
 
     return bestFace;
@@ -70,56 +308,10 @@ cvf::StructGridInterface::FaceType RigFemPartGrid::findGridFace(cvf::Vec3d faceN
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemPartGrid::generateStructGridData()
-{
-    // 1. Calculate neighbors for each element
-    //    record the ones with 3 or fewer neighbors as possible grid corners
-    // 2. Loop over the possible corner cells, 
-    //    find the one that corresponds to IJK = 000 
-    //    by Determining what surfs correspond to NEG IJK surfaces in that element,
-    //    and that none of those faces have a neighbor
-    // 4. Assign IJK = 000 to that element 
-    //    Store IJK in elm idx array
-    // 5. Loop along POS I surfaces increment I for each element and assign IJK
-    //    when at end, go to POS J neighbor, increment J, repeat above.
-    //    etc for POS Z
-    //    Find max IJK as you go, 
-    //    also assert that there are no NEG I/NEG J/NEG Z neighbors when starting on a new row
-    //    (Need to find min, and offset IJK values if there exists such)
-    // 6. If IJK to elm idx is needed, allocate "grid" with maxI,maxJ,maxZ values
-    //    Loop over elms, assign elmIdx to IJK address in grid
-    
-    const std::vector<int>& possibleGridCorners = m_femPart->possibleGridCornerElements();
-    size_t possibleCornerCount = possibleGridCorners.size();
-    const std::vector<cvf::Vec3f>& nodeCoordinates = m_femPart->nodes().coordinates;
-
-    // Find corner cell closest to origo
-    size_t gridCornerClosestToOrigo = cvf::UNDEFINED_SIZE_T;
-    double minDistance =  HUGE_VAL;
-    for (size_t pcIdx = 0; pcIdx < possibleCornerCount; ++pcIdx)
-    {
-        int elmIdx =  possibleGridCorners[pcIdx];
-
-        const int* elmNodeIndices =  m_femPart->connectivities(elmIdx);
-        cvf::Vec3f firstNodePos = nodeCoordinates[elmNodeIndices[0]];
-        float distSq = firstNodePos.lengthSquared();
-        if (distSq < minDistance)
-        {
-            minDistance = distSq;
-            gridCornerClosestToOrigo = pcIdx;
-        }
-    }
-
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::gridPointCountI() const
 {
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
+   
+    return m_elmentIJKCounts[0] + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,8 +319,7 @@ size_t RigFemPartGrid::gridPointCountI() const
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::gridPointCountJ() const
 {
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
+   return m_elmentIJKCounts[1] + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,8 +327,7 @@ size_t RigFemPartGrid::gridPointCountJ() const
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::gridPointCountK() const
 {
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
+    return m_elmentIJKCounts[2] + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,8 +380,11 @@ size_t RigFemPartGrid::cellIndexFromIJK(size_t i, size_t j, size_t k) const
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartGrid::ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const
 {
-    CVF_ASSERT(false);
-    return false;
+    *i = m_ijkPrElement[cellIndex][0];
+    *j = m_ijkPrElement[cellIndex][1];
+    *k = m_ijkPrElement[cellIndex][2];
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,5 +439,3 @@ cvf::Vec3d RigFemPartGrid::gridPointCoordinate(size_t i, size_t j, size_t k) con
     CVF_ASSERT(false);
     return cvf::Vec3d::ZERO;
 }
-
-

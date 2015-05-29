@@ -97,7 +97,7 @@ void RigFemPart::calculateNodeToElmRefs()
 {
     m_nodeToElmRefs.resize(nodes().nodeIds.size());
 
-    for (size_t eIdx = 0; eIdx < m_elementId.size(); ++eIdx)
+    for (int eIdx = 0; eIdx < static_cast<int>(m_elementId.size()); ++eIdx)
     {
         int elmNodeCount = RigFemTypes::elmentNodeCount(elementType(eIdx));
         const int* elmNodes = connectivities(eIdx);
@@ -111,7 +111,7 @@ void RigFemPart::calculateNodeToElmRefs()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const size_t* RigFemPart::elementsUsingNode(int nodeIndex)
+const int* RigFemPart::elementsUsingNode(int nodeIndex)
 {
    return &(m_nodeToElmRefs[nodeIndex][0]);
 }
@@ -167,7 +167,7 @@ void RigFemPart::calculateElmNeighbors()
             {
                 int firstNodeIdxOfFace = elmNodes[localFaceIndices[0]];
                 int candidateCount1 = this->numElementsUsingNode(firstNodeIdxOfFace);
-                const size_t* candidates1 = this->elementsUsingNode(firstNodeIdxOfFace);
+                const int* candidates1 = this->elementsUsingNode(firstNodeIdxOfFace);
 
                 if (candidateCount1)
                 {
@@ -175,7 +175,7 @@ void RigFemPart::calculateElmNeighbors()
 
                     int thirdNodeIdxOfFace = elmNodes[localFaceIndices[3]];
                     int candidateCount2 = this->numElementsUsingNode(thirdNodeIdxOfFace);
-                    const size_t* candidates2 = this->elementsUsingNode(thirdNodeIdxOfFace);
+                    const int* candidates2 = this->elementsUsingNode(thirdNodeIdxOfFace);
 
                     // The candidates are sorted from smallest to largest, so we do a linear search to find the 
                     // (two) common cells in the two arrays, and leaving this element out, we have one candidate left

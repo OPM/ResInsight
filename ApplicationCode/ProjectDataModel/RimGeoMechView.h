@@ -71,7 +71,7 @@ public:
     virtual cvf::Transform*                             scaleTransform();
 
 private:
-    virtual void                                        scheduleGeometryRegen(unsigned short geometryType){}
+    virtual void                                        scheduleGeometryRegen(unsigned short geometryType);
     virtual void                                        createDisplayModel();
     virtual void                                        updateDisplayModelVisibility();
     virtual void                                        updateScaleTransform();
@@ -109,6 +109,6 @@ class RivElmVisibilityCalculator
 {
 public:
     static void computeAllVisible(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart );
-    static void computeRangeVisibility(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart,  const cvf::CellRangeFilter& rangeFilter);
+    static void computeRangeVisibility(cvf::UByteArray* elmVisibilities, RigFemPart* femPart,  const cvf::CellRangeFilter& rangeFilter);
 
 };

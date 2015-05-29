@@ -49,10 +49,16 @@ public:
 
  
  private:
-    void generateStructGridData();
-    static FaceType findGridFace(cvf::Vec3d faceNormal);
+    void                generateStructGridData();
 
-    RigFemPart* m_femPart;
+    int                 findElmIdxOfGridCornerClosestToOrigo();
+    int                 perpendicularFaceInDirection(cvf::Vec3f direction, int perpFaceIdx, int elmIdx);
+
+    RigFemPart*         m_femPart;
+
+    std::vector<cvf::Vec3i> m_ijkPrElement;
+    cvf::Vec3st         m_elmentIJKCounts;
+
 };
 
 
