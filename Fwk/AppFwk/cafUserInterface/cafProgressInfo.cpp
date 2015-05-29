@@ -70,7 +70,9 @@ namespace caf {
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// The title will be written centered in the dialog, under other progress titles in action. 
+/// If you do not need a title for a particular level, simply pass "" and it will be ignored.
+/// \sa setProgressDescription
 //--------------------------------------------------------------------------------------------------
 ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title)
 {
@@ -97,7 +99,12 @@ ProgressInfo::~ProgressInfo()
 
 //--------------------------------------------------------------------------------------------------
 /// Sets a description of the step currently being executed. 
-/// Used to create a nice text in the progressDialog
+/// Used to create a nice text in the progressDialog, by appending " : <your text>"
+/// to the current levels title. If no title is requested for this level, the ":" is omitted.
+/// So: One line per level that has title and/or description.
+///     in the format:
+///     <Title>: <Description>
+/// The ":" is only there when needed
 //--------------------------------------------------------------------------------------------------
 void ProgressInfo::setProgressDescription(const QString& description)
 {
