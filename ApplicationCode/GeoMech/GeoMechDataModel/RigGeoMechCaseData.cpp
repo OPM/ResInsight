@@ -29,6 +29,8 @@
 #include "RigStatisticsDataCache.h"
 #include <cmath>
 #include "cvfBoundingBox.h"
+#include "cafProgressInfo.h"
+#include "..\src\corelib\tools\qstring.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -77,8 +79,13 @@ bool RigGeoMechCaseData::openAndReadFemParts()
     {
         m_femParts = new RigFemPartCollection();
 
+        caf::ProgressInfo progress(10, ""); // Here because the next call uses progress
+        progress.setNextProgressIncrement(9);
         if (m_readerInterface->readFemParts(m_femParts.p()))
         {
+            progress.incrementProgress();
+            progress.setProgressDescription("Calculating element neighbors");
+
             // Initialize results containers
             m_femPartResults.resize(m_femParts->partCount());
             std::vector<std::string> stepNames = m_readerInterface->stepNames();

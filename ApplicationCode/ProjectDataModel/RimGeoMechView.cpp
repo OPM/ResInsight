@@ -116,7 +116,7 @@ void RimGeoMechView::updateViewerWidgetWindowTitle()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::loadDataAndUpdate()
 {
-    caf::ProgressInfo progress(7, "Loading Case");
+    caf::ProgressInfo progress(7, "");
     progress.setNextProgressIncrement(5);
     updateScaleTransform();
 

@@ -732,6 +732,8 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
     geoMechModelCollection->cases.push_back(geoMechCase);
 
     RimGeoMechView* riv = geoMechCase->createAndAddReservoirView();
+    caf::ProgressInfo progress(11, "Loading Case");
+    progress.setNextProgressIncrement(10);
 
     riv->loadDataAndUpdate();
 
@@ -739,13 +741,14 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
     //{
     //    riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     //}
-
+    progress.incrementProgress();
+    progress.setProgressDescription("Loading results information");
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
 
     uiModel->updateUiSubTree(m_project);
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
-
+    
     return true;
 }
 
