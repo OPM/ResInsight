@@ -764,11 +764,10 @@ void RiuMainWindow::refreshAnimationActions()
             {
                 if (activeGmv->isTimeStepDependentDataVisible())
                 {
-                    RigFemResultAddress resAddr = activeGmv->cellResult()->resultAddress();
-                    size_t frameCount = activeGmv->geoMechCase()->geoMechData()->frameCount(0, resAddr);
-                    for (size_t i = 0; i < frameCount; i++)
+                    std::vector<std::string> stepNames = activeGmv->geoMechCase()->geoMechData()->stepNames();
+                    for (size_t i = 0; i < stepNames.size(); i++)
                     {
-                        timeStepStrings += QString::number(i);
+                        timeStepStrings += QString::fromStdString(stepNames[i]);
                     }
                 }
             }

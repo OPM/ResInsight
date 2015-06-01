@@ -37,14 +37,11 @@ public:
     RigFemPartResults();
     ~RigFemPartResults();
 
-    void initResultStages( const std::vector<std::string>& stageNames);
+    void initResultSteps(const std::vector<std::string>& stepNames);
 
-    RigFemScalarResultFrames* createScalarResult( size_t stageIndex, 
-                                                  const RigFemResultAddress& resVarAddr,
-                                                  const std::vector<double>& frameTimes);
+    RigFemScalarResultFrames* createScalarResult(const RigFemResultAddress& resVarAddr);
 
-    RigFemScalarResultFrames* findScalarResult( size_t stageIndex, 
-                                                const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames* findScalarResult(const RigFemResultAddress& resVarAddr);
 
 private:
 
@@ -54,7 +51,8 @@ private:
         std::map<RigFemResultAddress, cvf::ref<RigFemScalarResultFrames> >  resultSets;
     };
 
-    std::vector<RigAnalysisStage> m_femAnalysisStages;
- 
+    //std::vector<RigAnalysisStage> m_femAnalysisStages;
+    std::vector<std::string> m_stepNames;
+    std::map<RigFemResultAddress, cvf::ref<RigFemScalarResultFrames> >  resultSets;
 };
 

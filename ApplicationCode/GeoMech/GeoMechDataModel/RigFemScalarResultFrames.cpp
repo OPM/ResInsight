@@ -26,10 +26,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames::RigFemScalarResultFrames(const std::vector<double>& frameTimes)
-: m_frameTimes(frameTimes)
+RigFemScalarResultFrames::RigFemScalarResultFrames(const std::vector<std::string>& frameNames)
+: m_frameNames(frameNames)
 {
-    m_dataForEachFrame.resize(m_frameTimes.size());
+    m_dataForEachFrame.resize(m_frameNames.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ RigFemScalarResultFrames::~RigFemScalarResultFrames()
 //--------------------------------------------------------------------------------------------------
 size_t RigFemScalarResultFrames::frameCount()
 {
-    return m_frameTimes.size();
+    return m_frameNames.size();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -173,7 +173,7 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 m_resultComponentName = "";
             }
 
-            m_reservoirView->geoMechCase()->geoMechData()->assertResultsLoaded(0, this->resultAddress());
+            m_reservoirView->geoMechCase()->geoMechData()->assertResultsLoaded(this->resultAddress());
 
             if (m_reservoirView)
             {

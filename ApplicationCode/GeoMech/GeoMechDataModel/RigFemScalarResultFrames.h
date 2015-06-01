@@ -29,7 +29,7 @@ class RigStatisticsDataCache;
 class RigFemScalarResultFrames: public cvf::Object
 {
 public:
-    RigFemScalarResultFrames(const std::vector<double>& frameTimes);
+    RigFemScalarResultFrames(const std::vector<std::string>& frameNames);
     virtual ~RigFemScalarResultFrames();
 
     std::vector<float>& frameData(size_t frameIndex);
@@ -39,7 +39,7 @@ public:
 
 private:
     std::vector< std::vector<float> > m_dataForEachFrame;
-    std::vector<double> m_frameTimes;
+    std::vector<std::string> m_frameNames;
 
     cvf::ref<RigStatisticsDataCache> m_statistics;
 };

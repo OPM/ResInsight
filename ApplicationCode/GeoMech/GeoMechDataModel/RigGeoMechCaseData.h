@@ -44,23 +44,21 @@ public:
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
     std::vector<std::string>             stepNames();
-    void                                 assertResultsLoaded(int stepIndex, const RigFemResultAddress& resVarAddr);
-    RigFemScalarResultFrames*            findOrLoadScalarResult(int partIndex, 
-                                                     int stepIndex,
-                                                     const RigFemResultAddress& resVarAddr);
+    void                                 assertResultsLoaded(const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*            findOrLoadScalarResult(int partIndex,
+                                                                const RigFemResultAddress& resVarAddr);
 
-    int frameCount(int stepIndex, const RigFemResultAddress& resVarAddr);
-    std::vector<double> frameTimes(int stepIndex, const RigFemResultAddress& resVarAddr);
+    int frameCount();
 
-    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex,  double* localMin, double* localMax);
-    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
-    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int stepIndex, double* globalMin, double* globalMax);
-    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int stepIndex, double* globalPosClosestToZero, double* globalNegClosestToZero);
+    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int frameIndex,  double* localMin, double* localMax);
+    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
+    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
+    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
 
 private:
-    void minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, 
+    void minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
                                     double* overallMin, double* overallMax);
-    void posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, 
+    void posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
                                      double* localPosClosestToZero, double* localNegClosestToZero);
 
     std::string                          m_geoMechCaseFileName;

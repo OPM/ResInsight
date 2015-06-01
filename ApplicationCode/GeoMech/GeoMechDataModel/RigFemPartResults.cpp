@@ -37,36 +37,31 @@ RigFemPartResults::~RigFemPartResults()
 
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResults::initResultStages(const std::vector<std::string>& stageNames)
+void RigFemPartResults::initResultSteps(const std::vector<std::string>& stepNames)
 {
-    m_femAnalysisStages.clear();
-    m_femAnalysisStages.resize(stageNames.size());
-    for (size_t sIdx = 0; sIdx < stageNames.size(); ++sIdx)
-    {
-        m_femAnalysisStages[sIdx].stageName = stageNames[sIdx];
-    }
+    m_stepNames = stepNames;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResults::createScalarResult(size_t stageIndex, 
-                                                                const RigFemResultAddress& resVarAddr, 
-                                                                const std::vector<double>& frameTimes)
+RigFemScalarResultFrames* RigFemPartResults::createScalarResult(const RigFemResultAddress& resVarAddr)
 {
-    RigFemScalarResultFrames * resFrames = new RigFemScalarResultFrames(frameTimes);
-    m_femAnalysisStages[stageIndex].resultSets[resVarAddr] = resFrames;
+    CVF_ASSERT(m_stepNames.size());
+
+    RigFemScalarResultFrames * resFrames = new RigFemScalarResultFrames(m_stepNames);
+    resultSets[resVarAddr] = resFrames;
     return resFrames;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResults::findScalarResult(size_t stageIndex, 
-                                                              const RigFemResultAddress& resVarAddr)
+RigFemScalarResultFrames* RigFemPartResults::findScalarResult(const RigFemResultAddress& resVarAddr)
 {
-    return m_femAnalysisStages[stageIndex].resultSets[resVarAddr].p();
+    return resultSets[resVarAddr].p();
 }

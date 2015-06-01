@@ -137,7 +137,7 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.setProgressDescription("Reading Current Result");
 
     CVF_ASSERT(this->cellResult() != NULL);
-    m_geomechCase->geoMechData()->assertResultsLoaded(0, this->cellResult()->resultAddress());
+    m_geomechCase->geoMechData()->assertResultsLoaded(this->cellResult()->resultAddress());
     
     progress.incrementProgress();
     progress.setProgressDescription("Create Display model");
@@ -200,7 +200,7 @@ void RimGeoMechView::createDisplayModel()
    if (isTimeStepDependentDataVisible())
    {
        int i;
-       for (i = 0; i < geoMechCase()->geoMechData()->frameCount(0, cellResult()->resultAddress()); i++)
+       for (i = 0; i < geoMechCase()->geoMechData()->frameCount(); ++i)
        {
            timeStepIndices.push_back(i);
        }
@@ -380,11 +380,11 @@ void RimGeoMechView::updateLegends()
     RigFemResultAddress resVarAddress = cellResult->resultAddress();
     if (resVarAddress.fieldName != "")
     {
-        gmCase->minMaxScalarValues(resVarAddress, 0, m_currentTimeStep, &localMin, &localMax);
-        gmCase->posNegClosestToZero(resVarAddress, 0, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+        gmCase->minMaxScalarValues(resVarAddress, m_currentTimeStep, &localMin, &localMax);
+        gmCase->posNegClosestToZero(resVarAddress, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
 
-        gmCase->minMaxScalarValues(resVarAddress, 0, &globalMin, &globalMax);
-        gmCase->posNegClosestToZero(resVarAddress, 0, &globalPosClosestToZero, &globalNegClosestToZero);
+        gmCase->minMaxScalarValues(resVarAddress, &globalMin, &globalMax);
+        gmCase->posNegClosestToZero(resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero);
 
 
         cellResult->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
@@ -421,7 +421,7 @@ void RimGeoMechView::clampCurrentTimestep()
     int maxFrameCount = 0;
     
     if (m_geomechCase){
-        maxFrameCount = m_geomechCase->geoMechData()->frameCount(0, cellResult()->resultAddress());
+        maxFrameCount = m_geomechCase->geoMechData()->frameCount();
     }
 
     if (m_currentTimeStep >= maxFrameCount ) m_currentTimeStep = maxFrameCount -1;
