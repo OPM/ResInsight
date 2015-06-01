@@ -35,6 +35,9 @@ public:
 
     int partCount() const;
 
+    size_t totalElementCount() const;
+
+
 private:
     cvf::Collection<RigFemPart> m_femParts;
 

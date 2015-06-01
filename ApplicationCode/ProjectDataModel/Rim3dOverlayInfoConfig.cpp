@@ -34,6 +34,11 @@
 #include "RiuViewer.h"
 #include "RimGeoMechView.h"
 #include "RimView.h"
+#include "RimGeoMechCase.h"
+#include "RigGeoMechCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RimGeoMechResultSlot.h"
+#include "RigStatisticsDataCache.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 
@@ -274,12 +279,59 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 {
     if (showInfoText())
     {
-        QString infoText = QString(
-            "<p><b><center>-- %1 --</center></b><p>  ").arg("ToDo: Describe Geo Mech Case");
+        QString infoText;
+
+        const RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+        const RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
+        const RigFemPartCollection* femParts = caseData ? caseData->femParts() : NULL;
+
+        if (femParts)
+        {
+            QString caseName = geoMechCase->caseUserDescription();
+            QString cellCount = QString("%1").arg(femParts->totalElementCount());
+            
+            infoText = QString(
+            "<p><b><center>-- %1 --</center></b><p>"
+            "<b>Cell count:</b> %2<br>").arg(caseName, cellCount);
+
+            if (geoMechView->cellResult().notNull())
+            {
+                QString resultPos;
+                QString fieldName = geoMechView->cellResult()->resultFieldName();
+                QString compName = geoMechView->cellResult()->resultComponentName();
+                QString resultName = compName.isEmpty() ? fieldName : compName;
+
+                if (!resultName.isEmpty())
+                {
+                    switch (geoMechView->cellResult()->resultPositionType())
+                    {
+                        case RIG_NODAL:
+                            resultPos = "Nodal";
+                            break;
+
+                        case RIG_ELEMENT_NODAL:
+                            resultPos = "Element nodal";
+                            break;
+
+                        case RIG_INTEGRATION_POINT:
+                            resultPos = "Integration point";
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    infoText += QString(
+                    "<b>Cell result:</b> %1 %2").arg(resultPos, resultName);
+                }
+            }
+        }
+        
         geoMechView->viewer()->setInfoText(infoText);
     }
 
     if (showHistogram())
     {
+        // ToDo
     }
 }
