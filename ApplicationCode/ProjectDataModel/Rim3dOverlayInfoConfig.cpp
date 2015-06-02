@@ -38,7 +38,8 @@
 #include "RigGeoMechCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RimGeoMechResultSlot.h"
-#include "RigStatisticsDataCache.h"
+
+
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 
@@ -281,18 +282,19 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
     {
         QString infoText;
 
-        const RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
-        const RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
-        const RigFemPartCollection* femParts = caseData ? caseData->femParts() : NULL;
+        RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+        RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
+        RigFemPartCollection* femParts = caseData ? caseData->femParts() : NULL;
 
         if (femParts)
         {
             QString caseName = geoMechCase->caseUserDescription();
             QString cellCount = QString("%1").arg(femParts->totalElementCount());
+            QString zScale = QString::number(geoMechView->scaleZ());
             
             infoText = QString(
             "<p><b><center>-- %1 --</center></b><p>"
-            "<b>Cell count:</b> %2<br>").arg(caseName, cellCount);
+            "<b>Cell count:</b> %2 <b>Z-Scale:</b> %3<br>").arg(caseName, cellCount, zScale);
 
             if (geoMechView->cellResult().notNull())
             {
@@ -323,15 +325,69 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 
                     infoText += QString(
                     "<b>Cell result:</b> %1 %2").arg(resultPos, resultName);
+
+                    double min = 0, max = 0;
+                    double p10 = 0, p90 = 0;
+                    double mean = 0;
+                    
+                    // ToDo: Implement statistics for geomech data
+                    /*RigStatisticsDataCache* statistics = caseData ? caseData->statistics() : NULL;
+                    statistics->minMaxCellScalarValues(min, max);
+                    statistics->p10p90CellScalarValues(p10, p90);
+                    statistics->meanCellScalarValues(mean);
+
+                    geoMechView->viewer()->showHistogram(true);
+                    geoMechView->viewer()->setHistogram(min, max, statistics->cellScalarValuesHistogram());
+                    geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);*/
+
+                    infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
+                                        "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
                 }
+                else
+                {
+                    infoText += QString("<br>");
+                }
+
+                int currentTimeStep = geoMechView->currentTimeStep();
+                QString stepName = QString::fromStdString(caseData->stepNames()[currentTimeStep]);
+                infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(stepName);
             }
         }
-        
+
         geoMechView->viewer()->setInfoText(infoText);
     }
 
     if (showHistogram())
     {
-        // ToDo
+        if (geoMechView->cellResult().notNull())
+        {
+            QString fieldName = geoMechView->cellResult()->resultFieldName();
+            QString compName = geoMechView->cellResult()->resultComponentName();
+            QString resultName = compName.isEmpty() ? fieldName : compName;
+
+            if (!resultName.isEmpty())
+            {
+                geoMechView->viewer()->showHistogram(true);
+
+                // ToDo: Implement statistics for geomech data
+                /*RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+                RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
+                RigStatisticsDataCache* statistics = caseData ? caseData->statistics() : NULL;
+
+                if (statistics)
+                {
+                    double min = 0, max = 0;
+                    double p10 = 0, p90 = 0;
+                    double mean = 0;
+
+                    statistics->minMaxCellScalarValues(min, max);
+                    statistics->p10p90CellScalarValues(p10, p90);
+                    statistics->meanCellScalarValues(mean);
+
+                    geoMechView->viewer()->setHistogram(min, max, statistics->cellScalarValuesHistogram());
+                    geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);
+                }*/
+            }
+        }
     }
 }
