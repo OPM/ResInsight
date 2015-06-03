@@ -202,65 +202,63 @@ std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> >
     std::map< ResPos, std::map<std::string, std::vector<std::string> > > resultsMap;
 
 	const odb_StepRepository& stepRepository = odb->steps();
-    odb_StepRepositoryIT sIter(stepRepository);
+    odb_StepRepositoryIT stepIt(stepRepository);
+    stepIt.first();
+    
+    const odb_Step& step = stepRepository.constGet(stepIt.currentKey());
+    const odb_SequenceFrame& stepFrames = step.frames();
 
-	for (sIter.first(); !sIter.isDone(); sIter.next()) 
-	{
-        const odb_Step& step = stepRepository.constGet(sIter.currentKey());
-		const odb_SequenceFrame& stepFrames = step.frames();
+    if (stepFrames.size() > 0)
+    {
+        // Optimization: Get results metadata for the first frame of the first step only
+		const odb_Frame& frame = stepFrames.constGet(0);
+			
+		const odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
+		odb_FieldOutputRepositoryIT fieldConIT(fieldCon);
 
-		int numFrames = stepFrames.size();
-		for (int f = 0; f < numFrames; f++) 
+		for (fieldConIT.first(); !fieldConIT.isDone(); fieldConIT.next()) 
 		{
-			const odb_Frame& frame = stepFrames.constGet(f);
+			const odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
 			
-			const odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
-			odb_FieldOutputRepositoryIT fieldConIT(fieldCon);
-
-			for (fieldConIT.first(); !fieldConIT.isDone(); fieldConIT.next()) 
+			const odb_SequenceFieldLocation& fieldLocations = field.locations();
+			for (int loc = 0; loc < fieldLocations.size(); loc++)
 			{
-				const odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
-			
-				const odb_SequenceFieldLocation& fieldLocations = field.locations();
-				for (int loc = 0; loc < fieldLocations.size(); loc++)
+				const odb_FieldLocation& fieldLocation = fieldLocations.constGet(loc);
+
+				std::string fieldName = field.name().CStr();
+				odb_SequenceString components = field.componentLabels();
+
+				std::vector<std::string> compVec;
+
+				int numComp = components.size();
+				for (int comp = 0; comp < numComp; comp++)
 				{
-					const odb_FieldLocation& fieldLocation = fieldLocations.constGet(loc);
-
-					std::string fieldName = field.name().CStr();
-					odb_SequenceString components = field.componentLabels();
-
-					std::vector<std::string> compVec;
-
-					int numComp = components.size();
-					for (int comp = 0; comp < numComp; comp++)
-					{
-						compVec.push_back(components[comp].CStr());
-					}
-
-					switch (fieldLocation.position())
-					{
-						case odb_Enum::NODAL:
-                            resultsMap[NODAL][fieldName] = compVec;
-							break;
-
-                        case odb_Enum::ELEMENT_NODAL:
-                            resultsMap[ELEMENT_NODAL][fieldName] = compVec;
-							break;
-
-						case odb_Enum::INTEGRATION_POINT:
-                            resultsMap[INTEGRATION_POINT][fieldName] = compVec;
-                            resultsMap[ELEMENT_NODAL][fieldName] = compVec;
-							break;
-
-						default:
-							break;
-					}
+					compVec.push_back(components[comp].CStr());
 				}
 
-                stepFrames.release(f);
+				switch (fieldLocation.position())
+				{
+					case odb_Enum::NODAL:
+                        resultsMap[NODAL][fieldName] = compVec;
+						break;
+
+                    case odb_Enum::ELEMENT_NODAL:
+                        resultsMap[ELEMENT_NODAL][fieldName] = compVec;
+						break;
+
+					case odb_Enum::INTEGRATION_POINT:
+                        resultsMap[INTEGRATION_POINT][fieldName] = compVec;
+                        resultsMap[ELEMENT_NODAL][fieldName] = compVec;
+						break;
+
+					default:
+						break;
+				}
 			}
-		}
-	}
+        }
+    }
+
+    stepFrames.release();
 
 	return resultsMap;
 }
