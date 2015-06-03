@@ -331,16 +331,11 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     
                     RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
                     caseData->meanCellScalarValues(resAddress, &mean);
+                    caseData->minMaxScalarValues(resAddress,&min, &max);
 
                     // ToDo: Implement statistics for geomech data
-                    /*RigStatisticsDataCache* statistics = caseData ? caseData->statistics() : NULL;
-                    statistics->minMaxCellScalarValues(min, max);
-                    statistics->p10p90CellScalarValues(p10, p90);
-                    statistics->meanCellScalarValues(mean);
-
-                    geoMechView->viewer()->showHistogram(true);
-                    geoMechView->viewer()->setHistogram(min, max, statistics->cellScalarValuesHistogram());
-                    geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);*/
+                    
+                    //caseData->p10p90CellScalarValues(resAddress, p10, p90);
 
                     infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
                                         "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
@@ -372,23 +367,27 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                 geoMechView->viewer()->showHistogram(true);
 
                 // ToDo: Implement statistics for geomech data
-                /*RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+                
+                RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
                 RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
-                RigStatisticsDataCache* statistics = caseData ? caseData->statistics() : NULL;
 
-                if (statistics)
+                if (caseData)
                 {
                     double min = 0, max = 0;
                     double p10 = 0, p90 = 0;
                     double mean = 0;
 
-                    statistics->minMaxCellScalarValues(min, max);
-                    statistics->p10p90CellScalarValues(p10, p90);
-                    statistics->meanCellScalarValues(mean);
+                    RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+                    caseData->meanCellScalarValues(resAddress, &mean);
+                    caseData->minMaxScalarValues(resAddress,&min, &max);
 
-                    geoMechView->viewer()->setHistogram(min, max, statistics->cellScalarValuesHistogram());
+                    // ToDo: Implement statistics for geomech data
+                    
+                    //caseData->p10p90CellScalarValues(resAddress, p10, p90);
+                    caseData->minMaxScalarValues(resAddress, &min, &max);
+                    //geoMechView->viewer()->setHistogram(min, max,  caseData->scalarValuesHistogram(resAddress));
                     geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);
-                }*/
+                }
             }
         }
     }
