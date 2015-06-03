@@ -69,7 +69,7 @@ private:
     bool                                                                                buildMetaData();
     void                                                                                close();
     size_t                                                                              resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex);
-    odb_Frame                                                                           stepFrame(int stepIndex, int frameIndex) const;
+    const odb_Frame&                                                                    stepFrame(int stepIndex, int frameIndex) const;
     odb_Instance*									                                    instance(int instanceIndex);
     int                                                                                 componentIndex(ResPos position, const std::string& fieldName, const std::string& componentName) const;
     std::vector<std::string>                                                            componentNames(ResPos position, const std::string& fieldName) const;

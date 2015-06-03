@@ -443,14 +443,14 @@ std::map<std::string, std::vector<std::string> > RifOdbReader::scalarIntegration
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-odb_Frame RifOdbReader::stepFrame(int stepIndex, int frameIndex) const
+const odb_Frame& RifOdbReader::stepFrame(int stepIndex, int frameIndex) const
 {
 	CVF_ASSERT(m_odb);
 
-	odb_StepRepository& stepRepository = m_odb->steps();
-	odb_StepList stepList = stepRepository.stepList();
-	odb_Step& step = stepList.Get(stepIndex);
-	odb_SequenceFrame& stepFrames = step.frames();
+	const odb_StepRepository& stepRepository = m_odb->steps();
+	const odb_StepList& stepList = stepRepository.stepList();
+    const odb_Step& step = stepList.ConstGet(stepIndex);
+	const odb_SequenceFrame& stepFrames = step.frames();
 
 	return stepFrames.constGet(frameIndex);
 }
