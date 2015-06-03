@@ -217,7 +217,7 @@ std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(od
 			{
 				odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
 			
-				odb_SequenceFieldLocation fieldLocations = field.locations();
+				const odb_SequenceFieldLocation& fieldLocations = field.locations();
 				for (int loc = 0; loc < fieldLocations.size(); loc++)
 				{
 					const odb_FieldLocation& fieldLocation = fieldLocations.constGet(loc);
@@ -255,24 +255,27 @@ std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> >
 
     std::map< ResPos, std::map<std::string, std::vector<std::string> > > resultsMap;
 
-	odb_StepRepository stepRepository = odb->steps();
-	odb_StepRepositoryIT sIter(stepRepository);
+	const odb_StepRepository& stepRepository = odb->steps();
+    odb_StepRepositoryIT sIter(stepRepository);
+
 	for (sIter.first(); !sIter.isDone(); sIter.next()) 
 	{
-		odb_SequenceFrame& stepFrames = stepRepository[sIter.currentKey()].frames();
+        const odb_Step& step = stepRepository.constGet(sIter.currentKey());
+		const odb_SequenceFrame& stepFrames = step.frames();
 
 		int numFrames = stepFrames.size();
 		for (int f = 0; f < numFrames; f++) 
 		{
-			odb_Frame frame = stepFrames.constGet(f);
+			const odb_Frame& frame = stepFrames.constGet(f);
 			
-			odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
+			const odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
 			odb_FieldOutputRepositoryIT fieldConIT(fieldCon);
+
 			for (fieldConIT.first(); !fieldConIT.isDone(); fieldConIT.next()) 
 			{
-				odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
+				const odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
 			
-				odb_SequenceFieldLocation fieldLocations = field.locations();
+				const odb_SequenceFieldLocation& fieldLocations = field.locations();
 				for (int loc = 0; loc < fieldLocations.size(); loc++)
 				{
 					const odb_FieldLocation& fieldLocation = fieldLocations.constGet(loc);
@@ -307,6 +310,8 @@ std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> >
 							break;
 					}
 				}
+
+                stepFrames.release(f);
 			}
 		}
 	}
