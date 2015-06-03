@@ -208,10 +208,10 @@ std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> >
     const odb_Step& step = stepRepository.constGet(stepIt.currentKey());
     const odb_SequenceFrame& stepFrames = step.frames();
 
-    if (stepFrames.size() > 0)
+    if (stepFrames.size() > 1)
     {
-        // Optimization: Get results metadata for the first frame of the first step only
-		const odb_Frame& frame = stepFrames.constGet(0);
+        // Optimization: Get results metadata for the second frame of the first step only
+		const odb_Frame& frame = stepFrames.constGet(1);
 			
 		const odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
 		odb_FieldOutputRepositoryIT fieldConIT(fieldCon);
