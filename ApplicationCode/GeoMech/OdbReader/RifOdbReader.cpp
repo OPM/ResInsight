@@ -191,60 +191,6 @@ bool RifOdbReader::buildMetaData()
 	return true;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(odb_Odb* odb, odb_Enum::odb_ResultPositionEnum resultPosition)
-{
-	CVF_ASSERT(odb != NULL);
-
-	std::map<std::string, std::vector<std::string> > resultNamesMap;
-
-	odb_StepRepository stepRepository = odb->steps();
-	odb_StepRepositoryIT sIter(stepRepository);
-	for (sIter.first(); !sIter.isDone(); sIter.next()) 
-	{
-		odb_SequenceFrame& stepFrames = stepRepository[sIter.currentKey()].frames();
-
-		int numFrames = stepFrames.size();
-		for (int f = 0; f < numFrames; f++) 
-		{
-			odb_Frame frame = stepFrames.constGet(f);
-			
-			odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
-			odb_FieldOutputRepositoryIT fieldConIT(fieldCon);
-			for (fieldConIT.first(); !fieldConIT.isDone(); fieldConIT.next()) 
-			{
-				odb_FieldOutput& field = fieldCon[fieldConIT.currentKey()]; 
-			
-				const odb_SequenceFieldLocation& fieldLocations = field.locations();
-				for (int loc = 0; loc < fieldLocations.size(); loc++)
-				{
-					const odb_FieldLocation& fieldLocation = fieldLocations.constGet(loc);
-					if (fieldLocation.position() == resultPosition)
-					{
-						std::string fieldName = field.name().CStr();
-						odb_SequenceString components = field.componentLabels();
-
-						std::vector<std::string> compVec;
-
-						int numComp = components.size();
-						for (int comp = 0; comp < numComp; comp++)
-						{
-							compVec.push_back(components[comp].CStr());
-						}
-
-						resultNamesMap.insert(std::make_pair(fieldName, compVec));
-
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	return resultNamesMap;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
