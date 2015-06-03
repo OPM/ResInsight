@@ -769,6 +769,7 @@ void RiuMainWindow::refreshAnimationActions()
                     {
                         timeStepStrings += QString::fromStdString(stepNames[i]);
                     }
+                    currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
                 }
             }
         }
