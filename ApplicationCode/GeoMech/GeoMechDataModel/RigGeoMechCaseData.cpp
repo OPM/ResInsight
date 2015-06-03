@@ -30,7 +30,7 @@
 #include <cmath>
 #include "cvfBoundingBox.h"
 #include "cafProgressInfo.h"
-#include "..\src\corelib\tools\qstring.h"
+#include <QString>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -148,9 +148,9 @@ RigFemScalarResultFrames* RigGeoMechCaseData::findOrLoadScalarResult(int partInd
     std::vector<std::string> stepNames =  m_readerInterface->stepNames();
     frames = m_femPartResults[partIndex]->createScalarResult( resVarAddr);
 
-    for (int stepIndex = 0; stepIndex < stepNames.size(); ++stepIndex)
+    for (int stepIndex = 0; stepIndex < static_cast<int>(stepNames.size()); ++stepIndex)
     {
-    std::vector<double > frameTimes = m_readerInterface->frameTimes((int)stepIndex);
+    std::vector<double > frameTimes = m_readerInterface->frameTimes(stepIndex);
 
     for (int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2 ; ++fIdx)  // Read only the second frame
     {

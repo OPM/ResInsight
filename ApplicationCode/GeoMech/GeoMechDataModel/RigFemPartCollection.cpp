@@ -76,7 +76,7 @@ size_t RigFemPartCollection::totalElementCount() const
 {
     size_t elementCount = 0;
 
-    for (size_t i = 0; i < partCount(); i++)
+    for (int i = 0; i < partCount(); i++)
     {
         elementCount += part(i)->elementCount();
     }
