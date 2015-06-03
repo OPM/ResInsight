@@ -148,7 +148,8 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
     // Animation action connections
     if (m_activeAnimationControl)
     {
-        m_activeAnimationControl->disconnect(m_timestepCombo, SLOT(setCurrentIndex(int)));
+        m_activeAnimationControl->disconnect(this, SLOT(slotUpdateComboBoxIndex(int)));
+        m_activeAnimationControl->disconnect(this, SLOT(slotUpdateTimestepList(int)));
     }
 
     m_activeAnimationControl = animationControl;
@@ -170,28 +171,31 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
 
     if (animationControl)
     {
-        connect(m_animSkipToStartAction,    SIGNAL(triggered()), animationControl, SLOT(slotSkipToStart()));
-        connect(m_animStepBackwardAction,   SIGNAL(triggered()), animationControl, SLOT(slotStepBackward()));
-        connect(m_animStopAction,           SIGNAL(triggered()), animationControl, SLOT(slotStop()));
-        connect(m_animPauseAction,          SIGNAL(triggered()), animationControl, SLOT(slotPause()));
-        connect(m_animPlayAction,           SIGNAL(triggered()), animationControl, SLOT(slotPlayFwd()));
-        connect(m_animStepForwardAction,    SIGNAL(triggered()), animationControl, SLOT(slotStepForward()));
-        connect(m_animSkipToEndAction,      SIGNAL(triggered()), animationControl, SLOT(slotSkipToEnd()));
+        connect(m_animSkipToStartAction,    SIGNAL(triggered()),        animationControl, SLOT(slotSkipToStart()));
+        connect(m_animStepBackwardAction,   SIGNAL(triggered()),        animationControl, SLOT(slotStepBackward()));
+        connect(m_animStopAction,           SIGNAL(triggered()),        animationControl, SLOT(slotStop()));
+        connect(m_animPauseAction,          SIGNAL(triggered()),        animationControl, SLOT(slotPause()));
+        connect(m_animPlayAction,           SIGNAL(triggered()),        animationControl, SLOT(slotPlayFwd()));
+        connect(m_animStepForwardAction,    SIGNAL(triggered()),        animationControl, SLOT(slotStepForward()));
+        connect(m_animSkipToEndAction,      SIGNAL(triggered()),        animationControl, SLOT(slotSkipToEnd()));
 
-        connect(m_animPlayBwdAction        ,SIGNAL(triggered()), animationControl, SLOT(slotPlayBwd()));
+        connect(m_animPlayBwdAction        ,SIGNAL(triggered()),        animationControl, SLOT(slotPlayBwd()));
+
         m_animRepeatFromStartAction->setChecked(animationControl->isRepeatingFromStart());
         m_animRepeatFwdBwdAction->setChecked(animationControl->isRepeatingFwdBwd());
-        connect(m_animRepeatFromStartAction,SIGNAL(triggered(bool)), animationControl, SLOT(slotRepeatFromStart(bool)));
-        connect(m_animRepeatFwdBwdAction   ,SIGNAL(triggered(bool)), animationControl, SLOT(slotRepeatFwdBwd(bool)));
 
-        connect(m_animRepeatFromStartAction,SIGNAL(triggered(bool)), this, SLOT(slotFromStartModeToggled(bool)));
-        connect(m_animRepeatFwdBwdAction   ,SIGNAL(triggered(bool)), this, SLOT(slotFwdBwdModeToggled(bool)));
+        connect(m_animRepeatFromStartAction,SIGNAL(triggered(bool)),    animationControl, SLOT(slotRepeatFromStart(bool)));
+        connect(m_animRepeatFwdBwdAction   ,SIGNAL(triggered(bool)),    animationControl, SLOT(slotRepeatFwdBwd(bool)));
+
+        connect(m_animRepeatFromStartAction,SIGNAL(triggered(bool)),    this,             SLOT(slotFromStartModeToggled(bool)));
+        connect(m_animRepeatFwdBwdAction   ,SIGNAL(triggered(bool)),    this,             SLOT(slotFwdBwdModeToggled(bool)));
         
         connect(m_timestepCombo,            SIGNAL(currentIndexChanged(int)), animationControl, SLOT(setCurrentFrame(int)));
-        connect(m_frameRateSlider,          SIGNAL(valueChanged(int)), this, SLOT(slotFrameRateSliderChanged(int)));
+        connect(m_frameRateSlider,          SIGNAL(valueChanged(int)),  this,             SLOT(slotFrameRateSliderChanged(int)));
 
-        connect(animationControl, SIGNAL(changeFrame(int)), SLOT(slotUpdateComboBoxIndex(int)));
-        connect(animationControl, SIGNAL(frameCountChanged(int)), this, SLOT(slotUpdateTimestepList(int)));
+        connect(animationControl,           SIGNAL(changeFrame(int)),       this,         SLOT(slotUpdateComboBoxIndex(int)));
+        connect(animationControl,           SIGNAL(frameCountChanged(int)), this,         SLOT(slotUpdateTimestepList(int)));
+
         int timeout = animationControl->timeout();
         double initialFrameRate = 1000;
         if (timeout > 0) initialFrameRate = 1000.0/timeout;
