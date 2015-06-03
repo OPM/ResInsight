@@ -38,8 +38,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RimGeoMechResultSlot.h"
-
-
+#include "RigFemResultAddress.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 
@@ -330,6 +329,9 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     double p10 = 0, p90 = 0;
                     double mean = 0;
                     
+                    RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+                    caseData->meanCellScalarValues(resAddress, &mean);
+
                     // ToDo: Implement statistics for geomech data
                     /*RigStatisticsDataCache* statistics = caseData ? caseData->statistics() : NULL;
                     statistics->minMaxCellScalarValues(min, max);

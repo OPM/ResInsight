@@ -54,6 +54,7 @@ public:
     void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
     void minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
     void posNegClosestToZero(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
+    void meanCellScalarValues(const RigFemResultAddress& resVarAddr, double* meanValue);
 
 private:
     void minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 

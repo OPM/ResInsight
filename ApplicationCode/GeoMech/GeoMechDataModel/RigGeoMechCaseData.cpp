@@ -298,6 +298,37 @@ void RigGeoMechCaseData::posNegClosestToZeroInternal(const RigFemResultAddress& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigGeoMechCaseData::meanCellScalarValues(const RigFemResultAddress& resVarAddr, double* meanValue)
+{
+    CVF_ASSERT(meanValue);
+
+    double mean = 0;
+    size_t meanContribCount = 0;
+
+    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
+    {
+        if (m_femPartResults[pIdx].notNull())
+        {
+            RigFemScalarResultFrames* frames = findOrLoadScalarResult(pIdx, resVarAddr);
+            if (frames)
+            {
+                double localMean = 0; 
+
+                RigStatisticsDataCache* stats = frames->statistics();
+                stats->meanCellScalarValues(localMean);
+
+                mean += localMean;
+                meanContribCount++;
+            }
+        }
+    }
+
+    *meanValue = meanContribCount > 0 ? mean/meanContribCount : 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 int RigGeoMechCaseData::frameCount()
 {
     return static_cast<int>(stepNames().size());
