@@ -701,13 +701,13 @@ void RiuMainWindow::slotRefreshViewActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::refreshAnimationActions()
 {
-    caf::FrameAnimationControl* ac = NULL;
+    caf::FrameAnimationControl* animationControl = NULL;
     if (RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        ac = RiaApplication::instance()->activeReservoirView()->viewer()->animationControl();
+        animationControl = RiaApplication::instance()->activeReservoirView()->viewer()->animationControl();
     }
 
-    m_animationToolBar->connectAnimationControl(ac);
+    m_animationToolBar->connectAnimationControl(animationControl);
 
     QStringList timeStepStrings;
     int currentTimeStepIndex = 0;
