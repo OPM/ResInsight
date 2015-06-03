@@ -66,6 +66,5 @@ private:
     cvf::ref<RigFemPartCollection>       m_femParts;
     cvf::Collection<RigFemPartResults>   m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>  m_readerInterface;
-    cvf::ref<RigStatisticsDataCache>     m_statistics;
 };
 

@@ -40,18 +40,10 @@ public:
     void initResultSteps(const std::vector<std::string>& stepNames);
 
     RigFemScalarResultFrames* createScalarResult(const RigFemResultAddress& resVarAddr);
-
     RigFemScalarResultFrames* findScalarResult(const RigFemResultAddress& resVarAddr);
 
 private:
 
-    struct RigAnalysisStage
-    {
-        std::string stageName;
-        std::map<RigFemResultAddress, cvf::ref<RigFemScalarResultFrames> >  resultSets;
-    };
-
-    //std::vector<RigAnalysisStage> m_femAnalysisStages;
     std::vector<std::string> m_stepNames;
     std::map<RigFemResultAddress, cvf::ref<RigFemScalarResultFrames> >  resultSets;
 };
