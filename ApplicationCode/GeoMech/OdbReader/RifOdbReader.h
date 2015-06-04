@@ -29,7 +29,6 @@ class odb_Odb;
 class odb_Frame;
 class odb_Instance;
 
-
 //==================================================================================================
 //
 // Data interface base class
@@ -37,50 +36,67 @@ class odb_Instance;
 //==================================================================================================
 class RifOdbReader : public RifGeoMechReaderInterface
 {
-   
 public:
     RifOdbReader();
     virtual ~RifOdbReader();
 
-	virtual bool                                             openFile(const std::string& fileName, std::string* errorMessage = 0);
+	virtual bool                                                openFile(const std::string& fileName, std::string* errorMessage = 0);
 
-    virtual bool                                             readFemParts(RigFemPartCollection* geoMechCase);
-    virtual std::vector<std::string>                         stepNames();
-    virtual std::vector<double>                              frameTimes(int stepIndex);
+    virtual bool                                                readFemParts(RigFemPartCollection* geoMechCase);
+    virtual std::vector<std::string>                            stepNames();
+    virtual std::vector<double>                                 frameTimes(int stepIndex);
     
-    virtual std::map<std::string, std::vector<std::string> > scalarNodeFieldAndComponentNames(); 
-    virtual std::map<std::string, std::vector<std::string> > scalarElementNodeFieldAndComponentNames(); 
-    virtual std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldAndComponentNames(); 
+    virtual std::map<std::string, std::vector<std::string> >    scalarNodeFieldAndComponentNames(); 
+    virtual std::map<std::string, std::vector<std::string> >    scalarElementNodeFieldAndComponentNames(); 
+    virtual std::map<std::string, std::vector<std::string> >    scalarIntegrationPointFieldAndComponentNames(); 
 	
-    virtual void                                             readScalarNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
-    virtual void                                             readScalarElementNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
-    virtual void                                             readScalarIntegrationPointField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
-    virtual void                                             readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
+    virtual void                                                readScalarNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
+    virtual void                                                readScalarElementNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
+    virtual void                                                readScalarIntegrationPointField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
+    virtual void                                                readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
 
 private:
-
-    enum ResPos
+    class RifOdbResultKey
     {
-	    NODAL,
-	    ELEMENT_NODAL,
-	    INTEGRATION_POINT
+    public:
+        enum ResultPosition
+        {
+	        NODAL,
+	        ELEMENT_NODAL,
+	        INTEGRATION_POINT
+        };
+
+        RifOdbResultKey(ResultPosition aResultPostion, const std::string& aFieldName)
+                        : resultPostion(aResultPostion), fieldName(aFieldName) {};
+
+        ResultPosition  resultPostion;
+        std::string     fieldName;
+
+        bool operator< (const RifOdbResultKey& other) const
+        {
+            if (resultPostion != other.resultPostion)
+            {
+                return (resultPostion < other.resultPostion);
+            }
+
+            return (fieldName < other.fieldName);
+       }
     };
 
-    bool                                                                                buildMetaData();
-    void                                                                                close();
-    size_t                                                                              resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex);
-    const odb_Frame&                                                                    stepFrame(int stepIndex, int frameIndex) const;
-    odb_Instance*									                                    instance(int instanceIndex);
-    int                                                                                 componentIndex(ResPos position, const std::string& fieldName, const std::string& componentName) const;
-    std::vector<std::string>                                                            componentNames(ResPos position, const std::string& fieldName) const;
-	std::map<std::string, std::vector<std::string> >                                    fieldAndComponentNames(ResPos position);   
-    std::map< RifOdbReader::ResPos, std::map<std::string, std::vector<std::string> > >  resultsMetaData(odb_Odb* odb);
+    bool                                                    buildMetaData();
+    void                                                    close();
+    size_t                                                  resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex);
+    const odb_Frame&                                        stepFrame(int stepIndex, int frameIndex) const;
+    odb_Instance*									        instance(int instanceIndex);
+    int                                                     componentIndex(const RifOdbResultKey& result, const std::string& componentName) const;
+    std::vector<std::string>                                componentNames(const RifOdbResultKey& result) const;
+    std::map< std::string, std::vector<std::string> >       fieldAndComponentNames(RifOdbResultKey::ResultPosition position); 
+    std::map< RifOdbResultKey, std::vector<std::string> >   resultsMetaData(odb_Odb* odb);
  
 private:
-    odb_Odb*                                                                m_odb;
-	std::map< ResPos, std::map<std::string, std::vector<std::string> > >    m_resultsMetaData;
-    std::vector< std::map<int, int> >                                       m_nodeIdToIdxMaps;
-    std::vector< std::map<int, int> >                                       m_elementIdToIdxMaps;
-    
+    odb_Odb*                                                m_odb;
+    std::map< RifOdbResultKey, std::vector<std::string> >   m_resultsMetaData;
+    std::vector< std::map<int, int> >                       m_nodeIdToIdxMaps;
+    std::vector< std::map<int, int> >                       m_elementIdToIdxMaps;
 	static size_t sm_instanceCount;
 };
