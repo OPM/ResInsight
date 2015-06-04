@@ -45,6 +45,9 @@ public:
     virtual bool                                                readFemParts(RigFemPartCollection* geoMechCase);
     virtual std::vector<std::string>                            stepNames();
     virtual std::vector<double>                                 frameTimes(int stepIndex);
+
+    virtual std::vector<std::string>                            elementSetNames(int partIndex);
+    virtual std::vector<size_t>                                 elementSet(int partIndex, int setIndex);
     
     virtual std::map<std::string, std::vector<std::string> >    scalarNodeFieldAndComponentNames(); 
     virtual std::map<std::string, std::vector<std::string> >    scalarElementNodeFieldAndComponentNames(); 
@@ -96,6 +99,7 @@ private:
 private:
     odb_Odb*                                                m_odb;
     std::map< RifOdbResultKey, std::vector<std::string> >   m_resultsMetaData;
+    std::map< int, std::vector<std::string> >               m_partElementSetNames;
     std::vector< std::map<int, int> >                       m_nodeIdToIdxMaps;
     std::vector< std::map<int, int> >                       m_elementIdToIdxMaps;
 	static size_t sm_instanceCount;

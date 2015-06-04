@@ -467,6 +467,77 @@ std::vector<double> RifOdbReader::frameTimes(int stepIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifOdbReader::elementSetNames(int partIndex)
+{
+    CVF_ASSERT(m_odb != NULL);
+
+    std::map< int, std::vector<std::string> >::const_iterator mapIt = m_partElementSetNames.find(partIndex);
+    if (mapIt == m_partElementSetNames.end())
+    {
+        std::vector<std::string> setNames;
+
+        const odb_Assembly& rootAssembly = m_odb->constRootAssembly();
+        const odb_InstanceRepository& instances = rootAssembly.instances();
+        
+        int currentInstance = 0;
+        odb_InstanceRepositoryIT instIt(instances);
+	    for (instIt.first(); !instIt.isDone(); instIt.next(), currentInstance++) 
+	    {
+            const odb_Instance& instance = instIt.currentValue();
+
+            if (currentInstance == partIndex)
+            {
+                const odb_SetRepository& sets = rootAssembly.elementSets();
+	
+	            odb_SetRepositoryIT setIt(sets);
+	            for (setIt.first(); !setIt.isDone(); setIt.next()) 
+	            {
+                    const odb_Set& set = setIt.currentValue();
+                    setNames.push_back(set.name().CStr());
+	            }
+
+                break;
+            }
+	    }
+
+        m_partElementSetNames[partIndex] = setNames;
+    }
+
+    return m_partElementSetNames.at(partIndex);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RifOdbReader::elementSet(int partIndex, int setIndex)
+{
+    CVF_ASSERT(m_odb != NULL);
+
+    std::vector<std::string> setNames = elementSetNames(partIndex);    
+    const odb_Assembly& rootAssembly = m_odb->constRootAssembly();
+
+    const odb_Set& set = rootAssembly.elementSets()[odb_String(setNames[setIndex].c_str())];  
+    odb_SequenceString instanceNames = set.instanceNames();
+
+	const odb_SequenceElement& setElements = set.elements(instanceNames[partIndex]);
+	int elementCount = setElements.size();
+
+    std::vector<size_t> elementIndexes;
+    elementIndexes.resize(elementCount);
+
+	for (int i = 0; i < elementCount; i++) 
+	{
+        elementIndexes[i] = setElements.element(i).index();
+	}
+
+    return elementIndexes;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RifOdbReader::scalarNodeFieldAndComponentNames()
 {
     return fieldAndComponentNames(RifOdbResultKey::NODAL);
