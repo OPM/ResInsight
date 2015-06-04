@@ -40,7 +40,7 @@ public:
     RifOdbReader();
     virtual ~RifOdbReader();
 
-	virtual bool                                                openFile(const std::string& fileName, std::string* errorMessage = 0);
+	virtual bool                                                openFile(const std::string& fileName, std::string* errorMessage);
 
     virtual bool                                                readFemParts(RigFemPartCollection* geoMechCase);
     virtual std::vector<std::string>                            stepNames();
