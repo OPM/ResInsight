@@ -347,3 +347,12 @@ void RigGeoMechCaseData::assertResultsLoaded( const RigFemResultAddress& resVarA
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<float>& RigGeoMechCaseData::resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex)
+{
+    RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult(partIndex, resVarAddr);
+    return scalarResults->frameData(frameIndex);
+}

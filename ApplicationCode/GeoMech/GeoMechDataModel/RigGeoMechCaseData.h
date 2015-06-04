@@ -45,8 +45,7 @@ public:
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
     std::vector<std::string>             stepNames();
     void                                 assertResultsLoaded(const RigFemResultAddress& resVarAddr);
-    RigFemScalarResultFrames*            findOrLoadScalarResult(int partIndex,
-                                                                const RigFemResultAddress& resVarAddr);
+    const std::vector<float>&            resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
 
     int frameCount();
 
@@ -57,6 +56,9 @@ public:
     void meanCellScalarValues(const RigFemResultAddress& resVarAddr, double* meanValue);
 
 private:
+    RigFemScalarResultFrames*            findOrLoadScalarResult(int partIndex,
+                                                                const RigFemResultAddress& resVarAddr);
+
     void minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
                                     double* overallMin, double* overallMax);
     void posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
