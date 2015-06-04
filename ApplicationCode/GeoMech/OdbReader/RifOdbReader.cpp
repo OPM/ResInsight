@@ -44,6 +44,52 @@
 #include <QString>
 
 
+//==================================================================================================
+//
+// Helper class to ensure that ODB bulk data are returned as float. Converting if necessary.
+//
+//==================================================================================================
+class RifOdbBulkDataGetter
+{
+public:
+    RifOdbBulkDataGetter(const odb_FieldBulkData& bulkData) : m_bulkData(bulkData), m_data(NULL) {};
+    virtual ~RifOdbBulkDataGetter() { if (m_data) delete m_data; }
+
+    float* RifOdbBulkDataGetter::data()
+    {
+        odb_Enum::odb_PrecisionEnum precision = m_bulkData.precision();
+        if (precision == odb_Enum::SINGLE_PRECISION)
+        {
+            return m_bulkData.data();
+        }
+        else if (precision == odb_Enum::DOUBLE_PRECISION)
+        {
+            m_data = new std::vector<float>;
+            
+            int dataSize = m_bulkData.length()*m_bulkData.width();
+            m_data->resize(dataSize);
+
+            double* doublePtr = m_bulkData.dataDouble();
+            CVF_ASSERT(doublePtr);
+
+            float* dataPtr = m_data->data();
+            for (int i = 0; i < dataSize; i++)
+            {
+                dataPtr[i] = (float) doublePtr[i];
+            }
+
+            return dataPtr;
+        }
+
+        // Should never end up here
+        CVF_ASSERT(0);
+        return NULL;
+    }
+
+private:
+    const odb_FieldBulkData&    m_bulkData;
+    std::vector<float>*         m_data;
+};
 
 
 size_t RifOdbReader::sm_instanceCount = 0;
@@ -602,11 +648,12 @@ void RifOdbReader::readScalarNodeField(const std::string& fieldName, const std::
 	for (int block = 0; block < numBlocks; block++)
 	{
 		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+        RifOdbBulkDataGetter bulkDataGetter(bulkData);
 
 		int numNodes = bulkData.length();
 		int numComp = bulkData.width();
-		float* data = bulkData.data();
         int* nodeLabels = bulkData.nodeLabels();
+        float* data = bulkDataGetter.data();
 
 		for (int i = 0; i < numNodes; i++)
 		{
@@ -649,13 +696,14 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
 	for (int block = 0; block < numBlocks; block++)
 	{
 		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+        RifOdbBulkDataGetter bulkDataGetter(bulkData);
 
 		int numValues = bulkData.length();
 		int numComp = bulkData.width();
-		float* data = bulkData.data();
         int elemCount = bulkData.numberOfElements();
 		int elemNodeCount = numValues/elemCount;
 		int* elementLabels = bulkData.elementLabels();
+        float* data = bulkDataGetter.data();
 
         for (int elem = 0; elem < elemCount; elem++)
         {
@@ -707,13 +755,14 @@ void RifOdbReader::readScalarIntegrationPointField(const std::string& fieldName,
 	for (int block = 0; block < numBlocks; block++)
 	{
 		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+        RifOdbBulkDataGetter bulkDataGetter(bulkData);
 
 		int numValues = bulkData.length();
 		int numComp = bulkData.width();
-		float* data = bulkData.data();
         int elemCount = bulkData.numberOfElements();
 		int ipCount = numValues/elemCount;
 		int* elementLabels = bulkData.elementLabels();
+        float* data = bulkDataGetter.data();
 
         RigElementType eType = toRigElementType(bulkData.baseElementType());
         const int* elmNodeToIpResultMapping = localElmNodeToIntegrationPointMapping(eType);
@@ -763,12 +812,13 @@ void RifOdbReader::readDisplacements(int partIndex, int stepIndex, int frameInde
 	for (int block = 0; block < numBlocks; block++)
 	{
 		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+        RifOdbBulkDataGetter bulkDataGetter(bulkData);
 
 		if (bulkData.numberOfNodes() > 0)
 		{
 			int numNodes = bulkData.length();
 			int numComp = bulkData.width();
-			float* data = bulkData.data();
+            float* data = bulkDataGetter.data();
 
 			for (int i = 0; i < numNodes; i++)
 			{
