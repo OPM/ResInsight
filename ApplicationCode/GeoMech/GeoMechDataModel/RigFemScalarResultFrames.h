@@ -36,13 +36,10 @@ public:
     std::vector<float>& frameData(size_t frameIndex);
     size_t frameCount();
 
-    RigStatisticsDataCache* statistics();
-
 private:
     std::vector< std::vector<float> > m_dataForEachFrame;
     std::vector<std::string> m_frameNames;
 
-    cvf::ref<RigStatisticsDataCache> m_statistics;
 };
 
 

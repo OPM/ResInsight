@@ -24,12 +24,16 @@
 /// 
 //==================================================================================================
 #include "RigStatisticsCalculator.h"
-class RigFemScalarResultFrames;
+#include "RigFemResultAddress.h"
+
+
+class RigFemPartResultsCollection;
+
 
 class RigFemNativeStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigFemNativeStatCalc(RigFemScalarResultFrames* cellResultsData);
+    RigFemNativeStatCalc(RigFemPartResultsCollection* femResultCollection, const RigFemResultAddress& resVarAddr);
 
 	virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
 	virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
@@ -39,7 +43,8 @@ public:
     virtual size_t  timeStepCount();
 
 private:
-	RigFemScalarResultFrames* m_resultsData;
+	RigFemPartResultsCollection* m_resultsData;
+    RigFemResultAddress m_resVarAddr;
 };
 
 

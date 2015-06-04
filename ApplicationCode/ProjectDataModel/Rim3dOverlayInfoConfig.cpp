@@ -331,12 +331,12 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     double mean = 0;
                     
                     RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
-                    caseData->femPartResults()->meanCellScalarValues(resAddress, &mean);
+                    caseData->femPartResults()->meanScalarValue(resAddress, &mean);
                     caseData->femPartResults()->minMaxScalarValues(resAddress,&min, &max);
 
                     // ToDo: Implement statistics for geomech data
                     
-                    //caseData->p10p90CellScalarValues(resAddress, p10, p90);
+                    caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
 
                     infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
                                         "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
@@ -379,14 +379,10 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     double mean = 0;
 
                     RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
-                    caseData->femPartResults()->meanCellScalarValues(resAddress, &mean);
+                    caseData->femPartResults()->meanScalarValue(resAddress, &mean);
                     caseData->femPartResults()->minMaxScalarValues(resAddress,&min, &max);
-
-                    // ToDo: Implement statistics for geomech data
-                    
-                    //caseData->p10p90CellScalarValues(resAddress, p10, p90);
-                    caseData->femPartResults()->minMaxScalarValues(resAddress, &min, &max);
-                    //geoMechView->viewer()->setHistogram(min, max,  caseData->scalarValuesHistogram(resAddress));
+                    caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
+                    geoMechView->viewer()->setHistogram(min, max,  caseData->femPartResults()->scalarValuesHistogram(resAddress));
                     geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);
                 }
             }

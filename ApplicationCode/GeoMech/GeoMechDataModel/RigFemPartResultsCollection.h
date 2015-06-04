@@ -30,6 +30,7 @@ class RifGeoMechReaderInterface;
 class RigFemScalarResultFrames;
 class RigFemPartResultsCollection;
 class RigFemPartResults;
+class RigStatisticsDataCache;
 
 class RigFemPartResultsCollection: public cvf::Object
 {
@@ -38,32 +39,37 @@ public:
     ~RigFemPartResultsCollection();
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
-    std::vector<std::string>             stepNames();
-    void                                 assertResultsLoaded(const RigFemResultAddress& resVarAddr);
-    const std::vector<float>&            resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
+    std::vector<std::string>                         stepNames();
+    void                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
+    const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
 
-    int frameCount();
+    int                                              frameCount();
 
 
-    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int frameIndex,  double* localMin, double* localMax);
-    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
-    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
-    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
-    void meanCellScalarValues(const RigFemResultAddress& resVarAddr, double* meanValue);
-
+    void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, int frameIndex,  double* localMin, double* localMax);
+    void                                             posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
+    void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
+    void                                             posNegClosestToZero(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
+    void                                             meanScalarValue(const RigFemResultAddress& resVarAddr, double* meanValue);
+    void                                             p10p90ScalarValues(const RigFemResultAddress& resVarAddr, double* p10, double* p90);
+    const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr);
 private:
-    RigFemScalarResultFrames*            findOrLoadScalarResult(int partIndex,
-                                                                const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,
+                                                                            const RigFemResultAddress& resVarAddr);
 
 
-    void minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
-                                    double* overallMin, double* overallMax);
-    void posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
-                                     double* localPosClosestToZero, double* localNegClosestToZero);
+    void                                             minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
+                                                                                double* overallMin, double* overallMax);
+    void                                             posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
+                                                                                 double* localPosClosestToZero, double* localNegClosestToZero);
 
-    cvf::Collection<RigFemPartResults>   m_femPartResults;
+    friend class RigFemNativeStatCalc;                                                                                      
+    cvf::Collection<RigFemPartResults>               m_femPartResults;
+    cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
 
-    cvf::ref<RifGeoMechReaderInterface>  m_readerInterface;
+    RigStatisticsDataCache*                          statistics(const RigFemResultAddress& resVarAddr);
+
+    std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache> >  m_resultStatistics;
 };
 
 

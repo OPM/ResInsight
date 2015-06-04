@@ -20,15 +20,17 @@
 
 #include "RigFemNativeStatCalc.h"
 #include "RigFemScalarResultFrames.h"
+#include "RigFemPartResultsCollection.h"
 
 #include <math.h>
-
+#include "RigStatisticsMath.h"
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemNativeStatCalc::RigFemNativeStatCalc(RigFemScalarResultFrames* cellResultsData)
+RigFemNativeStatCalc::RigFemNativeStatCalc(RigFemPartResultsCollection* femResultCollection, const RigFemResultAddress& resVarAddr)
+: m_resVarAddr(resVarAddr)
 {
-    m_resultsData = cellResultsData;
+    m_resultsData = femResultCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,26 +38,29 @@ RigFemNativeStatCalc::RigFemNativeStatCalc(RigFemScalarResultFrames* cellResults
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
-  	std::vector<float>& values = m_resultsData->frameData(timeStepIndex);
+    for (int pIdx = 0; pIdx < static_cast<int>(m_resultsData->m_femPartResults.size()); ++pIdx)
+    {
+        const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, (int)timeStepIndex);
 
-	size_t i;
-	for (i = 0; i < values.size(); i++)
-	{
-		if (values[i] == HUGE_VAL) // TODO
-		{
-			continue;
-		}
+        size_t i;
+        for (i = 0; i < values.size(); i++)
+        {
+            if (values[i] == HUGE_VAL) // TODO
+            {
+                continue;
+            }
 
-		if (values[i] < min)
-		{
-			min = values[i];
-		}
+            if (values[i] < min)
+            {
+                min = values[i];
+            }
 
-		if (values[i] > max)
-		{
-			max = values[i];
-		}
-	}  
+            if (values[i] > max)
+            {
+                max = values[i];
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +68,28 @@ void RigFemNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& 
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
-    
+    for (int pIdx = 0; pIdx < static_cast<int>(m_resultsData->m_femPartResults.size()); ++pIdx)
+    {
+        const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, (int)timeStepIndex);
+
+        for (size_t i = 0; i < values.size(); i++)
+        {
+            if (values[i] == HUGE_VAL)
+            {
+                continue;
+            }
+
+            if (values[i] < pos && values[i] > 0)
+            {
+                pos = values[i];
+            }
+
+            if (values[i] > neg && values[i] < 0)
+            {
+                neg = values[i];
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +97,31 @@ void RigFemNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::valueSumAndSampleCount(double& valueSum, size_t& sampleCount)
 {
+   int timestepCount = (int)(this->timeStepCount());
+   int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
 
+   for (int pIdx = 0; pIdx < partCount; ++pIdx)
+   {
+       for (int tIdx = 0; tIdx < timestepCount; tIdx++)
+       {
+           const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, tIdx);
+           size_t undefValueCount = 0;
+           for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+           {
+               double value = values[cIdx];
+               if (value == HUGE_VAL || value != value)
+               {
+                   ++undefValueCount;
+                   continue;
+               }
+
+               valueSum += value;
+           }
+
+           sampleCount += values.size();
+           sampleCount -= undefValueCount;
+       }
+   }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +129,17 @@ void RigFemNativeStatCalc::valueSumAndSampleCount(double& valueSum, size_t& samp
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator)
 {
+    int timestepCount = (int)(this->timeStepCount());
+    int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
+    for (int pIdx = 0; pIdx < partCount; ++pIdx)
+    {
+        for (int tIdx = 0; tIdx < timestepCount; tIdx++)
+        {
+            const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, tIdx);
 
+            histogramCalculator.addData(values);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,3 +149,5 @@ size_t RigFemNativeStatCalc::timeStepCount()
 {
     return m_resultsData->frameCount();
 }
+
+

@@ -237,7 +237,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
 
         RigFemResultAddress resVarAddress(resPosType, fieldName.toStdString(), compName.toStdString());
 
-        const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, timeStepIndex);
+        const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
 
         const std::vector<size_t>* vxToResultMapping = NULL;
 

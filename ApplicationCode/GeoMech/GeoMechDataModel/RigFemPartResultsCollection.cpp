@@ -34,6 +34,7 @@
 
 #include <cmath>
 #include <stdlib.h>
+#include "RigFemNativeStatCalc.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +92,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(int partIndex,
-                                                                      const RigFemResultAddress& resVarAddr)
+                                                                              const RigFemResultAddress& resVarAddr)
 {
     CVF_ASSERT(partIndex < m_femPartResults.size());
     CVF_ASSERT(m_readerInterface.notNull());
@@ -100,28 +101,28 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
     if (frames) return frames;
 
     std::vector<std::string> stepNames =  m_readerInterface->stepNames();
-    frames = m_femPartResults[partIndex]->createScalarResult( resVarAddr);
+    frames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
     for (int stepIndex = 0; stepIndex < static_cast<int>(stepNames.size()); ++stepIndex)
     {
-    std::vector<double > frameTimes = m_readerInterface->frameTimes(stepIndex);
+        std::vector<double > frameTimes = m_readerInterface->frameTimes(stepIndex);
 
-    for (int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2 ; ++fIdx)  // Read only the second frame
-    {
-        std::vector<float>* frameData = &(frames->frameData(stepIndex));
-        switch (resVarAddr.resultPosType)
+        for (int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2 ; ++fIdx)  // Read only the second frame
         {
-            case RIG_NODAL:
-                m_readerInterface->readScalarNodeField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
-            break;
-            case RIG_ELEMENT_NODAL:
-                m_readerInterface->readScalarElementNodeField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
-            break;
-            case RIG_INTEGRATION_POINT:
-                m_readerInterface->readScalarIntegrationPointField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
-           break;
+            std::vector<float>* frameData = &(frames->frameData(stepIndex));
+            switch (resVarAddr.resultPosType)
+            {
+                case RIG_NODAL:
+                    m_readerInterface->readScalarNodeField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
+                    break;
+                case RIG_ELEMENT_NODAL:
+                    m_readerInterface->readScalarElementNodeField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
+                    break;
+                case RIG_INTEGRATION_POINT:
+                    m_readerInterface->readScalarIntegrationPointField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
+                    break;
+            }
         }
-    }
     }
     return frames;
 }
@@ -138,151 +139,6 @@ std::vector<std::string> RigFemPartResultsCollection::stepNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::minMaxScalarValues(const RigFemResultAddress& resVarAddr, int frameIndex, 
-                                            double* localMin, double* localMax)
-{
-    minMaxScalarValuesInternal(resVarAddr, frameIndex, localMin, localMax);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::minMaxScalarValues(const RigFemResultAddress& resVarAddr,  
-                                            double* globalMin, double* globalMax)
-{
-    minMaxScalarValuesInternal(resVarAddr, -1, globalMin, globalMax);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int frameIndex, double* overallMin, double* overallMax)
-{
-    CVF_ASSERT(overallMax && overallMin);
-
-    double min = HUGE_VAL;
-    double max = -HUGE_VAL;
-
-    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
-    {
-        if (m_femPartResults[pIdx].notNull())
-        {
-            RigFemScalarResultFrames* frames = findOrLoadScalarResult(pIdx, resVarAddr);
-            if (frames)
-            {
-                double lmin; 
-                double lmax;
-
-                RigStatisticsDataCache* stats =  frames->statistics();
-                if (frameIndex == -1)
-                {
-                    stats->minMaxCellScalarValues(lmin, lmax);
-                }
-                else
-                {
-                    stats->minMaxCellScalarValues(frameIndex, lmin, lmax);
-                }
-                min = lmin < min ? lmin: min;
-                max = lmax > max ? lmax: max;
-            }
-        }
-    }
-
-    *overallMax = max;
-    *overallMin = min;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero)
-{
-    posNegClosestToZeroInternal(resVarAddr, frameIndex, localPosClosestToZero, localNegClosestToZero);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::posNegClosestToZero(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero)
-{
-    posNegClosestToZeroInternal(resVarAddr, -1, globalPosClosestToZero, globalNegClosestToZero);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
-                                                     double* overallPosClosestToZero, double* overallNegClosestToZero)
-{
-    CVF_ASSERT(overallPosClosestToZero && overallNegClosestToZero);
-
-    double posClosestToZero = HUGE_VAL;
-    double negClosestToZero = -HUGE_VAL;
-
-    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
-    {
-        if (m_femPartResults[pIdx].notNull())
-        {
-            RigFemScalarResultFrames* frames = findOrLoadScalarResult(pIdx, resVarAddr);
-            if (frames)
-            {
-                double partNeg, partPos;
-
-                RigStatisticsDataCache* stats =  frames->statistics();
-                if (frameIndex == -1)
-                {
-                    stats->posNegClosestToZero(partPos, partNeg);
-                }
-                else
-                {
-                    stats->posNegClosestToZero(frameIndex, partPos, partNeg);
-                }
-               
-                if (partNeg > negClosestToZero && partNeg < 0) negClosestToZero = partNeg;
-                if (partPos < posClosestToZero && partPos > 0) posClosestToZero = partPos;
-                
-            }
-        }
-    }
-
-    *overallPosClosestToZero = posClosestToZero;
-    *overallNegClosestToZero = negClosestToZero; 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::meanCellScalarValues(const RigFemResultAddress& resVarAddr, double* meanValue)
-{
-    CVF_ASSERT(meanValue);
-
-    double mean = 0;
-    size_t meanContribCount = 0;
-
-    for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
-    {
-        if (m_femPartResults[pIdx].notNull())
-        {
-            RigFemScalarResultFrames* frames = findOrLoadScalarResult(pIdx, resVarAddr);
-            if (frames)
-            {
-                double localMean = 0; 
-
-                RigStatisticsDataCache* stats = frames->statistics();
-                stats->meanCellScalarValues(localMean);
-
-                mean += localMean;
-                meanContribCount++;
-            }
-        }
-    }
-
-    *meanValue = meanContribCount > 0 ? mean/meanContribCount : 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 int RigFemPartResultsCollection::frameCount()
 {
     return static_cast<int>(stepNames().size());
@@ -291,7 +147,7 @@ int RigFemPartResultsCollection::frameCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::assertResultsLoaded( const RigFemResultAddress& resVarAddr)
+void RigFemPartResultsCollection::assertResultsLoaded(const RigFemResultAddress& resVarAddr)
 {
     for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
     {
@@ -309,6 +165,82 @@ const std::vector<float>& RigFemPartResultsCollection::resultValues(const RigFem
 {
     RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult(partIndex, resVarAddr);
     return scalarResults->frameData(frameIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigStatisticsDataCache* RigFemPartResultsCollection::statistics(const RigFemResultAddress& resVarAddr)
+{
+    RigStatisticsDataCache* statCache = m_resultStatistics[resVarAddr].p();
+    if (!statCache)
+    {
+        RigFemNativeStatCalc* calculator = new RigFemNativeStatCalc(this, resVarAddr);
+        statCache = new RigStatisticsDataCache(calculator);
+        m_resultStatistics[resVarAddr] = statCache;
+    }
+
+    return statCache;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::minMaxScalarValues(const RigFemResultAddress& resVarAddr, int frameIndex,
+                                                     double* localMin, double* localMax)
+{
+    this->statistics(resVarAddr)->minMaxCellScalarValues(frameIndex, *localMin, *localMax);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::minMaxScalarValues(const RigFemResultAddress& resVarAddr,
+                                                     double* globalMin, double* globalMax)
+{
+    this->statistics(resVarAddr)->minMaxCellScalarValues(*globalMin, *globalMax);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero)
+{
+    this->statistics(resVarAddr)->posNegClosestToZero(frameIndex, *localPosClosestToZero, *localNegClosestToZero);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::posNegClosestToZero(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero)
+{
+    this->statistics(resVarAddr)->posNegClosestToZero(*globalPosClosestToZero, *globalNegClosestToZero);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::meanScalarValue(const RigFemResultAddress& resVarAddr, double* meanValue)
+{
+    CVF_ASSERT(meanValue);
+
+    this->statistics(resVarAddr)->meanCellScalarValues(*meanValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::p10p90ScalarValues(const RigFemResultAddress& resVarAddr, double* p10, double* p90)
+{
+    this->statistics(resVarAddr)->p10p90CellScalarValues(*p10, *p90);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(const RigFemResultAddress& resVarAddr)
+{
+    return this->statistics(resVarAddr)->cellScalarValuesHistogram();
 }
 
 

@@ -20,7 +20,6 @@
 
 #include <stdlib.h>
 #include "RigFemScalarResultFrames.h"
-#include "RigFemNativeStatCalc.h"
 #include "RigStatisticsDataCache.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -48,19 +47,6 @@ size_t RigFemScalarResultFrames::frameCount()
     return m_frameNames.size();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigStatisticsDataCache* RigFemScalarResultFrames::statistics()
-{
-    if (m_statistics.isNull()) 
-    {
-        RigFemNativeStatCalc* calculator = new RigFemNativeStatCalc(this);
-        m_statistics = new RigStatisticsDataCache(calculator);
-    }
-
-    return m_statistics.p();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
