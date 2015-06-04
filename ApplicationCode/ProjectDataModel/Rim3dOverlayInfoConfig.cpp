@@ -39,6 +39,7 @@
 #include "RigFemPartCollection.h"
 #include "RimGeoMechResultSlot.h"
 #include "RigFemResultAddress.h"
+#include "RigFemPartResultsCollection.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 

@@ -50,6 +50,7 @@
 #include "RifGeoMechReaderInterface.h"
 #include "RigGeoMechCaseData.h"
 #include "RigFemScalarResultFrames.h"
+#include "RigFemPartResultsCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------

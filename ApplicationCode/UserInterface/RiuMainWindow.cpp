@@ -65,6 +65,7 @@
 #include "cvfTimer.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
+#include "RigFemPartResultsCollection.h"
 
 
 //==================================================================================================

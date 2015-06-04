@@ -25,6 +25,7 @@
 #include "RifGeoMechReaderInterface.h"
 #include "cafPdmUiListEditor.h"
 #include "RigGeoMechCaseData.h"
+#include "RigFemPartResultsCollection.h"
 
 namespace caf {
 

@@ -48,6 +48,7 @@
 #include "RivGeoMechPartMgrCache.h"
 #include "RivGeoMechVizLogic.h"
 #include "RigFemPartGrid.h"
+#include "RigFemPartResultsCollection.h"
 
 
 

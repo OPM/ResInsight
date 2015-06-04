@@ -52,39 +52,3 @@ private:
     cvf::ref<RigFemPartResultsCollection> m_femPartResultsColl;
     cvf::ref<RifGeoMechReaderInterface>  m_readerInterface;
 };
-
-class RigFemPartResultsCollection: public cvf::Object
-{
-public:
-    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, int partCount);
-    ~RigFemPartResultsCollection();
-
-    std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
-    std::vector<std::string>             stepNames();
-    void                                 assertResultsLoaded(const RigFemResultAddress& resVarAddr);
-    const std::vector<float>&            resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
-
-    int frameCount();
-
-
-    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, int frameIndex,  double* localMin, double* localMax);
-    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
-    void minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
-    void posNegClosestToZero(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
-    void meanCellScalarValues(const RigFemResultAddress& resVarAddr, double* meanValue);
-
-private:
-    RigFemScalarResultFrames*            findOrLoadScalarResult(int partIndex,
-                                                                const RigFemResultAddress& resVarAddr);
-
-
-    void minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
-                                    double* overallMin, double* overallMax);
-    void posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
-                                     double* localPosClosestToZero, double* localNegClosestToZero);
-
-    cvf::Collection<RigFemPartResults>   m_femPartResults;
-
-    cvf::ref<RifGeoMechReaderInterface>  m_readerInterface;
-};
-
