@@ -173,7 +173,7 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 m_resultComponentName = "";
             }
 
-            m_reservoirView->geoMechCase()->geoMechData()->assertResultsLoaded(this->resultAddress());
+            m_reservoirView->geoMechCase()->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
 
             if (m_reservoirView)
             {
@@ -192,7 +192,7 @@ std::map<std::string, std::vector<std::string> > RimGeoMechResultSlot::getResult
     RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
     if (gmCase && gmCase->geoMechData())
     {
-        return gmCase->geoMechData()->scalarFieldAndComponentNames(m_resultPositionTypeUiField());
+        return gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames(m_resultPositionTypeUiField());
     }
     else
     {

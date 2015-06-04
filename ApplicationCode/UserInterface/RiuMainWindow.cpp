@@ -764,7 +764,7 @@ void RiuMainWindow::refreshAnimationActions()
             {
                 if (activeGmv->isTimeStepDependentDataVisible())
                 {
-                    std::vector<std::string> stepNames = activeGmv->geoMechCase()->geoMechData()->stepNames();
+                    std::vector<std::string> stepNames = activeGmv->geoMechCase()->geoMechData()->femPartResults()->stepNames();
                     for (size_t i = 0; i < stepNames.size(); i++)
                     {
                         timeStepStrings += QString::fromStdString(stepNames[i]);
