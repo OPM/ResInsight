@@ -65,7 +65,7 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimGeoMechCase::openGeoMechCase()
+bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 {
     // If read already, return
 
@@ -79,7 +79,7 @@ bool RimGeoMechCase::openGeoMechCase()
 
     m_geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().toStdString());
 
-    return m_geoMechCaseData->openAndReadFemParts();
+    return m_geoMechCaseData->openAndReadFemParts(errorMessage);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -37,7 +37,7 @@ public:
     RigGeoMechCaseData(const std::string& fileName);
     ~RigGeoMechCaseData();
 
-    bool                                 openAndReadFemParts();
+    bool                                 openAndReadFemParts(std::string* errorMessage);
 
     RigFemPartCollection*                femParts();
     const RigFemPartCollection*          femParts() const;

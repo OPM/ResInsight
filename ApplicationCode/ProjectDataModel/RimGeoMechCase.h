@@ -43,7 +43,7 @@ public:
     
     void                                    setFileName(const QString& fileName) {m_caseFileName = fileName;}
     QString                                 caseFileName() const  {return m_caseFileName();}
-    bool                                    openGeoMechCase();
+    bool                                    openGeoMechCase(std::string* errorMessage);
 
     RigGeoMechCaseData*                     geoMechData() { return m_geoMechCaseData.p(); }
     const RigGeoMechCaseData*               geoMechData() const { return m_geoMechCaseData.p(); }

@@ -68,14 +68,14 @@ const RigFemPartCollection* RigGeoMechCaseData::femParts() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigGeoMechCaseData::openAndReadFemParts()
+bool RigGeoMechCaseData::openAndReadFemParts(std::string* errorMessage)
 {
 
 #ifdef USE_ODB_API    
     m_readerInterface = new RifOdbReader;
 #endif
 
-    if (m_readerInterface.notNull() && m_readerInterface->openFile(m_geoMechCaseFileName))
+    if (m_readerInterface.notNull() && m_readerInterface->openFile(m_geoMechCaseFileName, errorMessage))
     {
         m_femParts = new RigFemPartCollection();
 

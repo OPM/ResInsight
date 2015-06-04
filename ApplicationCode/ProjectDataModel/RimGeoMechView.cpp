@@ -122,14 +122,17 @@ void RimGeoMechView::loadDataAndUpdate()
 
     if (m_geomechCase)
     {
-         if (!m_geomechCase->openGeoMechCase())
-         {
+        std::string errorMessage;
+        if (!m_geomechCase->openGeoMechCase(&errorMessage))
+        {
+            QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
+
             QMessageBox::warning(RiuMainWindow::instance(), 
-                                "Error when opening project file", 
-                                "Could not open the Odb file: \n"+ m_geomechCase->caseFileName());
+                            "File open error", 
+                            displayMessage);
             m_geomechCase = NULL;
             return;
-         }
+        }
        // m_geoMechFullModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
     }
     progress.incrementProgress();
