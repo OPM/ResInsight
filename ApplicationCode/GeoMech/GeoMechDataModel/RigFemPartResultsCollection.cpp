@@ -94,7 +94,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
 RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(int partIndex,
                                                                               const RigFemResultAddress& resVarAddr)
 {
-    CVF_ASSERT(partIndex < m_femPartResults.size());
+    CVF_ASSERT(partIndex < (int)(m_femPartResults.size()));
     CVF_ASSERT(m_readerInterface.notNull());
 
     RigFemScalarResultFrames* frames = m_femPartResults[partIndex]->findScalarResult(resVarAddr);

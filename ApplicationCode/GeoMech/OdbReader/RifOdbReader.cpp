@@ -55,7 +55,7 @@ public:
     RifOdbBulkDataGetter(const odb_FieldBulkData& bulkData) : m_bulkData(bulkData), m_data(NULL) {};
     virtual ~RifOdbBulkDataGetter() { if (m_data) delete m_data; }
 
-    float* RifOdbBulkDataGetter::data()
+    float* data()
     {
         odb_Enum::odb_PrecisionEnum precision = m_bulkData.precision();
         if (precision == odb_Enum::SINGLE_PRECISION)
