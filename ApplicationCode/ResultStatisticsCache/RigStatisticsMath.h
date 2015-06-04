@@ -39,6 +39,7 @@ public:
     RigHistogramCalculator(double min, double max, size_t nBins, std::vector<size_t>* histogram);
 
     void addData(const std::vector<double>& data);
+    void addData(const std::vector<float>& data);
 
     /// Calculates the estimated percentile from the histogram. 
     /// the percentile is the domain value at which pVal of the observations are below it.

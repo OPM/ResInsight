@@ -217,6 +217,31 @@ void RigHistogramCalculator::addData(const std::vector<double>& data)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigHistogramCalculator::addData(const std::vector<float>& data)
+{
+    assert(m_histogram);
+    for (size_t i = 0; i < data.size(); ++i) 
+    {
+        if (data[i] == HUGE_VAL)
+        {
+            continue;
+        }
+
+        size_t index = 0;
+
+        if (maxIndex > 0) index = (size_t)(maxIndex*(data[i] - m_min)/m_range);
+
+        if(index < m_histogram->size()) // Just clip to the max min range (-index will overflow to positive )
+        {
+            (*m_histogram)[index]++;
+            m_observationCount++;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RigHistogramCalculator::calculatePercentil(double pVal)
 {
     assert(m_histogram);
