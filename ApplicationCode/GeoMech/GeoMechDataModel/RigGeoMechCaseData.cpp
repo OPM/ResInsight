@@ -77,6 +77,14 @@ const RigFemPartResultsCollection* RigGeoMechCaseData::femPartResults() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemPartResultsCollection* RigGeoMechCaseData::femPartResults()
+{
+    return m_femPartResultsColl.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigGeoMechCaseData::openAndReadFemParts(std::string* errorMessage)
 {
 
