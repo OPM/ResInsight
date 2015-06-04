@@ -17,19 +17,24 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-// Get rid of warnings from compilation of ODB API
 #ifdef _MSC_VER
+// Get rid of warnings from compilation of ODB API
+#pragma warning(push)
+#pragma warning(disable: 4018)
 #pragma warning(disable: 4482)
 #pragma warning(disable: 4584)
+#pragma warning(disable: 4800)
+#endif
+#include <odb_API.h>
+#include <odb_Enum.h>
+#ifdef _MSC_VER
+#pragma warning(pop)
 #endif
 
 #include "RifOdbReader.h"
 
 #include "RigFemPartCollection.h"
 #include "RigFemPart.h"
-
-#include <odb_API.h>
-#include <odb_Enum.h>
 
 #include <map>
 #include <iostream>
