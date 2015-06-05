@@ -64,7 +64,6 @@ public:
     virtual void                                        endAnimation() {}
 
     caf::PdmField<RimGeoMechResultSlot*>                cellResult;
-    caf::PdmField<RimCellRangeFilterCollection*>        rangeFilterCollection;
 
 
     bool                                                isTimeStepDependentDataVisible();

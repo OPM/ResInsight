@@ -28,6 +28,7 @@
 class RiuViewer;
 class Rim3dOverlayInfoConfig;
 class RimCase;
+class RimCellRangeFilterCollection;
 
 namespace cvf
 {
@@ -57,6 +58,8 @@ public:
 
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     animationMode;
+
+    caf::PdmField<RimCellRangeFilterCollection*>    rangeFilterCollection;
 
     // Draw style 
 
