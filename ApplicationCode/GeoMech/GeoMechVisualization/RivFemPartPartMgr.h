@@ -49,33 +49,33 @@ class RivFemPartPartMgr: public cvf::Object
 public:
     RivFemPartPartMgr(const RigFemPart* femPart);
     ~RivFemPartPartMgr();
-    void setTransform(cvf::Transform* scaleTransform);
-    void setCellVisibility(cvf::UByteArray* cellVisibilities );
-    cvf::ref<cvf::UByteArray>  cellVisibility() { return  m_cellVisibility;}
-
-    void updateCellColor(cvf::Color4f color);
-    void updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot);
-
-    void appendPartsToModel(cvf::ModelBasicList* model);
+    void                        setTransform(cvf::Transform* scaleTransform);
+    void                        setCellVisibility(cvf::UByteArray* cellVisibilities );
+    cvf::ref<cvf::UByteArray>   cellVisibility() { return  m_cellVisibility;}
+                                
+    void                        updateCellColor(cvf::Color4f color);
+    void                        updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot);
+                                
+    void                        appendPartsToModel(cvf::ModelBasicList* model);
+                                
+private:                        
+    void                        generatePartGeometry(RivFemPartGeometryGenerator& geoBuilder);
 
 private:
-    void                    generatePartGeometry(RivFemPartGeometryGenerator& geoBuilder);
+    int                         m_gridIdx;
+    cvf::cref<RigFemPart>       m_grid;
 
-private:
-    int                                         m_gridIdx;
-    cvf::cref<RigFemPart>                       m_grid;
-
-    cvf::ref<cvf::Transform>                    m_scaleTransform;
-    float                                       m_opacityLevel;
-    cvf::Color3f                                m_defaultColor;
+    cvf::ref<cvf::Transform>    m_scaleTransform;
+    float                       m_opacityLevel;
+    cvf::Color3f                m_defaultColor;
 
     // Surface visualization
-    RivFemPartGeometryGenerator                 m_surfaceGenerator;
+    RivFemPartGeometryGenerator m_surfaceGenerator;
 
-    cvf::ref<cvf::Part>                         m_surfaceFaces;
-    cvf::ref<cvf::Vec2fArray>                   m_surfaceFacesTextureCoords;
+    cvf::ref<cvf::Part>         m_surfaceFaces;
+    cvf::ref<cvf::Vec2fArray>   m_surfaceFacesTextureCoords;
 
-    cvf::ref<cvf::Part>                         m_surfaceGridLines;
+    cvf::ref<cvf::Part>         m_surfaceGridLines;
 
-    cvf::ref<cvf::UByteArray>                   m_cellVisibility;
+    cvf::ref<cvf::UByteArray>   m_cellVisibility;
 };

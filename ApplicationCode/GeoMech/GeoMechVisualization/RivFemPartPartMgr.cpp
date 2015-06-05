@@ -51,6 +51,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigFemPartResultsCollection.h"
+#include "RivFemPickSourceInfo.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -110,15 +111,13 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("FemPart " + cvf::String(m_gridIdx));
-            part->setId(m_gridIdx);       // !! For now, use grid index as part ID (needed for pick info)
+            part->setId(m_gridIdx);       // Use grid index as part ID 
             part->setDrawable(geo.p());
             part->setTransform(m_scaleTransform.p());
 
-            // Set mapping from triangle face index to cell index
-            //cvf::ref<RivSourceInfo> si = new RivSourceInfo;
-            //si->m_cellFaceFromTriangleMapper = geoBuilder.triangleToCellFaceMapper();
-            //
-            //part->setSourceInfo(si.p());
+            // Set mapping from triangle face index to element index
+            cvf::ref<RivFemPickSourceInfo> si = new RivFemPickSourceInfo(m_gridIdx, geoBuilder.triangleToElementMapper());
+            part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
             

@@ -79,10 +79,13 @@ protected:
     void            paintOverlayItems(QPainter* painter);
     void            keyPressEvent(QKeyEvent* event);
     void            mouseReleaseEvent(QMouseEvent* event);
+
+    void displayContextMenu(QMouseEvent* event);
+
     void            mousePressEvent(QMouseEvent* event);
 
     void            handlePickAction(int winPosX, int winPosY);
-    void            pickPointAndFace(int winPosX, int winPosY, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
+    void            findPointAndFaceFromMousePos(int winPosX, int winPosY, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
 
 private slots:
     void            slotRangeFilterI();
@@ -93,8 +96,6 @@ private slots:
 private:
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
     void            createSliceRangeFilter(int ijOrk);
-private:
-    caf::QtMouseState   m_mouseState;
 
     QLabel*         m_InfoLabel;
     bool            m_showInfoText;; 

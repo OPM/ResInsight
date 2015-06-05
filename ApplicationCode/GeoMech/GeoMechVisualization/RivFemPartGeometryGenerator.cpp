@@ -30,7 +30,7 @@ RivFemPartGeometryGenerator::RivFemPartGeometryGenerator(const RigFemPart* part)
 :   m_part(part)
 {
     CVF_ASSERT(part);
- 
+    m_triangleMapper = new RivFemPartTriangleToElmMapper;
 }
 
 
@@ -153,16 +153,21 @@ ref<UIntArray> RivFemPartGeometryGenerator::lineIndicesFromQuadVertexArray(const
 void RivFemPartGeometryGenerator::computeArrays()
 {
     std::vector<Vec3f> vertices;
+    std::vector<int>& trianglesToElements = m_triangleMapper->triangleToElmIndexMap();
+    std::vector<char>& trianglesToElementFaces = m_triangleMapper->triangleToElmFaceMap();
+    
     m_quadVerticesToNodeIdx.clear();
     m_quadVerticesToGlobalElmNodeIdx.clear();
+    trianglesToElements.clear();
+    trianglesToElementFaces.clear();
 
     size_t estimatedQuadVxCount = m_part->elementCount()*6*4;
 
     vertices.reserve(estimatedQuadVxCount);
     m_quadVerticesToNodeIdx.reserve(estimatedQuadVxCount);
     m_quadVerticesToGlobalElmNodeIdx.reserve(estimatedQuadVxCount);
-
-
+    trianglesToElements.reserve(estimatedQuadVxCount/2);
+    trianglesToElementFaces.reserve(estimatedQuadVxCount/2);
 
     cvf::Vec3d offset = Vec3d::ZERO; //m_part->displayModelOffset();
     const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
@@ -229,6 +234,11 @@ void RivFemPartGeometryGenerator::computeArrays()
                        m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[1]);
                        m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[2]);
                        m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[3]);
+
+                       trianglesToElements.push_back(elmIdx);
+                       trianglesToElements.push_back(elmIdx);
+                       trianglesToElementFaces.push_back(lfIdx);
+                       trianglesToElementFaces.push_back(lfIdx);
                    }
                 }
                 else
