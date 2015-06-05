@@ -64,6 +64,8 @@ public:
     bool isCellVisible(size_t i, size_t j, size_t k, bool isInSubGridArea) const;
     bool isCellExcluded(size_t i, size_t j, size_t k, bool isInSubGridArea) const;
 
+    bool hasIncludeRanges() const; 
+
 private:
     class CellRange
     {
