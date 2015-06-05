@@ -272,37 +272,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterI()
 {
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-    if (!eclipseView) return;
-
-    size_t i, j, k;
-    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
-    if (myModel)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
-
-        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
-
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
-
-        rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountI = 1;
-        int startIndex = CVF_MAX(static_cast<int>(i + 1), 1);
-        rangeFilter->startIndexI = startIndex;
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        mainWindow->setCurrentObjectInTreeView(rangeFilter);
-    }
-
-    eclipseView->setSurfaceDrawstyle();
+    createSliceRangeFilter(0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,43 +280,18 @@ void RiuViewer::slotRangeFilterI()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterJ()
 {
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-    if (!eclipseView) return;
-
-    size_t i, j, k;
-    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
-    if (myModel)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
-
-        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
-
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
-
-        rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountJ = 1;
-        int startIndex = CVF_MAX(static_cast<int>(j + 1), 1);
-        rangeFilter->startIndexJ = startIndex;
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        mainWindow->setCurrentObjectInTreeView(rangeFilter);
-    }
-
-    eclipseView->setSurfaceDrawstyle();
+    createSliceRangeFilter(1);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotRangeFilterK()
+{
+    createSliceRangeFilter(2);
+}
+
+void RiuViewer::createSliceRangeFilter(int ijOrk)
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if (!eclipseView) return;
@@ -365,10 +310,26 @@ void RiuViewer::slotRangeFilterK()
         QModelIndex insertedIndex;
         RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
 
-        rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountK = 1;
-        int startIndex = CVF_MAX(static_cast<int>(k + 1), 1);
-        rangeFilter->startIndexK = startIndex;
+        if (ijOrk == 0){
+            rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
+            rangeFilter->cellCountI = 1;
+            int startIndex = CVF_MAX(static_cast<int>(i + 1), 1);
+            rangeFilter->startIndexI = startIndex;
+
+        }
+        else if (ijOrk == 1){
+            rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
+            rangeFilter->cellCountJ = 1;
+            int startIndex = CVF_MAX(static_cast<int>(j + 1), 1);
+            rangeFilter->startIndexJ = startIndex;
+
+        }
+        else if (ijOrk == 2){
+            rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
+            rangeFilter->cellCountK = 1;
+            int startIndex = CVF_MAX(static_cast<int>(k + 1), 1);
+            rangeFilter->startIndexK = startIndex;
+        }
 
         rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
         rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);

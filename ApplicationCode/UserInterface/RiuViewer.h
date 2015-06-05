@@ -92,7 +92,7 @@ private slots:
 
 private:
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
-
+    void            createSliceRangeFilter(int ijOrk);
 private:
     caf::QtMouseState   m_mouseState;
 
