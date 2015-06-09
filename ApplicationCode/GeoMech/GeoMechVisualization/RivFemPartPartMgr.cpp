@@ -251,27 +251,34 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
         }
 
         m_surfaceFacesTextureCoords->resize(vxToResultMapping->size());
-        cvf::Vec2f* rawPtr = m_surfaceFacesTextureCoords->ptr();
 
-        int vxCount = static_cast<int>(vxToResultMapping->size());
-        #pragma omp parallel for schedule(dynamic)
-        for (int vxIdx = 0; vxIdx < vxCount; ++vxIdx)
+        if (resultValues.size() == 0)
         {
-            float resultValue = resultValues[(*vxToResultMapping)[vxIdx]];
-            if (resultValue == HUGE_VAL || resultValue != resultValue) // a != a is true for NAN's
-            {
-                rawPtr[vxIdx][1] = 1.0f;
+            m_surfaceFacesTextureCoords->setAll(cvf::Vec2f(0.0, 1.0f));
+        }
+        else
+        {
+            cvf::Vec2f* rawPtr = m_surfaceFacesTextureCoords->ptr();
 
-            }
-            else
+            int vxCount = static_cast<int>(vxToResultMapping->size());
+
+            #pragma omp parallel for schedule(dynamic)
+            for (int vxIdx = 0; vxIdx < vxCount; ++vxIdx)
             {
-                rawPtr[vxIdx] =  mapper->mapToTextureCoord(resultValue);
+                float resultValue = resultValues[(*vxToResultMapping)[vxIdx]];
+                if (resultValue == HUGE_VAL || resultValue != resultValue) // a != a is true for NAN's
+                {
+                    rawPtr[vxIdx][1] = 1.0f;
+
+                }
+                else
+                {
+                    rawPtr[vxIdx] =  mapper->mapToTextureCoord(resultValue);
+                }
             }
         }
 
         RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE);
-
-
     }
 }
 
