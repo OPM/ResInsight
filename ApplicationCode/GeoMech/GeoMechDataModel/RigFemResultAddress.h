@@ -39,6 +39,15 @@ RigFemResultAddress(RigFemResultPosEnum resPosType,
     std::string fieldName;
     std::string componentName;
 
+    bool isValid() const
+    {
+        bool isTypeValid =     resultPosType == RIG_NODAL 
+                            || resultPosType == RIG_ELEMENT_NODAL 
+                            || resultPosType == RIG_INTEGRATION_POINT;
+        bool isFieldValid = fieldName != "";
+        return isTypeValid && isFieldValid;
+    }
+
     bool operator< (const RigFemResultAddress& other ) const
     {
         if (resultPosType != other.resultPosType)

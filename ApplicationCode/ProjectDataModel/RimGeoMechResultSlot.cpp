@@ -174,13 +174,12 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 m_resultComponentName = "";
             }
 
-            m_reservoirView->geoMechCase()->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
-
-            if (m_reservoirView)
+            if (m_reservoirView->geoMechCase()->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress()))
             {
-                m_reservoirView->animationMode = true;
-                m_reservoirView->createDisplayModelAndRedraw();
+                m_reservoirView->hasUserRequestedAnimation = true;
             }
+            
+            m_reservoirView->createDisplayModelAndRedraw();
         }
     }
 }
@@ -251,4 +250,12 @@ void RimGeoMechResultSlot::loadResult()
 RigGeoMechCaseData* RimGeoMechResultSlot::ownerCaseData()
 {
     return m_reservoirView->geoMechCase()->geoMechData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechResultSlot::hasResult()
+{
+    return ownerCaseData()->femPartResults()->assertResultsLoaded(this->resultAddress());
 }

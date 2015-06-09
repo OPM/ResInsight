@@ -71,8 +71,8 @@ RimView::RimView(void)
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum frame rate", "", "", "");
     maximumFrameRate.setUiHidden(true);
-    CAF_PDM_InitField(&animationMode, "AnimationMode", false, "Animation Mode", "", "", "");
-    animationMode.setUiHidden(true);
+    CAF_PDM_InitField(&hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "");
+    hasUserRequestedAnimation.setUiHidden(true);
 
     CAF_PDM_InitField(&m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "");
     m_currentTimeStep.setUiHidden(true);
@@ -187,7 +187,7 @@ void RimView::scheduleCreateDisplayModelAndRedraw()
 void RimView::setCurrentTimeStep(int frameIndex)
 {
     m_currentTimeStep = frameIndex;
-    this->animationMode = true;
+    this->hasUserRequestedAnimation = true;
     this->updateCurrentTimeStep();
 }
 //--------------------------------------------------------------------------------------------------
@@ -207,17 +207,10 @@ void RimView::createDisplayModelAndRedraw()
 {
     if (m_viewer)
     {
-        m_viewer->animationControl()->slotStop();
-
         this->clampCurrentTimestep();
 
         createDisplayModel();
         updateDisplayModelVisibility();
-
-        if (m_viewer->frameCount() > 0)
-        {
-            m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
-        }
     }
 
     RiuMainWindow::instance()->refreshAnimationActions(); 
@@ -241,7 +234,7 @@ void RimView::setDefaultView()
 //--------------------------------------------------------------------------------------------------
 void RimView::endAnimation()
 {
-    this->animationMode = false;
+    this->hasUserRequestedAnimation = false;
     this->updateStaticCellColors();
 }
 
@@ -253,7 +246,7 @@ void RimView::setupBeforeSave()
 {
     if (m_viewer)
     {
-        animationMode = m_viewer->isAnimationActive();
+        hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go, and store the user intentions. But I guess that in practice...
         cameraPosition = m_viewer->mainCamera()->viewMatrix();
     }
 }

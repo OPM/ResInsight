@@ -651,7 +651,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     {
         riv->cellResult()->setResultVariable("SOIL");
     }
-    riv->animationMode = true;
+    riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
 
@@ -688,7 +688,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
     RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
 
     riv->cellResult()->setResultType(RimDefines::INPUT_PROPERTY);
-    riv->animationMode = true;
+    riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
 

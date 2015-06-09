@@ -180,7 +180,7 @@ void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirVie
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
         }
 
-        if (reservoirView->animationMode() && reservoirView->cellResult()->hasResult())
+        if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult())
         {
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
 
@@ -232,7 +232,7 @@ void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirVie
         }
 
 
-        if (reservoirView->animationMode() && reservoirView->cellEdgeResult()->hasResult())
+        if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellEdgeResult()->hasResult())
         {
             double min, max;
             reservoirView->cellEdgeResult()->minMaxCellEdgeValues(min, max);
@@ -255,7 +255,7 @@ void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirVie
 
     if (showHistogram())
     {
-        if (reservoirView->animationMode() && reservoirView->cellResult()->hasResult())
+        if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult())
         {
             double min, max;
             double p10, p90;
@@ -296,7 +296,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
             "<p><b><center>-- %1 --</center></b><p>"
             "<b>Cell count:</b> %2 <b>Z-Scale:</b> %3<br>").arg(caseName, cellCount, zScale);
 
-            if (geoMechView->cellResult().notNull())
+            if (geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult())
             {
                 QString resultPos;
                 QString fieldName = geoMechView->cellResult()->resultFieldName();
@@ -357,8 +357,8 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 
     if (showHistogram())
     {
-        if (geoMechView->cellResult().notNull())
-        {
+       if (geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult())
+       {
             QString fieldName = geoMechView->cellResult()->resultFieldName();
             QString compName = geoMechView->cellResult()->resultComponentName();
             QString resultName = compName.isEmpty() ? fieldName : compName;

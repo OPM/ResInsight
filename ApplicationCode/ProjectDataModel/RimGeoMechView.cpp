@@ -141,8 +141,10 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.setProgressDescription("Reading Current Result");
 
     CVF_ASSERT(this->cellResult() != NULL);
-    m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded(this->cellResult()->resultAddress());
-    
+    if (this->hasUserRequestedAnimation())
+    {
+        m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded(this->cellResult()->resultAddress());
+    }
     progress.incrementProgress();
     progress.setProgressDescription("Create Display model");
    
@@ -220,7 +222,6 @@ void RimGeoMechView::createDisplayModel()
     // Remove all existing animation frames from the viewer. 
     // The parts are still cached in the RivReservoir geometry and friends
 
-    bool isAnimationActive = m_viewer->isAnimationActive();
     m_viewer->removeAllFrames();
 
     m_vizLogic->appendNoAnimPartsToModel(frameModels[0].p());
@@ -246,13 +247,15 @@ void RimGeoMechView::createDisplayModel()
 
    // If the animation was active before recreating everything, make viewer view current frame
 
-   if (isAnimationActive && cellResult->resultFieldName() != "")
+   if (isTimeStepDependentDataVisible())
    {
-       m_viewer->slotSetCurrentFrame(m_currentTimeStep);
+        m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
    }
-
-   updateLegends();
-   overlayInfoConfig()->update3DInfo();
+   else
+   {
+       updateLegends();
+       overlayInfoConfig()->update3DInfo();
+   }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,7 +264,8 @@ void RimGeoMechView::createDisplayModel()
 void RimGeoMechView::updateCurrentTimeStep()
 {
     updateLegends();
-    if ((this->animationMode() && cellResult()->resultFieldName() != ""))
+
+    if (this->isTimeStepDependentDataVisible())
     {
         if (m_viewer)
         {
@@ -282,6 +286,7 @@ void RimGeoMechView::updateCurrentTimeStep()
     else
     {
         this->updateStaticCellColors();
+        m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
 
     overlayInfoConfig()->update3DInfo();
@@ -367,46 +372,37 @@ void RimGeoMechView::updateLegends()
         m_viewer->removeAllColorLegends();
     }
 
-    if (!m_geomechCase || !m_viewer || !m_geomechCase->geoMechData() )
+    if (!m_geomechCase || !m_viewer || !m_geomechCase->geoMechData()
+        ||  !this->isTimeStepDependentDataVisible() )
     {
         return;
     }
-
-    RigGeoMechCaseData* gmCase = m_geomechCase->geoMechData();
-    CVF_ASSERT(gmCase);
-
 
     double localMin, localMax;
     double localPosClosestToZero, localNegClosestToZero;
     double globalMin, globalMax;
     double globalPosClosestToZero, globalNegClosestToZero;
 
-    RigFemResultAddress resVarAddress = cellResult->resultAddress();
-    if (resVarAddress.fieldName != "")
-    {
-        gmCase->femPartResults()->minMaxScalarValues(resVarAddress, m_currentTimeStep, &localMin, &localMax);
-        gmCase->femPartResults()->posNegClosestToZero(resVarAddress, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+    RigGeoMechCaseData* gmCase = m_geomechCase->geoMechData();
+    CVF_ASSERT(gmCase);
 
-        gmCase->femPartResults()->minMaxScalarValues(resVarAddress, &globalMin, &globalMax);
-        gmCase->femPartResults()->posNegClosestToZero(resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero);
+    RigFemResultAddress resVarAddress = cellResult()->resultAddress();
 
+    gmCase->femPartResults()->minMaxScalarValues(resVarAddress, m_currentTimeStep, &localMin, &localMax);
+    gmCase->femPartResults()->posNegClosestToZero(resVarAddress, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
 
-        cellResult->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        cellResult->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-
-        m_viewer->addColorLegendToBottomLeftCorner(cellResult->legendConfig->legend());
-
-        cellResult->legendConfig->legend()->setTitle(cvfqt::Utils::toString(
-        caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n" 
-        + cellResult->resultFieldName() + " " + cellResult->resultComponentName() ));
-    }
-    else
-    {
-        cellResult->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        cellResult->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
-    }
+    gmCase->femPartResults()->minMaxScalarValues(resVarAddress, &globalMin, &globalMax);
+    gmCase->femPartResults()->posNegClosestToZero(resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero);
 
 
+    cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+    cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+    m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
+
+    cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(
+        caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
+        + cellResult->resultFieldName() + " " + cellResult->resultComponentName()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -437,7 +433,7 @@ void RimGeoMechView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible()
 {
-    return (cellResult->resultFieldName() != "");
+    return this->hasUserRequestedAnimation() && this->cellResult()->hasResult();
 }
 
 //--------------------------------------------------------------------------------------------------

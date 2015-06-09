@@ -450,11 +450,13 @@ void RimEclipseView::createDisplayModel()
 
     if (isAnimationActive || cellResult->hasResult())
     {
-        m_viewer->slotSetCurrentFrame(m_currentTimeStep);
+        m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
     }
-
-    overlayInfoConfig()->update3DInfo();
-    updateLegends(); 
+    else
+    {
+        overlayInfoConfig()->update3DInfo();
+        updateLegends();
+    }
 }
 
 
@@ -463,6 +465,8 @@ void RimEclipseView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateCurrentTimeStep()
 {
+    updateLegends(); // To make sure the scalar mappers are set up correctly
+
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometriesToRecolor;
 
     if (this->propertyFilterCollection()->hasActiveFilters())
@@ -566,11 +570,11 @@ void RimEclipseView::updateCurrentTimeStep()
 
     for (size_t i = 0; i < geometriesToRecolor.size(); ++i)
     {
-        if (this->animationMode() && this->cellEdgeResult()->hasResult())
+        if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
         {
 			m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
         } 
-        else if ((this->animationMode() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
+        else if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
         {
             m_reservoirGridPartManager->updateCellResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult());
         }
@@ -655,7 +659,6 @@ void RimEclipseView::updateCurrentTimeStep()
     }
 
     overlayInfoConfig()->update3DInfo();
-    updateLegends();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1250,9 +1253,9 @@ void RimEclipseView::updateDisplayModelForWellResults()
     createDisplayModel();
     updateDisplayModelVisibility();
 
-    if (animationMode && m_viewer)
+    if (hasUserRequestedAnimation() && m_viewer)
     {
-        m_viewer->slotSetCurrentFrame(m_currentTimeStep);
+        m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
     }
 
     RiuMainWindow::instance()->refreshAnimationActions(); 
@@ -1386,7 +1389,7 @@ void RimEclipseView::updateFaultColors()
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
-		if (this->animationMode() && this->cellEdgeResult()->hasResult())
+		if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
 		{
 			m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot, this->cellEdgeResult());
 		}

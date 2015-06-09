@@ -40,7 +40,7 @@ public:
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
     std::vector<std::string>                         stepNames();
-    void                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
+    bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
 
     int                                              frameCount();
@@ -53,15 +53,10 @@ public:
     void                                             meanScalarValue(const RigFemResultAddress& resVarAddr, double* meanValue);
     void                                             p10p90ScalarValues(const RigFemResultAddress& resVarAddr, double* p10, double* p90);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr);
+
 private:
     RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,
                                                                             const RigFemResultAddress& resVarAddr);
-
-
-    void                                             minMaxScalarValuesInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
-                                                                                double* overallMin, double* overallMax);
-    void                                             posNegClosestToZeroInternal(const RigFemResultAddress& resVarAddr, int frameIndex, 
-                                                                                 double* localPosClosestToZero, double* localNegClosestToZero);
 
     friend class RigFemNativeStatCalc;                                                                                      
     cvf::Collection<RigFemPartResults>               m_femPartResults;

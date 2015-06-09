@@ -75,7 +75,7 @@ void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 
         if (newValue != RimDefines::undefinedResultName())
         {
-            if (m_reservoirView) m_reservoirView->animationMode = true;
+            if (m_reservoirView) m_reservoirView->hasUserRequestedAnimation = true;
         }
 
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);

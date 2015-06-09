@@ -57,7 +57,7 @@ public:
     caf::PdmField< cvf::Color3f >           backgroundColor;
 
     caf::PdmField<int>                      maximumFrameRate;
-    caf::PdmField<bool>                     animationMode;
+    caf::PdmField<bool>                     hasUserRequestedAnimation;
 
     caf::PdmField<RimCellRangeFilterCollection*>    rangeFilterCollection;
 

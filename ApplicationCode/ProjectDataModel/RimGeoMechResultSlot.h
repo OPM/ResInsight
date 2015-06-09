@@ -44,6 +44,7 @@ public:
 
     void                       setReservoirView(RimGeoMechView* ownerReservoirView);
     RigGeoMechCaseData*        ownerCaseData();
+    bool                       hasResult(); 
 
     RigFemResultAddress        resultAddress()       { return RigFemResultAddress(resultPositionType(), resultFieldName().toStdString(), resultComponentName().toStdString());}
 

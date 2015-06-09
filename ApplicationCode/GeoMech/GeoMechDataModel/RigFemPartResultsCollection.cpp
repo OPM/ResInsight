@@ -96,6 +96,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
 {
     CVF_ASSERT(partIndex < (int)(m_femPartResults.size()));
     CVF_ASSERT(m_readerInterface.notNull());
+    CVF_ASSERT(resVarAddr.isValid());
 
     RigFemScalarResultFrames* frames = m_femPartResults[partIndex]->findScalarResult(resVarAddr);
     if (frames) return frames;
@@ -145,17 +146,27 @@ int RigFemPartResultsCollection::frameCount()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns whether any of the parts actually had any of the requested results
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::assertResultsLoaded(const RigFemResultAddress& resVarAddr)
+bool RigFemPartResultsCollection::assertResultsLoaded(const RigFemResultAddress& resVarAddr)
 {
+    if (!resVarAddr.isValid()) return false;
+
+    bool foundResults = false;
+
     for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
     {
         if (m_femPartResults[pIdx].notNull())
         {
-            findOrLoadScalarResult(pIdx, resVarAddr);
+             RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult(pIdx, resVarAddr);
+             for (int fIdx = 0; fIdx < scalarResults->frameCount(); ++fIdx)
+             {
+                 foundResults = foundResults || scalarResults->frameData(fIdx).size();
+             }
         }
     }
+
+    return foundResults;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,6 +174,8 @@ void RigFemPartResultsCollection::assertResultsLoaded(const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 const std::vector<float>& RigFemPartResultsCollection::resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex)
 {
+    CVF_ASSERT(resVarAddr.isValid());
+
     RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult(partIndex, resVarAddr);
     return scalarResults->frameData(frameIndex);
 }
