@@ -86,15 +86,15 @@ private:
        }
     };
 
-    bool                                                    buildMetaData();
+    void                                                    assertMetaDataLoaded();
     void                                                    close();
     size_t                                                  resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex);
     const odb_Frame&                                        stepFrame(int stepIndex, int frameIndex) const;
     odb_Instance*									        instance(int instanceIndex);
-    int                                                     componentIndex(const RifOdbResultKey& result, const std::string& componentName) const;
-    std::vector<std::string>                                componentNames(const RifOdbResultKey& result) const;
+    int                                                     componentIndex(const RifOdbResultKey& result, const std::string& componentName);
+    std::vector<std::string>                                componentNames(const RifOdbResultKey& result);
     std::map< std::string, std::vector<std::string> >       fieldAndComponentNames(RifOdbResultKey::ResultPosition position); 
-    std::map< RifOdbResultKey, std::vector<std::string> >   resultsMetaData(odb_Odb* odb);
+    std::map< RifOdbResultKey, std::vector<std::string> >   readResultsMetaData(odb_Odb* odb);
  
 private:
     odb_Odb*                                                m_odb;

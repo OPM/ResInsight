@@ -235,20 +235,22 @@ bool RifOdbReader::openFile(const std::string& fileName, std::string* errorMessa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifOdbReader::buildMetaData()
+void RifOdbReader::assertMetaDataLoaded()
 {
 	CVF_ASSERT(m_odb != NULL);
 
-	m_resultsMetaData = resultsMetaData(m_odb);
-
-	return true;
+    if (m_resultsMetaData.empty())
+	{
+        m_resultsMetaData = readResultsMetaData(m_odb);
+    }
+	
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map< RifOdbReader::RifOdbResultKey, std::vector<std::string> > RifOdbReader::resultsMetaData(odb_Odb* odb)
+std::map< RifOdbReader::RifOdbResultKey, std::vector<std::string> > RifOdbReader::readResultsMetaData(odb_Odb* odb)
 {
 	CVF_ASSERT(odb != NULL);
 
@@ -631,9 +633,13 @@ size_t RifOdbReader::resultItemCount(const std::string& fieldName, int partIndex
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RifOdbReader::componentIndex(const RifOdbResultKey& result, const std::string& componentName) const
+int RifOdbReader::componentIndex(const RifOdbResultKey& result, const std::string& componentName)
 {
 	std::vector<std::string> compNames = componentNames(result);
+
+    // If there are no component names, we expect the field to be a pure scalar.
+    // Then an empty string is the valid component name
+    if (!compNames.size() && componentName == "") return 0;
 
 	for (size_t i = 0; i < compNames.size(); i++)
 	{
@@ -643,24 +649,27 @@ int RifOdbReader::componentIndex(const RifOdbResultKey& result, const std::strin
 		}
 	}
 
-	return 0;
+	return -1;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifOdbReader::componentNames(const RifOdbResultKey& result) const
+std::vector<std::string> RifOdbReader::componentNames(const RifOdbResultKey& result)
 {
-	std::vector<std::string> compNames;
+    assertMetaDataLoaded();
 
     std::map< RifOdbResultKey, std::vector<std::string> >::const_iterator resMapIt = m_resultsMetaData.find(result);
 	if (resMapIt != m_resultsMetaData.end())
 	{
+        std::vector<std::string> compNames;
         compNames = resMapIt->second;
+        return compNames;
 	}
 	
-	return compNames;
+    CVF_ASSERT(false);
+	return std::vector<std::string>();
 }
 
 
@@ -669,10 +678,7 @@ std::vector<std::string> RifOdbReader::componentNames(const RifOdbResultKey& res
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RifOdbReader::fieldAndComponentNames(RifOdbResultKey::ResultPosition position)
 {
-	if (m_resultsMetaData.empty())
-	{
-		buildMetaData();
-	}
+    assertMetaDataLoaded();
 
     std::map<std::string, std::vector<std::string> > fieldsAndComponents;
 
@@ -703,11 +709,13 @@ void RifOdbReader::readScalarNodeField(const std::string& fieldName, const std::
     size_t dataSize = nodeIdToIdxMap.size();
     CVF_ASSERT(dataSize > 0);
 
-	resultValues->resize(dataSize);
-    resultValues->assign(dataSize, std::numeric_limits<float>::infinity());
 
     int compIndex = componentIndex(RifOdbResultKey(RifOdbResultKey::NODAL, fieldName), componentName);
-	CVF_ASSERT(compIndex >= 0);
+
+	if (compIndex < 0) return;
+    
+	resultValues->resize(dataSize);
+    resultValues->assign(dataSize, std::numeric_limits<float>::infinity());
 
 	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
 	const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(*partInstance);
@@ -737,7 +745,9 @@ void RifOdbReader::readScalarNodeField(const std::string& fieldName, const std::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, const std::string& componentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues)
+void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, const std::string& componentName, 
+                                              int partIndex, int stepIndex, int frameIndex, 
+                                              std::vector<float>* resultValues)
 {
 	CVF_ASSERT(resultValues);
 
@@ -747,15 +757,15 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
+	int compIndex = componentIndex(RifOdbResultKey(RifOdbResultKey::ELEMENT_NODAL, fieldName), componentName);
+    if (compIndex < 0) return;
+
     size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
 	if (dataSize > 0)
 	{
 		resultValues->resize(dataSize);
         resultValues->assign(dataSize, std::numeric_limits<float>::infinity());
 	}
-
-	int compIndex = componentIndex(RifOdbResultKey(RifOdbResultKey::ELEMENT_NODAL, fieldName), componentName);
-    CVF_ASSERT(compIndex >= 0);
 
 	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
 	const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(*partInstance);
@@ -796,7 +806,9 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifOdbReader::readScalarIntegrationPointField(const std::string& fieldName, const std::string& componentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues)
+void RifOdbReader::readScalarIntegrationPointField( const std::string& fieldName, const std::string& componentName, 
+                                                    int partIndex, int stepIndex, int frameIndex, 
+                                                    std::vector<float>* resultValues)
 {
 	CVF_ASSERT(resultValues);
 
@@ -806,15 +818,16 @@ void RifOdbReader::readScalarIntegrationPointField(const std::string& fieldName,
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
-   	size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
+
+    int compIndex = componentIndex(RifOdbResultKey(RifOdbResultKey::INTEGRATION_POINT, fieldName), componentName);
+	if (compIndex < 0) return;
+
+    size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
 	if (dataSize > 0)
 	{
 		resultValues->resize(dataSize);
         resultValues->assign(dataSize, std::numeric_limits<float>::infinity());
 	}
-
-    int compIndex = componentIndex(RifOdbResultKey(RifOdbResultKey::INTEGRATION_POINT, fieldName), componentName);
-	CVF_ASSERT(compIndex >= 0);
 
 	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
 	const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(*partInstance);
