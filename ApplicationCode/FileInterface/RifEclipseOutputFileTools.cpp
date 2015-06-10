@@ -73,7 +73,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
     // Get the number of occurrences of the DOUBHEAD keyword
     int numDOUBHEAD = ecl_file_get_num_named_kw(ecl_file, DOUBHEAD_KW);
 
-    CVF_ASSERT(numINTEHEAD == numDOUBHEAD);
+    //CVF_ASSERT(numINTEHEAD == numDOUBHEAD);
 
     bool hasFractionOfDay = false;
     bool foundAllDayValues = false;

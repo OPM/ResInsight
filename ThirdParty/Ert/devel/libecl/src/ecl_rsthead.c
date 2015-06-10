@@ -46,8 +46,6 @@ double ecl_rsthead_get_sim_days( const ecl_rsthead_type * header ) {
 ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occurence) {
   if (ecl_file_get_num_named_kw( rst_file , INTEHEAD_KW) > occurence) {
     const ecl_kw_type * intehead_kw = ecl_file_iget_named_kw( rst_file , INTEHEAD_KW , occurence);
-    const ecl_kw_type * logihead_kw = ecl_file_iget_named_kw( rst_file , LOGIHEAD_KW , occurence);
-    const ecl_kw_type * doubhead_kw = ecl_file_iget_named_kw( rst_file , DOUBHEAD_KW , occurence);
     
     ecl_rsthead_type * rsthead = util_malloc( sizeof * rsthead );
     
@@ -81,9 +79,16 @@ ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occu
       // The only derived quantity
       rsthead->sim_time  = rsthead_date( rsthead->day , rsthead->month , rsthead->year );
     }
-    rsthead->dualp    = ecl_kw_iget_bool( logihead_kw , LOGIHEAD_DUALP_INDEX);
-    rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX );
-    
+
+    if (   ecl_file_get_num_named_kw(rst_file, LOGIHEAD_KW) > occurence
+        && ecl_file_get_num_named_kw(rst_file, DOUBHEAD_KW) > occurence){
+      const ecl_kw_type * logihead_kw = ecl_file_iget_named_kw(rst_file, LOGIHEAD_KW, occurence);
+      const ecl_kw_type * doubhead_kw = ecl_file_iget_named_kw(rst_file, DOUBHEAD_KW, occurence);
+
+      rsthead->dualp    = ecl_kw_iget_bool(logihead_kw, LOGIHEAD_DUALP_INDEX);
+      rsthead->sim_days = ecl_kw_iget_double(doubhead_kw, DOUBHEAD_DAYS_INDEX);
+    }
+
     return rsthead;
   } else
     return NULL;
