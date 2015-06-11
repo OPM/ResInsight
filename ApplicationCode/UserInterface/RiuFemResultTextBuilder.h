@@ -40,7 +40,7 @@ namespace cvf {
 class RiuFemResultTextBuilder
 {
 public:
-	RiuFemResultTextBuilder(RimGeoMechView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex);
+	RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex);
     void setFace(cvf::StructGridInterface::FaceType face);
     void setIntersectionPoint(cvf::Vec3d intersectionPoint);
 
@@ -55,14 +55,14 @@ private:
 
     QString closestNodeResultText(RimGeoMechResultSlot* resultSlot);
 
-	void appendTextFromResultSlot(RigGeoMechCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimGeoMechResultSlot* resultSlot, QString* resultInfoText);
+	void appendTextFromResultSlot(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechResultSlot* resultSlot, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimGeoMechView> m_reservoirView;
 
-	size_t m_gridIndex;
-	size_t m_cellIndex;
-	size_t m_timeStepIndex;
+	int m_gridIndex;
+	int m_cellIndex;
+	int m_timeStepIndex;
 
 	cvf::StructGridInterface::FaceType m_face;
 

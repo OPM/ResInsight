@@ -345,7 +345,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
         }
         else if (geomView)
         {
-            RiuFemResultTextBuilder textBuilder(geomView, gridIndex, cellIndex, geomView->currentTimeStep());
+            RiuFemResultTextBuilder textBuilder(geomView, (int)gridIndex, (int)cellIndex, geomView->currentTimeStep());
             //textBuilder.setFace(face);
            
             textBuilder.setIntersectionPoint(localIntersectionPoint);

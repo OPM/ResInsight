@@ -19,7 +19,7 @@
 
 #include "RiuFemResultTextBuilder.h"
 
-#include "RigGeomechCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
 #include "RigFemPartCollection.h"
@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex)
+RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex)
 {
     CVF_ASSERT(reservoirView);
     
@@ -156,7 +156,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFemResultTextBuilder::appendTextFromResultSlot(RigGeoMechCaseData* geomData, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimGeoMechResultSlot* resultSlot, QString* resultInfoText)
+void RiuFemResultTextBuilder::appendTextFromResultSlot(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechResultSlot* resultSlot, QString* resultInfoText)
 {
 	if (!resultSlot)
 	{
