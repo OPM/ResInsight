@@ -19,6 +19,7 @@
 
 
 #include "RigFemPartCollection.h"
+#include "cvfBoundingBox.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -97,4 +98,17 @@ float RigFemPartCollection::characteristicElementSize()
     {
         return 0;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigFemPartCollection::boundingBox()
+{
+    cvf::BoundingBox bBox;
+    for (int i = 0; i < partCount(); i++)
+    {
+        bBox.add(part(i)->boundingBox());
+    }
+    return bBox;
 }

@@ -37,6 +37,7 @@ public:
 
     size_t totalElementCount() const;
     float characteristicElementSize();
+    cvf::BoundingBox boundingBox();
 
 
 private:

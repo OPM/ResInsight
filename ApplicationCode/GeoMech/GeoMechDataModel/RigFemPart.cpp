@@ -20,6 +20,7 @@
 #include "RigFemPart.h"
 
 #include "RigFemPartGrid.h"
+#include "cvfBoundingBox.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -319,5 +320,21 @@ float RigFemPart::characteristicElementSize()
     m_characteristicElementSize = sumMaxEdgeLength/elmsToAverageCount;
 
     return m_characteristicElementSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigFemPart::boundingBox()
+{
+    if (m_boundingBox.isValid()) return m_boundingBox;
+
+    size_t nodeCount = nodes().coordinates.size();
+    for (size_t nIdx = 0; nIdx < nodeCount; ++nIdx)
+    {
+        m_boundingBox.add(nodes().coordinates[nIdx]);
+    }
+
+    return m_boundingBox;
 }
 

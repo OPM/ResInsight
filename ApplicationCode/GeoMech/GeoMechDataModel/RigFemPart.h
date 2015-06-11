@@ -24,7 +24,7 @@
 #include "RigFemTypes.h"
 #include "cvfObject.h"
 #include "cvfAssert.h"
-
+#include "cvfBoundingBox.h"
 #include "cvfVector3.h"
 #include <vector>
 
@@ -71,6 +71,7 @@ public:
     int                         neighborFace(int elementIndex, int faceIndex) const
                                 { return m_elmNeighbors[elementIndex].faceInNeighborElm[faceIndex]; }
 
+    cvf::BoundingBox            boundingBox();
     float                       characteristicElementSize();
     const std::vector<int>&     possibleGridCornerElements() const { return m_possibleGridCornerElements; }
 
@@ -99,5 +100,6 @@ private:
     std::vector<int> m_possibleGridCornerElements;
 
     float                       m_characteristicElementSize;
+    cvf::BoundingBox            m_boundingBox;
 
 };

@@ -58,5 +58,4 @@ public:
 
 private:
     caf::PdmPointer<RimWellPathCollection>      m_wellPathCollection;
-    cvf::ref<cvf::Transform>                    m_scaleTransform; 
 };
