@@ -25,7 +25,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFemPart::RigFemPart()
-    :m_elementPartId(-1)
+    :m_elementPartId(-1), m_characteristicElementSize(std::numeric_limits<float>::infinity())
 {
 
 }
@@ -276,5 +276,48 @@ cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx)
     }
 
     return cvf::Vec3f::ZERO;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RigFemPart::characteristicElementSize()
+{
+    if (m_characteristicElementSize != std::numeric_limits<float>::infinity()) return m_characteristicElementSize;
+
+    // take 100 elements 
+    float elmIdxJump = elementCount() / 100.0f;
+    int elmIdxIncrement = elmIdxJump < 1 ? 1: (int) elmIdxJump;
+    int elmsToAverageCount = 0;
+    float sumMaxEdgeLength = 0;
+    for (int elmIdx = 0; elmIdx < elementCount(); elmIdx += elmIdxIncrement)
+    {
+        RigElementType eType = this->elementType(elmIdx);
+
+        if (eType == HEX8)
+        {
+            const int* elmentConn = this->connectivities(elmIdx);
+            cvf::Vec3f nodePos0 = this->nodes().coordinates[elmentConn[0]];
+            cvf::Vec3f nodePos1 = this->nodes().coordinates[elmentConn[1]];
+            cvf::Vec3f nodePos3 = this->nodes().coordinates[elmentConn[3]];
+            cvf::Vec3f nodePos4 = this->nodes().coordinates[elmentConn[4]];
+
+            float l1 = (nodePos1-nodePos0).length();
+            float l3 = (nodePos3-nodePos0).length();
+            float l4 = (nodePos4-nodePos0).length();
+
+            float maxLength = l1 > l3 ? l1: l3;
+            maxLength = maxLength > l4 ? maxLength: l4;
+
+            sumMaxEdgeLength += maxLength;
+            ++elmsToAverageCount;
+        }
+    }
+
+    CVF_ASSERT(elmsToAverageCount);
+
+    m_characteristicElementSize = sumMaxEdgeLength/elmsToAverageCount;
+
+    return m_characteristicElementSize;
 }
 

@@ -83,3 +83,18 @@ size_t RigFemPartCollection::totalElementCount() const
 
     return elementCount;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RigFemPartCollection::characteristicElementSize()
+{
+    if (partCount())
+    {
+        return part(0)->characteristicElementSize();
+    }
+    else
+    {
+        return 0;
+    }
+}

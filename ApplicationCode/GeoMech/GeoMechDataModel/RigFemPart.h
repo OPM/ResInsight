@@ -71,6 +71,7 @@ public:
     int                         neighborFace(int elementIndex, int faceIndex) const
                                 { return m_elmNeighbors[elementIndex].faceInNeighborElm[faceIndex]; }
 
+    float                       characteristicElementSize();
     const std::vector<int>&     possibleGridCornerElements() const { return m_possibleGridCornerElements; }
 
     cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex);
@@ -96,5 +97,7 @@ private:
     struct Neighbors { int indicesToNeighborElms[6]; char faceInNeighborElm[6];};
     std::vector<  Neighbors > m_elmNeighbors;
     std::vector<int> m_possibleGridCornerElements;
+
+    float                       m_characteristicElementSize;
 
 };
