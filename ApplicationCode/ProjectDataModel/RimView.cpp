@@ -9,6 +9,10 @@
 #include "cafCeetronPlusNavigation.h"
 #include "cafCadNavigation.h"
 #include "cvfCamera.h"
+#include "cvfModel.h"
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
+#include "cvfScene.h"
 #include "cvfViewport.h"
 #include "cafFrameAnimationControl.h"
 
@@ -441,5 +445,42 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::addWellPathsToScene(cvf::Scene* scene, const cvf::Vec3d& displayModelOffset, double characteristicCellSize, const cvf::BoundingBox& boundingBox, cvf::Transform* scaleTransform)
+{
+    CVF_ASSERT(scene);
+    CVF_ASSERT(scaleTransform);
 
+    cvf::String wellPathModelName = "WellPathModel";
+    std::vector<cvf::Model*> wellPathModels;
+    for (cvf::uint i = 0; i < scene->modelCount(); i++)
+    {
+        if (scene->model(i)->name() == wellPathModelName)
+        {
+            wellPathModels.push_back(scene->model(i));
+        }
+    }
 
+    for (size_t i = 0; i < wellPathModels.size(); i++)
+    {
+        scene->removeModel(wellPathModels[i]);
+    }
+
+    // Append static Well Paths to model
+    cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
+    wellPathModelBasicList->setName(wellPathModelName);
+
+    RimOilField* oilFields =                                    RiaApplication::instance()->project()   ? RiaApplication::instance()->project()->activeOilField() : NULL;
+    RimWellPathCollection* wellPathCollection =                 oilFields                               ? oilFields->wellPathCollection() : NULL;
+    RivWellPathCollectionPartMgr* wellPathCollectionPartMgr =   wellPathCollection                      ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
+
+    if (wellPathCollectionPartMgr)
+    {
+        wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList.p(), displayModelOffset, scaleTransform, characteristicCellSize, boundingBox); 
+    }
+
+    wellPathModelBasicList->updateBoundingBoxesRecursive();
+    scene->addModel(wellPathModelBasicList.p());
+}

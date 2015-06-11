@@ -243,6 +243,10 @@ void RimGeoMechView::createDisplayModel()
            m_viewer->setMainScene(scene.p());
        else
            m_viewer->addFrame(scene.p());
+
+       // !! TODO: Compute characteristic cell size
+       double characteristicCellSize_HARDCODED = 300;
+       addWellPathsToScene(scene.p(), cvf::Vec3d(0, 0, 0), characteristicCellSize_HARDCODED, m_viewer->mainScene()->boundingBox(), scaleTransform());
    }
 
    // If the animation was active before recreating everything, make viewer view current frame
@@ -278,6 +282,10 @@ void RimGeoMechView::updateCurrentTimeStep()
                 frameParts->updateBoundingBoxesRecursive();
                 frameScene->removeAllModels();
                 frameScene->addModel(frameParts.p());
+
+                // !! TODO: Compute characteristic cell size
+                double characteristicCellSize_HARDCODED = 300;
+                addWellPathsToScene(frameScene, cvf::Vec3d(0, 0, 0), characteristicCellSize_HARDCODED, m_viewer->mainScene()->boundingBox(), scaleTransform());
             }
         }
 
@@ -290,7 +298,6 @@ void RimGeoMechView::updateCurrentTimeStep()
     }
 
     overlayInfoConfig()->update3DInfo();
-
 }
 
 //--------------------------------------------------------------------------------------------------

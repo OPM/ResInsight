@@ -431,6 +431,11 @@ void RimEclipseView::createDisplayModel()
     // Create Scenes from the frameModels
     // Animation frames for results display, starts from frame 1
 
+    RimEclipseCase* eclCase = eclipseCase();
+    RigCaseData* caseData = eclCase ? eclCase->reservoirData() : NULL;
+    RigMainGrid* mainGrid = caseData ? caseData->mainGrid() : NULL;
+    CVF_ASSERT(mainGrid);
+
     size_t frameIndex;
     for (frameIndex = 0; frameIndex < frameModels.size(); frameIndex++)
     {
@@ -439,6 +444,9 @@ void RimEclipseView::createDisplayModel()
 
         cvf::ref<cvf::Scene> scene = new cvf::Scene;
         scene->addModel(model);
+
+        // Add well paths, if any
+        addWellPathsToScene(scene.p(), mainGrid->displayModelOffset(), mainGrid->characteristicIJCellSize(), currentActiveCellInfo()->geometryBoundingBox(), m_reservoirGridPartManager->scaleTransform());
 
         if (frameIndex == 0)
             m_viewer->setMainScene(scene.p());
@@ -586,7 +594,7 @@ void RimEclipseView::updateCurrentTimeStep()
 
     this->updateFaultColors();
 
-    // Well pipes and well paths
+    // Well pipes
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
@@ -619,42 +627,14 @@ void RimEclipseView::updateCurrentTimeStep()
             wellPipeModelBasicList->updateBoundingBoxesRecursive();
             //printf("updateCurrentTimeStep: Add WellPipeModel to frameScene\n");
             frameScene->addModel(wellPipeModelBasicList.p());
-            
-            // Well paths
-            // ----------
-            cvf::String wellPathModelName = "WellPathModel";
-            std::vector<cvf::Model*> wellPathModels;
-            for (cvf::uint i = 0; i < frameScene->modelCount(); i++)
-            {
-                if (frameScene->model(i)->name() == wellPathModelName)
-                {
-                    wellPathModels.push_back(frameScene->model(i));
-                }
-            }
 
-            for (size_t i = 0; i < wellPathModels.size(); i++)
-            {
-                //printf("updateCurrentTimeStep: Remove WellPathModel %i from frameScene, for frame %i\n", i, m_currentTimeStep.v());
-                frameScene->removeModel(wellPathModels[i]);
-            }
-
-            // Append static Well Paths to model
-            cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
-            wellPathModelBasicList->setName(wellPathModelName);
-            RimOilField* oilFields = (RiaApplication::instance()->project()) ? RiaApplication::instance()->project()->activeOilField() : NULL;
-            RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
-            RivWellPathCollectionPartMgr* wellPathCollectionPartMgr = (wellPathCollection) ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
-            if (wellPathCollectionPartMgr)
-            {
-                //printf("updateCurrentTimeStep: Append well paths for frame %i: ", m_currentTimeStep.v());
-                cvf::Vec3d displayModelOffset = eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
-                double characteristicCellSize = eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
-                cvf::BoundingBox boundingBox = currentActiveCellInfo()->geometryBoundingBox();
-                wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList.p(), displayModelOffset, m_reservoirGridPartManager->scaleTransform(), characteristicCellSize, boundingBox); 
-                //printf("\n");
-            }
-            wellPathModelBasicList->updateBoundingBoxesRecursive();
-            frameScene->addModel(wellPathModelBasicList.p());
+            // Add well paths, if any
+            RimEclipseCase* eclCase = eclipseCase();
+            RigCaseData* caseData = eclCase ? eclCase->reservoirData() : NULL;
+            RigMainGrid* mainGrid = caseData ? caseData->mainGrid() : NULL;
+            CVF_ASSERT(mainGrid);
+         
+            addWellPathsToScene(frameScene, mainGrid->displayModelOffset(), mainGrid->characteristicIJCellSize(), currentActiveCellInfo()->geometryBoundingBox(), m_reservoirGridPartManager->scaleTransform());
         }
     }
 
