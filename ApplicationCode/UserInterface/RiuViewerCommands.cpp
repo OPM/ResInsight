@@ -35,7 +35,7 @@
 #include "RiuMainWindow.h"
 #include "RiaApplication.h"
 #include "RiuResultTextBuilder.h"
-#include "RigGeomechCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include "RimGeoMechCase.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
