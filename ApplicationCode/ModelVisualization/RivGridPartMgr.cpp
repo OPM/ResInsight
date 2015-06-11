@@ -120,12 +120,11 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("Grid " + cvf::String(static_cast<int>(m_gridIdx)));
-            part->setId(m_gridIdx);       // !! For now, use grid index as part ID (needed for pick info)
             part->setDrawable(geo.p());
             part->setTransform(m_scaleTransform.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_gridIdx);
             si->m_cellFaceFromTriangleMapper = geoBuilder.triangleToCellFaceMapper();
 
             part->setSourceInfo(si.p());

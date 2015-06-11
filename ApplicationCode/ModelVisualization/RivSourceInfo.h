@@ -27,10 +27,15 @@
 class RivSourceInfo : public cvf::Object
 {
 public:
+    RivSourceInfo(size_t gridIndex) : m_gridIndex(gridIndex) {}
+
+    size_t gridIndex() const { return m_gridIndex; }
     bool hasCellFaceMapping() const;
     bool hasNNCIndices() const;
 
 public:
     cvf::cref<cvf::StuctGridTriangleToCellFaceMapper> m_cellFaceFromTriangleMapper;
     cvf::ref<cvf::Array<size_t> >                     m_NNCIndices;
+private:    
+    size_t m_gridIndex;
 };

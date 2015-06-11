@@ -51,12 +51,15 @@ set( APPLICATION_FILES
 set( USER_INTERFACE_FILES
     UserInterface/RiuCursors.cpp
     UserInterface/RiuResultTextBuilder.cpp
+	UserInterface/RiuFemResultTextBuilder.cpp
     UserInterface/RiuMainWindow.cpp
     UserInterface/RiuResultInfoPanel.cpp
     UserInterface/RiuViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
     UserInterface/RiuMultiCaseImportDialog.cpp
     UserInterface/RiuProcessMonitor.cpp
+    UserInterface/RiuViewerCommands.cpp
+
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -133,6 +136,8 @@ set ( QT_MOC_HEADERS
     UserInterface/RiuProcessMonitor.h
     SocketInterface/RiaSocketServer.h
     UserInterface/RiuMultiCaseImportDialog.h
+    UserInterface/RiuViewerCommands.h
+	
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )

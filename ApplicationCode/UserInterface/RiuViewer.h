@@ -33,6 +33,7 @@ class QLabel;
 class QProgressBar;
 class RiuSimpleHistogramWidget;
 class QCDEStyle;
+class RiuViewerCommands;
 
 namespace cvf
 {
@@ -75,27 +76,11 @@ public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();
 
-protected:
-    void            paintOverlayItems(QPainter* painter);
-    void            keyPressEvent(QKeyEvent* event);
-    void            mouseReleaseEvent(QMouseEvent* event);
-
-    void displayContextMenu(QMouseEvent* event);
-
-    void            mousePressEvent(QMouseEvent* event);
-
-    void            handlePickAction(int winPosX, int winPosY);
-    void            findPointAndFaceFromMousePos(int winPosX, int winPosY, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
-
-private slots:
-    void            slotRangeFilterI();
-    void            slotRangeFilterJ();
-    void            slotRangeFilterK();
-    void            slotHideFault();
-
 private:
-    void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
-    void            createSliceRangeFilter(int ijOrk);
+    void            paintOverlayItems(QPainter* painter);
+
+    void            mouseReleaseEvent(QMouseEvent* event);
+    void            mousePressEvent(QMouseEvent* event);
 
     QLabel*         m_InfoLabel;
     bool            m_showInfoText;; 
@@ -111,10 +96,8 @@ private:
     cvf::Collection<cvf::OverlayItem> m_visibleLegends;
 
     caf::PdmPointer<RimView> m_reservoirView;
+    QPoint          m_lastMousePressPosition;
 
-    size_t m_currentGridIdx;
-    size_t m_currentCellIndex;
-    cvf::StructGridInterface::FaceType m_currentFaceIndex;
-
-    QPoint m_lastMousePressPosition;
+    RiuViewerCommands * m_viewerCommands;
 };
+

@@ -21,6 +21,7 @@
 #include "RiaStdInclude.h"
 
 #include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
@@ -140,6 +141,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_histogramWidget->setPalette(p);
     m_showHistogram = false;
 
+    m_viewerCommands = new RiuViewerCommands(this);
+
 }
 
 
@@ -205,7 +208,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 
     if (event->button() == Qt::LeftButton)
     {
-        handlePickAction(event->x(), event->y());
+        m_viewerCommands->handlePickAction(event->x(), event->y());
         return;
     }
     else if (event->button() == Qt::RightButton)
@@ -217,249 +220,10 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
             return;
         }
 
-        displayContextMenu(event);
+        m_viewerCommands->displayContextMenu(event);
         return;
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::displayContextMenu(QMouseEvent* event)
-{
-    m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
-    m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
-
-    int winPosX = event->x();
-    int winPosY = event->y();
-
-    uint faceIndex = cvf::UNDEFINED_UINT;
-    cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
-
-    cvf::Part* firstHitPart = NULL;
-    cvf::Part* nncFirstHitPart = NULL;
-
-    findPointAndFaceFromMousePos(winPosX, winPosY, &localIntersectionPoint, &firstHitPart, &faceIndex, &nncFirstHitPart, NULL);
-
-    if (!firstHitPart) return;
-    
-    if (faceIndex == cvf::UNDEFINED_UINT) return;
-
-    if (!firstHitPart->sourceInfo()) return;
-            
-    const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
-    const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
-
-    if (!(rivSourceInfo || femSourceInfo) ) return;
-    
-    if (rivSourceInfo)
-    {
-        if (!rivSourceInfo->hasCellFaceMapping()) return;
-
-        // Set the data regarding what was hit
-
-        m_currentGridIdx = firstHitPart->id();
-        m_currentCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(faceIndex);
-        m_currentFaceIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(faceIndex);
-    }
-    else
-    {
-        m_currentGridIdx = femSourceInfo->femPartIndex();
-        m_currentCellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(faceIndex);
-    }
-
-    // IJK -slice commands
-
-    QMenu menu;
-
-    menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-    menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-    menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
-
-    // Hide faults command
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-    if (eclipseView)
-    {
-        const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
-        const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
-        if (fault)
-        {
-            menu.addSeparator();
-
-            QString faultName = fault->name();
-            menu.addAction(QString("Hide ") + faultName, this, SLOT(slotHideFault()));
-        }
-    }
-
-    menu.exec(event->globalPos());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Todo: Move this to a command instead
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::slotRangeFilterI()
-{
-    createSliceRangeFilter(0);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::slotRangeFilterJ()
-{
-    createSliceRangeFilter(1);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::slotRangeFilterK()
-{
-    createSliceRangeFilter(2);
-}
-
-void RiuViewer::createSliceRangeFilter(int ijOrk)
-{
-    RimView* eclipseView = m_reservoirView.p();
-    if (!eclipseView) return;
-
-    size_t i, j, k;
-    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
-    if (myModel)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
-
-        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
-
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
-
-        if (ijOrk == 0){
-            rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
-            rangeFilter->cellCountI = 1;
-            int startIndex = CVF_MAX(static_cast<int>(i + 1), 1);
-            rangeFilter->startIndexI = startIndex;
-
-        }
-        else if (ijOrk == 1){
-            rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
-            rangeFilter->cellCountJ = 1;
-            int startIndex = CVF_MAX(static_cast<int>(j + 1), 1);
-            rangeFilter->startIndexJ = startIndex;
-
-        }
-        else if (ijOrk == 2){
-            rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
-            rangeFilter->cellCountK = 1;
-            int startIndex = CVF_MAX(static_cast<int>(k + 1), 1);
-            rangeFilter->startIndexK = startIndex;
-        }
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        mainWindow->setCurrentObjectInTreeView(rangeFilter);
-    }
-
-    eclipseView->setSurfaceDrawstyle();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::keyPressEvent(QKeyEvent* event)
-{
-    // Trap escape key so we can get out of direct button press actions
-    if (event->key() == Qt::Key_Escape)
-    {
-
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::handlePickAction(int winPosX, int winPosY)
-{
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-
-    RiaApplication* app = RiaApplication::instance();
-
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
-    size_t gridIndex = cvf::UNDEFINED_SIZE_T;
-    size_t cellIndex = cvf::UNDEFINED_SIZE_T;
-    size_t nncIndex = cvf::UNDEFINED_SIZE_T;
-    cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::NO_FACE;
-    cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
-
-    {
-        cvf::Part* firstHitPart = NULL;
-        uint firstPartFaceIndex = cvf::UNDEFINED_UINT;
-
-        cvf::Part* firstNncHitPart = NULL;
-        uint nncPartFaceIndex = cvf::UNDEFINED_UINT;
-
-        findPointAndFaceFromMousePos(winPosX, winPosY, &localIntersectionPoint, &firstHitPart, &firstPartFaceIndex, &firstNncHitPart, &nncPartFaceIndex);
-
-        if (firstHitPart)
-        {
-            gridIndex = firstHitPart->id();
-            if (firstHitPart->sourceInfo())
-            {
-                const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
-                if (rivSourceInfo)
-                {
-                    if (rivSourceInfo->hasCellFaceMapping())
-                    {
-                        CVF_ASSERT(rivSourceInfo->m_cellFaceFromTriangleMapper.notNull());
-
-                        cellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(firstPartFaceIndex);
-                        face = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(firstPartFaceIndex);
-                    }
-                }
-            }
-        }
-
-
-        if (firstNncHitPart && firstNncHitPart->sourceInfo())
-        {
-            const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstNncHitPart->sourceInfo());
-            if (rivSourceInfo)
-            {
-                if (nncPartFaceIndex < rivSourceInfo->m_NNCIndices->size())
-                {
-                    nncIndex = rivSourceInfo->m_NNCIndices->get(nncPartFaceIndex);
-                }
-            }
-        }
-    }
-
-    QString pickInfo = "No hits";
-    QString resultInfo = "";
-
-    if (cellIndex != cvf::UNDEFINED_SIZE_T)
-    {
-        RiuResultTextBuilder textBuilder(eclipseView, gridIndex, cellIndex, eclipseView->currentTimeStep());
-        textBuilder.setFace(face);
-        textBuilder.setNncIndex(nncIndex);
-        textBuilder.setIntersectionPoint(localIntersectionPoint);
-
-        resultInfo = textBuilder.mainResultText();
-
-        pickInfo = textBuilder.topologyText(", ");
-    }
-
-    mainWnd->statusBar()->showMessage(pickInfo);
-    mainWnd->setResultInfo(resultInfo);
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -511,6 +275,7 @@ void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 void RiuViewer::setOwnerReservoirView(RimView * owner)
 {
     m_reservoirView = owner;
+    m_viewerCommands->setOwnerView(owner);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -519,110 +284,6 @@ void RiuViewer::setOwnerReservoirView(RimView * owner)
 void RiuViewer::setEnableMask(unsigned int mask)
 {
     m_mainRendering->setEnableMask(mask);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Perform picking and return the index of the face that was hit, if a drawable geo was hit
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::findPointAndFaceFromMousePos(int winPosX, int winPosY, 
-                                             cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, 
-                                             cvf::Part** nncPart, uint* nncPartFaceHit)
-{
-
-    cvf::HitItemCollection hitItems;
-    bool isSomethingHit = rayPick(winPosX, winPosY, &hitItems);
-
-    if (isSomethingHit)
-    {
-        CVF_ASSERT(hitItems.count() > 0);
-
-        double pickDepthThresholdSquared = 0.05 *0.05;
-        {
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-
-            if (eclipseView && eclipseView->eclipseCase())
-            {
-                double characteristicCellSize = eclipseView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
-                pickDepthThresholdSquared = characteristicCellSize / 100.0;
-                pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
-            }
-        }
-
-        cvf::HitItem* firstNonNncHitItem = NULL;
-        cvf::Vec3d firstItemIntersectionPoint = hitItems.item(0)->intersectionPoint();
-
-        // Check if we have a close hit item with NNC data
-
-        for (size_t i = 0; i < hitItems.count(); i++)
-        {
-            cvf::HitItem* hitItemCandidate = hitItems.item(i);
-            cvf::Vec3d diff = firstItemIntersectionPoint - hitItemCandidate->intersectionPoint();
-
-            const cvf::Part* pickedPartCandidate = hitItemCandidate->part();
-            bool isNncpart = false;
-
-            if (pickedPartCandidate && pickedPartCandidate->sourceInfo())
-            {
-                const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickedPartCandidate->sourceInfo());
-                if (rivSourceInfo && rivSourceInfo->hasNNCIndices())
-                {
-
-                    // Hit items are ordered by distance from eye
-                    if (diff.lengthSquared() < pickDepthThresholdSquared)
-                    {
-                        *nncPart = const_cast<cvf::Part*>(pickedPartCandidate);
-
-                        const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItemCandidate->detail());
-                        if (detail && nncPartFaceHit)
-                        {
-                            *nncPartFaceHit = detail->faceIndex();
-                        }
-
-                        isNncpart = true;
-                    }
-                }
-            }
-
-            if (!isNncpart && !firstNonNncHitItem)
-            {
-                firstNonNncHitItem = hitItemCandidate;
-                firstItemIntersectionPoint = firstNonNncHitItem->intersectionPoint();
-            }
-
-            if (firstNonNncHitItem && *nncPart)
-            {
-                break;
-            }
-        }
-
-        const cvf::Part* pickedPart = firstNonNncHitItem->part();
-        CVF_ASSERT(pickedPart);
-        *firstPart = const_cast<cvf::Part*>(pickedPart);
-
-        const cvf::Transform* xf = pickedPart->transform();
-        cvf::Vec3d globalPickedPoint = firstNonNncHitItem->intersectionPoint();
-
-        if(localIntersectionPoint) 
-        {
-            if (xf)
-            {
-                *localIntersectionPoint = globalPickedPoint.getTransformedPoint(xf->worldTransform().getInverted());
-            }
-            else
-            {
-                *localIntersectionPoint = globalPickedPoint;
-            }
-        }
-
-        if (firstPartFaceHit)
-        {
-            const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(firstNonNncHitItem->detail());
-            if (detail)
-            {
-                *firstPartFaceHit = detail->faceIndex();
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -727,54 +388,12 @@ void RiuViewer::showHistogram(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size_t* i, size_t* j, size_t* k)
-{
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-    RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-
-
-    if (eclipseView && eclipseView->eclipseCase())
-    {
-        eclipseView->eclipseCase()->reservoirData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
-    }
-    
-    if (geomView && geomView->geoMechCase())
-    {
-        geomView->geoMechCase()->geoMechData()->femParts()->part(gridIdx)->structGrid()->ijkFromCellIndex(cellIndex, i, j, k);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuViewer::mousePressEvent(QMouseEvent* event)
 {
     m_lastMousePressPosition = event->pos();
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::slotHideFault()
-{
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-    if(!eclipseView) return;
-
-
-    const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
-    const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
-    if (fault)
-    {
-        QString faultName = fault->name();
-
-        RimFault* rimFault = eclipseView->faultCollection()->findFaultByName(faultName);
-        if (rimFault)
-        {
-            rimFault->showFault.setValueFromUi(!rimFault->showFault);
-        }
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -805,4 +424,3 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
         m_visibleLegends.push_back(legend);
     }
 }
-

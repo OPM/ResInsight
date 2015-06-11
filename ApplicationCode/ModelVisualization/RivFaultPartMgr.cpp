@@ -236,11 +236,10 @@ void RivFaultPartMgr::generatePartGeometry()
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("Grid " + cvf::String(static_cast<int>(m_grid->gridIndex())));
-            part->setId(m_grid->gridIndex());       // !! For now, use grid index as part ID (needed for pick info)
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_grid->gridIndex());
             si->m_cellFaceFromTriangleMapper = m_nativeFaultGenerator->triangleToCellFaceMapper();
             part->setSourceInfo(si.p());
 
@@ -289,11 +288,10 @@ void RivFaultPartMgr::generatePartGeometry()
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("Grid " + cvf::String(static_cast<int>(m_grid->gridIndex())));
-            part->setId(m_grid->gridIndex());       // !! For now, use grid index as part ID (needed for pick info)
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_grid->gridIndex());
             si->m_cellFaceFromTriangleMapper = m_oppositeFaultGenerator->triangleToCellFaceMapper();
             part->setSourceInfo(si.p());
 
@@ -340,11 +338,10 @@ void RivFaultPartMgr::generatePartGeometry()
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("NNC in Fault. Grid " + cvf::String(static_cast<int>(m_grid->gridIndex())));
-            part->setId(m_grid->gridIndex());       // !! For now, use grid index as part ID (needed for pick info)
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_grid->gridIndex());;
             si->m_NNCIndices = m_NNCGenerator->triangleToNNCIndex().p();
             part->setSourceInfo(si.p());
 
