@@ -54,7 +54,7 @@ public:
         cvf::Vec3d displayModelOffset, 
         cvf::Transform* scaleTransform, 
         double characteristicCellSize, 
-        cvf::BoundingBox boundingBox);
+        cvf::BoundingBox wellPathClipBoundingBox);
 
 private:
     caf::PdmPointer<RimWellPathCollection>      m_wellPathCollection;

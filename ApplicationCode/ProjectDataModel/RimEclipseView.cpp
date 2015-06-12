@@ -446,7 +446,10 @@ void RimEclipseView::createDisplayModel()
         scene->addModel(model);
 
         // Add well paths, if any
-        addWellPathsToScene(scene.p(), mainGrid->displayModelOffset(), mainGrid->characteristicIJCellSize(), currentActiveCellInfo()->geometryBoundingBox(), m_reservoirGridPartManager->scaleTransform());
+        addWellPathsToScene(scene.p(), mainGrid->displayModelOffset(), 
+                            mainGrid->characteristicIJCellSize(), 
+                            currentActiveCellInfo()->geometryBoundingBox(), 
+                            m_reservoirGridPartManager->scaleTransform());
 
         if (frameIndex == 0)
             m_viewer->setMainScene(scene.p());
@@ -634,7 +637,11 @@ void RimEclipseView::updateCurrentTimeStep()
             RigMainGrid* mainGrid = caseData ? caseData->mainGrid() : NULL;
             CVF_ASSERT(mainGrid);
          
-            addWellPathsToScene(frameScene, mainGrid->displayModelOffset(), mainGrid->characteristicIJCellSize(), currentActiveCellInfo()->geometryBoundingBox(), m_reservoirGridPartManager->scaleTransform());
+            addWellPathsToScene(frameScene, 
+                                 mainGrid->displayModelOffset(), 
+                                 mainGrid->characteristicIJCellSize(), 
+                                 currentActiveCellInfo()->geometryBoundingBox(), 
+                                 m_reservoirGridPartManager->scaleTransform());
         }
     }
 

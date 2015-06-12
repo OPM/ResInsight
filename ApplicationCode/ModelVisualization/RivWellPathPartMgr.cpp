@@ -95,7 +95,8 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// The pipe geometry needs to be rebuilt on scale change to keep the pipes round
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox boundingBox)
+void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, 
+                                            cvf::BoundingBox wellPathClipBoundingBox)
 {
     if (m_wellPathCollection.isNull()) return;
 
@@ -127,7 +128,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
             for (size_t idx = 0; idx < wellPathGeometry->m_wellPathPoints.size(); idx++)
             {
                 cvf::Vec3d point = wellPathGeometry->m_wellPathPoints[idx];
-                if (point.z() < (boundingBox.max().z() + m_wellPathCollection->wellPathClipZDistance))
+                if (point.z() < (wellPathClipBoundingBox.max().z() + m_wellPathCollection->wellPathClipZDistance))
                     clippedPoints.push_back(point);
             }
             if (clippedPoints.size() < 2) return;
@@ -220,7 +221,8 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox boundingBox)
+void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
+                                                          double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
 {
     if (m_wellPathCollection.isNull()) return;
     if (m_rimWellPath.isNull()) return;
@@ -234,7 +236,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     if (m_needsTransformUpdate) 
     {
         // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
-        buildWellPathParts(displayModelOffset, characteristicCellSize, boundingBox);
+        buildWellPathParts(displayModelOffset, characteristicCellSize, wellPathClipBoundingBox);
     }
  
     std::list<RivPipeBranchData>::iterator it;

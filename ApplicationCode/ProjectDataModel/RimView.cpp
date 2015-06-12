@@ -448,7 +448,9 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimView::addWellPathsToScene(cvf::Scene* scene, const cvf::Vec3d& displayModelOffset, double characteristicCellSize, const cvf::BoundingBox& boundingBox, cvf::Transform* scaleTransform)
+void RimView::addWellPathsToScene(cvf::Scene* scene, const cvf::Vec3d& displayModelOffset, 
+                                  double characteristicCellSize, const cvf::BoundingBox& wellPathClipBoundingBox, 
+                                  cvf::Transform* scaleTransform)
 {
     CVF_ASSERT(scene);
     CVF_ASSERT(scaleTransform);
@@ -478,7 +480,8 @@ void RimView::addWellPathsToScene(cvf::Scene* scene, const cvf::Vec3d& displayMo
 
     if (wellPathCollectionPartMgr)
     {
-        wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList.p(), displayModelOffset, scaleTransform, characteristicCellSize, boundingBox); 
+        wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList.p(), displayModelOffset, 
+                                                                    scaleTransform, characteristicCellSize, wellPathClipBoundingBox); 
     }
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();

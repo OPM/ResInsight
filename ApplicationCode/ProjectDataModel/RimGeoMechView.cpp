@@ -247,7 +247,8 @@ void RimGeoMechView::createDisplayModel()
        double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
        cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
        
-       addWellPathsToScene(scene.p(), cvf::Vec3d(0, 0, 0), characteristicCellSize, femBBox, scaleTransform());
+       addWellPathsToScene(scene.p(), cvf::Vec3d(0, 0, 0), 
+                           characteristicCellSize, femBBox, scaleTransform());
    }
 
    // If the animation was active before recreating everything, make viewer view current frame
@@ -286,7 +287,8 @@ void RimGeoMechView::updateCurrentTimeStep()
 
                 double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
                 cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
-                addWellPathsToScene(frameScene, cvf::Vec3d(0, 0, 0), characteristicCellSize, femBBox, scaleTransform());
+                addWellPathsToScene(frameScene, cvf::Vec3d(0, 0, 0), 
+                                    characteristicCellSize, femBBox, scaleTransform());
             }
         }
 

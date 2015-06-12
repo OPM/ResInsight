@@ -110,7 +110,11 @@ public:
 protected:
 
     void                                    setDefaultView();
-	void									addWellPathsToScene(cvf::Scene* scene, const cvf::Vec3d& displayModelOffset, double characteristicCellSize, const cvf::BoundingBox& boundingBox, cvf::Transform* scaleTransform);
+	void									addWellPathsToScene(cvf::Scene* scene, 
+                                                                const cvf::Vec3d& displayModelOffset, 
+                                                                double characteristicCellSize, 
+                                                                const cvf::BoundingBox& wellPathClipBoundingBox, 
+                                                                cvf::Transform* scaleTransform);
 
     virtual void                            createDisplayModel() = 0;
     virtual void                            updateDisplayModelVisibility() = 0;
