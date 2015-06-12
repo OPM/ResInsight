@@ -58,12 +58,14 @@ private:
     RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,
                                                                             const RigFemResultAddress& resVarAddr);
 
+    RigFemScalarResultFrames*                        calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr);
+
     friend class RigFemNativeStatCalc;                                                                                      
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
 
     RigStatisticsDataCache*                          statistics(const RigFemResultAddress& resVarAddr);
-
+    std::vector< RigFemResultAddress>                getResAddrToComponentsToRead(const RigFemResultAddress& resVarAddr);
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache> >  m_resultStatistics;
 };
 

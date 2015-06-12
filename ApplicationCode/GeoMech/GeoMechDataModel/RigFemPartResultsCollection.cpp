@@ -89,7 +89,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Will always return a valid object, but it can be empty
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(int partIndex,
                                                                               const RigFemResultAddress& resVarAddr)
@@ -104,11 +104,19 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
 
     // Check whether a derived result is requested
 
-
+    frames = calculateDerivedResult(partIndex, resVarAddr);
+    if (frames) return frames;
 
     // We need to read the data as bulk fields, and populate the correct scalar caches 
 
-    frames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+    std::vector< RigFemResultAddress> resultAddressOfComponents = this->getResAddrToComponentsToRead(resVarAddr);
+    // 
+    std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
+    for (size_t cIdx = 0; cIdx < resultAddressOfComponents.size(); ++cIdx)
+    {
+        resultsForEachComponent.push_back(m_femPartResults[partIndex]->createScalarResult(resultAddressOfComponents[cIdx]));
+    }
+
     int frameCount =  this->frameCount();
 
     for (int stepIndex = 0; stepIndex < frameCount; ++stepIndex)
@@ -117,23 +125,96 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
 
         for (int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2 ; ++fIdx)  // Read only the second frame
         {
-            std::vector<float>* frameData = &(frames->frameData(stepIndex));
+            std::vector<std::vector<float>*> componentDataVectors;
+            for (size_t cIdx = 0; cIdx < resultsForEachComponent.size(); ++cIdx)
+            {
+                componentDataVectors.push_back(&(resultsForEachComponent[cIdx]->frameData(stepIndex)));
+            }
+
             switch (resVarAddr.resultPosType)
             {
                 case RIG_NODAL:
-                    m_readerInterface->readScalarNodeField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
+                    m_readerInterface->readNodeField(resVarAddr.fieldName,  partIndex, stepIndex, fIdx, &componentDataVectors);
                     break;
                 case RIG_ELEMENT_NODAL:
-                    m_readerInterface->readScalarElementNodeField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
+                    m_readerInterface->readElementNodeField(resVarAddr.fieldName,  partIndex, stepIndex, fIdx, &componentDataVectors);
                     break;
                 case RIG_INTEGRATION_POINT:
-                    m_readerInterface->readScalarIntegrationPointField(resVarAddr.fieldName, resVarAddr.componentName, partIndex, stepIndex, fIdx, frameData);
+                    m_readerInterface->readIntegrationPointField(resVarAddr.fieldName,  partIndex, stepIndex, fIdx, &componentDataVectors);
                     break;
             }
         }
     }
+
+    // Now fetch the particular component requested, which should now exist and be read.
+    frames = m_femPartResults[partIndex]->findScalarResult(resVarAddr);
+
+    if (!frames) 
+    {
+        frames = m_femPartResults[partIndex]->createScalarResult(resVarAddr); // Create a dummy empty result, if the request did not specify the component.
+    }
+
     return frames;
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    // ST[11, 22, 33, 12, 13, 23, 1, 2, 3], Gamma[1,2,3], NS[11,22,33,12,13,23, 1, 2, 3]
+
+    if (resVarAddr.fieldName == "NS")
+    {
+        
+    }
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector< RigFemResultAddress> RigFemPartResultsCollection::getResAddrToComponentsToRead(const RigFemResultAddress& resVarAddr)
+{
+    std::map<std::string, std::vector<std::string> > fieldAndComponentNames;
+    switch (resVarAddr.resultPosType)
+    {
+        case RIG_NODAL:
+            fieldAndComponentNames = m_readerInterface->scalarNodeFieldAndComponentNames();
+            break;
+        case RIG_ELEMENT_NODAL:
+            fieldAndComponentNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
+            break;
+        case RIG_INTEGRATION_POINT:
+            fieldAndComponentNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
+            break;
+    }
+
+    std::vector< RigFemResultAddress> resAddressToComponents;
+
+    std::map<std::string, std::vector<std::string> >::iterator fcIt = fieldAndComponentNames.find(resVarAddr.fieldName);
+
+    if (fcIt != fieldAndComponentNames.end())
+    {
+        std::vector<std::string> compNames = fcIt->second;
+        for (size_t cIdx = 0; cIdx < compNames.size(); ++cIdx)
+        {
+            resAddressToComponents.push_back(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, compNames[cIdx]));
+        }
+
+        if (compNames.size() == 0) // This is a scalar field. Add one component named ""
+        {
+            CVF_ASSERT(resVarAddr.componentName == "");
+            resAddressToComponents.push_back(resVarAddr);
+        }
+    }
+
+    return resAddressToComponents;
+}
+
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -262,5 +343,4 @@ const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(co
 {
     return this->statistics(resVarAddr)->cellScalarValuesHistogram();
 }
-
 
