@@ -98,13 +98,20 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
     CVF_ASSERT(m_readerInterface.notNull());
     CVF_ASSERT(resVarAddr.isValid());
 
+    // If we have it in the cache, return it
     RigFemScalarResultFrames* frames = m_femPartResults[partIndex]->findScalarResult(resVarAddr);
     if (frames) return frames;
 
-    std::vector<std::string> stepNames =  m_readerInterface->stepNames();
-    frames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+    // Check whether a derived result is requested
 
-    for (int stepIndex = 0; stepIndex < static_cast<int>(stepNames.size()); ++stepIndex)
+
+
+    // We need to read the data as bulk fields, and populate the correct scalar caches 
+
+    frames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+    int frameCount =  this->frameCount();
+
+    for (int stepIndex = 0; stepIndex < frameCount; ++stepIndex)
     {
         std::vector<double > frameTimes = m_readerInterface->frameTimes(stepIndex);
 

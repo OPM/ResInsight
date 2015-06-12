@@ -53,7 +53,7 @@ RigFemScalarResultFrames* RigFemPartResults::createScalarResult(const RigFemResu
 {
     CVF_ASSERT(m_stepNames.size());
 
-    RigFemScalarResultFrames * resFrames = new RigFemScalarResultFrames(m_stepNames);
+    RigFemScalarResultFrames * resFrames = new RigFemScalarResultFrames(static_cast<int>(m_stepNames.size()));
     resultSets[resVarAddr] = resFrames;
     return resFrames;
 }
