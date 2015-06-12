@@ -967,7 +967,7 @@ void RifOdbReader::readNodeField(const std::string& fieldName, int partIndex, in
 
     std::map<int, int>& nodeIdToIdxMap = m_nodeIdToIdxMaps[partIndex];
 
-    size_t dataSize = nodeIdToIdxMap.size()*compCount;
+    size_t dataSize = nodeIdToIdxMap.size();
 	if (dataSize > 0)
 	{
         for (int comp = 0; comp < compCount; comp++)
@@ -1018,7 +1018,7 @@ void RifOdbReader::readElementNodeField(const std::string& fieldName, int partIn
     size_t compCount = componentsCount(fieldName, ELEMENT_NODAL);
     CVF_ASSERT(compCount == resultValues->size());
 
-    size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex)*compCount;
+    size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
 	if (dataSize > 0)
 	{
         for (int comp = 0; comp < compCount; comp++)
@@ -1089,7 +1089,7 @@ void RifOdbReader::readIntegrationPointField(const std::string& fieldName, int p
     size_t compCount = componentsCount(fieldName, INTEGRATION_POINT);
     CVF_ASSERT(compCount == resultValues->size());
 
-    size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex)*compCount;
+    size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
 	if (dataSize > 0)
 	{
         for (int comp = 0; comp < compCount; comp++)
