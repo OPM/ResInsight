@@ -52,8 +52,8 @@
 class RifOdbBulkDataGetter
 {
 public:
-    RifOdbBulkDataGetter(const odb_FieldBulkData& bulkData) : m_bulkData(bulkData), m_data(NULL) {};
-    virtual ~RifOdbBulkDataGetter() { if (m_data) delete m_data; }
+    RifOdbBulkDataGetter(const odb_FieldBulkData& bulkData) : m_bulkData(bulkData) {};
+    virtual ~RifOdbBulkDataGetter() {};
 
     float* data()
     {
@@ -64,21 +64,22 @@ public:
         }
         else if (precision == odb_Enum::DOUBLE_PRECISION)
         {
-            m_data = new std::vector<float>;
-            
-            int dataSize = m_bulkData.length()*m_bulkData.width();
-            m_data->resize(dataSize);
+            if (m_data.size() < 1)
+            {            
+                int dataSize = m_bulkData.length()*m_bulkData.width();
+                m_data.resize(dataSize);
 
-            double* doublePtr = m_bulkData.dataDouble();
-            CVF_ASSERT(doublePtr);
+                double* doublePtr = m_bulkData.dataDouble();
+                CVF_ASSERT(doublePtr);
 
-            float* dataPtr = m_data->data();
-            for (int i = 0; i < dataSize; i++)
-            {
-                dataPtr[i] = (float) doublePtr[i];
+                float* dataPtr = m_data.data();
+                for (int i = 0; i < dataSize; i++)
+                {
+                    dataPtr[i] = (float) doublePtr[i];
+                }
             }
 
-            return dataPtr;
+            return m_data.data();
         }
 
         // Should never end up here
@@ -88,7 +89,7 @@ public:
 
 private:
     const odb_FieldBulkData&    m_bulkData;
-    std::vector<float>*         m_data;
+    std::vector<float>          m_data;
 };
 
 
