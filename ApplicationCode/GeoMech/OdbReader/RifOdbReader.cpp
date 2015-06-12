@@ -295,16 +295,16 @@ std::map< RifOdbReader::RifOdbResultKey, std::vector<std::string> > RifOdbReader
 				switch (fieldLocation.position())
 				{
 					case odb_Enum::NODAL:
-                        resultsMap[RifOdbResultKey(RifOdbResultKey::NODAL, fieldName)] = compVec;
+                        resultsMap[RifOdbResultKey(NODAL, fieldName)] = compVec;
 						break;
 
                     case odb_Enum::ELEMENT_NODAL:
-                        resultsMap[RifOdbResultKey(RifOdbResultKey::ELEMENT_NODAL, fieldName)] = compVec;
+                        resultsMap[RifOdbResultKey(ELEMENT_NODAL, fieldName)] = compVec;
 						break;
 
 					case odb_Enum::INTEGRATION_POINT:
-                        resultsMap[RifOdbResultKey(RifOdbResultKey::INTEGRATION_POINT, fieldName)] = compVec;
-                        resultsMap[RifOdbResultKey(RifOdbResultKey::ELEMENT_NODAL, fieldName)] = compVec;
+                        resultsMap[RifOdbResultKey(INTEGRATION_POINT, fieldName)] = compVec;
+                        resultsMap[RifOdbResultKey(ELEMENT_NODAL, fieldName)] = compVec;
 						break;
 
 					default:
@@ -543,7 +543,7 @@ std::vector<size_t> RifOdbReader::elementSet(int partIndex, int setIndex)
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RifOdbReader::scalarNodeFieldAndComponentNames()
 {
-    return fieldAndComponentNames(RifOdbResultKey::NODAL);
+    return fieldAndComponentNames(NODAL);
 }
 
 
@@ -552,7 +552,7 @@ std::map<std::string, std::vector<std::string> > RifOdbReader::scalarNodeFieldAn
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RifOdbReader::scalarElementNodeFieldAndComponentNames()
 {
-    return fieldAndComponentNames(RifOdbResultKey::ELEMENT_NODAL);
+    return fieldAndComponentNames(ELEMENT_NODAL);
 }
 
 
@@ -561,7 +561,7 @@ std::map<std::string, std::vector<std::string> > RifOdbReader::scalarElementNode
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RifOdbReader::scalarIntegrationPointFieldAndComponentNames()
 {
-    return fieldAndComponentNames(RifOdbResultKey::INTEGRATION_POINT);
+    return fieldAndComponentNames(INTEGRATION_POINT);
 }
 
 
@@ -608,6 +608,31 @@ odb_Instance* RifOdbReader::instance(int instanceIndex)
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const odb_SequenceFieldBulkData& RifOdbReader::fieldBulkData(const std::string& fieldName, ResultPosition position, odb_Instance* instance, const odb_Frame& frame)
+{
+    odb_FieldOutput& fieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(*instance);
+    
+    switch (position)
+    {
+        case ELEMENT_NODAL:
+            fieldOutput = fieldOutput.getSubset(odb_Enum::ELEMENT_NODAL);
+            break;
+
+        case INTEGRATION_POINT:
+            fieldOutput = fieldOutput.getSubset(odb_Enum::INTEGRATION_POINT);
+            break;
+
+        default:
+            break;
+    }
+
+    return fieldOutput.bulkDataBlocks();
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Get the number of result items (== #nodes or #elements)
 //--------------------------------------------------------------------------------------------------
 size_t RifOdbReader::resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex)
@@ -630,6 +655,17 @@ size_t RifOdbReader::resultItemCount(const std::string& fieldName, int partIndex
 
 	return resultItemCount;
 }
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifOdbReader::componentsCount(const std::string& fieldName, ResultPosition position)
+{
+    std::vector<std::string> compNames = componentNames(RifOdbResultKey(position, fieldName));
+    return compNames.size() > 0 ? compNames.size() : 1;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -677,7 +713,7 @@ std::vector<std::string> RifOdbReader::componentNames(const RifOdbResultKey& res
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::string> > RifOdbReader::fieldAndComponentNames(RifOdbResultKey::ResultPosition position)
+std::map<std::string, std::vector<std::string> > RifOdbReader::fieldAndComponentNames(ResultPosition position)
 {
     assertMetaDataLoaded();
 
@@ -710,8 +746,7 @@ void RifOdbReader::readScalarNodeField(const std::string& fieldName, const std::
     size_t dataSize = nodeIdToIdxMap.size();
     CVF_ASSERT(dataSize > 0);
 
-
-    int compIndex = componentIndex(RifOdbResultKey(RifOdbResultKey::NODAL, fieldName), componentName);
+    int compIndex = componentIndex(RifOdbResultKey(NODAL, fieldName), componentName);
 
 	if (compIndex < 0) return;
     
@@ -758,7 +793,7 @@ void RifOdbReader::readScalarElementNodeField(const std::string& fieldName, cons
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
-	int compIndex = componentIndex(RifOdbResultKey(RifOdbResultKey::ELEMENT_NODAL, fieldName), componentName);
+	int compIndex = componentIndex(RifOdbResultKey(ELEMENT_NODAL, fieldName), componentName);
     if (compIndex < 0) return;
 
     size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
@@ -819,8 +854,7 @@ void RifOdbReader::readScalarIntegrationPointField( const std::string& fieldName
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
 
-
-    int compIndex = componentIndex(RifOdbResultKey(RifOdbResultKey::INTEGRATION_POINT, fieldName), componentName);
+    int compIndex = componentIndex(RifOdbResultKey(INTEGRATION_POINT, fieldName), componentName);
 	if (compIndex < 0) return;
 
     size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex);
@@ -912,5 +946,200 @@ void RifOdbReader::readDisplacements(int partIndex, int stepIndex, int frameInde
 
 			dataIndex += numNodes*numComp;
 		}
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::readNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues)
+{
+	CVF_ASSERT(resultValues);
+
+    odb_Instance* partInstance = instance(partIndex);
+    CVF_ASSERT(partInstance != NULL);
+
+    size_t compCount = componentsCount(fieldName, NODAL);
+    CVF_ASSERT(compCount == resultValues->size());
+
+    std::map<int, int>& nodeIdToIdxMap = m_nodeIdToIdxMaps[partIndex];
+
+    size_t dataSize = nodeIdToIdxMap.size()*compCount;
+	if (dataSize > 0)
+	{
+        for (int comp = 0; comp < compCount; comp++)
+	    {
+            CVF_ASSERT((*resultValues)[comp]);
+
+		    (*resultValues)[comp]->resize(dataSize);
+            (*resultValues)[comp]->assign(dataSize, std::numeric_limits<float>::infinity());
+        }
+	}
+
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldBulkData(fieldName, NODAL, partInstance, frame);
+
+	size_t dataIndex = 0;
+	int numBlocks = seqFieldBulkData.size();
+	for (int block = 0; block < numBlocks; block++)
+	{
+		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+        RifOdbBulkDataGetter bulkDataGetter(bulkData);
+
+		int numNodes = bulkData.length();
+		int numComp = bulkData.width();
+        int* nodeLabels = bulkData.nodeLabels();
+        float* data = bulkDataGetter.data();
+
+		for (int i = 0; i < numNodes; i++)
+		{
+            for (int comp = 0; comp < numComp; comp++)
+            {
+                (*(*resultValues)[comp])[nodeIdToIdxMap[nodeLabels[i]]] = data[i*numComp + comp];
+            }
+		}
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::readElementNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues)
+{
+    CVF_ASSERT(resultValues);
+
+    odb_Instance* partInstance = instance(partIndex);
+    CVF_ASSERT(partInstance != NULL);
+
+    size_t compCount = componentsCount(fieldName, ELEMENT_NODAL);
+    CVF_ASSERT(compCount == resultValues->size());
+
+    size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex)*compCount;
+	if (dataSize > 0)
+	{
+        for (int comp = 0; comp < compCount; comp++)
+	    {
+            CVF_ASSERT((*resultValues)[comp]);
+
+		    (*resultValues)[comp]->resize(dataSize);
+            (*resultValues)[comp]->assign(dataSize, std::numeric_limits<float>::infinity());
+        }
+	}
+
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldBulkData(fieldName, ELEMENT_NODAL, partInstance, frame);
+
+    std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
+    CVF_ASSERT(elementIdToIdxMap.size() > 0);
+	    
+    size_t dataIndex = 0;
+	int numBlocks = seqFieldBulkData.size();
+	for (int block = 0; block < numBlocks; block++)
+	{
+		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+        RifOdbBulkDataGetter bulkDataGetter(bulkData);
+
+		int numValues = bulkData.length();
+		int numComp = bulkData.width();
+        int elemCount = bulkData.numberOfElements();
+		int ipCount = numValues/elemCount;
+		int* elementLabels = bulkData.elementLabels();
+        float* data = bulkDataGetter.data();
+
+        RigElementType eType = toRigElementType(bulkData.baseElementType());
+        const int* elmNodeToIpResultMapping = localElmNodeToIntegrationPointMapping(eType);
+        if (!elmNodeToIpResultMapping) continue;
+
+        for (int elem = 0; elem < elemCount; elem++)
+        {
+            int elementIdx = elementIdToIdxMap[elementLabels[elem*ipCount]];
+            int elementResultStartDestIdx = elementIdx*ipCount; // Ikke generellt riktig !
+            int elementResultStartSourceIdx = elem*ipCount*numComp;
+
+            for (int ipIdx = 0; ipIdx < ipCount; ipIdx++)
+            {
+                int resultIpIdx = elmNodeToIpResultMapping[ipIdx];
+                int destIdx = elementResultStartDestIdx + ipIdx; 
+                int srcIdx  = elementResultStartSourceIdx + resultIpIdx*numComp;
+
+                for (int comp = 0; comp < numComp; comp++)
+                {
+                    (*(*resultValues)[comp])[destIdx] = data[srcIdx + comp];
+                }
+            }
+        }
+	}
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::readIntegrationPointField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues)
+{
+    CVF_ASSERT(resultValues);
+
+    odb_Instance* partInstance = instance(partIndex);
+    CVF_ASSERT(partInstance != NULL);
+
+    size_t compCount = componentsCount(fieldName, INTEGRATION_POINT);
+    CVF_ASSERT(compCount == resultValues->size());
+
+    size_t dataSize = resultItemCount(fieldName, partIndex, stepIndex, frameIndex)*compCount;
+	if (dataSize > 0)
+	{
+        for (int comp = 0; comp < compCount; comp++)
+	    {
+            CVF_ASSERT((*resultValues)[comp]);
+
+		    (*resultValues)[comp]->resize(dataSize);
+            (*resultValues)[comp]->assign(dataSize, std::numeric_limits<float>::infinity());
+        }
+	}
+
+	const odb_Frame& frame = stepFrame(stepIndex, frameIndex);
+	const odb_SequenceFieldBulkData& seqFieldBulkData = fieldBulkData(fieldName, INTEGRATION_POINT, partInstance, frame);
+
+    std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
+    CVF_ASSERT(elementIdToIdxMap.size() > 0);
+	    
+    size_t dataIndex = 0;
+	int numBlocks = seqFieldBulkData.size();
+	for (int block = 0; block < numBlocks; block++)
+	{
+		const odb_FieldBulkData& bulkData =	seqFieldBulkData[block];
+        RifOdbBulkDataGetter bulkDataGetter(bulkData);
+
+		int numValues = bulkData.length();
+		int numComp = bulkData.width();
+        int elemCount = bulkData.numberOfElements();
+		int ipCount = numValues/elemCount;
+		int* elementLabels = bulkData.elementLabels();
+        float* data = bulkDataGetter.data();
+
+        RigElementType eType = toRigElementType(bulkData.baseElementType());
+        const int* elmNodeToIpResultMapping = localElmNodeToIntegrationPointMapping(eType);
+        if (!elmNodeToIpResultMapping) continue;
+
+        for (int elem = 0; elem < elemCount; elem++)
+        {
+            int elementIdx = elementIdToIdxMap[elementLabels[elem*ipCount]];
+            int elementResultStartDestIdx = elementIdx*ipCount; // Ikke generellt riktig !
+            int elementResultStartSourceIdx = elem*ipCount*numComp;
+
+            for (int ipIdx = 0; ipIdx < ipCount; ipIdx++)
+            {
+                int resultIpIdx = elmNodeToIpResultMapping[ipIdx];
+                int destIdx = elementResultStartDestIdx + ipIdx; 
+                int srcIdx  = elementResultStartSourceIdx + resultIpIdx*numComp;
+
+                for (int comp = 0; comp < numComp; comp++)
+                {
+                    (*(*resultValues)[comp])[destIdx] = data[srcIdx + comp];
+                }
+            }
+        }
 	}
 }

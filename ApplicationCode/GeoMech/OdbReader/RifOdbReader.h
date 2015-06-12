@@ -28,6 +28,7 @@ class RigFemPartCollection;
 class odb_Odb;
 class odb_Frame;
 class odb_Instance;
+class odb_SequenceFieldBulkData;
 
 //==================================================================================================
 //
@@ -58,17 +59,21 @@ public:
     virtual void                                                readScalarIntegrationPointField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
     virtual void                                                readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
 
+    virtual void                                                readNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues);
+    virtual void                                                readElementNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues);
+    virtual void                                                readIntegrationPointField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues);
+
 private:
+    enum ResultPosition
+    {
+	    NODAL,
+	    ELEMENT_NODAL,
+	    INTEGRATION_POINT
+    };
+
     class RifOdbResultKey
     {
     public:
-        enum ResultPosition
-        {
-	        NODAL,
-	        ELEMENT_NODAL,
-	        INTEGRATION_POINT
-        };
-
         RifOdbResultKey(ResultPosition aResultPostion, const std::string& aFieldName)
                         : resultPostion(aResultPostion), fieldName(aFieldName) {};
 
@@ -89,11 +94,13 @@ private:
     void                                                    assertMetaDataLoaded();
     void                                                    close();
     size_t                                                  resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex);
+    size_t                                                  componentsCount(const std::string& fieldName, ResultPosition position);
     const odb_Frame&                                        stepFrame(int stepIndex, int frameIndex) const;
     odb_Instance*									        instance(int instanceIndex);
+    const odb_SequenceFieldBulkData&                        fieldBulkData(const std::string& fieldName, ResultPosition position, odb_Instance*, const odb_Frame& frame);
     int                                                     componentIndex(const RifOdbResultKey& result, const std::string& componentName);
     std::vector<std::string>                                componentNames(const RifOdbResultKey& result);
-    std::map< std::string, std::vector<std::string> >       fieldAndComponentNames(RifOdbResultKey::ResultPosition position); 
+    std::map< std::string, std::vector<std::string> >       fieldAndComponentNames(ResultPosition position); 
     std::map< RifOdbResultKey, std::vector<std::string> >   readResultsMetaData(odb_Odb* odb);
  
 private:
