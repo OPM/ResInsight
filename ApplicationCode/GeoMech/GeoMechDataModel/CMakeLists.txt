@@ -31,6 +31,7 @@ add_library( ${PROJECT_NAME}
 	RigFemPartGrid.cpp
 	RigFemResultAddress.h
 	RigFemResultPosEnum.h
+	cafTensor3D.h
 )
 
 target_link_libraries( ${PROJECT_NAME} LibCore ResultStatisticsCache)
