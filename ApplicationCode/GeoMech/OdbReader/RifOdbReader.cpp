@@ -612,8 +612,10 @@ odb_Instance* RifOdbReader::instance(int instanceIndex)
 //--------------------------------------------------------------------------------------------------
 const odb_SequenceFieldBulkData& RifOdbReader::fieldBulkData(const std::string& fieldName, ResultPosition position, odb_Instance* instance, const odb_Frame& frame)
 {
-    odb_FieldOutput& fieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(*instance);
-    
+
+    const odb_FieldOutput& fieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset(*instance);
+    CVF_ASSERT(false); // This stuff must be fixed for linux
+#if 0
     switch (position)
     {
         case ELEMENT_NODAL:
@@ -627,7 +629,7 @@ const odb_SequenceFieldBulkData& RifOdbReader::fieldBulkData(const std::string& 
         default:
             break;
     }
-
+#endif
     return fieldOutput.bulkDataBlocks();
 }
 
