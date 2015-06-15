@@ -104,7 +104,7 @@ bool RigGeoMechCaseData::openAndReadFemParts(std::string* errorMessage)
             progress.setProgressDescription("Calculating element neighbors");
 
             // Initialize results containers
-            m_femPartResultsColl = new RigFemPartResultsCollection(m_readerInterface.p(), m_femParts->partCount());
+            m_femPartResultsColl = new RigFemPartResultsCollection(m_readerInterface.p(), m_femParts.p());
 
             // Calculate derived Fem data
             for (int pIdx = 0; pIdx < m_femParts->partCount(); ++pIdx)

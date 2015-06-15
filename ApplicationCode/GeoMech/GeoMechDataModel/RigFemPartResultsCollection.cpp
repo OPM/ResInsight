@@ -27,6 +27,7 @@
 #include "RigFemScalarResultFrames.h"
 #include "RigStatisticsDataCache.h"
 #include "RigFemPartResults.h"
+#include "RigFemPartCollection.h"
 
 #include "cafProgressInfo.h"
 #include "cvfBoundingBox.h"
@@ -40,11 +41,13 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemPartResultsCollection::RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, int partCount)
+RigFemPartResultsCollection::RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, const RigFemPartCollection * femPartCollection)
 {
     CVF_ASSERT(readerInterface);
     m_readerInterface = readerInterface;
-    m_femPartResults.resize(partCount);
+    m_femParts = femPartCollection;
+
+    m_femPartResults.resize(m_femParts->partCount());
     std::vector<std::string> stepNames = m_readerInterface->stepNames();
     for (int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx)
     {
@@ -61,44 +64,6 @@ RigFemPartResultsCollection::~RigFemPartResultsCollection()
 
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::scalarFieldAndComponentNames(RigFemResultPosEnum resPos)
-{
-    std::map<std::string, std::vector<std::string> >  fieldCompNames;
-
-    if (m_readerInterface.notNull())
-    {
-        if (resPos == RIG_NODAL)
-        {
-            fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
-        }
-        else if (resPos == RIG_ELEMENT_NODAL)
-        {
-            fieldCompNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
-            fieldCompNames["NS"].push_back("S11");
-            fieldCompNames["NS"].push_back("S22");
-            fieldCompNames["NS"].push_back("S33");
-            fieldCompNames["NS"].push_back("S12");
-            fieldCompNames["NS"].push_back("S13");
-            fieldCompNames["NS"].push_back("S23");
-        }
-        else if (resPos == RIG_INTEGRATION_POINT)
-        {
-            fieldCompNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
-            fieldCompNames["NS"].push_back("S11");
-            fieldCompNames["NS"].push_back("S22");
-            fieldCompNames["NS"].push_back("S33");
-            fieldCompNames["NS"].push_back("S12");
-            fieldCompNames["NS"].push_back("S13");
-            fieldCompNames["NS"].push_back("S23");
-        }
-    }
-
-    return fieldCompNames;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// Will always return a valid object, but it can be empty
@@ -173,6 +138,52 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::scalarFieldAndComponentNames(RigFemResultPosEnum resPos)
+{
+    std::map<std::string, std::vector<std::string> >  fieldCompNames;
+
+    if (m_readerInterface.notNull())
+    {
+        if (resPos == RIG_NODAL)
+        {
+            fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
+        }
+        else if (resPos == RIG_ELEMENT_NODAL)
+        {
+            fieldCompNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
+            fieldCompNames["NS"].push_back("S11");
+            fieldCompNames["NS"].push_back("S22");
+            fieldCompNames["NS"].push_back("S33");
+            fieldCompNames["NS"].push_back("S12");
+            fieldCompNames["NS"].push_back("S13");
+            fieldCompNames["NS"].push_back("S23");
+
+            fieldCompNames["ST"].push_back("S11");
+            fieldCompNames["ST"].push_back("S22");
+            fieldCompNames["ST"].push_back("S33");
+        }
+        else if (resPos == RIG_INTEGRATION_POINT)
+        {
+            fieldCompNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
+            fieldCompNames["NS"].push_back("S11");
+            fieldCompNames["NS"].push_back("S22");
+            fieldCompNames["NS"].push_back("S33");
+            fieldCompNames["NS"].push_back("S12");
+            fieldCompNames["NS"].push_back("S13");
+            fieldCompNames["NS"].push_back("S23");
+ 
+            fieldCompNames["ST"].push_back("S11");
+            fieldCompNames["ST"].push_back("S22");
+            fieldCompNames["ST"].push_back("S33");
+       }
+    }
+
+    return fieldCompNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
 {
     // ST[11, 22, 33, 12, 13, 23, 1, 2, 3], Gamma[1,2,3], NS[11,22,33,12,13,23, 1, 2, 3]
@@ -194,6 +205,36 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             }
         }
         return dstDataFrames;
+    }
+
+    if (    resVarAddr.fieldName == "ST" 
+        &&  (resVarAddr.componentName == "S11" 
+            ||  resVarAddr.componentName == "S22"  
+            ||  resVarAddr.componentName == "S33" ))
+    {
+        RigFemScalarResultFrames * srcNSDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", resVarAddr.componentName));
+        RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR", ""));
+
+        RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+        const RigFemPart * femPart = m_femParts->part(partIndex);
+        int frameCount = srcNSDataFrames->frameCount();
+        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+        {
+            const std::vector<float>& srcNSFrameData = srcNSDataFrames->frameData(fIdx);
+            const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
+            
+            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+
+            size_t valCount = srcNSFrameData.size();
+            dstFrameData.resize(valCount);
+            int nodeIdx = 0;
+            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+            {
+                nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(vIdx);
+                dstFrameData[vIdx] = srcNSFrameData[vIdx] + srcPORFrameData[nodeIdx];
+            }
+        }
+        return dstDataFrames; 
     }
 
     return NULL;

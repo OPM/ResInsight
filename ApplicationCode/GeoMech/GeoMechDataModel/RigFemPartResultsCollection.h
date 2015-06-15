@@ -31,11 +31,12 @@ class RigFemScalarResultFrames;
 class RigFemPartResultsCollection;
 class RigFemPartResults;
 class RigStatisticsDataCache;
+class RigFemPartCollection;
 
 class RigFemPartResultsCollection: public cvf::Object
 {
 public:
-    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, int partCount);
+    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, const RigFemPartCollection * femPartCollection);
     ~RigFemPartResultsCollection();
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
@@ -63,6 +64,7 @@ private:
     friend class RigFemNativeStatCalc;                                                                                      
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
+    cvf::cref<RigFemPartCollection>                  m_femParts;
 
     RigStatisticsDataCache*                          statistics(const RigFemResultAddress& resVarAddr);
     std::vector< RigFemResultAddress>                getResAddrToComponentsToRead(const RigFemResultAddress& resVarAddr);

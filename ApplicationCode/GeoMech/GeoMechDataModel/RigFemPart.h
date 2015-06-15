@@ -56,7 +56,9 @@ public:
     int                         elmId(size_t elementIdx) const             { return m_elementId[elementIdx]; }
     RigElementType              elementType(size_t elementIdx) const       { return m_elementTypes[elementIdx]; }
     const int*                  connectivities(size_t elementIdx) const    { return &m_allAlementConnectivities[m_elementConnectivityStartIndices[elementIdx]];}
+
     size_t                      elementNodeResultIdx(int elementIdx, int elmLocalNodeIdx) const { return m_elementConnectivityStartIndices[elementIdx] + elmLocalNodeIdx;}
+    int                         nodeIdxFromElementNodeResultIdx(size_t elmNodeResultIdx)  const { return m_allAlementConnectivities[elmNodeResultIdx]; }
 
     RigFemPartNodes&            nodes()                                    {return m_nodes;}
     const RigFemPartNodes&      nodes() const                              {return m_nodes;}
