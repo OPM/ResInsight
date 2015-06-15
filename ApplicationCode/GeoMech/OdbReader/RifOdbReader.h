@@ -53,10 +53,7 @@ public:
     virtual std::map<std::string, std::vector<std::string> >    scalarNodeFieldAndComponentNames(); 
     virtual std::map<std::string, std::vector<std::string> >    scalarElementNodeFieldAndComponentNames(); 
     virtual std::map<std::string, std::vector<std::string> >    scalarIntegrationPointFieldAndComponentNames(); 
-	
-    virtual void                                                readScalarNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
-    virtual void                                                readScalarElementNodeField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
-    virtual void                                                readScalarIntegrationPointField(const std::string& fieldName, const std::string& componmentName, int partIndex, int stepIndex, int frameIndex, std::vector<float>* resultValues);
+
     virtual void                                                readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
 
     virtual void                                                readNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues);
@@ -97,7 +94,7 @@ private:
     size_t                                                  componentsCount(const std::string& fieldName, ResultPosition position);
     const odb_Frame&                                        stepFrame(int stepIndex, int frameIndex) const;
     odb_Instance*									        instance(int instanceIndex);
-    const odb_SequenceFieldBulkData&                        fieldBulkData(const std::string& fieldName, ResultPosition position, odb_Instance*, const odb_Frame& frame);
+
     int                                                     componentIndex(const RifOdbResultKey& result, const std::string& componentName);
     std::vector<std::string>                                componentNames(const RifOdbResultKey& result);
     std::map< std::string, std::vector<std::string> >       fieldAndComponentNames(ResultPosition position); 
@@ -105,9 +102,11 @@ private:
  
 private:
     odb_Odb*                                                m_odb;
+
     std::map< RifOdbResultKey, std::vector<std::string> >   m_resultsMetaData;
     std::map< int, std::vector<std::string> >               m_partElementSetNames;
     std::vector< std::map<int, int> >                       m_nodeIdToIdxMaps;
     std::vector< std::map<int, int> >                       m_elementIdToIdxMaps;
-	static size_t sm_instanceCount;
+
+	static size_t                                           sm_instanceCount;
 };
