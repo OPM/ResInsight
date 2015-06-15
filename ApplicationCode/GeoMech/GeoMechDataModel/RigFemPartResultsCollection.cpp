@@ -78,10 +78,22 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         else if (resPos == RIG_ELEMENT_NODAL)
         {
             fieldCompNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
+            fieldCompNames["NS"].push_back("S11");
+            fieldCompNames["NS"].push_back("S22");
+            fieldCompNames["NS"].push_back("S33");
+            fieldCompNames["NS"].push_back("S12");
+            fieldCompNames["NS"].push_back("S13");
+            fieldCompNames["NS"].push_back("S23");
         }
         else if (resPos == RIG_INTEGRATION_POINT)
         {
             fieldCompNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
+            fieldCompNames["NS"].push_back("S11");
+            fieldCompNames["NS"].push_back("S22");
+            fieldCompNames["NS"].push_back("S33");
+            fieldCompNames["NS"].push_back("S12");
+            fieldCompNames["NS"].push_back("S13");
+            fieldCompNames["NS"].push_back("S23");
         }
     }
 
@@ -167,8 +179,23 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
     if (resVarAddr.fieldName == "NS")
     {
-        
+        RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S", resVarAddr.componentName));
+        RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+        int frameCount = srcDataFrames->frameCount();
+        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+        {
+            const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
+            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+            size_t valCount = srcFrameData.size();
+            dstFrameData.resize(valCount);
+            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+            {
+                dstFrameData[vIdx] = -srcFrameData[vIdx];
+            }
+        }
+        return dstDataFrames;
     }
+
     return NULL;
 }
 
