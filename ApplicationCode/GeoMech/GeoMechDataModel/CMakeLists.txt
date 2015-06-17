@@ -4,6 +4,7 @@ project (RigGeoMechDataModel)
 
 include_directories(
 	${LibCore_SOURCE_DIR}
+        ${cafTensor_SOURCE_DIR}
 	../../ResultStatisticsCache
 	../OdbReader
 )
@@ -33,4 +34,4 @@ add_library( ${PROJECT_NAME}
 	RigFemResultPosEnum.h
 )
 
-target_link_libraries( ${PROJECT_NAME} LibCore ResultStatisticsCache)
+target_link_libraries( ${PROJECT_NAME} LibCore cafTensor ResultStatisticsCache)
