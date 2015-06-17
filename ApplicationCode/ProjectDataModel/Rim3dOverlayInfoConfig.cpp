@@ -324,7 +324,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     }
 
                     infoText += QString(
-                    "<b>Cell result:</b> %1 %2").arg(resultPos, resultName);
+                    "<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(resultName);
 
                     double min = 0, max = 0;
                     double p10 = 0, p90 = 0;
