@@ -319,7 +319,11 @@ void RiuMainWindow::createActions()
 
 
     connect(m_dsActionGroup, SIGNAL(triggered(QAction*)), SLOT(slotDrawStyleChanged(QAction*)));
-   
+
+    m_disableLightingAction = new QAction(QIcon(":/disable_lighting_24x24.png"), "&Disable Lighting", this);
+    m_disableLightingAction->setCheckable(true);
+    connect(m_disableLightingAction,	SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
+
 
     m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
     m_drawStyleToggleFaultsAction->setCheckable(true);
@@ -509,6 +513,7 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
     m_viewToolBar->addAction(m_drawStyleFaultLinesSolidAction);
+    m_viewToolBar->addAction(m_disableLightingAction);
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
     m_viewToolBar->addAction(m_toggleFaultsLabelAction);
     m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
@@ -1736,16 +1741,28 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::refreshDrawStyleActions()
 {
-    bool enable = RiaApplication::instance()->activeReservoirView() != NULL;
+    RimView* view = RiaApplication::instance()->activeReservoirView();
+    bool enable = view != NULL;
 
     m_drawStyleLinesAction->setEnabled(enable);
     m_drawStyleLinesSolidAction->setEnabled(enable);
     m_drawStyleSurfOnlyAction->setEnabled(enable);
     m_drawStyleFaultLinesSolidAction->setEnabled(enable);
 
-    RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
+    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
     
-    enable = enable && riv;
+    // !! ToDo: hasResult() is probably not a sufficient test
+    bool eclResultActive = eclView ? eclView->cellResult()->hasStaticResult() || eclView->cellResult()->hasDynamicResult() : false;
+    bool geoMechResultActive = geoMechView ? geoMechView->cellResult()->hasResult() : false;
+    bool lightingDisabledInView = view ? view->isLightingDisabled() : false;
+
+    m_disableLightingAction->setEnabled(eclResultActive || geoMechResultActive);
+    m_disableLightingAction->blockSignals(true);
+    m_disableLightingAction->setChecked(lightingDisabledInView);
+    m_disableLightingAction->blockSignals(false);
+
+    enable = enable && eclView;
 
     m_drawStyleToggleFaultsAction->setEnabled(enable);
     m_toggleFaultsLabelAction->setEnabled(enable);
@@ -1753,21 +1770,34 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_addWellCellsToRangeFilterAction->setEnabled(enable);
 
     if (enable) 
-    {
-       
+    {   
         m_drawStyleToggleFaultsAction->blockSignals(true);
-        m_drawStyleToggleFaultsAction->setChecked(   !riv->isGridVisualizationMode());
+        m_drawStyleToggleFaultsAction->setChecked(!eclView->isGridVisualizationMode());
         m_drawStyleToggleFaultsAction->blockSignals(false);
 
         m_toggleFaultsLabelAction->blockSignals(true);
-        m_toggleFaultsLabelAction->setChecked(riv->faultCollection()->showFaultLabel());
+        m_toggleFaultsLabelAction->setChecked(eclView->faultCollection()->showFaultLabel());
         m_toggleFaultsLabelAction->blockSignals(false);
 
         m_addWellCellsToRangeFilterAction->blockSignals(true);
-        m_addWellCellsToRangeFilterAction->setChecked( riv->wellCollection()->wellCellsToRangeFilterMode() != RimWellCollection::RANGE_ADD_NONE);
+        m_addWellCellsToRangeFilterAction->setChecked(eclView->wellCollection()->wellCellsToRangeFilterMode() != RimWellCollection::RANGE_ADD_NONE);
         m_addWellCellsToRangeFilterAction->blockSignals(false);
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotDisableLightingAction(bool disable)
+{
+    RimView* view = RiaApplication::instance()->activeReservoirView();
+    if (view)
+    {
+        view->disableLighting(disable);
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

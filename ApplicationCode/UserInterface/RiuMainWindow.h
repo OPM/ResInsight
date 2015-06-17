@@ -241,6 +241,7 @@ private slots:
     void slotDrawStyleChanged(QAction* activatedAction);
     void slotToggleFaultsAction(bool);
     void slotToggleFaultLabelsAction(bool);
+    void slotDisableLightingAction(bool);
 
     void slotAddWellCellsToRangeFilterAction(bool doAdd);
 
@@ -291,6 +292,7 @@ private:
     QSpinBox*                   m_scaleFactor;
 
     QActionGroup*               m_dsActionGroup;
+    QAction*                    m_disableLightingAction;
     QAction*                    m_drawStyleToggleFaultsAction;
     QAction*                    m_toggleFaultsLabelAction;
     QAction*                    m_drawStyleLinesAction;
