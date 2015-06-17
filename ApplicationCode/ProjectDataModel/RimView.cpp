@@ -90,6 +90,9 @@ RimView::RimView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
+    CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Lighting", "", "Disable light model for scalar result colors", "");
+    m_disableLighting.setUiReadOnly(true);
+
     m_previousGridModeMeshLinesWasFaults = false;
 }
 
@@ -217,7 +220,7 @@ void RimView::createDisplayModelAndRedraw()
         updateDisplayModelVisibility();
     }
 
-    RiuMainWindow::instance()->refreshAnimationActions(); 
+    RiuMainWindow::instance()->refreshAnimationActions();
 }
 
 
@@ -372,6 +375,32 @@ void RimView::setSurfaceDrawstyle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimView::disableLighting(bool disable)
+{
+    m_disableLighting = disable;
+    updateCurrentTimeStepAndRedraw();
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimView::isLightingDisabled() const
+{
+    return m_disableLighting();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::uiEnableDisableLighting(bool enable)
+{
+    m_disableLighting.setUiReadOnly(!enable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &meshMode)
@@ -414,6 +443,11 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         createDisplayModel();
         updateDisplayModelVisibility();
+        RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
+    else if (changedField == &m_disableLighting)
+    {
+        createDisplayModel();
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
     else if (changedField == &name)

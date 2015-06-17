@@ -87,6 +87,10 @@ public:
     void                                    setSurfOnlyDrawstyle();
     void                                    setFaultMeshSurfDrawstyle();
     void                                    setSurfaceDrawstyle();
+
+    void                                    disableLighting(bool disable);
+    bool                                    isLightingDisabled() const;
+    void                                    uiEnableDisableLighting(bool enable);
    
     void                                    setShowFaultsOnly(bool showFaults);
     bool                                    isGridVisualizationMode() const;
@@ -143,6 +147,7 @@ protected:
 
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
+    caf::PdmField<bool>                     m_disableLighting;
 
 };
 
