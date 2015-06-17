@@ -184,6 +184,7 @@ add_subdirectory(Fwk/AppFwk/cafAnimControl)
 add_subdirectory(Fwk/AppFwk/cafViewer)
 add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
+add_subdirectory(Fwk/AppFwk/cafTensor)
 
 include_directories(
     ${cafUserInterface_SOURCE_DIR}
@@ -192,6 +193,7 @@ include_directories(
     ${CommonCode_SOURCE_DIR}
 	${cafAnimControl_SOURCE_DIR}
 	${cafViewer_SOURCE_DIR}
+	${cafTensor_SOURCE_DIR}
 )
 
 set_property(TARGET  
@@ -200,6 +202,7 @@ set_property(TARGET
 	cafProjectDataModel 
 	cafUserInterface 
 	cafViewer
+	cafTensor
 	CommonCode
 	PROPERTY FOLDER "AppFwk"
 )

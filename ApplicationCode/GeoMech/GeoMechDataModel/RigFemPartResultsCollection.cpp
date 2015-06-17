@@ -36,6 +36,7 @@
 #include <cmath>
 #include <stdlib.h>
 #include "RigFemNativeStatCalc.h"
+#include "cafTensor3.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -157,6 +158,9 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["NS"].push_back("S12");
             fieldCompNames["NS"].push_back("S13");
             fieldCompNames["NS"].push_back("S23");
+            fieldCompNames["NS"].push_back("S1");
+            fieldCompNames["NS"].push_back("S2");
+            fieldCompNames["NS"].push_back("S3");
 
             fieldCompNames["ST"].push_back("S11");
             fieldCompNames["ST"].push_back("S22");
@@ -171,6 +175,9 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["NS"].push_back("S12");
             fieldCompNames["NS"].push_back("S13");
             fieldCompNames["NS"].push_back("S23");
+            fieldCompNames["NS"].push_back("S1");
+            fieldCompNames["NS"].push_back("S2");
+            fieldCompNames["NS"].push_back("S3");
  
             fieldCompNames["ST"].push_back("S11");
             fieldCompNames["ST"].push_back("S22");
@@ -188,7 +195,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 {
     // ST[11, 22, 33, 12, 13, 23, 1, 2, 3], Gamma[1,2,3], NS[11,22,33,12,13,23, 1, 2, 3]
 
-    if (resVarAddr.fieldName == "NS")
+    if (resVarAddr.fieldName == "NS" && !(resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ))
     {
         RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S", resVarAddr.componentName));
         RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
@@ -207,8 +214,57 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return dstDataFrames;
     }
 
+    if (resVarAddr.fieldName == "NS" && (resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ))
+    {
+        RigFemScalarResultFrames * ns11Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S11"));
+        RigFemScalarResultFrames * ns22Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S22"));
+        RigFemScalarResultFrames * ns33Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S33"));
+        RigFemScalarResultFrames * ns12Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S12"));
+        RigFemScalarResultFrames * ns13Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S13"));
+        RigFemScalarResultFrames * ns23Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S23"));
+
+        RigFemScalarResultFrames * ns1Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, "NS", "S1"));
+        RigFemScalarResultFrames * ns2Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, "NS", "S2"));
+        RigFemScalarResultFrames * ns3Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, "NS", "S3"));
+
+        int frameCount = ns11Frames->frameCount();
+        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+        {
+            const std::vector<float>& ns11 = ns11Frames->frameData(fIdx);
+            const std::vector<float>& ns22 = ns22Frames->frameData(fIdx);
+            const std::vector<float>& ns33 = ns33Frames->frameData(fIdx);
+            const std::vector<float>& ns12 = ns12Frames->frameData(fIdx);
+            const std::vector<float>& ns13 = ns13Frames->frameData(fIdx);
+            const std::vector<float>& ns23 = ns23Frames->frameData(fIdx);
+
+            std::vector<float>& ns1 = ns1Frames->frameData(fIdx);
+            std::vector<float>& ns2 = ns2Frames->frameData(fIdx);
+            std::vector<float>& ns3 = ns3Frames->frameData(fIdx);
+
+            size_t valCount = ns11.size();
+            
+            ns1.resize(valCount);
+            ns2.resize(valCount);
+            ns3.resize(valCount);
+
+            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+            {
+                caf::Ten3f T(ns11[vIdx], ns22[vIdx], ns33[vIdx], ns12[vIdx], ns11[vIdx], ns11[vIdx] );
+
+                cvf::Vec3f principals = T.calculatePrincipals(NULL);
+                ns1[vIdx] = principals[0];
+                ns2[vIdx] = principals[1];
+                ns3[vIdx] = principals[2];
+            }
+        }
+
+        RigFemScalarResultFrames* requestedPrincipal = this->findOrLoadScalarResult(partIndex,resVarAddr);
+        
+        return  requestedPrincipal;
+    }
+
     if (    resVarAddr.fieldName == "ST" 
-        &&  (resVarAddr.componentName == "S11" 
+        &&  (   resVarAddr.componentName == "S11" 
             ||  resVarAddr.componentName == "S22"  
             ||  resVarAddr.componentName == "S33" ))
     {

@@ -293,6 +293,7 @@ set( LINK_LIBRARIES
     cafProjectDataModel
     cafViewer
     cafAnimControl
+	cafTensor
     CommonCode
     LibGuiQt
     LibViewing
