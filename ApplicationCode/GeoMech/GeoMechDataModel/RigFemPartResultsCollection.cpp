@@ -171,6 +171,10 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S1");
             fieldCompNames["ST"].push_back("S2");
             fieldCompNames["ST"].push_back("S3");
+
+            fieldCompNames["Gamma"].push_back("Gamma1");
+            fieldCompNames["Gamma"].push_back("Gamma2");
+            fieldCompNames["Gamma"].push_back("Gamma3");
         }
         else if (resPos == RIG_INTEGRATION_POINT)
         {
@@ -194,6 +198,10 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S1");
             fieldCompNames["ST"].push_back("S2");
             fieldCompNames["ST"].push_back("S3");
+
+            fieldCompNames["Gamma"].push_back("Gamma1");
+            fieldCompNames["Gamma"].push_back("Gamma2");
+            fieldCompNames["Gamma"].push_back("Gamma3");
        }
     }
 
@@ -317,6 +325,59 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
     }
 
     if (resVarAddr.fieldName == "ST" && resVarAddr.componentName == "")
+    {
+        // Create and return an empty result
+        return m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+    }
+
+
+    if (resVarAddr.fieldName == "Gamma"
+        &&  (   resVarAddr.componentName == "Gamma1"
+             || resVarAddr.componentName == "Gamma2"
+             || resVarAddr.componentName == "Gamma3"))
+    {
+        RigFemScalarResultFrames * srcDataFrames = NULL;
+        if (resVarAddr.componentName == "Gamma1"){
+            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S1"));
+        }else if (resVarAddr.componentName == "Gamma2"){
+            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S2"));
+        }else if (resVarAddr.componentName == "Gamma3"){
+            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S3"));
+        }
+
+        RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR", ""));
+
+        RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+        
+        const RigFemPart * femPart = m_femParts->part(partIndex);
+        int frameCount = srcDataFrames->frameCount();
+        float inf = std::numeric_limits<float>::infinity();
+        
+        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+        {
+            const std::vector<float>& srcSTFrameData = srcDataFrames->frameData(fIdx);
+            const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
+            
+            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+
+            size_t valCount = srcSTFrameData.size();
+            dstFrameData.resize(valCount);
+            int nodeIdx = 0;
+            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+            {
+                nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(vIdx);
+                float por = srcPORFrameData[nodeIdx];
+
+                if (por == inf || abs(por) < 0.01e6) 
+                    dstFrameData[vIdx] = inf;
+                else 
+                    dstFrameData[vIdx] = srcSTFrameData[vIdx]/por;
+            }
+        }
+        return dstDataFrames; 
+    }
+
+    if (resVarAddr.fieldName == "Gamma" && resVarAddr.componentName == "")
     {
         // Create and return an empty result
         return m_femPartResults[partIndex]->createScalarResult(resVarAddr);
