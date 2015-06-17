@@ -165,6 +165,12 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S11");
             fieldCompNames["ST"].push_back("S22");
             fieldCompNames["ST"].push_back("S33");
+            fieldCompNames["ST"].push_back("S12");
+            fieldCompNames["ST"].push_back("S13");
+            fieldCompNames["ST"].push_back("S23");
+            fieldCompNames["ST"].push_back("S1");
+            fieldCompNames["ST"].push_back("S2");
+            fieldCompNames["ST"].push_back("S3");
         }
         else if (resPos == RIG_INTEGRATION_POINT)
         {
@@ -182,6 +188,12 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S11");
             fieldCompNames["ST"].push_back("S22");
             fieldCompNames["ST"].push_back("S33");
+            fieldCompNames["ST"].push_back("S12");
+            fieldCompNames["ST"].push_back("S13");
+            fieldCompNames["ST"].push_back("S23");
+            fieldCompNames["ST"].push_back("S1");
+            fieldCompNames["ST"].push_back("S2");
+            fieldCompNames["ST"].push_back("S3");
        }
     }
 
@@ -214,18 +226,19 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return dstDataFrames;
     }
 
-    if (resVarAddr.fieldName == "NS" && (resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ))
+    if (   (resVarAddr.fieldName == "NS" || resVarAddr.fieldName == "ST" )
+        && (resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ))
     {
-        RigFemScalarResultFrames * ns11Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S11"));
-        RigFemScalarResultFrames * ns22Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S22"));
-        RigFemScalarResultFrames * ns33Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S33"));
-        RigFemScalarResultFrames * ns12Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S12"));
-        RigFemScalarResultFrames * ns13Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S13"));
-        RigFemScalarResultFrames * ns23Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", "S23"));
+        RigFemScalarResultFrames * ns11Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S11"));
+        RigFemScalarResultFrames * ns22Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S22"));
+        RigFemScalarResultFrames * ns33Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S33"));
+        RigFemScalarResultFrames * ns12Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S12"));
+        RigFemScalarResultFrames * ns13Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S13"));
+        RigFemScalarResultFrames * ns23Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S23"));
 
-        RigFemScalarResultFrames * ns1Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, "NS", "S1"));
-        RigFemScalarResultFrames * ns2Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, "NS", "S2"));
-        RigFemScalarResultFrames * ns3Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, "NS", "S3"));
+        RigFemScalarResultFrames * ns1Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S1"));
+        RigFemScalarResultFrames * ns2Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S2"));
+        RigFemScalarResultFrames * ns3Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S3"));
 
         int frameCount = ns11Frames->frameCount();
         for (int fIdx = 0; fIdx < frameCount; ++fIdx)
@@ -263,7 +276,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return  requestedPrincipal;
     }
 
-    if (    resVarAddr.fieldName == "ST" 
+    if ( resVarAddr.fieldName == "ST" 
         &&  (   resVarAddr.componentName == "S11" 
             ||  resVarAddr.componentName == "S22"  
             ||  resVarAddr.componentName == "S33" ))
@@ -287,10 +300,26 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
             {
                 nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(vIdx);
-                dstFrameData[vIdx] = srcNSFrameData[vIdx] + srcPORFrameData[nodeIdx];
+                float por = srcPORFrameData[nodeIdx];
+                if (por == std::numeric_limits<float>::infinity()) por = 0.0f;
+                dstFrameData[vIdx] = srcNSFrameData[vIdx] + por;
             }
         }
         return dstDataFrames; 
+    }
+
+    if ( resVarAddr.fieldName == "ST" 
+        &&  (   resVarAddr.componentName == "S12" 
+            ||  resVarAddr.componentName == "S13"  
+            ||  resVarAddr.componentName == "S23" ))
+    {
+        return this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NS", resVarAddr.componentName));
+    }
+
+    if (resVarAddr.fieldName == "ST" && resVarAddr.componentName == "")
+    {
+        // Create and return an empty result
+        return m_femPartResults[partIndex]->createScalarResult(resVarAddr);
     }
 
     return NULL;
