@@ -49,6 +49,7 @@ CellEdgeEffectGenerator::CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeSc
     m_cullBackfaces = caf::FC_NONE;
     m_opacityLevel = 1.0f;
     m_defaultCellColor = cvf::Color3f(cvf::Color3::WHITE);
+    m_disableLighting = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +83,7 @@ bool CellEdgeEffectGenerator::isEqual(const EffectGenerator* other) const
         && m_opacityLevel         == otherCellFaceEffectGenerator->m_opacityLevel
         && m_undefinedColor       == otherCellFaceEffectGenerator->m_undefinedColor
         && m_defaultCellColor     == otherCellFaceEffectGenerator->m_defaultCellColor
+        && m_disableLighting      == otherCellFaceEffectGenerator->m_disableLighting
         )
     {
         cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
@@ -121,6 +123,7 @@ caf::EffectGenerator* CellEdgeEffectGenerator::copy() const
     newEffect->setFaceCulling(m_cullBackfaces);
     newEffect->setUndefinedColor(m_undefinedColor);
     newEffect->setDefaultCellColor(m_defaultCellColor);
+    newEffect->disableLighting(m_disableLighting);
 
     return newEffect;
 }
@@ -179,8 +182,16 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
 		}
 	}
 
-    shaderGen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
-    shaderGen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+    if (m_disableLighting)
+    {
+        shaderGen.addFragmentCode(cvf::ShaderSourceRepository::fs_Unlit);
+    }
+    else
+    {
+        shaderGen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
+        shaderGen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+    }
+
 
     cvf::ref<cvf::ShaderProgram> prog = shaderGen.generate();
     eff->setShaderProgram(prog.p());
