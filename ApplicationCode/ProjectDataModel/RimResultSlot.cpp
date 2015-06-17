@@ -71,6 +71,8 @@ void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
         if (oldValue != newValue)
         {
             changeLegendConfig(this->resultVariable());
+            if (m_reservoirView) m_reservoirView->uiEnableDisableLighting(true);
+            RiuMainWindow::instance()->refreshDrawStyleActions();
         }
 
         if (newValue != RimDefines::undefinedResultName())

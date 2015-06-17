@@ -107,8 +107,8 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
     if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-
-    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    RimEclipseView* eclipseView = cellResultSlot->reservoirView();
+    RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
 
     // Faults
     if (m_nativeFaultFaces.notNull())
@@ -123,7 +123,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 			texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
 
 			const RivTernaryScalarMapper* mapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
-			RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_nativeFaultFaces.p(), m_nativeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode());
+            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_nativeFaultFaces.p(), m_nativeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
 		}
         else
         {
@@ -140,7 +140,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
             texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
 
 			const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
-			RivScalarMapperUtils::applyTextureResultsToPart(m_nativeFaultFaces.p(), m_nativeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode());
+            RivScalarMapperUtils::applyTextureResultsToPart(m_nativeFaultFaces.p(), m_nativeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
         }
     }
 
@@ -156,7 +156,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 			texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
 
 			const RivTernaryScalarMapper* mapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
-			RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode());
+			RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
 		}
 		else
 		{
@@ -173,7 +173,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 			texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
 
 			const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode());
+            RivScalarMapperUtils::applyTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
 		}
 	}
 }
@@ -192,7 +192,7 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultS
 		{
 			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_nativeFaultGenerator->quadToCellFaceMapper(),
 				m_grid->gridIndex(),
-                timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, this->faceCullingMode());
+                timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, this->faceCullingMode(), cellResultSlot->reservoirView()->isLightingDisabled());
 
 			m_nativeFaultFaces->setEffect(eff.p());
 		}
@@ -204,7 +204,7 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultS
 		if (dg)
 		{
 			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_oppositeFaultGenerator->quadToCellFaceMapper(), m_grid->gridIndex(),
-                timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, this->faceCullingMode());
+                timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, this->faceCullingMode(), cellResultSlot->reservoirView()->isLightingDisabled());
 
 			m_oppositeFaultFaces->setEffect(eff.p());
 		}

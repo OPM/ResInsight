@@ -26,6 +26,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechResultSlot.h"
 #include "RimLegendConfig.h"
+#include "RimGeoMechView.h"
 
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
@@ -278,7 +279,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
             }
         }
 
-        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE);
+        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultSlot->reservoirView()->isLightingDisabled());
     }
 }
 

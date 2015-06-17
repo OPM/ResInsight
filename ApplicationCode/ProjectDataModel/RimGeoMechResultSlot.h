@@ -43,6 +43,8 @@ public:
     virtual ~RimGeoMechResultSlot(void);
 
     void                       setReservoirView(RimGeoMechView* ownerReservoirView);
+    RimGeoMechView*            reservoirView();
+
     RigGeoMechCaseData*        ownerCaseData();
     bool                       hasResult(); 
 

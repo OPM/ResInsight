@@ -242,7 +242,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
 			const RivTernaryScalarMapper* mapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE);
+            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultSlot->reservoirView()->isLightingDisabled());
 		}
 		else
 		{
@@ -258,7 +258,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
 			const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE);
+            RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultSlot->reservoirView()->isLightingDisabled());
 		}
 	}
 }
@@ -274,7 +274,7 @@ void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSl
 		if (dg)
 		{
 			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_surfaceGenerator.quadToCellFaceMapper(), m_grid->gridIndex(),
-				timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, caf::FC_NONE);
+				timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, caf::FC_NONE, cellResultSlot->reservoirView()->isLightingDisabled());
 
 			m_surfaceFaces->setEffect(eff.p());
 		}
