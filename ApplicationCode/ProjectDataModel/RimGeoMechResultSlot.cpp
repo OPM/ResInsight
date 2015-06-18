@@ -187,8 +187,6 @@ void RimGeoMechResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             if (m_reservoirView->geoMechCase()->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress()))
             {
                 m_reservoirView->hasUserRequestedAnimation = true;
-                m_reservoirView->uiEnableDisableLighting(true);
-                RiuMainWindow::instance()->refreshDrawStyleActions();
             }
             
             m_reservoirView->createDisplayModelAndRedraw();

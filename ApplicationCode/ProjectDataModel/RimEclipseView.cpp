@@ -693,9 +693,6 @@ void RimEclipseView::loadDataAndUpdate()
     {
         setDefaultView();
     }
-
-   bool resultPresent = cellResult() ? cellResult()->hasStaticResult() || cellResult()->hasDynamicResult() : false;
-   uiEnableDisableLighting(resultPresent);
 }
 
 
