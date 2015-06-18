@@ -35,11 +35,6 @@ namespace cvf
 class RivGeoMechVizLogic : public cvf::Object
 {
 public:
-    enum GeometryType
-    {
-        ALL_CELLS,
-        RANGE_FILTERED
-    };
 
     RivGeoMechVizLogic(RimGeoMechView * geomView);
     virtual ~RivGeoMechVizLogic();
@@ -50,7 +45,12 @@ public:
     void                             updateStaticCellColors();
     void                             scheduleGeometryRegen(unsigned short geometryType);
 private:
-    
+    enum GeometryType
+    {
+        ALL_CELLS,
+        RANGE_FILTERED
+    };
+
     RivGeoMechPartMgrCache::Key      currentPartMgrKey();
     cvf::ref<RivGeoMechPartMgrCache> m_partMgrCache;
     RimGeoMechView*                  m_geomechView;
