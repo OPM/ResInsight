@@ -103,11 +103,3 @@ namespace cvf {
     class CellRangeFilter;
 }
 
-
-class RivElmVisibilityCalculator
-{
-public:
-    static void computeAllVisible(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart );
-    static void computeRangeVisibility(cvf::UByteArray* elmVisibilities, RigFemPart* femPart,  const cvf::CellRangeFilter& rangeFilter);
-
-};

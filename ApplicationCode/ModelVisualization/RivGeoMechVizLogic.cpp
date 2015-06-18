@@ -31,6 +31,7 @@
 #include "RimCellRangeFilterCollection.h"
 
 #include "RivCellSetEnum.h"
+#include "RivFemElmVisibilityCalculator.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -78,11 +79,11 @@ void RivGeoMechVizLogic::appendNoAnimPartsToModel(cvf::ModelBasicList* model)
             {
                 cvf::CellRangeFilter cellRangeFilter;
                 m_geomechView->rangeFilterCollection()->compoundCellRangeFilter(&cellRangeFilter, femPartIdx);
-                RivElmVisibilityCalculator::computeRangeVisibility(elmVisibility.p(), caseData->femParts()->part(femPartIdx), cellRangeFilter);
+                RivFemElmVisibilityCalculator::computeRangeVisibility(elmVisibility.p(), caseData->femParts()->part(femPartIdx), cellRangeFilter);
             }
             else
             {
-                RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), caseData->femParts()->part(femPartIdx));
+                RivFemElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), caseData->femParts()->part(femPartIdx));
             }
 
             currentGeoMechPartMgr->setCellVisibility(femPartIdx, elmVisibility.p());
