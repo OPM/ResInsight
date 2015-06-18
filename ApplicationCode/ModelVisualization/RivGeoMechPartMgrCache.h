@@ -14,37 +14,26 @@ public:
     class Key
     {
     public:
-        Key()
-            : geometryType(-1), frameIndex(-1) 
-        {}
+        Key() : m_geometryType(-1), m_frameIndex(-1) {}
 
-        Key(unsigned short aGeometryType, int aFrameIndex) 
-            : geometryType(aGeometryType), frameIndex(aFrameIndex) 
-        {}
+        Key( unsigned short aGeometryType, int aFrameIndex);
 
-        void set(unsigned short aGeometryType, int aFrameIndex)
-        {
-            frameIndex = aFrameIndex;
-            geometryType = aGeometryType;
-        }
+        void            set(unsigned short aGeometryType, int aFrameIndex);
 
-        int             frameIndex;
-        unsigned short  geometryType;
+        int             frameIndex()   const  { return m_frameIndex;}
+        unsigned short  geometryType() const  { return m_geometryType; }
 
-        bool operator< (const Key& other) const
-        {
-            if (frameIndex != other.frameIndex)
-            {
-                return (frameIndex < other.frameIndex);
-            }
-            return (geometryType <  other.geometryType);
-        }
+        bool            operator< (const Key& other) const;
+
+    private:
+        int             m_frameIndex;
+        unsigned short  m_geometryType;
     };
 
-    bool                needsRegeneration   (const Key& key);
-    void                scheduleRegeneration(const Key& key);
-    void                generationFinished      (const Key& key);
-    RivGeoMechPartMgr*  partMgr             (const Key& key);
+    bool                needsRegeneration    (const Key& key);
+    void                scheduleRegeneration (const Key& key);
+    void                generationFinished   (const Key& key);
+    RivGeoMechPartMgr*  partMgr              (const Key& key);
 
 private:
     class CacheEntry

@@ -56,23 +56,23 @@ void RivGeoMechVizLogic::appendNoAnimPartsToModel(cvf::ModelBasicList* model)
 {
     RivGeoMechPartMgrCache::Key pMgrKey = currentPartMgrKey();
 
-    RivGeoMechPartMgr* m_geoMechFullModel = m_partMgrCache->partMgr(pMgrKey);
+    RivGeoMechPartMgr* currentGeoMechPartMgr = m_partMgrCache->partMgr(pMgrKey);
     RigGeoMechCaseData* caseData = m_geomechView->geoMechCase()->geoMechData();
     int partCount = caseData->femParts()->partCount();
 
     if (m_partMgrCache->needsRegeneration(pMgrKey))
     {
-        if (m_geoMechFullModel->initializedFemPartCount() != partCount)
+        if (currentGeoMechPartMgr->initializedFemPartCount() != partCount)
         {
-            m_geoMechFullModel->clearAndSetReservoir(caseData);
+            currentGeoMechPartMgr->clearAndSetReservoir(caseData);
         }
 
         for (int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx)
         {
-            cvf::ref<cvf::UByteArray> elmVisibility =  m_geoMechFullModel->cellVisibility(femPartIdx);
-            m_geoMechFullModel->setTransform(m_geomechView->scaleTransform());
+            cvf::ref<cvf::UByteArray> elmVisibility =  currentGeoMechPartMgr->cellVisibility(femPartIdx);
+            currentGeoMechPartMgr->setTransform(m_geomechView->scaleTransform());
 
-            if (pMgrKey.geometryType == RANGE_FILTERED)
+            if (pMgrKey.geometryType() == RANGE_FILTERED)
             {
                 cvf::CellRangeFilter cellRangeFilter;
                 m_geomechView->rangeFilterCollection()->compoundCellRangeFilter(&cellRangeFilter, femPartIdx);
@@ -83,13 +83,13 @@ void RivGeoMechVizLogic::appendNoAnimPartsToModel(cvf::ModelBasicList* model)
                 RivElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), caseData->femParts()->part(femPartIdx));
             }
 
-            m_geoMechFullModel->setCellVisibility(femPartIdx, elmVisibility.p());
+            currentGeoMechPartMgr->setCellVisibility(femPartIdx, elmVisibility.p());
         }
 
         m_partMgrCache->generationFinished(pMgrKey);
     }
   
-    m_geoMechFullModel->appendGridPartsToModel(model);
+    currentGeoMechPartMgr->appendGridPartsToModel(model);
 }
 
 //--------------------------------------------------------------------------------------------------

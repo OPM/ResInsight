@@ -57,3 +57,33 @@ RivGeoMechPartMgr* RivGeoMechPartMgrCache::partMgr(const Key& key)
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGeoMechPartMgrCache::Key::set(unsigned short aGeometryType, int aFrameIndex)
+{
+    m_frameIndex = aFrameIndex;
+    m_geometryType = aGeometryType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RivGeoMechPartMgrCache::Key::operator<(const Key& other) const
+{
+    if (m_frameIndex != other.m_frameIndex)
+    {
+        return (m_frameIndex < other.m_frameIndex);
+    }
+    return (m_geometryType <  other.m_geometryType);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivGeoMechPartMgrCache::Key::Key(unsigned short aGeometryType, int aFrameIndex) 
+: m_geometryType(aGeometryType), m_frameIndex(aFrameIndex)
+{
+
+}
