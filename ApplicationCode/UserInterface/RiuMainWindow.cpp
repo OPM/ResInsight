@@ -1748,20 +1748,16 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleLinesSolidAction->setEnabled(enable);
     m_drawStyleSurfOnlyAction->setEnabled(enable);
     m_drawStyleFaultLinesSolidAction->setEnabled(enable);
+    m_disableLightingAction->setEnabled(enable);
 
-    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
-    
-    // !! ToDo: hasResult() is probably not a sufficient test
-    bool eclResultActive = eclView ? eclView->cellResult()->hasStaticResult() || eclView->cellResult()->hasDynamicResult() : false;
-    bool geoMechResultActive = geoMechView ? geoMechView->cellResult()->hasResult() : false;
     bool lightingDisabledInView = view ? view->isLightingDisabled() : false;
 
-    m_disableLightingAction->setEnabled(eclResultActive || geoMechResultActive);
     m_disableLightingAction->blockSignals(true);
     m_disableLightingAction->setChecked(lightingDisabledInView);
     m_disableLightingAction->blockSignals(false);
 
+    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
     enable = enable && eclView;
 
     m_drawStyleToggleFaultsAction->setEnabled(enable);
