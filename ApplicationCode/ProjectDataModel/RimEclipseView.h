@@ -118,7 +118,7 @@ public:
     void                                            schedulePipeGeometryRegen();
     void                                            updateDisplayModelForWellResults();
 
-    const std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType>&
+    const std::vector<RivReservoirViewPartMgr::RivCellSetEnum>&
                                                     visibleGridParts() const { return m_visibleGridParts;}
     cvf::cref<RivReservoirViewPartMgr>              reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
@@ -147,7 +147,7 @@ private:
     virtual void                                    resetLegendsInViewer();
     virtual void                                    updateViewerWidgetWindowTitle();
 
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> 
+    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> 
                                                     visibleFaultGeometryTypes() const;
     void                                            updateFaultForcedVisibility();
     void                                            updateFaultColors();
@@ -162,7 +162,7 @@ private:
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>              m_pipesPartManager;
 
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> 
+    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> 
                                                     m_visibleGridParts;
 };
 

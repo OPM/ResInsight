@@ -331,7 +331,7 @@ void RimEclipseView::createDisplayModel()
 
     if (!this->propertyFilterCollection()->hasActiveFilters())
     {
-        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometryTypesToAdd;
+        std::vector<RivReservoirViewPartMgr::RivCellSetEnum> geometryTypesToAdd;
 
         if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
         {
@@ -388,9 +388,9 @@ void RimEclipseView::createDisplayModel()
     {
         updateFaultForcedVisibility();
 
-        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
+        std::vector<RivReservoirViewPartMgr::RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
-        RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
+        RivReservoirViewPartMgr::RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
 
         for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -478,7 +478,7 @@ void RimEclipseView::updateCurrentTimeStep()
 {
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometriesToRecolor;
+    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> geometriesToRecolor;
 
     if (this->propertyFilterCollection()->hasActiveFilters())
     {
@@ -495,14 +495,14 @@ void RimEclipseView::updateCurrentTimeStep()
 
         if (faultCollection()->showFaultsOutsideFilters())
         {
-            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
+            std::vector<RivReservoirViewPartMgr::RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
             for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
             {
                 m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAppend[i]);
             }
 
-            RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
+            RivReservoirViewPartMgr::RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
         }
         else
@@ -753,7 +753,7 @@ void RimEclipseView::updateStaticCellColors(unsigned short geometryType)
         case RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;   
     }
 
-    m_reservoirGridPartManager->updateCellColor(static_cast<RivReservoirViewPartMgr::ReservoirGeometryCacheType>(geometryType), color);
+    m_reservoirGridPartManager->updateCellColor(static_cast<RivReservoirViewPartMgr::RivCellSetEnum>(geometryType), color);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -837,7 +837,7 @@ RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::scheduleGeometryRegen(unsigned short geometryType)
 {
-    m_reservoirGridPartManager->scheduleGeometryRegen(static_cast<RivReservoirViewPartMgr::ReservoirGeometryCacheType>(geometryType));
+    m_reservoirGridPartManager->scheduleGeometryRegen(static_cast<RivReservoirViewPartMgr::RivCellSetEnum>(geometryType));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1291,9 +1291,9 @@ void RimEclipseView::updateFaultForcedVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimEclipseView::visibleFaultGeometryTypes() const
+std::vector<RivReservoirViewPartMgr::RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
 {
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts;
+    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> faultParts;
 
     if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
     {
@@ -1369,7 +1369,7 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimEclipseView:
 void RimEclipseView::updateFaultColors()
 {
     // Update all fault geometry
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
+    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
     RimResultSlot* faultResultSlot = currentFaultResultSlot();
 

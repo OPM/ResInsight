@@ -182,7 +182,7 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
     {
-        const std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType>& visGridParts = m_reservoirView->visibleGridParts();     
+        const std::vector<RivReservoirViewPartMgr::RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();     
         cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
 
         for (size_t gpIdx = 0; gpIdx < visGridParts.size(); ++gpIdx)

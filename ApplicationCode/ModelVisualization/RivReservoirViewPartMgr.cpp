@@ -55,7 +55,7 @@ m_reservoirView(resv)
 //--------------------------------------------------------------------------------------------------
 /// Clears the geometry cache for the given, and the dependent geometryTypes (from a visibility standpoint)
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::scheduleGeometryRegen(ReservoirGeometryCacheType geometryType)
+void RivReservoirViewPartMgr::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     switch (geometryType)
     {
@@ -139,7 +139,7 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen(ReservoirGeometryCacheType g
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::clearGeometryCache(ReservoirGeometryCacheType geomType)
+void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
 {
     RigCaseData* eclipseCase = NULL;
     if (m_reservoirView != NULL && m_reservoirView->eclipseCase())
@@ -201,7 +201,7 @@ void RivReservoirViewPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, 
+void RivReservoirViewPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, 
                                                                 const std::vector<size_t>& gridIndices)
 {
     if (m_geometriesNeedsRegen[geometryType])
@@ -214,7 +214,7 @@ void RivReservoirViewPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicLi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, 
+void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, 
                                                                  size_t frameIndex, const std::vector<size_t>& gridIndices)
 {
     if (geometryType == PROPERTY_FILTERED)
@@ -238,7 +238,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometryType)
+void RivReservoirViewPartMgr::createGeometry(RivCellSetEnum geometryType)
 {
     RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
     m_geometries[geometryType].clearAndSetReservoir(res, m_reservoirView);
@@ -261,7 +261,7 @@ void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometry
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx)
+void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility, RivCellSetEnum geometryType, RigGridBase* grid, size_t gridIdx)
 {
     RigCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
     RigActiveCellInfo* activeCellInfo = m_reservoirView->currentActiveCellInfo();
@@ -608,7 +608,7 @@ void RivReservoirViewPartMgr::copyByteArray(cvf::UByteArray* destination, const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType geometryType, 
+void RivReservoirViewPartMgr::computeRangeVisibility(RivCellSetEnum geometryType, 
                                                      cvf::UByteArray* cellVisibility, 
                                                      const RigGridBase* grid, 
                                                      const cvf::UByteArray* nativeVisibility, 
@@ -769,7 +769,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateCellColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, cvf::Color4f color)
+void RivReservoirViewPartMgr::updateCellColor(RivCellSetEnum geometryType, size_t timeStepIndex, cvf::Color4f color)
 {
     RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
     pmgr->updateCellColor(color);
@@ -778,7 +778,7 @@ void RivReservoirViewPartMgr::updateCellColor(ReservoirGeometryCacheType geometr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateCellColor(ReservoirGeometryCacheType geometryType, cvf::Color4f color)
+void RivReservoirViewPartMgr::updateCellColor(RivCellSetEnum geometryType, cvf::Color4f color)
 {
     //CVF_ASSERT(geometryType != PROPERTY_FILTERED);
     //CVF_ASSERT(geometryType != PROPERTY_FILTERED_WELL_CELLS);
@@ -789,7 +789,7 @@ void RivReservoirViewPartMgr::updateCellColor(ReservoirGeometryCacheType geometr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateCellResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirViewPartMgr::updateCellResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
     RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
     pmgr->updateCellResultColor(timeStepIndex, cellResultSlot);
@@ -798,7 +798,7 @@ void RivReservoirViewPartMgr::updateCellResultColor(ReservoirGeometryCacheType g
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirViewPartMgr::updateCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
     RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
 	pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
@@ -807,7 +807,7 @@ void RivReservoirViewPartMgr::updateCellEdgeResultColor(ReservoirGeometryCacheTy
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
 	RivReservoirPartMgr * pmgr = reservoirPartManager(geometryType, timeStepIndex);
 	pmgr->updateFaultCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
@@ -816,13 +816,13 @@ void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(ReservoirGeometryCa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::cref<cvf::UByteArray> RivReservoirViewPartMgr::cellVisibility(ReservoirGeometryCacheType geometryType, size_t gridIndex, size_t timeStepIndex) const
+cvf::cref<cvf::UByteArray> RivReservoirViewPartMgr::cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex) const
 {
     RivReservoirPartMgr * pmgr = (const_cast<RivReservoirViewPartMgr*>(this))->reservoirPartManager( geometryType,  timeStepIndex );
     return pmgr->cellVisibility(gridIndex).p();
 }
 
-RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(ReservoirGeometryCacheType geometryType, size_t timeStepIndex )
+RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(RivCellSetEnum geometryType, size_t timeStepIndex )
 {
     if (geometryType == PROPERTY_FILTERED)
     {
@@ -841,7 +841,7 @@ RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(ReservoirGeo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateFaultColors(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirViewPartMgr::updateFaultColors(RivCellSetEnum geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
     if (geometryType == PROPERTY_FILTERED && timeStepIndex >= m_propFilteredGeometryFrames.size())
     {
@@ -860,7 +860,7 @@ void RivReservoirViewPartMgr::updateFaultColors(ReservoirGeometryCacheType geome
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType)
+void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType)
 {
     if (m_geometriesNeedsRegen[geometryType])
     {
@@ -872,7 +872,7 @@ void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel(cvf::ModelB
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex)
+void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex)
 {
     if (geometryType == PROPERTY_FILTERED)
     {
@@ -887,7 +887,7 @@ void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::Model
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirViewPartMgr::ReservoirGeometryCacheType RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<ReservoirGeometryCacheType>& geometryTypes) const
+RivReservoirViewPartMgr::RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const
 {
     bool hasInactive = false;
     for (size_t i = 0; i < geometryTypes.size(); i++)
@@ -919,7 +919,7 @@ RivReservoirViewPartMgr::ReservoirGeometryCacheType RivReservoirViewPartMgr::geo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType)
+void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType)
 {
     if (m_geometriesNeedsRegen[geometryType])
     {
@@ -931,7 +931,7 @@ void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel(cvf::M
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex)
+void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex)
 {
     m_propFilteredGeometryFrames[frameIndex]->appendFaultLabelPartsToModel(model);
 }
@@ -939,7 +939,7 @@ void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::setFaultForceVisibilityForGeometryType(ReservoirGeometryCacheType geometryType, bool forceVisibility)
+void RivReservoirViewPartMgr::setFaultForceVisibilityForGeometryType(RivCellSetEnum geometryType, bool forceVisibility)
 {
     if (m_geometriesNeedsRegen[geometryType])
     {
