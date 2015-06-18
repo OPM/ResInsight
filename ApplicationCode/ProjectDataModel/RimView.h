@@ -90,7 +90,6 @@ public:
 
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
-    void                                    uiEnableDisableLighting(bool enable);
    
     void                                    setShowFaultsOnly(bool showFaults);
     bool                                    isGridVisualizationMode() const;

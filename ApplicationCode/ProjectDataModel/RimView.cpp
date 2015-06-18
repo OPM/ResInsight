@@ -90,8 +90,7 @@ RimView::RimView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
-    CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Lighting", "", "Disable light model for scalar result colors", "");
-    m_disableLighting.setUiReadOnly(true);
+    CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
     m_previousGridModeMeshLinesWasFaults = false;
 }
@@ -388,14 +387,6 @@ void RimView::disableLighting(bool disable)
 bool RimView::isLightingDisabled() const
 {
     return m_disableLighting();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimView::uiEnableDisableLighting(bool enable)
-{
-    m_disableLighting.setUiReadOnly(!enable);
 }
 
 //--------------------------------------------------------------------------------------------------
