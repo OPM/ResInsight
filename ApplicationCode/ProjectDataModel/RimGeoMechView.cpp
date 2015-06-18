@@ -507,7 +507,7 @@ RimCase* RimGeoMechView::ownerCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::scheduleGeometryRegen(unsigned short geometryType)
+void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_vizLogic->scheduleGeometryRegen(geometryType);
 }

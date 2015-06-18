@@ -2,6 +2,7 @@
 #include <cstddef>
 #include "cvfObject.h"
 #include <map>
+#include "RivCellSetEnum.h"
 
 class RivGeoMechPartMgr;
 
@@ -16,9 +17,9 @@ public:
     public:
         Key() : m_geometryType(-1), m_frameIndex(-1) {}
 
-        Key( unsigned short aGeometryType, int aFrameIndex);
+        Key(RivCellSetEnum aGeometryType, int aFrameIndex);
 
-        void            set(unsigned short aGeometryType, int aFrameIndex);
+        void            set(RivCellSetEnum aGeometryType, int aFrameIndex);
 
         int             frameIndex()   const  { return m_frameIndex;}
         unsigned short  geometryType() const  { return m_geometryType; }

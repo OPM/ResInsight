@@ -24,6 +24,7 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafAppEnum.h"
+#include "RivCellSetEnum.h"
 
 class RiuViewer;
 class Rim3dOverlayInfoConfig;
@@ -100,7 +101,7 @@ public:
     void                                    updateCurrentTimeStepAndRedraw();
     void                                    endAnimation();
 
-    virtual void                            scheduleGeometryRegen(unsigned short geometryType) = 0;
+    virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
 

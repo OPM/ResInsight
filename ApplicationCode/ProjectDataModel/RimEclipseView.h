@@ -113,7 +113,7 @@ public:
     virtual void                                    loadDataAndUpdate();
     bool                                            isTimeStepDependentDataVisible() const;
 
-    virtual void                                    scheduleGeometryRegen(unsigned short geometryType);
+    virtual void                                    scheduleGeometryRegen(RivCellSetEnum geometryType);
     void                                            scheduleReservoirGridGeometryRegen();
     void                                            schedulePipeGeometryRegen();
     void                                            updateDisplayModelForWellResults();

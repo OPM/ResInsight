@@ -835,7 +835,7 @@ RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::scheduleGeometryRegen(unsigned short geometryType)
+void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_reservoirGridPartManager->scheduleGeometryRegen(static_cast<RivCellSetEnum>(geometryType));
 }

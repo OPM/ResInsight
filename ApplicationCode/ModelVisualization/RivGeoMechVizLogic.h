@@ -23,7 +23,8 @@
 #include "cvfObject.h"
 #include "cvfColor4.h"
 #include "RivGeoMechPartMgrCache.h"
- 
+#include "RivCellSetEnum.h"
+
 class RimGeoMechView;
 class RimGeoMechResultSlot;
 
@@ -43,7 +44,7 @@ public:
     void                             appendPartsToModel(int timeStepIndex, cvf::ModelBasicList* model);
     void                             updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot);
     void                             updateStaticCellColors();
-    void                             scheduleGeometryRegen(unsigned short geometryType);
+    void                             scheduleGeometryRegen(RivCellSetEnum geometryType);
 private:
   
     RivGeoMechPartMgrCache::Key      currentPartMgrKey();

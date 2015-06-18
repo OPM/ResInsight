@@ -70,7 +70,7 @@ public:
     virtual cvf::Transform*                             scaleTransform();
 
 private:
-    virtual void                                        scheduleGeometryRegen(unsigned short geometryType);
+    virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
     virtual void                                        createDisplayModel();
     virtual void                                        updateDisplayModelVisibility();
     virtual void                                        updateScaleTransform();

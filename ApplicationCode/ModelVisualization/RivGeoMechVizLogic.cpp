@@ -125,7 +125,7 @@ void RivGeoMechVizLogic::updateStaticCellColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechVizLogic::scheduleGeometryRegen(unsigned short geometryType)
+void RivGeoMechVizLogic::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     switch (geometryType)
     {
