@@ -320,7 +320,7 @@ void RiuMainWindow::createActions()
 
     connect(m_dsActionGroup, SIGNAL(triggered(QAction*)), SLOT(slotDrawStyleChanged(QAction*)));
 
-    m_disableLightingAction = new QAction(QIcon(":/disable_lighting_24x24.png"), "&Disable Lighting", this);
+    m_disableLightingAction = new QAction(QIcon(":/disable_lighting_24x24.png"), "&Disable Results Lighting", this);
     m_disableLightingAction->setCheckable(true);
     connect(m_disableLightingAction,	SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
 
