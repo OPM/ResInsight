@@ -710,30 +710,31 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
 
     if (propFilterColl->hasActiveFilters())
     {
-        std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator pfIt;
-        for (pfIt = propFilterColl->propertyFilters().begin(); pfIt !=  propFilterColl->propertyFilters().end(); ++pfIt)
+        for (size_t i = 0; i < propFilterColl->propertyFilters().size(); i++)
         {
-            if ((*pfIt)->isActive()&& (*pfIt)->resultDefinition->hasResult())
-            {
-                const double lowerBound = (*pfIt)->lowerBound();
-                const double upperBound = (*pfIt)->upperBound();
+            RimCellPropertyFilter* propertyFilter = propFilterColl->propertyFilters()[i];
 
-                size_t scalarResultIndex = (*pfIt)->resultDefinition->scalarResultIndex();
+            if (propertyFilter->isActive()&& propertyFilter->resultDefinition->hasResult())
+            {
+                const double lowerBound = propertyFilter->lowerBound();
+                const double upperBound = propertyFilter->upperBound();
+
+                size_t scalarResultIndex = propertyFilter->resultDefinition->scalarResultIndex();
 
                 size_t adjustedTimeStepIndex = timeStepIndex;
 
                 // Set time step to zero for static results
-                if ((*pfIt)->resultDefinition()->hasStaticResult())
+                if (propertyFilter->resultDefinition()->hasStaticResult())
                 {
                     adjustedTimeStepIndex = 0;
                 }
 
-                const RimCellFilter::FilterModeType filterType = (*pfIt)->filterMode();
+                const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 
-                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel((*pfIt)->resultDefinition()->porosityModel());
+                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(propertyFilter->resultDefinition()->porosityModel());
                 RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
 
-				cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, (*pfIt)->resultDefinition->resultVariable(), (*pfIt)->resultDefinition->resultType());
+				cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
                 CVF_ASSERT(resultAccessor.notNull());
 
                 //#pragma omp parallel for schedule(dynamic)

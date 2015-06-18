@@ -34,7 +34,7 @@ public:
 
     // Fields:
     caf::PdmField<bool> active;
-    caf::PdmField< std::list< caf::PdmPointer< RimCellPropertyFilter > > > propertyFilters;
+    caf::PdmPointersField<RimCellPropertyFilter*> propertyFilters;
 
     // Methods
     RimCellPropertyFilter*  createAndAppendPropertyFilter();

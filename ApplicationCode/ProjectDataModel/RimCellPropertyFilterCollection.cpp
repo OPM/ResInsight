@@ -55,10 +55,9 @@ void RimCellPropertyFilterCollection::setReservoirView(RimEclipseView* reservoir
 {
     m_reservoirView = reservoirView;
 
-    std::list< caf::PdmPointer< RimCellPropertyFilter > >::iterator it;
-    for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
+    for (size_t i = 0; i < propertyFilters.size(); i++)
     {
-        RimCellPropertyFilter* propertyFilter = *it;
+        RimCellPropertyFilter* propertyFilter = propertyFilters[i];
 
         propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
     }
@@ -93,7 +92,7 @@ RimCellPropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyF
     propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
 
     propertyFilter->setParentContainer(this);
-    propertyFilters.v().push_back(propertyFilter);
+    propertyFilters.push_back(propertyFilter);
 
     propertyFilter->resultDefinition->setResultVariable(m_reservoirView->cellResult->resultVariable());
     propertyFilter->resultDefinition->setPorosityModel(m_reservoirView->cellResult->porosityModel());
@@ -113,10 +112,9 @@ RimCellPropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyF
 //--------------------------------------------------------------------------------------------------
 void RimCellPropertyFilterCollection::loadAndInitializePropertyFilters()
 {
-    std::list< caf::PdmPointer< RimCellPropertyFilter > >::iterator it;
-    for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
+    for (size_t i = 0; i < propertyFilters.size(); i++)
     {
-        RimCellPropertyFilter* propertyFilter = *it;
+        RimCellPropertyFilter* propertyFilter = propertyFilters[i];
 
         propertyFilter->setParentContainer(this);
 
@@ -142,7 +140,7 @@ void RimCellPropertyFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimCellPropertyFilterCollection::remove(RimCellPropertyFilter* propertyFilter)
 {
-    propertyFilters.v().remove(propertyFilter);
+    propertyFilters.removeChildObject(propertyFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,10 +150,10 @@ bool RimCellPropertyFilterCollection::hasActiveFilters() const
 {
     if (!active) return false;
 
-    std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator it;
-    for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
+    for (size_t i = 0; i < propertyFilters.size(); i++)
     {
-        if ((*it)->isActive() && (*it)->resultDefinition->hasResult()) return true;
+        RimCellPropertyFilter* propertyFilter = propertyFilters[i];
+        if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasResult()) return true;
     }
 
     return false;
@@ -168,10 +166,10 @@ bool RimCellPropertyFilterCollection::hasActiveDynamicFilters() const
 {
     if (!active) return false;
 
-    std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator it;
-    for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
+    for (size_t i = 0; i < propertyFilters.size(); i++)
     {
-        if ((*it)->isActive() && (*it)->resultDefinition->hasDynamicResult()) return true;
+        RimCellPropertyFilter* propertyFilter = propertyFilters[i];
+        if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasDynamicResult()) return true;
     }
 
     return false;
