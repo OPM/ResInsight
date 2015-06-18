@@ -118,8 +118,7 @@ public:
     void                                            schedulePipeGeometryRegen();
     void                                            updateDisplayModelForWellResults();
 
-    const std::vector<RivReservoirViewPartMgr::RivCellSetEnum>&
-                                                    visibleGridParts() const { return m_visibleGridParts;}
+    const std::vector<RivCellSetEnum>&              visibleGridParts() const { return m_visibleGridParts;}
     cvf::cref<RivReservoirViewPartMgr>              reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
     // Does this belong here, really ?
@@ -147,8 +146,7 @@ private:
     virtual void                                    resetLegendsInViewer();
     virtual void                                    updateViewerWidgetWindowTitle();
 
-    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> 
-                                                    visibleFaultGeometryTypes() const;
+    std::vector<RivCellSetEnum>                     visibleFaultGeometryTypes() const;
     void                                            updateFaultForcedVisibility();
     void                                            updateFaultColors();
 
@@ -162,7 +160,6 @@ private:
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>              m_pipesPartManager;
 
-    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> 
-                                                    m_visibleGridParts;
+    std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };
 

@@ -24,6 +24,7 @@
 #include "cafFixedArray.h"
 #include "cvfArray.h"
 #include "cafPdmObject.h"
+#include "RivCellSetEnum.h"
 
 class RimEclipseView;
 class RigGridBase;
@@ -37,22 +38,6 @@ public:
     RivReservoirViewPartMgr(RimEclipseView * resv);
 
     cvf::Transform*             scaleTransform() { return m_scaleTransform.p();}
-
-    enum RivCellSetEnum
-    {
-        ACTIVE,                                         ///< All Active cells without ALL_WELL_CELLS
-        ALL_WELL_CELLS,                                 ///< All cells ever having a connection to a well (Might be inactive cells as well. Wellhead cells typically)
-        VISIBLE_WELL_CELLS,                             ///< ALL_WELL_CELLS && visible well cells including Fence
-        VISIBLE_WELL_FENCE_CELLS,                       ///< (! ALL_WELL_CELLS) && visible well cells including Fence
-        INACTIVE,                                       ///< All inactive cells, but invalid cells might or might not be included
-        RANGE_FILTERED,                                 ///< ACTIVE Filtered by the set of range filters
-        RANGE_FILTERED_INACTIVE,                        ///< INACTIVE Filtered by the set of range filters
-        RANGE_FILTERED_WELL_CELLS,                      ///< ALL_WELL_CELLS Filtered by the set of range filters
-        VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER,        ///< VISIBLE_WELL_CELLS && !RANGE_FILTERED_WELL_CELLS
-        VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER,  ///< VISIBLE_WELL_FENCE_CELLS && !RANGE_FILTERED
-        PROPERTY_FILTERED,                              ///< (RANGE_FILTERED || VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER) && !ExcludedByPropFilter && IncludedByPropFilter
-        PROPERTY_FILTERED_WELL_CELLS                    ///< (!(hasActiveRangeFilters || visibleWellCells) && (*ALL_WELL_CELLS)) || RANGE_FILTERED_WELL_CELLS || VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER
-    };
 
     void                        clearGeometryCache();
     void                        scheduleGeometryRegen(RivCellSetEnum geometryType);

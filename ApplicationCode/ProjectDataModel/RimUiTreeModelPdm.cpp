@@ -93,7 +93,7 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
 
     if (wasFilterActive)
     {
-        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
     }
 
     if (wasSomeFilterActive)
@@ -135,7 +135,7 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
 
     if (wasFilterActive)
     {
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
     }
 
     if (wasSomeFilterActive)
@@ -303,7 +303,7 @@ RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& i
 
     if (propertyFilterCollection)
     {
-        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
     }
 
     return propertyFilter;
@@ -347,8 +347,8 @@ RimCellRangeFilter* RimUiTreeModelPdm::addRangeFilter(const QModelIndex& itemInd
     insertedModelIndex = index(position, 0, collectionIndex);
     if (rangeFilterCollection)
     {
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
     }
     return rangeFilter;

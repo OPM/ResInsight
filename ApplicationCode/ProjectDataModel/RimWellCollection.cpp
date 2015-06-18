@@ -196,7 +196,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 
         if (m_reservoirView) 
         {
-            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
@@ -204,7 +204,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
         if (m_reservoirView) 
         {
-            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
@@ -212,7 +212,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
         if (m_reservoirView) 
         {   
-            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
@@ -227,7 +227,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
         if (m_reservoirView) 
         {   
-            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }

@@ -30,6 +30,8 @@
 #include "RigGeoMechCaseData.h"
 #include "RimCellRangeFilterCollection.h"
 
+#include "RivCellSetEnum.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -127,12 +129,12 @@ void RivGeoMechVizLogic::scheduleGeometryRegen(unsigned short geometryType)
 {
     switch (geometryType)
     {
-        case RivReservoirViewPartMgr::RANGE_FILTERED:
+        case RANGE_FILTERED:
         m_partMgrCache->scheduleRegeneration(RivGeoMechPartMgrCache::Key(RANGE_FILTERED, 0));
         break;
-        case RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE:
+        case RANGE_FILTERED_INACTIVE:
         break;
-        case RivReservoirViewPartMgr::PROPERTY_FILTERED:
+        case PROPERTY_FILTERED:
         break;
     }
 }

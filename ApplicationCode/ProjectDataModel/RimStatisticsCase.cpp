@@ -273,7 +273,7 @@ void RimStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
         RimEclipseView* reservoirView = reservoirViews()[i];
         CVF_ASSERT(reservoirView);
 
-        reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::ACTIVE);
+        reservoirView->scheduleGeometryRegen(ACTIVE);
     }
 }
 //--------------------------------------------------------------------------------------------------

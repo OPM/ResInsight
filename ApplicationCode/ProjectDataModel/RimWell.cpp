@@ -95,7 +95,7 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         if (m_reservoirView)
         {
-            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
@@ -103,7 +103,7 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         if (m_reservoirView)
         {
-            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
 
@@ -112,7 +112,7 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         if (m_reservoirView)
         {
-            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
 
@@ -182,7 +182,7 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
     {
-        const std::vector<RivReservoirViewPartMgr::RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();     
+        const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();     
         cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
 
         for (size_t gpIdx = 0; gpIdx < visGridParts.size(); ++gpIdx)

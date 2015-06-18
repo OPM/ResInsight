@@ -45,12 +45,7 @@ public:
     void                             updateStaticCellColors();
     void                             scheduleGeometryRegen(unsigned short geometryType);
 private:
-    enum GeometryType
-    {
-        ALL_CELLS,
-        RANGE_FILTERED
-    };
-
+  
     RivGeoMechPartMgrCache::Key      currentPartMgrKey();
     cvf::ref<RivGeoMechPartMgrCache> m_partMgrCache;
     RimGeoMechView*                  m_geomechView;

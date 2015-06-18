@@ -214,15 +214,15 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
     else if (changedField == &showInvalidCells)
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::INACTIVE);
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         createDisplayModelAndRedraw();
     }
     else if (changedField == &showInactiveCells)
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::INACTIVE);
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         createDisplayModelAndRedraw();
     }
@@ -232,14 +232,14 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &rangeFilterCollection)
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         scheduleCreateDisplayModelAndRedraw();
     }
     else if (changedField == &propertyFilterCollection)
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        m_reservoirGridPartManager->scheduleGeometryRegen(PROPERTY_FILTERED);
 
         scheduleCreateDisplayModelAndRedraw();
     }
@@ -331,41 +331,41 @@ void RimEclipseView::createDisplayModel()
 
     if (!this->propertyFilterCollection()->hasActiveFilters())
     {
-        std::vector<RivReservoirViewPartMgr::RivCellSetEnum> geometryTypesToAdd;
+        std::vector<RivCellSetEnum> geometryTypesToAdd;
 
         if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
         {
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+            geometryTypesToAdd.push_back(RANGE_FILTERED);
+            geometryTypesToAdd.push_back(RANGE_FILTERED_WELL_CELLS);
+            geometryTypesToAdd.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+            geometryTypesToAdd.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
             if (this->showInactiveCells())
             {
-                geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+                geometryTypesToAdd.push_back(RANGE_FILTERED_INACTIVE);
             }
         }
         else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
         {
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS);
+            geometryTypesToAdd.push_back(VISIBLE_WELL_CELLS);
+            geometryTypesToAdd.push_back(VISIBLE_WELL_FENCE_CELLS);
         }
         else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
         {
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+            geometryTypesToAdd.push_back(RANGE_FILTERED);
+            geometryTypesToAdd.push_back(RANGE_FILTERED_WELL_CELLS);
             if (this->showInactiveCells())
             {
-                geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+                geometryTypesToAdd.push_back(RANGE_FILTERED_INACTIVE);
             }
         }
         else
         {
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS); // Should be all well cells
-            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::ACTIVE);
+            geometryTypesToAdd.push_back(ALL_WELL_CELLS); // Should be all well cells
+            geometryTypesToAdd.push_back(ACTIVE);
 
             if (this->showInactiveCells())
             {
-                geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
+                geometryTypesToAdd.push_back(INACTIVE);
             }
         }
 
@@ -388,9 +388,9 @@ void RimEclipseView::createDisplayModel()
     {
         updateFaultForcedVisibility();
 
-        std::vector<RivReservoirViewPartMgr::RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
+        std::vector<RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
-        RivReservoirViewPartMgr::RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
+        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
 
         for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -478,7 +478,7 @@ void RimEclipseView::updateCurrentTimeStep()
 {
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
-    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> geometriesToRecolor;
+    std::vector<RivCellSetEnum> geometriesToRecolor;
 
     if (this->propertyFilterCollection()->hasActiveFilters())
     {
@@ -487,35 +487,35 @@ void RimEclipseView::updateCurrentTimeStep()
         std::vector<size_t> gridIndices;
         this->indicesToVisibleGrids(&gridIndices);
 
-        geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED);
-        m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
+        geometriesToRecolor.push_back( PROPERTY_FILTERED);
+        m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
 
-        geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
-        m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
+        geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS);
+        m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
 
         if (faultCollection()->showFaultsOutsideFilters())
         {
-            std::vector<RivReservoirViewPartMgr::RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
+            std::vector<RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
             for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
             {
                 m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAppend[i]);
             }
 
-            RivReservoirViewPartMgr::RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
+            RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
         }
         else
         {
-            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
-            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
+            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep);
+            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep);
 
-            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep);
+            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep);
         }
 
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
-        m_reservoirGridPartManager->updateCellColor(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
+        m_reservoirGridPartManager->updateCellColor(PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
 
 
         if (this->showInactiveCells())
@@ -525,20 +525,20 @@ void RimEclipseView::updateCurrentTimeStep()
  
             if (this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
             {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices); 
 
                 if (!faultCollection()->showFaultsOutsideFilters())
                 {
-                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE); 
+                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE); 
                 }
             }
             else
             {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), INACTIVE, gridIndices);
 
                 if (!faultCollection()->showFaultsOutsideFilters())
                 {
-                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE);
+                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), INACTIVE);
                 }
             }
         }
@@ -558,25 +558,25 @@ void RimEclipseView::updateCurrentTimeStep()
     }
     else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
     {
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+        geometriesToRecolor.push_back(RANGE_FILTERED);
+        geometriesToRecolor.push_back(RANGE_FILTERED_WELL_CELLS);
+        geometriesToRecolor.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+        geometriesToRecolor.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
     }
     else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
     {
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS);
+        geometriesToRecolor.push_back(VISIBLE_WELL_CELLS);
+        geometriesToRecolor.push_back(VISIBLE_WELL_FENCE_CELLS);
     }
     else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
     {
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+        geometriesToRecolor.push_back(RANGE_FILTERED);
+        geometriesToRecolor.push_back(RANGE_FILTERED_WELL_CELLS);
     }
     else 
     {
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::ACTIVE);
-        geometriesToRecolor.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
+        geometriesToRecolor.push_back(ACTIVE);
+        geometriesToRecolor.push_back(ALL_WELL_CELLS);
     }
 
     for (size_t i = 0; i < geometriesToRecolor.size(); ++i)
@@ -717,16 +717,16 @@ void RimEclipseView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateStaticCellColors()
 {
-    updateStaticCellColors( RivReservoirViewPartMgr::ACTIVE);
-    updateStaticCellColors( RivReservoirViewPartMgr::ALL_WELL_CELLS);
-    updateStaticCellColors( RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-    updateStaticCellColors( RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS);
-    updateStaticCellColors( RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-    updateStaticCellColors( RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
-    updateStaticCellColors( RivReservoirViewPartMgr::INACTIVE);
-    updateStaticCellColors( RivReservoirViewPartMgr::RANGE_FILTERED);
-    updateStaticCellColors( RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
-    updateStaticCellColors( RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+    updateStaticCellColors( ACTIVE);
+    updateStaticCellColors( ALL_WELL_CELLS);
+    updateStaticCellColors( VISIBLE_WELL_CELLS);
+    updateStaticCellColors( VISIBLE_WELL_FENCE_CELLS);
+    updateStaticCellColors( VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+    updateStaticCellColors( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+    updateStaticCellColors( INACTIVE);
+    updateStaticCellColors( RANGE_FILTERED);
+    updateStaticCellColors( RANGE_FILTERED_WELL_CELLS);
+    updateStaticCellColors( RANGE_FILTERED_INACTIVE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -739,21 +739,21 @@ void RimEclipseView::updateStaticCellColors(unsigned short geometryType)
 
     switch (geometryType)
     {
-        case RivReservoirViewPartMgr::ACTIVE:                      color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case RivReservoirViewPartMgr::ALL_WELL_CELLS:              color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case RivReservoirViewPartMgr::VISIBLE_WELL_CELLS:          color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS:    color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:         
+        case ACTIVE:                      color = cvf::Color4f(cvf::Color3::ORANGE);      break;
+        case ALL_WELL_CELLS:              color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
+        case VISIBLE_WELL_CELLS:          color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
+        case VISIBLE_WELL_FENCE_CELLS:    color = cvf::Color4f(cvf::Color3::ORANGE);      break;
+        case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:         
                                                                     color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:   
+        case VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:   
                                                                     color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case RivReservoirViewPartMgr::INACTIVE:                    color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;
-        case RivReservoirViewPartMgr::RANGE_FILTERED:              color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS:   color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;   
+        case INACTIVE:                    color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;
+        case RANGE_FILTERED:              color = cvf::Color4f(cvf::Color3::ORANGE);      break;
+        case RANGE_FILTERED_WELL_CELLS:   color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
+        case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;   
     }
 
-    m_reservoirGridPartManager->updateCellColor(static_cast<RivReservoirViewPartMgr::RivCellSetEnum>(geometryType), color);
+    m_reservoirGridPartManager->updateCellColor(static_cast<RivCellSetEnum>(geometryType), color);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -837,7 +837,7 @@ RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::scheduleGeometryRegen(unsigned short geometryType)
 {
-    m_reservoirGridPartManager->scheduleGeometryRegen(static_cast<RivReservoirViewPartMgr::RivCellSetEnum>(geometryType));
+    m_reservoirGridPartManager->scheduleGeometryRegen(static_cast<RivCellSetEnum>(geometryType));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1280,83 +1280,83 @@ void RimEclipseView::updateFaultForcedVisibility()
 
     if (!faultCollection->showFaultCollection)
     {
-        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::ALL_WELL_CELLS, true);
+        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(ALL_WELL_CELLS, true);
     }
 
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::RANGE_FILTERED, true);
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS, true);
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RANGE_FILTERED, true);
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(VISIBLE_WELL_FENCE_CELLS, true);
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RivReservoirViewPartMgr::RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
+std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
 {
-    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> faultParts;
+    std::vector<RivCellSetEnum> faultParts;
 
     if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
     {
-        faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED);
-        faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
+        faultParts.push_back(PROPERTY_FILTERED);
+        faultParts.push_back(PROPERTY_FILTERED_WELL_CELLS);
 
         if (this->showInactiveCells())
         {
-            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
-            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+            faultParts.push_back(INACTIVE);
+            faultParts.push_back(RANGE_FILTERED_INACTIVE);
         }
     }
     else if (this->faultCollection()->showFaultsOutsideFilters())
     {
-        faultParts.push_back(RivReservoirViewPartMgr::ACTIVE);
-        faultParts.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
-        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
-        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(ACTIVE);
+        faultParts.push_back(ALL_WELL_CELLS);
+        faultParts.push_back(RANGE_FILTERED);
+        faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
+        faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
 
         if (this->showInactiveCells())
         {
-            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
-            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+            faultParts.push_back(INACTIVE);
+            faultParts.push_back(RANGE_FILTERED_INACTIVE);
         }
     }
     else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
     {
-        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
-        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(RANGE_FILTERED);
+        faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
+        faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
 
         if (this->showInactiveCells())
         {
-            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+            faultParts.push_back(RANGE_FILTERED_INACTIVE);
         }
     }
     else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
     {
-        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS);
+        faultParts.push_back(VISIBLE_WELL_CELLS);
+        faultParts.push_back(VISIBLE_WELL_FENCE_CELLS);
     }
     else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
     {
-        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+        faultParts.push_back(RANGE_FILTERED);
+        faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
 
         if (this->showInactiveCells())
         {
-            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+            faultParts.push_back(RANGE_FILTERED_INACTIVE);
         }
     }
     else
     {
-        faultParts.push_back(RivReservoirViewPartMgr::ACTIVE);
-        faultParts.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
+        faultParts.push_back(ACTIVE);
+        faultParts.push_back(ALL_WELL_CELLS);
 
         if (this->showInactiveCells())
         {
-            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
-            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+            faultParts.push_back(INACTIVE);
+            faultParts.push_back(RANGE_FILTERED_INACTIVE);
         }
     }
 
@@ -1369,7 +1369,7 @@ std::vector<RivReservoirViewPartMgr::RivCellSetEnum> RimEclipseView::visibleFaul
 void RimEclipseView::updateFaultColors()
 {
     // Update all fault geometry
-    std::vector<RivReservoirViewPartMgr::RivCellSetEnum> faultGeometriesToRecolor = visibleFaultGeometryTypes();
+    std::vector<RivCellSetEnum> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
     RimResultSlot* faultResultSlot = currentFaultResultSlot();
 

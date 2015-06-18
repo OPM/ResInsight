@@ -222,8 +222,8 @@ void RiuViewerCommands::createSliceRangeFilter(int ijOrk)
             rangeFilter->startIndexK = startIndex;
         }
 
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
 

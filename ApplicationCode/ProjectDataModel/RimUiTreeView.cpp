@@ -395,8 +395,8 @@ void RimUiTreeView::slotAddSliceFilterI()
         rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
         rangeFilter->cellCountI = 1;
 
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
 
@@ -419,8 +419,8 @@ void RimUiTreeView::slotAddSliceFilterJ()
         rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
         rangeFilter->cellCountJ = 1;
 
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
 
@@ -443,8 +443,8 @@ void RimUiTreeView::slotAddSliceFilterK()
         rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
         rangeFilter->cellCountK = 1;
 
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
 

@@ -887,7 +887,7 @@ void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::Model
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirViewPartMgr::RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const
+RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const
 {
     bool hasInactive = false;
     for (size_t i = 0; i < geometryTypes.size(); i++)
