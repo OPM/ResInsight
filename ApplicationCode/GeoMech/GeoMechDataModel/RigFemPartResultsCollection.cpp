@@ -175,7 +175,17 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["Gamma"].push_back("Gamma1");
             fieldCompNames["Gamma"].push_back("Gamma2");
             fieldCompNames["Gamma"].push_back("Gamma3");
-        }
+            fieldCompNames["Gamma"].push_back("Gamma11");
+            fieldCompNames["Gamma"].push_back("Gamma22");
+            fieldCompNames["Gamma"].push_back("Gamma33");
+
+            fieldCompNames["NE"].push_back("E11");
+            fieldCompNames["NE"].push_back("E22");
+            fieldCompNames["NE"].push_back("E33");
+            fieldCompNames["NE"].push_back("E12");
+            fieldCompNames["NE"].push_back("E13");
+            fieldCompNames["NE"].push_back("E23");
+       }
         else if (resPos == RIG_INTEGRATION_POINT)
         {
             fieldCompNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
@@ -202,6 +212,16 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["Gamma"].push_back("Gamma1");
             fieldCompNames["Gamma"].push_back("Gamma2");
             fieldCompNames["Gamma"].push_back("Gamma3");
+            fieldCompNames["Gamma"].push_back("Gamma11");
+            fieldCompNames["Gamma"].push_back("Gamma22");
+            fieldCompNames["Gamma"].push_back("Gamma33");
+
+            fieldCompNames["NE"].push_back("E11");
+            fieldCompNames["NE"].push_back("E22");
+            fieldCompNames["NE"].push_back("E33");
+            fieldCompNames["NE"].push_back("E12");
+            fieldCompNames["NE"].push_back("E13");
+            fieldCompNames["NE"].push_back("E23");
        }
     }
 
@@ -215,9 +235,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 {
     // ST[11, 22, 33, 12, 13, 23, 1, 2, 3], Gamma[1,2,3], NS[11,22,33,12,13,23, 1, 2, 3]
 
-    if (resVarAddr.fieldName == "NS" && !(resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ))
+    if ((resVarAddr.fieldName == "NE") || (resVarAddr.fieldName == "NS") 
+        && !(resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ))
     {
-        RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S", resVarAddr.componentName));
+        RigFemScalarResultFrames * srcDataFrames = NULL;
+        if (resVarAddr.fieldName == "NE"){
+            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "E", resVarAddr.componentName));
+        }else if (resVarAddr.fieldName == "NS"){
+            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S", resVarAddr.componentName));
+        }
         RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
         int frameCount = srcDataFrames->frameCount();
         for (int fIdx = 0; fIdx < frameCount; ++fIdx)
@@ -233,6 +259,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         }
         return dstDataFrames;
     }
+
 
     if (   (resVarAddr.fieldName == "NS" || resVarAddr.fieldName == "ST" )
         && (resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ))
@@ -334,7 +361,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
     if (resVarAddr.fieldName == "Gamma"
         &&  (   resVarAddr.componentName == "Gamma1"
              || resVarAddr.componentName == "Gamma2"
-             || resVarAddr.componentName == "Gamma3"))
+             || resVarAddr.componentName == "Gamma3"
+             || resVarAddr.componentName == "Gamma11"
+             || resVarAddr.componentName == "Gamma22"
+             || resVarAddr.componentName == "Gamma33"
+             ))
     {
         RigFemScalarResultFrames * srcDataFrames = NULL;
         if (resVarAddr.componentName == "Gamma1"){
@@ -343,6 +374,12 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S2"));
         }else if (resVarAddr.componentName == "Gamma3"){
             srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S3"));
+        }else if (resVarAddr.componentName == "Gamma11"){
+            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S11"));
+        }else if (resVarAddr.componentName == "Gamma22"){
+            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S22"));
+        }else if (resVarAddr.componentName == "Gamma33"){
+            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S33"));
         }
 
         RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR", ""));
