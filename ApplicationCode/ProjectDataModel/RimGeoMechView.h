@@ -36,7 +36,7 @@ class RimGeoMechCase;
 class RivGeoMechPartMgr;
 class RimCellRangeFilterCollection;
 class RivGeoMechVizLogic;
-
+class RimGeoMechPropertyFilterCollection;
 class RigFemPart;
 
 namespace cvf {
@@ -62,6 +62,7 @@ public:
     virtual void                                        loadDataAndUpdate();
 
     caf::PdmField<RimGeoMechResultSlot*>                cellResult;
+    caf::PdmField<RimGeoMechPropertyFilterCollection*>  propertyFilterCollection;
 
     bool                                                isTimeStepDependentDataVisible();
 

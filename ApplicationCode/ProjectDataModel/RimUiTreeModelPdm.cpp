@@ -27,6 +27,8 @@
 #include "RimCaseCollection.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechPropertyFilter.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimInputCase.h"
 #include "RimInputProperty.h"
@@ -48,6 +50,7 @@
 #include <QClipboard>
 #include <QFileSystemWatcher>
 #include "RimGeoMechCase.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -308,6 +311,52 @@ RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& i
 
     return propertyFilter;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGeoMechPropertyFilter* RimUiTreeModelPdm::addGeoMechPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+{
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+
+    QModelIndex collectionIndex;
+    RimGeoMechPropertyFilterCollection* propertyFilterCollection = NULL;
+    caf::PdmUiTreeItem* propertyFilterCollectionItem = NULL;
+    int position = 0;
+
+    if (dynamic_cast<RimGeoMechPropertyFilter*>(currentItem->dataObject().p()))
+    {
+        RimGeoMechPropertyFilter* propertyFilter = dynamic_cast<RimGeoMechPropertyFilter*>(currentItem->dataObject().p());
+        propertyFilterCollection = propertyFilter->parentContainer();
+        propertyFilterCollectionItem = currentItem->parent();
+        position = itemIndex.row();
+        collectionIndex = itemIndex.parent();
+    }
+    else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(currentItem->dataObject().p()))
+    {
+        propertyFilterCollection = dynamic_cast<RimGeoMechPropertyFilterCollection*>(currentItem->dataObject().p());
+        propertyFilterCollectionItem = currentItem;
+        position = propertyFilterCollectionItem->childCount();
+        collectionIndex = itemIndex;
+    }
+
+    beginInsertRows(collectionIndex, position, position);
+
+    RimGeoMechPropertyFilter* propertyFilter = propertyFilterCollection->createAndAppendPropertyFilter();
+    caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(propertyFilterCollectionItem, position, propertyFilter);
+
+    endInsertRows();
+
+    insertedModelIndex = index(position, 0, collectionIndex);
+
+    if (propertyFilterCollection)
+    {
+        static_cast<RimView*>(propertyFilterCollection->reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
+    }
+
+    return propertyFilter;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

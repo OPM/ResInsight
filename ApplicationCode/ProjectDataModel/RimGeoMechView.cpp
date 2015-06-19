@@ -49,6 +49,7 @@
 #include "RivGeoMechVizLogic.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
+#include "RimGeoMechPropertyFilterCollection.h"
 
 
 
@@ -72,6 +73,9 @@ RimGeoMechView::RimGeoMechView(void)
     rangeFilterCollection = new RimCellRangeFilterCollection();
     rangeFilterCollection->setReservoirView(this);
 
+    CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
+    propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
+    propertyFilterCollection->setReservoirView(this);
 
     this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
@@ -148,6 +152,7 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.setProgressDescription("Create Display model");
    
     updateViewerWidget();
+    this->propertyFilterCollection()->loadAndInitializePropertyFilters();
 
     createDisplayModelAndRedraw();
 

@@ -29,6 +29,7 @@ class QFileSystemWatcher;
 
 class RimCellPropertyFilter;
 class RimCellRangeFilter;
+class RimGeoMechPropertyFilter;
 class RimEclipseCase;
 class RimEclipseView;
 class RimInputProperty;
@@ -58,6 +59,7 @@ public:
     void                        deleteAllWellPaths(const QModelIndex& itemIndex);
 
     RimCellPropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimGeoMechPropertyFilter*   addGeoMechPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
 
     RimView*                    addReservoirView(const std::vector<caf::PdmUiItem*>& treeSelection);

@@ -68,6 +68,8 @@ private slots:
 
     void slotAddPropertyFilter();
     void slotDeletePropertyFilter();
+    void slotAddGeoMechPropertyFilter();
+    void slotDeleteGeoMechPropertyFilter();
 
     void slotEditScript();
     void slotNewScript();

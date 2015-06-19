@@ -54,6 +54,9 @@ ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechModels.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCase.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechView.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilter.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
@@ -109,6 +112,9 @@ ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechModels.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechView.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilter.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp

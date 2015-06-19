@@ -52,6 +52,9 @@
 
 #include "RimCellRangeFilterCollection.h"
 #include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
 #include "RimResultSlot.h"
 #include "RimStatisticsCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
@@ -155,6 +158,16 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Insert Property Filter"), this, SLOT(slotAddPropertyFilter()));
                 menu.addSeparator();
                 menu.addAction(QString("Delete"), this, SLOT(slotDeletePropertyFilter()));
+            }
+            else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("New Property Filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+            }
+            else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("Insert Property Filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+                menu.addSeparator();
+                menu.addAction(QString("Delete"), this, SLOT(slotDeleteGeoMechPropertyFilter()));
             }
             else if (dynamic_cast<RimCalcScript*>(uiItem->dataObject().p()))
             {
@@ -360,6 +373,37 @@ void RimUiTreeView::slotAddPropertyFilter()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotAddGeoMechPropertyFilter()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        QModelIndex insertedIndex;
+        RimGeoMechPropertyFilter* propFilter = myModel->addGeoMechPropertyFilter(currentIndex(), insertedIndex);
+        setCurrentIndex(insertedIndex);
+        if (propFilter)
+        {
+            propFilter->parentContainer()->reservoirView()->createDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotDeleteGeoMechPropertyFilter()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        myModel->deletePropertyFilter(currentIndex());
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
