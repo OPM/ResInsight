@@ -231,11 +231,8 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechRe
         RigGeoMechCaseData* caseData = cellResultSlot->ownerCaseData();
         
         if (!caseData) return;
-        caf::AppEnum<RigFemResultPosEnum> resPosType = cellResultSlot->resultPositionType();
-        QString fieldName = cellResultSlot->resultFieldName();
-        QString compName = cellResultSlot->resultComponentName();
 
-        RigFemResultAddress resVarAddress(resPosType, fieldName.toStdString(), compName.toStdString());
+        RigFemResultAddress resVarAddress = cellResultSlot->resultAddress();
 
         const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
 

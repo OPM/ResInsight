@@ -170,8 +170,8 @@ void RiuFemResultTextBuilder::appendTextFromResultSlot(RigGeoMechCaseData* geomD
         {
             caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultSlot->resultPositionType();
             resultInfoText->append(resPosAppEnum.uiText() + ", ");
-            resultInfoText->append(resultSlot->resultFieldName()+ ", ") ;
-            resultInfoText->append(resultSlot->resultComponentName() + ":\n");
+            resultInfoText->append(resultSlot->resultFieldUiName()+ ", ") ;
+            resultInfoText->append(resultSlot->resultComponentUiName() + ":\n");
 
 
             RigFemPart* femPart = geomData->femParts()->part(gridIndex);

@@ -54,6 +54,9 @@ public:
     QString                    resultFieldName()     { return m_resultFieldName();}
     QString                    resultComponentName() { return m_resultComponentName();}
 
+    QString                    resultFieldUiName();
+    QString                    resultComponentUiName();
+
     caf::PdmField<RimLegendConfig*> legendConfig;
 
 
@@ -78,4 +81,7 @@ private:
     caf::PdmField<QString>                           m_resultVariableUiField;
 
     caf::PdmPointer<RimGeoMechView>                  m_reservoirView;
+
+    static QString convertToUiResultFieldName(QString resultFieldName);
+
 };

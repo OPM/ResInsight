@@ -412,7 +412,7 @@ void RimGeoMechView::updateLegends()
 
     cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(
         caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
-        + cellResult->resultFieldName() + " " + cellResult->resultComponentName()));
+        + cellResult->resultFieldUiName() + ", " + cellResult->resultComponentUiName()));
 }
 
 //--------------------------------------------------------------------------------------------------

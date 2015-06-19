@@ -107,18 +107,6 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultSlot::calculateValueOptions(const 
                 options.push_back(caf::PdmOptionItemInfo(uiVarNames[oIdx], varNames[oIdx]));
             }
 
-#if 0
-
-            for (auto fieldIt = fieldCompNames.begin(); fieldIt != fieldCompNames.end(); ++fieldIt)
-            {
-                options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(fieldIt->first), QString::fromStdString(fieldIt->first)));
-
-                for (auto compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
-                {
-                    options.push_back(caf::PdmOptionItemInfo(QString::fromStdString("   " +  *compIt), QString::fromStdString(fieldIt->first + " " + *compIt)));
-                }
-            }
-#endif
         }
     }
 
@@ -218,14 +206,21 @@ void RimGeoMechResultSlot::getUiAndResultVariableStringList(QStringList* uiNames
     std::map<std::string, std::vector<std::string> >::const_iterator fieldIt;
     for (fieldIt = fieldCompNames.begin(); fieldIt != fieldCompNames.end(); ++fieldIt)
     {
-        uiNames->push_back(QString::fromStdString(fieldIt->first));
-        variableNames->push_back(QString::fromStdString(fieldIt->first));
+        QString resultFieldName = QString::fromStdString(fieldIt->first);
+
+        if (resultFieldName == "E" || resultFieldName == "S") continue; // We will not show the native Stress and Strain
+
+        QString resultFieldUiName = convertToUiResultFieldName(resultFieldName);
+                  
+        uiNames->push_back(resultFieldUiName);
+        variableNames->push_back(resultFieldName);
 
         std::vector<std::string>::const_iterator compIt;
         for (compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
         {
-            uiNames->push_back(QString::fromStdString("   " +  *compIt));
-            variableNames->push_back(composeUiVarString(QString::fromStdString(fieldIt->first), QString::fromStdString(*compIt)));
+            QString resultCompName = QString::fromStdString(*compIt);
+            uiNames->push_back("   " + resultCompName);
+            variableNames->push_back(composeUiVarString(resultFieldName, resultCompName));
         }
     }
 }
@@ -268,4 +263,33 @@ RigGeoMechCaseData* RimGeoMechResultSlot::ownerCaseData()
 bool RimGeoMechResultSlot::hasResult()
 {
     return ownerCaseData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultSlot::resultFieldUiName()
+{
+    return convertToUiResultFieldName(m_resultFieldName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultSlot::resultComponentUiName()
+{
+    return m_resultComponentName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultSlot::convertToUiResultFieldName(QString resultFieldName)
+{
+    if (resultFieldName == "E") return "NativeAbaqus Strain";
+    if (resultFieldName == "S") return "NativeAbaqus Stess";
+    if (resultFieldName == "NE") return "E"; // Make NE and NS appear as E and S
+    if (resultFieldName == "NS") return "S";
+
+    return resultFieldName;
 }

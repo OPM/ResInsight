@@ -299,11 +299,10 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
             if (geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult())
             {
                 QString resultPos;
-                QString fieldName = geoMechView->cellResult()->resultFieldName();
-                QString compName = geoMechView->cellResult()->resultComponentName();
-                QString resultName = compName.isEmpty() ? fieldName : compName;
+                QString fieldName = geoMechView->cellResult()->resultFieldUiName();
+                QString compName = geoMechView->cellResult()->resultComponentUiName();
 
-                if (!resultName.isEmpty())
+                if (!fieldName.isEmpty())
                 {
                     switch (geoMechView->cellResult()->resultPositionType())
                     {
@@ -324,7 +323,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     }
 
                     infoText += QString(
-                    "<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(resultName);
+                    "<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
 
                     double min = 0, max = 0;
                     double p10 = 0, p90 = 0;
@@ -357,34 +356,27 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 
     if (showHistogram())
     {
-       if (geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult())
-       {
-            QString fieldName = geoMechView->cellResult()->resultFieldName();
-            QString compName = geoMechView->cellResult()->resultComponentName();
-            QString resultName = compName.isEmpty() ? fieldName : compName;
+        if (geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult())
+        {
+            geoMechView->viewer()->showHistogram(true);
 
-            if (!resultName.isEmpty())
+            // ToDo: Implement statistics for geomech data
+
+            RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+            RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
+
+            if (caseData)
             {
-                geoMechView->viewer()->showHistogram(true);
+                double min = 0, max = 0;
+                double p10 = 0, p90 = 0;
+                double mean = 0;
 
-                // ToDo: Implement statistics for geomech data
-                
-                RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
-                RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
-
-                if (caseData)
-                {
-                    double min = 0, max = 0;
-                    double p10 = 0, p90 = 0;
-                    double mean = 0;
-
-                    RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
-                    caseData->femPartResults()->meanScalarValue(resAddress, &mean);
-                    caseData->femPartResults()->minMaxScalarValues(resAddress,&min, &max);
-                    caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
-                    geoMechView->viewer()->setHistogram(min, max,  caseData->femPartResults()->scalarValuesHistogram(resAddress));
-                    geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);
-                }
+                RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+                caseData->femPartResults()->meanScalarValue(resAddress, &mean);
+                caseData->femPartResults()->minMaxScalarValues(resAddress, &min, &max);
+                caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
+                geoMechView->viewer()->setHistogram(min, max, caseData->femPartResults()->scalarValuesHistogram(resAddress));
+                geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);
             }
         }
     }
