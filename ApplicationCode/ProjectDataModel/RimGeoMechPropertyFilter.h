@@ -21,13 +21,6 @@
 
 #include "RimCellFilter.h"
 
-/*class RimEclipseView;
-class RimCellPropertyFilterCollection;
-class RimResultDefinition;
-
-class RigGridBase;
-class RigCaseCellResultsData;
-*/
 
 class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;

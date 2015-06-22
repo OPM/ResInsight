@@ -33,6 +33,7 @@
 #include "RivCellSetEnum.h"
 #include "RivFemElmVisibilityCalculator.h"
 #include "RigFemPartResultsCollection.h"
+#include "RimGeoMechPropertyFilterCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -124,7 +125,7 @@ std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMg
 {
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs;
 
-    if (false)//m_geomechView->propertyFilterCollection()->hasActiveFilters())
+    if (timeStepIndex >= 0 && m_geomechView->propertyFilterCollection()->hasActiveFilters())
     {
         visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(PROPERTY_FILTERED, timeStepIndex));
     }
@@ -181,8 +182,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
                                                                       caseData->femParts()->part(femPartIdx),
                                                                       pMgrKey.frameIndex(),
                                                                       rangeFiltVisibility.p(),
-                                                                      NULL
-                                                                      //m_geomechView->propertyFilterCollection()
+                                                                      m_geomechView->propertyFilterCollection()
                                                                       );   
         }
         else

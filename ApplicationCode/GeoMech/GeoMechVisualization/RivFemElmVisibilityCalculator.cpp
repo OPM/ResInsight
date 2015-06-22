@@ -23,6 +23,15 @@
 #include "RigFemPartGrid.h"
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimCellPropertyFilter.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
+
+#include "RigGeomechCaseData.h"
+#include "RigFemPartResultsCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -80,7 +89,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                                                               const cvf::UByteArray* rangeFilterVisibility, 
                                                               RimGeoMechPropertyFilterCollection* propFilterColl)
 {
-#if 0
+#if 1
     CVF_ASSERT(cellVisibility != NULL);
     CVF_ASSERT(rangeFilterVisibility != NULL);
     CVF_ASSERT(propFilterColl != NULL);
@@ -96,28 +105,24 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
     {
         for (size_t i = 0; i < propFilterColl->propertyFilters().size(); i++)
         {
-            RimCellPropertyFilter* propertyFilter = propFilterColl->propertyFilters()[i];
+            RimGeoMechPropertyFilter* propertyFilter = propFilterColl->propertyFilters()[i];
 
             if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasResult())
             {
                 const double lowerBound = propertyFilter->lowerBound();
                 const double upperBound = propertyFilter->upperBound();
 
-                RigFemResultAddress resVarAddress = propertyFilter->resultDefinition->resulAddress();
+                RigFemResultAddress resVarAddress = propertyFilter->resultDefinition->resultAddress();
 
                 size_t adjustedTimeStepIndex = timeStepIndex;
 
-                // Set time step to zero for static results
-                if (propertyFilter->resultDefinition()->hasStaticResult())
-                {
-                    adjustedTimeStepIndex = 0;
-                }
-
                 const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 
-                RigGeoMechCaseData* caseData = propFilterColl->reservoirView()->geoMechCase()->geoMechCaseData();
+                RigGeoMechCaseData* caseData = propFilterColl->reservoirView()->geoMechCase()->geoMechData();
 
-                const std::vector<float>& resVals = caseData->femPartResults()->resultValues(resVarAddress, grid->elementPartId(), timeStepIndex);
+                const std::vector<float>& resVals = caseData->femPartResults()->resultValues(resVarAddress, 
+                                                                                             grid->elementPartId(), 
+                                                                                             timeStepIndex);
                 //#pragma omp parallel for schedule(dynamic)
                 for (int cellIndex = 0; cellIndex < elementCount; cellIndex++)
                 {
