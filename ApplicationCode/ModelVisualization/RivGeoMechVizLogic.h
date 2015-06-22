@@ -25,6 +25,8 @@
 #include "RivGeoMechPartMgrCache.h"
 #include "RivCellSetEnum.h"
 
+#include <vector>
+
 class RimGeoMechView;
 class RimGeoMechResultSlot;
 
@@ -42,12 +44,14 @@ public:
 
     void                             appendNoAnimPartsToModel(cvf::ModelBasicList* model);
     void                             appendPartsToModel(int timeStepIndex, cvf::ModelBasicList* model);
-    void                             updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot);
-    void                             updateStaticCellColors();
+    void                             updateCellResultColor(int timeStepIndex, RimGeoMechResultSlot* cellResultSlot);
+    void                             updateStaticCellColors(int timeStepIndex);
     void                             scheduleGeometryRegen(RivCellSetEnum geometryType);
 private:
-  
-    RivGeoMechPartMgrCache::Key      currentPartMgrKey();
+
+    std::vector<RivGeoMechPartMgrCache::Key>      keysToVisiblePartMgrs(int timeStepIndex);
+    RivGeoMechPartMgr*                            getUpdatedPartMgr(RivGeoMechPartMgrCache::Key partMgrKey);
+
     cvf::ref<RivGeoMechPartMgrCache> m_partMgrCache;
     RimGeoMechView*                  m_geomechView;
 };

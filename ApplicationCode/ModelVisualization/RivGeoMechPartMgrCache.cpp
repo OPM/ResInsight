@@ -21,9 +21,17 @@ RivGeoMechPartMgrCache::~RivGeoMechPartMgrCache()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RivGeoMechPartMgrCache::needsRegeneration(const Key& key)
+bool RivGeoMechPartMgrCache::isNeedingRegeneration(const Key& key) const
 {
-    return m_partMgrs[key].needsRegen;
+    std::map<Key, CacheEntry >::const_iterator ceIt = m_partMgrs.find(key);
+    if (ceIt != m_partMgrs.end())
+    {
+        return ceIt->second.needsRegen;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -31,13 +39,17 @@ bool RivGeoMechPartMgrCache::needsRegeneration(const Key& key)
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechPartMgrCache::scheduleRegeneration(const Key& key)
 {
-     m_partMgrs[key].needsRegen = true;
+    std::map<Key, CacheEntry >::iterator ceIt = m_partMgrs.find(key);
+    if (ceIt != m_partMgrs.end())
+    {
+        ceIt->second.needsRegen = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgrCache::generationFinished(const Key& key)
+void RivGeoMechPartMgrCache::setGenerationFinished(const Key& key)
 {
     m_partMgrs[key].needsRegen = false;
 }
@@ -55,7 +67,6 @@ RivGeoMechPartMgr* RivGeoMechPartMgrCache::partMgr(const Key& key)
 
     return ce.partMgr.p();
 }
-
 
 
 //--------------------------------------------------------------------------------------------------

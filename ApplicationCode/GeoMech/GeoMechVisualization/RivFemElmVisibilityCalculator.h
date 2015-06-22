@@ -27,14 +27,20 @@ namespace cvf
 }
 
 class RigFemPart;
-
+class RimGeoMechPropertyFilterCollection;
 
 class RivFemElmVisibilityCalculator
 {
 public:
     static void computeAllVisible(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart );
-    static void computeRangeVisibility(cvf::UByteArray* elmVisibilities, RigFemPart* femPart,  const cvf::CellRangeFilter& rangeFilter);
+    static void computeRangeVisibility(cvf::UByteArray* elmVisibilities, RigFemPart* femPart,  
+                                        const cvf::CellRangeFilter& rangeFilter);
 
+    static void computePropertyVisibility(cvf::UByteArray* cellVisibility, 
+                                          const RigFemPart* grid,
+                                          int timeStepIndex,
+                                          const cvf::UByteArray* rangeFilterVisibility,
+                                          RimGeoMechPropertyFilterCollection* propFilterColl);
 };
 
 

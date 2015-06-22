@@ -225,7 +225,7 @@ void RimGeoMechView::createDisplayModel()
     m_viewer->removeAllFrames();
 
     m_vizLogic->appendNoAnimPartsToModel(frameModels[0].p());
-    m_vizLogic->updateStaticCellColors();
+    m_vizLogic->updateStaticCellColors(-1);
 
    // Create Scenes from the frameModels
    // Animation frames for results display, starts from frame 1
@@ -296,7 +296,7 @@ void RimGeoMechView::updateCurrentTimeStep()
     }
     else
     {
-        this->updateStaticCellColors();
+        m_vizLogic->updateStaticCellColors(m_currentTimeStep);
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
 
@@ -308,7 +308,7 @@ void RimGeoMechView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateStaticCellColors()
 {
-    m_vizLogic->updateStaticCellColors();
+    m_vizLogic->updateStaticCellColors(-1);
 }
 
 //--------------------------------------------------------------------------------------------------

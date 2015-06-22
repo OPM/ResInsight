@@ -5,6 +5,7 @@
 #include "RivCellSetEnum.h"
 
 class RivGeoMechPartMgr;
+class RivGeoMechPartMgrGeneratorInterface;
 
 class RivGeoMechPartMgrCache : public cvf::Object
 {
@@ -31,9 +32,9 @@ public:
         unsigned short  m_geometryType;
     };
 
-    bool                needsRegeneration    (const Key& key);
+    bool                isNeedingRegeneration(const Key& key) const;
     void                scheduleRegeneration (const Key& key);
-    void                generationFinished   (const Key& key);
+    void                setGenerationFinished(const Key& key);
     RivGeoMechPartMgr*  partMgr              (const Key& key);
 
 private:
