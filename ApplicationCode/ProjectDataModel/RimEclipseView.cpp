@@ -732,7 +732,7 @@ void RimEclipseView::updateStaticCellColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateStaticCellColors(unsigned short geometryType)
+void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
 {
     float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
     cvf::Color4f color(cvf::Color3::ORANGE);
@@ -753,7 +753,7 @@ void RimEclipseView::updateStaticCellColors(unsigned short geometryType)
         case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;   
     }
 
-    m_reservoirGridPartManager->updateCellColor(static_cast<RivCellSetEnum>(geometryType), color);
+    m_reservoirGridPartManager->updateCellColor(geometryType, color);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1456,3 +1456,43 @@ RimCase* RimEclipseView::ownerCase()
     return eclipseCase();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::addWellPathsToScene(cvf::Scene* scene, 
+                                  const cvf::Vec3d& displayModelOffset, 
+                                  double characteristicCellSize, 
+                                  const cvf::BoundingBox& wellPathClipBoundingBox, 
+                                  cvf::Transform* scaleTransform)
+{
+    CVF_ASSERT(scene);
+    CVF_ASSERT(scaleTransform);
+
+    cvf::String wellPathModelName = "WellPathModel";
+    std::vector<cvf::Model*> wellPathModels;
+    for (cvf::uint i = 0; i < scene->modelCount(); i++)
+    {
+        if (scene->model(i)->name() == wellPathModelName)
+        {
+            wellPathModels.push_back(scene->model(i));
+        }
+    }
+
+    for (size_t i = 0; i < wellPathModels.size(); i++)
+    {
+        scene->removeModel(wellPathModels[i]);
+    }
+
+    // Append static Well Paths to model
+    cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
+    wellPathModelBasicList->setName(wellPathModelName);
+
+    addWellPathsToModel(wellPathModelBasicList.p(), 
+                        displayModelOffset, 
+                        characteristicCellSize, 
+                        wellPathClipBoundingBox, 
+                        scaleTransform);
+
+    scene->addModel(wellPathModelBasicList.p());
+}

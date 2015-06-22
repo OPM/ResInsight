@@ -61,20 +61,16 @@ public:
 
     virtual void                                        loadDataAndUpdate();
 
-    virtual void                                        endAnimation() {}
-
     caf::PdmField<RimGeoMechResultSlot*>                cellResult;
 
-
     bool                                                isTimeStepDependentDataVisible();
-    virtual cvf::Transform*                             scaleTransform();
 
+    virtual cvf::Transform*                             scaleTransform();
 private:
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
     virtual void                                        createDisplayModel();
     virtual void                                        updateDisplayModelVisibility();
     virtual void                                        updateScaleTransform();
-
 
     virtual void                                        clampCurrentTimestep();
 

@@ -140,7 +140,7 @@ private:
     virtual cvf::Transform*                         scaleTransform();
 
     virtual void                                    updateStaticCellColors();
-    void                                            updateStaticCellColors(unsigned short geometryType);
+    void                                            updateStaticCellColors(RivCellSetEnum geometryType);
     void                                            updateLegends();
     void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData);
     virtual void                                    resetLegendsInViewer();
@@ -151,6 +151,12 @@ private:
     void                                            updateFaultColors();
 
     void                                            syncronizeWellsWithResults();
+    void                                            addWellPathsToScene(cvf::Scene* scene,
+                                                                        const cvf::Vec3d& displayModelOffset, 
+                                                                        double characteristicCellSize, 
+                                                                        const cvf::BoundingBox& wellPathClipBoundingBox, 
+                                                                        cvf::Transform* scaleTransform);
+
     void                                            clampCurrentTimestep();
 
     virtual RimCase*                                ownerCase();

@@ -35,6 +35,7 @@ namespace cvf
 {
     class BoundingBox;
     class Scene;
+    class ModelBasicList;
     class Transform;
 }
 
@@ -114,8 +115,9 @@ public:
 protected:
 
     void                                    setDefaultView();
-	void									addWellPathsToScene(cvf::Scene* scene, 
-                                                                const cvf::Vec3d& displayModelOffset, 
+
+    void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
+                                                                const cvf::Vec3d& displayModelOffset,  
                                                                 double characteristicCellSize, 
                                                                 const cvf::BoundingBox& wellPathClipBoundingBox, 
                                                                 cvf::Transform* scaleTransform);

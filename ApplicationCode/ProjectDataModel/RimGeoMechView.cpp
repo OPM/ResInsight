@@ -134,7 +134,6 @@ void RimGeoMechView::loadDataAndUpdate()
             m_geomechCase = NULL;
             return;
         }
-       // m_geoMechFullModel->clearAndSetReservoir(m_geomechCase->geoMechData(), this);
     }
     progress.incrementProgress();
 
@@ -194,62 +193,47 @@ void RimGeoMechView::createDisplayModel()
 
    if (partCount <= 0) return;
 
-   // Define a vector containing time step indices to produce geometry for.
-   // First entry in this vector is used to define the geometry only result mode with no results.
-   std::vector<int> timeStepIndices;
+   // Remove all existing animation frames from the viewer. 
+   // The parts are still cached in the RivReservoir geometry and friends
 
-   // The one and only geometry entry
-   timeStepIndices.push_back(0);
-
-   // Find the number of time frames the animation needs to show the requested data.
+   m_viewer->removeAllFrames();
 
    if (isTimeStepDependentDataVisible())
    {
-       int i;
-       for (i = 0; i < geoMechCase()->geoMechData()->femPartResults()->frameCount(); ++i)
+       // Create empty frames in the viewer 
+
+       int frameCount = geoMechCase()->geoMechData()->femPartResults()->frameCount();
+       for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
        {
-           timeStepIndices.push_back(i);
+           cvf::ref<cvf::Scene> scene = new cvf::Scene;
+           scene->addModel(new cvf::ModelBasicList);
+           m_viewer->addFrame(scene.p());
        }
    }
 
-    cvf::Collection<cvf::ModelBasicList> frameModels;
-    size_t timeIdx;
-    for (timeIdx = 0; timeIdx < timeStepIndices.size(); timeIdx++)
-    {
-        frameModels.push_back(new cvf::ModelBasicList);
-    }
+   // Set the Main scene in the viewer. Used when the animation is in "Stopped" state
 
-    // Remove all existing animation frames from the viewer. 
-    // The parts are still cached in the RivReservoir geometry and friends
+   cvf::ref<cvf::Scene> mainScene = new cvf::Scene;
+   m_viewer->setMainScene(mainScene.p());
 
-    m_viewer->removeAllFrames();
+   // Grid model
+   cvf::ref<cvf::ModelBasicList> mainSceneModel =  new cvf::ModelBasicList;
+   m_vizLogic->appendNoAnimPartsToModel(mainSceneModel.p());
+   mainSceneModel->updateBoundingBoxesRecursive();
+   mainScene->addModel(mainSceneModel.p());
 
-    m_vizLogic->appendNoAnimPartsToModel(frameModels[0].p());
-    m_vizLogic->updateStaticCellColors(-1);
+   // Well path model
 
-   // Create Scenes from the frameModels
-   // Animation frames for results display, starts from frame 1
+   double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
+   cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
+   cvf::ref<cvf::ModelBasicList> wellPathModel =  new cvf::ModelBasicList;
+   addWellPathsToModel(wellPathModel.p(),
+                       cvf::Vec3d(0, 0, 0),
+                       characteristicCellSize,
+                       femBBox,
+                       scaleTransform());
+   mainScene->addModel(wellPathModel.p());
 
-   size_t frameIndex;
-   for (frameIndex = 0; frameIndex < frameModels.size(); frameIndex++)
-   {
-       cvf::ModelBasicList* model = frameModels.at(frameIndex);
-       model->updateBoundingBoxesRecursive();
-
-       cvf::ref<cvf::Scene> scene = new cvf::Scene;
-       scene->addModel(model);
-
-       if (frameIndex == 0)
-           m_viewer->setMainScene(scene.p());
-       else
-           m_viewer->addFrame(scene.p());
-
-       double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
-       cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
-       
-       addWellPathsToScene(scene.p(), cvf::Vec3d(0, 0, 0), 
-                           characteristicCellSize, femBBox, scaleTransform());
-   }
 
    // If the animation was active before recreating everything, make viewer view current frame
 
@@ -260,6 +244,7 @@ void RimGeoMechView::createDisplayModel()
    else
    {
        updateLegends();
+       m_vizLogic->updateStaticCellColors(-1);
        overlayInfoConfig()->update3DInfo();
    }
 }
@@ -278,25 +263,36 @@ void RimGeoMechView::updateCurrentTimeStep()
             cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
             if (frameScene)
             {
+                frameScene->removeAllModels();
+
+                // Grid model
                 cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                 m_vizLogic->appendPartsToModel(m_currentTimeStep, frameParts.p());
-
                 frameParts->updateBoundingBoxesRecursive();
-                frameScene->removeAllModels();
                 frameScene->addModel(frameParts.p());
-
+                             
+                // Well Path model       
                 double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
                 cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
-                addWellPathsToScene(frameScene, cvf::Vec3d(0, 0, 0), 
-                                    characteristicCellSize, femBBox, scaleTransform());
+                cvf::ref<cvf::ModelBasicList> wellPathModel =  new cvf::ModelBasicList;
+                addWellPathsToModel(wellPathModel.p(),
+                                    cvf::Vec3d(0, 0, 0),
+                                    characteristicCellSize,
+                                    femBBox,
+                                    scaleTransform());
+                frameScene->addModel(wellPathModel.p());
             }
         }
 
-        m_vizLogic->updateCellResultColor(m_currentTimeStep(), this->cellResult());
+        if (this->cellResult()->hasResult())
+            m_vizLogic->updateCellResultColor(m_currentTimeStep(), this->cellResult());
+        else
+            m_vizLogic->updateStaticCellColors(m_currentTimeStep());
+
     }
     else
     {
-        m_vizLogic->updateStaticCellColors(m_currentTimeStep);
+        m_vizLogic->updateStaticCellColors(-1);
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
 
