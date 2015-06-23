@@ -189,9 +189,11 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             if (m_propertyFilter)
             {
                 m_propertyFilter->updateDefaultValues();
+
+                ((RimView*)reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
             }
 
-            m_reservoirView->createDisplayModelAndRedraw();
+            reservoirView()->scheduleCreateDisplayModelAndRedraw();
         }
     }
 
@@ -218,6 +220,9 @@ std::map<std::string, std::vector<std::string> > RimGeoMechResultDefinition::get
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* uiNames, QStringList* variableNames, 
     const std::map<std::string, std::vector<std::string> >&  fieldCompNames)
 {
@@ -246,6 +251,9 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* u
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::composeUiVarString(const QString& resultFieldName, const QString& resultComponentName)
 {
     return resultFieldName + " " + resultComponentName;
@@ -319,11 +327,17 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName(QString resultFie
     return resultFieldName;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::setOwnerPropertyFilter( RimGeoMechPropertyFilter* propertyFilter )
 {
     m_propertyFilter = propertyFilter;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& resultAddress )
 {
     m_resultPositionType    = resultAddress.resultPosType;

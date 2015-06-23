@@ -29,16 +29,6 @@
 #include "RigGeoMechCaseData.h"
 #include "RimGeoMechView.h"
 
-/*
-#include "RigCaseCellResultsData.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimResultDefinition.h"
-
-#include "cafPdmUiDoubleSliderEditor.h"
-#include "cvfAssert.h"
-*/
-
 
 CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
 
