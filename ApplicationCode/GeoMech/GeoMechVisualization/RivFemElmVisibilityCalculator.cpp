@@ -30,7 +30,7 @@
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
 
-#include "RigGeomechCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include "RigFemPartResultsCollection.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
     CVF_ASSERT(propFilterColl != NULL);
 
     CVF_ASSERT(grid->elementCount() > 0);
-    CVF_ASSERT(rangeFilterVisibility->size() == grid->elementCount());
+    CVF_ASSERT(rangeFilterVisibility->size() == static_cast<size_t>(grid->elementCount()));
 
     // Copy if not equal
     if (cellVisibility != rangeFilterVisibility ) (*cellVisibility) = *rangeFilterVisibility;
