@@ -76,6 +76,8 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 ///
 //==================================================================================================
 
+#include "RiaBaseDefs.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -125,6 +127,18 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_InfoLabel->setPalette(p);
     m_InfoLabel->setFrameShape(QFrame::Box);
     m_showInfoText = true;
+
+    // Version info label
+    m_versionInfoLabel = new QLabel();
+    m_versionInfoLabel->setFrameShape(QFrame::NoFrame);
+    m_versionInfoLabel->setAlignment(Qt::AlignRight);
+    m_versionInfoLabel->setText(QString("%1 v%2").arg(RI_APPLICATION_NAME, RiaApplication::getVersionStringApp(false)));
+    
+    QPalette versionInfoPalette = p;
+    QColor versionInfoLabelColor = p.color(QPalette::Window);
+    versionInfoLabelColor.setAlpha(0);
+    versionInfoPalette.setColor(QPalette::Window, versionInfoLabelColor);
+    m_versionInfoLabel->setPalette(versionInfoPalette);
 
     // Animation progress bar
     m_animationProgress = new QProgressBar();
@@ -332,7 +346,16 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
     {
         m_histogramWidget->resize(columnWidth, 40);
         m_histogramWidget->render(painter,QPoint(columnPos, yPos));
-        yPos +=  m_InfoLabel->height() + margin;
+        yPos +=  m_histogramWidget->height() + margin;
+    }
+
+    if (m_showInfoText)
+    {
+        QSize size(m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height());
+        QPoint pos(this->width() - size.width() - margin, this->height() - size.height() - margin);
+        m_versionInfoLabel->resize(size.width(), size.height());
+        m_versionInfoLabel->render(painter, pos);
+        yPos +=  size.height() + margin;
     }
 }
 
