@@ -33,36 +33,28 @@ class RimGeoMechPropertyFilter : public RimCellFilter
 {
     CAF_PDM_HEADER_INIT;
 
-    enum EvaluationRegionType
-    {
-        RANGE_FILTER_REGION,
-        GLOBAL_REGION
-    };
-
 public:
     RimGeoMechPropertyFilter();
     virtual ~RimGeoMechPropertyFilter();
 
-    void setParentContainer(RimGeoMechPropertyFilterCollection* parentContainer);
-    RimGeoMechPropertyFilterCollection* parentContainer();
-    void updateDefaultValues();
-    void computeResultValueRange();
+    caf::PdmField<RimGeoMechResultDefinition*>  resultDefinition;
 
-    caf::PdmField<RimGeoMechResultDefinition*> resultDefinition;
+    caf::PdmField<double>                       lowerBound;
+    caf::PdmField<double>                       upperBound;
 
-    caf::PdmField<double>   lowerBound;
-    caf::PdmField<double>   upperBound;
+    void                                        setParentContainer(RimGeoMechPropertyFilterCollection* parentContainer);
+    RimGeoMechPropertyFilterCollection*         parentContainer();
+    void                                        setToDefaultValues();
+    void                                        computeResultValueRange();
     
-    
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-
+    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+    virtual void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
-    RimGeoMechPropertyFilterCollection* m_parentContainer;
-    double m_minimumResultValue, m_maximumResultValue;
+    RimGeoMechPropertyFilterCollection*         m_parentContainer;
+    double                                      m_minimumResultValue; 
+    double                                      m_maximumResultValue;
 };
 

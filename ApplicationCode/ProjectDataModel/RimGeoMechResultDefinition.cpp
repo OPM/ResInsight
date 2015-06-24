@@ -188,7 +188,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             
             if (m_propertyFilter)
             {
-                m_propertyFilter->updateDefaultValues();
+                m_propertyFilter->setToDefaultValues();
 
                 ((RimView*)reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
             }

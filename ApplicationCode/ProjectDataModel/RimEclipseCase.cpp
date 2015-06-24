@@ -184,7 +184,7 @@ void RimEclipseCase::removeResult(const QString& resultName)
             {
                 propertyFilter->resultDefinition->setResultVariable(RimDefines::undefinedResultName());
                 propertyFilter->resultDefinition->loadResult();
-                propertyFilter->setDefaultValues();
+                propertyFilter->setToDefaultValues();
 
                 rebuildDisplayModel = true;
             }

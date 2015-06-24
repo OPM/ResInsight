@@ -98,7 +98,7 @@ RimCellPropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyF
     propertyFilter->resultDefinition->setPorosityModel(m_reservoirView->cellResult->porosityModel());
     propertyFilter->resultDefinition->setResultType(m_reservoirView->cellResult->resultType());
     propertyFilter->resultDefinition->loadResult();
-    propertyFilter->setDefaultValues();
+    propertyFilter->setToDefaultValues();
 
     propertyFilter->name = QString("New Filter (%1)").arg(propertyFilters().size());
 

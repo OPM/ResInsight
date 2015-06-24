@@ -103,7 +103,7 @@ RimGeoMechPropertyFilterCollection* RimGeoMechPropertyFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilter::updateDefaultValues()
+void RimGeoMechPropertyFilter::setToDefaultValues()
 {
     CVF_ASSERT(m_parentContainer);
 

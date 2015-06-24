@@ -37,38 +37,41 @@ class RigCaseCellResultsData;
 class RimCellPropertyFilter : public RimCellFilter
 {
     CAF_PDM_HEADER_INIT;
+ 
+public:
+    RimCellPropertyFilter();
+    virtual ~RimCellPropertyFilter();
 
+    caf::PdmField<RimResultDefinition*>     resultDefinition;
+
+    caf::PdmField<double>                   lowerBound;
+    caf::PdmField<double>                   upperBound;
+
+    void                                    setParentContainer(RimCellPropertyFilterCollection* parentContainer);
+    RimCellPropertyFilterCollection*        parentContainer();
+    void                                    setToDefaultValues();
+    void                                    computeResultValueRange();
+
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+protected:
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+
+private:
+    RimCellPropertyFilterCollection*        m_parentContainer;
+    double                                  m_minimumResultValue; 
+    double                                  m_maximumResultValue;
+
+public:
+    // Obsolete stuff 
     enum EvaluationRegionType
     {
         RANGE_FILTER_REGION,
         GLOBAL_REGION
     };
-
-public:
-    RimCellPropertyFilter();
-    virtual ~RimCellPropertyFilter();
-
-    void setParentContainer(RimCellPropertyFilterCollection* parentContainer);
-    RimCellPropertyFilterCollection* parentContainer();
-    void setDefaultValues();
-    void computeResultValueRange();
-
-    caf::PdmField<RimResultDefinition*> resultDefinition;
-
-    caf::PdmField<double>   lowerBound;
-    caf::PdmField<double>   upperBound;
-    caf::PdmField< caf::AppEnum< EvaluationRegionType > > evaluationRegion;
-
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
-
-protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
-
 private:
-    RimCellPropertyFilterCollection* m_parentContainer;
-    double m_minimumResultValue, m_maximumResultValue;
+    caf::PdmField< caf::AppEnum< EvaluationRegionType > > obsoleteField_evaluationRegion;
+
 };
 

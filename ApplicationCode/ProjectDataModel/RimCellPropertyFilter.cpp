@@ -31,7 +31,7 @@
 
 
 namespace caf
-{
+{ // Obsolete stuff
     template<>
     void caf::AppEnum< RimCellPropertyFilter::EvaluationRegionType>::setUp()
     {
@@ -52,9 +52,9 @@ RimCellPropertyFilter::RimCellPropertyFilter()
 {
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&evaluationRegion, "EvaluationRegion", "Evaluation region", "", "", "");
-    evaluationRegion.setUiHidden(true);
-    evaluationRegion.setIOWritable(false);
+    CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation region", "", "", "");
+    obsoleteField_evaluationRegion.setUiHidden(true);
+    obsoleteField_evaluationRegion.setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimResultDefinition();
@@ -108,13 +108,13 @@ void RimCellPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     if ( &(resultDefinition->m_resultVariableUiField) == changedField )
     {
         resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
-        setDefaultValues();
+        setToDefaultValues();
         m_parentContainer->fieldChangedByUi(changedField, oldValue,  newValue);
     }
 
     if (   &lowerBound == changedField 
         || &upperBound == changedField
-        || &evaluationRegion == changedField
+        || &obsoleteField_evaluationRegion == changedField
         || &isActive == changedField
         || &filterMode == changedField)
     {
@@ -171,7 +171,7 @@ RimCellPropertyFilterCollection* RimCellPropertyFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::setDefaultValues()
+void RimCellPropertyFilter::setToDefaultValues()
 {
     CVF_ASSERT(m_parentContainer);
 
