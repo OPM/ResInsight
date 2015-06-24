@@ -63,7 +63,9 @@ private:
     std::vector<size_t>						m_histogram;
 
     std::vector<std::pair<double, double> > m_maxMinValuesPrTs;		    ///< Max min values for each time step
+    std::vector<bool>                       m_isMaxMinPrTsCalculated;
     std::vector<std::pair<double, double> > m_posNegClosestToZeroPrTs;	///< PosNeg values for each time step
+    std::vector<bool>                       m_isClosestToZeroPrTsCalculated;
 
     cvf::ref<RigStatisticsCalculator>		m_statisticsCalculator;
 };

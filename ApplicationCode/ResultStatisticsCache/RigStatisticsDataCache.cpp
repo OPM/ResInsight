@@ -91,7 +91,11 @@ void RigStatisticsDataCache::minMaxCellScalarValues(size_t timeStepIndex, double
 	if (timeStepIndex >= m_maxMinValuesPrTs.size())
 	{
 		m_maxMinValuesPrTs.resize(timeStepIndex + 1, std::make_pair(HUGE_VAL, -HUGE_VAL));
-	
+        m_isMaxMinPrTsCalculated.resize(timeStepIndex + 1, false);
+    }
+
+    if (!m_isMaxMinPrTsCalculated[timeStepIndex])
+    {
         double tsMin = HUGE_VAL;
         double tsMax = -HUGE_VAL;
 
@@ -99,6 +103,8 @@ void RigStatisticsDataCache::minMaxCellScalarValues(size_t timeStepIndex, double
 
 		m_maxMinValuesPrTs[timeStepIndex].first = tsMin;
 		m_maxMinValuesPrTs[timeStepIndex].second = tsMax;
+
+        m_isMaxMinPrTsCalculated[timeStepIndex] = true;
     }
 
 	min = m_maxMinValuesPrTs[timeStepIndex].first;
@@ -141,7 +147,12 @@ void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& p
 	if (timeStepIndex >= m_posNegClosestToZeroPrTs.size())
 	{
 		m_posNegClosestToZeroPrTs.resize(timeStepIndex + 1, std::make_pair(HUGE_VAL, -HUGE_VAL));
-	
+        m_isClosestToZeroPrTsCalculated.resize(timeStepIndex + 1, false);
+    }
+
+    if (!m_isClosestToZeroPrTsCalculated[timeStepIndex])
+    {
+
         double pos = HUGE_VAL;
         double neg = -HUGE_VAL;
         
@@ -149,6 +160,8 @@ void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& p
 
 		m_posNegClosestToZeroPrTs[timeStepIndex].first = pos;
 		m_posNegClosestToZeroPrTs[timeStepIndex].second = neg;
+
+        m_isClosestToZeroPrTsCalculated[timeStepIndex] = true;
     }
 
 	posNearZero = m_posNegClosestToZeroPrTs[timeStepIndex].first;
