@@ -459,7 +459,7 @@ void RimEclipseView::createDisplayModel()
 
     // If the animation was active before recreating everything, make viewer view current frame
 
-    if (isAnimationActive || cellResult->hasResult())
+    if (frameModels.size() > 1 && this->hasUserRequestedAnimation())
     {
         m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
     }
