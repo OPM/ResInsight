@@ -109,12 +109,22 @@ void RivGeoMechVizLogic::updateStaticCellColors(int timeStepIndex)
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechVizLogic::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
+    this->scheduleRegenOfDirectlyDependentGeometry(geometryType);
+
     int frameCount = m_geomechView->geoMechCase()->geoMechData()->femPartResults()->frameCount();
 
     for (int fIdx = -1; fIdx < frameCount; ++fIdx)
     {
         RivGeoMechPartMgrCache::Key geomToRegen(geometryType, fIdx);
         m_partMgrCache->scheduleRegeneration(geomToRegen);
+    }
+}
+
+void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry(RivCellSetEnum geometryType)
+{
+    if (geometryType == RANGE_FILTERED)
+    {
+        this->scheduleGeometryRegen(PROPERTY_FILTERED);
     }
 }
 
@@ -175,19 +185,31 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
         }
         else if (pMgrKey.geometryType() == PROPERTY_FILTERED)
         {
-             RivGeoMechPartMgr* rangefiltered = getUpdatedPartMgr(RivGeoMechPartMgrCache::Key(RANGE_FILTERED, -1));
-             cvf::ref<cvf::UByteArray> rangeFiltVisibility = rangefiltered->cellVisibility(femPartIdx);
-             
-             RivFemElmVisibilityCalculator::computePropertyVisibility(elmVisibility.p(), 
-                                                                      caseData->femParts()->part(femPartIdx),
-                                                                      pMgrKey.frameIndex(),
-                                                                      rangeFiltVisibility.p(),
-                                                                      m_geomechView->propertyFilterCollection()
-                                                                      );   
+            RivGeoMechPartMgr* rangefiltered = NULL;
+            if (m_geomechView->rangeFilterCollection()->hasActiveFilters())
+            {
+                rangefiltered = getUpdatedPartMgr(RivGeoMechPartMgrCache::Key(RANGE_FILTERED, -1));
+            }
+            else
+            {
+                rangefiltered = getUpdatedPartMgr(RivGeoMechPartMgrCache::Key(ALL_CELLS, -1));
+            }
+            cvf::ref<cvf::UByteArray> rangeFiltVisibility = rangefiltered->cellVisibility(femPartIdx);
+
+            RivFemElmVisibilityCalculator::computePropertyVisibility(elmVisibility.p(),
+                                                                     caseData->femParts()->part(femPartIdx),
+                                                                     pMgrKey.frameIndex(),
+                                                                     rangeFiltVisibility.p(),
+                                                                     m_geomechView->propertyFilterCollection()
+                                                                     );
+        }
+        else if (pMgrKey.geometryType() == ALL_CELLS)
+        {
+            RivFemElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), caseData->femParts()->part(femPartIdx));
         }
         else
         {
-            RivFemElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), caseData->femParts()->part(femPartIdx));
+            CVF_ASSERT(false); // Unsupported CellSet Enum
         }
 
         partMgrToUpdate->setCellVisibility(femPartIdx, elmVisibility.p());

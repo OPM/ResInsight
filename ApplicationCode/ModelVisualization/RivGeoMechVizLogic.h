@@ -51,6 +51,7 @@ private:
 
     std::vector<RivGeoMechPartMgrCache::Key>      keysToVisiblePartMgrs(int timeStepIndex);
     RivGeoMechPartMgr*                            getUpdatedPartMgr(RivGeoMechPartMgrCache::Key partMgrKey);
+    void                                          scheduleRegenOfDirectlyDependentGeometry(RivCellSetEnum geometryType);
 
     cvf::ref<RivGeoMechPartMgrCache> m_partMgrCache;
     RimGeoMechView*                  m_geomechView;
