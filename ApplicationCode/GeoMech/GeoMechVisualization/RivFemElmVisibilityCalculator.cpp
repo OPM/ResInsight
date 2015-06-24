@@ -122,7 +122,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                 const std::vector<float>& resVals = caseData->femPartResults()->resultValues(resVarAddress, 
                                                                                              grid->elementPartId(), 
                                                                                              timeStepIndex);
-                //#pragma omp parallel for schedule(dynamic)
+                #pragma omp parallel for schedule(dynamic)
                 for (int cellIndex = 0; cellIndex < elementCount; cellIndex++)
                 {
                     if ( (*cellVisibility)[cellIndex] )
