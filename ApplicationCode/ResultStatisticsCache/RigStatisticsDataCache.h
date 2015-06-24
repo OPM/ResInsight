@@ -49,12 +49,16 @@ public:
 private:
     double									m_minValue;
     double									m_maxValue;
+    bool                                    m_isMaxMinCalculated;
+
     double									m_posClosestToZero;
     double									m_negClosestToZero;
+    bool                                    m_isClosestToZeroCalculated;
 
     double									m_p10;
     double									m_p90;
     double                                  m_meanValue;
+    bool                                    m_isMeanCalculated;
 
     std::vector<size_t>						m_histogram;
 
