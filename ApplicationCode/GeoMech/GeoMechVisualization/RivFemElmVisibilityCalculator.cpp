@@ -89,7 +89,6 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                                                               const cvf::UByteArray* rangeFilterVisibility, 
                                                               RimGeoMechPropertyFilterCollection* propFilterColl)
 {
-#if 1
     CVF_ASSERT(cellVisibility != NULL);
     CVF_ASSERT(rangeFilterVisibility != NULL);
     CVF_ASSERT(propFilterColl != NULL);
@@ -165,6 +164,5 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
             }
         }
     }
-#endif
 }
 
