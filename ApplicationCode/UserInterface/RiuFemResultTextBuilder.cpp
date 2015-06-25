@@ -156,7 +156,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFemResultTextBuilder::appendTextFromResultSlot(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechResultSlot* resultSlot, QString* resultInfoText)
+void RiuFemResultTextBuilder::appendTextFromResultSlot(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultSlot, QString* resultInfoText)
 {
 	if (!resultSlot)
 	{
@@ -215,7 +215,7 @@ void RiuFemResultTextBuilder::appendDetails(QString& text, const QString& detail
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultSlot* resultSlot)
+QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechCellColors* resultSlot)
 {
     QString text;
 	if (!resultSlot)

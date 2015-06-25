@@ -32,7 +32,7 @@ namespace cvf
     class Effect;
 }
 
-class RimGeoMechResultSlot;
+class RimGeoMechCellColors;
 class RigFemPart;
 
 
@@ -54,7 +54,7 @@ public:
     cvf::ref<cvf::UByteArray>   cellVisibility() { return  m_cellVisibility;}
                                 
     void                        updateCellColor(cvf::Color4f color);
-    void                        updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot);
+    void                        updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultSlot);
                                 
     void                        appendPartsToModel(cvf::ModelBasicList* model);
                                 

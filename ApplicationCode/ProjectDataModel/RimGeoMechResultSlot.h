@@ -29,13 +29,13 @@ class RimLegendConfig;
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechResultSlot : public RimGeoMechResultDefinition
+class RimGeoMechCellColors : public RimGeoMechResultDefinition
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimGeoMechResultSlot(void);
-    virtual ~RimGeoMechResultSlot(void);
+    RimGeoMechCellColors(void);
+    virtual ~RimGeoMechCellColors(void);
 
     caf::PdmField<RimLegendConfig*> legendConfig;
 };

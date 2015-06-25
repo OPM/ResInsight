@@ -80,7 +80,7 @@ void RivGeoMechVizLogic::appendPartsToModel(int timeStepIndex, cvf::ModelBasicLi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechVizLogic::updateCellResultColor(int timeStepIndex, RimGeoMechResultSlot* cellResultSlot)
+void RivGeoMechVizLogic::updateCellResultColor(int timeStepIndex, RimGeoMechCellColors* cellResultSlot)
 {
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs(timeStepIndex);
     for (size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx)

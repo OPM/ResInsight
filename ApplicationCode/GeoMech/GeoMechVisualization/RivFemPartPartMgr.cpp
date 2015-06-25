@@ -214,7 +214,7 @@ void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot)
+void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultSlot)
 {
     CVF_ASSERT(cellResultSlot);
 

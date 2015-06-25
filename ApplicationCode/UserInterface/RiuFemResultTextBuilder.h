@@ -27,7 +27,7 @@
 class RimGeoMechView;
 class RimResultSlot;
 class RigGeoMechCaseData;
-class RimGeoMechResultSlot;
+class RimGeoMechCellColors;
 
 namespace cvf {
 	class Part;
@@ -53,9 +53,9 @@ private:
 
     QString gridResultDetails();
 
-    QString closestNodeResultText(RimGeoMechResultSlot* resultSlot);
+    QString closestNodeResultText(RimGeoMechCellColors* resultSlot);
 
-	void appendTextFromResultSlot(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechResultSlot* resultSlot, QString* resultInfoText);
+	void appendTextFromResultSlot(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultSlot, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimGeoMechView> m_reservoirView;

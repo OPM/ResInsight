@@ -28,7 +28,7 @@
 #include <vector>
 
 class RimGeoMechView;
-class RimGeoMechResultSlot;
+class RimGeoMechCellColors;
 
 namespace cvf
 {
@@ -44,7 +44,7 @@ public:
 
     void                             appendNoAnimPartsToModel(cvf::ModelBasicList* model);
     void                             appendPartsToModel(int timeStepIndex, cvf::ModelBasicList* model);
-    void                             updateCellResultColor(int timeStepIndex, RimGeoMechResultSlot* cellResultSlot);
+    void                             updateCellResultColor(int timeStepIndex, RimGeoMechCellColors* cellResultSlot);
     void                             updateStaticCellColors(int timeStepIndex);
     void                             scheduleGeometryRegen(RivCellSetEnum geometryType);
 private:

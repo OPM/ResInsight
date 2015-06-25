@@ -22,13 +22,13 @@
 #include "RimView.h"
 
 
-CAF_PDM_SOURCE_INIT(RimGeoMechResultSlot, "GeoMechResultSlot");
+CAF_PDM_SOURCE_INIT(RimGeoMechCellColors, "GeoMechResultSlot");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultSlot::RimGeoMechResultSlot(void)
+RimGeoMechCellColors::RimGeoMechCellColors(void)
 {
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     this->legendConfig = new RimLegendConfig();
@@ -37,6 +37,6 @@ RimGeoMechResultSlot::RimGeoMechResultSlot(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultSlot::~RimGeoMechResultSlot(void)
+RimGeoMechCellColors::~RimGeoMechCellColors(void)
 {
 }

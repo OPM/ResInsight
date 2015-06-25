@@ -29,7 +29,7 @@
 #include "cvfObject.h"
 #include "RimView.h"
 
-class RimGeoMechResultSlot;
+class RimGeoMechCellColors;
 class Rim3dOverlayInfoConfig;
 class RiuViewer;
 class RimGeoMechCase;
@@ -61,7 +61,7 @@ public:
 
     virtual void                                        loadDataAndUpdate();
 
-    caf::PdmField<RimGeoMechResultSlot*>                cellResult;
+    caf::PdmField<RimGeoMechCellColors*>                cellResult;
     caf::PdmField<RimGeoMechPropertyFilterCollection*>  propertyFilterCollection;
 
     bool                                                isTimeStepDependentDataVisible();

@@ -30,7 +30,7 @@ namespace cvf
     class Transform;
 }
 
-class RimGeoMechResultSlot;
+class RimGeoMechCellColors;
 class RigGeoMechCaseData;
 class RimGeoMechView;
 
@@ -56,7 +56,7 @@ public:
            cellVisibility(size_t partIndex);
 
     void   updateCellColor(cvf::Color4f color);
-    void   updateCellResultColor(size_t timeStepIndex, RimGeoMechResultSlot* cellResultSlot);
+    void   updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultSlot);
 
     void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& partIndices);
     void   appendGridPartsToModel(cvf::ModelBasicList* model);

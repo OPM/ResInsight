@@ -67,7 +67,7 @@ RimGeoMechView::RimGeoMechView(void)
     CAF_PDM_InitObject("Geomechanical View", ":/ReservoirView.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
-    cellResult = new RimGeoMechResultSlot();
+    cellResult = new RimGeoMechCellColors();
 
     CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
     rangeFilterCollection = new RimCellRangeFilterCollection();
