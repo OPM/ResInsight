@@ -417,6 +417,11 @@ if (RESINSIGHT_PRIVATE_INSTALL)
                 ${QT_BINARY_DIR}/QtScript4.dll
                 ${QT_BINARY_DIR}/QtScriptTools4.dll
             )
+
+		if (${RESINSIGHT_USE_ODB_API})
+			set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RI_ALL_ODB_DLLS})
+		endif()
+
     endif()
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
