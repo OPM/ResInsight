@@ -61,7 +61,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::RivWellHeadPartMgr(RimEclipseView* reservoirView, RimWell* well)
+RivWellHeadPartMgr::RivWellHeadPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell = well;
@@ -87,7 +87,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     RigCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
 
-    RimWell* well = m_rimWell;
+    RimEclipseWell* well = m_rimWell;
 
     RigSingleWellResultsData* wellResults = well->wellResults();
 

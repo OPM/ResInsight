@@ -31,7 +31,7 @@
 #include <QString>
 
 class RimEclipseView;
-class RimWell;
+class RimEclipseWell;
 
 //==================================================================================================
 ///  
@@ -101,9 +101,9 @@ public:
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 
-    caf::PdmPointersField<RimWell*>     wells;
+    caf::PdmPointersField<RimEclipseWell*>     wells;
 
-    RimWell*                            findWell(QString name);
+    RimEclipseWell*                            findWell(QString name);
     bool                                hasVisibleWellCells();
     bool                                hasVisibleWellPipes();
 

@@ -37,13 +37,13 @@ class RimEclipseView;
 ///  
 ///  
 //==================================================================================================
-class RimWell : public caf::PdmObject
+class RimEclipseWell : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
 
-    RimWell();
-    virtual ~RimWell();
+    RimEclipseWell();
+    virtual ~RimEclipseWell();
     
     void                                setReservoirView(RimEclipseView* ownerReservoirView);
     void                                setWellIndex(size_t val) { m_wellIndex = val; }

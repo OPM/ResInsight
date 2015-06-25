@@ -124,7 +124,7 @@ RimWellCollection::~RimWellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWell* RimWellCollection::findWell(QString name)
+RimEclipseWell* RimWellCollection::findWell(QString name)
 {
     for (size_t i = 0; i < this->wells().size(); ++i)
     {
@@ -148,7 +148,7 @@ bool RimWellCollection::hasVisibleWellCells()
     bool hasCells = false;
     for (size_t i = 0 ; !hasCells && i < this->wells().size(); ++i)
     {
-        RimWell* well = this->wells()[i];
+        RimEclipseWell* well = this->wells()[i];
         if ( well && well->wellResults() && ((well->showWell() && well->showWellCells()) || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) )
         {
             for (size_t tIdx = 0; !hasCells &&  tIdx < well->wellResults()->m_wellCellsTimeSteps.size(); ++tIdx )

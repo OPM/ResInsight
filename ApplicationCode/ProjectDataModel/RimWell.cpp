@@ -26,12 +26,12 @@
 
 #include "cvfMath.h"
 
-CAF_PDM_SOURCE_INIT(RimWell, "Well");
+CAF_PDM_SOURCE_INIT(RimEclipseWell, "Well");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWell::RimWell()
+RimEclipseWell::RimEclipseWell()
 {
     CAF_PDM_InitObject("Well", ":/Well.png", "", "");
 
@@ -59,14 +59,14 @@ RimWell::RimWell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWell::~RimWell()
+RimEclipseWell::~RimEclipseWell()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWell::userDescriptionField()
+caf::PdmFieldHandle* RimEclipseWell::userDescriptionField()
 {
     return &name;
 }
@@ -74,7 +74,7 @@ caf::PdmFieldHandle* RimWell::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWell::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimEclipseWell::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 }
@@ -82,7 +82,7 @@ void RimWell::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (&showWellLabel == changedField)
     {
@@ -138,7 +138,7 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWell::objectToggleField()
+caf::PdmFieldHandle* RimEclipseWell::objectToggleField()
 {
     return &showWell;
 }
@@ -146,7 +146,7 @@ caf::PdmFieldHandle* RimWell::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
+bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
 {
     if (m_reservoirView == NULL) return false;
     if (this->wellResults() == NULL) return false;
@@ -237,7 +237,7 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Appearance");
     pipeGroup->add(&showWellPipes);
@@ -253,7 +253,7 @@ void RimWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrder
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWell::isWellPipeVisible(size_t frameIndex)
+bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 {
     CVF_ASSERT(m_wellIndex != cvf::UNDEFINED_SIZE_T);
 

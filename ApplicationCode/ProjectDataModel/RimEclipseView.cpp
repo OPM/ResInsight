@@ -1065,12 +1065,12 @@ void RimEclipseView::syncronizeWellsWithResults()
     cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
 
  
-    std::vector<caf::PdmPointer<RimWell> > newWells;
+    std::vector<caf::PdmPointer<RimEclipseWell> > newWells;
 
     // Clear the possible well results data present
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
-        RimWell* well = this->wellCollection()->wells()[wIdx];
+        RimEclipseWell* well = this->wellCollection()->wells()[wIdx];
         well->setWellResults(NULL);
     }
 
@@ -1078,11 +1078,11 @@ void RimEclipseView::syncronizeWellsWithResults()
 
     for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
     {
-        RimWell* well = this->wellCollection()->findWell(wellResults[wIdx]->m_wellName);
+        RimEclipseWell* well = this->wellCollection()->findWell(wellResults[wIdx]->m_wellName);
 
         if (!well)
         {
-            well = new RimWell;
+            well = new RimEclipseWell;
             well->name = wellResults[wIdx]->m_wellName;
             
         }
@@ -1095,7 +1095,7 @@ void RimEclipseView::syncronizeWellsWithResults()
 
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
-        RimWell* well = this->wellCollection()->wells()[wIdx];
+        RimEclipseWell* well = this->wellCollection()->wells()[wIdx];
         RigSingleWellResultsData* wellRes = well->wellResults();
         if (wellRes == NULL)
         {
@@ -1140,7 +1140,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     // Loop over the wells and find their contribution
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
-        RimWell* well =  this->wellCollection()->wells()[wIdx];
+        RimEclipseWell* well =  this->wellCollection()->wells()[wIdx];
         if (this->wellCollection()->wellCellsToRangeFilterMode() == RimWellCollection::RANGE_ADD_ALL || (well->showWell() && well->showWellCells()) )
         {
             RigSingleWellResultsData* wres = well->wellResults();

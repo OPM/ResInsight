@@ -53,7 +53,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimWell* well)
+RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;

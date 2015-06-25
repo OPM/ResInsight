@@ -38,12 +38,12 @@ namespace cvf
 
 class RivPipeGeometryGenerator;
 class RimEclipseView;
-class RimWell;
+class RimEclipseWell;
 
 class RivWellPipesPartMgr : public cvf::Object
 {
 public:
-    RivWellPipesPartMgr(RimEclipseView* reservoirView, RimWell* well);
+    RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well);
     ~RivWellPipesPartMgr();
 
     void setScaleTransform(cvf::Transform * scaleTransform) { m_scaleTransform = scaleTransform; scheduleGeometryRegen();}
@@ -56,7 +56,7 @@ public:
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
-    caf::PdmPointer<RimWell>            m_rimWell;
+    caf::PdmPointer<RimEclipseWell>            m_rimWell;
     
     cvf::ref<cvf::Transform>    m_scaleTransform; 
     bool                        m_needsTransformUpdate;
