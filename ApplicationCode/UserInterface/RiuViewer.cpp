@@ -31,7 +31,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseCase.h"
 #include "RimCellEdgeResultSlot.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimFaultCollection.h"
 #include "RimResultSlot.h"

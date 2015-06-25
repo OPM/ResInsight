@@ -28,8 +28,8 @@
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeResultSlot.h"
-#include "RimCellPropertyFilter.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimResultSlot.h"

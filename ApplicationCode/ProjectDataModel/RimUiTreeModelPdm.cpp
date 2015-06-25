@@ -25,7 +25,7 @@
 #include "RimAnalysisModels.h"
 #include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilter.h"

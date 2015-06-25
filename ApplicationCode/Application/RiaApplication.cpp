@@ -74,7 +74,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimWellCollection.h"
 #include "RimStatisticsCase.h"

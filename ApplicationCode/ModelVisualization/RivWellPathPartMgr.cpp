@@ -32,7 +32,7 @@
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"

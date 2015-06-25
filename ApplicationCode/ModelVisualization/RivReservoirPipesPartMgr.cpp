@@ -32,7 +32,7 @@
 #include "cafPdmFieldCvfColor.h"
 #include "RimResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 
 //--------------------------------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
 #include "RimGeoMechPropertyFilterCollection.h"
-#include "RimCellPropertyFilter.h"
+#include "RimEclipsePropertyFilter.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"

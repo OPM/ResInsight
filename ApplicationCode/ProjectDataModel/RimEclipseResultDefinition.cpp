@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimResultDefinition.h"
+#include "RimEclipseResultDefinition.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"

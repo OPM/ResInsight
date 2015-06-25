@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimCellPropertyFilter.h"
+#include "RimEclipsePropertyFilter.h"
 
 //==================================================================================================
 ///  

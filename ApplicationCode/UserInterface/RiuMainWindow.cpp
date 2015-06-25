@@ -30,7 +30,7 @@
 #include "RimAnalysisModels.h"
 #include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimFaultCollection.h"
 #include "RimOilField.h"

@@ -41,7 +41,7 @@
 #include "cafPdmFieldCvfMat4d.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimResultSlot.h"

@@ -18,10 +18,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 
 #include "RimEclipseView.h"
-#include "RimResultDefinition.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimResultSlot.h"
 
 

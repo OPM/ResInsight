@@ -18,12 +18,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCellPropertyFilter.h"
+#include "RimEclipsePropertyFilter.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimResultDefinition.h"
+#include "RimEclipseResultDefinition.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cvfAssert.h"

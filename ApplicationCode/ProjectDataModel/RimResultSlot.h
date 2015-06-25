@@ -22,7 +22,7 @@
 
 #include "RimDefines.h"
 #include "RimLegendConfig.h"
-#include "RimResultDefinition.h"
+#include "RimEclipseResultDefinition.h"
 
 class RimTernaryLegendConfig;
 
