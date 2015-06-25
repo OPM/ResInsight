@@ -43,7 +43,7 @@
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RimEclipseCellColors.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"

@@ -27,7 +27,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RimEclipseCase.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
 #include "RimTernaryLegendConfig.h"

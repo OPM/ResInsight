@@ -19,7 +19,7 @@
 
 #include "RivScalarMapperUtils.h"
 
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimLegendConfig.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"

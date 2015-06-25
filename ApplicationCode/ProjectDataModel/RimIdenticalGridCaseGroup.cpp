@@ -26,7 +26,7 @@
 #include "RigGridManager.h"
 #include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"

@@ -61,7 +61,7 @@
 #include "RimCaseCollection.h"
 #include "RimScriptCollection.h"
 #include "RimEclipseWell.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimEclipseWellCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimReservoirCellResultsStorage.h"

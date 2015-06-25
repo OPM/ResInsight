@@ -26,7 +26,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RivWellPipesPartMgr.h"
 #include "RivWellHeadPartMgr.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfColor.h"

@@ -39,7 +39,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"

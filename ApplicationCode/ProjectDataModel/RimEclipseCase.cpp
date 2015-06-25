@@ -27,7 +27,7 @@
 #include "RigCaseData.h"
 
 #include "RimCaseCollection.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimReservoirCellResultsStorage.h"

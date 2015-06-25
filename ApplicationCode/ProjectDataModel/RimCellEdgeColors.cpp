@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RimLegendConfig.h"

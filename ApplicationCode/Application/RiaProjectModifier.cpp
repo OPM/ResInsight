@@ -35,7 +35,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseCellColors.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
