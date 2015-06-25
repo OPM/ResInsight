@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimInputCase.h"
+#include "RimEclipseInputCase.h"
 
 #include "RiaPreferences.h"
 #include "RifEclipseInputFileTools.h"
@@ -29,8 +29,8 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RimDefines.h"
-#include "RimInputProperty.h"
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafProgressInfo.h"

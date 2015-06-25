@@ -18,9 +18,9 @@ ${CEE_CURRENT_LIST_DIR}RimOilField.h
 ${CEE_CURRENT_LIST_DIR}RimProject.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseCase.h
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.h
-${CEE_CURRENT_LIST_DIR}RimInputProperty.h
-${CEE_CURRENT_LIST_DIR}RimInputPropertyCollection.h
-${CEE_CURRENT_LIST_DIR}RimInputCase.h
+${CEE_CURRENT_LIST_DIR}RimEclipseInputProperty.h
+${CEE_CURRENT_LIST_DIR}RimEclipseInputPropertyCollection.h
+${CEE_CURRENT_LIST_DIR}RimEclipseInputCase.h
 ${CEE_CURRENT_LIST_DIR}RimResultCase.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseView.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.h
@@ -76,9 +76,9 @@ ${CEE_CURRENT_LIST_DIR}RimOilField.cpp
 ${CEE_CURRENT_LIST_DIR}RimProject.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.cpp
-${CEE_CURRENT_LIST_DIR}RimInputProperty.cpp
-${CEE_CURRENT_LIST_DIR}RimInputPropertyCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimInputCase.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseInputProperty.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseInputPropertyCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseInputCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimResultCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseView.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.cpp

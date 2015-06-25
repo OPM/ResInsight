@@ -34,9 +34,9 @@
 #include "RigResultModifierFactory.h"
 
 #include "RimEclipseCase.h"
-#include "RimInputCase.h"
-#include "RimInputProperty.h"
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimResultSlot.h"

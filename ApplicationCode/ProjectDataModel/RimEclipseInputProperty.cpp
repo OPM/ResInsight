@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimInputProperty.h"
+#include "RimEclipseInputProperty.h"
 
 #include "cafPdmUiLineEditor.h"
 #include "cvfAssert.h"

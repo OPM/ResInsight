@@ -28,7 +28,7 @@
 #include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimInputCase.h"
+#include "RimEclipseInputCase.h"
 
 #include "RimEclipseView.h"
 #include "RimResultSlot.h"
@@ -39,7 +39,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputPropertyCollection.h"
 
 #include "RiaSocketDataTransfer.h"
 

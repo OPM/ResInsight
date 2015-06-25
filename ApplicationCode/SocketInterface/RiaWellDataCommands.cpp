@@ -30,8 +30,8 @@
 
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseCase.h"
-#include "RimInputCase.h"
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimUiTreeModelPdm.h"
 #include "RimEclipseView.h"
 #include "RimResultSlot.h"

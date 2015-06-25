@@ -18,9 +18,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputPropertyCollection.h"
 
-#include "RimInputProperty.h"
+#include "RimEclipseInputProperty.h"
 
 #include <QFileInfo>
 

@@ -35,7 +35,7 @@
 #include "RiaPreferences.h"
 //
 #include "RimResultCase.h"
-#include "RimInputCase.h"
+#include "RimEclipseInputCase.h"
 #include "RimEclipseView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -61,7 +61,7 @@
 #include "RimResultSlot.h"
 
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputPropertyCollection.h"
 
 #include "RimDefines.h"
 #include "RimScriptCollection.h"
