@@ -36,7 +36,7 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&geoMechModels, "GeoMechModels", "Geo Mech Models", ":/GridModels.png", "", "");
     CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
     
-    analysisModels = new RimAnalysisModels();
+    analysisModels = new RimEclipseCaseCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

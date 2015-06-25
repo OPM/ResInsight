@@ -145,7 +145,7 @@ bool RiaProjectModifier::replaceSourceCases(RimProject* project)
     for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
     {
         RimOilField* oilField = project->oilFields[oilFieldIdx];
-        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
         if (analysisModels)
         {
             const size_t numCaseGroups = analysisModels->caseGroups.size();

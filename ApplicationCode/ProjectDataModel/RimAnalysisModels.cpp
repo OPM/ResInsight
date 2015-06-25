@@ -30,11 +30,11 @@
 #include "RimStatisticsCase.h"
 
 
-CAF_PDM_SOURCE_INIT(RimAnalysisModels, "ResInsightAnalysisModels");
+CAF_PDM_SOURCE_INIT(RimEclipseCaseCollection, "ResInsightAnalysisModels");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimAnalysisModels::RimAnalysisModels(void)
+RimEclipseCaseCollection::RimEclipseCaseCollection(void)
 {
     CAF_PDM_InitObject("Grid Models", ":/Cases16x16.png", "", "");
 
@@ -47,7 +47,7 @@ RimAnalysisModels::RimAnalysisModels(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimAnalysisModels::~RimAnalysisModels(void)
+RimEclipseCaseCollection::~RimEclipseCaseCollection(void)
 {
     close();    
 }
@@ -55,7 +55,7 @@ RimAnalysisModels::~RimAnalysisModels(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisModels::close()
+void RimEclipseCaseCollection::close()
 {
     m_gridCollection->clear();
 
@@ -66,7 +66,7 @@ void RimAnalysisModels::close()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimAnalysisModels::createIdenticalCaseGroupFromMainCase(RimEclipseCase* mainCase)
+RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFromMainCase(RimEclipseCase* mainCase)
 {
     CVF_ASSERT(mainCase);
 
@@ -90,7 +90,7 @@ RimIdenticalGridCaseGroup* RimAnalysisModels::createIdenticalCaseGroupFromMainCa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisModels::moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimReservoir)
+void RimEclipseCaseCollection::moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimReservoir)
 {
     CVF_ASSERT(rimReservoir);
 
@@ -130,7 +130,7 @@ void RimAnalysisModels::moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimReservoi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisModels::removeCaseFromAllGroups(RimEclipseCase* reservoir)
+void RimEclipseCaseCollection::removeCaseFromAllGroups(RimEclipseCase* reservoir)
 {
     m_gridCollection->removeCase(reservoir->reservoirData());
 
@@ -148,7 +148,7 @@ void RimAnalysisModels::removeCaseFromAllGroups(RimEclipseCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RimAnalysisModels::registerCaseInGridCollection(RigCaseData* rigEclipseCase)
+RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigCaseData* rigEclipseCase)
 {
     CVF_ASSERT(rigEclipseCase);
 
@@ -177,7 +177,7 @@ RigMainGrid* RimAnalysisModels::registerCaseInGridCollection(RigCaseData* rigEcl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisModels::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimEclipseCase* rimReservoir)
+void RimEclipseCaseCollection::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimEclipseCase* rimReservoir)
 {
     CVF_ASSERT(rimReservoir);
 
@@ -191,7 +191,7 @@ void RimAnalysisModels::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGro
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisModels::recomputeStatisticsForAllCaseGroups()
+void RimEclipseCaseCollection::recomputeStatisticsForAllCaseGroups()
 {
     const size_t numCaseGroups = caseGroups.size();
     for (size_t caseGrpIdx = 0; caseGrpIdx < numCaseGroups; ++caseGrpIdx)

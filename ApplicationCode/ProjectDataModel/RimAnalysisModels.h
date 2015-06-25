@@ -37,13 +37,13 @@ class RimWellPathCollection;
 ///  
 ///  
 //==================================================================================================
-class RimAnalysisModels : public caf::PdmObject
+class RimEclipseCaseCollection : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimAnalysisModels(void);
-    virtual ~RimAnalysisModels(void);
+    RimEclipseCaseCollection(void);
+    virtual ~RimEclipseCaseCollection(void);
 
     caf::PdmPointersField<RimEclipseCase*>                     cases;
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;

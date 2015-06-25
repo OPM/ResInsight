@@ -256,7 +256,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
                 ruiMainWindow->appendActionsContextMenuForPdmObject(uiItem->dataObject().p(), &menu);
             }
-            else if (dynamic_cast<RimAnalysisModels*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseCaseCollection*>(uiItem->dataObject().p()))
             {
                 RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
                 ruiMainWindow->appendActionsContextMenuForPdmObject(uiItem->dataObject().p(), &menu);

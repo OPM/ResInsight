@@ -239,7 +239,7 @@ void RimUiTreeModelPdm::deleteReservoir(RimEclipseCase* reservoir)
         {
             RimProject* proj = RiaApplication::instance()->project();
             RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-            RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+            RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
             if (analysisModels) analysisModels->removeCaseFromAllGroups(reservoir);
         }
     }
@@ -257,7 +257,7 @@ void RimUiTreeModelPdm::deleteReservoir(RimEclipseCase* reservoir)
         }
 
         RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-        RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
         if (analysisModels) analysisModels->removeCaseFromAllGroups(reservoir);
     }
 
@@ -604,7 +604,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    RimAnalysisModels* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : NULL;
 
     if (analysisModels)
     {
@@ -714,7 +714,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
             }
 
             RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-            RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+            RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
             if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
 
             caf::PdmDocument::updateUiIconStateRecursively(rimResultReservoir);

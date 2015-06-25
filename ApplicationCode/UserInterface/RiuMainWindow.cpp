@@ -2107,7 +2107,7 @@ void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObje
         menu->addAction(m_importWellPathsFromFileAction);
         menu->addAction(m_importWellPathsFromSSIHubAction);
     }
-    else if (dynamic_cast<RimAnalysisModels*>(pdmObject))
+    else if (dynamic_cast<RimEclipseCaseCollection*>(pdmObject))
     {
         menu->addAction(m_importEclipseCaseAction);
         menu->addAction(m_importInputEclipseFileAction);

@@ -166,7 +166,7 @@ void RimProject::initScriptDirectories()
     }
 
     // Find largest used groupId read from file and make sure all groups have a valid groupId
-    RimAnalysisModels* analysisModels = activeOilField() ? activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = activeOilField() ? activeOilField()->analysisModels() : NULL;
     if (analysisModels)
     {
         int largestGroupId = -1;
@@ -215,7 +215,7 @@ void RimProject::initAfterRead()
 
     // Handle old project files with obsolete structure.
     // Move caseGroupsObsolete and casesObsolete to oilFields()[idx]->analysisModels()
-    RimAnalysisModels* analysisModels = activeOilField() ? activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = activeOilField() ? activeOilField()->analysisModels() : NULL;
     bool movedOneRimIdenticalGridCaseGroup = false;
     for (size_t cgIdx = 0; cgIdx < caseGroupsObsolete.size(); ++cgIdx)
     {
@@ -380,7 +380,7 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
         RimOilField* oilField = oilFields[oilFieldIdx];
         if (!oilField) continue;
 
-        RimAnalysisModels* analysisModels = oilField->analysisModels();
+        RimEclipseCaseCollection* analysisModels = oilField->analysisModels();
         if (analysisModels ) 
         {
             for (size_t caseIdx = 0; caseIdx < analysisModels->cases.size(); caseIdx++)

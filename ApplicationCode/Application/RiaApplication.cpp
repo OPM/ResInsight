@@ -318,7 +318,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
         RimOilField* oilField = m_project->oilFields[oilFieldIdx];
-        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
         if (analysisModels == NULL) continue;
 
         for (size_t cgIdx = 0; cgIdx < analysisModels->caseGroups.size(); ++cgIdx)
@@ -352,7 +352,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
         {
             RimOilField* oilField = m_project->oilFields[oilFieldIdx];
-            RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+            RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
             if (analysisModels)
             {
                 analysisModels->recomputeStatisticsForAllCaseGroups();
@@ -637,7 +637,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
     rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
-    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
 
     analysisModels->cases.push_back(rimResultReservoir);
@@ -680,7 +680,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 
     rimInputReservoir->openDataFileSet(fileNames);
 
-    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
 
     analysisModels->cases.push_back(rimInputReservoir);
