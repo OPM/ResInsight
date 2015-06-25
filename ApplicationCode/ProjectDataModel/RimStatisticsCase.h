@@ -30,7 +30,7 @@
 #include "RimDefines.h"
 
 class RimIdenticalGridCaseGroup;
-class RimResultDefinition;
+class RimEclipseResultDefinition;
 class RimStatisticsCaseCollection;
 class RigMainGrid;
 class RigSingleWellResultsData;

@@ -24,7 +24,7 @@
 
 class RimEclipseView;
 class RimCellPropertyFilterCollection;
-class RimResultDefinition;
+class RimEclipseResultDefinition;
 
 class RigGridBase;
 class RigCaseCellResultsData;
@@ -42,7 +42,7 @@ public:
     RimCellPropertyFilter();
     virtual ~RimCellPropertyFilter();
 
-    caf::PdmField<RimResultDefinition*>     resultDefinition;
+    caf::PdmField<RimEclipseResultDefinition*>     resultDefinition;
 
     caf::PdmField<double>                   lowerBound;
     caf::PdmField<double>                   upperBound;

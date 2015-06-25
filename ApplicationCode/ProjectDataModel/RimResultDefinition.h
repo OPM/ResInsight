@@ -35,12 +35,12 @@ class RimReservoirCellResultsStorage;
 ///  
 ///  
 //==================================================================================================
-class RimResultDefinition : public caf::PdmObject
+class RimEclipseResultDefinition : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimResultDefinition();
-    virtual ~RimResultDefinition();
+    RimEclipseResultDefinition();
+    virtual ~RimEclipseResultDefinition();
 
     virtual void                    setReservoirView(RimEclipseView* ownerReservoirView);
     RimEclipseView*               reservoirView();

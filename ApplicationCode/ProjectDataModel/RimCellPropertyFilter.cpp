@@ -57,7 +57,7 @@ RimCellPropertyFilter::RimCellPropertyFilter()
     obsoleteField_evaluationRegion.setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
-    resultDefinition = new RimResultDefinition();
+    resultDefinition = new RimEclipseResultDefinition();
     
     // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
     resultDefinition->m_resultTypeUiField.setOwnerObject(this);

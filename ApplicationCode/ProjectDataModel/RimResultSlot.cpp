@@ -63,7 +63,7 @@ RimResultSlot::~RimResultSlot()
 //--------------------------------------------------------------------------------------------------
 void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);
+    RimEclipseResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);
 
     // Update of legend config must happen after RimResultDefinition::fieldChangedByUi(), as this function modifies this->resultVariable()
     if (changedField == &m_resultVariableUiField)
@@ -141,7 +141,7 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
 //--------------------------------------------------------------------------------------------------
 void RimResultSlot::initAfterRead()
 {
-    RimResultDefinition::initAfterRead();
+    RimEclipseResultDefinition::initAfterRead();
 
     if (this->legendConfig()->resultVariableName == "")
     {
@@ -156,7 +156,7 @@ void RimResultSlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
 {
-    RimResultDefinition::setReservoirView(ownerReservoirView);
+    RimEclipseResultDefinition::setReservoirView(ownerReservoirView);
 
     m_reservoirView = ownerReservoirView;
     this->legendConfig()->setReservoirView(ownerReservoirView);
@@ -174,7 +174,7 @@ void RimResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void RimResultSlot::setResultVariable(const QString& val)
 {
-    RimResultDefinition::setResultVariable(val);
+    RimEclipseResultDefinition::setResultVariable(val);
 
     this->changeLegendConfig(val);
 }

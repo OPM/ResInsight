@@ -30,7 +30,7 @@ class RimTernaryLegendConfig;
 ///  
 ///  
 //==================================================================================================
-class RimResultSlot :  public RimResultDefinition
+class RimResultSlot :  public RimEclipseResultDefinition
 {
     CAF_PDM_HEADER_INIT;
 public:
