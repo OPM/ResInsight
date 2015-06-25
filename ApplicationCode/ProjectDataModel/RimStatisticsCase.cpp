@@ -217,49 +217,49 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     RigCaseData* resultCase = reservoirData();
 
-    QList<RimStatisticsCaseEvaluator::ResSpec > resultSpecification;
+    QList<RimEclipseStatisticsCaseEvaluator::ResSpec > resultSpecification;
 
     for(size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::DYNAMIC_NATIVE, m_selectedDynamicProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::DYNAMIC_NATIVE, m_selectedDynamicProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::STATIC_NATIVE, m_selectedStaticProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::STATIC_NATIVE, m_selectedStaticProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::GENERATED, m_selectedGeneratedProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::GENERATED, m_selectedGeneratedProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::INPUT_PROPERTY, m_selectedInputProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::MATRIX_RESULTS, RimDefines::INPUT_PROPERTY, m_selectedInputProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedFractureDynamicProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::DYNAMIC_NATIVE, m_selectedFractureDynamicProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::DYNAMIC_NATIVE, m_selectedFractureDynamicProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedFractureStaticProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::STATIC_NATIVE, m_selectedFractureStaticProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::STATIC_NATIVE, m_selectedFractureStaticProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedFractureGeneratedProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::GENERATED, m_selectedFractureGeneratedProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::GENERATED, m_selectedFractureGeneratedProperties()[pIdx]));
     }
 
     for(size_t pIdx = 0; pIdx < m_selectedFractureInputProperties().size(); ++pIdx)
     {
-        resultSpecification.append(RimStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::INPUT_PROPERTY, m_selectedFractureInputProperties()[pIdx]));
+        resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::INPUT_PROPERTY, m_selectedFractureInputProperties()[pIdx]));
     }
 
-    RimStatisticsCaseEvaluator stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
+    RimEclipseStatisticsCaseEvaluator stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
     stat.evaluateForResults(resultSpecification);
   
 }

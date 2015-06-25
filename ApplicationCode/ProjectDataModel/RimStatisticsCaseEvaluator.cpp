@@ -36,7 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* destinationCellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
+void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* destinationCellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
 {
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
@@ -70,7 +70,7 @@ QString createResultNamePVal(const QString& resultName, double pValPos)  { retur
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& resultSpecification)
+void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& resultSpecification)
 {
     CVF_ASSERT(m_destinationCase);
     
@@ -303,7 +303,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCaseEvaluator::RimStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase) 
+RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase) 
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),

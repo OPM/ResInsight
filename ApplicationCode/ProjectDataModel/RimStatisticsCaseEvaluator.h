@@ -53,10 +53,10 @@ public:
 };
 
 
-class RimStatisticsCaseEvaluator
+class RimEclipseStatisticsCaseEvaluator
 {
 public:
-    RimStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases,
+    RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases,
                                const std::vector<size_t>& timeStepIndices,
                                const RimStatisticsConfig& statisticsConfig,
                                RigCaseData* destinationCase);
