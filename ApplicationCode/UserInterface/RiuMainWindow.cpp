@@ -1776,7 +1776,7 @@ void RiuMainWindow::refreshDrawStyleActions()
         m_toggleFaultsLabelAction->blockSignals(false);
 
         m_addWellCellsToRangeFilterAction->blockSignals(true);
-        m_addWellCellsToRangeFilterAction->setChecked(eclView->wellCollection()->wellCellsToRangeFilterMode() != RimWellCollection::RANGE_ADD_NONE);
+        m_addWellCellsToRangeFilterAction->setChecked(eclView->wellCollection()->wellCellsToRangeFilterMode() != RimEclipseWellCollection::RANGE_ADD_NONE);
         m_addWellCellsToRangeFilterAction->blockSignals(false);
     }
 }
@@ -2072,8 +2072,8 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
     RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (riv)
     {
-        caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> rangeAddType;
-        rangeAddType = doAdd ? RimWellCollection::RANGE_ADD_INDIVIDUAL : RimWellCollection::RANGE_ADD_NONE;
+        caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> rangeAddType;
+        rangeAddType = doAdd ? RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL : RimEclipseWellCollection::RANGE_ADD_NONE;
         riv->wellCollection()->wellCellsToRangeFilterMode.setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
     }
 }

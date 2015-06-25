@@ -51,7 +51,7 @@ class RimEclipseFaultColors;
 class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
 class RimEclipseCellColors;
-class RimWellCollection;
+class RimEclipseWellCollection;
 class RiuViewer;
 class RivReservoirPipesPartMgr;
 
@@ -90,7 +90,7 @@ public:
 
     caf::PdmField<RimEclipsePropertyFilterCollection*> propertyFilterCollection;
 
-    caf::PdmField<RimWellCollection*>               wellCollection;
+    caf::PdmField<RimEclipseWellCollection*>               wellCollection;
     caf::PdmField<RimFaultCollection*>              faultCollection;
 
     // Fields

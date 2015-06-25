@@ -88,7 +88,7 @@ RimEclipseView::RimEclipseView()
 
   
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
-    wellCollection = new RimWellCollection;
+    wellCollection = new RimEclipseWellCollection;
 
     CAF_PDM_InitFieldNoDefault(&faultCollection, "FaultCollection", "Faults", "", "", "");
     faultCollection = new RimFaultCollection;
@@ -1131,7 +1131,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     visibleCells->setAll(false);
 
     // If all wells are forced off, return
-    if (this->wellCollection()->wellCellsToRangeFilterMode() == RimWellCollection::RANGE_ADD_NONE) return;
+    if (this->wellCollection()->wellCellsToRangeFilterMode() == RimEclipseWellCollection::RANGE_ADD_NONE) return;
 
     RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
 
@@ -1141,7 +1141,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimEclipseWell* well =  this->wellCollection()->wells()[wIdx];
-        if (this->wellCollection()->wellCellsToRangeFilterMode() == RimWellCollection::RANGE_ADD_ALL || (well->showWell() && well->showWellCells()) )
+        if (this->wellCollection()->wellCellsToRangeFilterMode() == RimEclipseWellCollection::RANGE_ADD_ALL || (well->showWell() && well->showWellCells()) )
         {
             RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;
@@ -1191,17 +1191,17 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
                                 size_t cellCountFenceDirection = 0;
                                 size_t fIdx = 0;
 
-                                if (this->wellCollection()->wellCellFenceType == RimWellCollection::K_DIRECTION)
+                                if (this->wellCollection()->wellCellFenceType == RimEclipseWellCollection::K_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountK();
                                     pK = &fIdx;
                                 }
-                                else if (this->wellCollection()->wellCellFenceType == RimWellCollection::J_DIRECTION)
+                                else if (this->wellCollection()->wellCellFenceType == RimEclipseWellCollection::J_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountJ();
                                     pJ = &fIdx;
                                 }
-                                else if (this->wellCollection()->wellCellFenceType == RimWellCollection::I_DIRECTION)
+                                else if (this->wellCollection()->wellCellFenceType == RimEclipseWellCollection::I_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountI();
                                     pI = &fIdx;

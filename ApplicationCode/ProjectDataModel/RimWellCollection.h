@@ -37,13 +37,13 @@ class RimEclipseWell;
 ///  
 ///  
 //==================================================================================================
-class RimWellCollection : public caf::PdmObject
+class RimEclipseWellCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
 
-    RimWellCollection();
-    virtual ~RimWellCollection();
+    RimEclipseWellCollection();
+    virtual ~RimEclipseWellCollection();
 
     void                                setReservoirView(RimEclipseView* ownerReservoirView);
 
@@ -54,7 +54,7 @@ public:
         PIPES_OPEN_IN_VISIBLE_CELLS,
         PIPES_FORCE_ALL_ON
     };
-    typedef caf::AppEnum<RimWellCollection::WellVisibilityType> WellVisibilityEnum;
+    typedef caf::AppEnum<RimEclipseWellCollection::WellVisibilityType> WellVisibilityEnum;
 
     enum WellCellsRangeFilterType
     {
@@ -62,7 +62,7 @@ public:
         RANGE_ADD_INDIVIDUAL,
         RANGE_ADD_NONE
     };
-    typedef caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> WellCellsRangeFilterEnum;
+    typedef caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> WellCellsRangeFilterEnum;
 
     enum WellFenceType
     {
@@ -70,14 +70,14 @@ public:
         J_DIRECTION,
         I_DIRECTION
     };
-    typedef caf::AppEnum<RimWellCollection::WellFenceType> WellFenceEnum;
+    typedef caf::AppEnum<RimEclipseWellCollection::WellFenceType> WellFenceEnum;
 
     enum WellHeadPositionType
     {
         WELLHEAD_POS_ACTIVE_CELLS_BB, 
         WELLHEAD_POS_TOP_COLUMN
     };
-    typedef caf::AppEnum<RimWellCollection::WellHeadPositionType> WellHeadPositionEnum;
+    typedef caf::AppEnum<RimEclipseWellCollection::WellHeadPositionType> WellHeadPositionEnum;
 
 
     caf::PdmField<bool>                 showWellLabel;

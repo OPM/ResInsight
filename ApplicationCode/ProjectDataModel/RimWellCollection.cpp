@@ -31,12 +31,12 @@
 namespace caf
 {
     template<>
-    void RimWellCollection::WellVisibilityEnum::setUp()
+    void RimEclipseWellCollection::WellVisibilityEnum::setUp()
     {
-        addItem(RimWellCollection::PIPES_FORCE_ALL_OFF,       "FORCE_ALL_OFF",      "All Off");
-        addItem(RimWellCollection::PIPES_INDIVIDUALLY,        "ALL_ON",             "Individual");
-        addItem(RimWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS,"OPEN_IN_VISIBLE_CELLS", "Visible cells filtered");
-        addItem(RimWellCollection::PIPES_FORCE_ALL_ON,        "FORCE_ALL_ON",       "All On");
+        addItem(RimEclipseWellCollection::PIPES_FORCE_ALL_OFF,       "FORCE_ALL_OFF",      "All Off");
+        addItem(RimEclipseWellCollection::PIPES_INDIVIDUALLY,        "ALL_ON",             "Individual");
+        addItem(RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS,"OPEN_IN_VISIBLE_CELLS", "Visible cells filtered");
+        addItem(RimEclipseWellCollection::PIPES_FORCE_ALL_ON,        "FORCE_ALL_ON",       "All On");
     }
 }
 
@@ -44,43 +44,43 @@ namespace caf
 namespace caf
 {
     template<>
-    void RimWellCollection::WellCellsRangeFilterEnum::setUp()
+    void RimEclipseWellCollection::WellCellsRangeFilterEnum::setUp()
     {
-        addItem(RimWellCollection::RANGE_ADD_NONE,       "FORCE_ALL_OFF",      "All Off");
-        addItem(RimWellCollection::RANGE_ADD_INDIVIDUAL, "ALL_ON",             "Individually");
-        addItem(RimWellCollection::RANGE_ADD_ALL,        "FORCE_ALL_ON",       "All On");
+        addItem(RimEclipseWellCollection::RANGE_ADD_NONE,       "FORCE_ALL_OFF",      "All Off");
+        addItem(RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL, "ALL_ON",             "Individually");
+        addItem(RimEclipseWellCollection::RANGE_ADD_ALL,        "FORCE_ALL_ON",       "All On");
     }
 }
 
 namespace caf
 {
     template<>
-    void RimWellCollection::WellFenceEnum::setUp()
+    void RimEclipseWellCollection::WellFenceEnum::setUp()
     {
-        addItem(RimWellCollection::K_DIRECTION, "K_DIRECTION",    "K - Direction");
-        addItem(RimWellCollection::J_DIRECTION, "J_DIRECTION",    "J - Direction");
-        addItem(RimWellCollection::I_DIRECTION, "I_DIRECTION",    "I - Direction");
-        setDefault(RimWellCollection::K_DIRECTION);
+        addItem(RimEclipseWellCollection::K_DIRECTION, "K_DIRECTION",    "K - Direction");
+        addItem(RimEclipseWellCollection::J_DIRECTION, "J_DIRECTION",    "J - Direction");
+        addItem(RimEclipseWellCollection::I_DIRECTION, "I_DIRECTION",    "I - Direction");
+        setDefault(RimEclipseWellCollection::K_DIRECTION);
     }
 }
 
 namespace caf
 {
     template<>
-    void RimWellCollection::WellHeadPositionEnum::setUp()
+    void RimEclipseWellCollection::WellHeadPositionEnum::setUp()
     {
-        addItem(RimWellCollection::WELLHEAD_POS_ACTIVE_CELLS_BB,    "WELLHEAD_POS_ACTIVE_CELLS_BB", "Top of active cells BB");
-        addItem(RimWellCollection::WELLHEAD_POS_TOP_COLUMN,         "WELLHEAD_POS_TOP_COLUMN",      "Top of active cells IJ-column");
-        setDefault(RimWellCollection::WELLHEAD_POS_TOP_COLUMN);
+        addItem(RimEclipseWellCollection::WELLHEAD_POS_ACTIVE_CELLS_BB,    "WELLHEAD_POS_ACTIVE_CELLS_BB", "Top of active cells BB");
+        addItem(RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN,         "WELLHEAD_POS_TOP_COLUMN",      "Top of active cells IJ-column");
+        setDefault(RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN);
     }
 }
 
-CAF_PDM_SOURCE_INIT(RimWellCollection, "Wells");
+CAF_PDM_SOURCE_INIT(RimEclipseWellCollection, "Wells");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellCollection::RimWellCollection()
+RimEclipseWellCollection::RimEclipseWellCollection()
 {
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
@@ -116,7 +116,7 @@ RimWellCollection::RimWellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellCollection::~RimWellCollection()
+RimEclipseWellCollection::~RimEclipseWellCollection()
 {
    wells.deleteAllChildObjects();
 }
@@ -124,7 +124,7 @@ RimWellCollection::~RimWellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWell* RimWellCollection::findWell(QString name)
+RimEclipseWell* RimEclipseWellCollection::findWell(QString name)
 {
     for (size_t i = 0; i < this->wells().size(); ++i)
     {
@@ -139,7 +139,7 @@ RimEclipseWell* RimWellCollection::findWell(QString name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellCollection::hasVisibleWellCells()
+bool RimEclipseWellCollection::hasVisibleWellCells()
 {
     if (!this->isActive()) return false;
     if (this->wellCellsToRangeFilterMode() == RANGE_ADD_NONE) return false;
@@ -174,7 +174,7 @@ bool RimWellCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 /// Used to know if we need animation of timesteps due to the wells
 //--------------------------------------------------------------------------------------------------
-bool RimWellCollection::hasVisibleWellPipes()
+bool RimEclipseWellCollection::hasVisibleWellPipes()
 {
     if (!this->isActive()) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF) return false;
@@ -188,7 +188,7 @@ bool RimWellCollection::hasVisibleWellPipes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (&showWellLabel == changedField || &isActive == changedField)
     {
@@ -257,7 +257,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellCollection::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimEclipseWellCollection::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 }
@@ -265,7 +265,7 @@ void RimWellCollection::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well range filter");
     filterGroup->add(&wellCellsToRangeFilterMode);
@@ -291,7 +291,7 @@ void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellCollection::objectToggleField()
+caf::PdmFieldHandle* RimEclipseWellCollection::objectToggleField()
 {
     return &isActive;
 }
@@ -300,7 +300,7 @@ caf::PdmFieldHandle* RimWellCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::ubyte>& RimWellCollection::isWellPipesVisible(size_t frameIndex)
+const std::vector<cvf::ubyte>& RimEclipseWellCollection::isWellPipesVisible(size_t frameIndex)
 {
     calculateIsWellPipesVisible(frameIndex);
     return m_isWellPipesVisible[frameIndex];
@@ -309,7 +309,7 @@ const std::vector<cvf::ubyte>& RimWellCollection::isWellPipesVisible(size_t fram
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellCollection::scheduleIsWellPipesVisibleRecalculation()
+void RimEclipseWellCollection::scheduleIsWellPipesVisibleRecalculation()
 {
     m_isWellPipesVisible.clear();
 }
@@ -317,7 +317,7 @@ void RimWellCollection::scheduleIsWellPipesVisibleRecalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
+void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
 {
     if (m_isWellPipesVisible.size() > frameIndex && m_isWellPipesVisible[frameIndex].size()) return;
 

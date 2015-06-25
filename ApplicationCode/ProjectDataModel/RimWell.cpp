@@ -165,10 +165,10 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
     if (!m_reservoirView->wellCollection()->isActive())
         return false;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_ON)
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_ON)
         return true;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_OFF)
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF)
         return false;
 
     if ( this->showWell() == false )
@@ -177,10 +177,10 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
     if ( this->showWellPipes() == false )
         return false;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_INDIVIDUALLY)
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
         return true;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
     {
         const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();     
         cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();

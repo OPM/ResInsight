@@ -113,7 +113,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     // Compute well head based on the z position of the top of the K column the well head is part of
     cvf::Vec3d whEndPos = whStartPos;
 
-    if (m_rimReservoirView->wellCollection()->wellHeadPosition() == RimWellCollection::WELLHEAD_POS_TOP_COLUMN)
+    if (m_rimReservoirView->wellCollection()->wellHeadPosition() == RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN)
     {
         // Position well head at top active cell of IJ-column
 
