@@ -639,7 +639,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
     RimIdenticalGridCaseGroup* gridCaseGroup = gridCaseGroupFromItemIndex(itemIndex);
     if (gridCaseGroup)
     {
-        std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
+        std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
         pdmObjects.createCopyByType(&typedObjects);
 
         if (typedObjects.size() == 0)
@@ -647,24 +647,24 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
             return;
         }
 
-        RimResultCase* mainResultCase = NULL;
+        RimEclipseResultCase* mainResultCase = NULL;
         std::vector< std::vector<int> > mainCaseGridDimensions;
 
         // Read out main grid and main grid dimensions if present in case group
         if (gridCaseGroup->mainCase())
         {
-            mainResultCase = dynamic_cast<RimResultCase*>(gridCaseGroup->mainCase());
+            mainResultCase = dynamic_cast<RimEclipseResultCase*>(gridCaseGroup->mainCase());
             CVF_ASSERT(mainResultCase);
 
             mainResultCase->readGridDimensions(mainCaseGridDimensions);
         }
 
-        std::vector<RimResultCase*> insertedCases;
+        std::vector<RimEclipseResultCase*> insertedCases;
 
         // Add cases to case group
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
-            RimResultCase* rimResultReservoir = typedObjects[i];
+            RimEclipseResultCase* rimResultReservoir = typedObjects[i];
 
             proj->assignCaseIdToCase(rimResultReservoir);
 
@@ -679,14 +679,14 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
         // Initialize the new objects
         for (size_t i = 0; i < insertedCases.size(); i++)
         {
-            RimResultCase* rimResultReservoir = insertedCases[i];
+            RimEclipseResultCase* rimResultReservoir = insertedCases[i];
             caf::PdmDocument::initAfterReadTraversal(rimResultReservoir);
         }
 
         // Load stuff 
         for (size_t i = 0; i < insertedCases.size(); i++)
         {
-            RimResultCase* rimResultReservoir = insertedCases[i];
+            RimEclipseResultCase* rimResultReservoir = insertedCases[i];
 
  
             if (!mainResultCase)
@@ -786,7 +786,7 @@ void RimUiTreeModelPdm::moveObjects(const QModelIndex& itemIndex, caf::PdmObject
     addObjects(itemIndex, pdmObjects);
 
     // Delete objects from original container
-    std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
+    std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
     pdmObjects.objectsByType(&typedObjects);
 
     for (size_t i = 0; i < typedObjects.size(); i++)

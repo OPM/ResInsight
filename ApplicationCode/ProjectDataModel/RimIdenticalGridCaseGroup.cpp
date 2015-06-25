@@ -179,7 +179,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     caf::ProgressInfo info(caseCollection()->reservoirs.size(), "Case group - Reading Active Cell data");
     for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
     {
-        RimResultCase* rimReservoir = dynamic_cast<RimResultCase*>(caseCollection()->reservoirs[i]);
+        RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
         if(!rimReservoir) continue; // Input reservoir
 
         if (!rimReservoir->openAndReadActiveCellData(rigCaseData))
@@ -227,7 +227,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
         {
-            RimResultCase* rimReservoir = dynamic_cast<RimResultCase*>(caseCollection()->reservoirs[i]);
+            RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
             if (!rimReservoir) continue; // Input reservoir
 
             RimReservoirCellResultsStorage* cellResultsStorage = rimReservoir->results(poroModel);

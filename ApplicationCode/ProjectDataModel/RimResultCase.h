@@ -30,13 +30,13 @@ class RigMainGrid;
 // 
 //
 //==================================================================================================
-class RimResultCase : public RimEclipseCase
+class RimEclipseResultCase : public RimEclipseCase
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimResultCase();
-    virtual ~RimResultCase();
+    RimEclipseResultCase();
+    virtual ~RimEclipseResultCase();
 
     void                        setGridFileName(const QString& caseFileName);
     void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);

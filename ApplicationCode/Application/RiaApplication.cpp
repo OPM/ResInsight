@@ -634,7 +634,7 @@ bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openEclipseCase(const QString& caseName, const QString& caseFileName)
 {
-    RimResultCase* rimResultReservoir = new RimResultCase();
+    RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
     rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
     RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
@@ -1777,7 +1777,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
     // First file is read completely including grid.
     // The main grid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
-    RimResultCase* mainResultCase = NULL;
+    RimEclipseResultCase* mainResultCase = NULL;
     std::vector< std::vector<int> > mainCaseGridDimensions;
     RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
 
@@ -1787,7 +1787,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
         QString caseName = gridFileName.completeBaseName();
 
-        RimResultCase* rimResultReservoir = new RimResultCase();
+        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
         rimResultReservoir->setCaseInfo(caseName, firstFileName);
         if (!rimResultReservoir->openEclipseGridFile())
         {
@@ -1815,7 +1815,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
         QString caseName = gridFileName.completeBaseName();
 
-        RimResultCase* rimResultReservoir = new RimResultCase();
+        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
         rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
         std::vector< std::vector<int> > caseGridDimensions;

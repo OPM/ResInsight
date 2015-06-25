@@ -164,7 +164,7 @@ bool RiaProjectModifier::replaceSourceCases(RimProject* project)
                         QString caseName = caseNameFromGridFileName(fileName);
 
                         // Use this slightly hackish method in order to get a new unique ID
-                        RimResultCase* resCase = new RimResultCase;
+                        RimEclipseResultCase* resCase = new RimEclipseResultCase;
                         resCase->setCaseInfo(caseName, fileName);
 
                         caseCollection->reservoirs.push_back(resCase);
@@ -196,7 +196,7 @@ bool RiaProjectModifier::replaceCase(RimProject* project)
 
     for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)
     {
-        RimResultCase* resultCase = dynamic_cast<RimResultCase*>(allCases[caseIdx]);
+        RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(allCases[caseIdx]);
         if (resultCase)
         {
             if (m_replaceCase_caseId == FIRST_OCCURENCE ||

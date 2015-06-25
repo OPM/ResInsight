@@ -39,11 +39,11 @@
 #include <QFile>
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
+CAF_PDM_SOURCE_INIT(RimEclipseResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultCase::RimResultCase()
+RimEclipseResultCase::RimEclipseResultCase()
     : RimEclipseCase()
 {
     CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
@@ -68,7 +68,7 @@ RimResultCase::RimResultCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimResultCase::openEclipseGridFile()
+bool RimEclipseResultCase::openEclipseGridFile()
 {
     caf::ProgressInfo progInfo(50, "Reading Eclipse Grid File");
 
@@ -127,7 +127,7 @@ bool RimResultCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
+bool RimEclipseResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
 {
     // Early exit if data is already read
     if (m_activeCellInfoIsReadFromFile) return true;
@@ -187,7 +187,7 @@ bool RimResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
+cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString modelName)
 {
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
     cvf::ref<RigCaseData> reservoir = new RigCaseData;
@@ -291,7 +291,7 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultCase::~RimResultCase()
+RimEclipseResultCase::~RimEclipseResultCase()
 {
     reservoirViews.deleteAllChildObjects();
 }
@@ -299,7 +299,7 @@ RimResultCase::~RimResultCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimResultCase::locationOnDisc() const
+QString RimEclipseResultCase::locationOnDisc() const
 {
     QFileInfo fi(caseFileName());
     return fi.absolutePath();
@@ -308,7 +308,7 @@ QString RimResultCase::locationOnDisc() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::readGridDimensions(std::vector< std::vector<int> >& gridDimensions)
+void RimEclipseResultCase::readGridDimensions(std::vector< std::vector<int> >& gridDimensions)
 {
     RifEclipseOutputFileTools::readGridDimensions(caseFileName(), gridDimensions);
 }
@@ -316,7 +316,7 @@ void RimResultCase::readGridDimensions(std::vector< std::vector<int> >& gridDime
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
     bool foundFile = false;
     std::vector<QString> searchedPaths;
@@ -335,7 +335,7 @@ void RimResultCase::updateFilePathsFromProjectPath(const QString& newProjectPath
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::setGridFileName(const QString& caseFileName)
+void RimEclipseResultCase::setGridFileName(const QString& caseFileName)
 {
     this->caseFileName = caseFileName;
 }
@@ -344,7 +344,7 @@ void RimResultCase::setGridFileName(const QString& caseFileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::setCaseInfo(const QString& userDescription, const QString& caseFileName)
+void RimEclipseResultCase::setCaseInfo(const QString& userDescription, const QString& caseFileName)
 {
     this->caseUserDescription = userDescription;
     this->caseFileName = caseFileName;
@@ -356,7 +356,7 @@ void RimResultCase::setCaseInfo(const QString& userDescription, const QString& c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::initAfterRead()
+void RimEclipseResultCase::initAfterRead()
 {
     RimEclipseCase::initAfterRead();
 
@@ -373,7 +373,7 @@ void RimResultCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&caseUserDescription);
     uiOrdering.add(&caseId);
