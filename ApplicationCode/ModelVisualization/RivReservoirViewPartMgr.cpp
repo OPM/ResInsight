@@ -798,7 +798,7 @@ void RivReservoirViewPartMgr::updateCellResultColor(RivCellSetEnum geometryType,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirViewPartMgr::updateCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
 {
     RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
 	pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
@@ -807,7 +807,7 @@ void RivReservoirViewPartMgr::updateCellEdgeResultColor(RivCellSetEnum geometryT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
 {
 	RivReservoirPartMgr * pmgr = reservoirPartManager(geometryType, timeStepIndex);
 	pmgr->updateFaultCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);

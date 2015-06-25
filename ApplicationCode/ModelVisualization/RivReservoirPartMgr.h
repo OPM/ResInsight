@@ -33,7 +33,7 @@ namespace cvf
 }
 
 class RimEclipseCellColors;
-class RimCellEdgeResultSlot;
+class RimCellEdgeColors;
 class RigCaseData;
 class RimEclipseView;
 
@@ -59,7 +59,7 @@ public:
     void   updateCellColor(cvf::Color4f color);
     void   updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
     void   updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, 
-                                     RimCellEdgeResultSlot* cellEdgeResultSlot);
+                                     RimCellEdgeColors* cellEdgeResultSlot);
 
     void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIdxes);
     void   appendGridPartsToModel(cvf::ModelBasicList* model);
@@ -67,7 +67,7 @@ public:
     // Faults
     void   updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
 	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot,
-		RimCellEdgeResultSlot* cellEdgeResultSlot);
+		RimCellEdgeColors* cellEdgeResultSlot);
 	void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:

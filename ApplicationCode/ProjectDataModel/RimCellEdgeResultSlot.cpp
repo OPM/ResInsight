@@ -29,12 +29,12 @@
 #include "cvfMath.h"
 
 
-CAF_PDM_SOURCE_INIT(RimCellEdgeResultSlot, "CellEdgeResultSlot");
+CAF_PDM_SOURCE_INIT(RimCellEdgeColors, "CellEdgeResultSlot");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellEdgeResultSlot::RimCellEdgeResultSlot()
+RimCellEdgeColors::RimCellEdgeColors()
 {
     CAF_PDM_InitObject("Cell Edge Result", "", "", "");
 
@@ -56,7 +56,7 @@ RimCellEdgeResultSlot::RimCellEdgeResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellEdgeResultSlot::~RimCellEdgeResultSlot()
+RimCellEdgeColors::~RimCellEdgeColors()
 {
     delete legendConfig();
 }
@@ -64,7 +64,7 @@ RimCellEdgeResultSlot::~RimCellEdgeResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimCellEdgeColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
     this->legendConfig()->setReservoirView(ownerReservoirView);
@@ -73,7 +73,7 @@ void RimCellEdgeResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::loadResult()
+void RimCellEdgeColors::loadResult()
 {
     CVF_ASSERT(m_reservoirView && m_reservoirView->currentGridCellResults());
 
@@ -106,7 +106,7 @@ void RimCellEdgeResultSlot::loadResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimCellEdgeColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     loadResult();
 
@@ -116,14 +116,14 @@ void RimCellEdgeResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 namespace caf
 {
     template<>
-    void RimCellEdgeResultSlot::EdgeFaceEnum::setUp()
+    void RimCellEdgeColors::EdgeFaceEnum::setUp()
     {
-        addItem(RimCellEdgeResultSlot::X,       "X",    "");
-        addItem(RimCellEdgeResultSlot::NEG_X,   "X-",   "");
-        addItem(RimCellEdgeResultSlot::Y,       "Y",    "");
-        addItem(RimCellEdgeResultSlot::NEG_Y,   "Y-",   "");
-        addItem(RimCellEdgeResultSlot::Z,       "Z",    "");
-        addItem(RimCellEdgeResultSlot::NEG_Z,   "Z-",   "");
+        addItem(RimCellEdgeColors::X,       "X",    "");
+        addItem(RimCellEdgeColors::NEG_X,   "X-",   "");
+        addItem(RimCellEdgeColors::Y,       "Y",    "");
+        addItem(RimCellEdgeColors::NEG_Y,   "Y-",   "");
+        addItem(RimCellEdgeColors::Z,       "Z",    "");
+        addItem(RimCellEdgeColors::NEG_Z,   "Z-",   "");
     }
 }
 
@@ -132,7 +132,7 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 
-QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     if (fieldNeedingOptions == &resultVariable)
     {
@@ -209,7 +209,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RimCellEdgeResultSlot::findResultVariableNames()
+QStringList RimCellEdgeColors::findResultVariableNames()
 {
     QStringList varNames;
     
@@ -238,7 +238,7 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::gridScalarIndices(size_t resultIndices[6])
+void RimCellEdgeColors::gridScalarIndices(size_t resultIndices[6])
 {
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
@@ -250,7 +250,7 @@ void RimCellEdgeResultSlot::gridScalarIndices(size_t resultIndices[6])
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::gridScalarResultNames(QStringList* resultNames)
+void RimCellEdgeColors::gridScalarResultNames(QStringList* resultNames)
 {
     CVF_ASSERT(resultNames);
 
@@ -265,7 +265,7 @@ void RimCellEdgeResultSlot::gridScalarResultNames(QStringList* resultNames)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::resetResultIndices()
+void RimCellEdgeColors::resetResultIndices()
 {
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
@@ -277,7 +277,7 @@ void RimCellEdgeResultSlot::resetResultIndices()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimCellEdgeResultSlot::hasResult() const
+bool RimCellEdgeColors::hasResult() const
 {
     bool hasResult = false;
     int cubeFaceIndex;
@@ -292,7 +292,7 @@ bool RimCellEdgeResultSlot::hasResult() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::updateIgnoredScalarValue()
+void RimCellEdgeColors::updateIgnoredScalarValue()
 {
     if (resultVariable == "MULT" || resultVariable == "riMULT")
     {
@@ -307,7 +307,7 @@ void RimCellEdgeResultSlot::updateIgnoredScalarValue()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::minMaxCellEdgeValues(double& min, double& max)
+void RimCellEdgeColors::minMaxCellEdgeValues(double& min, double& max)
 {
     double globalMin, globalMax;
     globalMin = HUGE_VAL;
@@ -338,7 +338,7 @@ void RimCellEdgeResultSlot::minMaxCellEdgeValues(double& min, double& max)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeResultSlot::posNegClosestToZero(double& pos, double& neg)
+void RimCellEdgeColors::posNegClosestToZero(double& pos, double& neg)
 {
     pos = HUGE_VAL;
     neg = -HUGE_VAL;

@@ -35,12 +35,12 @@ class RimEclipseView;
 ///  
 ///  
 //==================================================================================================
-class RimCellEdgeResultSlot :  public caf::PdmObject
+class RimCellEdgeColors :  public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimCellEdgeResultSlot();
-    virtual ~RimCellEdgeResultSlot();
+    RimCellEdgeColors();
+    virtual ~RimCellEdgeColors();
 
     enum EdgeFaceType
     {
@@ -49,7 +49,7 @@ public:
         Z, NEG_Z
     };
 
-    typedef  caf::AppEnum<RimCellEdgeResultSlot::EdgeFaceType> EdgeFaceEnum;
+    typedef  caf::AppEnum<RimCellEdgeColors::EdgeFaceType> EdgeFaceEnum;
 
     void                                  setReservoirView(RimEclipseView* ownerReservoirView);
 

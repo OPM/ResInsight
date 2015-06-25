@@ -38,7 +38,7 @@ namespace cvf
 }
 
 class RimEclipseCellColors;
-class RimCellEdgeResultSlot;
+class RimCellEdgeColors;
 class RimFaultCollection;
 
 //==================================================================================================
@@ -56,7 +56,7 @@ public:
     void applySingleColorEffect();
     void setOpacityLevel(float opacity) { m_opacityLevel = opacity; }
     void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
+    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot);
 
     void appendNativeFaultFacesToModel(cvf::ModelBasicList* model);
     void appendOppositeFaultFacesToModel(cvf::ModelBasicList* model);

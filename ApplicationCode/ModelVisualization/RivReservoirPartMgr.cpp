@@ -122,7 +122,7 @@ void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipse
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
 {
     for (size_t i = 0; i < m_allGrids.size() ; ++i)
     {
@@ -202,7 +202,7 @@ void RivReservoirPartMgr::setFaultForceVisibility(bool isGeneratedByFilter)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
 {
 	if (m_faultsPartMgr.notNull())
 	{

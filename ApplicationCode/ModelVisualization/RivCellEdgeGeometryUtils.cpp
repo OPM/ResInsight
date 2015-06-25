@@ -44,7 +44,7 @@
 void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 	size_t timeStepIndex,
 	RimEclipseCellColors* cellResultSlot,
-	RimCellEdgeResultSlot* cellEdgeResultSlot,
+	RimCellEdgeColors* cellEdgeResultSlot,
 	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
 	cvf::DrawableGeo* geo,
 	size_t gridIndex,
@@ -187,7 +187,7 @@ bool RivCellEdgeGeometryUtils::hideScalarValue(double scalarValue, double scalar
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot,
+void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot,
 	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
 	cvf::DrawableGeo* geo, size_t gridIndex, float opacityLevel)
 {
@@ -286,7 +286,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeCenterResultAccessor(
 	RimEclipseCellColors* cellResultSlot,
-	RimCellEdgeResultSlot* cellEdgeResultSlot,
+	RimCellEdgeColors* cellEdgeResultSlot,
 	size_t timeStepIndex,
 	RigCaseData* eclipseCase,
 	const RigGridBase* grid)

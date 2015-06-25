@@ -225,7 +225,7 @@ void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimEclipseCel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirFaultsPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
 {
     for (size_t i = 0; i < m_faultParts.size(); i++)
     {

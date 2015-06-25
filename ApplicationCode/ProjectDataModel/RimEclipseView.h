@@ -41,7 +41,7 @@ class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class Rim3dOverlayInfoConfig;
 class RimEclipseCase;
-class RimCellEdgeResultSlot;
+class RimCellEdgeColors;
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
 class RimCellRangeFilter;
@@ -85,7 +85,7 @@ public:
     // Fields containing child objects :
 
     caf::PdmField<RimEclipseCellColors*>                   cellResult;
-    caf::PdmField<RimCellEdgeResultSlot*>           cellEdgeResult;
+    caf::PdmField<RimCellEdgeColors*>           cellEdgeResult;
     caf::PdmField<RimEclipseFaultColors*>              faultResultSettings;
 
     caf::PdmField<RimEclipsePropertyFilterCollection*> propertyFilterCollection;

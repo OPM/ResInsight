@@ -35,7 +35,7 @@ namespace cvf
 }
 
 class RimEclipseCellColors;
-class RimCellEdgeResultSlot;
+class RimCellEdgeColors;
 
 
 
@@ -60,7 +60,7 @@ public:
     void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
 
     void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, 
-        RimCellEdgeResultSlot* cellEdgeResultSlot);
+        RimCellEdgeColors* cellEdgeResultSlot);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 

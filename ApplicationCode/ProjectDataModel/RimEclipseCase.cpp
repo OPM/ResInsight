@@ -221,7 +221,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
                 result->setResultVariable(RimDefines::undefinedResultName());
                 result->loadResult();
 
-                RimCellEdgeResultSlot* cellEdgeResult = reservoirView->cellEdgeResult;
+                RimCellEdgeColors* cellEdgeResult = reservoirView->cellEdgeResult;
                 CVF_ASSERT(cellEdgeResult);
 
                 cellEdgeResult->resultVariable.v() = RimDefines::undefinedResultName();

@@ -81,7 +81,7 @@ RimEclipseView::RimEclipseView()
     cellResult = new RimEclipseCellColors();
 
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
-    cellEdgeResult = new RimCellEdgeResultSlot();
+    cellEdgeResult = new RimCellEdgeColors();
 
     CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Separate Fault Result", "", "", "");
     faultResultSettings = new RimEclipseFaultColors();

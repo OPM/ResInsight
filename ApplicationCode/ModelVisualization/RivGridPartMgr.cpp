@@ -266,7 +266,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
 {
 	if (m_surfaceFaces.notNull())
 	{
