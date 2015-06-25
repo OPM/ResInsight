@@ -71,7 +71,7 @@ protected:
     caf::PdmField<QString>                                          m_resultVariable;
 
     friend class RimEclipsePropertyFilter;
-    friend class RimFaultResultSlot;
+    friend class RimEclipseFaultColors;
 
     // User interface only fields, to support "filtering"-like behaviour etc.
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;

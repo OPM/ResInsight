@@ -46,7 +46,7 @@ public:
     virtual void setResultVariable(const QString& resultName);
 
 protected:
-    friend class RimFaultResultSlot;
+    friend class RimEclipseFaultColors;
     virtual void initAfterRead();
 
 private:

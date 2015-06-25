@@ -142,7 +142,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
         }
 
         // Parts that is not overridden by the grid settings
-        RimFaultResultSlot* faultResultSlot = m_reservoirView->faultResultSettings();
+        RimEclipseFaultColors* faultResultSlot = m_reservoirView->faultResultSettings();
         RimEclipseCellColors* cellResultSlot = m_reservoirView->cellResult();
 
         if (rimFault->showFault() && faultCollection->showFaultCollection())

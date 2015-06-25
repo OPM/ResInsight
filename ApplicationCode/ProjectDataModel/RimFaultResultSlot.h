@@ -30,13 +30,13 @@ class RimEclipseView;
 ///  
 ///  
 //==================================================================================================
-class RimFaultResultSlot : public caf::PdmObject
+class RimEclipseFaultColors : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFaultResultSlot();
-    virtual ~RimFaultResultSlot();
+    RimEclipseFaultColors();
+    virtual ~RimEclipseFaultColors();
     
     void setReservoirView(RimEclipseView* ownerReservoirView);
 

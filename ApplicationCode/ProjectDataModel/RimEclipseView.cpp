@@ -84,7 +84,7 @@ RimEclipseView::RimEclipseView()
     cellEdgeResult = new RimCellEdgeResultSlot();
 
     CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Separate Fault Result", "", "", "");
-    faultResultSettings = new RimFaultResultSlot();
+    faultResultSettings = new RimEclipseFaultColors();
 
   
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");

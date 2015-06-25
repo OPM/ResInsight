@@ -30,12 +30,12 @@
 
 
 
-CAF_PDM_SOURCE_INIT(RimFaultResultSlot, "RimFaultResultSlot");
+CAF_PDM_SOURCE_INIT(RimEclipseFaultColors, "RimFaultResultSlot");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultResultSlot::RimFaultResultSlot()
+RimEclipseFaultColors::RimEclipseFaultColors()
 {
     CAF_PDM_InitObject("Fault Result Slot", ":/draw_style_faults_24x24.png", "", "");
 
@@ -59,14 +59,14 @@ RimFaultResultSlot::RimFaultResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultResultSlot::~RimFaultResultSlot()
+RimEclipseFaultColors::~RimEclipseFaultColors()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimEclipseFaultColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
     m_customFaultResult->setReservoirView(ownerReservoirView);
@@ -75,7 +75,7 @@ void RimFaultResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseFaultColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->updateUiIconFromToggleField();
 
@@ -92,7 +92,7 @@ void RimFaultResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::initAfterRead()
+void RimEclipseFaultColors::initAfterRead()
 {
     m_customFaultResult->initAfterRead();
     updateFieldVisibility();
@@ -103,7 +103,7 @@ void RimFaultResultSlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::updateFieldVisibility()
+void RimEclipseFaultColors::updateFieldVisibility()
 {
     m_customFaultResult->updateFieldVisibility();
 }
@@ -111,7 +111,7 @@ void RimFaultResultSlot::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCellColors* RimFaultResultSlot::customFaultResult()
+RimEclipseCellColors* RimEclipseFaultColors::customFaultResult()
 {
     return this->m_customFaultResult();
 }
@@ -119,7 +119,7 @@ RimEclipseCellColors* RimFaultResultSlot::customFaultResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFaultResultSlot::objectToggleField()
+caf::PdmFieldHandle* RimEclipseFaultColors::objectToggleField()
 {
     return &showCustomFaultResult;
 }
@@ -127,7 +127,7 @@ caf::PdmFieldHandle* RimFaultResultSlot::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEclipseFaultColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
     group1->add(&(m_customFaultResult->m_resultTypeUiField));
@@ -138,7 +138,7 @@ void RimFaultResultSlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFaultResultSlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimEclipseFaultColors::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     return m_customFaultResult->calculateValueOptionsForSpecifiedDerivedListPosition(true, fieldNeedingOptions, useOptionsOnly);
 }
@@ -146,7 +146,7 @@ QList<caf::PdmOptionItemInfo> RimFaultResultSlot::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFaultResultSlot::hasValidCustomResult()
+bool RimEclipseFaultColors::hasValidCustomResult()
 {
     if (this->showCustomFaultResult())
     {

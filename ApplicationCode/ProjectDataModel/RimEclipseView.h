@@ -47,7 +47,7 @@ class RimEclipsePropertyFilterCollection;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
 class RimFaultCollection;
-class RimFaultResultSlot;
+class RimEclipseFaultColors;
 class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
 class RimEclipseCellColors;
@@ -86,7 +86,7 @@ public:
 
     caf::PdmField<RimEclipseCellColors*>                   cellResult;
     caf::PdmField<RimCellEdgeResultSlot*>           cellEdgeResult;
-    caf::PdmField<RimFaultResultSlot*>              faultResultSettings;
+    caf::PdmField<RimEclipseFaultColors*>              faultResultSettings;
 
     caf::PdmField<RimEclipsePropertyFilterCollection*> propertyFilterCollection;
 
