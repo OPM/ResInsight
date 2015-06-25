@@ -34,13 +34,13 @@ class RimInputProperty;
 // 
 //
 //==================================================================================================
-class RimInputCase : public RimEclipseCase
+class RimEclipseInputCase : public RimEclipseCase
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimInputCase();
-    virtual ~RimInputCase();
+    RimEclipseInputCase();
+    virtual ~RimEclipseInputCase();
 
     // Fields
     caf::PdmField<RimInputPropertyCollection*> m_inputPropertyCollection;

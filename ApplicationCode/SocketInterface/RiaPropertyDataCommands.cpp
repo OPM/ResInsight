@@ -613,7 +613,7 @@ public:
             if (m_currentReservoir != NULL)
             {
                 // Create a new input property if we have an input reservoir
-                RimInputCase* inputRes = dynamic_cast<RimInputCase*>(m_currentReservoir);
+                RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
                     RimInputProperty* inputProperty = NULL;
@@ -959,7 +959,7 @@ public:
             if (m_currentReservoir != NULL)
             {
                 // Create a new input property if we have an input reservoir
-                RimInputCase* inputRes = dynamic_cast<RimInputCase*>(m_currentReservoir);
+                RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
                     RimInputProperty* inputProperty = NULL;

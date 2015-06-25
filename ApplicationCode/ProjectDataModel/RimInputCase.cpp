@@ -37,11 +37,11 @@
 
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT(RimInputCase, "RimInputReservoir");
+CAF_PDM_SOURCE_INIT(RimEclipseInputCase, "RimInputReservoir");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimInputCase::RimInputCase()
+RimEclipseInputCase::RimEclipseInputCase()
     : RimEclipseCase()
 {
     CAF_PDM_InitObject("RimInputCase", ":/EclipseInput48x48.png", "", "");
@@ -58,7 +58,7 @@ RimInputCase::RimInputCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimInputCase::~RimInputCase()
+RimEclipseInputCase::~RimEclipseInputCase()
 {
     delete m_inputPropertyCollection;
 }
@@ -67,7 +67,7 @@ RimInputCase::~RimInputCase()
 /// Open the supplied file set. If no grid data has been read, it will first find the possible 
 /// grid data among the files then read all supported properties from the files matching the grid
 //--------------------------------------------------------------------------------------------------
-void RimInputCase::openDataFileSet(const QStringList& fileNames)
+void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 {
     if (fileNames.contains(RimDefines::mockModelBasicInputCase()))
     {
@@ -169,7 +169,7 @@ void RimInputCase::openDataFileSet(const QStringList& fileNames)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimInputCase::openEclipseGridFile()
+bool RimEclipseInputCase::openEclipseGridFile()
 {
     // Early exit if reservoir data is created
     if (this->reservoirData() == NULL)
@@ -226,7 +226,7 @@ bool RimInputCase::openEclipseGridFile()
 /// Loads input property data from the gridFile and additional files
 /// Creates new InputProperties if necessary, and flags the unused ones as obsolete
 //--------------------------------------------------------------------------------------------------
-void RimInputCase::loadAndSyncronizeInputProperties()
+void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 {
     // Make sure we actually have reservoir data
 
@@ -334,7 +334,7 @@ void RimInputCase::loadAndSyncronizeInputProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimInputCase::removeProperty(RimInputProperty* inputProperty)
+void RimEclipseInputCase::removeProperty(RimInputProperty* inputProperty)
 {
     bool isPropertyFileReferencedByOthers = false;
 
@@ -364,7 +364,7 @@ void RimInputCase::removeProperty(RimInputProperty* inputProperty)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RifReaderInterface> RimInputCase::createMockModel(QString modelName)
+cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel(QString modelName)
 {
     cvf::ref<RigCaseData> reservoir = new RigCaseData;
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
@@ -410,7 +410,7 @@ cvf::ref<RifReaderInterface> RimInputCase::createMockModel(QString modelName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimInputCase::locationOnDisc() const
+QString RimEclipseInputCase::locationOnDisc() const
 {
     if (m_gridFileName().isEmpty()) return QString();
 
@@ -421,7 +421,7 @@ QString RimInputCase::locationOnDisc() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimInputCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+void RimEclipseInputCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
     bool foundFile = false;
     std::vector<QString> searchedPaths;

@@ -493,11 +493,11 @@ void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QSt
     RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(currentItem->dataObject().p());
     CVF_ASSERT(inputPropertyCollection);
     
-    std::vector<RimInputCase*> parentObjects;
+    std::vector<RimEclipseInputCase*> parentObjects;
     inputPropertyCollection->parentObjectsOfType(parentObjects);
     CVF_ASSERT(parentObjects.size() == 1);
 
-    RimInputCase* inputReservoir = parentObjects[0];
+    RimEclipseInputCase* inputReservoir = parentObjects[0];
     CVF_ASSERT(inputReservoir);
     if (inputReservoir)
     {
@@ -531,11 +531,11 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
     if (!inputPropertyCollection) return;
 
-    std::vector<RimInputCase*> parentObjects2;
+    std::vector<RimEclipseInputCase*> parentObjects2;
     inputPropertyCollection->parentObjectsOfType(parentObjects2);
     CVF_ASSERT(parentObjects2.size() == 1);
 
-    RimInputCase* inputReservoir = parentObjects2[0];
+    RimEclipseInputCase* inputReservoir = parentObjects2[0];
     if (!inputReservoir) return;
 
     inputReservoir->removeProperty(inputProperty);

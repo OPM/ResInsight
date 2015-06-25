@@ -825,7 +825,7 @@ void RimUiTreeView::slotWriteInputProperty()
     exportSettings.eclipseKeyword = inputProperty->eclipseKeyword;
 
     // Find input reservoir for this property
-    RimInputCase* inputReservoir = NULL;
+    RimEclipseInputCase* inputReservoir = NULL;
     {
         std::vector<RimInputPropertyCollection*> parentObjects;
         inputProperty->parentObjectsOfType(parentObjects);
@@ -834,7 +834,7 @@ void RimUiTreeView::slotWriteInputProperty()
         RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
         if (!inputPropertyCollection) return;
 
-        std::vector<RimInputCase*> parentObjects2;
+        std::vector<RimEclipseInputCase*> parentObjects2;
         inputPropertyCollection->parentObjectsOfType(parentObjects2);
         CVF_ASSERT(parentObjects2.size() == 1);
 

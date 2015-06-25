@@ -675,7 +675,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
 {
-    RimInputCase* rimInputReservoir = new RimInputCase();
+    RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
     m_project->assignCaseIdToCase(rimInputReservoir);
 
     rimInputReservoir->openDataFileSet(fileNames);

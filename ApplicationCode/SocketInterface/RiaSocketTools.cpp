@@ -103,7 +103,7 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
     {
         caseGroupId = -1;
 
-        if (dynamic_cast<RimInputCase*>(rimCase))
+        if (dynamic_cast<RimEclipseInputCase*>(rimCase))
         {
             caseType = "InputCase";
         }
