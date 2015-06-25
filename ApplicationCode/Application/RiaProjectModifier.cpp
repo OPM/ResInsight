@@ -26,7 +26,7 @@
 #include "RimOilField.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"
-#include "RimResultCase.h"
+#include "RimEclipseResultCase.h"
 
 #include "RimEclipseView.h"
 #include "RimWellPathCollection.h"

@@ -29,9 +29,9 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
-#include "RimResultCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimResultSlot.h"
-#include "RimStatisticsCase.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RigCaseCellResultsData.h"
 
 #include "cafProgressInfo.h"

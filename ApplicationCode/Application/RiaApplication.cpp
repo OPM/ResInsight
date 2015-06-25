@@ -34,7 +34,7 @@
 #include "RiuProcessMonitor.h"
 #include "RiaPreferences.h"
 //
-#include "RimResultCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseView.h"
 #include "RimWellPath.h"
@@ -77,7 +77,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimWellCollection.h"
-#include "RimStatisticsCase.h"
+#include "RimEclipseStatisticsCase.h"
 #include "cafCeetronPlusNavigation.h"
 
 #include "cvfProgramOptions.h"

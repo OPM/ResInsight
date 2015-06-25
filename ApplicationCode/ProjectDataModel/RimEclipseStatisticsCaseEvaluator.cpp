@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStatisticsCaseEvaluator.h"
+#include "RimEclipseStatisticsCaseEvaluator.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"

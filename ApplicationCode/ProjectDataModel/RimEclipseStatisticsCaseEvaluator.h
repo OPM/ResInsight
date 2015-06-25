@@ -21,7 +21,7 @@
 #pragma once
 
 #include "RimDefines.h"
-#include "RimStatisticsCase.h"
+#include "RimEclipseStatisticsCase.h"
 
 #include <vector>
 #include <math.h>

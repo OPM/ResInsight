@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RimCalcScript.h"
 #include "RimProject.h"
-#include "RimStatisticsCase.h"
+#include "RimEclipseStatisticsCase.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmUiPushButtonEditor.h"

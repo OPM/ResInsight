@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStatisticsCaseCollection.h"
+#include "RimEclipseStatisticsCaseCollection.h"
 
 #include "RimIdenticalGridCaseGroup.h"
 

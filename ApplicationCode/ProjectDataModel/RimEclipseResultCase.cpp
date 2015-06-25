@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimResultCase.h"
+#include "RimEclipseResultCase.h"
 
 #include "RiaPreferences.h"
 #include "RifEclipseOutputFileTools.h"

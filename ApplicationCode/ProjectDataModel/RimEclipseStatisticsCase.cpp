@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStatisticsCase.h"
+#include "RimEclipseStatisticsCase.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
@@ -27,7 +27,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimResultSlot.h"
-#include "RimStatisticsCaseEvaluator.h"
+#include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimUiTreeModelPdm.h"
 #include "RimWellCollection.h"
 #include "RiuMainWindow.h"

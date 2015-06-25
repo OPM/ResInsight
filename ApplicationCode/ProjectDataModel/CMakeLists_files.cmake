@@ -21,7 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputProperty.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputPropertyCollection.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputCase.h
-${CEE_CURRENT_LIST_DIR}RimResultCase.h
+${CEE_CURRENT_LIST_DIR}RimEclipseResultCase.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseView.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimResultSlot.h
@@ -31,8 +31,8 @@ ${CEE_CURRENT_LIST_DIR}RimWellCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellPath.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.h
-${CEE_CURRENT_LIST_DIR}RimStatisticsCase.h
-${CEE_CURRENT_LIST_DIR}RimStatisticsCaseCollection.h
+${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCase.h
+${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCalcScript.h
 ${CEE_CURRENT_LIST_DIR}RimExportInputPropertySettings.h
 ${CEE_CURRENT_LIST_DIR}RimBinaryExportSettings.h
@@ -40,7 +40,7 @@ ${CEE_CURRENT_LIST_DIR}Rim3dOverlayInfoConfig.h
 ${CEE_CURRENT_LIST_DIR}RimUiTreeModelPdm.h
 ${CEE_CURRENT_LIST_DIR}RimUiTreeView.h
 ${CEE_CURRENT_LIST_DIR}RimReservoirCellResultsStorage.h
-${CEE_CURRENT_LIST_DIR}RimStatisticsCaseEvaluator.h
+${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RimMimeData.h
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.h
 ${CEE_CURRENT_LIST_DIR}RimTools.h
@@ -79,7 +79,7 @@ ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputProperty.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputPropertyCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputCase.cpp
-${CEE_CURRENT_LIST_DIR}RimResultCase.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseResultCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseView.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimResultSlot.cpp
@@ -89,8 +89,8 @@ ${CEE_CURRENT_LIST_DIR}RimWellCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimStatisticsCase.cpp
-${CEE_CURRENT_LIST_DIR}RimStatisticsCaseCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCase.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCalcScript.cpp
 ${CEE_CURRENT_LIST_DIR}RimExportInputPropertySettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimBinaryExportSettings.cpp
@@ -98,7 +98,7 @@ ${CEE_CURRENT_LIST_DIR}Rim3dOverlayInfoConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimUiTreeModelPdm.cpp
 ${CEE_CURRENT_LIST_DIR}RimUiTreeView.cpp
 ${CEE_CURRENT_LIST_DIR}RimReservoirCellResultsStorage.cpp
-${CEE_CURRENT_LIST_DIR}RimStatisticsCaseEvaluator.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseEvaluator.cpp
 ${CEE_CURRENT_LIST_DIR}RimMimeData.cpp
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimTools.cpp
