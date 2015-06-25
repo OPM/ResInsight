@@ -41,13 +41,13 @@ class RigSingleWellResultsData;
 // 
 //
 //==================================================================================================
-class RimStatisticsCase : public RimEclipseCase
+class RimEclipseStatisticsCase : public RimEclipseCase
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimStatisticsCase();
-    virtual ~RimStatisticsCase();
+    RimEclipseStatisticsCase();
+    virtual ~RimEclipseStatisticsCase();
 
     void setMainGrid(RigMainGrid* mainGrid);
 

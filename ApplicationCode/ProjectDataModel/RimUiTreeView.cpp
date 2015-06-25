@@ -208,7 +208,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
             }
-            else if (dynamic_cast<RimStatisticsCase*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
@@ -972,7 +972,7 @@ void RimUiTreeView::slotNewStatisticsCase()
     if (myModel)
     {
         QModelIndex insertedIndex;
-        RimStatisticsCase* newObject = myModel->addStatisticalCalculation(currentIndex(), insertedIndex);
+        RimEclipseStatisticsCase* newObject = myModel->addStatisticalCalculation(currentIndex(), insertedIndex);
         setCurrentIndex(insertedIndex);
 
         setExpanded(insertedIndex, true);
@@ -988,7 +988,7 @@ void RimUiTreeView::slotComputeStatistics()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimStatisticsCase* statisticsCase = dynamic_cast<RimStatisticsCase*>(uiItem->dataObject().p());
+    RimEclipseStatisticsCase* statisticsCase = dynamic_cast<RimEclipseStatisticsCase*>(uiItem->dataObject().p());
     if (!statisticsCase) return;
 
     statisticsCase->computeStatistics();
@@ -1277,7 +1277,7 @@ bool RimUiTreeView::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseG
 
     for (size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++)
     {
-        RimStatisticsCase* rimStaticsCase = dynamic_cast<RimStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
+        RimEclipseStatisticsCase* rimStaticsCase = dynamic_cast<RimEclipseStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
         if (rimStaticsCase)
         {
             if (rimStaticsCase->hasComputedStatistics())

@@ -548,7 +548,7 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+RimEclipseStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
@@ -557,9 +557,9 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
     caf::PdmUiTreeItem* parentCollectionItem = NULL;
     int position = 0;
 
-    if (dynamic_cast<RimStatisticsCase*>(currentItem->dataObject().p()))
+    if (dynamic_cast<RimEclipseStatisticsCase*>(currentItem->dataObject().p()))
     {
-        RimStatisticsCase* currentObject = dynamic_cast<RimStatisticsCase*>(currentItem->dataObject().p());
+        RimEclipseStatisticsCase* currentObject = dynamic_cast<RimEclipseStatisticsCase*>(currentItem->dataObject().p());
         caseGroup = currentObject->parentStatisticsCaseCollection()->parentCaseGroup();
         parentCollectionItem = currentItem->parent();
         position = itemIndex.row();
@@ -579,7 +579,7 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
         beginInsertRows(collectionIndex, position, position);
 
         RimProject* proj = RiaApplication::instance()->project();
-        RimStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
+        RimEclipseStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
         proj->assignCaseIdToCase(createdObject);
 
         caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentCollectionItem, position, createdObject);

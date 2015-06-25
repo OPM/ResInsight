@@ -201,7 +201,7 @@ void RimAnalysisModels::recomputeStatisticsForAllCaseGroups()
         const size_t numStatisticsCases = statisticsCaseCollection->reservoirs.size();
         for (size_t caseIdx = 0; caseIdx < numStatisticsCases; caseIdx++)
         {
-            RimStatisticsCase* statisticsCase = dynamic_cast<RimStatisticsCase*>(statisticsCaseCollection->reservoirs[caseIdx]);
+            RimEclipseStatisticsCase* statisticsCase = dynamic_cast<RimEclipseStatisticsCase*>(statisticsCaseCollection->reservoirs[caseIdx]);
             if (statisticsCase)
             {
                 statisticsCase->clearComputedStatistics();

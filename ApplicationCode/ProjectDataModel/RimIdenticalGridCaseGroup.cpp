@@ -356,9 +356,9 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
+RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
 {
-    RimStatisticsCase* newStatisticsCase = new RimStatisticsCase;
+    RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
 
     newStatisticsCase->caseUserDescription = QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size()+1);
     statisticsCaseCollection()->reservoirs.push_back(newStatisticsCase);

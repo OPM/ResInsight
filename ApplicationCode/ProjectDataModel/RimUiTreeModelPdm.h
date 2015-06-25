@@ -33,7 +33,7 @@ class RimGeoMechPropertyFilter;
 class RimEclipseCase;
 class RimEclipseView;
 class RimEclipseInputProperty;
-class RimStatisticsCase;
+class RimEclipseStatisticsCase;
 class RimIdenticalGridCaseGroup;
 
 class RimView;
@@ -74,7 +74,7 @@ public:
     void                        addObjects(const QModelIndex& itemIndex, const caf::PdmObjectGroup& pdmObjects);
     void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
-    RimStatisticsCase*          addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimEclipseStatisticsCase*          addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimIdenticalGridCaseGroup*  addCaseGroup(QModelIndex& insertedModelIndex);
 
     bool                        deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);

@@ -224,7 +224,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                             // Calculate percentiles
                             if (m_statisticsConfig.m_calculatePercentiles )
                             {
-                                if (m_statisticsConfig.m_pValMethod == RimStatisticsCase::NEAREST_OBSERVATION)
+                                if (m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::NEAREST_OBSERVATION)
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back(m_statisticsConfig.m_pMinPos);
@@ -235,7 +235,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                                     statParams[PMID] = pVals[1];
                                     statParams[PMAX] = pVals[2];
                                 }
-                                else if (m_statisticsConfig.m_pValMethod == RimStatisticsCase::HISTOGRAM_ESTIMATED)
+                                else if (m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::HISTOGRAM_ESTIMATED)
                                 {
                                     std::vector<size_t> histogram;
                                     RigHistogramCalculator histCalc(statParams[MIN], statParams[MAX], 100, &histogram);
@@ -244,7 +244,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                                     statParams[PMID] = histCalc.calculatePercentil(m_statisticsConfig.m_pMidPos);
                                     statParams[PMAX] = histCalc.calculatePercentil(m_statisticsConfig.m_pMaxPos);
                                 }
-                                else if (m_statisticsConfig.m_pValMethod == RimStatisticsCase::INTERPOLATED_OBSERVATION)
+                                else if (m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION)
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back(m_statisticsConfig.m_pMinPos);

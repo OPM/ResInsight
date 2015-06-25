@@ -25,7 +25,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class RimStatisticsCase;
+class RimEclipseStatisticsCase;
 class RimIdenticalGridCaseGroup;
 
 
@@ -42,7 +42,7 @@ public:
     RimStatisticsCaseCollection();
     virtual ~RimStatisticsCaseCollection();
 
-    caf::PdmPointersField<RimStatisticsCase*> cases;
+    caf::PdmPointersField<RimEclipseStatisticsCase*> cases;
 
     RimIdenticalGridCaseGroup* parentCaseGroup();
 

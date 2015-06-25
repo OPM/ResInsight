@@ -28,7 +28,7 @@
 #include "RifReaderInterface.h"
 
 class RimCaseCollection;
-class RimStatisticsCase;
+class RimEclipseStatisticsCase;
 
 class RimEclipseCase;
 class RigMainGrid;
@@ -58,7 +58,7 @@ public:
     bool                                contains(RimEclipseCase* reservoir) const;
     bool                                canCaseBeAdded(RimEclipseCase* reservoir) const;
 
-    RimStatisticsCase*                  createAndAppendStatisticsCase();
+    RimEclipseStatisticsCase*                  createAndAppendStatisticsCase();
 
 
     RimEclipseCase*                            mainCase();

@@ -38,22 +38,22 @@
 
 namespace caf {
     template<>
-    void caf::AppEnum<RimStatisticsCase::PercentileCalcType>::setUp()
+    void caf::AppEnum<RimEclipseStatisticsCase::PercentileCalcType>::setUp()
     {
-        addItem(RimStatisticsCase::NEAREST_OBSERVATION,         "NearestObservationPercentile",        "Nearest Observation");
-        addItem(RimStatisticsCase::HISTOGRAM_ESTIMATED,         "HistogramEstimatedPercentile",        "Histogram based estimate");
-        addItem(RimStatisticsCase::INTERPOLATED_OBSERVATION,    "InterpolatedObservationPercentile",   "Interpolated Observation");
-        setDefault(RimStatisticsCase::INTERPOLATED_OBSERVATION); 
+        addItem(RimEclipseStatisticsCase::NEAREST_OBSERVATION,         "NearestObservationPercentile",        "Nearest Observation");
+        addItem(RimEclipseStatisticsCase::HISTOGRAM_ESTIMATED,         "HistogramEstimatedPercentile",        "Histogram based estimate");
+        addItem(RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION,    "InterpolatedObservationPercentile",   "Interpolated Observation");
+        setDefault(RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION); 
     }
 }
 
 
-CAF_PDM_SOURCE_INIT(RimStatisticsCase, "RimStatisticalCalculation");
+CAF_PDM_SOURCE_INIT(RimEclipseStatisticsCase, "RimStatisticalCalculation");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCase::RimStatisticsCase()
+RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     : RimEclipseCase()
 {
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
@@ -111,7 +111,7 @@ RimStatisticsCase::RimStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCase::~RimStatisticsCase()
+RimEclipseStatisticsCase::~RimEclipseStatisticsCase()
 {
 
 }
@@ -120,7 +120,7 @@ RimStatisticsCase::~RimStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::setMainGrid(RigMainGrid* mainGrid)
+void RimEclipseStatisticsCase::setMainGrid(RigMainGrid* mainGrid)
 {
     CVF_ASSERT(mainGrid);
     CVF_ASSERT(this->reservoirData());
@@ -131,7 +131,7 @@ void RimStatisticsCase::setMainGrid(RigMainGrid* mainGrid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimStatisticsCase::openEclipseGridFile()
+bool RimEclipseStatisticsCase::openEclipseGridFile()
 {
     if (this->reservoirData()) return true;
 
@@ -159,7 +159,7 @@ bool RimStatisticsCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCaseCollection* RimStatisticsCase::parentStatisticsCaseCollection()
+RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
 {
     std::vector<RimCaseCollection*> parentObjects;
     this->parentObjectsOfType(parentObjects);
@@ -175,7 +175,7 @@ RimCaseCollection* RimStatisticsCase::parentStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::computeStatistics()
+void RimEclipseStatisticsCase::computeStatistics()
 {
     if (this->reservoirData() == NULL)
     {
@@ -266,7 +266,7 @@ void RimStatisticsCase::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
+void RimEclipseStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 {
     for (size_t i = 0; i < reservoirViews().size(); i++)
     {
@@ -279,7 +279,7 @@ void RimStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::getSourceCases(std::vector<RimEclipseCase*>& sourceCases)
+void RimEclipseStatisticsCase::getSourceCases(std::vector<RimEclipseCase*>& sourceCases)
 {
     RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
     if (gridCaseGroup)
@@ -299,7 +299,7 @@ void RimStatisticsCase::getSourceCases(std::vector<RimEclipseCase*>& sourceCases
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimStatisticsCase::caseGroup()
+RimIdenticalGridCaseGroup* RimEclipseStatisticsCase::caseGroup()
 {
     RimCaseCollection* parentCollection = parentStatisticsCaseCollection();
     if (parentCollection)
@@ -313,7 +313,7 @@ RimIdenticalGridCaseGroup* RimStatisticsCase::caseGroup()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
+void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
 
     updateSelectionSummaryLabel();
@@ -362,7 +362,7 @@ QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimStatisticsCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     if (useOptionsOnly) *useOptionsOnly = true;
@@ -436,7 +436,7 @@ QList<caf::PdmOptionItemInfo> RimStatisticsCase::calculateValueOptions(const caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (&m_resultType == changedField || &m_porosityModel == changedField)
     {
@@ -485,7 +485,7 @@ void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
+void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
 {
     RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
 
@@ -530,7 +530,7 @@ void addPropertySetToHtmlText(QString& html, const QString& heading, const std::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::updateSelectionSummaryLabel()
+void RimEclipseStatisticsCase::updateSelectionSummaryLabel()
 {
     QString html;
     
@@ -569,7 +569,7 @@ void RimStatisticsCase::updateSelectionSummaryLabel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RimEclipseStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
     if (&m_selectionSummary == field)
     {
@@ -587,7 +587,7 @@ void RimStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::updateSelectionListVisibilities()
+void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 {
     bool isLocked = hasComputedStatistics();
     m_resultType.setUiHidden(isLocked);
@@ -607,7 +607,7 @@ void RimStatisticsCase::updateSelectionListVisibilities()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::updatePercentileUiVisibility()
+void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 {
     bool isLocked = hasComputedStatistics();
     m_calculatePercentiles.setUiHidden(isLocked);
@@ -620,7 +620,7 @@ void RimStatisticsCase::updatePercentileUiVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimStatisticsCase::hasComputedStatistics() const
+bool RimEclipseStatisticsCase::hasComputedStatistics() const
 {
    if ( reservoirData() 
        && (    reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->resultCount()
@@ -638,7 +638,7 @@ bool RimStatisticsCase::hasComputedStatistics() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::updateConnectedEditorsAndReservoirViews()
+void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 {
     for (size_t i = 0; i < reservoirViews.size(); ++i)
     {
@@ -659,7 +659,7 @@ void RimStatisticsCase::updateConnectedEditorsAndReservoirViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::clearComputedStatistics()
+void RimEclipseStatisticsCase::clearComputedStatistics()
 {
     reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
     reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
@@ -670,7 +670,7 @@ void RimStatisticsCase::clearComputedStatistics()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::populateWithDefaultsIfNeeded()
+void RimEclipseStatisticsCase::populateWithDefaultsIfNeeded()
 {
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
     if (!(caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->reservoirData())) 

@@ -40,7 +40,7 @@ public:
         m_pMinPos(10.0),
         m_pMidPos(50.0),
         m_pMaxPos(90.0),
-        m_pValMethod(RimStatisticsCase::INTERPOLATED_OBSERVATION)
+        m_pValMethod(RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION)
     {
     }
 
@@ -49,7 +49,7 @@ public:
     double  m_pMinPos;
     double  m_pMidPos;
     double  m_pMaxPos;
-    RimStatisticsCase::PercentileCalcType m_pValMethod;
+    RimEclipseStatisticsCase::PercentileCalcType m_pValMethod;
 };
 
 
