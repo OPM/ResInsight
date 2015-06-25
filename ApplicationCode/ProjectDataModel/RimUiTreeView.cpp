@@ -204,7 +204,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
             }
-            else if (dynamic_cast<RimStatisticsCaseCollection*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseStatisticsCaseCollection*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
             }

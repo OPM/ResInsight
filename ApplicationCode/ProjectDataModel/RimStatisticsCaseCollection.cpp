@@ -23,12 +23,12 @@
 #include "RimIdenticalGridCaseGroup.h"
 
 
-CAF_PDM_SOURCE_INIT(RimStatisticsCaseCollection, "RimStatisticalCollection");
+CAF_PDM_SOURCE_INIT(RimEclipseStatisticsCaseCollection, "RimStatisticalCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCaseCollection::RimStatisticsCaseCollection()
+RimEclipseStatisticsCaseCollection::RimEclipseStatisticsCaseCollection()
     : PdmObject()
 {
     CAF_PDM_InitObject("Derived Statistics", "", "", "");
@@ -39,7 +39,7 @@ RimStatisticsCaseCollection::RimStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCaseCollection::~RimStatisticsCaseCollection()
+RimEclipseStatisticsCaseCollection::~RimEclipseStatisticsCaseCollection()
 {
     cases.deleteAllChildObjects();
 }
@@ -47,7 +47,7 @@ RimStatisticsCaseCollection::~RimStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimStatisticsCaseCollection::parentCaseGroup()
+RimIdenticalGridCaseGroup* RimEclipseStatisticsCaseCollection::parentCaseGroup()
 {
     std::vector<RimIdenticalGridCaseGroup*> parentObjects;
     this->parentObjectsOfType(parentObjects);

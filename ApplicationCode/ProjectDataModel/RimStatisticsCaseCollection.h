@@ -34,13 +34,13 @@ class RimIdenticalGridCaseGroup;
 // 
 //
 //==================================================================================================
-class RimStatisticsCaseCollection : public caf::PdmObject
+class RimEclipseStatisticsCaseCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimStatisticsCaseCollection();
-    virtual ~RimStatisticsCaseCollection();
+    RimEclipseStatisticsCaseCollection();
+    virtual ~RimEclipseStatisticsCaseCollection();
 
     caf::PdmPointersField<RimEclipseStatisticsCase*> cases;
 

@@ -31,7 +31,7 @@
 
 class RimIdenticalGridCaseGroup;
 class RimEclipseResultDefinition;
-class RimStatisticsCaseCollection;
+class RimEclipseStatisticsCaseCollection;
 class RigMainGrid;
 class RigSingleWellResultsData;
 
