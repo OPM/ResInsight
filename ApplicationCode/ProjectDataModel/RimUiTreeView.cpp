@@ -191,7 +191,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                     }
                 }
             }
-            else if (dynamic_cast<RimInputPropertyCollection*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Add Input Property"), this, SLOT(slotAddInputProperty()));
             }
@@ -772,7 +772,7 @@ void RimUiTreeView::slotAddInputProperty()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(uiItem->dataObject().p());
+    RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem->dataObject().p());
     if (inputPropertyCollection)
     {
         myModel->addInputProperty(index, fileNames);
@@ -827,11 +827,11 @@ void RimUiTreeView::slotWriteInputProperty()
     // Find input reservoir for this property
     RimEclipseInputCase* inputReservoir = NULL;
     {
-        std::vector<RimInputPropertyCollection*> parentObjects;
+        std::vector<RimEclipseInputPropertyCollection*> parentObjects;
         inputProperty->parentObjectsOfType(parentObjects);
         CVF_ASSERT(parentObjects.size() == 1);
 
-        RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
+        RimEclipseInputPropertyCollection* inputPropertyCollection = parentObjects[0];
         if (!inputPropertyCollection) return;
 
         std::vector<RimEclipseInputCase*> parentObjects2;

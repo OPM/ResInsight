@@ -51,7 +51,7 @@ RimEclipseInputCase::RimEclipseInputCase()
     m_additionalFileNames.setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_inputPropertyCollection, "InputPropertyCollection", "",  "", "", "");
-    m_inputPropertyCollection = new RimInputPropertyCollection;
+    m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
 }
 
 

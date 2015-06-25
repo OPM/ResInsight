@@ -33,13 +33,13 @@ class RimEclipseInputProperty;
 // 
 //
 //==================================================================================================
-class RimInputPropertyCollection : public caf::PdmObject
+class RimEclipseInputPropertyCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimInputPropertyCollection();
-    virtual ~RimInputPropertyCollection();
+    RimEclipseInputPropertyCollection();
+    virtual ~RimEclipseInputPropertyCollection();
     std::vector<RimEclipseInputProperty*> findInputProperties(QString fileName);
     RimEclipseInputProperty* findInputProperty(QString resultName);
 

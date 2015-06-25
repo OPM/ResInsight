@@ -24,12 +24,12 @@
 
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT(RimInputPropertyCollection, "RimInputPropertyCollection");
+CAF_PDM_SOURCE_INIT(RimEclipseInputPropertyCollection, "RimInputPropertyCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimInputPropertyCollection::RimInputPropertyCollection()
+RimEclipseInputPropertyCollection::RimEclipseInputPropertyCollection()
 {
     CAF_PDM_InitObject("Input Properties", ":/EclipseInput48x48.png", "", "");
 
@@ -39,7 +39,7 @@ RimInputPropertyCollection::RimInputPropertyCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimInputPropertyCollection::~RimInputPropertyCollection()
+RimEclipseInputPropertyCollection::~RimEclipseInputPropertyCollection()
 {
 
 }
@@ -47,7 +47,7 @@ RimInputPropertyCollection::~RimInputPropertyCollection()
 //--------------------------------------------------------------------------------------------------
 /// Returns the InputProperties pointing to the same file as \a fileName
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEclipseInputProperty*> RimInputPropertyCollection::findInputProperties(QString fileName)
+std::vector<RimEclipseInputProperty*> RimEclipseInputPropertyCollection::findInputProperties(QString fileName)
 {
     QFileInfo fileInfo(fileName);
     std::vector<RimEclipseInputProperty*> result;
@@ -66,7 +66,7 @@ std::vector<RimEclipseInputProperty*> RimInputPropertyCollection::findInputPrope
 /// Remove given input property from collection and checks if the associated file is referenced by other input
 /// properties
 //--------------------------------------------------------------------------------------------------
-void RimInputPropertyCollection::removeInputProperty(RimEclipseInputProperty* inputProperty, bool& isPropertyFileReferencedByOthers)
+void RimEclipseInputPropertyCollection::removeInputProperty(RimEclipseInputProperty* inputProperty, bool& isPropertyFileReferencedByOthers)
 {
     CVF_ASSERT(inputProperty);
 
@@ -85,7 +85,7 @@ void RimInputPropertyCollection::removeInputProperty(RimEclipseInputProperty* in
 //--------------------------------------------------------------------------------------------------
 /// Returns the InputProperty with resultName  \a resultName
 //--------------------------------------------------------------------------------------------------
-RimEclipseInputProperty * RimInputPropertyCollection::findInputProperty(QString resultName)
+RimEclipseInputProperty * RimEclipseInputPropertyCollection::findInputProperty(QString resultName)
 {
     for (size_t i = 0; i < this->inputProperties.size(); i++)
     {

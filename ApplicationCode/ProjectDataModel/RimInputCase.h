@@ -26,7 +26,7 @@
 #include "RimEclipseCase.h"
 
 class RifReaderInterface;
-class RimInputPropertyCollection;
+class RimEclipseInputPropertyCollection;
 class RimEclipseInputProperty;
 
 //==================================================================================================
@@ -43,7 +43,7 @@ public:
     virtual ~RimEclipseInputCase();
 
     // Fields
-    caf::PdmField<RimInputPropertyCollection*> m_inputPropertyCollection;
+    caf::PdmField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
     // File open methods
     void                        openDataFileSet(const QStringList& fileNames);
