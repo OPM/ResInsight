@@ -26,7 +26,7 @@
 #include "cvfObject.h"
 #include "cvfArray.h"
 
-class RimResultSlot;
+class RimEclipseCellColors;
 class RimTernaryLegendConfig;
 
 namespace cvf
@@ -41,7 +41,7 @@ namespace cvf
 class RivTernaryTextureCoordsCreator
 {
 public:
-	RivTernaryTextureCoordsCreator(	RimResultSlot* cellResultSlot,
+	RivTernaryTextureCoordsCreator(	RimEclipseCellColors* cellResultSlot,
 									RimTernaryLegendConfig* ternaryLegendConfig,
 									size_t timeStepIndex,  
 									size_t gridIndex, 

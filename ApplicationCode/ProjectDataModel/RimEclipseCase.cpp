@@ -160,7 +160,7 @@ void RimEclipseCase::removeResult(const QString& resultName)
         RimEclipseView* reservoirView = reservoirViews()[i];
         CVF_ASSERT(reservoirView);
 
-        RimResultSlot* result = reservoirView->cellResult;
+        RimEclipseCellColors* result = reservoirView->cellResult;
         CVF_ASSERT(result);
 
         bool rebuildDisplayModel = false;
@@ -215,7 +215,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
                 RimEclipseView* reservoirView = reservoirViews()[i];
                 CVF_ASSERT(reservoirView);
 
-                RimResultSlot* result = reservoirView->cellResult;
+                RimEclipseCellColors* result = reservoirView->cellResult;
                 CVF_ASSERT(result);
 
                 result->setResultVariable(RimDefines::undefinedResultName());

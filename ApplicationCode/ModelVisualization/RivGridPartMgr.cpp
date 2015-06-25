@@ -221,7 +221,7 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot)
 {
     CVF_ASSERT(cellResultSlot);
 
@@ -266,7 +266,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
 	if (m_surfaceFaces.notNull())
 	{

@@ -43,7 +43,7 @@ RimFaultResultSlot::RimFaultResultSlot()
     showCustomFaultResult.setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
-    m_customFaultResult = new RimResultSlot();
+    m_customFaultResult = new RimEclipseCellColors();
     m_customFaultResult.setOwnerObject(this);
     m_customFaultResult.setUiHidden(true);
 
@@ -111,7 +111,7 @@ void RimFaultResultSlot::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultSlot* RimFaultResultSlot::customFaultResult()
+RimEclipseCellColors* RimFaultResultSlot::customFaultResult()
 {
     return this->m_customFaultResult();
 }

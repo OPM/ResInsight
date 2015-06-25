@@ -111,7 +111,7 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot)
 {
     for (size_t i = 0; i < m_allGrids.size() ; ++i)
     {
@@ -122,7 +122,7 @@ void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
     for (size_t i = 0; i < m_allGrids.size() ; ++i)
     {
@@ -158,7 +158,7 @@ void RivReservoirPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateFaultColors(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirPartMgr::updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot)
 {
     if (m_faultsPartMgr.notNull())
     {
@@ -202,7 +202,7 @@ void RivReservoirPartMgr::setFaultForceVisibility(bool isGeneratedByFilter)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
 	if (m_faultsPartMgr.notNull())
 	{

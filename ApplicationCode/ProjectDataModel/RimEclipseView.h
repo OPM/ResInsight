@@ -50,7 +50,7 @@ class RimFaultCollection;
 class RimFaultResultSlot;
 class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
-class RimResultSlot;
+class RimEclipseCellColors;
 class RimWellCollection;
 class RiuViewer;
 class RivReservoirPipesPartMgr;
@@ -84,7 +84,7 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmField<RimResultSlot*>                   cellResult;
+    caf::PdmField<RimEclipseCellColors*>                   cellResult;
     caf::PdmField<RimCellEdgeResultSlot*>           cellEdgeResult;
     caf::PdmField<RimFaultResultSlot*>              faultResultSettings;
 
@@ -103,7 +103,7 @@ public:
 
     RimReservoirCellResultsStorage*                 currentGridCellResults();
     RigActiveCellInfo*                              currentActiveCellInfo();
-    RimResultSlot*                                  currentFaultResultSlot();
+    RimEclipseCellColors*                                  currentFaultResultSlot();
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
     RimEclipseCase*                                 eclipseCase();
@@ -142,7 +142,7 @@ private:
     virtual void                                    updateStaticCellColors();
     void                                            updateStaticCellColors(RivCellSetEnum geometryType);
     void                                            updateLegends();
-    void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData);
+    void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultSlot, RigCaseCellResultsData* cellResultsData);
     virtual void                                    resetLegendsInViewer();
     virtual void                                    updateViewerWidgetWindowTitle();
 

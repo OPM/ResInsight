@@ -200,7 +200,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteObjectFromContainer()));
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteInputProperty()));
             }
-            else if (dynamic_cast<RimResultSlot*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseCellColors*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
             }
@@ -887,7 +887,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimResultSlot* resultSlot = dynamic_cast<RimResultSlot*>(uiItem->dataObject().p());
+    RimEclipseCellColors* resultSlot = dynamic_cast<RimEclipseCellColors*>(uiItem->dataObject().p());
     if (!resultSlot) return;
     if (!resultSlot->reservoirView()) return;
     if (!resultSlot->reservoirView()->eclipseCase()) return;

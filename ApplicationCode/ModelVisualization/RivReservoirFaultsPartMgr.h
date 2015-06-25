@@ -30,7 +30,7 @@ namespace cvf
     class Transform;
 }
 
-class RimResultSlot;
+class RimEclipseCellColors;
 class RimCellEdgeResultSlot;
 class RimEclipseView;
 
@@ -49,8 +49,8 @@ public:
 
     void setOpacityLevel(float opacity);
     void applySingleColorEffect();
-    void updateColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
+    void updateColors(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
+    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, 
         RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     void appendPartsToModel(cvf::ModelBasicList* model);

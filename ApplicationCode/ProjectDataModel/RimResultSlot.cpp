@@ -25,12 +25,12 @@
 #include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
 
-CAF_PDM_SOURCE_INIT(RimResultSlot, "ResultSlot");
+CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultSlot::RimResultSlot()
+RimEclipseCellColors::RimEclipseCellColors()
 {
     CAF_PDM_InitObject("Result Slot", "", "", "");
 
@@ -52,7 +52,7 @@ RimResultSlot::RimResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultSlot::~RimResultSlot()
+RimEclipseCellColors::~RimEclipseCellColors()
 {
     delete legendConfig();
     delete ternaryLegendConfig();
@@ -61,7 +61,7 @@ RimResultSlot::~RimResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimEclipseResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);
 
@@ -87,7 +87,7 @@ void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
+void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
     if (resultVarNameOfNewLegend == RimDefines::ternarySaturationResultName())
     {
@@ -139,7 +139,7 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultSlot::initAfterRead()
+void RimEclipseCellColors::initAfterRead()
 {
     RimEclipseResultDefinition::initAfterRead();
 
@@ -154,7 +154,7 @@ void RimResultSlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     RimEclipseResultDefinition::setReservoirView(ownerReservoirView);
 
@@ -172,7 +172,7 @@ void RimResultSlot::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultSlot::setResultVariable(const QString& val)
+void RimEclipseCellColors::setResultVariable(const QString& val)
 {
     RimEclipseResultDefinition::setResultVariable(val);
 

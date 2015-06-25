@@ -30,12 +30,12 @@ class RimTernaryLegendConfig;
 ///  
 ///  
 //==================================================================================================
-class RimResultSlot :  public RimEclipseResultDefinition
+class RimEclipseCellColors :  public RimEclipseResultDefinition
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimResultSlot();
-    virtual ~RimResultSlot();
+    RimEclipseCellColors();
+    virtual ~RimEclipseCellColors();
 
     virtual void setReservoirView(RimEclipseView* ownerReservoirView);
     caf::PdmField<RimLegendConfig*> legendConfig;

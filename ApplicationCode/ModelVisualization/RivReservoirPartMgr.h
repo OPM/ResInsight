@@ -32,7 +32,7 @@ namespace cvf
     class Transform;
 }
 
-class RimResultSlot;
+class RimEclipseCellColors;
 class RimCellEdgeResultSlot;
 class RigCaseData;
 class RimEclipseView;
@@ -57,16 +57,16 @@ public:
            cellVisibility(size_t gridIdx);
 
     void   updateCellColor(cvf::Color4f color);
-    void   updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-    void   updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
+    void   updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
+    void   updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, 
                                      RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIdxes);
     void   appendGridPartsToModel(cvf::ModelBasicList* model);
 
     // Faults
-    void   updateFaultColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot,
+    void   updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
+	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot,
 		RimCellEdgeResultSlot* cellEdgeResultSlot);
 	void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);

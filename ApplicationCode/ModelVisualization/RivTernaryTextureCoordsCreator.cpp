@@ -38,7 +38,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
-	RimResultSlot* cellResultSlot, 
+	RimEclipseCellColors* cellResultSlot, 
 	RimTernaryLegendConfig* ternaryLegendConfig,
 	size_t timeStepIndex, 
 	size_t gridIndex, 

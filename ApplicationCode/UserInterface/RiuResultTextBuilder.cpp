@@ -307,7 +307,7 @@ QString RiuResultTextBuilder::nncResultText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuResultTextBuilder::appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimResultSlot* resultSlot, QString* resultInfoText)
+void RiuResultTextBuilder::appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultSlot, QString* resultInfoText)
 {
 	if (!resultSlot)
 	{
@@ -574,7 +574,7 @@ void RiuResultTextBuilder::appendDetails(QString& text, const QString& details)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiuResultTextBuilder::cellResultText(RimResultSlot* resultSlot)
+QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultSlot)
 {
     QString text;
 

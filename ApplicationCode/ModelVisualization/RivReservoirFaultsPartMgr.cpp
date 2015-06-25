@@ -143,7 +143,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
         // Parts that is not overridden by the grid settings
         RimFaultResultSlot* faultResultSlot = m_reservoirView->faultResultSettings();
-        RimResultSlot* cellResultSlot = m_reservoirView->cellResult();
+        RimEclipseCellColors* cellResultSlot = m_reservoirView->cellResult();
 
         if (rimFault->showFault() && faultCollection->showFaultCollection())
         {
@@ -200,7 +200,7 @@ void RivReservoirFaultsPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot)
 {
     if (!m_reservoirView) return;
 
@@ -225,7 +225,7 @@ void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimResultSlot
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirFaultsPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
     for (size_t i = 0; i < m_faultParts.size(); i++)
     {

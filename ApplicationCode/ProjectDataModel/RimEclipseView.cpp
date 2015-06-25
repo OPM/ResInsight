@@ -78,7 +78,7 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitObject("Reservoir View", ":/ReservoirView.png", "", "");
  
     CAF_PDM_InitFieldNoDefault(&cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
-    cellResult = new RimResultSlot();
+    cellResult = new RimEclipseCellColors();
 
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
@@ -932,7 +932,7 @@ void RimEclipseView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData)
+void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultSlot, RigCaseCellResultsData* cellResultsData)
 {
     if (resultSlot->hasResult())
     {
@@ -1371,7 +1371,7 @@ void RimEclipseView::updateFaultColors()
     // Update all fault geometry
     std::vector<RivCellSetEnum> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
-    RimResultSlot* faultResultSlot = currentFaultResultSlot();
+    RimEclipseCellColors* faultResultSlot = currentFaultResultSlot();
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
@@ -1414,9 +1414,9 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultSlot* RimEclipseView::currentFaultResultSlot()
+RimEclipseCellColors* RimEclipseView::currentFaultResultSlot()
 {
-    RimResultSlot* faultResultSlot = this->cellResult();
+    RimEclipseCellColors* faultResultSlot = this->cellResult();
 
     if (this->faultResultSettings()->showCustomFaultResult())
     {

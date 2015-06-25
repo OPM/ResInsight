@@ -23,7 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class RimResultSlot;
+class RimEclipseCellColors;
 class RimEclipseView;
 
 //==================================================================================================
@@ -43,7 +43,7 @@ public:
     caf::PdmField<bool>     showCustomFaultResult;
 
     bool                    hasValidCustomResult();
-    RimResultSlot*          customFaultResult();
+    RimEclipseCellColors*          customFaultResult();
 
     void                    updateFieldVisibility();
 
@@ -56,7 +56,7 @@ protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
 
 private:
-    caf::PdmField<RimResultSlot*>       m_customFaultResult;
+    caf::PdmField<RimEclipseCellColors*>       m_customFaultResult;
     caf::PdmPointer<RimEclipseView>   m_reservoirView;
 };
 

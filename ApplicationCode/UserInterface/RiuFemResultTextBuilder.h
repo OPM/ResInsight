@@ -25,7 +25,7 @@
 #include <QString>
 
 class RimGeoMechView;
-class RimResultSlot;
+class RimEclipseCellColors;
 class RigGeoMechCaseData;
 class RimGeoMechCellColors;
 

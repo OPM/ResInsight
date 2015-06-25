@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivTextureCoordsCreator::RivTextureCoordsCreator(RimResultSlot* cellResultSlot, size_t timeStepIndex, size_t gridIndex, const cvf::StructGridQuadToCellFaceMapper* quadMapper)
+RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResultSlot, size_t timeStepIndex, size_t gridIndex, const cvf::StructGridQuadToCellFaceMapper* quadMapper)
 {
     RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
 

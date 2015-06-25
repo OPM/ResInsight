@@ -94,7 +94,7 @@ void RivFaultPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot)
 {
     CVF_ASSERT(cellResultSlot);
 
@@ -181,7 +181,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
     updateNNCColors(cellResultSlot);
 
@@ -643,7 +643,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateNNCColors(RimResultSlot* cellResultSlot)
+void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultSlot)
 {
     if (m_NNCFaces.isNull()) return;
 

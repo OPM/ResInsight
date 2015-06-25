@@ -71,7 +71,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGe
 	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
 	size_t gridIndex,
 	size_t timeStepIndex,
-	RimResultSlot* cellResultSlot,
+	RimEclipseCellColors* cellResultSlot,
 	RimCellEdgeResultSlot* cellEdgeResultSlot,
 	float opacityLevel,
     cvf::Color3f defaultColor,

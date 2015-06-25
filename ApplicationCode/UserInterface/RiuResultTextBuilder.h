@@ -25,7 +25,7 @@
 
 
 class RimEclipseView;
-class RimResultSlot;
+class RimEclipseCellColors;
 class QString;
 class RigCaseData;
 
@@ -62,9 +62,9 @@ private:
     QString nncResultText();
     QString wellResultText();
 
-    QString cellResultText(RimResultSlot* resultSlot);
+    QString cellResultText(RimEclipseCellColors* resultSlot);
 
-	void appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimResultSlot* resultSlot, QString* resultInfoText);
+	void appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultSlot, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimEclipseView> m_reservoirView;
