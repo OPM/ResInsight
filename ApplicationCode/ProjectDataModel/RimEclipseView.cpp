@@ -98,7 +98,7 @@ RimEclipseView::RimEclipseView()
     rangeFilterCollection->setReservoirView(this);
 
     CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
-    propertyFilterCollection = new RimCellPropertyFilterCollection();
+    propertyFilterCollection = new RimEclipsePropertyFilterCollection();
     propertyFilterCollection->setReservoirView(this);
 
     // Visualization fields

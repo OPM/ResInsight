@@ -175,7 +175,7 @@ void RimEclipseCase::removeResult(const QString& resultName)
         }
 
         std::list< caf::PdmPointer< RimEclipsePropertyFilter > >::iterator it;
-        RimCellPropertyFilterCollection* propFilterCollection = reservoirView->propertyFilterCollection();
+        RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->propertyFilterCollection();
 
         for (size_t filter = 0; filter < propFilterCollection->propertyFilters().size(); filter++)
         {

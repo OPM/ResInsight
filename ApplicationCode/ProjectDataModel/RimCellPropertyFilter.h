@@ -23,7 +23,7 @@
 #include "RimCellFilter.h"
 
 class RimEclipseView;
-class RimCellPropertyFilterCollection;
+class RimEclipsePropertyFilterCollection;
 class RimEclipseResultDefinition;
 
 class RigGridBase;
@@ -47,8 +47,8 @@ public:
     caf::PdmField<double>                   lowerBound;
     caf::PdmField<double>                   upperBound;
 
-    void                                    setParentContainer(RimCellPropertyFilterCollection* parentContainer);
-    RimCellPropertyFilterCollection*        parentContainer();
+    void                                    setParentContainer(RimEclipsePropertyFilterCollection* parentContainer);
+    RimEclipsePropertyFilterCollection*        parentContainer();
     void                                    setToDefaultValues();
     void                                    computeResultValueRange();
 
@@ -59,7 +59,7 @@ protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
-    RimCellPropertyFilterCollection*        m_parentContainer;
+    RimEclipsePropertyFilterCollection*        m_parentContainer;
     double                                  m_minimumResultValue; 
     double                                  m_maximumResultValue;
 

@@ -149,7 +149,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addSeparator();
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteRangeFilter()));
             }
-            else if (dynamic_cast<RimCellPropertyFilterCollection*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New Property Filter"), this, SLOT(slotAddPropertyFilter()));
             }

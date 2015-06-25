@@ -696,7 +696,7 @@ void RivReservoirViewPartMgr::computeRangeVisibility(RivCellSetEnum geometryType
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex, 
-    const cvf::UByteArray* rangeFilterVisibility, RimCellPropertyFilterCollection* propFilterColl)
+    const cvf::UByteArray* rangeFilterVisibility, RimEclipsePropertyFilterCollection* propFilterColl)
 {
     CVF_ASSERT(cellVisibility != NULL);
     CVF_ASSERT(rangeFilterVisibility != NULL);

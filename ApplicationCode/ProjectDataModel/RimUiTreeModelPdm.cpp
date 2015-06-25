@@ -80,7 +80,7 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     RimEclipsePropertyFilter* propertyFilter = dynamic_cast<RimEclipsePropertyFilter*>(uiItem->dataObject().p());
     CVF_ASSERT(propertyFilter);
 
-    RimCellPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
+    RimEclipsePropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
     CVF_ASSERT(propertyFilterCollection);
 
     bool wasFilterActive = propertyFilter->isActive();
@@ -275,7 +275,7 @@ RimEclipsePropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
     QModelIndex collectionIndex;
-    RimCellPropertyFilterCollection* propertyFilterCollection = NULL;
+    RimEclipsePropertyFilterCollection* propertyFilterCollection = NULL;
     caf::PdmUiTreeItem* propertyFilterCollectionItem = NULL;
     int position = 0;
 
@@ -287,9 +287,9 @@ RimEclipsePropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex
         position = itemIndex.row();
         collectionIndex = itemIndex.parent();
     }
-    else if (dynamic_cast<RimCellPropertyFilterCollection*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(currentItem->dataObject().p()))
     {
-        propertyFilterCollection = dynamic_cast<RimCellPropertyFilterCollection*>(currentItem->dataObject().p());
+        propertyFilterCollection = dynamic_cast<RimEclipsePropertyFilterCollection*>(currentItem->dataObject().p());
         propertyFilterCollectionItem = currentItem;
         position = propertyFilterCollectionItem->childCount();
         collectionIndex = itemIndex;

@@ -155,7 +155,7 @@ QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::setParentContainer(RimCellPropertyFilterCollection* parentContainer)
+void RimEclipsePropertyFilter::setParentContainer(RimEclipsePropertyFilterCollection* parentContainer)
 {
     m_parentContainer = parentContainer;
 }
@@ -163,7 +163,7 @@ void RimEclipsePropertyFilter::setParentContainer(RimCellPropertyFilterCollectio
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
+RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 {
     return m_parentContainer;
 }

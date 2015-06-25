@@ -24,12 +24,12 @@
 ///  
 ///  
 //==================================================================================================
-class RimCellPropertyFilterCollection : public caf::PdmObject
+class RimEclipsePropertyFilterCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimCellPropertyFilterCollection();
-    virtual ~RimCellPropertyFilterCollection();
+    RimEclipsePropertyFilterCollection();
+    virtual ~RimEclipsePropertyFilterCollection();
 
 
     // Fields:

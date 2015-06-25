@@ -25,12 +25,12 @@
 #include "RimResultSlot.h"
 
 
-CAF_PDM_SOURCE_INIT(RimCellPropertyFilterCollection, "CellPropertyFilters");
+CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilterCollection, "CellPropertyFilters");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilterCollection::RimCellPropertyFilterCollection()
+RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 {
     CAF_PDM_InitObject("Cell Property Filters", ":/CellFilter_Values.png", "", "");
 
@@ -42,7 +42,7 @@ RimCellPropertyFilterCollection::RimCellPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilterCollection::~RimCellPropertyFilterCollection()
+RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 {
 
 }
@@ -51,7 +51,7 @@ RimCellPropertyFilterCollection::~RimCellPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilterCollection::setReservoirView(RimEclipseView* reservoirView)
+void RimEclipsePropertyFilterCollection::setReservoirView(RimEclipseView* reservoirView)
 {
     m_reservoirView = reservoirView;
 
@@ -66,7 +66,7 @@ void RimCellPropertyFilterCollection::setReservoirView(RimEclipseView* reservoir
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RimCellPropertyFilterCollection::reservoirView()
+RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 {
     CVF_ASSERT(!m_reservoirView.isNull());
     return m_reservoirView;
@@ -75,7 +75,7 @@ RimEclipseView* RimCellPropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipsePropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->updateUiIconFromToggleField();
 
@@ -85,7 +85,7 @@ void RimCellPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipsePropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyFilter()
+RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::createAndAppendPropertyFilter()
 {
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
     
@@ -110,7 +110,7 @@ RimEclipsePropertyFilter* RimCellPropertyFilterCollection::createAndAppendProper
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilterCollection::loadAndInitializePropertyFilters()
+void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
 {
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
@@ -128,7 +128,7 @@ void RimCellPropertyFilterCollection::loadAndInitializePropertyFilters()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilterCollection::initAfterRead()
+void RimEclipsePropertyFilterCollection::initAfterRead()
 {
     loadAndInitializePropertyFilters();
 
@@ -138,7 +138,7 @@ void RimCellPropertyFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilterCollection::remove(RimEclipsePropertyFilter* propertyFilter)
+void RimEclipsePropertyFilterCollection::remove(RimEclipsePropertyFilter* propertyFilter)
 {
     propertyFilters.removeChildObject(propertyFilter);
 }
@@ -146,7 +146,7 @@ void RimCellPropertyFilterCollection::remove(RimEclipsePropertyFilter* propertyF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimCellPropertyFilterCollection::hasActiveFilters() const
+bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
 {
     if (!active) return false;
 
@@ -162,7 +162,7 @@ bool RimCellPropertyFilterCollection::hasActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 /// Returns whether any of the active property filters are based on a dynamic result
 //--------------------------------------------------------------------------------------------------
-bool RimCellPropertyFilterCollection::hasActiveDynamicFilters() const
+bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 {
     if (!active) return false;
 
@@ -179,7 +179,7 @@ bool RimCellPropertyFilterCollection::hasActiveDynamicFilters() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCellPropertyFilterCollection::objectToggleField()
+caf::PdmFieldHandle* RimEclipsePropertyFilterCollection::objectToggleField()
 {
     return &active;
 }

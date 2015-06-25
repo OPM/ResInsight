@@ -43,7 +43,7 @@ class Rim3dOverlayInfoConfig;
 class RimEclipseCase;
 class RimCellEdgeResultSlot;
 class RimEclipsePropertyFilter;
-class RimCellPropertyFilterCollection;
+class RimEclipsePropertyFilterCollection;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
 class RimFaultCollection;
@@ -88,7 +88,7 @@ public:
     caf::PdmField<RimCellEdgeResultSlot*>           cellEdgeResult;
     caf::PdmField<RimFaultResultSlot*>              faultResultSettings;
 
-    caf::PdmField<RimCellPropertyFilterCollection*> propertyFilterCollection;
+    caf::PdmField<RimEclipsePropertyFilterCollection*> propertyFilterCollection;
 
     caf::PdmField<RimWellCollection*>               wellCollection;
     caf::PdmField<RimFaultCollection*>              faultCollection;
