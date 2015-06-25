@@ -44,7 +44,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimLegendConfig.h"
 
 #include "RimEclipseCase.h"

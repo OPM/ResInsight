@@ -24,7 +24,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseInputCase.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultCase.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseView.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.h
-${CEE_CURRENT_LIST_DIR}RimResultSlot.h
+${CEE_CURRENT_LIST_DIR}RimEclipseCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimWell.h
 ${CEE_CURRENT_LIST_DIR}RimWellCollection.h
@@ -48,7 +48,7 @@ ${CEE_CURRENT_LIST_DIR}RimFault.h
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.h
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.h
 ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.h
-${CEE_CURRENT_LIST_DIR}RimFaultResultSlot.h
+${CEE_CURRENT_LIST_DIR}RimEclipseFaultColors.h
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNNC.h
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechModels.h
@@ -57,7 +57,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechView.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.h
-${CEE_CURRENT_LIST_DIR}RimGeoMechResultSlot.h
+${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
 )
@@ -82,7 +82,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseInputCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseView.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.cpp
-${CEE_CURRENT_LIST_DIR}RimResultSlot.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWell.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellCollection.cpp
@@ -106,7 +106,7 @@ ${CEE_CURRENT_LIST_DIR}RimFault.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.cpp
-${CEE_CURRENT_LIST_DIR}RimFaultResultSlot.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseFaultColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNNC.cpp
 ${CEE_CURRENT_LIST_DIR}RimNoCommonAreaNncCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechModels.cpp
@@ -115,7 +115,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechView.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.cpp
-${CEE_CURRENT_LIST_DIR}RimGeoMechResultSlot.cpp
+${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
 )

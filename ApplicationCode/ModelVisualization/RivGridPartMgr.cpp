@@ -31,7 +31,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimWellCollection.h"
 

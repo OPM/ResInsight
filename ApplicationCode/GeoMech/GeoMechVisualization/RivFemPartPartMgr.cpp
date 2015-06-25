@@ -24,7 +24,7 @@
 #include "RiaPreferences.h"
 
 #include "RimEclipseView.h"
-#include "RimGeoMechResultSlot.h"
+#include "RimGeoMechCellColors.h"
 #include "RimLegendConfig.h"
 #include "RimGeoMechView.h"
 

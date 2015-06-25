@@ -17,14 +17,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFaultResultSlot.h"
+#include "RimEclipseFaultColors.h"
 
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
 

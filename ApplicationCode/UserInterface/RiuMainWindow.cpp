@@ -40,8 +40,8 @@
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
 
-#include "RimResultSlot.h"
-#include "RimGeoMechResultSlot.h"
+#include "RimEclipseCellColors.h"
+#include "RimGeoMechCellColors.h"
 #include "RimTools.h"
 #include "RimUiTreeModelPdm.h"
 #include "RimUiTreeView.h"

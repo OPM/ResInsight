@@ -39,7 +39,7 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimUiTreeModelPdm.h"
 
 #include "RiuMainWindow.h"

@@ -24,7 +24,7 @@
 #include "RiaSocketTools.h"
 
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"

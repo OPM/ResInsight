@@ -22,7 +22,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-#include "RimGeoMechResultSlot.h"
+#include "RimGeoMechCellColors.h"
 
 #include "RiuMainWindow.h"
 #include "cafCeetronPlusNavigation.h"

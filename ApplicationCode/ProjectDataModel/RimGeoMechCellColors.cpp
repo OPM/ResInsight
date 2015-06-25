@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimGeoMechResultSlot.h"
+#include "RimGeoMechCellColors.h"
 #include "RimLegendConfig.h"
 #include "RimView.h"
 

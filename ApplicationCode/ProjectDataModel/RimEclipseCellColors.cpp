@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 
 #include "RimEclipseView.h"
 #include "RimTernaryLegendConfig.h"

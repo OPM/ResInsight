@@ -30,7 +30,7 @@
 
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"

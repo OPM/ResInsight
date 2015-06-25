@@ -22,7 +22,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimLegendConfig.h"
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimTernaryLegendConfig.h"
 
 #include "RivCellEdgeEffectGenerator.h"

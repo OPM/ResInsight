@@ -42,7 +42,7 @@
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
 #include "RimFaultCollection.h"
-#include "RimFaultResultSlot.h"
+#include "RimEclipseFaultColors.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
@@ -58,7 +58,7 @@
 
 #include "RimProject.h"
 
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimEclipseInputPropertyCollection.h"
@@ -86,7 +86,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechResultSlot.h"
+#include "RimGeoMechCellColors.h"
 
 
 namespace caf

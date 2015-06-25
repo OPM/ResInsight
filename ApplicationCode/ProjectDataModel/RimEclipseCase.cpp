@@ -32,7 +32,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"

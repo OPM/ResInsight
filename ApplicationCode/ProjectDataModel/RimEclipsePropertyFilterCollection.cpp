@@ -22,7 +22,7 @@
 
 #include "RimEclipseView.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 
 
 CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilterCollection, "CellPropertyFilters");

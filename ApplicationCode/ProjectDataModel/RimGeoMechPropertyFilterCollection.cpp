@@ -20,7 +20,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechResultSlot.h"
+#include "RimGeoMechCellColors.h"
 
 #include "cvfAssert.h"
 

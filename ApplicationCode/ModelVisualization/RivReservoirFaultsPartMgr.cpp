@@ -28,9 +28,9 @@
 
 #include "RigMainGrid.h"
 #include "RimFaultCollection.h"
-#include "RimFaultResultSlot.h"
+#include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseCase.h"
 #include "RigCaseData.h"
 

@@ -29,7 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimWellCollection.h"
 #include "RivTernaryTextureCoordsCreator.h"

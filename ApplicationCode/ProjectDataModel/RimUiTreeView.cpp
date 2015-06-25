@@ -55,7 +55,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"

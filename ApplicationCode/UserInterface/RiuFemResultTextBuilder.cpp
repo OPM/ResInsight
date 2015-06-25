@@ -25,7 +25,7 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPart.h"
 #include "RigFemPartGrid.h"
-#include "RimGeoMechResultSlot.h"
+#include "RimGeoMechCellColors.h"
 #include "RigFemPartResultsCollection.h"
 
 

@@ -30,7 +30,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RigCaseCellResultsData.h"
 

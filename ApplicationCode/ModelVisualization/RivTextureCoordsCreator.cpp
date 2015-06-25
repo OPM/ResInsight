@@ -19,7 +19,7 @@
 
 #include "RivTextureCoordsCreator.h"
 
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RigCaseData.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCase.h"

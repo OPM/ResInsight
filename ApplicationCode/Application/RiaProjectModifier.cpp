@@ -34,7 +34,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimWellCollection.h"

@@ -27,10 +27,10 @@
 
 #include "RimEclipseCase.h"
 #include "RimCellEdgeResultSlot.h"
-#include "RimFaultResultSlot.h"
+#include "RimEclipseFaultColors.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 
 
 

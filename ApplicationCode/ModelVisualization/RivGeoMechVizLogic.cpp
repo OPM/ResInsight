@@ -21,7 +21,7 @@
 
 #include "RimGeoMechView.h"
 #include "cvfModelBasicList.h"
-#include "RimGeoMechResultSlot.h"
+#include "RimGeoMechCellColors.h"
 #include "RivGeoMechPartMgrCache.h"
 #include "RivGeoMechPartMgr.h"
 #include "RivReservoirViewPartMgr.h"

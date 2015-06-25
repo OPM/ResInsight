@@ -36,7 +36,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimWellCollection.h"
 
 #include "RivGridPartMgr.h"
