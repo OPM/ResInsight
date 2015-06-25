@@ -30,8 +30,7 @@ ${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.h
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.h
-${CEE_CURRENT_LIST_DIR}RivGeoMechPartMgrCache.h
-${CEE_CURRENT_LIST_DIR}RivGeoMechVizLogic.h
+
 
 )
 
@@ -59,8 +58,6 @@ ${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.cpp
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.cpp
-${CEE_CURRENT_LIST_DIR}RivGeoMechPartMgrCache.cpp
-${CEE_CURRENT_LIST_DIR}RivGeoMechVizLogic.cpp
 
 )
 
