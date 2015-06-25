@@ -77,7 +77,7 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
     CVF_ASSERT(uiItem);
 
-    RimCellPropertyFilter* propertyFilter = dynamic_cast<RimCellPropertyFilter*>(uiItem->dataObject().p());
+    RimEclipsePropertyFilter* propertyFilter = dynamic_cast<RimEclipsePropertyFilter*>(uiItem->dataObject().p());
     CVF_ASSERT(propertyFilter);
 
     RimCellPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
@@ -270,7 +270,7 @@ void RimUiTreeModelPdm::deleteReservoir(RimEclipseCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+RimEclipsePropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
@@ -279,9 +279,9 @@ RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& i
     caf::PdmUiTreeItem* propertyFilterCollectionItem = NULL;
     int position = 0;
 
-    if (dynamic_cast<RimCellPropertyFilter*>(currentItem->dataObject().p()))
+    if (dynamic_cast<RimEclipsePropertyFilter*>(currentItem->dataObject().p()))
     {
-        RimCellPropertyFilter* propertyFilter = dynamic_cast<RimCellPropertyFilter*>(currentItem->dataObject().p());
+        RimEclipsePropertyFilter* propertyFilter = dynamic_cast<RimEclipsePropertyFilter*>(currentItem->dataObject().p());
         propertyFilterCollection = propertyFilter->parentContainer();
         propertyFilterCollectionItem = currentItem->parent();
         position = itemIndex.row();
@@ -297,7 +297,7 @@ RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& i
 
     beginInsertRows(collectionIndex, position, position);
     
-    RimCellPropertyFilter* propertyFilter = propertyFilterCollection->createAndAppendPropertyFilter();
+    RimEclipsePropertyFilter* propertyFilter = propertyFilterCollection->createAndAppendPropertyFilter();
     caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(propertyFilterCollectionItem, position, propertyFilter);
 
     endInsertRows();

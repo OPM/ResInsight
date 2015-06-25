@@ -57,7 +57,7 @@ void RimCellPropertyFilterCollection::setReservoirView(RimEclipseView* reservoir
 
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
-        RimCellPropertyFilter* propertyFilter = propertyFilters[i];
+        RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
 
         propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
     }
@@ -85,9 +85,9 @@ void RimCellPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyFilter()
+RimEclipsePropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyFilter()
 {
-    RimCellPropertyFilter* propertyFilter = new RimCellPropertyFilter();
+    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
     
     propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
 
@@ -114,7 +114,7 @@ void RimCellPropertyFilterCollection::loadAndInitializePropertyFilters()
 {
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
-        RimCellPropertyFilter* propertyFilter = propertyFilters[i];
+        RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
 
         propertyFilter->setParentContainer(this);
 
@@ -138,7 +138,7 @@ void RimCellPropertyFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilterCollection::remove(RimCellPropertyFilter* propertyFilter)
+void RimCellPropertyFilterCollection::remove(RimEclipsePropertyFilter* propertyFilter)
 {
     propertyFilters.removeChildObject(propertyFilter);
 }
@@ -152,7 +152,7 @@ bool RimCellPropertyFilterCollection::hasActiveFilters() const
 
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
-        RimCellPropertyFilter* propertyFilter = propertyFilters[i];
+        RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
         if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasResult()) return true;
     }
 
@@ -168,7 +168,7 @@ bool RimCellPropertyFilterCollection::hasActiveDynamicFilters() const
 
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
-        RimCellPropertyFilter* propertyFilter = propertyFilters[i];
+        RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
         if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasDynamicResult()) return true;
     }
 

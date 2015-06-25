@@ -70,7 +70,7 @@ protected:
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
     caf::PdmField<QString>                                          m_resultVariable;
 
-    friend class RimCellPropertyFilter;
+    friend class RimEclipsePropertyFilter;
     friend class RimFaultResultSlot;
 
     // User interface only fields, to support "filtering"-like behaviour etc.

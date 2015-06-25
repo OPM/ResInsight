@@ -153,7 +153,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 menu.addAction(QString("New Property Filter"), this, SLOT(slotAddPropertyFilter()));
             }
-            else if (dynamic_cast<RimCellPropertyFilter*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Insert Property Filter"), this, SLOT(slotAddPropertyFilter()));
                 menu.addSeparator();
@@ -365,7 +365,7 @@ void RimUiTreeView::slotAddPropertyFilter()
     if (myModel)
     {
         QModelIndex insertedIndex;
-        RimCellPropertyFilter* propFilter = myModel->addPropertyFilter(currentIndex(), insertedIndex);
+        RimEclipsePropertyFilter* propFilter = myModel->addPropertyFilter(currentIndex(), insertedIndex);
         setCurrentIndex(insertedIndex);
         if (propFilter)
         {

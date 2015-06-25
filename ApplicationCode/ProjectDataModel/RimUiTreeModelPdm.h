@@ -27,7 +27,7 @@
 
 class QFileSystemWatcher;
 
-class RimCellPropertyFilter;
+class RimEclipsePropertyFilter;
 class RimCellRangeFilter;
 class RimGeoMechPropertyFilter;
 class RimEclipseCase;
@@ -58,7 +58,7 @@ public:
     void                        deleteReservoir(RimEclipseCase* reservoir);
     void                        deleteAllWellPaths(const QModelIndex& itemIndex);
 
-    RimCellPropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimEclipsePropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimGeoMechPropertyFilter*   addGeoMechPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
 

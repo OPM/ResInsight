@@ -34,13 +34,13 @@ class RigCaseCellResultsData;
 ///  
 ///  
 //==================================================================================================
-class RimCellPropertyFilter : public RimCellFilter
+class RimEclipsePropertyFilter : public RimCellFilter
 {
     CAF_PDM_HEADER_INIT;
  
 public:
-    RimCellPropertyFilter();
-    virtual ~RimCellPropertyFilter();
+    RimEclipsePropertyFilter();
+    virtual ~RimEclipsePropertyFilter();
 
     caf::PdmField<RimEclipseResultDefinition*>     resultDefinition;
 

@@ -42,7 +42,7 @@ class RigGridCellFaceVisibilityFilter;
 class Rim3dOverlayInfoConfig;
 class RimEclipseCase;
 class RimCellEdgeResultSlot;
-class RimCellPropertyFilter;
+class RimEclipsePropertyFilter;
 class RimCellPropertyFilterCollection;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;

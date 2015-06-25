@@ -33,21 +33,21 @@
 namespace caf
 { // Obsolete stuff
     template<>
-    void caf::AppEnum< RimCellPropertyFilter::EvaluationRegionType>::setUp()
+    void caf::AppEnum< RimEclipsePropertyFilter::EvaluationRegionType>::setUp()
     {
-        addItem(RimCellPropertyFilter::RANGE_FILTER_REGION, "RANGE_FILTER_REGION",  "Range filter cells");
-        addItem(RimCellPropertyFilter::GLOBAL_REGION,       "GLOBAL_REGION",        "All cells");
-        setDefault(RimCellPropertyFilter::RANGE_FILTER_REGION);
+        addItem(RimEclipsePropertyFilter::RANGE_FILTER_REGION, "RANGE_FILTER_REGION",  "Range filter cells");
+        addItem(RimEclipsePropertyFilter::GLOBAL_REGION,       "GLOBAL_REGION",        "All cells");
+        setDefault(RimEclipsePropertyFilter::RANGE_FILTER_REGION);
     }
 }
 
 
-CAF_PDM_SOURCE_INIT(RimCellPropertyFilter, "CellPropertyFilter");
+CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilter, "CellPropertyFilter");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilter::RimCellPropertyFilter()
+RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     : m_parentContainer(NULL)
 {
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
@@ -86,14 +86,14 @@ RimCellPropertyFilter::RimCellPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilter::~RimCellPropertyFilter()
+RimEclipsePropertyFilter::~RimEclipsePropertyFilter()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (&name == changedField)
     {
@@ -126,7 +126,7 @@ void RimCellPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCellPropertyFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> optionItems = resultDefinition->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
@@ -155,7 +155,7 @@ QList<caf::PdmOptionItemInfo> RimCellPropertyFilter::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::setParentContainer(RimCellPropertyFilterCollection* parentContainer)
+void RimEclipsePropertyFilter::setParentContainer(RimCellPropertyFilterCollection* parentContainer)
 {
     m_parentContainer = parentContainer;
 }
@@ -163,7 +163,7 @@ void RimCellPropertyFilter::setParentContainer(RimCellPropertyFilterCollection* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilterCollection* RimCellPropertyFilter::parentContainer()
+RimCellPropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 {
     return m_parentContainer;
 }
@@ -171,7 +171,7 @@ RimCellPropertyFilterCollection* RimCellPropertyFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::setToDefaultValues()
+void RimEclipsePropertyFilter::setToDefaultValues()
 {
     CVF_ASSERT(m_parentContainer);
 
@@ -184,7 +184,7 @@ void RimCellPropertyFilter::setToDefaultValues()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
+void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
     // Fields declared in RimCellFilter
     uiOrdering.add(&name);
@@ -208,7 +208,7 @@ void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimEclipsePropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE)
     {
@@ -231,7 +231,7 @@ void RimCellPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* fie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::computeResultValueRange()
+void RimEclipsePropertyFilter::computeResultValueRange()
 {
     CVF_ASSERT(m_parentContainer);
 

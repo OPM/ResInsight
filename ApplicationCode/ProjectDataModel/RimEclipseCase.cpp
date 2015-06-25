@@ -174,12 +174,12 @@ void RimEclipseCase::removeResult(const QString& resultName)
             rebuildDisplayModel = true;
         }
 
-        std::list< caf::PdmPointer< RimCellPropertyFilter > >::iterator it;
+        std::list< caf::PdmPointer< RimEclipsePropertyFilter > >::iterator it;
         RimCellPropertyFilterCollection* propFilterCollection = reservoirView->propertyFilterCollection();
 
         for (size_t filter = 0; filter < propFilterCollection->propertyFilters().size(); filter++)
         {
-            RimCellPropertyFilter* propertyFilter = propFilterCollection->propertyFilters()[filter];
+            RimEclipsePropertyFilter* propertyFilter = propFilterCollection->propertyFilters()[filter];
             if (propertyFilter->resultDefinition->resultVariable() == resultName)
             {
                 propertyFilter->resultDefinition->setResultVariable(RimDefines::undefinedResultName());

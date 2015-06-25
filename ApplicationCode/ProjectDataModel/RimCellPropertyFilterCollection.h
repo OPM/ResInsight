@@ -34,11 +34,11 @@ public:
 
     // Fields:
     caf::PdmField<bool> active;
-    caf::PdmPointersField<RimCellPropertyFilter*> propertyFilters;
+    caf::PdmPointersField<RimEclipsePropertyFilter*> propertyFilters;
 
     // Methods
-    RimCellPropertyFilter*  createAndAppendPropertyFilter();
-    void                    remove(RimCellPropertyFilter* propertyFilter);
+    RimEclipsePropertyFilter*  createAndAppendPropertyFilter();
+    void                    remove(RimEclipsePropertyFilter* propertyFilter);
 
     bool                    hasActiveFilters() const; 
     bool                    hasActiveDynamicFilters() const; 

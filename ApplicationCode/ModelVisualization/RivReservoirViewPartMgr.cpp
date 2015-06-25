@@ -712,7 +712,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
     {
         for (size_t i = 0; i < propFilterColl->propertyFilters().size(); i++)
         {
-            RimCellPropertyFilter* propertyFilter = propFilterColl->propertyFilters()[i];
+            RimEclipsePropertyFilter* propertyFilter = propFilterColl->propertyFilters()[i];
 
             if (propertyFilter->isActive()&& propertyFilter->resultDefinition->hasResult())
             {
