@@ -27,24 +27,24 @@
 
 namespace caf {
 template<>
-void RimInputProperty::ResolveStateEnum::setUp()
+void RimEclipseInputProperty::ResolveStateEnum::setUp()
 {
-    addItem(RimInputProperty::UNKNOWN,              "UNKNOWN", "Unknown");
-    addItem(RimInputProperty::FILE_MISSING,         "FILE_MISSING", "No data loaded, can't find the file");
-    addItem(RimInputProperty::KEYWORD_NOT_IN_FILE,  "KEYWORD_NOT_IN_FILE", "No data loaded, can't find the keyword");
-    addItem(RimInputProperty::RESOLVED_NOT_SAVED,   "RESOLVED_NOT_SAVED", "Ok, but not saved");
-    addItem(RimInputProperty::RESOLVED,             "RESOLVED", "Loaded, Ok");
-    setDefault(RimInputProperty::UNKNOWN);
+    addItem(RimEclipseInputProperty::UNKNOWN,              "UNKNOWN", "Unknown");
+    addItem(RimEclipseInputProperty::FILE_MISSING,         "FILE_MISSING", "No data loaded, can't find the file");
+    addItem(RimEclipseInputProperty::KEYWORD_NOT_IN_FILE,  "KEYWORD_NOT_IN_FILE", "No data loaded, can't find the keyword");
+    addItem(RimEclipseInputProperty::RESOLVED_NOT_SAVED,   "RESOLVED_NOT_SAVED", "Ok, but not saved");
+    addItem(RimEclipseInputProperty::RESOLVED,             "RESOLVED", "Loaded, Ok");
+    setDefault(RimEclipseInputProperty::UNKNOWN);
 }
 }
 
 
-CAF_PDM_SOURCE_INIT(RimInputProperty, "RimInputProperty");
+CAF_PDM_SOURCE_INIT(RimEclipseInputProperty, "RimInputProperty");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimInputProperty::RimInputProperty()
+RimEclipseInputProperty::RimEclipseInputProperty()
 {
     CAF_PDM_InitObject("Input Property", ":/EclipseInput48x48.png", "", "");
     
@@ -64,7 +64,7 @@ RimInputProperty::RimInputProperty()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimInputProperty::~RimInputProperty()
+RimEclipseInputProperty::~RimEclipseInputProperty()
 {
 
 }

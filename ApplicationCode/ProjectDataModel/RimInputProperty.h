@@ -31,13 +31,13 @@ class QString;
 // 
 //
 //==================================================================================================
-class RimInputProperty : public caf::PdmObject
+class RimEclipseInputProperty : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimInputProperty();
-    virtual ~RimInputProperty();
+    RimEclipseInputProperty();
+    virtual ~RimEclipseInputProperty();
 
     enum ResolveState
     {

@@ -195,7 +195,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 menu.addAction(QString("Add Input Property"), this, SLOT(slotAddInputProperty()));
             }
-            else if (dynamic_cast<RimInputProperty*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseInputProperty*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteObjectFromContainer()));
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteInputProperty()));
@@ -803,12 +803,12 @@ void RimUiTreeView::slotWriteInputProperty()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimInputProperty* inputProperty = dynamic_cast<RimInputProperty*>(uiItem->dataObject().p());
+    RimEclipseInputProperty* inputProperty = dynamic_cast<RimEclipseInputProperty*>(uiItem->dataObject().p());
     if (!inputProperty) return;
 
     {
         bool isResolved = false;
-        if (inputProperty->resolvedState == RimInputProperty::RESOLVED || inputProperty->resolvedState == RimInputProperty::RESOLVED_NOT_SAVED)
+        if (inputProperty->resolvedState == RimEclipseInputProperty::RESOLVED || inputProperty->resolvedState == RimEclipseInputProperty::RESOLVED_NOT_SAVED)
         {
             isResolved = true;
         }
@@ -871,7 +871,7 @@ void RimUiTreeView::slotWriteInputProperty()
         {
             inputProperty->fileName = exportSettings.fileName;
             inputProperty->eclipseKeyword = exportSettings.eclipseKeyword;
-            inputProperty->resolvedState = RimInputProperty::RESOLVED;
+            inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
 
             inputProperty->updateConnectedEditors();
         }

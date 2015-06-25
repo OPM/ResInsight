@@ -616,11 +616,11 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimInputProperty* inputProperty = NULL;
+                    RimEclipseInputProperty* inputProperty = NULL;
                     inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
-                        inputProperty = new RimInputProperty;
+                        inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
@@ -628,7 +628,7 @@ public:
                         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
                         treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
                     }
-                    inputProperty->resolvedState = RimInputProperty::RESOLVED_NOT_SAVED;
+                    inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
 
                 if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
@@ -962,11 +962,11 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimInputProperty* inputProperty = NULL;
+                    RimEclipseInputProperty* inputProperty = NULL;
                     inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
-                        inputProperty = new RimInputProperty;
+                        inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
@@ -974,7 +974,7 @@ public:
                         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
                         treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
                     }
-                    inputProperty->resolvedState = RimInputProperty::RESOLVED_NOT_SAVED;
+                    inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
 
                 if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&

@@ -47,10 +47,10 @@ RimInputPropertyCollection::~RimInputPropertyCollection()
 //--------------------------------------------------------------------------------------------------
 /// Returns the InputProperties pointing to the same file as \a fileName
 //--------------------------------------------------------------------------------------------------
-std::vector<RimInputProperty*> RimInputPropertyCollection::findInputProperties(QString fileName)
+std::vector<RimEclipseInputProperty*> RimInputPropertyCollection::findInputProperties(QString fileName)
 {
     QFileInfo fileInfo(fileName);
-    std::vector<RimInputProperty*> result;
+    std::vector<RimEclipseInputProperty*> result;
     for (size_t i = 0; i < this->inputProperties.size(); ++i)
     {
         if (!inputProperties[i]) continue;
@@ -66,7 +66,7 @@ std::vector<RimInputProperty*> RimInputPropertyCollection::findInputProperties(Q
 /// Remove given input property from collection and checks if the associated file is referenced by other input
 /// properties
 //--------------------------------------------------------------------------------------------------
-void RimInputPropertyCollection::removeInputProperty(RimInputProperty* inputProperty, bool& isPropertyFileReferencedByOthers)
+void RimInputPropertyCollection::removeInputProperty(RimEclipseInputProperty* inputProperty, bool& isPropertyFileReferencedByOthers)
 {
     CVF_ASSERT(inputProperty);
 
@@ -85,7 +85,7 @@ void RimInputPropertyCollection::removeInputProperty(RimInputProperty* inputProp
 //--------------------------------------------------------------------------------------------------
 /// Returns the InputProperty with resultName  \a resultName
 //--------------------------------------------------------------------------------------------------
-RimInputProperty * RimInputPropertyCollection::findInputProperty(QString resultName)
+RimEclipseInputProperty * RimInputPropertyCollection::findInputProperty(QString resultName)
 {
     for (size_t i = 0; i < this->inputProperties.size(); i++)
     {

@@ -518,7 +518,7 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     if (!uiItem) return;
 
     caf::PdmObject* object = uiItem->dataObject().p();
-    RimInputProperty* inputProperty = dynamic_cast<RimInputProperty*>(object);
+    RimEclipseInputProperty* inputProperty = dynamic_cast<RimEclipseInputProperty*>(object);
     if (!inputProperty) return;
 
     // Remove item from UI tree model before delete of project data structure

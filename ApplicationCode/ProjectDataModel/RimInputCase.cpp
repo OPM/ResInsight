@@ -150,11 +150,11 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
         std::map<QString, QString>::iterator it;
         for (it = readProperties.begin(); it != readProperties.end(); ++it)
         {
-            RimInputProperty* inputProperty = new RimInputProperty;
+            RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
             inputProperty->resultName = it->first;
             inputProperty->eclipseKeyword = it->second;
             inputProperty->fileName = propertyFileName;
-            inputProperty->resolvedState = RimInputProperty::RESOLVED;
+            inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
             m_inputPropertyCollection->inputProperties.push_back(inputProperty);
         }
 
@@ -267,7 +267,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 
         // Find the input property objects referring to the file
 
-        std::vector<RimInputProperty*> ipsUsingThisFile = this->m_inputPropertyCollection()->findInputProperties(filenames[i]);
+        std::vector<RimEclipseInputProperty*> ipsUsingThisFile = this->m_inputPropertyCollection()->findInputProperties(filenames[i]);
 
         // Read property data for each inputProperty
 
@@ -275,17 +275,17 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
         {
             if (!isExistingFile) 
             {
-                ipsUsingThisFile[ipIdx]->resolvedState = RimInputProperty::FILE_MISSING;
+                ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::FILE_MISSING;
             }
             else
             {
                 QString kw = ipsUsingThisFile[ipIdx]->eclipseKeyword();
-                ipsUsingThisFile[ipIdx]->resolvedState = RimInputProperty::KEYWORD_NOT_IN_FILE;
+                ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
                 if (fileKeywordSet.count(kw))
                 {
                     if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), kw,  ipsUsingThisFile[ipIdx]->resultName ))
                     {
-                        ipsUsingThisFile[ipIdx]->resolvedState = RimInputProperty::RESOLVED;
+                        ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::RESOLVED;
                     }
                 }
                 fileKeywordSet.erase(kw);
@@ -309,11 +309,11 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
                     QString resultName = this->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(knownKeywords[fkIt]);
                     if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), knownKeywords[fkIt], resultName))
                     {
-                        RimInputProperty* inputProperty = new RimInputProperty;
+                        RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = resultName;
                         inputProperty->eclipseKeyword = knownKeywords[fkIt];
                         inputProperty->fileName = filenames[i];
-                        inputProperty->resolvedState = RimInputProperty::RESOLVED;
+                        inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
                         m_inputPropertyCollection->inputProperties.push_back(inputProperty);
                     }
                 }
@@ -324,9 +324,9 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 
     for_all(m_inputPropertyCollection->inputProperties, i)
     {
-        if (m_inputPropertyCollection->inputProperties[i]->resolvedState() == RimInputProperty::UNKNOWN)
+        if (m_inputPropertyCollection->inputProperties[i]->resolvedState() == RimEclipseInputProperty::UNKNOWN)
         {
-            m_inputPropertyCollection->inputProperties[i]->resolvedState = RimInputProperty::FILE_MISSING;
+            m_inputPropertyCollection->inputProperties[i]->resolvedState = RimEclipseInputProperty::FILE_MISSING;
         }
     }
 }
@@ -334,7 +334,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::removeProperty(RimInputProperty* inputProperty)
+void RimEclipseInputCase::removeProperty(RimEclipseInputProperty* inputProperty)
 {
     bool isPropertyFileReferencedByOthers = false;
 
@@ -395,7 +395,7 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel(QString modelN
         }
 
         // Add a property
-        RimInputProperty* inputProperty = new RimInputProperty;
+        RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
         inputProperty->resultName = "PORO";
         inputProperty->eclipseKeyword = "PORO";
         inputProperty->fileName = "PORO.prop";

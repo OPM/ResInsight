@@ -25,7 +25,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class RimInputProperty;
+class RimEclipseInputProperty;
 
 
 //==================================================================================================
@@ -40,13 +40,13 @@ class RimInputPropertyCollection : public caf::PdmObject
 public:
     RimInputPropertyCollection();
     virtual ~RimInputPropertyCollection();
-    std::vector<RimInputProperty*> findInputProperties(QString fileName);
-    RimInputProperty* findInputProperty(QString resultName);
+    std::vector<RimEclipseInputProperty*> findInputProperties(QString fileName);
+    RimEclipseInputProperty* findInputProperty(QString resultName);
 
-    void removeInputProperty(RimInputProperty* inputProperty, bool& isPropertyFileReferencedByOthers);
+    void removeInputProperty(RimEclipseInputProperty* inputProperty, bool& isPropertyFileReferencedByOthers);
 
 
     // Fields:                        
-    caf::PdmPointersField<RimInputProperty*> inputProperties;
+    caf::PdmPointersField<RimEclipseInputProperty*> inputProperties;
 
 };

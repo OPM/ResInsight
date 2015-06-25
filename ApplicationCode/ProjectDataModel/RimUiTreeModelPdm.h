@@ -32,7 +32,7 @@ class RimCellRangeFilter;
 class RimGeoMechPropertyFilter;
 class RimEclipseCase;
 class RimEclipseView;
-class RimInputProperty;
+class RimEclipseInputProperty;
 class RimStatisticsCase;
 class RimIdenticalGridCaseGroup;
 
