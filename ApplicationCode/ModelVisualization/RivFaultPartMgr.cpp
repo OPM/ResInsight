@@ -94,40 +94,40 @@ void RivFaultPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot)
+void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
-    CVF_ASSERT(cellResultSlot);
+    CVF_ASSERT(cellResultColors);
 
-    updateNNCColors(cellResultSlot);
+    updateNNCColors(cellResultColors);
 
-    size_t scalarSetIndex = cellResultSlot->scalarResultIndex();
+    size_t scalarSetIndex = cellResultColors->scalarResultIndex();
 
     // If the result is static, only read that.
     size_t resTimeStepIdx = timeStepIndex;
-    if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
+    if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-    RimEclipseView* eclipseView = cellResultSlot->reservoirView();
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
+    RimEclipseView* eclipseView = cellResultColors->reservoirView();
     RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
 
     // Faults
     if (m_nativeFaultFaces.notNull())
     {
-        if (cellResultSlot->isTernarySaturationSelected())
+        if (cellResultColors->isTernarySaturationSelected())
         {
-			RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
+			RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
 				timeStepIndex,
 				m_grid->gridIndex(),
 				m_nativeFaultGenerator->quadToCellFaceMapper());
 
 			texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
 
-			const RivTernaryScalarMapper* mapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
+			const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_nativeFaultFaces.p(), m_nativeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
 		}
         else
         {
-            RivTextureCoordsCreator texturer(cellResultSlot, 
+            RivTextureCoordsCreator texturer(cellResultColors, 
                 timeStepIndex, 
                 m_grid->gridIndex(),  
                 m_nativeFaultGenerator->quadToCellFaceMapper());
@@ -139,28 +139,28 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 
             texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
 
-			const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+			const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTextureResultsToPart(m_nativeFaultFaces.p(), m_nativeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
         }
     }
 
     if (m_oppositeFaultFaces.notNull())
     {
-		if (cellResultSlot->isTernarySaturationSelected())
+		if (cellResultColors->isTernarySaturationSelected())
 		{
-			RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
+			RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
 				timeStepIndex,
 				m_grid->gridIndex(),
 				m_oppositeFaultGenerator->quadToCellFaceMapper());
 
 			texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
 
-			const RivTernaryScalarMapper* mapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
+			const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
 			RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
 		}
 		else
 		{
-			RivTextureCoordsCreator texturer(cellResultSlot,
+			RivTextureCoordsCreator texturer(cellResultColors,
 				timeStepIndex,
 				m_grid->gridIndex(),
 				m_oppositeFaultGenerator->quadToCellFaceMapper());
@@ -172,7 +172,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 
 			texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
 
-			const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+			const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
 		}
 	}
@@ -181,9 +181,9 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
+void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
-    updateNNCColors(cellResultSlot);
+    updateNNCColors(cellResultColors);
 
 	if (m_nativeFaultFaces.notNull())
 	{
@@ -192,7 +192,7 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipse
 		{
 			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_nativeFaultGenerator->quadToCellFaceMapper(),
 				m_grid->gridIndex(),
-                timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, this->faceCullingMode(), cellResultSlot->reservoirView()->isLightingDisabled());
+                timeStepIndex, cellResultColors, cellEdgeResultColors, m_opacityLevel, m_defaultColor, this->faceCullingMode(), cellResultColors->reservoirView()->isLightingDisabled());
 
 			m_nativeFaultFaces->setEffect(eff.p());
 		}
@@ -204,7 +204,7 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipse
 		if (dg)
 		{
 			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_oppositeFaultGenerator->quadToCellFaceMapper(), m_grid->gridIndex(),
-                timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, this->faceCullingMode(), cellResultSlot->reservoirView()->isLightingDisabled());
+                timeStepIndex, cellResultColors, cellEdgeResultColors, m_opacityLevel, m_defaultColor, this->faceCullingMode(), cellResultColors->reservoirView()->isLightingDisabled());
 
 			m_oppositeFaultFaces->setEffect(eff.p());
 		}
@@ -643,15 +643,15 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultSlot)
+void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
 {
     if (m_NNCFaces.isNull()) return;
 
     bool showNncsWithScalarMappedColor = false;
 
-    if (cellResultSlot)
+    if (cellResultColors)
     {
-        size_t scalarSetIndex = cellResultSlot->scalarResultIndex();
+        size_t scalarSetIndex = cellResultColors->scalarResultIndex();
 
         if (m_grid->mainGrid()->nncData()->hasScalarValues(scalarSetIndex))
         {
@@ -661,9 +661,9 @@ void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultSlot)
 
     if (showNncsWithScalarMappedColor)
     {
-        size_t scalarSetIndex = cellResultSlot->scalarResultIndex();
+        size_t scalarSetIndex = cellResultColors->scalarResultIndex();
 
-        const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+        const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
         m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, scalarSetIndex);
 

@@ -111,22 +111,22 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot)
+void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
     for (size_t i = 0; i < m_allGrids.size() ; ++i)
     {
-        m_allGrids[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
+        m_allGrids[i]->updateCellResultColor(timeStepIndex, cellResultColors);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
+void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
     for (size_t i = 0; i < m_allGrids.size() ; ++i)
     {
-        m_allGrids[i]->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+        m_allGrids[i]->updateCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
     }
 }
 
@@ -158,11 +158,11 @@ void RivReservoirPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot)
+void RivReservoirPartMgr::updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
     if (m_faultsPartMgr.notNull())
     {
-        m_faultsPartMgr->updateColors(timeStepIndex, cellResultSlot);
+        m_faultsPartMgr->updateColors(timeStepIndex, cellResultColors);
     }
 }
 
@@ -202,11 +202,11 @@ void RivReservoirPartMgr::setFaultForceVisibility(bool isGeneratedByFilter)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot)
+void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
 	if (m_faultsPartMgr.notNull())
 	{
-		m_faultsPartMgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+		m_faultsPartMgr->updateCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
 	}
 
 }

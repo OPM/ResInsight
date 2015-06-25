@@ -103,7 +103,7 @@ public:
 
     RimReservoirCellResultsStorage*                 currentGridCellResults();
     RigActiveCellInfo*                              currentActiveCellInfo();
-    RimEclipseCellColors*                                  currentFaultResultSlot();
+    RimEclipseCellColors*                                  currentFaultResultColors();
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
     RimEclipseCase*                                 eclipseCase();
@@ -142,7 +142,7 @@ private:
     virtual void                                    updateStaticCellColors();
     void                                            updateStaticCellColors(RivCellSetEnum geometryType);
     void                                            updateLegends();
-    void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultSlot, RigCaseCellResultsData* cellResultsData);
+    void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData);
     virtual void                                    resetLegendsInViewer();
     virtual void                                    updateViewerWidgetWindowTitle();
 

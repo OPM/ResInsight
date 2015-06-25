@@ -906,7 +906,7 @@ void RimEclipseView::updateLegends()
     updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
     if (this->faultResultSettings()->showCustomFaultResult() && this->faultResultSettings()->hasValidCustomResult())
     {
-        updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->currentFaultResultSlot(), results);
+        updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->currentFaultResultColors(), results);
     }
 
     if (this->cellEdgeResult()->hasResult())
@@ -932,21 +932,21 @@ void RimEclipseView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultSlot, RigCaseCellResultsData* cellResultsData)
+void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData)
 {
-    if (resultSlot->hasResult())
+    if (resultColors->hasResult())
     {
         double globalMin, globalMax;
         double globalPosClosestToZero, globalNegClosestToZero;
-        cellResultsData->minMaxCellScalarValues(resultSlot->scalarResultIndex(), globalMin, globalMax);
-        cellResultsData->posNegClosestToZero(resultSlot->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
+        cellResultsData->minMaxCellScalarValues(resultColors->scalarResultIndex(), globalMin, globalMax);
+        cellResultsData->posNegClosestToZero(resultColors->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
 
         double localMin, localMax;
         double localPosClosestToZero, localNegClosestToZero;
-        if (resultSlot->hasDynamicResult())
+        if (resultColors->hasDynamicResult())
         {
-            cellResultsData->minMaxCellScalarValues(resultSlot->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
-            cellResultsData->posNegClosestToZero(resultSlot->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+            cellResultsData->minMaxCellScalarValues(resultColors->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
+            cellResultsData->posNegClosestToZero(resultColors->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
         }
         else
         {
@@ -957,22 +957,22 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
             localNegClosestToZero = globalNegClosestToZero;
         }
 
-        resultSlot->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        resultSlot->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+        resultColors->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        resultColors->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
-        m_viewer->addColorLegendToBottomLeftCorner(resultSlot->legendConfig->legend());
-        resultSlot->legendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultSlot->resultVariable()));
+        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig->legend());
+        resultColors->legendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
     }
     else
     {
-        resultSlot->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        resultSlot->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+        resultColors->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
+        resultColors->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
-    if (resultSlot->isTernarySaturationSelected() && maxTimeStepCount > 1)
+    if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)
     {
-        RimReservoirCellResultsStorage* gridCellResults = resultSlot->currentGridCellResults();
+        RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
         {
             double globalMin = 0.0;
             double globalMax = 1.0;
@@ -985,7 +985,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
+                resultColors->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
             }
         }
 
@@ -1001,7 +1001,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+                resultColors->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
             }
         }
 
@@ -1017,14 +1017,14 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+                resultColors->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
             }
         }
 
-        if (resultSlot->ternaryLegendConfig->legend())
+        if (resultColors->ternaryLegendConfig->legend())
         {
-            resultSlot->ternaryLegendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel));
-            m_viewer->addColorLegendToBottomLeftCorner(resultSlot->ternaryLegendConfig->legend());
+            resultColors->ternaryLegendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel));
+            m_viewer->addColorLegendToBottomLeftCorner(resultColors->ternaryLegendConfig->legend());
         }
     }
 }
@@ -1371,17 +1371,17 @@ void RimEclipseView::updateFaultColors()
     // Update all fault geometry
     std::vector<RivCellSetEnum> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
-    RimEclipseCellColors* faultResultSlot = currentFaultResultSlot();
+    RimEclipseCellColors* faultResultColors = currentFaultResultColors();
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
 		if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
 		{
-			m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot, this->cellEdgeResult());
+			m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultColors, this->cellEdgeResult());
 		}
 		else
 		{
-			m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot);
+			m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultColors);
 		}
     }
 }
@@ -1414,16 +1414,16 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCellColors* RimEclipseView::currentFaultResultSlot()
+RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 {
-    RimEclipseCellColors* faultResultSlot = this->cellResult();
+    RimEclipseCellColors* faultResultColors = this->cellResult();
 
     if (this->faultResultSettings()->showCustomFaultResult())
     {
-        faultResultSlot = this->faultResultSettings()->customFaultResult();
+        faultResultColors = this->faultResultSettings()->customFaultResult();
     }
 
-    return faultResultSlot;
+    return faultResultColors;
 }
 
 //--------------------------------------------------------------------------------------------------

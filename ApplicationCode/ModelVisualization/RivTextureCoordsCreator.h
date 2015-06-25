@@ -36,7 +36,7 @@ namespace cvf
 class RivTextureCoordsCreator
 {
 public:
-    RivTextureCoordsCreator(RimEclipseCellColors* cellResultSlot, 
+    RivTextureCoordsCreator(RimEclipseCellColors* cellResultColors, 
                             size_t timeStepIndex,  
                             size_t gridIndex, 
                             const cvf::StructGridQuadToCellFaceMapper* quadMapper);

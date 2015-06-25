@@ -41,7 +41,7 @@ namespace cvf
 class RivTernaryTextureCoordsCreator
 {
 public:
-	RivTernaryTextureCoordsCreator(	RimEclipseCellColors* cellResultSlot,
+	RivTernaryTextureCoordsCreator(	RimEclipseCellColors* cellResultColors,
 									RimTernaryLegendConfig* ternaryLegendConfig,
 									size_t timeStepIndex,  
 									size_t gridIndex, 

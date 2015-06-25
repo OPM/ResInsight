@@ -141,7 +141,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 	{
 		RigGeoMechCaseData* eclipseCaseData = m_reservoirView->geoMechCase()->geoMechData();
 
-		this->appendTextFromResultSlot(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
+		this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
 
         if (!text.isEmpty())
         {
@@ -156,22 +156,22 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFemResultTextBuilder::appendTextFromResultSlot(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultSlot, QString* resultInfoText)
+void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText)
 {
-	if (!resultSlot)
+	if (!resultColors)
 	{
 		return;
 	}
 
-    if (resultSlot->hasResult())
+    if (resultColors->hasResult())
     {
-        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultSlot->resultAddress(), gridIndex, timeStepIndex);
+        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultColors->resultAddress(), gridIndex, timeStepIndex);
         if (scalarResults.size())
         {
-            caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultSlot->resultPositionType();
+            caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultColors->resultPositionType();
             resultInfoText->append(resPosAppEnum.uiText() + ", ");
-            resultInfoText->append(resultSlot->resultFieldUiName()+ ", ") ;
-            resultInfoText->append(resultSlot->resultComponentUiName() + ":\n");
+            resultInfoText->append(resultColors->resultFieldUiName()+ ", ") ;
+            resultInfoText->append(resultColors->resultComponentUiName() + ":\n");
 
 
             RigFemPart* femPart = geomData->femParts()->part(gridIndex);
@@ -183,7 +183,7 @@ void RiuFemResultTextBuilder::appendTextFromResultSlot(RigGeoMechCaseData* geomD
                
                 float scalarValue = std::numeric_limits<float>::infinity();
                 int nodeIdx = elmentConn[lNodeIdx];
-                if (resultSlot->resultPositionType() == RIG_NODAL)
+                if (resultColors->resultPositionType() == RIG_NODAL)
                 {
                    
                     scalarValue = scalarResults[nodeIdx];
@@ -215,21 +215,21 @@ void RiuFemResultTextBuilder::appendDetails(QString& text, const QString& detail
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechCellColors* resultSlot)
+QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechCellColors* resultColors)
 {
     QString text;
-	if (!resultSlot)
+	if (!resultColors)
 	{
 		return text;
 	}
 
-    if (resultSlot->hasResult())
+    if (resultColors->hasResult())
     {
     	if (! (m_reservoirView->geoMechCase() && m_reservoirView->geoMechCase()->geoMechData())) return text;
 	
 		RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
 
-        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultSlot->resultAddress(), m_gridIndex, m_timeStepIndex);
+        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultColors->resultAddress(), m_gridIndex, m_timeStepIndex);
         if (scalarResults.size())
         {
 
@@ -259,7 +259,7 @@ QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechCellColors* res
                
                 float scalarValue = std::numeric_limits<float>::infinity();
                 int nodeIdx = elmentConn[closestLocalNode];
-                if (resultSlot->resultPositionType() == RIG_NODAL)
+                if (resultColors->resultPositionType() == RIG_NODAL)
                 {
                    
                     scalarValue = scalarResults[nodeIdx];

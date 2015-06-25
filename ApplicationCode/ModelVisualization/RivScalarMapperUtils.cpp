@@ -71,29 +71,29 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGe
 	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
 	size_t gridIndex,
 	size_t timeStepIndex,
-	RimEclipseCellColors* cellResultSlot,
-	RimCellEdgeColors* cellEdgeResultSlot,
+	RimEclipseCellColors* cellResultColors,
+	RimCellEdgeColors* cellEdgeResultColors,
 	float opacityLevel,
     cvf::Color3f defaultColor,
     caf::FaceCulling faceCulling,
     bool disableLighting)
 {
-	CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultSlot->legendConfig()->scalarMapper());
+	CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultColors->legendConfig()->scalarMapper());
 
-	if (cellResultSlot->isTernarySaturationSelected())
+	if (cellResultColors->isTernarySaturationSelected())
 	{
-		RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+		RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultColors, cellEdgeResultColors,
 			quadToCellFaceMapper, dg, gridIndex, opacityLevel);
 
-		RivTernaryScalarMapper* ternaryCellScalarMapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
+		RivTernaryScalarMapper* ternaryCellScalarMapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
 		cellFaceEffectGen.setTernaryScalarMapper(ternaryCellScalarMapper);
 	}
 	else
 	{
-		RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+		RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultColors, cellEdgeResultColors,
 			quadToCellFaceMapper, dg, gridIndex, opacityLevel);
 
-		cvf::ScalarMapper* cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
+		cvf::ScalarMapper* cellScalarMapper = cellResultColors->legendConfig()->scalarMapper();
 		cellFaceEffectGen.setScalarMapper(cellScalarMapper);
 	}
 

@@ -57,10 +57,10 @@ public:
     cvf::ref<cvf::UByteArray>  cellVisibility() { return  m_cellVisibility;}
 
     void updateCellColor(cvf::Color4f color);
-    void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
+    void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
 
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, 
-        RimCellEdgeColors* cellEdgeResultSlot);
+    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, 
+        RimCellEdgeColors* cellEdgeResultColors);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 

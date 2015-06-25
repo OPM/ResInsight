@@ -54,7 +54,7 @@ public:
     cvf::ref<cvf::UByteArray>   cellVisibility() { return  m_cellVisibility;}
                                 
     void                        updateCellColor(cvf::Color4f color);
-    void                        updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultSlot);
+    void                        updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultColors);
                                 
     void                        appendPartsToModel(cvf::ModelBasicList* model);
                                 

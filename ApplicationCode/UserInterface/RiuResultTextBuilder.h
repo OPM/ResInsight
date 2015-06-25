@@ -62,9 +62,9 @@ private:
     QString nncResultText();
     QString wellResultText();
 
-    QString cellResultText(RimEclipseCellColors* resultSlot);
+    QString cellResultText(RimEclipseCellColors* resultColors);
 
-	void appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultSlot, QString* resultInfoText);
+	void appendTextFromResultColors(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultColors, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimEclipseView> m_reservoirView;

@@ -53,9 +53,9 @@ private:
 
     QString gridResultDetails();
 
-    QString closestNodeResultText(RimGeoMechCellColors* resultSlot);
+    QString closestNodeResultText(RimGeoMechCellColors* resultColors);
 
-	void appendTextFromResultSlot(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultSlot, QString* resultInfoText);
+	void appendTextFromResultColors(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimGeoMechView> m_reservoirView;

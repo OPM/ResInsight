@@ -57,17 +57,17 @@ public:
            cellVisibility(size_t gridIdx);
 
     void   updateCellColor(cvf::Color4f color);
-    void   updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
-    void   updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, 
-                                     RimCellEdgeColors* cellEdgeResultSlot);
+    void   updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+    void   updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, 
+                                     RimCellEdgeColors* cellEdgeResultColors);
 
     void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIdxes);
     void   appendGridPartsToModel(cvf::ModelBasicList* model);
 
     // Faults
-    void   updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
-	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot,
-		RimCellEdgeColors* cellEdgeResultSlot);
+    void   updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors,
+		RimCellEdgeColors* cellEdgeResultColors);
 	void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:

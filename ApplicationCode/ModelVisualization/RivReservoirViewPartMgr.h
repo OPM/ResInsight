@@ -50,18 +50,18 @@ public:
     void                        updateCellColor          (RivCellSetEnum geometryType, size_t timeStepIndex, 
                                                           cvf::Color4f color);
     void                        updateCellResultColor    (RivCellSetEnum geometryType, size_t timeStepIndex, 
-                                                          RimEclipseCellColors* cellResultSlot);
+                                                          RimEclipseCellColors* cellResultColors);
     void                        updateCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, 
-														  RimEclipseCellColors* cellResultSlot,
-														  RimCellEdgeColors* cellEdgeResultSlot);
+														  RimEclipseCellColors* cellResultColors,
+														  RimCellEdgeColors* cellEdgeResultColors);
 
     // Faults
     void                        appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType);
     void                        appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex);
-    void                        updateFaultColors(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultSlot);
+    void                        updateFaultColors(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
 	void                        updateFaultCellEdgeResultColor(	RivCellSetEnum geometryType, size_t timeStepIndex,
-															RimEclipseCellColors* cellResultSlot,
-															RimCellEdgeColors* cellEdgeResultSlot);
+															RimEclipseCellColors* cellResultColors,
+															RimCellEdgeColors* cellEdgeResultColors);
 
     // Fault labels
     RivCellSetEnum  geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const;

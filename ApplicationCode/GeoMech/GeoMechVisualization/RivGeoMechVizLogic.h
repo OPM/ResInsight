@@ -44,7 +44,7 @@ public:
 
     void                             appendNoAnimPartsToModel(cvf::ModelBasicList* model);
     void                             appendPartsToModel(int timeStepIndex, cvf::ModelBasicList* model);
-    void                             updateCellResultColor(int timeStepIndex, RimGeoMechCellColors* cellResultSlot);
+    void                             updateCellResultColor(int timeStepIndex, RimGeoMechCellColors* cellResultColors);
     void                             updateStaticCellColors(int timeStepIndex);
     void                             scheduleGeometryRegen(RivCellSetEnum geometryType);
 private:

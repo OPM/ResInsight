@@ -43,20 +43,20 @@
 //--------------------------------------------------------------------------------------------------
 void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 	size_t timeStepIndex,
-	RimEclipseCellColors* cellResultSlot,
-	RimCellEdgeColors* cellEdgeResultSlot,
+	RimEclipseCellColors* cellResultColors,
+	RimCellEdgeColors* cellEdgeResultColors,
 	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
 	cvf::DrawableGeo* geo,
 	size_t gridIndex,
 	float opacityLevel)
 {
-	RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+	RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 	CVF_ASSERT(eclipseCase != NULL);
 
 	// Create result access objects
 
-	cvf::ref<RigResultAccessor> cellCenterDataAccessObject = createCellCenterResultAccessor(cellResultSlot, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
-	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultSlot, cellEdgeResultSlot, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
+	cvf::ref<RigResultAccessor> cellCenterDataAccessObject = createCellCenterResultAccessor(cellResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
+	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
 
 	size_t vertexCount = geo->vertexArray()->size();
 	size_t quadCount = vertexCount / 4;
@@ -80,17 +80,17 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 		cellEdgeColorTextureCoordsArrays.push_back(colorArray.p());
 	}
 
-	cvf::ScalarMapper* cellResultScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
-	cvf::ScalarMapper* edgeResultScalarMapper = cellEdgeResultSlot->legendConfig()->scalarMapper();
+	cvf::ScalarMapper* cellResultScalarMapper = cellResultColors->legendConfig()->scalarMapper();
+	cvf::ScalarMapper* edgeResultScalarMapper = cellEdgeResultColors->legendConfig()->scalarMapper();
 
-	double ignoredScalarValue = cellEdgeResultSlot->ignoredScalarValue();
+	double ignoredScalarValue = cellEdgeResultColors->ignoredScalarValue();
 
 	const std::vector<cvf::ubyte>* isWellPipeVisible = NULL;
 	cvf::ref<cvf::UIntArray>       gridCellToWellindexMap;
 
 	if (opacityLevel < 1.0f)
 	{
-		isWellPipeVisible = &(cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex));
+		isWellPipeVisible = &(cellResultColors->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex));
 		gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(gridIndex);
 	}
 
@@ -187,14 +187,14 @@ bool RivCellEdgeGeometryUtils::hideScalarValue(double scalarValue, double scalar
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex, RimEclipseCellColors* cellResultSlot, RimCellEdgeColors* cellEdgeResultSlot,
+void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors,
 	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
 	cvf::DrawableGeo* geo, size_t gridIndex, float opacityLevel)
 {
-	RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+	RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 	CVF_ASSERT(eclipseCase != NULL);
 
-	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultSlot, cellEdgeResultSlot, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
+	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
 
 	size_t vertexCount = geo->vertexArray()->size();
 	size_t quadCount = vertexCount / 4;
@@ -218,12 +218,12 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
 		cellEdgeColorTextureCoordsArrays.push_back(colorArray.p());
 	}
 
-	RivTernaryScalarMapper* ternaryCellResultScalarMapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
-	cvf::ScalarMapper* edgeResultScalarMapper = cellEdgeResultSlot->legendConfig()->scalarMapper();
+	RivTernaryScalarMapper* ternaryCellResultScalarMapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
+	cvf::ScalarMapper* edgeResultScalarMapper = cellEdgeResultColors->legendConfig()->scalarMapper();
 
-	double ignoredScalarValue = cellEdgeResultSlot->ignoredScalarValue();
+	double ignoredScalarValue = cellEdgeResultColors->ignoredScalarValue();
 
-	RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
+	RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
 		timeStepIndex,
 		gridIndex,
 		quadToCellFaceMapper);
@@ -285,8 +285,8 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeCenterResultAccessor(
-	RimEclipseCellColors* cellResultSlot,
-	RimCellEdgeColors* cellEdgeResultSlot,
+	RimEclipseCellColors* cellResultColors,
+	RimCellEdgeColors* cellEdgeResultColors,
 	size_t timeStepIndex,
 	RigCaseData* eclipseCase,
 	const RigGridBase* grid)
@@ -294,8 +294,8 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeCenterResult
 	cvf::ref<RigCellEdgeResultAccessor> cellEdgeResultAccessor = new RigCellEdgeResultAccessor();
 	{
 		size_t resultIndices[6];
-		cellEdgeResultSlot->gridScalarIndices(resultIndices);
-		RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+		cellEdgeResultColors->gridScalarIndices(resultIndices);
+		RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
 
 		size_t cubeFaceIdx;
 		for (cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
@@ -312,20 +312,20 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeCenterResult
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAccessor(RimEclipseCellColors* cellResultSlot, size_t timeStepIndex, RigCaseData* eclipseCase, const RigGridBase* grid)
+cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAccessor(RimEclipseCellColors* cellResultColors, size_t timeStepIndex, RigCaseData* eclipseCase, const RigGridBase* grid)
 {
 	cvf::ref<RigResultAccessor> resultAccessor = NULL;
 
-	if (cellResultSlot->hasResult())
+	if (cellResultColors->hasResult())
 	{
-		if (!cellResultSlot->hasDynamicResult())
+		if (!cellResultColors->hasDynamicResult())
 		{
 			// Static result values are located at time step 0
 			timeStepIndex = 0;
 		}
 
-		RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-		resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, timeStepIndex, cellResultSlot->resultVariable());
+		RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
+		resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, timeStepIndex, cellResultColors->resultVariable());
 	}
 
 	if (resultAccessor.isNull())

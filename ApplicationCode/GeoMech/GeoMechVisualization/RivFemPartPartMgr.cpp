@@ -214,11 +214,11 @@ void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultSlot)
+void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultColors)
 {
-    CVF_ASSERT(cellResultSlot);
+    CVF_ASSERT(cellResultColors);
 
-   // RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+   // RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
@@ -226,24 +226,24 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
     if (m_surfaceFaces.notNull())
     {
 
-        const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+        const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
-        RigGeoMechCaseData* caseData = cellResultSlot->ownerCaseData();
+        RigGeoMechCaseData* caseData = cellResultColors->ownerCaseData();
         
         if (!caseData) return;
 
-        RigFemResultAddress resVarAddress = cellResultSlot->resultAddress();
+        RigFemResultAddress resVarAddress = cellResultColors->resultAddress();
 
         const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
 
         const std::vector<size_t>* vxToResultMapping = NULL;
 
-        if (cellResultSlot->resultPositionType() == RIG_NODAL)
+        if (cellResultColors->resultPositionType() == RIG_NODAL)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToNodeIdxMapping());
         }
-        else if (   cellResultSlot->resultPositionType() == RIG_ELEMENT_NODAL 
-                 || cellResultSlot->resultPositionType() == RIG_INTEGRATION_POINT)
+        else if (   cellResultColors->resultPositionType() == RIG_ELEMENT_NODAL 
+                 || cellResultColors->resultPositionType() == RIG_INTEGRATION_POINT)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmNodeIdx());
         }
@@ -276,7 +276,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
             }
         }
 
-        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultSlot->reservoirView()->isLightingDisabled());
+        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
     }
 }
 
