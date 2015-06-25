@@ -29,7 +29,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimUiTreeModelPdm.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPushButtonEditor.h"

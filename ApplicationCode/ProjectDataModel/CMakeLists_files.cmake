@@ -5,7 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
-${CEE_CURRENT_LIST_DIR}RimAnalysisModels.h
+${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.h
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilter.h
@@ -26,7 +26,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseView.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.h
-${CEE_CURRENT_LIST_DIR}RimWell.h
+${CEE_CURRENT_LIST_DIR}RimEclipseWell.h
 ${CEE_CURRENT_LIST_DIR}RimWellCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellPath.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
@@ -63,7 +63,7 @@ ${CEE_CURRENT_LIST_DIR}RimCase.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
-${CEE_CURRENT_LIST_DIR}RimAnalysisModels.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilter.cpp
@@ -84,7 +84,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseView.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.cpp
-${CEE_CURRENT_LIST_DIR}RimWell.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseWell.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp

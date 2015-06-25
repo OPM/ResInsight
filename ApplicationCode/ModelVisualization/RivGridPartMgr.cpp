@@ -33,7 +33,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 #include "RivCellEdgeEffectGenerator.h"
 #include "RivResultToTextureMapper.h"

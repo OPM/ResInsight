@@ -38,8 +38,8 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimWell.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RimEclipseCellColors.h"

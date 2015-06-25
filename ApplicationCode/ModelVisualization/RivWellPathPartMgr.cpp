@@ -33,7 +33,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
 #include "RigCaseData.h"
@@ -51,7 +51,7 @@
 #include "cafEffectGenerator.h"
 #include "cvfqtUtils.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

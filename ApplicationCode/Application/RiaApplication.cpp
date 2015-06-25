@@ -40,7 +40,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimFaultCollection.h"
 #include "RimEclipseFaultColors.h"
 
@@ -76,7 +76,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "cafCeetronPlusNavigation.h"
 

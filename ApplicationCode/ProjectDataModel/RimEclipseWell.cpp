@@ -18,11 +18,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWell.h"
+#include "RimEclipseWell.h"
 
 #include "RigSingleWellResultsData.h"
 #include "RimEclipseView.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 #include "cvfMath.h"
 

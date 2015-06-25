@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 
 #include "cvfCollection.h"

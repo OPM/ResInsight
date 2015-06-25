@@ -22,7 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RigGridManager.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -41,7 +41,7 @@
 #include "RimScriptCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimUiTreeView.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimGeoMechView.h"
 

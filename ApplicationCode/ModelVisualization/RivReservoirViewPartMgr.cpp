@@ -37,7 +37,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseCellColors.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 #include "RivGridPartMgr.h"
 

@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 
 #include "RiaApplication.h"
 #include "RigCaseData.h"

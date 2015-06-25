@@ -30,7 +30,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "RiuViewer.h"
 #include "RimGeoMechView.h"
 #include "RimView.h"

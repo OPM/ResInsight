@@ -37,7 +37,7 @@
 #include "cvfqtUtils.h"
 
 #include "RimEclipseView.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
@@ -48,7 +48,7 @@
 #include "RimLegendConfig.h"
 
 #include "RimEclipseCase.h"
-#include "RimWell.h"
+#include "RimEclipseWell.h"
 
 #include "RigCaseData.h"
 #include "RigCell.h"

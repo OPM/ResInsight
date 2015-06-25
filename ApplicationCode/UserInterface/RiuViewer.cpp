@@ -35,7 +35,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimFaultCollection.h"
 #include "RimEclipseCellColors.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 #include "RimUiTreeModelPdm.h"
 

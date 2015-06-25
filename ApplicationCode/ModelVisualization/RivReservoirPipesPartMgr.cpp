@@ -22,8 +22,8 @@
 
 #include "RivReservoirPipesPartMgr.h"
 #include "RimEclipseView.h"
-#include "RimWell.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RivWellPipesPartMgr.h"
 #include "RivWellHeadPartMgr.h"
 #include "RimCellEdgeResultSlot.h"

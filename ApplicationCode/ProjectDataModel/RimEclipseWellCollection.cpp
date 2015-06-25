@@ -18,13 +18,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RigSingleWellResultsData.h"
 #include "RimEclipseView.h"
-#include "RimWell.h"
+#include "RimEclipseWell.h"
 #include "RivReservoirViewPartMgr.h"
 
 

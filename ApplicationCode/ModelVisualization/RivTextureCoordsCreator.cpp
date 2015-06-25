@@ -27,7 +27,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigPipeInCellEvaluator.h"
 #include "RivResultToTextureMapper.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

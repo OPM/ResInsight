@@ -20,7 +20,7 @@
 
 #include "RimOilField.h"
 
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimGeoMechModels.h"
 

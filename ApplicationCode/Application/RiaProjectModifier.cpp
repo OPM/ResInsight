@@ -22,7 +22,7 @@
 #include "RiaProjectModifier.h"
 
 #include "RimProject.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimOilField.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"
@@ -37,7 +37,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 
 
