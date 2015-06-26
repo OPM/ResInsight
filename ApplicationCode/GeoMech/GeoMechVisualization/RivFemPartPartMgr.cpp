@@ -261,17 +261,29 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
             int vxCount = static_cast<int>(vxToResultMapping->size());
 
             #pragma omp parallel for schedule(dynamic)
-            for (int vxIdx = 0; vxIdx < vxCount; ++vxIdx)
+            for (int quadStartIdx = 0; quadStartIdx < vxCount; quadStartIdx += 4)
             {
-                float resultValue = resultValues[(*vxToResultMapping)[vxIdx]];
-                if (resultValue == HUGE_VAL || resultValue != resultValue) // a != a is true for NAN's
-                {
-                    rawPtr[vxIdx][1] = 1.0f;
+                float resultValue1 = resultValues[(*vxToResultMapping)[quadStartIdx]];
+                float resultValue2 = resultValues[(*vxToResultMapping)[quadStartIdx + 1]];
+                float resultValue3 = resultValues[(*vxToResultMapping)[quadStartIdx + 2]];
+                float resultValue4 = resultValues[(*vxToResultMapping)[quadStartIdx + 3]];
 
+                if (    resultValue1 == HUGE_VAL || resultValue1 != resultValue1    // a != a is true for NAN's
+                    ||  resultValue2 == HUGE_VAL || resultValue2 != resultValue2 
+                    ||  resultValue3 == HUGE_VAL || resultValue3 != resultValue3 
+                    ||  resultValue4 == HUGE_VAL || resultValue4 != resultValue4)
+                {
+                    rawPtr[quadStartIdx][1]       = 1.0f;
+                    rawPtr[quadStartIdx + 1][1]   = 1.0f;
+                    rawPtr[quadStartIdx + 2][1]   = 1.0f;
+                    rawPtr[quadStartIdx + 3][1]   = 1.0f;
                 }
                 else
                 {
-                    rawPtr[vxIdx] =  mapper->mapToTextureCoord(resultValue);
+                    rawPtr[quadStartIdx]        = mapper->mapToTextureCoord(resultValue1);
+                    rawPtr[quadStartIdx + 1]    = mapper->mapToTextureCoord(resultValue2);
+                    rawPtr[quadStartIdx + 2]    = mapper->mapToTextureCoord(resultValue3);
+                    rawPtr[quadStartIdx + 3]    = mapper->mapToTextureCoord(resultValue4);
                 }
             }
         }
