@@ -37,7 +37,6 @@
 #include <stdlib.h>
 #include "RigFemNativeStatCalc.h"
 #include "cafTensor3.h"
-#include "cafProgressInfo.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -98,8 +97,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
 
     int frameCount =  this->frameCount();
 
-    caf::ProgressInfo progress(frameCount, "Loading Results");
-
     for (int stepIndex = 0; stepIndex < frameCount; ++stepIndex)
     {
         std::vector<double > frameTimes = m_readerInterface->frameTimes(stepIndex);
@@ -125,8 +122,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
                     break;
             }
         }
-
-        progress.incrementProgress();
     }
 
     // Now fetch the particular component requested, which should now exist and be read.
@@ -249,7 +244,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         }else if (resVarAddr.fieldName == "NS"){
             srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S", resVarAddr.componentName));
         }
-
         RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
         int frameCount = srcDataFrames->frameCount();
         for (int fIdx = 0; fIdx < frameCount; ++fIdx)
@@ -263,7 +257,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
                 dstFrameData[vIdx] = -srcFrameData[vIdx];
             }
         }
-
         return dstDataFrames;
     }
 
