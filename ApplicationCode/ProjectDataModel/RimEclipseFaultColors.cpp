@@ -42,15 +42,15 @@ RimEclipseFaultColors::RimEclipseFaultColors()
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
     showCustomFaultResult.setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
-    m_customFaultResult = new RimEclipseCellColors();
-    m_customFaultResult.setOwnerObject(this);
-    m_customFaultResult.setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
+    m_customFaultResultColors = new RimEclipseCellColors();
+    m_customFaultResultColors.setOwnerObject(this);
+    m_customFaultResultColors.setUiHidden(true);
 
     // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
-    m_customFaultResult->m_resultTypeUiField.setOwnerObject(this);
-    m_customFaultResult->m_porosityModelUiField.setOwnerObject(this);
-    m_customFaultResult->m_resultVariableUiField.setOwnerObject(this);
+    m_customFaultResultColors->m_resultTypeUiField.setOwnerObject(this);
+    m_customFaultResultColors->m_porosityModelUiField.setOwnerObject(this);
+    m_customFaultResultColors->m_resultVariableUiField.setOwnerObject(this);
 
 
     updateFieldVisibility();
@@ -69,7 +69,7 @@ RimEclipseFaultColors::~RimEclipseFaultColors()
 void RimEclipseFaultColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
-    m_customFaultResult->setReservoirView(ownerReservoirView);
+    m_customFaultResultColors->setReservoirView(ownerReservoirView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,9 +79,9 @@ void RimEclipseFaultColors::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 {
     this->updateUiIconFromToggleField();
 
-    m_customFaultResult->fieldChangedByUi(changedField, oldValue, newValue);
+    m_customFaultResultColors->fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &m_customFaultResult->m_resultVariableUiField)
+    if (changedField == &m_customFaultResultColors->m_resultVariableUiField)
     {
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
     }
@@ -94,7 +94,7 @@ void RimEclipseFaultColors::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimEclipseFaultColors::initAfterRead()
 {
-    m_customFaultResult->initAfterRead();
+    m_customFaultResultColors->initAfterRead();
     updateFieldVisibility();
 
     this->updateUiIconFromToggleField();
@@ -105,7 +105,7 @@ void RimEclipseFaultColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseFaultColors::updateFieldVisibility()
 {
-    m_customFaultResult->updateFieldVisibility();
+    m_customFaultResultColors->updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void RimEclipseFaultColors::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors* RimEclipseFaultColors::customFaultResult()
 {
-    return this->m_customFaultResult();
+    return this->m_customFaultResultColors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,9 +130,9 @@ caf::PdmFieldHandle* RimEclipseFaultColors::objectToggleField()
 void RimEclipseFaultColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    group1->add(&(m_customFaultResult->m_resultTypeUiField));
-    group1->add(&(m_customFaultResult->m_porosityModelUiField));
-    group1->add(&(m_customFaultResult->m_resultVariableUiField));
+    group1->add(&(m_customFaultResultColors->m_resultTypeUiField));
+    group1->add(&(m_customFaultResultColors->m_porosityModelUiField));
+    group1->add(&(m_customFaultResultColors->m_resultVariableUiField));
 }   
 
 //--------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ void RimEclipseFaultColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseFaultColors::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    return m_customFaultResult->calculateValueOptionsForSpecifiedDerivedListPosition(true, fieldNeedingOptions, useOptionsOnly);
+    return m_customFaultResultColors->calculateValueOptionsForSpecifiedDerivedListPosition(true, fieldNeedingOptions, useOptionsOnly);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ bool RimEclipseFaultColors::hasValidCustomResult()
 {
     if (this->showCustomFaultResult())
     {
-        if (m_customFaultResult->hasResult() || m_customFaultResult->isTernarySaturationSelected())
+        if (m_customFaultResultColors->hasResult() || m_customFaultResultColors->isTernarySaturationSelected())
         {
             return true;
         }

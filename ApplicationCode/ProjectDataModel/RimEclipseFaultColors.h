@@ -56,7 +56,7 @@ protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
 
 private:
-    caf::PdmField<RimEclipseCellColors*>       m_customFaultResult;
-    caf::PdmPointer<RimEclipseView>   m_reservoirView;
+    caf::PdmField<RimEclipseCellColors*>    m_customFaultResultColors;
+    caf::PdmPointer<RimEclipseView>         m_reservoirView;
 };
 
