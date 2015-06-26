@@ -174,6 +174,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // instead of using the application font
     m_standardFont = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
     m_resViewUpdateTimer = NULL;
+
+    m_runningRegressionTests = false;
 }
 
 
@@ -1609,6 +1611,8 @@ void removeDirectoryWithContent(QDir dirToDelete )
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::runRegressionTest(const QString& testRootPath)
 {
+    m_runningRegressionTests = true;
+
     QString generatedFolderName = RegTestNames::generatedFolderName;
     QString diffFolderName      = RegTestNames::diffFolderName;    
     QString baseFolderName      = RegTestNames::baseFolderName;    
@@ -1730,6 +1734,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
             }
         }
     }
+
+    m_runningRegressionTests = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2079,6 +2085,14 @@ void RiaApplication::executeCommandObjects()
         // Unlock the command queue lock when the command queue is empty
         m_commandQueueLock.unlock();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::isRunningRegressionTests() const
+{
+    return m_runningRegressionTests;
 }
 
 //--------------------------------------------------------------------------------------------------

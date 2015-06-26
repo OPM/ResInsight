@@ -152,6 +152,8 @@ public:
     void                addCommandObject(RimCommandObject* commandObject);
     void                executeCommandObjects();
 
+    bool                isRunningRegressionTests() const;
+
 private:
     enum ProjectLoadAction
     {
@@ -196,8 +198,9 @@ private:
 
     QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
 
-    std::list<RimCommandObject*>       m_commandQueue;
-    QMutex                             m_commandQueueLock;
+    std::list<RimCommandObject*>        m_commandQueue;
+    QMutex                              m_commandQueueLock;
 
-    QString                            m_helpText;
+    QString                             m_helpText;
+    bool                                m_runningRegressionTests;
 };
