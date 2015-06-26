@@ -157,6 +157,16 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 
     m_viewerCommands = new RiuViewerCommands(this);
 
+    if (RiaApplication::instance()->isRunningRegressionTests())
+    {
+        QFont regTestFont = m_InfoLabel->font();
+        regTestFont.setPixelSize(11);
+
+        m_InfoLabel->setFont(regTestFont);
+        m_versionInfoLabel->setFont(regTestFont);
+        m_animationProgress->setFont(regTestFont);
+        m_histogramWidget->setFont(regTestFont);
+    }
 }
 
 
