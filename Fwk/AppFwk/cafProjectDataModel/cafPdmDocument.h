@@ -87,6 +87,7 @@ public:
             for (size_t i = 0; i < sourceTypedObjects.size(); i++)
             {
                 typedObjectGroup.addObject(sourceTypedObjects[i]);
+                PdmDocument::setupBeforeSaveTraversal(sourceTypedObjects[i]);
             }
 
             QXmlStreamWriter xmlStream(&encodedXml);
@@ -129,7 +130,6 @@ class PdmDocument: public PdmObjectGroup
     static void         updateUiIconStateRecursively(PdmObject * root);
     static void         initAfterReadTraversal(PdmObject * root);
 
-private:
     static void         setupBeforeSaveTraversal(PdmObject * root);
 
 };
