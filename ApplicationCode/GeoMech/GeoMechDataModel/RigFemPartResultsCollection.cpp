@@ -89,48 +89,51 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
     // We need to read the data as bulk fields, and populate the correct scalar caches 
 
     std::vector< RigFemResultAddress> resultAddressOfComponents = this->getResAddrToComponentsToRead(resVarAddr);
-    // 
-    std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
-    for (size_t cIdx = 0; cIdx < resultAddressOfComponents.size(); ++cIdx)
+
+    if (resultAddressOfComponents.size())
     {
-        resultsForEachComponent.push_back(m_femPartResults[partIndex]->createScalarResult(resultAddressOfComponents[cIdx]));
-    }
-
-    int frameCount = this->frameCount();
-    caf::ProgressInfo progress(frameCount, "");
-    progress.setProgressDescription(QString("Loading %1 %2").arg(resVarAddr.fieldName.c_str(), resVarAddr.componentName.c_str()));
-
-    for (int stepIndex = 0; stepIndex < frameCount; ++stepIndex)
-    {
-        std::vector<double > frameTimes = m_readerInterface->frameTimes(stepIndex);
-
-        for (int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2 ; ++fIdx)  // Read only the second frame
+        std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
+        for (size_t cIdx = 0; cIdx < resultAddressOfComponents.size(); ++cIdx)
         {
-            std::vector<std::vector<float>*> componentDataVectors;
-            for (size_t cIdx = 0; cIdx < resultsForEachComponent.size(); ++cIdx)
-            {
-                componentDataVectors.push_back(&(resultsForEachComponent[cIdx]->frameData(stepIndex)));
-            }
-
-            switch (resVarAddr.resultPosType)
-            {
-                case RIG_NODAL:
-                    m_readerInterface->readNodeField(resVarAddr.fieldName,  partIndex, stepIndex, fIdx, &componentDataVectors);
-                    break;
-                case RIG_ELEMENT_NODAL:
-                    m_readerInterface->readElementNodeField(resVarAddr.fieldName,  partIndex, stepIndex, fIdx, &componentDataVectors);
-                    break;
-                case RIG_INTEGRATION_POINT:
-                    m_readerInterface->readIntegrationPointField(resVarAddr.fieldName,  partIndex, stepIndex, fIdx, &componentDataVectors);
-                    break;
-            }
+            resultsForEachComponent.push_back(m_femPartResults[partIndex]->createScalarResult(resultAddressOfComponents[cIdx]));
         }
 
-        progress.incrementProgress();
-    }
+        int frameCount = this->frameCount();
+        caf::ProgressInfo progress(frameCount, "");
+        progress.setProgressDescription(QString("Loading %1 %2").arg(resVarAddr.fieldName.c_str(), resVarAddr.componentName.c_str()));
 
-    // Now fetch the particular component requested, which should now exist and be read.
-    frames = m_femPartResults[partIndex]->findScalarResult(resVarAddr);
+        for (int stepIndex = 0; stepIndex < frameCount; ++stepIndex)
+        {
+            std::vector<double > frameTimes = m_readerInterface->frameTimes(stepIndex);
+
+            for (int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2 ; ++fIdx)  // Read only the second frame
+            {
+                std::vector<std::vector<float>*> componentDataVectors;
+                for (size_t cIdx = 0; cIdx < resultsForEachComponent.size(); ++cIdx)
+                {
+                    componentDataVectors.push_back(&(resultsForEachComponent[cIdx]->frameData(stepIndex)));
+                }
+
+                switch (resVarAddr.resultPosType)
+                {
+                    case RIG_NODAL:
+                        m_readerInterface->readNodeField(resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors);
+                        break;
+                    case RIG_ELEMENT_NODAL:
+                        m_readerInterface->readElementNodeField(resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors);
+                        break;
+                    case RIG_INTEGRATION_POINT:
+                        m_readerInterface->readIntegrationPointField(resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors);
+                        break;
+                }
+            }
+
+            progress.incrementProgress();
+        }
+
+        // Now fetch the particular component requested, which should now exist and be read.
+        frames = m_femPartResults[partIndex]->findScalarResult(resVarAddr);
+    }
 
     if (!frames) 
     {
@@ -456,9 +459,12 @@ std::vector< RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompo
     if (fcIt != fieldAndComponentNames.end())
     {
         std::vector<std::string> compNames = fcIt->second;
-        for (size_t cIdx = 0; cIdx < compNames.size(); ++cIdx)
+        if (resVarAddr.componentName != "") // If we did not request a particular component, do not add the components
         {
-            resAddressToComponents.push_back(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, compNames[cIdx]));
+            for (size_t cIdx = 0; cIdx < compNames.size(); ++cIdx)
+            {
+                resAddressToComponents.push_back(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, compNames[cIdx]));
+            }
         }
 
         if (compNames.size() == 0) // This is a scalar field. Add one component named ""
