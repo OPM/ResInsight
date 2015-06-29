@@ -738,26 +738,23 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
     }
     else if (caseFromItemIndex(itemIndex))
     {
-        std::vector<caf::PdmPointer<RimEclipseView> > typedObjects;
-        pdmObjects.createCopyByType(&typedObjects);
+        std::vector<caf::PdmPointer<RimEclipseView> > eclipseViews;
+        pdmObjects.createCopyByType(&eclipseViews);
 
-        if (typedObjects.size() == 0)
+        if (eclipseViews.size() != 0)
         {
-            return;
-        }
-
         RimEclipseCase* rimCase = caseFromItemIndex(itemIndex);
         QModelIndex collectionIndex = getModelIndexFromPdmObject(rimCase);
         caf::PdmUiTreeItem* collectionItem = getTreeItemFromIndex(collectionIndex);
 
         // Add cases to case group
-        for (size_t i = 0; i < typedObjects.size(); i++)
+        for (size_t i = 0; i < eclipseViews.size(); i++)
         {
-            RimEclipseView* rimReservoirView = typedObjects[i];
+            RimEclipseView* rimReservoirView = eclipseViews[i];
             QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
             rimReservoirView->name = nameOfCopy;
             rimCase->reservoirViews().push_back(rimReservoirView);
- 
+
             // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
             rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
 
@@ -766,7 +763,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
 
             caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
 
-            rimReservoirView->loadDataAndUpdate(); 
+            rimReservoirView->loadDataAndUpdate();
 
             int position = static_cast<int>(rimCase->reservoirViews().size());
             beginInsertRows(collectionIndex, position, position);
@@ -774,6 +771,42 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
             caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, position, rimReservoirView);
 
             endInsertRows();
+        }
+        }
+    }
+
+    caf::PdmObject* selectedObject = getTreeItemFromIndex(itemIndex)->dataObject().p();
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(selectedObject);
+    if (!geomCase && selectedObject)
+    {
+        RimGeoMechView* geomView =  dynamic_cast<RimGeoMechView*>(selectedObject);
+        if (geomView) geomCase = geomView->geoMechCase();
+    }
+
+    if (geomCase)
+    {
+        std::vector<caf::PdmPointer<RimGeoMechView> > geomViews;
+        pdmObjects.createCopyByType(&geomViews);
+
+        if (geomViews.size() != 0)
+        {
+            // Add cases to case group
+            for (size_t i = 0; i < geomViews.size(); i++)
+            {
+                RimGeoMechView* rimReservoirView = geomViews[i];
+                QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
+                rimReservoirView->name = nameOfCopy;
+                geomCase->geoMechViews().push_back(rimReservoirView);
+
+                caf::PdmDocument::initAfterReadTraversal(rimReservoirView);
+                rimReservoirView->setGeoMechCase(geomCase);
+
+                caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
+
+                rimReservoirView->loadDataAndUpdate();
+
+                this->updateUiSubTree(geomCase);
+            }
         }
     }
 }

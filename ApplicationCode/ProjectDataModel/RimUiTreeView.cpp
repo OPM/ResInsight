@@ -122,8 +122,8 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             if (dynamic_cast<RimGeoMechView*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
-                //menu.addAction(QString("Copy View"), this, SLOT(slotCopyPdmObjectToClipboard()));
-                //menu.addAction(m_pasteAction);
+                menu.addAction(QString("Copy View"), this, SLOT(slotCopyPdmObjectToClipboard()));
+                menu.addAction(m_pasteAction);
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteView()));
             }
             else if (dynamic_cast<RimEclipseView*>(uiItem->dataObject().p()))
@@ -218,6 +218,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseGeomechCase()));
+                menu.addAction(m_pasteAction);
             }
             else if (dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p()))
             {
