@@ -2083,7 +2083,7 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
 {
-    QString usersGuideUrl = "http://resinsight.org/";
+    QString usersGuideUrl = "http://resinsight.org/docs/home";
     
     if (!QDesktopServices::openUrl(usersGuideUrl))
     {
