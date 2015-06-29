@@ -53,6 +53,13 @@ public:
         }
     }
 
+    void removeRows(const QModelIndexList& indexes)
+    {
+        for (int i = indexes.size() - 1; i >= 0; i--)
+        {
+            removeRow(indexes[i].row(), indexes[i].parent());
+        }
+    }
 
     void setItemsEditable(bool isEditable)
     {
@@ -237,26 +244,9 @@ void RiuMultiCaseImportDialog::on_m_removeEclipseCaseButton_clicked()
     QModelIndexList selection = ui->m_eclipseCasesList->selectionModel()->selectedIndexes();
     if (selection.size())
     {
-        for (int i = 0; i < selection.size(); ++i)
-        {
-            ui->m_eclipseCasesList->model()->removeRow(selection[i].row(), selection[i].parent());
-        }
+        FileListModel* dataModel = static_cast<FileListModel*>(ui->m_eclipseCasesList->model());
+        Q_ASSERT(dataModel);
 
-        QModelIndexList selection = ui->m_eclipseCasesList->selectionModel()->selectedIndexes();
-        QStringList fileNames = m_eclipseGridFiles->stringList();
-
-        QStringList filenamesToRemove;
-
-        for (int i = 0; i < selection.size(); ++i)
-        {
-            filenamesToRemove.push_back(fileNames[selection[i].row()]);
-        }
-
-        for (int i = 0; i < filenamesToRemove.size(); ++i)
-        {
-            fileNames.removeOne(filenamesToRemove[i]);
-        }
-
-        m_eclipseGridFiles->setStringList(fileNames);
+        dataModel->removeRows(selection);
     }
 }
