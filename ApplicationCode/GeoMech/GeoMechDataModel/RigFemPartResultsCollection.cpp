@@ -96,9 +96,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
         resultsForEachComponent.push_back(m_femPartResults[partIndex]->createScalarResult(resultAddressOfComponents[cIdx]));
     }
 
-    int frameCount =  this->frameCount();
-
-    caf::ProgressInfo progress(frameCount, "Loading Results");
+    int frameCount = this->frameCount();
+    caf::ProgressInfo progress(frameCount, "");
+    progress.setProgressDescription(QString("Loading %1 %2").arg(resVarAddr.fieldName.c_str(), resVarAddr.componentName.c_str()));
 
     for (int stepIndex = 0; stepIndex < frameCount; ++stepIndex)
     {
