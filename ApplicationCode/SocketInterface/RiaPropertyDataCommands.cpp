@@ -547,6 +547,23 @@ public:
 
         // Make sure the size of the retreiving container is correct.
         // If it is, this is noops
+        {
+            size_t maxRequestedTimeStepIdx = cvf::UNDEFINED_SIZE_T;
+            for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
+            {
+                size_t tsId = m_requestedTimesteps[tIdx];
+                if (maxRequestedTimeStepIdx == cvf::UNDEFINED_SIZE_T || tsId > maxRequestedTimeStepIdx)
+                {
+                    maxRequestedTimeStepIdx = tsId;
+                }
+            }
+
+            if (maxRequestedTimeStepIdx != cvf::UNDEFINED_SIZE_T
+                && m_scalarResultsToAdd->size() <= maxRequestedTimeStepIdx)
+            {
+                m_scalarResultsToAdd->resize(maxRequestedTimeStepIdx + 1);
+            }
+        }
 
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
         {
@@ -907,6 +924,25 @@ public:
             m_invalidDataDetected = true;
             currentClient->abort();
             return true;
+        }
+
+        // Resize the timestep container
+        {
+            size_t maxRequestedTimeStepIdx = cvf::UNDEFINED_SIZE_T;
+            for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
+            {
+                size_t tsId = m_requestedTimesteps[tIdx];
+                if (maxRequestedTimeStepIdx == cvf::UNDEFINED_SIZE_T || tsId > maxRequestedTimeStepIdx)
+                {
+                    maxRequestedTimeStepIdx = tsId;
+                }
+            }
+
+            if (maxRequestedTimeStepIdx != cvf::UNDEFINED_SIZE_T
+                && m_scalarResultsToAdd->size() <= maxRequestedTimeStepIdx)
+            {
+                m_scalarResultsToAdd->resize(maxRequestedTimeStepIdx + 1);
+            }
         }
 
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
