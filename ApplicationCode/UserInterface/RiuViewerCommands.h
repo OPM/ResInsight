@@ -22,6 +22,9 @@
 
 class RiuViewer;
 class RimView;
+class RimEclipseView;
+class RimGeoMechView;
+
 class QMouseEvent;
 
 #include "cvfStructGrid.h"
@@ -51,11 +54,14 @@ private slots:
     void            slotRangeFilterJ();
     void            slotRangeFilterK();
     void            slotHideFault();
+    void            slotAddEclipsePropertyFilter();
+    void            slotAddGeoMechPropertyFilter();
 
 private:
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
     void            createSliceRangeFilter(int ijOrk);
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
+
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;
     cvf::StructGridInterface::FaceType m_currentFaceIndex;

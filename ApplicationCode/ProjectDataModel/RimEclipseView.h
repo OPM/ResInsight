@@ -84,14 +84,14 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmField<RimEclipseCellColors*>                   cellResult;
-    caf::PdmField<RimCellEdgeColors*>           cellEdgeResult;
-    caf::PdmField<RimEclipseFaultColors*>              faultResultSettings;
+    caf::PdmField<RimEclipseCellColors*>                cellResult;
+    caf::PdmField<RimCellEdgeColors*>                   cellEdgeResult;
+    caf::PdmField<RimEclipseFaultColors*>               faultResultSettings;
 
-    caf::PdmField<RimEclipsePropertyFilterCollection*> propertyFilterCollection;
+    caf::PdmField<RimEclipsePropertyFilterCollection*>  propertyFilterCollection;
 
-    caf::PdmField<RimEclipseWellCollection*>               wellCollection;
-    caf::PdmField<RimFaultCollection*>              faultCollection;
+    caf::PdmField<RimEclipseWellCollection*>            wellCollection;
+    caf::PdmField<RimFaultCollection*>                  faultCollection;
 
     // Fields
 

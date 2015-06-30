@@ -27,6 +27,13 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
 #include "RimFaultCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechCellColors.h"
 
 #include "RivSourceInfo.h"
 #include "RivFemPickSourceInfo.h"
@@ -140,10 +147,16 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
     menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
 
-    // Hide faults command
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if (eclipseView)
     {
+        RimEclipseCellColors* cellColors = eclipseView->cellResult().p();
+        if (cellColors)
+        {
+            menu.addAction(QString("Add property filter"), this, SLOT(slotAddEclipsePropertyFilter()));
+        }
+
+        // Hide faults command
         const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
         const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
         if (fault)
@@ -152,6 +165,16 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
             QString faultName = fault->name();
             menu.addAction(QString("Hide ") + faultName, this, SLOT(slotHideFault()));
+        }
+    }
+
+    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+    if (geoMechView)
+    {
+        RimGeoMechCellColors* cellColors = geoMechView->cellResult().p();
+        if (cellColors)
+        {
+            menu.addAction(QString("Add property filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
         }
     }
 
@@ -253,6 +276,54 @@ void RiuViewerCommands::slotHideFault()
         if (rimFault)
         {
             rimFault->showFault.setValueFromUi(!rimFault->showFault);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::slotAddEclipsePropertyFilter()
+{
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+    if (eclipseView)
+    {
+        RiuMainWindow* mainWindow = RiuMainWindow::instance();
+        RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
+        if (myModel)
+        {
+            RimEclipsePropertyFilterCollection* filterCollection = eclipseView->propertyFilterCollection();
+
+            QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(filterCollection);
+
+            QModelIndex insertedIndex;
+            RimEclipsePropertyFilter* propertyFilter = myModel->addPropertyFilter(collectionModelIndex, insertedIndex);
+
+            mainWindow->setCurrentObjectInTreeView(propertyFilter);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::slotAddGeoMechPropertyFilter()
+{
+    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+    if (geoMechView)
+    {
+        RiuMainWindow* mainWindow = RiuMainWindow::instance();
+        RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
+        if (myModel)
+        {
+            RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->propertyFilterCollection();
+
+            QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(filterCollection);
+
+            QModelIndex insertedIndex;
+            RimGeoMechPropertyFilter* propertyFilter = myModel->addGeoMechPropertyFilter(collectionModelIndex, insertedIndex);
+
+            mainWindow->setCurrentObjectInTreeView(propertyFilter);
         }
     }
 }
