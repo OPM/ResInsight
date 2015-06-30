@@ -433,31 +433,51 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
         }
     }
 
-    const cvf::Part* pickedPart = firstNonNncHitItem->part();
-    CVF_ASSERT(pickedPart);
-    *firstPart = const_cast<cvf::Part*>(pickedPart);
-
-    const cvf::Transform* xf = pickedPart->transform();
-    cvf::Vec3d globalPickedPoint = firstNonNncHitItem->intersectionPoint();
-
-    if (localIntersectionPoint)
+    if (firstNonNncHitItem)
     {
-        if (xf)
+        const cvf::Part* pickedPart = firstNonNncHitItem->part();
+        CVF_ASSERT(pickedPart);
+        *firstPart = const_cast<cvf::Part*>(pickedPart);
+
+        const cvf::Transform* xf = pickedPart->transform();
+        cvf::Vec3d globalPickedPoint = firstNonNncHitItem->intersectionPoint();
+
+        if (localIntersectionPoint)
         {
-            *localIntersectionPoint = globalPickedPoint.getTransformedPoint(xf->worldTransform().getInverted());
+            if (xf)
+            {
+                *localIntersectionPoint = globalPickedPoint.getTransformedPoint(xf->worldTransform().getInverted());
+            }
+            else
+            {
+                *localIntersectionPoint = globalPickedPoint;
+            }
         }
-        else
+
+        if (firstPartFaceHit)
         {
-            *localIntersectionPoint = globalPickedPoint;
+            const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(firstNonNncHitItem->detail());
+            if (detail)
+            {
+                *firstPartFaceHit = detail->faceIndex();
+            }
         }
     }
-
-    if (firstPartFaceHit)
+    else
     {
-        const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(firstNonNncHitItem->detail());
-        if (detail)
+        if (localIntersectionPoint && nncPart && *nncPart)
         {
-            *firstPartFaceHit = detail->faceIndex();
+            cvf::Vec3d globalPickedPoint = firstItemIntersectionPoint;
+
+            const cvf::Transform* xf = (*nncPart)->transform();
+            if (xf)
+            {
+                *localIntersectionPoint = globalPickedPoint.getTransformedPoint(xf->worldTransform().getInverted());
+            }
+            else
+            {
+                *localIntersectionPoint = globalPickedPoint;
+            }
         }
     }
 }
