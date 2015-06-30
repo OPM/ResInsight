@@ -109,11 +109,11 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
         }
         else if (eclCase)
         {
-            caseType = "GeoMechCase";
+            caseType = "ResultCase";
         }
         else
         {
-            caseType = "ResultCase";
+            caseType = "GeoMechCase";
         }
     }
 }
