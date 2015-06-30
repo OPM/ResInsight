@@ -327,7 +327,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
     QString pickInfo = "No hits";
     QString resultInfo = "";
 
-    if (cellIndex != cvf::UNDEFINED_SIZE_T)
+    if (cellIndex != cvf::UNDEFINED_SIZE_T || nncIndex != cvf::UNDEFINED_SIZE_T)
     {
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
         RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());

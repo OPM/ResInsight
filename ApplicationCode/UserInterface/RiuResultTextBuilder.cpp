@@ -86,19 +86,23 @@ QString RiuResultTextBuilder::mainResultText()
     // Priority defined as follows :  NNC, Fault, Grid
     {
         QString nncText = nncResultText();
-        QString faultText = faultResultText();
-
         if (!nncText.isEmpty())
         {
             text = "NNC : " + nncText;
         }
-        else if (!faultResultText().isEmpty())
+
+        if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
         {
-            text = "Fault : " + faultText;
-        }
-        else
-        {
-            text = "Grid cell : " + gridResultText();
+            QString faultText = faultResultText();
+
+            if (!faultResultText().isEmpty())
+            {
+                text = "Fault : " + faultText;
+            }
+            else
+            {
+                text = "Grid cell : " + gridResultText();
+            }
         }
         
         text += "\n";
@@ -110,13 +114,13 @@ QString RiuResultTextBuilder::mainResultText()
 
     appendDetails(text, nncDetails());
     
-    appendDetails(text, faultResultDetails());
-    
-    appendDetails(text, cellEdgeResultDetails());
-
-    appendDetails(text, gridResultDetails());
-
-    appendDetails(text, wellResultText());
+    if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        appendDetails(text, faultResultDetails());
+        appendDetails(text, cellEdgeResultDetails());
+        appendDetails(text, gridResultDetails());
+        appendDetails(text, wellResultText());
+    }
 
 	return text;
 }
@@ -133,31 +137,34 @@ QString RiuResultTextBuilder::topologyText(QString itemSeparator)
         const RigCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
         if (eclipseCase)
         {
-            size_t i = 0;
-            size_t j = 0;
-            size_t k = 0;
-            if (eclipseCase->grid(m_gridIndex)->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
+            if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
             {
-                // Adjust to 1-based Eclipse indexing
-                i++;
-                j++;
-                k++;
+                size_t i = 0;
+                size_t j = 0;
+                size_t k = 0;
+                if (eclipseCase->grid(m_gridIndex)->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
 
-                cvf::Vec3d domainCoord = m_intersectionPoint + eclipseCase->grid(m_gridIndex)->displayModelOffset();
+                    cvf::StructGridInterface::FaceEnum faceEnum(m_face);
 
-                cvf::StructGridInterface::FaceEnum faceEnum(m_face);
+                    QString faceText = faceEnum.text();
 
-                QString faceText = faceEnum.text();
-
-                text += QString("Face : %1").arg(faceText) + itemSeparator;
-                text += QString("Hit grid %1").arg(m_gridIndex) + itemSeparator;
-                text += QString("Cell : [%1, %2, %3]").arg(i).arg(j).arg(k) + itemSeparator;
-
-                QString formattedText;
-                formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
-
-                text += formattedText;
+                    text += QString("Face : %1").arg(faceText) + itemSeparator;
+                    text += QString("Hit grid %1").arg(m_gridIndex) + itemSeparator;
+                    text += QString("Cell : [%1, %2, %3]").arg(i).arg(j).arg(k) + itemSeparator;
+                }
             }
+
+            cvf::Vec3d domainCoord = m_intersectionPoint + eclipseCase->grid(0)->displayModelOffset();
+
+            QString formattedText;
+            formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+
+            text += formattedText;
         }
     }
 
