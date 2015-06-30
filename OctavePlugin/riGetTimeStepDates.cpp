@@ -165,7 +165,7 @@ DEFUN_DLD (riGetTimeStepDates, args, nargout,
 
         // Build a map between the field name and field cell values
             
-        Octave_map m;
+        octave_map m;
 
         m.assign(riOctavePlugin::timeStepDate_Year,     cellValuesA);
         m.assign(riOctavePlugin::timeStepDate_Month,    cellValuesB);

@@ -158,7 +158,7 @@ DEFUN_DLD (riGetPropertyNames, args, nargout,
 
             // Build a map between the field name and field cell values
 
-            Octave_map m;
+            octave_map m;
 
             m.assign(riOctavePlugin::propertyInfo_PropName,    cellValuesB);
             m.assign(riOctavePlugin::propertyInfo_PropType,    cellValuesC);
