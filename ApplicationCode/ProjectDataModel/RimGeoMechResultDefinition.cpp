@@ -322,7 +322,6 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName(QString resultFie
     if (resultFieldName == "E") return "NativeAbaqus Strain";
     if (resultFieldName == "S") return "NativeAbaqus Stress";
     if (resultFieldName == "NE") return "E"; // Make NE and NS appear as E and SE
-    if (resultFieldName == "NS") return "SE";
 
     return resultFieldName;
 }
