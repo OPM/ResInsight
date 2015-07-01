@@ -53,12 +53,13 @@ public:
     // Special edit methods
     bool                        deleteRangeFilter(const QModelIndex& itemIndex);
     bool                        deletePropertyFilter(const QModelIndex& itemIndex);
+    bool                        deleteGeoMechPropertyFilter(const QModelIndex& itemIndex);
 
     void                        deleteInputProperty(const QModelIndex& itemIndex);
     void                        deleteReservoir(RimEclipseCase* reservoir);
     void                        deleteAllWellPaths(const QModelIndex& itemIndex);
 
-    RimEclipsePropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimEclipsePropertyFilter*   addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimGeoMechPropertyFilter*   addGeoMechPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
 
@@ -74,7 +75,7 @@ public:
     void                        addObjects(const QModelIndex& itemIndex, const caf::PdmObjectGroup& pdmObjects);
     void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
-    RimEclipseStatisticsCase*          addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimEclipseStatisticsCase*   addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimIdenticalGridCaseGroup*  addCaseGroup(QModelIndex& insertedModelIndex);
 
     bool                        deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
@@ -95,7 +96,7 @@ private slots:
 
 private:
     void                        clearClipboard();
-    RimEclipseCase*                    caseFromItemIndex(const QModelIndex& itemIndex);
+    RimEclipseCase*             caseFromItemIndex(const QModelIndex& itemIndex);
 private:
     QFileSystemWatcher*         m_scriptChangeDetector;
 };

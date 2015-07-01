@@ -401,7 +401,7 @@ void RimUiTreeView::slotDeleteGeoMechPropertyFilter()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (myModel)
     {
-        myModel->deletePropertyFilter(currentIndex());
+        myModel->deleteGeoMechPropertyFilter(currentIndex());
     }
 }
 

@@ -112,6 +112,48 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimUiTreeModelPdm::deleteGeoMechPropertyFilter(const QModelIndex& itemIndex)
+{
+    CVF_ASSERT(itemIndex.isValid());
+
+    caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
+    CVF_ASSERT(uiItem);
+
+    RimGeoMechPropertyFilter* propertyFilter = dynamic_cast<RimGeoMechPropertyFilter*>(uiItem->dataObject().p());
+    CVF_ASSERT(propertyFilter);
+
+    RimGeoMechPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
+    CVF_ASSERT(propertyFilterCollection);
+
+    bool wasFilterActive = propertyFilter->isActive();
+    bool wasSomeFilterActive = propertyFilterCollection->hasActiveFilters();
+
+    // Remove Ui items pointing at the pdm object to delete
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
+
+    propertyFilterCollection->remove(propertyFilter);
+    delete propertyFilter;
+
+    // updateUiSubTree(propertyFilterCollection); // To be enabled
+
+    if (wasFilterActive)
+    {
+        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
+    }
+
+    if (wasSomeFilterActive)
+    {
+        propertyFilterCollection->reservoirView()->createDisplayModelAndRedraw();
+    }
+
+    clearClipboard();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
 {
     CVF_ASSERT(itemIndex.isValid());

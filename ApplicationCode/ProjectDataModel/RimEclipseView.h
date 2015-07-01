@@ -103,7 +103,7 @@ public:
 
     RimReservoirCellResultsStorage*                 currentGridCellResults();
     RigActiveCellInfo*                              currentActiveCellInfo();
-    RimEclipseCellColors*                                  currentFaultResultColors();
+    RimEclipseCellColors*                           currentFaultResultColors();
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
     RimEclipseCase*                                 eclipseCase();

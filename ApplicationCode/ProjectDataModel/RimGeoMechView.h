@@ -67,8 +67,9 @@ public:
     bool                                                isTimeStepDependentDataVisible();
 
     virtual cvf::Transform*                             scaleTransform();
-private:
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
+
+private:
     virtual void                                        createDisplayModel();
     virtual void                                        updateDisplayModelVisibility();
     virtual void                                        updateScaleTransform();
