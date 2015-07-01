@@ -38,6 +38,9 @@ RimCellEdgeColors::RimCellEdgeColors()
 {
     CAF_PDM_InitObject("Cell Edge Result", "", "", "");
 
+    CAF_PDM_InitField(&enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable cell edge results", "", "", "");
+    enableCellEdgeColors.setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result property", "", "", "");
     CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
     CAF_PDM_InitField(&useYVariable, "UseYVariable", true, "Use Y values", "", "", "");
@@ -279,6 +282,8 @@ void RimCellEdgeColors::resetResultIndices()
 //--------------------------------------------------------------------------------------------------
 bool RimCellEdgeColors::hasResult() const
 {
+    if (!enableCellEdgeColors()) return false;
+
     bool hasResult = false;
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
@@ -359,5 +364,13 @@ void RimCellEdgeColors::posNegClosestToZero(double& pos, double& neg)
             if (localNeg < 0 && localNeg > neg) neg = localNeg;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCellEdgeColors::objectToggleField()
+{
+   return &enableCellEdgeColors;
 }
 

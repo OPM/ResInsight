@@ -54,9 +54,6 @@ public:
     void                                  setReservoirView(RimEclipseView* ownerReservoirView);
 
     caf::PdmField<QString>                resultVariable;
-    caf::PdmField<bool>                   useXVariable;
-    caf::PdmField<bool>                   useYVariable;
-    caf::PdmField<bool>                   useZVariable;
 
     caf::PdmField<RimLegendConfig*>       legendConfig;
     double                                ignoredScalarValue() { return m_ignoredResultScalar; }
@@ -74,11 +71,20 @@ protected:
     QStringList                           findResultVariableNames();
 
 private:
+
+
     void                                  resetResultIndices();
     void                                  updateIgnoredScalarValue();
-protected:
+
+    virtual caf::PdmFieldHandle*          objectToggleField();
+
+    caf::PdmField<bool>                   enableCellEdgeColors;
+    caf::PdmField<bool>                   useXVariable;
+    caf::PdmField<bool>                   useYVariable;
+    caf::PdmField<bool>                   useZVariable;
+
     caf::FixedArray<std::pair<QString, size_t>, 6 >  m_resultNameToIndexPairs;
-    caf::PdmPointer<RimEclipseView>                m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                  m_reservoirView;
     double                                           m_ignoredResultScalar;
 };
 
