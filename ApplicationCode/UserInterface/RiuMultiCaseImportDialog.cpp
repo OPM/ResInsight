@@ -53,7 +53,7 @@ public:
         }
     }
 
-    void removeRows(const QModelIndexList& indexes)
+    void removeFileNames(const QModelIndexList& indexes)
     {
         for (int i = indexes.size() - 1; i >= 0; i--)
         {
@@ -247,6 +247,6 @@ void RiuMultiCaseImportDialog::on_m_removeEclipseCaseButton_clicked()
         FileListModel* dataModel = static_cast<FileListModel*>(ui->m_eclipseCasesList->model());
         Q_ASSERT(dataModel);
 
-        dataModel->removeRows(selection);
+        dataModel->removeFileNames(selection);
     }
 }
