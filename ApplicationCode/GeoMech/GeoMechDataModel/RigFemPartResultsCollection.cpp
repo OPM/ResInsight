@@ -335,7 +335,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
             for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
             {
-                caf::Ten3f T(s11[vIdx], s22[vIdx], s33[vIdx], s12[vIdx], s11[vIdx], s11[vIdx] );
+                caf::Ten3f T(s11[vIdx], s22[vIdx], s33[vIdx], s12[vIdx], s23[vIdx], s13[vIdx] );
 
                 cvf::Vec3f principals = T.calculatePrincipals(NULL);
                 s1[vIdx] = principals[0];
