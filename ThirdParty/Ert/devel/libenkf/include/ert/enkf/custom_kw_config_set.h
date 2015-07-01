@@ -15,7 +15,7 @@ extern "C" {
     custom_kw_config_set_type   * custom_kw_config_set_alloc();
     custom_kw_config_set_type   * custom_kw_config_set_alloc_from_file(const char * filename);
     void                          custom_kw_config_set_free(custom_kw_config_set_type * set);
-    void                          custom_kw_config_set_add_config(custom_kw_config_set_type * set, custom_kw_config_type * config);
+    void                          custom_kw_config_set_add_config(custom_kw_config_set_type * set, const custom_kw_config_type * config);
     void                          custom_kw_config_set_update_config(custom_kw_config_set_type * set, custom_kw_config_type * config);
     void                          custom_kw_config_set_reset(custom_kw_config_set_type * set);
     stringlist_type             * custom_kw_config_set_get_keys_alloc(custom_kw_config_set_type * set);

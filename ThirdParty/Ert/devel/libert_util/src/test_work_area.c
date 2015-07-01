@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-   
-   The file 'test_work_area.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'test_work_area.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifdef HAVE_GETUID
@@ -58,17 +58,17 @@
   --------------------
 
 
-  -- Create directory /tmp/$USER/ert-test/my/funn/test and call 
-  -- chdir() to the newly created directory. 
-  test_work_area_type * work_area = test_work_area_alloc("my/funny/test" , true);    
+  -- Create directory /tmp/$USER/ert-test/my/funn/test and call
+  -- chdir() to the newly created directory.
+  test_work_area_type * work_area = test_work_area_alloc("my/funny/test" , true);
 
-  -- Make files available from the test directory. 
+  -- Make files available from the test directory.
   test_work_area_install_file(work_area , "/home/user/build/test-data/file1");
   test_work_area_install_file(work_area , "relative/path/file2");
 
   -- Recursively copy directory and directory content into test area:
-  test_work_area_copy_directory(work_area , "/home/user/build/test-data/case1");  
-  
+  test_work_area_copy_directory(work_area , "/home/user/build/test-data/case1");
+
   ...
   -- Do normal test operations
   ...
@@ -80,7 +80,7 @@
 
   test_work_area_free( work_area );
 */
-  
+
 #define DEFAULT_STORE  false
 #define DEFAULT_PREFIX "/tmp"
 
@@ -99,7 +99,7 @@ struct test_work_area_struct {
 
 test_work_area_type * test_work_area_alloc__(const char * prefix , const char * test_path) {
   test_work_area_type * work_area = NULL;
-  
+
   if (util_is_directory( prefix )) {
     char * test_cwd = util_alloc_sprintf(FULL_PATH_FMT , prefix , test_path );
     util_make_path( test_cwd );
@@ -109,11 +109,11 @@ test_work_area_type * test_work_area_alloc__(const char * prefix , const char * 
       UTIL_TYPE_ID_INIT( work_area , TEST_WORK_AREA_TYPE_ID );
       work_area->original_cwd = util_alloc_cwd();
       work_area->cwd = test_cwd;
-      util_chdir( work_area->cwd );  
+      util_chdir( work_area->cwd );
       test_work_area_set_store( work_area , DEFAULT_STORE);
-    } else 
+    } else
       free( test_cwd );
-  } 
+  }
   return work_area;
 }
 
@@ -136,7 +136,7 @@ test_work_area_type * test_work_area_alloc_with_prefix(const char * prefix , con
     rng_free( rng );
     free( user_name );
     return work_area;
-  } else 
+  } else
     return NULL;
 }
 
@@ -151,10 +151,10 @@ void test_work_area_set_store( test_work_area_type * work_area , bool store) {
 }
 
 
-void test_work_area_free(test_work_area_type * work_area) { 
+void test_work_area_free(test_work_area_type * work_area) {
   if (!work_area->store)
     util_clear_directory( work_area->cwd , true , true );
-  
+
   util_chdir( work_area->original_cwd );
   free( work_area->original_cwd );
   free( work_area->cwd );
@@ -188,7 +188,7 @@ void test_work_area_install_file( test_work_area_type * work_area , const char *
   else {
     char * src_file = util_alloc_filename( work_area->original_cwd , input_src_file , NULL );
     char * src_path;
-    
+
     util_alloc_file_components( input_src_file , &src_path , NULL , NULL);
     if (!util_entry_exists( src_path ))
       util_make_path( src_path );
@@ -234,11 +234,11 @@ void test_work_area_copy_file( test_work_area_type * work_area , const char * in
   if (input_file) {
     char * src_file;
 
-    if (util_is_abs_path( input_file )) 
+    if (util_is_abs_path( input_file ))
       src_file = util_alloc_string_copy( input_file );
     else
       src_file = util_alloc_filename( work_area->original_cwd , input_file , NULL);
-    
+
     if (util_file_exists( src_file )) {
       char * target_file = util_split_alloc_filename( input_file );
       util_copy_file( src_file , target_file );
@@ -251,22 +251,22 @@ void test_work_area_copy_file( test_work_area_type * work_area , const char * in
 
 static bool test_work_area_copy_parent__( test_work_area_type * work_area , const char * input_path, bool copy_content) {
   char * full_path;
-  
+
   if (util_is_abs_path( input_path ))
     full_path = util_alloc_string_copy( input_path );
-  else 
+  else
     full_path = util_alloc_filename( work_area->original_cwd , input_path , NULL);
-    
+
   if (util_entry_exists( full_path)) {
     char * parent_path = NULL;
 
     parent_path = util_alloc_parent_path( full_path );
-    
+
     if (copy_content)
       test_work_area_copy_directory_content( work_area , parent_path );
     else
       test_work_area_copy_directory( work_area , parent_path );
-    
+
     free( full_path );
     free( parent_path );
     return true;

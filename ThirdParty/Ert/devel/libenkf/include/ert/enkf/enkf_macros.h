@@ -291,6 +291,15 @@ void obs_prefix ## _measure__(const void * void_obs ,  const void * state , node
 
 #define VOID_MEASURE_HEADER(obs_prefix) void obs_prefix ## _measure__(const void * ,  const void * , node_id_type , meas_data_type * , const active_list_type *)
 
+/*****************************************************************/
+
+#define VOID_UPDATE_STD_SCALE(prefix)\
+void prefix ## _update_std_scale__( void * void_obs ,  double std_multiplier , const active_list_type * active_list) { \
+   prefix ## _type   * obs   = prefix ## _safe_cast( void_obs );     \
+   prefix ## _update_std_scale( obs , std_multiplier , active_list ); \
+}
+
+#define VOID_UPDATE_STD_SCALE_HEADER(prefix) void prefix ## _update_std_scale__(void * void_obs ,  double std_multiplier , const active_list_type * active_list);
 
 /*****************************************************************/
 

@@ -48,17 +48,18 @@
 #include <ert/enkf/active_list.h>
 #include <ert/enkf/enkf_state.h>
 #include <ert/enkf/enkf_defaults.h>
+#include <ert/enkf/local_obsdata_node.h>
 
 #define OBS_VECTOR_TYPE_ID 120086
 
 struct obs_vector_struct {
   UTIL_TYPE_ID_DECLARATION;
-  obs_free_ftype       *freef;        /* Function used to free an observation node. */
-  obs_get_ftype        *get_obs;      /* Function used to build the 'd' vector. */
-  obs_meas_ftype       *measure;      /* Function used to measure on the state, and add to to the S matrix. */
-  obs_user_get_ftype   *user_get;     /* Function to get an observation based on KEY:INDEX input from user.*/
-  obs_chi2_ftype       *chi2;         /* Function to evaluate chi-squared for an observation. */
-  obs_scale_std_ftype  *scale_std;    /* Function to scale the standard deviation with a given factor */
+  obs_free_ftype       	     *freef;        	  /* Function used to free an observation node. */
+  obs_get_ftype        	     *get_obs;      	  /* Function used to build the 'd' vector. */
+  obs_meas_ftype       	     *measure;      	  /* Function used to measure on the state, and add to to the S matrix. */
+  obs_user_get_ftype   	     *user_get;     	  /* Function to get an observation based on KEY:INDEX input from user.*/
+  obs_chi2_ftype       	     *chi2;         	  /* Function to evaluate chi-squared for an observation. */
+  obs_update_std_scale_ftype *update_std_scale;   /* Function to scale the standard deviation with a given factor */
 
   vector_type                    * nodes;
   char                           * obs_key;     /* The key this observation vector has in the enkf_obs layer. */
@@ -90,26 +91,35 @@ static void obs_vector_prefer_RESTART_warning() {
 
 
 
-static int __conf_instance_get_restart_nr(const conf_instance_type * conf_instance, const char * obs_key , time_map_type * obs_time , bool prefer_restart) {
+static int __conf_instance_get_restart_nr(const conf_instance_type * conf_instance, const char * obs_key , time_map_type * time_map , bool prefer_restart) {
   int obs_restart_nr = -1;  /* To shut up compiler warning. */
 
   if(conf_instance_has_item(conf_instance, "RESTART")) {
     obs_restart_nr = conf_instance_get_item_value_int(conf_instance, "RESTART");
-    if (obs_restart_nr > time_map_get_last_step( obs_time))
-      util_abort("%s: Observation %s occurs at restart %i, but history file has only %i restarts.\n", __func__, obs_key, obs_restart_nr, time_map_get_last_step( obs_time));
-  } else if(conf_instance_has_item(conf_instance, "DATE")) {
-    time_t obs_date = conf_instance_get_item_value_time_t(conf_instance, "DATE"  );
-    obs_restart_nr  = time_map_lookup_time( obs_time , obs_date );
-    if (prefer_restart)
-      obs_vector_prefer_RESTART_warning();
-  } else if (conf_instance_has_item(conf_instance, "DAYS")) {
-    double days = conf_instance_get_item_value_double(conf_instance, "DAYS");
-    obs_restart_nr  = time_map_lookup_days( obs_time , days );
-    if (prefer_restart)
-      obs_vector_prefer_RESTART_warning();
-  }  else
-    util_abort("%s: Internal error. Invalid conf_instance?\n", __func__);
+    if (obs_restart_nr > time_map_get_last_step( time_map))
+      util_abort("%s: Observation %s occurs at restart %i, but history file has only %i restarts.\n", __func__, obs_key, obs_restart_nr, time_map_get_last_step( time_map ));
+  } else {
+    time_t obs_time = time_map_get_start_time( time_map );
 
+    if(conf_instance_has_item(conf_instance, "DATE")) {
+      obs_time = conf_instance_get_item_value_time_t(conf_instance, "DATE"  );
+      if (prefer_restart)
+        obs_vector_prefer_RESTART_warning();
+    } else if (conf_instance_has_item(conf_instance, "DAYS")) {
+      double days = conf_instance_get_item_value_double(conf_instance, "DAYS");
+      util_inplace_forward_days( &obs_time , days );
+      if (prefer_restart)
+        obs_vector_prefer_RESTART_warning();
+    } else if (conf_instance_has_item(conf_instance, "HOURS")) {
+      double hours = conf_instance_get_item_value_double(conf_instance, "HOURS");
+      util_inplace_forward_seconds( &obs_time , hours * 3600 );
+      if (prefer_restart)
+        obs_vector_prefer_RESTART_warning();
+    } else
+      util_abort("%s: Internal error. Invalid conf_instance?\n", __func__);
+
+    obs_restart_nr = time_map_lookup_time_with_tolerance( time_map , obs_time , 30 , 30 );
+  }
   if (obs_restart_nr < 0)
     util_abort("%s: Failed to look up restart nr correctly \n",__func__);
 
@@ -140,33 +150,33 @@ obs_vector_type * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key
   vector->get_obs    = NULL;
   vector->user_get   = NULL;
   vector->chi2       = NULL;
-  vector->scale_std  = NULL;
+  vector->update_std_scale  = NULL;
   vector->step_list  = int_vector_alloc(0,0);
 
   switch (obs_type) {
   case(SUMMARY_OBS):
-    vector->freef      = summary_obs_free__;
-    vector->measure    = summary_obs_measure__;
-    vector->get_obs    = summary_obs_get_observations__;
-    vector->user_get   = summary_obs_user_get__;
-    vector->chi2       = summary_obs_chi2__;
-    vector->scale_std  = summary_obs_scale_std__;
+    vector->freef      	      = summary_obs_free__;
+    vector->measure    	      = summary_obs_measure__;
+    vector->get_obs    	      = summary_obs_get_observations__;
+    vector->user_get   	      = summary_obs_user_get__;
+    vector->chi2       	      = summary_obs_chi2__;
+    vector->update_std_scale  = summary_obs_update_std_scale__;
     break;
   case(BLOCK_OBS):
-    vector->freef      = block_obs_free__;
-    vector->measure    = block_obs_measure__;
-    vector->get_obs    = block_obs_get_observations__;
-    vector->user_get   = block_obs_user_get__;
-    vector->chi2       = block_obs_chi2__;
-    vector->scale_std  = block_obs_scale_std__;
+    vector->freef      	      = block_obs_free__;
+    vector->measure    	      = block_obs_measure__;
+    vector->get_obs    	      = block_obs_get_observations__;
+    vector->user_get   	      = block_obs_user_get__;
+    vector->chi2       	      = block_obs_chi2__;
+    vector->update_std_scale  = block_obs_update_std_scale__;
     break;
   case(GEN_OBS):
-    vector->freef      = gen_obs_free__;
-    vector->measure    = gen_obs_measure__;
-    vector->get_obs    = gen_obs_get_observations__;
-    vector->user_get   = gen_obs_user_get__;
-    vector->chi2       = gen_obs_chi2__;
-    vector->scale_std  = gen_obs_scale_std__;
+    vector->freef      	      = gen_obs_free__;
+    vector->measure    	      = gen_obs_measure__;
+    vector->get_obs    	      = gen_obs_get_observations__;
+    vector->user_get   	      = gen_obs_user_get__;
+    vector->chi2       	      = gen_obs_chi2__;
+    vector->update_std_scale  = gen_obs_update_std_scale__;
     break;
   default:
     util_abort("%s: internal error - obs_type:%d not recognized \n",__func__ , obs_type);
@@ -641,15 +651,14 @@ bool obs_vector_load_from_HISTORY_OBSERVATION(obs_vector_type * obs_vector ,
   }
 }
 
-void obs_vector_scale_std(obs_vector_type * obs_vector, double std_multiplier) {
-  vector_type * observation_nodes = obs_vector->nodes;
-
-  for (int i=0; i<vector_get_size(observation_nodes); i++) {
-    if (obs_vector_iget_active(obs_vector, i)) {
-      void * observation = obs_vector_iget_node(obs_vector, i);
-      obs_vector->scale_std(observation, std_multiplier);
-    }
-
+void obs_vector_scale_std(obs_vector_type * obs_vector, const local_obsdata_node_type * local_node , double std_multiplier) {
+  const active_list_type * active_list = local_obsdata_node_get_active_list( local_node );
+  const int_vector_type * tstep_list = local_obsdata_node_get_tstep_list( local_node );
+  for (int i=0; i < int_vector_size( tstep_list ); i++) {
+    int tstep = int_vector_iget( tstep_list , i );
+    void * observation = obs_vector_iget_node(obs_vector, tstep);
+    if (observation)
+      obs_vector->update_std_scale(observation, std_multiplier , active_list);
   }
 }
 
@@ -1093,6 +1102,13 @@ void obs_vector_ensemble_total_chi2(const obs_vector_type * obs_vector , enkf_fs
 
 const char * obs_vector_get_obs_key( const obs_vector_type * obs_vector) {
   return obs_vector->obs_key;
+}
+
+
+local_obsdata_node_type * obs_vector_alloc_local_node(const obs_vector_type * obs_vector) {
+  local_obsdata_node_type * obs_node = local_obsdata_node_alloc( obs_vector->obs_key );
+  local_obsdata_node_reset_tstep_list(obs_node, obs_vector->step_list );
+  return  obs_node;
 }
 
 

@@ -102,7 +102,7 @@ else()
    message( WARNING "Git not found. Build will not contain git revision info." )
 endif()
 
-set_source_files_properties( version.c PROPERTIES COMPILE_DEFINITIONS "COMPILE_TIME_STAMP=\"${BUILD_TIME}\";GIT_COMMIT=\"${GIT_COMMIT}\";GIT_COMMIT_SHORT=\"${GIT_COMMIT_SHORT}\";ERT_VERSION_MAJOR=\"${ERT_VERSION_MAJOR}\";ERT_VERSION_MINOR=\"${ERT_VERSION_MINOR}\";ERT_VERSION_MICRO=\"${ERT_VERSION_MICRO}\"")
+set_source_files_properties( version.c PROPERTIES COMPILE_DEFINITIONS "COMPILE_TIME_STAMP=\"${BUILD_TIME}\";GIT_COMMIT=\"${GIT_COMMIT}\";GIT_COMMIT_SHORT=\"${GIT_COMMIT_SHORT}\";ERT_VERSION_MAJOR=${ERT_VERSION_MAJOR};ERT_VERSION_MINOR=${ERT_VERSION_MINOR};ERT_VERSION_MICRO=\"${ERT_VERSION_MICRO}\"")
 
 
 if (CMAKE_COMPILER_IS_GNUCC)
@@ -123,8 +123,8 @@ if (WITH_LATEX)
 endif()
 
 if (WITH_LAPACK)
-   list( APPEND source_files matrix_lapack.c matrix_blas.c regression.c lars.c stepwise.c)
-   list( APPEND header_files matrix_lapack.h matrix_blas.h regression.h lars.h stepwise.h)
+   list( APPEND source_files matrix_lapack.c matrix_blas.c matrix_stat.c regression.c lars.c stepwise.c)
+   list( APPEND header_files matrix_lapack.h matrix_blas.h matrix_stat.h regression.h lars.h stepwise.h)
 endif()
 
 if (UNISTD_HEADER)
@@ -148,7 +148,7 @@ endif()
 
 # The block_fs filesystem is so heavily dependant on pthreads that it is not 
 # built if de not have pthreads.
-if (WITH_PTHREAD)
+if (ERT_BUILD_BLOCK_FS)
   list( APPEND source_files block_fs.c )
   list( APPEND header_files block_fs.h )
 
@@ -159,6 +159,10 @@ endif()
 if (HAVE_GETUID AND HAVE_OPENDIR)
   list( APPEND source_files test_work_area.c)
   list( APPEND header_files test_work_area.h )
+endif()
+
+if (ERT_BUILD_CXX)
+  list( APPEND header_files test_util.hpp )
 endif()
 
 add_library( ert_util   ${LIBRARY_TYPE}  ${source_files} )

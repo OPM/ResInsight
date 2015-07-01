@@ -20,7 +20,7 @@ class Results(ShellFunction):
         arguments = self.splitArguments(args)
 
         if len(arguments) < 1:
-            print("Error: Loading requires a realization mask.")
+            self.lastCommandFailed("Loading requires a realization mask.")
             return False
 
         realization_count = self.ert().getEnsembleSize()
@@ -29,7 +29,7 @@ class Results(ShellFunction):
         mask_success = BoolVector.updateActiveMask(arguments[0], mask)
 
         if not mask_success:
-            print("Error: The realization mask: '%s' is not valid." % arguments[0])
+            self.lastCommandFailed("The realization mask: '%s' is not valid." % arguments[0])
             return False
 
         fs = self.ert().getEnkfFsManager().getCurrentFileSystem()

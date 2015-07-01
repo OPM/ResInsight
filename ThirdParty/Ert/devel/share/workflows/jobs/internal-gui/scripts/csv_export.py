@@ -2,7 +2,7 @@ import os
 import re
 import pandas
 from ert.enkf import ErtPlugin, CancelPluginException
-from ert.enkf.export import SummaryCollector, GenKwCollector, MisfitCollector, DesignMatrixReader
+from ert.enkf.export import SummaryCollector, GenKwCollector, MisfitCollector, DesignMatrixReader, CustomKWCollector
 from ert.util import Profiler
 from ert_gui.models.mixins.connectorless import DefaultPathModel, DefaultBooleanModel
 from ert_gui.widgets.checkbox import CheckBox
@@ -13,7 +13,7 @@ from ert_gui.widgets.path_chooser import PathChooser
 
 class CSVExportJob(ErtPlugin):
     """
-    Export of summary, misfit, design matrix data and gen kw into a single CSV file.
+    Export of summary, custom_kw, misfit, design matrix data and gen kw into a single CSV file.
 
     The script expects a single argument:
 
@@ -55,7 +55,7 @@ class CSVExportJob(ErtPlugin):
         return "CSV Export"
 
     def getDescription(self):
-        return "Export GenKW, design matrix, misfit data and summary data into a single CSV file."
+        return "Export GenKW, CustomKW, design matrix, misfit data and summary data into a single CSV file."
 
     def inferIterationNumber(self, case_name):
         pattern = re.compile("_([0-9]+$)")
@@ -103,20 +103,29 @@ class CSVExportJob(ErtPlugin):
 
             case_data = GenKwCollector.loadAllGenKwData(self.ert(), case)
 
+            custom_kw_data = CustomKWCollector.loadAllCustomKWData(self.ert(), case)
+            if not custom_kw_data.empty:
+                case_data = case_data.join(custom_kw_data, how='outer')
+
             if design_matrix_path is not None:
-               design_matrix_data = DesignMatrixReader.loadDesignMatrix(design_matrix_path)
-               case_data = case_data.join(design_matrix_data, how='inner')
+                design_matrix_data = DesignMatrixReader.loadDesignMatrix(design_matrix_path)
+                if not design_matrix_data.empty:
+                    case_data = case_data.join(design_matrix_data, how='outer')
 
             misfit_data = MisfitCollector.loadAllMisfitData(self.ert(), case)
-
-            case_data = case_data.join(misfit_data, how='inner')
+            if not misfit_data.empty:
+                case_data = case_data.join(misfit_data, how='outer')
 
             summary_data = SummaryCollector.loadAllSummaryData(self.ert(), case)
-            summary_data["Iteration"] = iteration_number
-            summary_data["Case"] = case
-            summary_data.set_index(["Case", "Iteration"], append=True, inplace=True)
+            if not summary_data.empty:
+                case_data = case_data.join(summary_data, how='outer')
+            else:
+                case_data["Date"] = None
+                case_data.set_index(["Date"], append=True, inplace=True)
 
-            case_data = case_data.join(summary_data, how='inner')
+            case_data["Iteration"] = iteration_number
+            case_data["Case"] = case
+            case_data.set_index(["Case", "Iteration"], append=True, inplace=True)
 
             data = pandas.concat([data, case_data])
 

@@ -15,11 +15,16 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
+from ert.enkf.enums import GenDataFileType
 
 
 class GenDataConfig(BaseCClass):
-    def __init__(self):
-        raise NotImplementedError("Class can not be instantiated directly!")
+    def __init__(self, key , input_format = GenDataFileType.ASCII):
+        # Can currently only create GEN_DATA instances which should be used
+        # as result variables.
+        c_pointer = GenDataConfig.cNamespace().alloc( key , input_format )
+        super(GenDataConfig, self).__init__(c_pointer)
+
 
     def get_template_file(self):
         return GenDataConfig.cNamespace().get_template_file(self)
@@ -63,11 +68,9 @@ cwrapper.registerType("gen_data_config", GenDataConfig)
 cwrapper.registerType("gen_data_config_obj", GenDataConfig.createPythonObject)
 cwrapper.registerType("gen_data_config_ref", GenDataConfig.createCReference)
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 
-GenDataConfig.cNamespace().free = cwrapper.prototype("void gen_data_config_free( gen_data_config )")
+GenDataConfig.cNamespace().alloc = cwrapper.prototype("c_void_p gen_data_config_alloc_GEN_DATA_result( char* , gen_data_file_format_type)")
+GenDataConfig.cNamespace().free  = cwrapper.prototype("void gen_data_config_free( gen_data_config )")
 GenDataConfig.cNamespace().get_output_format = cwrapper.prototype("gen_data_file_format_type gen_data_config_get_output_format(gen_data_config)")
 GenDataConfig.cNamespace().get_input_format = cwrapper.prototype("gen_data_file_format_type gen_data_config_get_input_format(gen_data_config)")
 GenDataConfig.cNamespace().get_template_file = cwrapper.prototype("char* gen_data_config_get_template_file(gen_data_config)")

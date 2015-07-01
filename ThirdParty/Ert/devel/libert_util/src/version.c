@@ -1,13 +1,4 @@
-#define DOT "."
-
-#ifdef ERT_VERSION_MAJOR
-#ifdef ERT_VERSION_MINOR
-#ifdef ERT_VERSION_MICRO
-    #define ERT_VERSION ERT_VERSION_MAJOR DOT ERT_VERSION_MINOR DOT ERT_VERSION_MICRO
-#endif
-#endif
-#endif
-
+#include <ert/util/util.h>
 
 char* version_get_git_commit() {
     #ifdef GIT_COMMIT
@@ -25,13 +16,6 @@ char* version_get_git_commit_short() {
     #endif
 }
 
-char* version_get_ert_version() {
-    #ifdef ERT_VERSION
-        return ERT_VERSION;
-    #else
-        return "Unknown version";
-    #endif
-}
 
 char* version_get_build_time() {
     #ifdef COMPILE_TIME_STAMP
@@ -39,4 +23,23 @@ char* version_get_build_time() {
     #else
         return "Unknown build time";
     #endif
+}
+
+int version_get_major_ert_version() {
+  return ERT_VERSION_MAJOR;
+}
+
+
+int version_get_minor_ert_version() {
+  return ERT_VERSION_MINOR;
+}
+
+
+const char * version_get_micro_ert_version() {
+  return ERT_VERSION_MICRO;
+}
+
+
+bool version_is_ert_devel_version() {
+  return util_sscanf_int( ERT_VERSION_MICRO  , NULL);
 }

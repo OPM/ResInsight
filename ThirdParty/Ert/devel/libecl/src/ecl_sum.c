@@ -284,17 +284,17 @@ smspec_node_type * ecl_sum_add_blank_var( ecl_sum_type * ecl_sum , float default
 
 
 
-ecl_sum_tstep_type * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step , double sim_days) {
-  return ecl_sum_data_add_new_tstep( ecl_sum->data , report_step , sim_days );
+ecl_sum_tstep_type * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step , double sim_seconds) {
+  return ecl_sum_data_add_new_tstep( ecl_sum->data , report_step , sim_seconds );
 }
 
 
-ecl_sum_type * ecl_sum_alloc_writer( const char * ecl_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , int nx , int ny , int nz) {
+ecl_sum_type * ecl_sum_alloc_writer( const char * ecl_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz) {
   ecl_sum_type * ecl_sum = ecl_sum_alloc__( ecl_case , key_join_string );
   ecl_sum_set_unified( ecl_sum , unified );
   ecl_sum_set_fmt_case( ecl_sum , fmt_output );
 
-  ecl_sum->smspec = ecl_smspec_alloc_writer( key_join_string , sim_start , nx , ny , nz );
+  ecl_sum->smspec = ecl_smspec_alloc_writer( key_join_string , sim_start , time_in_days , nx , ny , nz );
   ecl_sum->data   = ecl_sum_data_alloc_writer( ecl_sum->smspec );
 
   return ecl_sum;
@@ -884,12 +884,17 @@ void ecl_sum_fmt_init_csv( ecl_sum_fmt_type * fmt ) {
 
 
 
-void ecl_sum_fmt_init_summary_x( ecl_sum_fmt_type * fmt ) {
+void ecl_sum_fmt_init_summary_x( const ecl_sum_type * ecl_sum , ecl_sum_fmt_type * fmt ) {
   fmt->locale     = NULL;
   fmt->sep        = "";
   fmt->date_fmt   = "%d/%m/%Y   ";
   fmt->value_fmt  = " %15.6g ";
-  fmt->days_fmt   = "%7.2f   ";
+
+  if (util_string_equal( ecl_sum_get_unit( ecl_sum , "TIME") , "DAYS"))
+    fmt->days_fmt   = "%7.2f   ";
+  else
+    fmt->days_fmt   = "%7.4f   ";
+
   fmt->header_fmt = " %15s ";
 
   fmt->newline = "\n";

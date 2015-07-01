@@ -73,6 +73,8 @@ class ConfigParser(BaseCClass):
                unrecognized=UnrecognizedEnum.CONFIG_UNRECOGNIZED_WARN, validate=True):
 
         assert isinstance(unrecognized, UnrecognizedEnum)
+        
+        
         if os.path.exists(config_file):
             config_content = ConfigParser.cNamespace().parse(self, config_file, comment_string, include_kw, define_kw, unrecognized, validate)
             if config_content.isValid():
@@ -80,7 +82,7 @@ class ConfigParser(BaseCClass):
             else:
                 raise Exception("Parsing:%s failed" % config_file)
         else:
-            raise IOError("File: %s does not exists")
+            raise IOError("File: %s does not exists" % config_file)
 
 
     def free(self):
@@ -105,4 +107,5 @@ SchemaItem.cNamespace().iget_type = cwrapper.prototype("config_content_type_enum
 SchemaItem.cNamespace().iset_type = cwrapper.prototype("void config_schema_item_iset_type( schema_item , int , config_content_type_enum)")
 SchemaItem.cNamespace().set_argc_minmax = cwrapper.prototype("void config_schema_item_set_argc_minmax( schema_item , int , int)")
 
+    
 

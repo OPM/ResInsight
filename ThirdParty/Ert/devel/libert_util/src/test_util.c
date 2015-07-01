@@ -133,6 +133,19 @@ void test_assert_bool_not_equal__( bool b1 , bool b2 , const char * file , int l
 }
 
 
+/*****************************************************************/
+
+void test_assert_size_t_equal__( size_t s1 , size_t s2 , const char * file , int line) {
+  if (s1 != s2)
+    test_error_exit("%s:%d => size_t values are different s1:%d  s2:[%d]\n" , file , line , s1 , s2);
+}
+
+
+void test_assert_size_t_not_equal__( size_t s1 , size_t s2 , const char * file , int line) {
+  if (s1 == s2)
+    test_error_exit("%s:%d => size_t values are different s1:%d  s2:[%d]\n" , file , line , s1 , s2);
+}
+
 
 /*****************************************************************/
 

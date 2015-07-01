@@ -91,10 +91,9 @@ void custom_kw_config_serialize(custom_kw_config_type * config, stringlist_type 
             const char * key = stringlist_iget(configured_keys, i);
             bool double_type = custom_kw_config_key_is_double(config, key);
             int index = custom_kw_config_index_of_key(config, key);
-
             char buffer[256];
-            int count = sprintf(buffer, "%s %d %d", key, index, double_type);
 
+            sprintf(buffer, "%s %d %d", key, index, double_type);
             stringlist_append_copy(config_set, buffer);
         }
 
@@ -117,9 +116,12 @@ void custom_kw_config_deserialize(custom_kw_config_type * config, stringlist_typ
             int is_double;
 
             int count = sscanf(items, "%s %d %d", key, &index, &is_double);
-
-            hash_insert_int(config->custom_keys, key, index);
-            hash_insert_int(config->custom_key_types, key, is_double);
+            
+            if (count == 3) {
+              hash_insert_int(config->custom_keys, key, index);
+              hash_insert_int(config->custom_key_types, key, is_double);
+            } else
+              util_abort("%s: internal error - deserialize failed\n",__func__);
         }
         config->undefined = false;
         config->key_definition_file = util_alloc_string_copy("from storage"); //Todo: Handle this differently?

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'config_content_item.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'config_content_item.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
@@ -53,7 +53,7 @@ struct config_content_item_struct {
 
      config_content_item_get_occurences( "KEY1" )
 
-   will return 2. 
+   will return 2.
 */
 
 
@@ -81,7 +81,7 @@ const config_content_node_type * config_content_item_iget_node_const(const confi
 
 
 char * config_content_item_ialloc_joined_string(const config_content_item_type * item , const char * sep , int occurence) {
-  const config_content_node_type * node = config_content_item_iget_node(item , occurence);  
+  const config_content_node_type * node = config_content_item_iget_node(item , occurence);
   return config_content_node_alloc_joined_string(node , sep);
 }
 
@@ -90,7 +90,7 @@ char * config_content_item_ialloc_joined_string(const config_content_item_type *
 char * config_content_item_alloc_joined_string(const config_content_item_type * item , const char * sep) {
   const int occurences = config_content_item_get_size( item );
   char * joined_string = NULL;
-  
+
   for (int i =0; i < occurences ; i++) {
     char * element = config_content_item_ialloc_joined_string(item , sep , i);
     joined_string = util_strcat_realloc( joined_string , element);
@@ -98,18 +98,18 @@ char * config_content_item_alloc_joined_string(const config_content_item_type * 
       joined_string = util_strcat_realloc( joined_string , sep );
     free( element );
   }
-  
+
   return joined_string;
 }
 
 const stringlist_type * config_content_item_iget_stringlist_ref(const config_content_item_type * item, int occurence) {
-  const config_content_node_type * node = config_content_item_iget_node(item , occurence);  
+  const config_content_node_type * node = config_content_item_iget_node(item , occurence);
   return config_content_node_get_stringlist( node );
 }
 
 
 const stringlist_type * config_content_item_get_stringlist_ref(const config_content_item_type * item) {
-  const config_content_node_type * node = config_content_item_get_last_node( item );  
+  const config_content_node_type * node = config_content_item_get_last_node( item );
   return config_content_node_get_stringlist( node );
 }
 
@@ -125,12 +125,12 @@ stringlist_type * config_content_item_alloc_complete_stringlist(const config_con
   for (inode = 0; inode < vector_get_size( item->nodes ); inode++) {
     const config_content_node_type * node = config_content_item_iget_node(item , inode);
     const stringlist_type * src_list = config_content_node_get_stringlist( node );
-    
+
     if (copy)
       stringlist_append_stringlist_copy( stringlist , src_list );
     else
-      stringlist_append_stringlist_ref( stringlist , src_list );  
-    
+      stringlist_append_stringlist_ref( stringlist , src_list );
+
   }
 
   return stringlist;
@@ -146,12 +146,12 @@ stringlist_type * config_content_item_alloc_stringlist(const config_content_item
   const config_content_node_type * node = config_content_item_get_last_node( item );
   stringlist_type * stringlist = stringlist_alloc_new();
   const stringlist_type * src_list = config_content_node_get_stringlist( node );
-  
+
   if (copy)
     stringlist_append_stringlist_copy( stringlist , src_list );
   else
-    stringlist_append_stringlist_ref( stringlist , src_list );  
-  
+    stringlist_append_stringlist_ref( stringlist , src_list );
+
   return stringlist;
 }
 
@@ -170,15 +170,15 @@ hash_type * config_content_item_alloc_hash(const config_content_item_type * item
       const stringlist_type * src_list = config_content_node_get_stringlist( node );
       const char * key = stringlist_iget(src_list , 0);
       const char * value = stringlist_iget(src_list , 1);
-      
+
       if (copy) {
-        hash_insert_hash_owned_ref(hash , 
+        hash_insert_hash_owned_ref(hash ,
                                    key ,
-                                   util_alloc_string_copy(value) , 
+                                   util_alloc_string_copy(value) ,
                                    free);
       } else
         hash_insert_ref(hash , key , value );
-      
+
     }
   }
   return hash;
@@ -191,7 +191,7 @@ hash_type * config_content_item_alloc_hash(const config_content_item_type * item
 
 
 const char * config_content_item_iget(const config_content_item_type * item , int occurence , int index) {
-  const config_content_node_type * node = config_content_item_iget_node(item , occurence);  
+  const config_content_node_type * node = config_content_item_iget_node(item , occurence);
   const stringlist_type * src_list = config_content_node_get_stringlist( node );
   return stringlist_iget( src_list , index );
 }
@@ -228,7 +228,7 @@ double  config_content_item_iget_as_double(const config_content_item_type * item
 
    OPTION V1
    OPTION V2 V3 V4
-   OPTION __RESET__ 
+   OPTION __RESET__
    OPTION V6
 
    In this case OPTION will get the value 'V6'. The example given

@@ -125,8 +125,11 @@ class CWrapper:
             char* -> c_char_p
             ...
 
-        In addition, user register types are recognized and any type registered as a reference
-        to BaseCClass createCReference and createPythonObject are treated as pointers and converted automatically.
+        In addition, user register types are recognized and any type
+        registered as a reference to BaseCClass createCReference and
+        createPythonObject are treated as pointers and converted
+        automatically.
+
         """
 
         match = re.match(CWrapper.pattern, prototype)

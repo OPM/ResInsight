@@ -171,6 +171,8 @@ class TimeMap(BaseCClass):
         return step_list
 
 
+    def getLastStep(self):
+        return TimeMap.cNamespace().last_step(self)
 
         
 ##################################################################
@@ -197,3 +199,4 @@ TimeMap.cNamespace().set_strict = cwrapper.prototype("void time_map_set_strict( 
 TimeMap.cNamespace().lookup_time = cwrapper.prototype("int time_map_lookup_time( time_map , time_t)")
 TimeMap.cNamespace().lookup_time_with_tolerance = cwrapper.prototype("int time_map_lookup_time_with_tolerance( time_map , time_t , int , int)")
 TimeMap.cNamespace().lookup_days = cwrapper.prototype("int time_map_lookup_days( time_map , double)")
+TimeMap.cNamespace().last_step = cwrapper.prototype("int time_map_get_last_step( time_map )")

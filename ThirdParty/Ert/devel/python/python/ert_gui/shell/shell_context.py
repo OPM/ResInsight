@@ -24,7 +24,7 @@ class ShellContext(object):
         self.__ert = ert
 
     def shell(self):
-        """ @rtype: cmd.Cmd """
+        """ @rtype: ErtShell """
         return self.__shell
 
     def __setitem__(self, key, value):

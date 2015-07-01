@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway. 
-    
-   The file 'ert_test_context.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2014  Statoil ASA, Norway.
+
+   The file 'ert_test_context.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -48,7 +48,7 @@ static ert_test_context_type * ert_test_context_alloc__( const char * test_name 
 
   /*
     This environment variable is set to ensure that test context will
-    parse the correct files when loading site config. 
+    parse the correct files when loading site config.
   */
   if (python_mode)
     setenv("ERT_UI_MODE" , "gui" , 1);
@@ -100,10 +100,10 @@ void ert_test_context_free( ert_test_context_type * test_context ) {
 
   if (test_context->enkf_main)
     enkf_main_free( test_context->enkf_main );
-  
+
   if (test_context->work_area)
     test_work_area_free( test_context->work_area );
-  
+
   if (test_context->rng)
     rng_free( test_context->rng );
 
@@ -152,7 +152,7 @@ bool ert_test_context_run_worklow( ert_test_context_type * test_context , const 
     return false;
   }
 }
-                                     
+
 
 
 bool ert_test_context_run_worklow_job( ert_test_context_type * test_context , const char * job_name, const stringlist_type * args) {

@@ -1,6 +1,7 @@
 set(PYTHON_SOURCES
     __init__.py
-    geo_polygon.py
+    cpolyline.py
+    cpolyline_collection.py
     geometry_tools.py
     polyline.py
     xyz_io.py

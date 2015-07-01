@@ -34,7 +34,8 @@ class ErtHandler(SocketServer.StreamRequestHandler):
         try:
             data = json.loads( string_data )
         except Exception,e:
-            self.returnString(ERROR( "Invalid JSON input" , exception = e))
+            result = ERROR( "Invalid JSON input" , exception = e)
+            self.returnToClient( result )
             return
             
         if data[0] == "QUIT":

@@ -44,7 +44,7 @@ void custom_kw_config_set_free(custom_kw_config_set_type * set) {
     free(set);
 }
 
-void custom_kw_config_set_add_config(custom_kw_config_set_type * set, custom_kw_config_type * config) {
+void custom_kw_config_set_add_config(custom_kw_config_set_type * set, const custom_kw_config_type * config) {
     pthread_rwlock_wrlock(& set->rw_lock);
     {
         const char * name = custom_kw_config_get_name(config);

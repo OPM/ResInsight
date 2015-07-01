@@ -21,6 +21,8 @@
 
 #include <ert/util/test_util.h>
 
+#include <ert/geometry/geo_polygon_collection.h>
+
 #include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/fault_block_layer.h>
@@ -138,6 +140,7 @@ void test_export( const ecl_grid_type * grid) {
 void test_neighbours( const ecl_grid_type * grid) {
   const int k = 0;
   fault_block_layer_type * layer = fault_block_layer_alloc( grid , k );
+  geo_polygon_collection_type * polylines = geo_polygon_collection_alloc();
   ecl_kw_type * ecl_kw = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid )     , ECL_INT_TYPE );
 
   ecl_kw_iset_int( ecl_kw , 0 , 1);
@@ -153,14 +156,14 @@ void test_neighbours( const ecl_grid_type * grid) {
       fault_block_type * block = fault_block_layer_get_block( layer , 1 );
 
       test_assert_int_equal( 0 , int_vector_size( neighbours ));
-      fault_block_list_neighbours( block , neighbours );
+      fault_block_list_neighbours( block , false , polylines , neighbours );
       test_assert_int_equal( 0 , int_vector_size( neighbours ));
     }
 
     {
       fault_block_type * block = fault_block_layer_get_block( layer , 2 );
 
-      fault_block_list_neighbours( block , neighbours );
+      fault_block_list_neighbours( block , false , polylines , neighbours );
       test_assert_int_equal( 1 , int_vector_size( neighbours ));
       test_assert_true( int_vector_contains( neighbours , 3 ));
     }
@@ -169,7 +172,7 @@ void test_neighbours( const ecl_grid_type * grid) {
 
   }
   
-
+  geo_polygon_collection_free( polylines );
   fault_block_layer_free( layer );  
   ecl_kw_free( ecl_kw );
 }

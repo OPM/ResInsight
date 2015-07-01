@@ -14,22 +14,34 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
+from ert.util import StringList
 from ert.enkf import ENKF_LIB, SummaryKeyMatcher
 from ert.enkf.data import EnkfConfigNode
 from ert.enkf.enums import EnkfVarType, ErtImplType
-from ert.util import StringList
+
 
 
 class EnsembleConfig(BaseCClass):
-    def __init__(self):
-        raise NotImplementedError("Class can not be instantiated directly!")
 
-    def getNode(self, key):
+    def __init__(self):
+        c_ptr = EnsembleConfig.cNamespace().alloc()
+        super(EnsembleConfig , self).__init__(c_ptr)
+        
+
+    def __len__(self):
+        return EnsembleConfig.cNamespace().size( self )
+
+    
+    def __getitem__(self , key):
         """ @rtype: EnkfConfigNode """
         if key in self:
             return EnsembleConfig.cNamespace().get_node(self, key).setParent(self)
         else:
             raise KeyError("The key:%s is not in the ensemble configuration" % key)
+
+    
+    def getNode(self, key):
+        return self[key]
 
 
     def alloc_keylist(self):
@@ -79,8 +91,10 @@ class EnsembleConfig(BaseCClass):
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("ens_config", EnsembleConfig)
 
+EnsembleConfig.cNamespace().alloc = cwrapper.prototype("c_void_p ensemble_config_alloc(  )")
 EnsembleConfig.cNamespace().free = cwrapper.prototype("void ensemble_config_free( ens_config )")
 EnsembleConfig.cNamespace().has_key = cwrapper.prototype("bool ensemble_config_has_key( ens_config , char* )")
+EnsembleConfig.cNamespace().size = cwrapper.prototype("int ensemble_config_get_size( ens_config)")
 EnsembleConfig.cNamespace().get_node = cwrapper.prototype("enkf_config_node_ref ensemble_config_get_node( ens_config , char*)")
 EnsembleConfig.cNamespace().alloc_keylist = cwrapper.prototype("stringlist_obj ensemble_config_alloc_keylist( ens_config )")
 EnsembleConfig.cNamespace().add_summary = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_summary( ens_config, char*, int)")

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'queue_driver.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'queue_driver.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
  */
 
 #ifndef __QUEUE_DRIVER_H__
@@ -37,15 +37,15 @@ extern "C" {
 {.value = 1 , .name = "LSF_DRIVER"},                            \
 {.value = 2 , .name = "LOCAL_DRIVER"},                          \
 {.value = 3 , .name = "RSH_DRIVER"},                             \
-{.value = 4 , .name = "TORQUE_DRIVER"}                             
-                        
+{.value = 4 , .name = "TORQUE_DRIVER"}
+
 #define JOB_DRIVER_ENUM_SIZE 5
-  
+
   /*
     The options supported by the base queue_driver.
    */
 #define MAX_RUNNING          "MAX_RUNNING"
-  
+
   typedef enum {
     JOB_QUEUE_NOT_ACTIVE = 1, /* This value is used in external query routines - for jobs which are (currently) not active. */
     //JOB_QUEUE_LOADING            =     2 ,   /* This value is used by external routines. Not used in the libjob_queue implementation. */
@@ -123,7 +123,7 @@ extern "C" {
   typedef const void * (get_option_ftype) (const void *, const char *);
   typedef bool (has_option_ftype) (const void *, const char *);
   typedef void (init_option_list_ftype) (stringlist_type *);
-  
+
 
   queue_driver_type * queue_driver_alloc_RSH(const char * rsh_cmd, const hash_type * rsh_hostlist);
   queue_driver_type * queue_driver_alloc_LSF(const char * queue_name, const char * resource_request, const char * remote_lsf_server);
@@ -135,7 +135,7 @@ extern "C" {
   void queue_driver_free_job(queue_driver_type * driver, void * job_data);
   void queue_driver_kill_job(queue_driver_type * driver, void * job_data);
   job_status_type queue_driver_get_status(queue_driver_type * driver, void * job_data);
-  
+
   const char * queue_driver_get_name(const queue_driver_type * driver);
 
   bool queue_driver_set_option(queue_driver_type * driver, const char * option_key, const void * value);

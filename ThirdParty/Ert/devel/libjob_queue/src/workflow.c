@@ -254,7 +254,7 @@ int workflow_size(const workflow_type * workflow) {
     return vector_get_size( workflow->cmd_list );
 }
 
-workflow_job_type * workflow_iget_job( const workflow_type * workflow, int index) {
+const workflow_job_type * workflow_iget_job( const workflow_type * workflow, int index) {
     const cmd_type * cmd = vector_iget_const( workflow->cmd_list , index );
     return cmd->workflow_job;
 }

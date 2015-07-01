@@ -32,7 +32,6 @@
 
 struct run_arg_struct {
   UTIL_TYPE_ID_DECLARATION;
-  bool                    __ready;              /* An attempt to check the internal state - not really used. */
   int                     iens;
   bool                    active;               /* Is this state object active at all - used for instance in ensemble experiments where only some of the members are integrated. */
   int                     init_step_parameters; /* The report step we initialize parameters from - will often be equal to step1, but can be different. */
@@ -182,16 +181,6 @@ int run_arg_get_iens( const run_arg_type * run_arg ) {
 
 int run_arg_get_load_start( const run_arg_type * run_arg ) {
   return run_arg->load_start;
-}
-
-
-bool run_arg_is_ready( const run_arg_type * run_arg) {
-  return run_arg->__ready;
-}
-
-
-void run_arg_set_ready( run_arg_type * run_arg , bool ready) {
-  run_arg->__ready = ready;
 }
 
 

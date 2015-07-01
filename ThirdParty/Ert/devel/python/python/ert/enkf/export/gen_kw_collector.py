@@ -12,7 +12,7 @@ class GenKwCollector(object):
     def createActiveList(ert, fs):
         state_map = fs.getStateMap()
         ens_mask = BoolVector(False, ert.getEnsembleSize())
-        state_map.selectMatching(ens_mask, RealizationStateEnum.STATE_HAS_DATA)
+        state_map.selectMatching(ens_mask, RealizationStateEnum.STATE_INITIALIZED | RealizationStateEnum.STATE_HAS_DATA)
         active_list = BoolVector.createActiveList(ens_mask)
 
         return [iens for iens in active_list]

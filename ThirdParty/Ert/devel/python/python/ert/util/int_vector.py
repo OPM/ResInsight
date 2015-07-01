@@ -94,4 +94,6 @@ IntVector.cNamespace().select_unique       = cwrapper.prototype("void int_vector
 IntVector.cNamespace().element_sum       = cwrapper.prototype("int int_vector_sum(int_vector)")
 IntVector.cNamespace().get_data_ptr      = cwrapper.prototype("int* int_vector_get_ptr(int_vector)")
 IntVector.cNamespace().count_equal       = cwrapper.prototype("int int_vector_count_equal(int_vector, int)")
+IntVector.cNamespace().init_range        = cwrapper.prototype("void int_vector_init_range(int_vector, int , int , int)")
+
 

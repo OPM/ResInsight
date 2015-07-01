@@ -71,7 +71,7 @@ class CTime(BaseCValue):
         elif isinstance(other, (int, datetime.datetime, datetime.date)):
             return self > CTime(other)
         else:
-            raise TypeError("CTIme does not support type: %s" % other.__class__)
+            raise TypeError("CTime does not support type: %s" % other.__class__)
 
     def __lt__(self, other):
         if isinstance(other, CTime):
@@ -79,7 +79,7 @@ class CTime(BaseCValue):
         elif isinstance(other, (int, datetime.datetime, datetime.date)):
             return self < CTime(other)
         else:
-            raise TypeError("CTIme does not support type: %s" % other.__class__)
+            raise TypeError("CTime does not support type: %s" % other.__class__)
 
     def __ne__(self, other):
         return not self == other
@@ -92,7 +92,7 @@ class CTime(BaseCValue):
         elif isinstance(other, type(None)):
             return False
         else:
-            raise TypeError("CTIme does not support type: %s" % other.__class__)
+            raise TypeError("CTime does not support type: %s" % other.__class__)
             
     def __imul__(self, other):
         value = int(self.value() * other)

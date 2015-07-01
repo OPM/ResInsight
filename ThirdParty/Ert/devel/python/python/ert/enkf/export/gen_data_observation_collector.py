@@ -68,7 +68,8 @@ class GenDataObservationCollector(object):
             obs_node = obs_vector.getNode(report_step)
             """ :type: ert.enkf.observations.GenObservation """
 
-            for value, std, data_index in obs_node:
+            for iobs , (value,std) in enumerate(obs_node):
+                data_index = obs_node.getDataIndex( iobs )
                 data[key][data_index] = value
                 data["STD_%s" % key][data_index] = std
 

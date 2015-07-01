@@ -46,9 +46,13 @@ class ErtTestRunner(object):
     @staticmethod
     def importClass(classpath):
         dot = classpath.rfind(".")
-        class_name = classpath[dot + 1:len(classpath)]
-        m = __import__(classpath[0:dot], globals(), locals(), [class_name])
-        return getattr(m, class_name)
+        class_name = classpath[dot + 1:]
+        try:
+            m = __import__(classpath[0:dot], globals(), locals(), [class_name])
+            return getattr(m, class_name)
+        except ImportError:
+            print("Failed to import: %s" % classpath)
+            raise
 
 
     @staticmethod

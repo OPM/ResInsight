@@ -25,7 +25,6 @@
 #include <ert/enkf/ert_test_context.h>
 #include <ert/enkf/meas_data.h>
 #include <ert/enkf/obs_data.h>
-#include <ert/enkf/local_obsset.h>
 #include <ert/enkf/summary_config.h>
 
 
@@ -35,7 +34,7 @@ void testS( ert_test_context_type * test_context ) {
     enkf_obs_type * enkf_obs = enkf_main_get_obs( enkf_main );
     enkf_fs_type * fs = enkf_main_get_fs( enkf_main );
     int_vector_type * active_list = int_vector_alloc(0,0);
-    obs_data_type * obs_data = obs_data_alloc( );
+    obs_data_type * obs_data = obs_data_alloc(1.0);
     local_obsdata_type * obs_set = local_obsdata_alloc( "KEY" );
     bool_vector_type * ens_mask;
     meas_data_type * meas_data;
@@ -45,7 +44,7 @@ void testS( ert_test_context_type * test_context ) {
       int_vector_append( active_list , i );
     ens_mask = int_vector_alloc_mask( active_list);
 
-    obs_data = obs_data_alloc( );
+    obs_data = obs_data_alloc(1.0);
     meas_data = meas_data_alloc( ens_mask );
 
     enkf_obs_add_local_nodes_with_data( enkf_obs  , obs_set , fs , ens_mask );

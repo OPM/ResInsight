@@ -15,17 +15,27 @@ class LocalObsdata(BaseCClass):
        return LocalObsdata.cNamespace().size(self)
 
 
-    def __getitem__(self, index):
-       """ @rtype: LocalObsdataNode """
-       assert isinstance(index, int)
-       return LocalObsdata.cNamespace().get_node(self, index).setParent(self)
+    def __getitem__(self, key):
+        """ @rtype: LocalObsdataNode """
+        if isinstance(key , int):
+            if int < len:
+                return LocalObsdata.cNamespace().iget_node(self, key).setParent(self)
+            else:
+                raise IndexError("Invalid index")
+        else:
+            if key in self:
+                return LocalObsdata.cNamespace().get_node(self, key).setParent(self)
+            else:
+                raise KeyError("Unknown key:%s" % key)
 
+        
     def __iter__(self):
-       cur = 0
-       while cur < len(self):
+        cur = 0
+        while cur < len(self):
            yield self[cur]
            cur += 1
 
+           
     def addNode(self, node):
         """ @rtype: bool """
         assert isinstance(node, LocalObsdataNode)
@@ -33,6 +43,11 @@ class LocalObsdata(BaseCClass):
         already_exists_node_for_key = LocalObsdata.cNamespace().add_node(self, node)
         return already_exists_node_for_key
 
+    
+    def addObsVector(self , obs_vector):
+        self.addNode( obs_vector.createLocalObs() )
+
+        
     def __contains__(self, item):
         """ @rtype: bool """
         if isinstance(item, str):
@@ -61,7 +76,8 @@ LocalObsdata.cNamespace().free     = cwrapper.prototype("void local_obsdata_free
 LocalObsdata.cNamespace().size     = cwrapper.prototype("int local_obsdata_get_size(local_obsdata)")
 LocalObsdata.cNamespace().has_node = cwrapper.prototype("bool local_obsdata_has_node(local_obsdata, char*)")
 LocalObsdata.cNamespace().add_node = cwrapper.prototype("bool local_obsdata_add_node(local_obsdata, local_obsdata_node)")
-LocalObsdata.cNamespace().get_node = cwrapper.prototype("local_obsdata_node_ref local_obsdata_iget(local_obsdata, int)")
+LocalObsdata.cNamespace().iget_node = cwrapper.prototype("local_obsdata_node_ref local_obsdata_iget(local_obsdata, int)")
+LocalObsdata.cNamespace().get_node = cwrapper.prototype("local_obsdata_node_ref local_obsdata_get(local_obsdata, char*)")
 LocalObsdata.cNamespace().name     = cwrapper.prototype("char* local_obsdata_get_name(local_obsdata)")
 
 

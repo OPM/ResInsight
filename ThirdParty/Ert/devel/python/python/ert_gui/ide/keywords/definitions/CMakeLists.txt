@@ -6,6 +6,7 @@ set(PYTHON_SOURCES
     float_argument.py
     integer_argument.py
     keyword_definition.py
+    number_list_string_argument.py
     path_argument.py
     percent_argument.py
     proper_name_argument.py
@@ -15,5 +16,5 @@ set(PYTHON_SOURCES
     string_argument.py
 )
 
-add_python_package("python.ert_gui.ide.keywords.definitions"  ${PYTHON_INSTALL_PREFIX}/ert_gui/ide/keywords/definitions "${PYTHON_SOURCES}" True)
+add_python_package("python.ert_gui.ide.keywords.definitions" ${PYTHON_INSTALL_PREFIX}/ert_gui/ide/keywords/definitions "${PYTHON_SOURCES}" True)
 

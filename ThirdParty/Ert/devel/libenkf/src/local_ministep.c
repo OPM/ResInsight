@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'local_ministep.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'local_ministep.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -24,10 +24,10 @@
 #include <ert/util/util.h>
 
 #include <ert/enkf/enkf_macros.h>
-#include <ert/enkf/local_config.h>  
+#include <ert/enkf/local_config.h>
 #include <ert/enkf/local_ministep.h>
 #include <ert/enkf/local_dataset.h>
-#include <ert/enkf/local_obsset.h>
+#include <ert/enkf/local_obsdata.h>
 
 /**
    This file implements a 'ministep' configuration for active /
@@ -53,7 +53,7 @@ struct local_ministep_struct {
   UTIL_TYPE_ID_DECLARATION;
   char              * name;             /* A name used for this ministep - string is also used as key in a hash table holding this instance. */
   hash_type         * datasets;         /* A hash table of local_dataset_type instances - indexed by the name of the datasets. */
-  local_obsset_type * observations;
+  local_obsdata_type * observations;
 };
 
 
@@ -65,14 +65,14 @@ struct local_ministep_struct {
 UTIL_SAFE_CAST_FUNCTION(local_ministep , LOCAL_MINISTEP_TYPE_ID)
 UTIL_IS_INSTANCE_FUNCTION(local_ministep , LOCAL_MINISTEP_TYPE_ID)
 
-local_ministep_type * local_ministep_alloc(const char * name , local_obsset_type * observations) {
+local_ministep_type * local_ministep_alloc(const char * name , local_obsdata_type * observations) {
   local_ministep_type * ministep = util_malloc( sizeof * ministep );
 
   ministep->name         = util_alloc_string_copy( name );
   ministep->observations = observations;
   ministep->datasets     = hash_alloc();
   UTIL_TYPE_ID_INIT( ministep , LOCAL_MINISTEP_TYPE_ID);
-  
+
   return ministep;
 }
 
@@ -127,7 +127,7 @@ void local_ministep_free__(void * arg) {
 
    2. The newly added elements will be assigned an active_list
    instance with mode ALL_ACTIVE.
-*/   
+*/
 
 
 
@@ -141,7 +141,7 @@ local_dataset_type * local_ministep_get_dataset( const local_ministep_type * min
   return hash_get( ministep->datasets, dataset_name );
 }
 
-local_obsset_type * local_ministep_get_obsset( const local_ministep_type * ministep ) {
+local_obsdata_type * local_ministep_get_obsdata( const local_ministep_type * ministep ) {
   return ministep->observations;
 }
 
@@ -160,7 +160,7 @@ hash_iter_type * local_ministep_alloc_dataset_iter( const local_ministep_type * 
 
 
 void local_ministep_fprintf( const local_ministep_type * ministep , FILE * stream ) {
-  fprintf(stream , "%s %s %s\n", local_config_get_cmd_string( CREATE_MINISTEP ), ministep->name , local_obsset_get_name( ministep->observations) );
+  fprintf(stream , "%s %s %s\n", local_config_get_cmd_string( CREATE_MINISTEP ), ministep->name , local_obsdata_get_name( ministep->observations) );
   {
     hash_iter_type * dataset_iter = hash_iter_alloc( ministep->datasets );
     while (!hash_iter_is_complete( dataset_iter )) {

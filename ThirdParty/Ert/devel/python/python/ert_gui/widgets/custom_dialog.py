@@ -34,6 +34,7 @@ class CustomDialog(QDialog):
         # self.setMinimumHeight(150)
 
         self.layout = QFormLayout()
+        self.layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         self.layout.setSizeConstraint(QLayout.SetFixedSize)
 
         label = QLabel(description)

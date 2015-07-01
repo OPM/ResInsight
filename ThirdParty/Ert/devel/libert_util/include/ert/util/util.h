@@ -110,6 +110,7 @@ typedef enum {left_pad   = 0,
   time_t       util_make_date(int , int , int);
   time_t       util_make_pure_date(time_t t);
   void         util_inplace_forward_days(time_t *  , double);
+  void         util_inplace_forward_seconds(time_t * t , double seconds);
   time_t       util_file_mtime(const char * file);
   double       util_difftime(time_t  , time_t  , int *  , int *  , int *  , int *);
   double       util_difftime_days(time_t  , time_t );

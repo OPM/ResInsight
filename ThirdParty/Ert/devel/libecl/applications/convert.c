@@ -31,7 +31,6 @@
 
 void file_convert(const char * src_file , const char * target_file, ecl_file_enum file_type , bool fmt_src) {
   fortio_type *src , *target;
-  ecl_kw_type * ecl_kw;
   bool formatted_src;
 
   printf("Converting %s -> %s \n",src_file , target_file);

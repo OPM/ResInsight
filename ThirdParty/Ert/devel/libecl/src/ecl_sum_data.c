@@ -798,9 +798,9 @@ static void ecl_sum_data_build_index( ecl_sum_data_type * sum_data ) {
   ecl_sum_tstep_iset() to set elements in the tstep.
 */
 
-ecl_sum_tstep_type * ecl_sum_data_add_new_tstep( ecl_sum_data_type * data , int report_step , double sim_days) {
+ecl_sum_tstep_type * ecl_sum_data_add_new_tstep( ecl_sum_data_type * data , int report_step , double sim_seconds) {
   int ministep_nr = vector_get_size( data->data );
-  ecl_sum_tstep_type * tstep = ecl_sum_tstep_alloc_new( report_step , ministep_nr , sim_days , data->smspec );
+  ecl_sum_tstep_type * tstep = ecl_sum_tstep_alloc_new( report_step , ministep_nr , sim_seconds , data->smspec );
   ecl_sum_tstep_type * prev_tstep = NULL;
 
   if (vector_get_size( data->data ) > 0)

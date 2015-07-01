@@ -53,7 +53,7 @@ UTIL_LIB = clib.ert_load("libert_util")
 
 from .version import Version
 
-from .enums import RngAlgTypeEnum, RngInitModeEnum
+from .enums import RngAlgTypeEnum, RngInitModeEnum, LLSQResultEnum
 
 from .ctime import CTime
 
@@ -62,11 +62,10 @@ from .double_vector import DoubleVector
 from .int_vector import IntVector
 from .bool_vector import BoolVector
 from .time_vector import TimeVector
-
 from .stringlist import StringList
-from .stat import quantile, quantile_sorted
 from .rng import RandomNumberGenerator
 from .matrix import Matrix
+from .stat import quantile, quantile_sorted, polyfit
 from .log import Log
 from .lookup_table import LookupTable
 from .buffer import Buffer

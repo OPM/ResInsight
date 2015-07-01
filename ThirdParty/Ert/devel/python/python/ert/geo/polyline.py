@@ -2,7 +2,7 @@ import collections
 from .geometry_tools import GeometryTools
 
 class Polyline(object):
-    def __init__(self, name="Unnamed" , init_points = None):
+    def __init__(self, name=None , init_points = None):
         super(Polyline, self).__init__()
         self.__name = name
         self.__points = []
@@ -16,10 +16,28 @@ class Polyline(object):
         s += "]"
         return s
 
-    def name(self):
+    def getName(self):
         """ @rtype: str """
         return self.__name
 
+
+    def __iadd__(self , other ):
+        for p in other:
+            self.__points.append( p )
+        return self
+
+
+    def __add__(self , other ):
+        copy = Polyline( init_points = self)
+        copy.__iadd__(other)
+        return copy
+
+
+    def __radd__(self , other ):
+        copy = Polyline( init_points = other )
+        copy.__iadd__(self)
+        return copy
+            
 
     def __eq__(self, other):
         if len(self) != len(other):
@@ -76,9 +94,6 @@ class Polyline(object):
             
 
     def loadPoints(self , points):
-        if not isinstance( points , collections.Iterable ):
-            raise TypeError("The input argument points must be iterable")
-            
         for point in points:
             x = point[0]
             y = point[1]
@@ -107,6 +122,15 @@ class Polyline(object):
             index += 1
 
 
+    def unzip2(self):
+        x = []
+        y = []
+        for p in self:
+            x.append(p[0])
+            y.append(p[1])
+        
+        return (x,y)
+
 
     def unzip(self):
         first_point = self[0]
@@ -129,4 +153,19 @@ class Polyline(object):
             
             return (x,y)
             
+
+    def connect(self , target):
+        end1 = self[0]
+        end2 = self[-1]
+
+        p1 = GeometryTools.nearestPointOnPolyline( end1 , target )
+        p2 = GeometryTools.nearestPointOnPolyline( end2 , target )
+            
+        d1 = GeometryTools.distance( p1 , end1 )
+        d2 = GeometryTools.distance( p2 , end2 )
+
+        if d1 < d2:
+            return [end1 , p1]
+        else:
+            return [end2 , p2]
 

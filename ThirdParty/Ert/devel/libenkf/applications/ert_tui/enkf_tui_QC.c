@@ -53,7 +53,6 @@
 #include <ert/enkf/plot_config.h>
 #include <ert/enkf/member_config.h>
 #include <ert/enkf/enkf_analysis.h>
-#include <ert/enkf/obs_tstep_list.h>
 #include <ert/enkf/pca_plot_data.h>
 
 #include <enkf_tui_util.h>

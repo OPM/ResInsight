@@ -28,7 +28,6 @@
 #include <ert/enkf/ert_test_context.h>
 #include <ert/enkf/meas_data.h>
 #include <ert/enkf/obs_data.h>
-#include <ert/enkf/local_obsset.h>
 #include <ert/enkf/obs_vector.h>
 #include <ert/enkf/summary_obs.h>
 

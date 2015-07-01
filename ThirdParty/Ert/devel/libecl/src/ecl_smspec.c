@@ -120,6 +120,7 @@ struct ecl_smspec_struct {
 
   /*-----------------------------------------------------------------*/
 
+  int               time_seconds;
   int               grid_dims[3];                 /* Grid dimensions - in DIMENS[1,2,3] */
   int               num_regions;
   int               Nwells , param_offset;
@@ -258,11 +259,12 @@ static ecl_smspec_type * ecl_smspec_alloc_empty(bool write_mode , const char * k
 
   ecl_smspec->smspec_nodes                   = vector_alloc_new();
 
-  ecl_smspec->time_index  = -1;
-  ecl_smspec->day_index   = -1;
-  ecl_smspec->year_index  = -1;
-  ecl_smspec->month_index = -1;
-  ecl_smspec->locked      = false;
+  ecl_smspec->time_index   = -1;
+  ecl_smspec->day_index    = -1;
+  ecl_smspec->year_index   = -1;
+  ecl_smspec->month_index  = -1;
+  ecl_smspec->locked       = false;
+  ecl_smspec->time_seconds = -1;
 
   ecl_smspec->index_map = int_vector_alloc(0,0);
   ecl_smspec->restart_list = stringlist_alloc_new();
@@ -432,7 +434,7 @@ void ecl_smspec_fwrite( const ecl_smspec_type * smspec , const char * ecl_case ,
   free( filename );
 }
 
-ecl_smspec_type * ecl_smspec_alloc_writer( const char * key_join_string , time_t sim_start , int nx , int ny , int nz) {
+ecl_smspec_type * ecl_smspec_alloc_writer( const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz) {
   ecl_smspec_type * ecl_smspec = ecl_smspec_alloc_empty( true , key_join_string );
 
   ecl_smspec->grid_dims[0] = nx;
@@ -441,15 +443,31 @@ ecl_smspec_type * ecl_smspec_alloc_writer( const char * key_join_string , time_t
   ecl_smspec->sim_start_time = sim_start;
 
   {
-    smspec_node_type * time_node = smspec_node_alloc( ECL_SMSPEC_MISC_VAR ,
-                                                      NULL ,
-                                                      "TIME" ,
-                                                      "DAYS" , // There are significant hardcoded assumptions of days around; would have been cool to be able to set seconds.
-                                                      key_join_string ,
-                                                      ecl_smspec->grid_dims ,
-                                                      0  ,
-                                                      -1 ,
-                                                      0 );
+    smspec_node_type * time_node;
+    if (time_in_days) {
+      time_node = smspec_node_alloc( ECL_SMSPEC_MISC_VAR ,
+                                     NULL ,
+                                     "TIME" ,
+                                     "DAYS" ,
+                                     key_join_string ,
+                                     ecl_smspec->grid_dims ,
+                                     0  ,
+                                     -1 ,
+                                     0 );
+      ecl_smspec->time_seconds = 3600 * 24;
+    } else {
+      time_node = smspec_node_alloc( ECL_SMSPEC_MISC_VAR ,
+                                     NULL ,
+                                     "TIME" ,
+                                     "HOURS" ,
+                                     key_join_string ,
+                                     ecl_smspec->grid_dims ,
+                                     0  ,
+                                     -1 ,
+                                     0 );
+      ecl_smspec->time_seconds = 3600;
+    }
+
     ecl_smspec_add_node( ecl_smspec , time_node );
     ecl_smspec->time_index = smspec_node_get_params_index( time_node );
   }
@@ -500,7 +518,6 @@ static ecl_smspec_var_type ecl_smspec_identify_special_var( const char * var ) {
 
 ecl_smspec_var_type  ecl_smspec_identify_var_type(const char * var) {
   ecl_smspec_var_type var_type = ecl_smspec_identify_special_var( var );
-  int str_length = strlen(var);
   if (var_type == ECL_SMSPEC_INVALID_VAR) {
     switch(var[0]) {
     case('A'):
@@ -544,12 +561,30 @@ ecl_smspec_var_type  ecl_smspec_identify_var_type(const char * var) {
       var_type = ECL_SMSPEC_NETWORK_VAR;
       break;
     case('R'):
-      if (((3 == str_length) && var[2] == 'F') ||
-          ((4 == str_length) && var[3] == 'F')) {
-       var_type  = ECL_SMSPEC_REGION_2_REGION_VAR;
-      }
-      else {
-        var_type  = ECL_SMSPEC_REGION_VAR;
+      {
+        /*
+          The distinction between region-to-region variables and plain
+          region variables is less than clear: The current
+          interpretation is that the cases:
+
+             1. Any variable matching:
+
+                a) Starts with 'R'
+                b) Has 'F' as the third character
+
+             2. The variable "RNLF"
+
+          Get variable type ECL_SMSPEC_REGION_2_REGION_VAR. The rest
+          get the type ECL_SMSPEC_REGION_VAR.
+        */
+
+        if (util_string_equal( var , "RNLF"))
+          var_type = ECL_SMSPEC_REGION_2_REGION_VAR;
+        else if (var[2] == 'F')
+          var_type = ECL_SMSPEC_REGION_2_REGION_VAR;
+        else
+          var_type  = ECL_SMSPEC_REGION_VAR;
+
       }
       break;
     case('S'):
@@ -1166,8 +1201,18 @@ ecl_smspec_type * ecl_smspec_fread_alloc(const char *header_file, const char * k
 
   if (ecl_smspec_fread_header(ecl_smspec , header_file , include_restart)) {
 
-    if (hash_has_key( ecl_smspec->misc_var_index , "TIME"))
-      ecl_smspec->time_index = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "TIME") );
+    if (hash_has_key( ecl_smspec->misc_var_index , "TIME")) {
+      const smspec_node_type * time_node = hash_get(ecl_smspec->misc_var_index , "TIME");
+      const char * time_unit = smspec_node_get_unit( time_node );
+      ecl_smspec->time_index = smspec_node_get_params_index( time_node );
+
+      if (util_string_equal( time_unit , "DAYS"))
+        ecl_smspec->time_seconds = 3600 * 24;
+      else if (util_string_equal( time_unit , "HOURS"))
+        ecl_smspec->time_seconds = 3600;
+      else
+        util_abort("%s: time_unit:%s not recognized \n",__func__ , time_unit);
+    }
 
     if (hash_has_key(ecl_smspec->misc_var_index , "DAY")) {
       ecl_smspec->day_index   = smspec_node_get_params_index( hash_get(ecl_smspec->misc_var_index , "DAY") );
@@ -1549,6 +1594,10 @@ const char * ecl_smspec_get_general_var_unit( const ecl_smspec_type * ecl_smspec
 
 /*****************************************************************/
 
+int ecl_smspec_get_time_seconds( const ecl_smspec_type * ecl_smspec ) {
+  return ecl_smspec->time_seconds;
+}
+
 int ecl_smspec_get_time_index( const ecl_smspec_type * ecl_smspec ) {
   return ecl_smspec->time_index;
 }
@@ -1601,9 +1650,6 @@ void ecl_smspec_free__(void * __ecl_smspec) {
   ecl_smspec_free( ecl_smspec );
 }
 
-int ecl_smspec_get_sim_days_index( const ecl_smspec_type * smspec ) {
-  return smspec->time_index;
-}
 
 int ecl_smspec_get_date_day_index( const ecl_smspec_type * smspec ) {
   return smspec->day_index;

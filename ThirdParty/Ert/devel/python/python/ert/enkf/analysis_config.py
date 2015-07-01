@@ -17,6 +17,7 @@ from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
 from ert.enkf import AnalysisIterConfig
 from ert.analysis import AnalysisModule
+from ert.util import StringList
 
 
 class AnalysisConfig(BaseCClass):
@@ -43,11 +44,19 @@ class AnalysisConfig(BaseCClass):
     def set_log_path(self, path):
         AnalysisConfig.cNamespace().set_log_path(self, path)
 
-    def get_alpha(self):
+    def getEnkfAlpha(self):
+        """ :rtype: float """
         return AnalysisConfig.cNamespace().get_alpha(self)
 
-    def set_alpha(self, alpha):
+    def setEnkfAlpha(self, alpha):
         AnalysisConfig.cNamespace().set_alpha(self, alpha)
+
+    def getStdCutoff(self):
+        """ :rtype: float """
+        return AnalysisConfig.cNamespace().get_std_cutoff(self)
+
+    def setStdCutoff(self, std_cutoff):
+        AnalysisConfig.cNamespace().set_std_cutoff(self, std_cutoff)
 
     def get_merge_observations(self):
         return AnalysisConfig.cNamespace().get_merge_observations(self)
@@ -84,9 +93,11 @@ class AnalysisConfig(BaseCClass):
         AnalysisConfig.cNamespace().free(self)
         
     def activeModuleName(self):
+        """ :rtype: str """
         return AnalysisConfig.cNamespace().get_active_module_name(self)
 
     def getModuleList(self):
+        """ :rtype: StringList """
         return AnalysisConfig.cNamespace().get_module_list(self)
 
     def getModule(self, module_name):
@@ -97,9 +108,16 @@ class AnalysisConfig(BaseCClass):
         """ @rtype: bool """
         return AnalysisConfig.cNamespace().select_module(self, module_name)
 
+    def getActiveModule(self):
+        """ :rtype: AnalysisModule """
+        return self.getModule(self.activeModuleName())
 
+    def setGlobalStdScaling(self, std_scaling):
+        AnalysisConfig.cNamespace().set_global_std_scaling(self, std_scaling)
 
-    ##################################################################
+    def getGlobalStdScaling(self):
+        return AnalysisConfig.cNamespace().get_global_std_scaling(self)
+
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerType("analysis_config", AnalysisConfig)
@@ -114,8 +132,7 @@ AnalysisConfig.cNamespace().get_rerun_start        = cwrapper.prototype("int ana
 AnalysisConfig.cNamespace().set_rerun_start        = cwrapper.prototype("void analysis_config_set_rerun_start( analysis_config, int)")
 AnalysisConfig.cNamespace().get_log_path           = cwrapper.prototype("char* analysis_config_get_log_path( analysis_config)")
 AnalysisConfig.cNamespace().set_log_path           = cwrapper.prototype("void analysis_config_set_log_path( analysis_config, char*)")
-AnalysisConfig.cNamespace().get_alpha              = cwrapper.prototype("double analysis_config_get_alpha(analysis_config)")
-AnalysisConfig.cNamespace().set_alpha              = cwrapper.prototype("void analysis_config_set_alpha(analysis_config, double)")
+
 AnalysisConfig.cNamespace().get_merge_observations = cwrapper.prototype("bool analysis_config_get_merge_observations(analysis_config)")
 AnalysisConfig.cNamespace().set_merge_observations = cwrapper.prototype("void analysis_config_set_merge_observations(analysis_config, bool)")
 AnalysisConfig.cNamespace().get_iter_config        = cwrapper.prototype("analysis_iter_config_ref analysis_config_get_iter_config(analysis_config)")
@@ -131,3 +148,10 @@ AnalysisConfig.cNamespace().get_module_list        = cwrapper.prototype("stringl
 AnalysisConfig.cNamespace().get_module             = cwrapper.prototype("analysis_module_ref analysis_config_get_module(analysis_config, char*)")
 AnalysisConfig.cNamespace().select_module             = cwrapper.prototype("bool analysis_config_select_module(analysis_config, char*)")
 
+AnalysisConfig.cNamespace().get_alpha              = cwrapper.prototype("double analysis_config_get_alpha(analysis_config)")
+AnalysisConfig.cNamespace().set_alpha              = cwrapper.prototype("void analysis_config_set_alpha(analysis_config, double)")
+AnalysisConfig.cNamespace().get_std_cutoff         = cwrapper.prototype("double analysis_config_get_std_cutoff(analysis_config)")
+AnalysisConfig.cNamespace().set_std_cutoff         = cwrapper.prototype("void analysis_config_set_std_cutoff(analysis_config, double)")
+
+AnalysisConfig.cNamespace().set_global_std_scaling = cwrapper.prototype("void analysis_config_set_global_std_scaling(analysis_config, double)")
+AnalysisConfig.cNamespace().get_global_std_scaling = cwrapper.prototype("double analysis_config_get_global_std_scaling(analysis_config)")

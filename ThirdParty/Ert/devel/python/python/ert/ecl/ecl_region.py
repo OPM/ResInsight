@@ -28,8 +28,9 @@ queried for the corresponding list of indices.
 import ctypes
 import warnings
 from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.ecl.faults import Layer
 from ert.ecl import EclKW, EclTypeEnum, ECL_LIB
-from ert.geo import GeoPolygon
+from ert.geo import CPolyline
 from ert.util import IntVector
 
 
@@ -101,6 +102,14 @@ class EclRegion(CClass):
         Creates a deep copy of the current region.
         """
         return EclRegion( self.grid , False , c_ptr = cfunc.alloc_copy( self ))
+
+
+    def __zero__(self):
+        global_list = self.getGlobalList()
+        if len(global_list) > 0:
+            return True
+        else:
+            return False
 
 
     def __iand__(self , other):
@@ -667,7 +676,7 @@ class EclRegion(CClass):
         implies that the selection polygon will effectively be
         translated if the pillars are not vertical.
         """
-        cfunc.select_inside_polygon( self , GeoPolygon( points ))
+        cfunc.select_inside_polygon( self , CPolyline( init_points = points ))
 
     @select_method
     def select_outside_polygon( self , points , intersect = False):
@@ -676,7 +685,7 @@ class EclRegion(CClass):
 
         See select_inside_polygon for more docuemntation.
         """
-        cfunc.select_outside_polygon( self , GeoPolygon( points ))
+        cfunc.select_outside_polygon( self , CPolyline( init_points = points ))
 
     def deselect_inside_polygon( self , points ):
         """
@@ -684,7 +693,7 @@ class EclRegion(CClass):
 
         See select_inside_polygon for more docuemntation.
         """
-        cfunc.deselect_inside_polygon( self , GeoPolygon( points ))
+        cfunc.deselect_inside_polygon( self , CPolyline( init_points = points ))
 
     def deselect_outside_polygon( self , points ):
         """
@@ -692,15 +701,53 @@ class EclRegion(CClass):
 
         See select_inside_polygon for more docuemntation.
         """
-        cfunc.deselect_outside_polygon( self , GeoPolygon( points ))
+        cfunc.deselect_outside_polygon( self , CPolyline( init_points = points ))
+
+        
+    @select_method
+    def selectTrue( self , ecl_kw , intersect = False):
+        """
+        Assume that input ecl_kw is a boolean mask.
+        """
+        cfunc.select_true( self , ecl_kw )
 
 
+    @select_method
+    def selectFalse( self , ecl_kw , intersect = False):
+        """
+        Assume that input ecl_kw is a boolean mask.
+        """
+        cfunc.select_false( self , ecl_kw )
 
+        
+    @select_method
+    def selectFromLayer(self , layer , k , value, intersect = False):
+        """Will select all the cells in in @layer with value @value - at
+        vertical coordinate @k.
 
+        The input @layer should be of type Layer - from the
+        ert.ecl.faults.layer module. The k value must in the range
+        [0,grid.nz) and the dimensions of the layer must correspond
+        exactly to nx,ny of the grid.
+        """
+        grid = self.grid
+        if k < 0 or k >= grid.getNZ():
+            raise ValueError("Invalid k value:%d - must be in range [0,%d)" % (k , grid.getNZ()))
+
+        if grid.getNX() != layer.getNX():
+            raise ValueError("NX dimension mismatch. Grid:%d  layer:%d" % (grid.getNX() , layer.getNX()))
+
+        if grid.getNY() != layer.getNY():
+            raise ValueError("NY dimension mismatch. Grid:%d  layer:%d" % (grid.getNY() , layer.getNY()))
+        
+        cfunc.select_from_layer( self , layer , k , value )
+
+    
 
     #################################################################
 
     def scalar_apply_kw( self , target_kw , scalar , func_dict , force_active = False):
+
         """
         Helper function to apply a function with one scalar arg on target_kw.
         """
@@ -822,7 +869,21 @@ class EclRegion(CClass):
         global_list = cfunc.get_global_list(self)
         global_list.setParent(self)
         return global_list
+
         
+    def getIJKList(self):
+        """
+        WIll return a Python list of (i,j,k) tuples for the region.
+        """
+        global_list = self.getGlobalList()
+        ijk_list = []
+        for g in global_list:
+            ijk_list.append( self.grid.get_ijk( global_index = g ) )
+        
+        return ijk_list
+                            
+        
+
 
     @property
     def active_list(self):
@@ -998,3 +1059,11 @@ cfunc.contains_global           = cwrapper.prototype("void ecl_region_contains_g
 cfunc.contains_active           = cwrapper.prototype("void ecl_region_contains_active( ecl_region , int )")
 
 cfunc.equal = cwrapper.prototype("bool ecl_region_equal( ecl_region , ecl_region )")
+
+cfunc.select_true                  = cwrapper.prototype("void ecl_region_select_true( ecl_region , ecl_kw)")
+cfunc.select_false                 = cwrapper.prototype("void ecl_region_select_false( ecl_region , ecl_kw)")
+cfunc.deselect_true                = cwrapper.prototype("void ecl_region_deselect_true( ecl_region , ecl_kw)")
+cfunc.deselect_false               = cwrapper.prototype("void ecl_region_deselect_false( ecl_region , ecl_kw)")
+
+cfunc.select_from_layer            = cwrapper.prototype("void ecl_region_select_from_layer( ecl_region , layer , int , int)")
+cfunc.deselect_from_layer          = cwrapper.prototype("void ecl_region_deselect_from_layer( ecl_region , layer , int , int)")

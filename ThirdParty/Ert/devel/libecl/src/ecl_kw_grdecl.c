@@ -414,10 +414,12 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
         } else
           util_abort("%s: sorry type:%s not supported \n",__func__ , ecl_util_get_type_name(ecl_type));
 
-
-        if (char_input)
+        /*
+          Removing this warning on user request:
+          if (char_input)
           fprintf(stderr,"Warning: character string: \'%s\' ignored when reading keyword:%s \n",buffer , header);
-        else {
+        */
+        if (!char_input) {
           if (data_index + multiplier >= data_size) {
             data_size  = 2*(data_index + multiplier);
             data       = util_realloc( data , sizeof_ctype * data_size * sizeof * data);

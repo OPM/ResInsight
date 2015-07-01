@@ -1011,3 +1011,9 @@ void ensemble_config_fprintf_config( ensemble_config_type * ensemble_config , FI
   }
   fprintf(stream , "\n\n");
 }
+
+
+
+int ensemble_config_get_size(const ensemble_config_type * ensemble_config ) {
+  return hash_get_size( ensemble_config->config_nodes );
+}

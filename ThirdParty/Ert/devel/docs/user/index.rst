@@ -8,4 +8,5 @@ Contents:
 
    tutorial/index
    keywords/index
+   workflows/index
    observations/index

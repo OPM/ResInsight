@@ -22,7 +22,7 @@ class PlotSettings(ShellFunction):
 
         if self.__cases is None:
             case_name = self.ert().getEnkfFsManager().getCurrentFileSystem().getCaseName()
-            self.__cases = [case_name]
+            return [case_name]
 
         return self.__cases
 
@@ -42,7 +42,7 @@ class PlotSettings(ShellFunction):
             if case_name in possible_cases:
                 cases.append(case_name)
             else:
-                print("Error: Unknown case '%s'" % case_name)
+                self.lastCommandFailed("Unknown case '%s'" % case_name)
 
         if len(cases) > 0:
             self.__cases = cases
@@ -58,7 +58,7 @@ class PlotSettings(ShellFunction):
     def getAllCaseList(self):
         fs_manager = self.ert().getEnkfFsManager()
         all_case_list = fs_manager.getCaseList()
-        all_case_list = [case for case in all_case_list if fs_manager.caseHasData(case)]
+        all_case_list = [case for case in all_case_list]
         return all_case_list
 
 
@@ -75,9 +75,9 @@ class PlotSettings(ShellFunction):
             path = arguments[0]
             self.ert().plotConfig().setPath(path)
         elif len(arguments) > 1:
-            print("Error: Can only set one path. If you require spaces in your path, surround it with quotes: \"path with space\".")
+            self.lastCommandFailed("Can only set one path. If you require spaces in your path, surround it with quotes: \"path with space\".")
         else:
-            print("Error: A path is required!")
+            self.lastCommandFailed("A path is required!")
 
 
     @assertConfigLoaded

@@ -32,7 +32,7 @@ class Workflows(ShellFunction):
             runner.run()
             runner.wait()
         else:
-            print("Error: Unknown workflow: '%s'" % workflow)
+            self.lastCommandFailed("Unknown workflow: '%s'" % workflow)
 
     @assertConfigLoaded
     def complete_run(self, text, line, begidx, endidx):

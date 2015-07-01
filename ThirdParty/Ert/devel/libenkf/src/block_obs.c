@@ -57,6 +57,7 @@ typedef struct  {
   int                     active_index;
   double                  value;
   double                  std;
+  double                  std_scaling;
   char                  * sum_key;
 } point_obs_type;
 
@@ -96,7 +97,7 @@ static point_obs_type * point_obs_alloc( block_obs_source_type   source_type , i
   point_obs->value        = value;
   point_obs->std          = std;
   point_obs->sum_key      = util_alloc_string_copy( sum_key );
-
+  point_obs->std_scaling  = 1.0;
 
   return point_obs;
 }
@@ -185,6 +186,7 @@ void block_obs_append_summary_obs( block_obs_type * block_obs , int i , int j , 
 block_obs_type * block_obs_alloc(const char * obs_key,
                                  const void * data_config ,
                                  const ecl_grid_type * grid) {
+
   if (!(field_config_is_instance( data_config ) || container_config_is_instance( data_config )))
     return NULL;
 
@@ -268,14 +270,14 @@ void block_obs_get_observations(const block_obs_type * block_obs,  obs_data_type
   if (active_mode == ALL_ACTIVE) {
     for (i=0; i < obs_size; i++) {
       const point_obs_type * point_obs = block_obs_iget_point_const( block_obs , i );
-      obs_block_iset(obs_block , i , point_obs->value , point_obs->std );
+      obs_block_iset(obs_block , i , point_obs->value , point_obs->std * point_obs->std_scaling );
     }
   } else if (active_mode == PARTLY_ACTIVE) {
     const int   * active_list    = active_list_get_active( __active_list );
     for (i =0 ; i < active_size; i++) {
       int iobs = active_list[i];
       const point_obs_type * point_obs = block_obs_iget_point_const( block_obs , i );
-      obs_block_iset(obs_block , iobs , point_obs->value , point_obs->std );
+      obs_block_iset(obs_block , iobs , point_obs->value , point_obs->std * point_obs->std_scaling );
     }
   }
 }
@@ -364,6 +366,12 @@ double block_obs_iget_std(const block_obs_type * block_obs, int index ){
     return point_obs->std;
 }
 
+double block_obs_iget_std_scaling(const block_obs_type * block_obs, int index ){
+    const point_obs_type * point_obs = block_obs_iget_point_const( block_obs , index );
+    return point_obs->std_scaling;
+}
+
+
 void block_obs_user_get(const block_obs_type * block_obs , const char * index_key , double *value , double * std, bool * valid) {
   int      i,j,k;
 
@@ -425,18 +433,24 @@ int block_obs_get_size(const block_obs_type * block_obs) {
   return vector_get_size( block_obs->point_list );
 }
 
-void block_obs_scale_std(block_obs_type * block_obs, double scale_factor) {
+void block_obs_update_std_scale(block_obs_type * block_obs, double scale_factor, const active_list_type * active_list) {
   int obs_size = block_obs_get_size( block_obs );
-  for (int i = 0; i < obs_size; i++) {
-    point_obs_type * point_observation = block_obs_iget_point( block_obs , i );
-    point_observation->std = point_observation->std * scale_factor;
+  if (active_list_get_mode( active_list ) == ALL_ACTIVE) {
+    for (int i = 0; i < obs_size; i++) {
+      point_obs_type * point_observation = block_obs_iget_point( block_obs , i );
+      point_observation->std_scaling = scale_factor;
+    }
+  } else {
+    const int * active_index = active_list_get_active( active_list );
+    int size = active_list_get_active_size( active_list , obs_size );
+    for (int i=0; i < size; i++) {
+      int obs_index = active_index[i];
+      point_obs_type * point_observation = block_obs_iget_point( block_obs , obs_index );
+      point_observation->std_scaling = scale_factor;
+    }
   }
 }
 
-void block_obs_scale_std__(void * block_obs, double scale_factor) {
-  block_obs_type * observation = block_obs_safe_cast(block_obs);
-  block_obs_scale_std(observation, scale_factor);
-}
 
 
 
@@ -449,3 +463,4 @@ VOID_GET_OBS(block_obs)
 VOID_MEASURE_UNSAFE(block_obs , data)  // The cast of data field is not checked - that is done in block_obs_measure().
 VOID_USER_GET_OBS(block_obs)
 VOID_CHI2(block_obs , field)
+VOID_UPDATE_STD_SCALE(block_obs)

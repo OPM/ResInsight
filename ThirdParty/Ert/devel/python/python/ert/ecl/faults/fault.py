@@ -14,12 +14,18 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 
+from ert.ecl import EclTypeEnum
+from ert.geo import Polyline , CPolyline , GeometryTools
+from ert.util import stat 
+from ert.util import Matrix
+
 from .fault_line import FaultLine
 from .fault_segments import FaultSegment , SegmentMap
-from  ert.ecl import EclTypeEnum
+
 
 class Layer(object):
     def __init__(self, grid , K):
+        assert( isinstance(K , int) )
         self.__grid = grid
         self.__K = K
         self.__fault_lines = []
@@ -53,7 +59,81 @@ class Layer(object):
             neighbor_cells += fl.getNeighborCells()
         return neighbor_cells
 
+    def getPolyline(self , name = None):
+        polyline = CPolyline( name = name)
+        for fl in self:
+            polyline += fl.getPolyline()
+        return polyline
 
+
+    def getIJPolyline(self):
+        """
+        Will return a python list of (int,int) tuple.
+        """
+        polyline = []
+        for fl in self:
+            polyline += fl.getIJPolyline()
+        return polyline
+
+
+    def numLines(self):
+        return len(self)
+
+
+    # A fault can typically consist of several non connected fault
+    # segments; right after reading the fault input these can be in a
+    # complete mess:
+    #
+    #  1. The different part of the fault can be in random order.
+    #
+    #  2. Within each fault line the micro segments can be ordered in
+    #     reverse.
+    #
+    # This method goes through some desparate heuristics trying to
+    # sort things out.
+
+    def __sortFaultLines(self):
+        N = len(self.__fault_lines)
+        x = Matrix(N , 1)
+        y = Matrix(N , 1)
+
+        for index,line in enumerate(self.__fault_lines):
+            xc,yc = line.center()
+            
+            x[index,0] = xc
+            y[index,0] = yc
+
+        # y = beta[0] + beta[1] * x
+        #   = a       + b * x
+        beta = stat.polyfit(2 , x , y)
+        a = beta[0]
+        b = beta[1]
+
+        perm_list = []
+        for index,line in enumerate(self.__fault_lines):
+            x0 , y0 = line.center()
+            d = x0 + b*(y0 - a)
+            perm_list.append((index , d))
+        perm_list.sort(key = lambda x: x[1])
+
+        fault_lines = []
+        for (index,d) in perm_list:
+            fault_lines.append( self.__fault_lines[ index  ])
+        self.__fault_lines = fault_lines    
+
+        
+        for line in self.__fault_lines:
+            x1,y1 = line.startPoint()
+            x2,y2 = line.endPoint()
+            d1 = x1 + b*(y1 - a)
+            d2 = x2 + b*(y2 - a)
+
+            if d1 > d2:
+                line.reverse()
+                
+        
+
+        
     def processSegments(self):
         if self.__processed:
             return
@@ -72,7 +152,10 @@ class Layer(object):
 
                 current_segment.next_segment = self.__segment_map.popNext( current_segment )
                 current_segment = current_segment.next_segment
-                
+
+        if len(self.__fault_lines) > 1:
+            self.__sortFaultLines()
+
         self.__processed = True
 
 
@@ -94,6 +177,8 @@ class Fault(object):
         return "Fault:%s" % self.__name
 
     def __getitem__(self , K):
+        if not self.hasLayer(K):
+            self.addLayer(K)
         layer = self.__layer_map[K]
         return layer
 
@@ -114,7 +199,7 @@ class Fault(object):
         layer = Layer(self.__grid , K)
         self.__layer_map[K] = layer
         self.__layer_list.append( layer )
-
+        
 
     def createSegment(self , I1 , I2 , J1 , J2 , face):
         if face in ["X" , "I"]:
@@ -130,8 +215,8 @@ class Fault(object):
             C1 = I1 + J1 * (self.nx + 1)
             C2 = C1 + (1 + I2 - I1)
         else:
-            raise Exception("Can only handle X,Y faces")
-
+            return None
+            
         return FaultSegment(C1,C2)
          
 
@@ -183,7 +268,8 @@ class Fault(object):
                 self.addLayer(K)
             layer = self.__layer_map[K]
             segment = self.createSegment(I1,I2,J1,J2,face)
-            layer.addSegment( segment )
+            if segment:
+                layer.addSegment( segment )
             
 
     def getName(self):
@@ -196,4 +282,363 @@ class Fault(object):
             neighbor_cells += layer.getNeighborCells()
         return neighbor_cells
 
+        
+    def getPolyline(self , k):
+        layer = self[k]
+        return layer.getPolyline( name = "Polyline[%s]" % self.getName() )
+        
 
+    def getIJPolyline(self , k):
+        layer = self[k]
+        return layer.getIJPolyline()
+        
+
+    def numLines( self , k):
+        layer = self[k]
+        return layer.numLines()
+    
+
+    def extendToFault(self , other_fault , k):
+        polyline = self.getIJPolyline(k)
+
+        p0 = polyline[-2]
+        p1 = polyline[-1]
+        ray_dir = GeometryTools.lineToRay( p0 , p1 )
+        intersections = GeometryTools.rayPolygonIntersections( p1 , ray_dir , other_fault.getIJPolyline(k))
+        if intersections:
+            p2 = intersections[0][1]
+            return [p1 , (int(p2[0]) , int(p2[1])) ]
+            
+        p0 = polyline[1]
+        p1 = polyline[0]
+        ray_dir = GeometryTools.lineToRay( p0 , p1 )
+        intersections = GeometryTools.rayPolygonIntersections( p1 , ray_dir , other_fault.getIJPolyline(k))
+        if intersections:
+            if len(intersections) > 1:
+                d_list = [ GeometryTools.distance( p1 , p[1] ) for p in intersections ]
+                index = d_list.index( min(d_list) )
+            else:
+                index = 0
+            p2 = intersections[index][1]
+            return [p1 , (int(p2[0]) , int(p2[1])) ]
+            
+        raise ValueError("The fault %s can not be extended to intersect with:%s in layer:%d" % (self.getName() , other_fault.getName() , k+1 ))
+
+
+    @staticmethod
+    def __rayIntersect(p0, p1 , polyline):
+        ray_dir = GeometryTools.lineToRay( p0 , p1 )
+        intersections = GeometryTools.rayPolygonIntersections( p1 , ray_dir , polyline)
+        if intersections:
+            if len(intersections) > 1:
+                d_list = [ GeometryTools.distance( p1 , p[1] ) for p in intersections ]
+                index = d_list.index( min(d_list) )
+            else:
+                index = 0
+            p2 = intersections[index][1]
+            return [p1 , p2]
+        else:
+            return None
+
+
+    def connectWithPolyline(self , polyline , k):
+        """
+        """
+        if self.intersectsPolyline( polyline , k ):
+            return None
+        else:
+            self_polyline = self.getPolyline( k )
+            if len(self_polyline) > 0:
+                return self_polyline.connect( polyline )
+            else:
+                return None
+
+
+    def connect(self , target , k):
+        if isinstance(target, Fault):
+            polyline = target.getPolyline(k)
+        else:
+            polyline = target
+        return self.connectWithPolyline( polyline , k )
+
+
+
+    def extendToPolyline(self , polyline , k):
+        """Extends the fault until it intersects @polyline in layer @k.
+
+        The return value is a list [(x1,y1) , (x2,y2)] where (x1,y1)
+        is on the tip of the fault, and (x2,y2) is on the polyline. If
+        the fault already intersects polyline None is returned, if no
+        intersection is found a ValueError exception is raised.
+
+        The method will try four different strategies for finding an
+        intersection between the extension of the fault and the
+        polyline. Assume the fault and the polyline looks like:
+
+
+        Polyline: ----------------------------------------------
+
+                        +------------+       D
+                        |            |       |
+                        |            +-------C 
+                  B-----+
+                  |
+                  A
+        
+        The algorithm will then try to intersect the following rays
+        with the polyline, the first match will return:
+
+           1. (Pc , Pd)
+           2. (Pb , Pa)
+           3. (Pa , Pd)
+           4. (Pd , Pa)
+
+        The fault object is not directed in any way; i.e. in the case
+        both (Pc,Pd) and (Pb,Pa) intersects the polyline it is
+        impossible to know which intersection is returned, without
+        actually consulting the construction of the fault object.
+        """
+        if self.intersectsPolyline(polyline , k):
+            return None
+
+        fault_polyline = self.getPolyline( k )
+        p0 = fault_polyline[-2]
+        p1 = fault_polyline[-1]
+        extension = self.__rayIntersect(p0 , p1 , polyline)
+        if extension:
+            return extension
+            
+        p0 = fault_polyline[1]
+        p1 = fault_polyline[0]
+        extension = self.__rayIntersect(p0 , p1 , polyline)
+        if extension:
+            return extension
+
+        p0 = fault_polyline[0]
+        p1 = fault_polyline[-1]
+        extension = self.__rayIntersect(p0 , p1 , polyline)
+        if extension:
+            return extension
+
+        p0 = fault_polyline[-1]
+        p1 = fault_polyline[0]
+        extension = self.__rayIntersect(p0 , p1 , polyline)
+        if extension:
+            return extension
+
+        raise ValueError("The fault %s can not be extended to intersect with polyline:%s in layer:%d" % (self.getName() , polyline.getName() , k+1))
+
+
+        
+    def intersectsPolyline(self , polyline , k):
+        fault_line = self.getPolyline(k)
+        return fault_line.intersects( polyline )
+
+
+    def intersectsFault(self , other_fault , k):
+        fault_line = other_fault.getPolyline(k)
+        return self.intersectsPolyline( fault_line , k )
+
+
+    def extendToFault(self , fault , k):
+        fault_line = fault.getPolyline(k)
+        return self.extendToPolyline(fault_line , k)
+
+    def extendToEdge(self, edge , k):
+        if isinstance(edge , Fault):
+            return self.extendToFault( edge , k )
+        else:
+            return self.extendToPolyline( edge , k )
+            
+
+    def extendToBBox(self , bbox , k , start = True):
+        fault_polyline = self.getPolyline(k)
+        if start:
+            p0 = fault_polyline[1]
+            p1 = fault_polyline[0]
+        else:
+            p0 = fault_polyline[-2]
+            p1 = fault_polyline[-1]
+            
+        ray_dir = GeometryTools.lineToRay(p0,p1)
+        intersections = GeometryTools.rayPolygonIntersections( p1 , ray_dir , bbox)
+        if intersections:
+            p2 = intersections[0][1]
+            if self.getName():
+                name = "Extend:%s" % self.getName()
+            else:
+                name = None
+
+            return CPolyline( name = name , init_points = [(p1[0] , p1[1]) , p2])
+        else:
+            raise Exception("Logical error - must intersect with bounding box")
+            
+    
+    def endJoin(self , other , k):
+        fault_polyline = self.getPolyline(k)
+
+        if isinstance(other , Fault):
+            other_polyline = other.getPolyline(k)
+        else:
+            other_polyline = other
+
+        return GeometryTools.joinPolylines( fault_polyline , other_polyline )
+        
+
+
+    def connectPolylineOnto(self , polyline , k):
+        if self.intersectsPolyline( polyline , k):
+            return None
+
+        self_polyline = self.getPolyline(k)
+        return polyline.connect( self_polyline )
+        
+
+
+    def extendPolylineOnto(self , polyline , k):
+        if self.intersectsPolyline( polyline , k):
+            return None
+
+        if len(polyline) > 1:
+            fault_polyline = self.getPolyline(k)
+            ext1 = self.__rayIntersect( polyline[-2] , polyline[-1] , fault_polyline )
+            ext2 = self.__rayIntersect( polyline[0]  , polyline[1]  , fault_polyline )
+            
+            if ext1 and ext2:
+                d1 = GeometryTools.distance( ext1[0] , ext1[1] )
+                d2 = GeometryTools.distance( ext2[0] , ext2[1] )
+
+                if d1 < d2:
+                    return ext1
+                else:
+                    return ext2
+
+            if ext1:
+                return ext1
+            else:
+                return ext2
+        else:
+            raise ValueError("Polyline must have length >= 2")
+
+
+
+    @staticmethod
+    def intersectFaultRays(ray1 , ray2):
+        p1,dir1 = ray1
+        p2,dir2 = ray2
+        if p1 == p2:
+            return []
+            
+        dx = p2[0] - p1[0]
+        dy = p2[1] - p1[1]
+        if dx != 0:
+            if dir1[0] * dx <= 0 and dir2[0] * dx >= 0:
+                raise ValueError("Rays will never intersect")
+
+        if dy != 0:
+            if dir1[1] * dy <= 0 and dir2[1] * dy >= 0:
+                raise ValueError("Rays will never intersect")
+
+        if dx*dy != 0:
+            if dir1[0] != 0:
+                xc = p2[0]
+                yc = p1[1]
+            else:
+                xc = p1[0]
+                yc = p2[1]
+                
+            coord_list = [p1 , (xc,yc) , p2]
+        else:
+            coord_list = [p1,p2]
+        
+        return coord_list
+
+
+    @staticmethod
+    def intRay(p1,p2):
+        if p1 == p2:
+            raise Exception("Can not form ray from coincident points")
+
+        if p1[0] == p2[0]:
+            # Vertical line
+            dx = 0
+            if p2[1] > p1[1]:
+                dy = 1
+            elif p2[1] < p1[1]:
+                dy = -1
+        else:
+            # Horizontal line
+            if p2[1] != p1[1]:
+                raise Exception("Invalid direction")
+                
+            dy = 0
+            if p2[0] > p1[0]:
+                dx = 1
+            else:
+                dx = -1
+
+        return [p2 , (dx,dy)]
+
+
+    
+    def getEndRays(self , k):
+        polyline = self.getIJPolyline(k)
+        
+        p0 = polyline[0]
+        p1 = polyline[1]
+        p2 = polyline[-2]
+        p3 = polyline[-1]
+
+        return (Fault.intRay(p1,p0) , Fault.intRay(p2,p3))
+
+                
+        
+        
+    @staticmethod
+    def joinFaults(fault1 , fault2 , k):
+        fault1_rays = fault1.getEndRays(k)
+        fault2_rays = fault2.getEndRays(k)
+        
+        if fault1.intersectsFault( fault2 , k ):
+            return None
+
+        count = 0
+        join = None
+        try:
+            join = Fault.intersectFaultRays( fault1_rays[0] , fault2_rays[0] )
+            count += 1
+        except ValueError:
+            pass
+
+        try:
+            join = Fault.intersectFaultRays( fault1_rays[0] , fault2_rays[1] )
+            count += 1
+        except ValueError:
+            pass
+
+        try:
+            join = Fault.intersectFaultRays( fault1_rays[1] , fault2_rays[0] )
+            count += 1
+        except ValueError:
+            pass
+
+        try:
+            join = Fault.intersectFaultRays( fault1_rays[1] , fault2_rays[1] )
+            count += 1
+        except ValueError:
+            pass
+
+        if count == 1:
+            xy_list = []
+            for ij in join:
+                xyz = fault1.__grid.getNodeXYZ( ij[0] , ij[1] , k )
+                xy_list.append( (xyz[0] , xyz[1]) )
+
+            return xy_list
+        else:
+            return fault1.endJoin( fault2 , k )
+            #raise ValueError("Faults %s and %s could not be uniquely joined" % (fault1.getName() , fault2.getName()))
+
+            
+            
+    

@@ -1,18 +1,18 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-   The file 'sum_write' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+   The file 'sum_write' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -58,7 +58,7 @@
 
 
              CASE.SMSPEC                      CASE.S0001                         CASE.S0002
-   ------------------------------       --------------------------       --------------------------------------- 
+   ------------------------------       --------------------------       ---------------------------------------
    | KEYWORD |  WGNAMES  | NUMS |       | MINISTEP 1|  MINISTEP 2|       | MINISTEP 3|  MINISTEP 4|  MINISTEP 5|
    +----------------------------+       +------------------------+       +-------------------------------------+
    | TIME    |           |      |  -->  |           |            |  -->  |           |            |            |
@@ -106,7 +106,8 @@
    5. The header contains a "TIME" variable; to some extent this looks
       like just any other variable, but it must be present in the
       SMSPEC header. In the example above the first element in every
-      data block is the current time (in days) for that datablock.
+      data block is the current time (in days) for that datablock; if
+      labunits is used the stored value is the elapsed time in hours.
 
    6. In the ecl_sum library the concept of a 'gen_key' is used quite
       extensively. The gen_key is a string combination of the KEYWORD,
@@ -114,7 +115,7 @@
       relevant elements are combined when forming a gen_key; i.e. for
       the example above we will have:
 
-        ------------------------------        
+        ------------------------------
         | KEYWORD |  WGNAMES  | NUMS |        General key
         +----------------------------+        ------------
         | TIME    |           |      |  -->   TIME
@@ -122,7 +123,7 @@
         | GOPR    | P-North   |      |  -->   GOPR:P-North
         | BPR     |           | 5423 |  -->   BPR:5423 , BPR:i,j,k
         | WGPR    | GasW      |      |  -->   WGPR:GasW
-        +----------------------------+       
+        +----------------------------+
 
      Note the following:
 
@@ -132,7 +133,7 @@
         never inverted, so the join string can be arbitrary.
 
       o For the block quantities, like the BPR in the example above
-        the NUMS value is the cell number in (i,j,k) ordering: 
+        the NUMS value is the cell number in (i,j,k) ordering:
 
                  NUMS = i + (j - 1)*nx + (k-1)*nx*ny
 
@@ -148,11 +149,11 @@
 
     2. Use your simulator to step forward in time, and add timesteps
        with ecl_sum_add_tstep().
-  
+
    Now - the important thing is that steps 1 and 2 two can not be
-   interchanged, that will lead to crash and burn.  
+   interchanged, that will lead to crash and burn.
 */
-  
+
 
 
 int main( int argc , char ** argv) {
@@ -160,7 +161,7 @@ int main( int argc , char ** argv) {
   int nx = 10;
   int ny = 10;
   int nz = 10;
-  
+
 
   smspec_node_type * wwct_wellx;
   smspec_node_type * wopr_wellx;
@@ -173,7 +174,7 @@ int main( int argc , char ** argv) {
 
       1: The case - this an ECLIPSE basename, with an optional leading
          path component. Can later be modified with ecl_sum_set_case().
-         
+
       2: Should formatted files be used? Can be modified with
          ecl_sum_set_fmt_output().
 
@@ -190,18 +191,19 @@ int main( int argc , char ** argv) {
 
       6-8: Grid dimensions.
   */
-  ecl_sum_type * ecl_sum = ecl_sum_alloc_writer( "/tmp/CASE" , false , true , ":" , start_time , nx , ny , nz );
+  bool time_in_days = true;
+  ecl_sum_type * ecl_sum = ecl_sum_alloc_writer( "/tmp/CASE" , false , true , ":" , start_time , time_in_days , nx , ny , nz );
 
 
   /*
     We add the variables we wish to measure. Due to the rather
     inflexible nature of the format we must add all the variables we
-    are interested in before we start adding data. 
-    
+    are interested in before we start adding data.
+
     The arguments to this function are:
 
       1. self / this
-      
+
       2. The KEYWORD value for the variable we are considering; the
          function ecl_smspec_identify_var_type() will be called with
          this string - i.e. you must follow the ECLIPSE rules (see
@@ -216,7 +218,7 @@ int main( int argc , char ** argv) {
       4. The NUMS value for this variable.
 
       5. The unit for this variable.
-      
+
       6. A defualt value for this variable.
 
     Observe that as an alternative to ecl_sum_add_var() you can use
@@ -229,11 +231,11 @@ int main( int argc , char ** argv) {
     This is an alternative when e.g. the name of wells is not known in
     advance.
   */
-  ecl_sum_add_var( ecl_sum , "FOPT" , NULL   , 0   , "Barrels" , 99.0 ); 
+  ecl_sum_add_var( ecl_sum , "FOPT" , NULL   , 0   , "Barrels" , 99.0 );
   ecl_sum_add_var( ecl_sum , "BPR"  , NULL   , 567 , "BARS"    , 0.0  );
   ecl_sum_add_var( ecl_sum , "WWCT" , "OP-1" , 0   , "(1)"     , 0.0  );
   ecl_sum_add_var( ecl_sum , "WOPR" , "OP-1" , 0   , "Barrels" , 0.0  );
-  
+
 
   /*
     The return value from the ecl_sum_add_var() function is an
@@ -246,15 +248,15 @@ int main( int argc , char ** argv) {
        1. You can just ignore it - that is not very clean; in this
           case you must make an assumption of gen_key format at a
           later stage.
-          
+
        2. You can use the smspec_node_get_gen_key1() or
           smspec_node_get_params_index() and hold on to the gen_key or
           params_index values. You will need these later.
 
        3. You can hold on to the complete smspec_node instance, and
           then later on call one of the smspec_node_get_params_index()
-          or smspec_node_get_gen_key1() functions. 
-          
+          or smspec_node_get_gen_key1() functions.
+
           If you wish to change the WGNAME value with
           ecl_sum_update_wgname() a later stage you must hold on to
           the smspec_node instance.
@@ -277,7 +279,7 @@ int main( int argc , char ** argv) {
     Here we add a collection of ten variables which are not
     initialized. Before they can be actually used you must initialize
     them with:
-    
+
        ecl_sum_init_var( ecl_sum , node , keyword , wgname , num , unit );
 
     If you do not init them at all they will appear in the SMSPEC file
@@ -291,9 +293,9 @@ int main( int argc , char ** argv) {
       vector_append_ref( blank_nodes , blank_node );
     }
   }
-  
-  
-  
+
+
+
   {
     int num_dates = 10;
     int num_step = 10;
@@ -325,7 +327,7 @@ int main( int argc , char ** argv) {
           */
           ecl_sum_tstep_type * tstep = ecl_sum_add_tstep( ecl_sum , report_step + 1 , sim_days );
 
-          
+
           /*
             We can just set a value by it's index using the
             ecl_sum_tstep_iset() function. The index value should come

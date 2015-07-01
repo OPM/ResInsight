@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway. 
-    
-   The file 'fault_block_layer.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2014  Statoil ASA, Norway.
+
+   The file 'fault_block_layer.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <ert/util/type_macros.h>
@@ -29,7 +29,7 @@
 #define FAULT_BLOCK_LAYER_ID 2297476
 
 
-/* 
+/*
    The fault_block object is implemented as a separate object type in
    the fault_block.c file; however the fault blocks should be closely
    linked to the layer object in the fault_block_layer structure - it
@@ -68,10 +68,10 @@ fault_block_type * fault_block_layer_add_block( fault_block_layer_type * layer ,
   if (int_vector_safe_iget( layer->block_map , block_id) < 0) {
     fault_block_type * block = fault_block_alloc( layer , block_id );
     int storage_index = vector_get_size( layer->blocks );
-    
+
     int_vector_iset( layer->block_map , block_id , storage_index );
     vector_append_owned_ref( layer->blocks , block , fault_block_free__ );
-    
+
     return block;
   } else
     return NULL;
@@ -95,9 +95,9 @@ void fault_block_layer_scan_layer( fault_block_layer_type * fault_layer , layer_
           int c;
           int block_id = fault_block_layer_get_next_id( fault_layer );
           fault_block_type * fault_block = fault_block_layer_add_block( fault_layer , block_id );
-          for (c=0; c < int_vector_size( i_list ); c++) 
+          for (c=0; c < int_vector_size( i_list ); c++)
             fault_block_add_cell( fault_block , int_vector_iget( i_list , c ), int_vector_iget( j_list , c ));
-          
+
         }
       }
     }
@@ -113,7 +113,7 @@ void fault_block_layer_scan_layer( fault_block_layer_type * fault_layer , layer_
   retained; the fault_block_layer instance gets new block id numbers,
   including a nonzero value for the cells which have value zero in the
   keyword.
-  
+
 
    - The blocks in the fault_block_layer instance are guaranteed to be
      singly connected.
@@ -127,7 +127,7 @@ void fault_block_layer_scan_layer( fault_block_layer_type * fault_layer , layer_
 
 bool fault_block_layer_scan_kw( fault_block_layer_type * layer , const ecl_kw_type * fault_block_kw) {
   bool assign_zero = true;
-  
+
   if (ecl_kw_get_size( fault_block_kw) != ecl_grid_get_global_size(layer->grid))
     return false;
   else if (ecl_kw_get_type( fault_block_kw ) != ECL_INT_TYPE)
@@ -141,18 +141,18 @@ bool fault_block_layer_scan_kw( fault_block_layer_type * layer , const ecl_kw_ty
       for (i=0; i < ecl_grid_get_nx( layer->grid ); i++) {
         int g = ecl_grid_get_global_index3( layer->grid , i , j , layer->k );
         int block_id = ecl_kw_iget_int( fault_block_kw , g );
-        
-        
+
+
         if (block_id > 0) {
           layer_iset_cell_value( work_layer , i , j , block_id );
           max_block_id = util_int_max( block_id , max_block_id );
         }
       }
     }
-    
+
     if (assign_zero)
       layer_replace_cell_values( work_layer , 0 , max_block_id + 1);
-    
+
     fault_block_layer_scan_layer( layer , work_layer );
     layer_free( work_layer );
     return true;
@@ -189,7 +189,7 @@ bool fault_block_layer_load_kw( fault_block_layer_type * layer , const ecl_kw_ty
         }
       }
     }
-    
+
     return true;
   }
 }
@@ -297,7 +297,7 @@ void fault_block_layer_free( fault_block_layer_type * layer ) {
   int_vector_free( layer->block_map );
   vector_free( layer->blocks );
   layer_free( layer->layer );
-  free(layer); 
+  free(layer);
 }
 
 
@@ -305,7 +305,7 @@ void fault_block_layer_free__( void * arg ) {
   fault_block_layer_type * layer = fault_block_layer_safe_cast( arg );
   fault_block_layer_free( layer );
 }
-  
+
 
 void fault_block_layer_insert_block_content( fault_block_layer_type * layer , const fault_block_type * src_block) {
   int next_block_id = fault_block_layer_get_next_id( layer );

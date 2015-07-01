@@ -32,20 +32,26 @@ bool alloc_strippedparameters_noerrors() {
 /*******Summary obs tests*******************/
 bool scale_std_summary_nodata_no_errors() {
   obs_vector_type * obs_vector = obs_vector_alloc(SUMMARY_OBS, "WHAT", NULL, 0);
-  obs_vector_scale_std(obs_vector, 2.0);
+  local_obsdata_node_type * local_node = obs_vector_alloc_local_node( obs_vector );
+  obs_vector_scale_std(obs_vector, local_node , 2.0);
   obs_vector_free(obs_vector);
+  local_obsdata_node_free( local_node );
   return true;
 }
 
 bool scale_std_summarysingleobservation_no_errors() {
   obs_vector_type * obs_vector = obs_vector_alloc(SUMMARY_OBS, "WHAT", NULL, 1);
-
   summary_obs_type * summary_obs = summary_obs_alloc("SummaryKey", "ObservationKey", 43.2, 2.0, AUTO_CORRF_EXP, 42);
   obs_vector_install_node(obs_vector, 0, summary_obs);
-
   test_assert_double_equal(2.0, summary_obs_get_std(summary_obs));
-  obs_vector_scale_std(obs_vector, 2.0);
-  test_assert_double_equal(4.0, summary_obs_get_std(summary_obs));
+  test_assert_double_equal(1.0, summary_obs_get_std_scaling(summary_obs));
+
+  {
+    local_obsdata_node_type * local_node = obs_vector_alloc_local_node( obs_vector );
+    obs_vector_scale_std(obs_vector, local_node , 2.0);
+      local_obsdata_node_free( local_node );
+  }
+  test_assert_double_equal(2.0, summary_obs_get_std_scaling(summary_obs));
 
   obs_vector_free(obs_vector);
   return true;
@@ -72,12 +78,14 @@ bool scale_std_summarymanyobservations_no_errors() {
   }
 
   test_assert_bool_equal(num_observations, obs_vector_get_num_active(obs_vector));
-
-  obs_vector_scale_std(obs_vector, scaling_factor);
-
+  {
+    local_obsdata_node_type * local_node = obs_vector_alloc_local_node( obs_vector );
+    obs_vector_scale_std(obs_vector, local_node , scaling_factor);
+    local_obsdata_node_free( local_node );
+  }
   for (int i = 0; i < num_observations; i++) {
     summary_obs_type * after_scale = observations[i];
-    test_assert_double_equal(i * scaling_factor, summary_obs_get_std(after_scale));
+    test_assert_double_equal(scaling_factor, summary_obs_get_std_scaling(after_scale));
   }
 
   obs_vector_free(obs_vector);
@@ -88,7 +96,9 @@ bool scale_std_summarymanyobservations_no_errors() {
 
 bool scale_std_block_nodata_no_errors() {
   obs_vector_type * obs_vector = obs_vector_alloc(BLOCK_OBS, "WHAT", NULL, 0);
-  obs_vector_scale_std(obs_vector, 2.0);
+  local_obsdata_node_type * local_node = obs_vector_alloc_local_node( obs_vector );
+  obs_vector_scale_std(obs_vector, local_node , 2.0);
+  local_obsdata_node_free( local_node );
   obs_vector_free(obs_vector);
   return true;
 }
@@ -149,14 +159,19 @@ bool scale_std_block100observations_no_errors() {
     }
   }
 
-  obs_vector_scale_std(obs_vector, scale_factor);
+  {
+    local_obsdata_node_type * local_node = obs_vector_alloc_local_node( obs_vector );
+    obs_vector_scale_std(obs_vector, local_node , scale_factor);
+    local_obsdata_node_free( local_node );
+  }
 
   for (int i = 0; i < num_observations; i++) {
     for (int point_nr = 0; point_nr < num_points; point_nr++) {
       double value, std;
       block_obs_iget(observations[i], point_nr, &value, &std);
       test_assert_double_equal(obs_value, value);
-      test_assert_double_equal(obs_std * scale_factor, std);
+      test_assert_double_equal(obs_std , std);
+      test_assert_double_equal(scale_factor , block_obs_iget_std_scaling( observations[i] , point_nr));
     }
   }
 
@@ -169,8 +184,10 @@ bool scale_std_block100observations_no_errors() {
 
 bool scale_std_gen_nodata_no_errors() {
   obs_vector_type * obs_vector = obs_vector_alloc(GEN_OBS, "WHAT", NULL, 0);
-  obs_vector_scale_std(obs_vector, 2.0);
+  local_obsdata_node_type * local_node = obs_vector_alloc_local_node( obs_vector );
+  obs_vector_scale_std(obs_vector, local_node , 2.0);
   obs_vector_free(obs_vector);
+  local_obsdata_node_free( local_node );
   return true;
 }
 
@@ -189,17 +206,20 @@ bool scale_std_gen_withdata_no_errors() {
     observations[i] = gen_obs;
   }
 
-  obs_vector_scale_std(obs_vector, multiplier);
-
-  
+  {
+    local_obsdata_node_type * local_node = obs_vector_alloc_local_node( obs_vector );
+    obs_vector_scale_std(obs_vector, local_node , multiplier);
+    local_obsdata_node_free( local_node );
+  }
 
   for (int i = 0; i < num_observations; i++) {
-    char * index_key = util_alloc_sprintf("%d", i);
+    char * index_key = util_alloc_sprintf("%d", 0);
     double value_new, std_new;
     bool valid;
     gen_obs_user_get_with_data_index(observations[i], index_key, &value_new, &std_new, &valid);
-    test_assert_double_equal(std_dev * multiplier, std_new);
+    test_assert_double_equal(std_dev , std_new);
     test_assert_double_equal(value, value_new);
+    test_assert_double_equal(multiplier , gen_obs_iget_std_scaling( observations[i] , 0 ));
     free(index_key);
   }
 

@@ -6,8 +6,8 @@ from ert.util import Matrix
 
 class ObsData(BaseCClass):
 
-    def __init__(self):
-        c_pointer = ObsData.cNamespace().alloc()
+    def __init__(self, global_std_scaling=1.0):
+        c_pointer = ObsData.cNamespace().alloc(global_std_scaling)
         super(ObsData, self).__init__(c_pointer)
 
     def __len__(self):
@@ -62,7 +62,7 @@ class ObsData(BaseCClass):
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("obs_data", ObsData)
 
-ObsData.cNamespace().alloc       = cwrapper.prototype("c_void_p obs_data_alloc()")
+ObsData.cNamespace().alloc       = cwrapper.prototype("c_void_p obs_data_alloc(double)")
 ObsData.cNamespace().free        = cwrapper.prototype("void obs_data_free(obs_data)")
 ObsData.cNamespace().active_size = cwrapper.prototype("int obs_data_get_active_size(obs_data)")
 ObsData.cNamespace().add_block   = cwrapper.prototype("obs_block_ref obs_data_add_block(obs_data , char* , int , matrix , bool)")

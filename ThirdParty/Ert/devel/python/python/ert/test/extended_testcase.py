@@ -10,6 +10,10 @@ except ImportError:
 
 from .source_enumerator import SourceEnumerator
 from ert.util import installAbortSignals
+from ert.util import Version
+
+
+
 
 """
 This class provides some extra functionality for testing values that are almost equal.
@@ -145,6 +149,7 @@ class ExtendedTestCase(TestCase):
         if share_root is None and self.__share_root is None:
             file_path = os.path.realpath(__file__)
             build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../devel/share/"))
+            site_packages_build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../../../devel/share/"))
             src_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../share/"))
             env_root = os.getenv("ERT_TEST_ROOT_PATH")
 
@@ -152,6 +157,8 @@ class ExtendedTestCase(TestCase):
                 root = os.path.realpath(env_root)
             elif os.path.exists(build_root):
                 root = os.path.realpath(build_root)
+            elif os.path.exists(site_packages_build_root):
+                root = os.path.realpath(site_packages_build_root)
             elif os.path.exists(src_root):
                 root = os.path.realpath(src_root)
             else:
@@ -176,6 +183,7 @@ class ExtendedTestCase(TestCase):
             self.fail()
 
 
+            
     @staticmethod
     def slowTestShouldNotRun():
         """
@@ -183,3 +191,15 @@ class ExtendedTestCase(TestCase):
         """
 
         return os.environ.get("SKIP_SLOW_TESTS", "False") == "True"
+
+
+    @staticmethod
+    def requireVersion(major , minor , micro = "git"):
+        required_version = Version(major, minor , micro)
+        current_version = Version.currentVersion()
+
+        if required_version < current_version:
+            return True
+        else:
+            return False
+    

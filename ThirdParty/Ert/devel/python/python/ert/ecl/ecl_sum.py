@@ -107,11 +107,11 @@ class EclSum(BaseCClass):
 
 
     @staticmethod
-    def writer(case , start_time , nx,ny,nz , fmt_output = False , unified = True , key_join_string = ":"):
+    def writer(case , start_time , nx,ny,nz , fmt_output = False , unified = True , time_in_days = True , key_join_string = ":"):
         """
         The writer is not generally usable.
         """
-        return EclSum.cNamespace().create_writer( case , fmt_output , unified , key_join_string , CTime(start_time) , nx , ny , nz)
+        return EclSum.cNamespace().create_writer( case , fmt_output , unified , key_join_string , CTime(start_time) , time_in_days , nx , ny , nz)
 
 
     def addVariable(self , variable , wgname = None , num = 0 , unit = "None" , default_value = 0):
@@ -793,13 +793,7 @@ ime_index.
 
     @property 
     def sim_length( self ):
-        """
-        The length of the current dataset in simulation days.
-
-        Will include the length of a leading restart section,
-        irrespective of whether we have data for this or not.
-        """
-        return EclSum.cNamespace().sim_length( self )
+        return self.getSimulationLength( )
 
     @property
     def start_date(self):
@@ -838,7 +832,7 @@ ime_index.
         """
         The time of the last (loaded) time step.
         """
-        return CTime(EclSum.cNamespace().get_end_date( self )).datetime()
+        return self.getEndTime()
 
     
     @property
@@ -854,6 +848,22 @@ ime_index.
         """
         return CTime( EclSum.cNamespace().get_start_date( self ) ).datetime()
 
+
+    def getEndTime(self):
+        """
+        A Python datetime instance with the last loaded time.
+        """
+        return CTime(EclSum.cNamespace().get_end_date( self )).datetime()
+
+    def getSimulationLength(self):
+        """
+        The length of the current dataset in simulation days.
+
+        Will include the length of a leading restart section,
+        irrespective of whether we have data for this or not.
+        """
+        return EclSum.cNamespace().sim_length( self )
+        
 
 
     @property
@@ -875,7 +885,7 @@ ime_index.
         Returns the first index where @key is above @limit.
         """
         key_index  = EclSum.cNamespace().get_general_var_index( self , key )
-        time_index = EclSum.cNamespace().get_first_lt( self , key_index , limit )
+        time_index = EclSum.cNamespace().get_first_gt( self , key_index , limit )
         return time_index
 
     def first_lt_index( self , key , limit ):
@@ -1020,7 +1030,7 @@ EclSum.cNamespace().get_var_node                  = cwrapper.prototype("smspec_n
 EclSum.cNamespace().create_well_list              = cwrapper.prototype("stringlist_obj ecl_sum_alloc_well_list( ecl_sum , char* )")
 EclSum.cNamespace().create_group_list             = cwrapper.prototype("stringlist_obj ecl_sum_alloc_group_list( ecl_sum , char* )")
 
-EclSum.cNamespace().create_writer                 = cwrapper.prototype("ecl_sum_obj  ecl_sum_alloc_writer( char* , bool , bool , char* , time_t , int , int , int)")
+EclSum.cNamespace().create_writer                 = cwrapper.prototype("ecl_sum_obj  ecl_sum_alloc_writer( char* , bool , bool , char* , time_t , bool , int , int , int)")
 EclSum.cNamespace().add_variable                  = cwrapper.prototype("void         ecl_sum_add_var(ecl_sum , char* , char* , int , char*, double)")
 EclSum.cNamespace().add_tstep                     = cwrapper.prototype("c_void_p     ecl_sum_add_tstep(ecl_sum , int , double)")
 

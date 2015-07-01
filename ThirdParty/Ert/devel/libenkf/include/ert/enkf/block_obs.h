@@ -77,9 +77,8 @@ double      block_obs_iget_value(const block_obs_type * block_obs, int index );
 double      block_obs_iget_std(const block_obs_type * block_obs, int index );
 void        block_obs_iget_ijk(const block_obs_type * block_obs , int block_nr , int * i , int * j , int * k);
 double      block_obs_iget_data( const block_obs_type * block_obs, const void * state , int iobs , node_id_type node_id );
-
-void        block_obs_scale_std(block_obs_type * block_obs, double scale_factor);
-void        block_obs_scale_std__(void * block_obs, double scale_factor);
+double      block_obs_iget_std_scaling(const block_obs_type * block_obs, int index );
+void        block_obs_update_std_scale(block_obs_type * block_obs, double scale_factor, const active_list_type * active_list);
 void        block_obs_append_field_obs( block_obs_type * block_obs , int i , int j , int k , double value , double std);
 void        block_obs_append_summary_obs( block_obs_type * block_obs , int i , int j , int k , const char * sum_key , double value , double std);
 
@@ -89,6 +88,7 @@ UTIL_IS_INSTANCE_HEADER(block_obs);
 VOID_MEASURE_HEADER(block_obs);
 VOID_USER_GET_OBS_HEADER(block_obs);
 VOID_CHI2_HEADER(block_obs);
+VOID_UPDATE_STD_SCALE_HEADER(block_obs);
 
 #ifdef __cplusplus
 }

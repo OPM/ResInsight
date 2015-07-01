@@ -184,3 +184,4 @@ TimeVector.cNamespace().contains         = cwrapper.prototype("bool time_t_vecto
 TimeVector.cNamespace().select_unique       = cwrapper.prototype("void time_t_vector_select_unique(time_t_vector)")
 TimeVector.cNamespace().element_sum       = cwrapper.prototype("time_t time_t_vector_sum(time_t_vector)")
 TimeVector.cNamespace().count_equal       = cwrapper.prototype("int time_t_vector_count_equal(time_t_vector, time_t)")
+TimeVector.cNamespace().init_range        = cwrapper.prototype("void time_t_vector_init_range(time_t_vector, time_t , time_t , time_t)")

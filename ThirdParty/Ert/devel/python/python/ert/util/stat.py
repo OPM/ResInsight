@@ -16,6 +16,8 @@
 
 
 from ert.util import UTIL_LIB
+from ert.util import Matrix
+from ert.util import LLSQResultEnum
 from ert.cwrap import CWrapper, CWrapperNameSpace
 
 
@@ -27,8 +29,55 @@ def quantile_sorted( data, q ):
     return cfunc.quantile_sorted(data, q)
 
 
+def polyfit(n,x,y,s = None):
+    if isinstance(x,Matrix):
+        xm = x
+    else:
+        xm = Matrix( len(x) , 1 )
+        for i in range(len(x)):
+            xm[i,0] = x[i]
+
+    if isinstance(y,Matrix):
+        ym = y
+    else:
+        ym = Matrix( len(y) , 1 )
+        for i in range(len(y)):
+            ym[i,0] = y[i]
+
+    if s:
+        if isinstance(s , Matrix):
+            sm = s
+        else:
+            sm = Matrix( len(s) , 1 )
+            for i in range(len(s)):
+                sm[i,0] = s[i]
+    else:
+        sm = s
+
+    
+    beta = Matrix( n , 1 )
+    res = cfunc.polyfit( beta , xm , ym , sm)
+    
+    if not res == LLSQResultEnum.LLSQ_SUCCESS:
+        raise Exception("Linear Least Squares Estimator failed?")
+
+    l = []
+    for i in range(n):
+        l.append( beta[i,0] )
+
+    return tuple(l)
+
+
+
+            
+
+
+
+
 cwrapper = CWrapper(UTIL_LIB)
 cfunc = CWrapperNameSpace("stat")
 
 cfunc.quantile = cwrapper.prototype("double statistics_empirical_quantile( double_vector , double )")
 cfunc.quantile_sorted = cwrapper.prototype("double statistics_empirical_quantile( double_vector , double )")
+cfunc.polyfit = cwrapper.prototype("llsq_result_enum matrix_stat_polyfit(matrix , matrix , matrix , matrix)")
+

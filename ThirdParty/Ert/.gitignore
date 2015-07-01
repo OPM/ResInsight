@@ -22,4 +22,4 @@ devel/python/lib64
 scratch.sparsebundle
 *.iml
 *.DS_Store
-TestCase
+

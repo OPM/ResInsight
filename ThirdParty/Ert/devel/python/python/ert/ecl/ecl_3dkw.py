@@ -18,7 +18,8 @@
 from ecl_kw import EclKW
 
 class Ecl3DKW(EclKW):
-    """Class for working with Eclipse keywords defined over a grid
+    """
+    Class for working with Eclipse keywords defined over a grid
 
     The Ecl3DKW class is derived from the EclKW class, and most of the
     methods are implemented in the EclKW base class. The purpose of
@@ -35,7 +36,7 @@ class Ecl3DKW(EclKW):
     Usage example:
 
        from ert.ecl import EclInitFile,EclGrid
-    
+
        grid = EclGrid("ECLIPSE.EGRID")
        file = EclInitFile(grid , "ECLIPSE.INIT")
 
@@ -61,6 +62,7 @@ class Ecl3DKW(EclKW):
 
     we say that we want the value -1 for all inactive cells in the
     PERMX property.
+    
     """
     
     @classmethod
@@ -76,8 +78,18 @@ class Ecl3DKW(EclKW):
         new_kw.setDefault( default_value )
         return new_kw
         
+    @classmethod
+    def read_grdecl( cls , grid , fileH , kw , strict = True , ecl_type = None):
+        """
+        Will load an Ecl3DKW instance from a grdecl formatted filehandle.
+
+        See the base class EclKW.read_grdecl() for more documentation.
+        """
+        kw = super(Ecl3DKW , cls).read_grdecl( fileH , kw , strict , ecl_type)
+        Ecl3DKW.castFromKW(kw , grid)
+        return kw
         
-        
+
     
     def __getitem__(self , index):
         """Will return item [g] or [i,j,k].
@@ -179,6 +191,29 @@ class Ecl3DKW(EclKW):
         kw.setDefault( default_value )
         return kw
 
+    
+    def compressedCopy(self):
+        """Will return a EclKW copy with nactive elements.
+
+        The returned copy will be of type EclKW; i.e. no default
+        interpolation and only linear access in the [] operator. The
+        main purpose of this is to facilitate iteration over the
+        active index, and for writing binary files.
+        """
+        return self.grid.compressedKWCopy( self )
+
+
+    def globalCopy(self):
+        """Will return a EclKW copy with nx*ny*nz elements.
+
+        The returned copy will be of type EclKW; i.e. no default
+        interpolation and only linear access in the [] operator. The
+        main purpose of this is to facilitate iteration over the
+        global index, and for writing binary files.
+        """
+        return self.grid.globalKWCopy( self , self.getDefault() )
+
+    
 
     def dims(self):
         return (self.grid.getNX() , self.grid.getNY() , self.grid.getNZ())
@@ -190,4 +225,6 @@ class Ecl3DKW(EclKW):
 
     def getDefault(self):
         return self.default_value
+
+
 

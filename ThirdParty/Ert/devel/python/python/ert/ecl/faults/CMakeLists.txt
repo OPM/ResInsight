@@ -6,7 +6,6 @@ set(PYTHON_SOURCES
     fault.py
     fault_line.py
     fault_segments.py
-    region_definition.py
     layer.py
 )
 

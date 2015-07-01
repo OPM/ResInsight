@@ -24,7 +24,7 @@ class ErtScript(object):
         return self.__verbose
 
     def ert(self):
-        """ @rtype: EnKFMain """
+        """ @rtype: ert.enkf.EnKFMain """
         return self.__ert
 
     def isCancelled(self):

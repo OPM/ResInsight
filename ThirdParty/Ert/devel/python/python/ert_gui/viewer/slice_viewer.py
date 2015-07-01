@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict
 from OpenGL.GL import *
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication, QMainWindow, QDockWidget
@@ -76,6 +77,7 @@ def loadKWData(path, keyword, ecl_type=EclTypeEnum.ECL_FLOAT_TYPE):
     min_value = kw_data.min
     data_range = kw_data.max - kw_data.min
 
+    #result = (value - min) / range
     result = []
     for value in kw_data:
         value = float(value - min_value) / data_range
@@ -148,8 +150,8 @@ def loadFaults(grid , fault_file):
 def createDataStructures(grid_path=None, grid_data_path=None , polyline_root_path = None):
     if grid_path is not None:
         nx, ny, nz, grid_data, bounds, grid = loadGridData(grid_path)
-        data, data_range = loadKWData(grid_data_path, "FLTBLCK", ecl_type=EclTypeEnum.ECL_INT_TYPE)
-        faults = loadFaults( grid , os.path.join(polyline_root_path , "faults.grdecl"))
+        data, data_range = loadKWData(grid_data_path, "REGIONS", ecl_type=EclTypeEnum.ECL_INT_TYPE)
+        #faults = loadFaults( grid , os.path.join(polyline_root_path , "faults.grdecl"))
     else:
         # nx, ny, nz, grid_data, bounds = loadGridData("/Volumes/Statoil/data/faultregion/grid.grdecl")
         # data, data_range = loadKWData("/Volumes/Statoil/data/faultregion/fltblck.grdecl", "FLTBLCK", ecl_type=EclTypeEnum.ECL_INT_TYPE)
@@ -158,6 +160,9 @@ def createDataStructures(grid_path=None, grid_data_path=None , polyline_root_pat
         data, data_range = loadKWData("/Volumes/Statoil/data/TestCase/eclipse/include/example_permx.GRDECL", "PERMX", ecl_type=EclTypeEnum.ECL_FLOAT_TYPE)
         faults = loadFaults( grid , os.path.join("/Volumes/Statoil/data/TestCase/eclipse/include" , "example_faults_sim.GRDECL"))
 
+        
+
+
     grid_texture = Texture3D(nx, ny, nz, grid_data, GL_RGBA32F, GL_RGBA)
     attribute_texture = Texture3D(nx, ny, nz, data)
 
@@ -165,6 +170,7 @@ def createDataStructures(grid_path=None, grid_data_path=None , polyline_root_pat
     textures = {"grid": grid_texture,
                 "grid_data": attribute_texture}
 
+    faults = None
     return textures, bounds, nx, ny, nz, data_range , faults
 
 
@@ -197,6 +203,10 @@ if __name__ == '__main__':
     grid_data_path = None
     polyline_root_path = None
 
+    grid_path = "/d/proj/bg/enkf/ErtTestData/ECLIPSE/Mariner2/input/grids/maureen.grid.42"
+    grid_data_path = "/d/proj/bg/enkf/ErtTestData/ECLIPSE/Mariner2/output/maureen.regions"
+    
+
     if len(sys.argv) == 4:
         grid_path = sys.argv[1]
         grid_data_path = sys.argv[2]
@@ -220,7 +230,9 @@ if __name__ == '__main__':
     slice_settings = SliceSettingsWidget(max_slice_count=nz, color_scales=color_scales.keys())
     slice_settings.inactiveCellsHidden.connect(viewer.hideInactiveCells)
     slice_settings.currentSliceChanged.connect(viewer.setCurrentSlice)
+
     slice_settings.toggleOrthographicProjection.connect(viewer.useOrthographicProjection)
+
     slice_settings.toggleLighting.connect(viewer.useLighting)
     slice_settings.colorScalesChanged.connect(viewer.changeColorScale)
     slice_settings.regionToggling.connect(viewer.useRegionScaling)

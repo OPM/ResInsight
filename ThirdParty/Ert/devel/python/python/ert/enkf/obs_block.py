@@ -5,10 +5,10 @@ from ert.util import Matrix
 
 class ObsBlock(BaseCClass):
 
-    def __init__(self , obs_key , obs_size ):
+    def __init__(self , obs_key , obs_size , global_std_scaling=1.0):
         error_covar = None 
         error_covar_owner = False
-        c_pointer = ObsBlock.cNamespace().alloc(obs_key , obs_size , error_covar , error_covar_owner)
+        c_pointer = ObsBlock.cNamespace().alloc(obs_key , obs_size , error_covar , error_covar_owner, global_std_scaling)
         super(ObsBlock, self).__init__(c_pointer)
 
 
@@ -56,7 +56,7 @@ class ObsBlock(BaseCClass):
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("obs_block", ObsBlock)
 
-ObsBlock.cNamespace().alloc = cwrapper.prototype("c_void_p obs_block_alloc()")
+ObsBlock.cNamespace().alloc = cwrapper.prototype("c_void_p obs_block_alloc(char*, int, matrix, bool, double)")
 ObsBlock.cNamespace().free  = cwrapper.prototype("void obs_block_free(obs_block)")
 ObsBlock.cNamespace().total_size  = cwrapper.prototype("int obs_block_get_size( obs_block )")
 ObsBlock.cNamespace().active_size  = cwrapper.prototype("int obs_block_get_active_size( obs_block )")

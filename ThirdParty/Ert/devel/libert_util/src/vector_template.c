@@ -863,18 +863,25 @@ void @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value) {
   }
 }
 
-bool @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ min_value , @TYPE@ max_value , @TYPE@ delta) {
-  if (max_value >= min_value) {
-    @TYPE@ current_value = min_value;
-    @TYPE@_vector_reset( vector );
-    while (current_value < max_value) {
-      @TYPE@_vector_append( vector , current_value );
-      current_value += delta;
+
+/**
+   The bahviour of this function should closely follow the semantics
+   of the Python range() function.
+*/
+void @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ value1 , @TYPE@ value2 , @TYPE@ delta) {
+  @TYPE@_vector_reset( vector );
+  if (delta != 0) {
+    if (((delta > 0) && (value2 > value1)) || ((delta < 0) && (value2 < value1))) {
+      @TYPE@ current_value = value1;
+      while (true) {
+	@TYPE@_vector_append( vector , current_value );
+	current_value += delta;
+
+	if (((delta > 0) && (current_value >= value2)) || ((delta < 0) && (current_value <= value2)))
+	  break;
+      }
     }
-    @TYPE@_vector_append( vector , max_value );
-    return true;
-  } else
-    return false;
+  }
 }
 
 

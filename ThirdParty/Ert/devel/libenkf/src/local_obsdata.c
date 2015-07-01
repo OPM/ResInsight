@@ -37,6 +37,7 @@ struct local_obsdata_struct {
 
 
 UTIL_IS_INSTANCE_FUNCTION( local_obsdata  , LOCAL_OBSDATA_TYPE_ID )
+static UTIL_SAFE_CAST_FUNCTION( local_obsdata  , LOCAL_OBSDATA_TYPE_ID )
 
 local_obsdata_type * local_obsdata_alloc( const char * name) {
   local_obsdata_type * data = util_malloc( sizeof * data );
@@ -56,12 +57,31 @@ local_obsdata_type * local_obsdata_alloc_wrapper( local_obsdata_node_type * node
 }
 
 
+local_obsdata_type * local_obsdata_alloc_copy( const local_obsdata_type * src, const char * target_key) {
+  local_obsdata_type * target = local_obsdata_alloc( target_key );
+  int i;
+  for (i=0; i < local_obsdata_get_size( src ); i++ ) {
+    const local_obsdata_node_type * src_node = local_obsdata_iget( src  , i );
+    local_obsdata_node_type * target_node = local_obsdata_node_alloc_copy( src_node );
+    local_obsdata_add_node( target , target_node );
+  }
+  return target;
+}
+
+
+
 void local_obsdata_free( local_obsdata_type * data ) {
   vector_free( data->nodes_list );
   hash_free( data->nodes_map );
   free( data->name );
   free( data );
 }
+
+void local_obsdata_free__( void * arg) {
+  local_obsdata_type * data = local_obsdata_safe_cast( arg );
+  return local_obsdata_free( data );
+}
+
 
 const char * local_obsdata_get_name( const local_obsdata_type * data) {
   return data->name;
@@ -89,12 +109,39 @@ bool local_obsdata_add_node( local_obsdata_type * data , local_obsdata_node_type
   }
 }
 
+ void local_obsdata_del_node( local_obsdata_type * data  , const char * key) {
+   local_obsdata_node_type * node = local_obsdata_get( data , key );
+   int index = vector_find( data->nodes_list , node );
 
-const local_obsdata_node_type * local_obsdata_iget( const local_obsdata_type * data , int index) {
-  return vector_iget_const( data->nodes_list , index );
+   hash_del( data->nodes_map , key );
+   vector_idel( data->nodes_list , index );
+}
+
+
+ void local_obsdata_clear( local_obsdata_type * data ) {
+   hash_clear( data->nodes_map );
+   vector_clear( data->nodes_list );
+ }
+
+
+local_obsdata_node_type * local_obsdata_iget( const local_obsdata_type * data , int index) {
+  return vector_iget( data->nodes_list , index );
+}
+
+
+local_obsdata_node_type * local_obsdata_get( const local_obsdata_type * data , const char * key) {
+  return hash_get( data->nodes_map , key );
 }
 
 
 bool local_obsdata_has_node( const local_obsdata_type * data , const char * key) {
   return hash_has_key( data->nodes_map , key );
+}
+
+void local_obsdata_reset_tstep_list( local_obsdata_type * data , const int_vector_type * step_list) {
+  int i;
+  for (i=0; i < local_obsdata_get_size( data ); i++ ) {
+    local_obsdata_node_type * node = local_obsdata_iget( data  , i );
+    local_obsdata_node_reset_tstep_list(node, step_list);
+  }
 }

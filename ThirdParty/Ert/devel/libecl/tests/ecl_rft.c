@@ -34,7 +34,7 @@ void test_rft_read_write(const char * rft_file){
     ecl_rft_node_type  ** nodes =(ecl_rft_node_type  **) malloc(sizeof(ecl_rft_node_type *) * 3);
     int size = ecl_rft_file_get_size(rft);
     for(int i =0;i<size;i++){
-        const ecl_rft_node_type * rft_node = ecl_rft_file_iget_node(rft, i);
+         ecl_rft_node_type * rft_node = ecl_rft_file_iget_node(rft, i);
         nodes[i] =rft_node;
     }
     ecl_rft_node_type * old_node = ecl_rft_file_iget_node(rft, 0);

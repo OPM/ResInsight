@@ -18,15 +18,22 @@ class ArgLoader(object):
                 rows += 1
                 columns = max(columns , len( line.split()) )
 
+        if not column_names is None:
+            if len(column_names) <= columns:
+                columns = len(column_names)
+            else:
+                raise ValueError("To many coloumns in input")
+
         data = numpy.empty(shape=(rows , columns) , dtype=numpy.float64)
         data.fill( numpy.nan )
 
         row = 0
         with open(filename) as fileH:
             for line in fileH.readlines():
-                tmp = [ float(x) for x in line.split( ) ]
-                for column in range(len(tmp)):
-                    data[row][column] = tmp[column]
+                tmp = line.split( )
+                print tmp
+                for column in range(columns):
+                    data[row][column] = float(tmp[column])
                 row += 1
 
 

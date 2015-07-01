@@ -28,7 +28,7 @@ class ObservationGenDataFetcher(DataFetcher):
             obs_keys = self.ert().ensembleConfig().getNode(key).getObservationKeys()
             for obs_key in obs_keys:
                 obs_vector = self.ert().getObservations()[obs_key]
-                for report_step in obs_vector:
+                for report_step in obs_vector.getStepList():
                     gen_data_list.append("%s@%d" % (key, report_step))
 
         return gen_data_list
@@ -76,7 +76,7 @@ class ObservationGenDataFetcher(DataFetcher):
         obs_keys = self.ert().ensembleConfig().getNode(key).getObservationKeys()
         for obs_key in obs_keys:
             obs_vector = self.ert().getObservations()[obs_key]
-            for report_step in obs_vector:
+            for report_step in obs_vector.getStepList():
                 if report_step == key_report_step:
                     return obs_key
 

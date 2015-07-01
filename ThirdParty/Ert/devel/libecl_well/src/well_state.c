@@ -371,7 +371,7 @@ void well_state_add_connections( well_state_type * well_state ,
 
 
 bool well_state_add_MSW( well_state_type * well_state ,
-                         const ecl_file_type * rst_file ,
+                         ecl_file_type * rst_file ,
                          int well_nr,
                          bool load_segment_information) {
 

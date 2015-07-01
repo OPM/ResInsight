@@ -7,6 +7,12 @@ target_link_libraries( ecl_coarse_test ecl test_util )
 add_test( ecl_coarse_test  ${EXECUTABLE_OUTPUT_PATH}/ecl_coarse_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/LGCcase/LGC_TESTCASE2 )
 
 
+add_executable( ecl_grid_layer_contains ecl_grid_layer_contains.c )
+target_link_libraries( ecl_grid_layer_contains ecl test_util )
+add_test( ecl_grid_layer_contains1  ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_layer_contains  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID )
+add_test( ecl_grid_layer_contains2  ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_layer_contains  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Mariner/MARINER.EGRID )
+
+
 add_executable( ecl_restart_test ecl_restart_test.c )
 target_link_libraries( ecl_restart_test ecl test_util )
 add_test( ecl_restart_test ${EXECUTABLE_OUTPUT_PATH}/ecl_restart_test ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST )
@@ -363,3 +369,5 @@ set_property( TEST ecl_grid_copy_statoil2 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_grid_copy_statoil3 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_grid_copy_statoil4 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_layer_statoil PROPERTY LABELS StatoilData )
+set_property( TEST ecl_grid_layer_contains1 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_grid_layer_contains2 PROPERTY LABELS StatoilData )

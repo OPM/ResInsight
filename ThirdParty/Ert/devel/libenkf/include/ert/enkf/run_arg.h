@@ -53,7 +53,6 @@ UTIL_IS_INSTANCE_HEADER( run_arg );
   state_enum     run_arg_get_dynamic_init_state( const run_arg_type * run_arg );
   state_enum     run_arg_get_parameter_init_state( const run_arg_type * run_arg );
   int            run_arg_get_parameter_init_step( const run_arg_type * run_arg );
-  bool           run_arg_is_ready( const run_arg_type * run_arg);
   int            run_arg_get_step1( const run_arg_type * run_arg );
   int            run_arg_get_step2( const run_arg_type * run_arg );
   run_mode_type  run_arg_get_run_mode( const run_arg_type * run_arg );
@@ -62,8 +61,6 @@ UTIL_IS_INSTANCE_HEADER( run_arg );
   int            run_arg_get_iter( const run_arg_type * run_arg );
   void           run_arg_increase_submit_count( run_arg_type * run_arg );
   void           run_arg_set_queue_index( run_arg_type * run_arg , int queue_index);
-
-  void run_arg_set_ready( run_arg_type * run_arg , bool ready);
 
   void run_arg_free(run_arg_type * run_arg);
   void run_arg_free__(void * arg);

@@ -129,7 +129,7 @@ set( CMAKE_CXX_FLAGS_main ${CMAKE_CXX_FLAGS} )
 
 if (NOT ERT_WINDOWS)
   set( CMAKE_C_FLAGS "-std=gnu99" )
-  set( CMAKE_CXX_FLAGS "")
+  set( CMAKE_CXX_FLAGS "-std=c++0x")
 endif()
 
 try_compile( HAVE_ISFINITE ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_isfinite.c )
@@ -163,6 +163,7 @@ if (HAVE_SIGBUS)
   add_definitions( -DHAVE_SIGBUS )
 endif()
 
+try_compile( HAVE_CXX_SHARED_PTR ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_shared_ptr.cpp )
 
 check_type_size(time_t SIZE_OF_TIME_T)
 if (${SIZE_OF_TIME_T} EQUAL 8)

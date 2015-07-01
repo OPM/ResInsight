@@ -14,7 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 import re
+
 from .fault import Fault
+from ert.ecl import EclGrid
 
 comment_regexp = re.compile("--.*")
 
@@ -29,13 +31,21 @@ def dequote(s):
 
 
 class FaultCollection(object):
-    def __init__(self , grid , *file_list):
+    def __init__(self , grid = None , *file_list):
         self.__fault_list = []
         self.__fault_map = {}
-        self.__grid = grid
 
-        for file in file_list:
-            self.load(file)
+        if grid is not None:
+            if not isinstance(grid , EclGrid):
+                raise ValueError("When supplying a list of files to load - you must have a grid")
+            
+            for file in file_list:
+                self.load(grid , file)
+
+                
+
+    def __contains__(self , fault_name):
+        return self.__fault_map.has_key( fault_name )
 
 
     def __len__(self):
@@ -63,14 +73,13 @@ class FaultCollection(object):
 
 
     def hasFault(self , fault_name):
-        return self.__fault_map.has_key( fault_name )
+        return fault_name in self
         
 
-    def addFault(self, fault_name):
-        new_fault = Fault(self.__grid , fault_name)
-        self.__fault_map[fault_name] = new_fault
-        self.__fault_list.append( new_fault )
-
+    def addFault(self, fault):
+        self.__fault_map[fault.getName()] = fault
+        self.__fault_list.append( fault )
+        
 
     def splitLine(self , line):
         tmp = line.split()
@@ -93,7 +102,7 @@ class FaultCollection(object):
 
 
         
-    def loadFaults(self , fileH):
+    def loadFaults(self , grid , fileH):
         for line in fileH:
             line = comment_regexp.sub("" , line)
             line = line.strip()
@@ -103,14 +112,17 @@ class FaultCollection(object):
             if line:
                 (name , I1 , I2 , J1 , J2 , K1 , K2 , face) = self.splitLine( line )
                 if not self.hasFault(name):
-                    self.addFault(name)
-                fault = self.getFault(name)
+                    fault = Fault( grid , name)
+                    self.addFault( fault )
+                else:
+                    fault = self.getFault(name)
+
                 fault.addRecord(I1 , I2 , J1 , J2 , K1 , K2 , face)
 
 
-    def load(self , file_name):
+    def load(self , grid , file_name):
         with open(file_name) as fileH:
             for line in fileH:
                 if line.startswith("FAULTS"):
-                    self.loadFaults(fileH)
+                    self.loadFaults(grid , fileH)
             

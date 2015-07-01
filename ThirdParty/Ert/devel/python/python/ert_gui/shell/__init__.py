@@ -1,4 +1,4 @@
-from .shell_tools import autoCompleteList, extractFullArgument, getPossibleFilenameCompletions, pathify, createParameterizedHelpFunction, autoCompleteListWithSeparator
+from .shell_tools import autoCompleteList, extractFullArgument, getPossibleFilenameCompletions, pathify, createParameterizedHelpFunction, autoCompleteListWithSeparator, matchItems
 from .shell_function import ShellFunction, assertConfigLoaded
 
 from .plot_settings import PlotSettings

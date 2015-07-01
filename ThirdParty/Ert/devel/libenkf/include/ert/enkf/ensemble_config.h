@@ -85,6 +85,7 @@ typedef struct ensemble_config_struct ensemble_config_type;
   const summary_key_matcher_type * ensemble_config_get_summary_key_matcher(const ensemble_config_type * ensemble_config);
 
   enkf_config_node_type  * ensemble_config_add_STATIC_node(ensemble_config_type * , const char    * );
+  int                      ensemble_config_get_size(const ensemble_config_type * ensemble_config );
 
 
   UTIL_IS_INSTANCE_HEADER( ensemble_config );

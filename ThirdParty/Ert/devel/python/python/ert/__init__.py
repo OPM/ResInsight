@@ -115,3 +115,6 @@ cwrap.clib.ert_lib_path = ert_lib_path
 if sys.hexversion < required_version_hex:
     raise Exception("ERT Python requires at least version 2.6 of Python")
 
+
+
+from ert.util import Version

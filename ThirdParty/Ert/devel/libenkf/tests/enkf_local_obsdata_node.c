@@ -21,8 +21,8 @@
 #include <unistd.h>
 
 #include <ert/util/test_util.h>
+#include <ert/util/int_vector.h>
 
-#include <ert/enkf/obs_tstep_list.h>
 #include <ert/enkf/local_obsdata_node.h>
 #include <ert/enkf/active_list.h>
 
@@ -32,7 +32,6 @@ void test_content( local_obsdata_node_type * node ) {
 
   test_assert_not_NULL( active_list );
   test_assert_true( active_list_is_instance( active_list ));
-  test_assert_true( obs_tstep_list_is_instance( local_obsdata_node_get_tstep_list( node )));
 
   {
     active_list_type * new_active_list = active_list_alloc( );
@@ -45,15 +44,45 @@ void test_content( local_obsdata_node_type * node ) {
 
   }
   {
-    const obs_tstep_list_type * tstep = local_obsdata_node_get_tstep_list( node );
 
+
+    local_obsdata_node_add_tstep( node , 20 );
     local_obsdata_node_add_tstep( node , 10 );
     local_obsdata_node_add_tstep( node , 10 );  // Second add - ignored
-    local_obsdata_node_add_tstep( node , 20 );
 
-    test_assert_int_equal( 2 , obs_tstep_list_get_size( tstep ));
+    {
+      const int_vector_type * tstep = local_obsdata_node_get_tstep_list( node );
+      test_assert_int_equal( 2 , int_vector_size( tstep ));
+      test_assert_int_equal( 10 , int_vector_iget( tstep , 0 ));
+      test_assert_int_equal( 20 , int_vector_iget( tstep , 1 ));
+      test_assert_true( local_obsdata_node_has_tstep( node , 10 ));
+      test_assert_true( local_obsdata_node_has_tstep( node , 20 ));
+      test_assert_false( local_obsdata_node_has_tstep( node , 15 ));
+
+
+      local_obsdata_node_add_range( node , 5 , 7 );
+      test_assert_true( local_obsdata_node_has_tstep( node , 5 ));
+      test_assert_true( local_obsdata_node_has_tstep( node , 7 ));
+      test_assert_int_equal( int_vector_iget( tstep , 2 ) , 7 );
+    }
   }
 
+}
+
+
+void get_tstep_list(void * arg) {
+  local_obsdata_node_type * node = local_obsdata_node_safe_cast( arg );
+  local_obsdata_node_get_tstep_list(node);
+}
+
+
+
+void test_abort() {
+  local_obsdata_node_type * node = local_obsdata_node_alloc( "KEY" );
+
+  test_assert_true( local_obsdata_node_all_timestep_active( node ));
+  test_assert_util_abort("local_obsdata_node_get_tstep_list", get_tstep_list, node);
+  local_obsdata_node_free( node );
 }
 
 
@@ -73,6 +102,8 @@ int main(int argc , char ** argv) {
     void * node = local_obsdata_node_alloc( obs_key );
     local_obsdata_node_free__( node );
   }
+
+  test_abort();
 
   exit(0);
 }

@@ -61,8 +61,9 @@ struct analysis_config_struct {
   analysis_iter_config_type     * iter_config;
   int                             min_realisations;
   bool                            stop_long_running;
+  bool                            std_scale_correlated_obs;
   int                             max_runtime;
-
+  double                          global_std_scaling;
 };
 
 
@@ -147,6 +148,22 @@ void analysis_config_set_stop_long_running( analysis_config_type * config, bool 
 
 bool analysis_config_get_stop_long_running( const analysis_config_type * config) {
   return config->stop_long_running;
+}
+
+bool analysis_config_get_std_scale_correlated_obs( const analysis_config_type * config) {
+  return config->std_scale_correlated_obs;
+}
+
+void analysis_config_set_std_scale_correlated_obs( analysis_config_type * config, bool std_scale_correlated_obs) {
+  config->std_scale_correlated_obs = std_scale_correlated_obs;
+}
+
+double analysis_config_get_global_std_scaling(const analysis_config_type * config) {
+  return config->global_std_scaling;
+}
+
+void analysis_config_set_global_std_scaling(analysis_config_type * config, double global_std_scaling) {
+  config->global_std_scaling = global_std_scaling;
 }
 
 int analysis_config_get_max_runtime( const analysis_config_type * config ) {
@@ -459,6 +476,9 @@ void analysis_config_init( analysis_config_type * analysis , const config_conten
   if (config_content_has_item( config , SINGLE_NODE_UPDATE_KEY ))
     analysis_config_set_single_node_update( analysis , config_content_get_value_as_bool( config , SINGLE_NODE_UPDATE_KEY ));
 
+  if (config_content_has_item( config , STD_SCALE_CORRELATED_OBS_KEY ))
+    analysis_config_set_std_scale_correlated_obs( analysis , config_content_get_value_as_bool( config , STD_SCALE_CORRELATED_OBS_KEY ));
+
   if (config_content_has_item( config , RERUN_START_KEY ))
     analysis_config_set_rerun_start( analysis , config_content_get_value_as_int( config , RERUN_START_KEY ));
 
@@ -591,10 +611,12 @@ analysis_config_type * analysis_config_alloc( rng_type * rng ) {
   analysis_config_set_stop_long_running( config        , DEFAULT_ANALYSIS_STOP_LONG_RUNNING );
   analysis_config_set_max_runtime( config              , DEFAULT_MAX_RUNTIME );
 
-  config->analysis_module  = NULL;
-  config->analysis_modules = hash_alloc();
-  config->rng              = rng;
-  config->iter_config      = analysis_iter_config_alloc();
+  config->analysis_module      = NULL;
+  config->analysis_modules     = hash_alloc();
+  config->rng                  = rng;
+  config->iter_config          = analysis_iter_config_alloc();
+  config->std_scale_correlated_obs = false;
+  config->global_std_scaling   = 1.0;
   return config;
 }
 
@@ -629,6 +651,7 @@ void analysis_config_add_config_items( config_parser_type * config ) {
   config_add_key_value( config , UPDATE_LOG_PATH_KEY         , false , CONFIG_STRING);
   config_add_key_value( config , MIN_REALIZATIONS_KEY        , false , CONFIG_STRING );
   config_add_key_value( config , MAX_RUNTIME_KEY             , false , CONFIG_INT );
+  config_add_key_value( config , STD_SCALE_CORRELATED_OBS_KEY, false , CONFIG_BOOL );
 
   item = config_add_key_value( config , STOP_LONG_RUNNING_KEY, false,  CONFIG_BOOL );
   stringlist_type * child_list = stringlist_alloc_new();

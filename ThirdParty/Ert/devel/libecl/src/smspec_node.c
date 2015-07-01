@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'smspec_node.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'smspec_node.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <string.h>
@@ -44,7 +44,7 @@
    file; the content is based on the smspec vectors WGNAMES, KEYWORDS, UNIT
    and NUMS. The index field of this struct points to where the actual data
    can be found in the PARAMS vector of the *.Snnnn / *.UNSMRY files;
-   probably the most important field.  
+   probably the most important field.
 */
 
 #define SMSPEC_TYPE_ID 61550451
@@ -52,7 +52,7 @@
 
 struct smspec_node_struct {
   UTIL_TYPE_ID_DECLARATION;
-  char                 * gen_key1;           /* The main composite key, i.e. WWCT:OP3 for this element. */ 
+  char                 * gen_key1;           /* The main composite key, i.e. WWCT:OP3 for this element. */
   char                 * gen_key2;           /* Some of the ijk based elements will have both a xxx:i,j,k and a xxx:num key. Some of the region_2_region elements will have both a xxx:num and a xxx:r2-r2 key. Mostly NULL. */
   ecl_smspec_var_type    var_type;           /* The variable type */
   char                 * wgname;             /* The value of the WGNAMES vector for this element. */
@@ -83,7 +83,7 @@ struct smspec_node_struct {
 #define ECL_SUM_KEYFMT_BLOCK_IJK              "%s%s%d,%d,%d"
 #define ECL_SUM_KEYFMT_BLOCK_NUM              "%s%s%d"
 #define ECL_SUM_KEYFMT_LOCAL_BLOCK            "%s%s%s%s%d,%d,%d"
-#define ECL_SUM_KEYFMT_COMPLETION_IJK         "%s%s%s%s%d,%d,%d" 
+#define ECL_SUM_KEYFMT_COMPLETION_IJK         "%s%s%s%s%d,%d,%d"
 #define ECL_SUM_KEYFMT_COMPLETION_NUM         "%s%s%s%s%d"
 #define ECL_SUM_KEYFMT_LOCAL_COMPLETION       "%s%s%s%s%s%s%d,%d,%d"
 #define ECL_SUM_KEYFMT_GROUP                  "%s%s%s"
@@ -99,49 +99,49 @@ UTIL_SAFE_CAST_FUNCTION( smspec_node , SMSPEC_TYPE_ID )
 
 char * smspec_alloc_block_num_key( const char * join_string , const char * keyword , int num) {
   return util_alloc_sprintf(ECL_SUM_KEYFMT_BLOCK_NUM,
-                            keyword , 
-                            join_string , 
+                            keyword ,
+                            join_string ,
                             num );
 }
 
 char * smspec_alloc_local_block_key( const char * join_string , const char * keyword , const char * lgr_name , int i , int j , int k) {
-  return util_alloc_sprintf(ECL_SUM_KEYFMT_LOCAL_BLOCK , 
-                            keyword , 
-                            join_string , 
-                            lgr_name , 
-                            join_string , 
+  return util_alloc_sprintf(ECL_SUM_KEYFMT_LOCAL_BLOCK ,
+                            keyword ,
+                            join_string ,
+                            lgr_name ,
+                            join_string ,
                             i,j,k);
 }
 
 
 char * smspec_alloc_region_key( const char * join_string , const char * keyword , int num) {
-  return util_alloc_sprintf(ECL_SUM_KEYFMT_REGION , 
-                            keyword , 
-                            join_string , 
+  return util_alloc_sprintf(ECL_SUM_KEYFMT_REGION ,
+                            keyword ,
+                            join_string ,
                             num );
 }
 
 char * smspec_alloc_region_2_region_r1r2_key( const char * join_string , const char * keyword , int r1, int r2) {
   return util_alloc_sprintf(ECL_SUM_KEYFMT_REGION_2_REGION_R1R2,
                             keyword,
-                            join_string, 
-                            r1, 
+                            join_string,
+                            r1,
                             r2);
 }
 
 char * smspec_alloc_region_2_region_num_key( const char * join_string , const char * keyword , int num) {
-  return util_alloc_sprintf(ECL_SUM_KEYFMT_REGION_2_REGION_NUM,  
-                            keyword , 
-                            join_string , 
+  return util_alloc_sprintf(ECL_SUM_KEYFMT_REGION_2_REGION_NUM,
+                            keyword ,
+                            join_string ,
                             num);
 }
-  
+
 
 
 char * smspec_alloc_block_ijk_key( const char * join_string , const char * keyword , int i , int j , int k) {
-  return util_alloc_sprintf(ECL_SUM_KEYFMT_BLOCK_IJK , 
+  return util_alloc_sprintf(ECL_SUM_KEYFMT_BLOCK_IJK ,
                             keyword,
-                            join_string , 
+                            join_string ,
                             i,j,k);
 }
 
@@ -149,11 +149,11 @@ char * smspec_alloc_block_ijk_key( const char * join_string , const char * keywo
 
 char * smspec_alloc_completion_ijk_key( const char * join_string , const char * keyword, const char * wgname , int i , int j , int k) {
   if (wgname != NULL)
-    return util_alloc_sprintf( ECL_SUM_KEYFMT_COMPLETION_IJK , 
-                               keyword , 
-                               join_string , 
-                               wgname , 
-                               join_string , 
+    return util_alloc_sprintf( ECL_SUM_KEYFMT_COMPLETION_IJK ,
+                               keyword ,
+                               join_string ,
+                               wgname ,
+                               join_string ,
                                i , j , k );
   else
     return NULL;
@@ -164,10 +164,10 @@ char * smspec_alloc_completion_ijk_key( const char * join_string , const char * 
 char * smspec_alloc_completion_num_key( const char * join_string , const char * keyword, const char * wgname , int num) {
   if (wgname != NULL)
     return util_alloc_sprintf(ECL_SUM_KEYFMT_COMPLETION_NUM,
-                              keyword , 
-                              join_string , 
-                              wgname , 
-                              join_string , 
+                              keyword ,
+                              join_string ,
+                              wgname ,
+                              join_string ,
                               num );
   else
     return NULL;
@@ -181,10 +181,10 @@ char * smspec_alloc_completion_num_key( const char * join_string , const char * 
 */
 
 static char * smspec_alloc_wgname_key( const char * join_string , const char * keyword , const char * wgname) {
-  if (wgname != NULL) 
+  if (wgname != NULL)
     return util_alloc_sprintf(ECL_SUM_KEYFMT_WELL,
-                              keyword , 
-                              join_string , 
+                              keyword ,
+                              join_string ,
                               wgname );
   else
     return NULL;
@@ -200,11 +200,11 @@ char * smspec_alloc_well_key( const char * join_string , const char * keyword , 
 
 char * smspec_alloc_segment_key( const char * join_string , const char * keyword , const char * wgname , int num) {
   if (wgname != NULL)
-    return util_alloc_sprintf(ECL_SUM_KEYFMT_SEGMENT , 
-                              keyword , 
-                              join_string , 
-                              wgname , 
-                              join_string , 
+    return util_alloc_sprintf(ECL_SUM_KEYFMT_SEGMENT ,
+                              keyword ,
+                              join_string ,
+                              wgname ,
+                              join_string ,
                               num );
   else
     return NULL;
@@ -213,11 +213,11 @@ char * smspec_alloc_segment_key( const char * join_string , const char * keyword
 
 char * smspec_alloc_local_well_key( const char * join_string , const char * keyword , const char * lgr_name , const char * wgname) {
   if (wgname != NULL)
-    return util_alloc_sprintf( ECL_SUM_KEYFMT_LOCAL_WELL , 
-                               keyword , 
-                               join_string , 
-                               lgr_name , 
-                               join_string , 
+    return util_alloc_sprintf( ECL_SUM_KEYFMT_LOCAL_WELL ,
+                               keyword ,
+                               join_string ,
+                               lgr_name ,
+                               join_string ,
                                wgname);
   else
     return NULL;
@@ -225,12 +225,12 @@ char * smspec_alloc_local_well_key( const char * join_string , const char * keyw
 
 char * smspec_alloc_local_completion_key( const char * join_string, const char * keyword , const char * lgr_name , const char * wgname , int i , int j , int k) {
   if (wgname != NULL)
-    return util_alloc_sprintf(ECL_SUM_KEYFMT_LOCAL_COMPLETION , 
-                              keyword  , 
-                              join_string , 
-                              lgr_name , 
+    return util_alloc_sprintf(ECL_SUM_KEYFMT_LOCAL_COMPLETION ,
+                              keyword  ,
                               join_string ,
-                              wgname , 
+                              lgr_name ,
+                              join_string ,
+                              wgname ,
                               join_string ,
                               i,j,k);
   else
@@ -244,7 +244,7 @@ static void smspec_node_set_keyword( smspec_node_type * smspec_node , const char
   // This function can __ONLY__ be called on time; run-time chaning of keyword is not
   // allowed.
   if (smspec_node->keyword == NULL)
-    smspec_node->keyword = util_alloc_substring_copy( keyword , 0 , 8);       
+    smspec_node->keyword = util_alloc_substring_copy( keyword , 0 , 8);
   else
     util_abort("%s: fatal error - attempt to change keyword runtime detected - aborting\n",__func__);
 }
@@ -262,9 +262,9 @@ static char LAST_CHAR(const char * s) {
 }
 
 static void smspec_node_set_flags( smspec_node_type * smspec_node) {
-  /* 
+  /*
      Check if this is a rate variabel - that info is used when
-     interpolating results to true_time between ministeps. 
+     interpolating results to true_time between ministeps.
   */
   {
     const char *rate_vars[] = {"OPR" , "GPR" , "WPR" , "GOR" , "WCT"};
@@ -280,7 +280,7 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     }
     smspec_node->rate_variable = is_rate;
   }
-  
+
   {
     if (LAST_CHAR(smspec_node->keyword) == 'H')
       smspec_node->historical = true;
@@ -291,7 +291,7 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     variable represents a total accumulated quantity. Only the last three
     characters in the variable is considered (i.e. the leading 'W', 'G' or
     'F' is discarded).
-    
+
     The list below is all the keyowrds with 'Total' in the information from
     the tables 2.7 - 2.11 in the ECLIPSE fileformat documentation.  Have
     skipped some of the most exotic keywords.
@@ -300,7 +300,7 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     bool is_total = false;
     if (smspec_node->var_type == ECL_SMSPEC_WELL_VAR || smspec_node->var_type == ECL_SMSPEC_GROUP_VAR || smspec_node->var_type == ECL_SMSPEC_FIELD_VAR) {
       const char *total_vars[] = {"OPT"  , "GPT"  , "WPT" , "OPTF" , "OPTS" , "OIT"  , "OVPT" , "OVIT" , "MWT" , "WIT" ,
-                                  "WVPT" , "WVIT" , "GMT"  , "GPTF" , "GIT"  , "SGT"  , "GST" , "FGT" , "GCT" , "GIMT" , 
+                                  "WVPT" , "WVIT" , "GMT"  , "GPTF" , "GIT"  , "SGT"  , "GST" , "FGT" , "GCT" , "GIMT" ,
                                   "WGPT" , "WGIT" , "EGT"  , "EXGT" , "GVPT" , "GVIT" , "LPT" , "VPT" , "VIT" };
 
       int num_total_vars = sizeof( total_vars ) / sizeof( total_vars[0] );
@@ -324,15 +324,15 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
   /*
     Check if this node needs the nums field; if at least one of the
     nodes need the NUMS field must be stored when writing a SMSPEC
-    file. 
+    file.
   */
   {
-    if (smspec_node->var_type == ECL_SMSPEC_COMPLETION_VAR      || 
-        smspec_node->var_type == ECL_SMSPEC_SEGMENT_VAR         || 
+    if (smspec_node->var_type == ECL_SMSPEC_COMPLETION_VAR      ||
+        smspec_node->var_type == ECL_SMSPEC_SEGMENT_VAR         ||
         smspec_node->var_type == ECL_SMSPEC_REGION_VAR          ||
         smspec_node->var_type == ECL_SMSPEC_REGION_2_REGION_VAR ||
         smspec_node->var_type == ECL_SMSPEC_BLOCK_VAR           ||
-        smspec_node->var_type == ECL_SMSPEC_AQUIFER_VAR) 
+        smspec_node->var_type == ECL_SMSPEC_AQUIFER_VAR)
       smspec_node->need_nums = true;
     else
       smspec_node->need_nums = false;
@@ -357,15 +357,15 @@ float smspec_node_get_default( const smspec_node_type * smspec_node ) {
 
 smspec_node_type * smspec_node_alloc_new(int params_index, float default_value) {
   smspec_node_type * node = util_malloc( sizeof * node );
-  
+
   UTIL_TYPE_ID_INIT( node , SMSPEC_TYPE_ID);
   node->params_index  = params_index;
   smspec_node_set_default( node , default_value );
 
   node->wgname        = NULL;
   node->num           = SMSPEC_NUMS_INVALID;
-  node->ijk           = NULL; 
-  
+  node->ijk           = NULL;
+
   node->gen_key1      = NULL;
   node->gen_key2      = NULL;
 
@@ -373,8 +373,8 @@ smspec_node_type * smspec_node_alloc_new(int params_index, float default_value) 
   node->unit          = NULL;
   node->keyword       = NULL;
   node->lgr_name      = NULL;
-  node->lgr_ijk       = NULL;  
-    
+  node->lgr_ijk       = NULL;
+
   smspec_node_set_invalid_flags( node );
   return node;               // This is NOT usable
 }
@@ -382,7 +382,7 @@ smspec_node_type * smspec_node_alloc_new(int params_index, float default_value) 
 
 /**
    Observe that the wellname can have max 8 characters; anything
-   beyond that is silently dropped.  
+   beyond that is silently dropped.
 */
 
 static void smspec_node_set_wgname( smspec_node_type * index , const char * wgname ) {
@@ -390,7 +390,7 @@ static void smspec_node_set_wgname( smspec_node_type * index , const char * wgna
     util_safe_free( index->wgname );
     index->wgname = NULL;
   } else {
-    if (strlen(wgname) > 8) 
+    if (strlen(wgname) > 8)
       index->wgname = util_realloc_substring_copy(index->wgname , wgname , 8);
     else
       index->wgname = util_realloc_string_copy(index->wgname , wgname );
@@ -407,7 +407,7 @@ static void smspec_node_set_lgr_name( smspec_node_type * index , const char * lg
 static void smspec_node_set_lgr_ijk( smspec_node_type * index , int lgr_i , int lgr_j , int lgr_k) {
   if (index->lgr_ijk == NULL)
     index->lgr_ijk = util_calloc( 3 , sizeof * index->lgr_ijk );
-  
+
   index->lgr_ijk[0] = lgr_i;
   index->lgr_ijk[1] = lgr_j;
   index->lgr_ijk[2] = lgr_k;
@@ -417,12 +417,12 @@ static void smspec_node_set_lgr_ijk( smspec_node_type * index , int lgr_i , int 
 static void smspec_node_set_num( smspec_node_type * index , const int grid_dims[3] , int num) {
   if (num == SMSPEC_NUMS_INVALID)
     util_abort("%s: explicitly trying to set nums == SMSPEC_NUMS_INVALID - seems like a bug?!\n",__func__);
-  
+
   index->num = num;
   if ((index->var_type == ECL_SMSPEC_COMPLETION_VAR) || (index->var_type == ECL_SMSPEC_BLOCK_VAR)) {
     int global_index = num - 1;
     index->ijk = util_calloc( 3 , sizeof * index->ijk );
-    
+
     index->ijk[2] = global_index / ( grid_dims[0] * grid_dims[1] );   global_index -= index->ijk[2] * (grid_dims[0] * grid_dims[1]);
     index->ijk[1] = global_index /  grid_dims[0] ;                    global_index -= index->ijk[1] * grid_dims[0];
     index->ijk[0] = global_index;
@@ -455,20 +455,20 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
     smspec_node->gen_key1 = util_alloc_string_copy( smspec_node->keyword );
     break;
   case(ECL_SMSPEC_GROUP_VAR):
-    // KEYWORD:WGNAME 
+    // KEYWORD:WGNAME
     smspec_node->gen_key1 = smspec_alloc_group_key( key_join_string , smspec_node->keyword , smspec_node->wgname);
     break;
   case(ECL_SMSPEC_WELL_VAR):
-    // KEYWORD:WGNAME 
+    // KEYWORD:WGNAME
     smspec_node->gen_key1 = smspec_alloc_well_key( key_join_string , smspec_node->keyword , smspec_node->wgname);
     break;
   case(ECL_SMSPEC_REGION_VAR):
     // KEYWORD:NUM
     smspec_node->gen_key1 = smspec_alloc_region_key( key_join_string , smspec_node->keyword , smspec_node->num);
     break;
-  case (ECL_SMSPEC_SEGMENT_VAR): 
-    // KEYWORD:WGNAME:NUM  
-    smspec_node->gen_key1 = smspec_alloc_segment_key( key_join_string , smspec_node->keyword , smspec_node->wgname , smspec_node->num);  
+  case (ECL_SMSPEC_SEGMENT_VAR):
+    // KEYWORD:WGNAME:NUM
+    smspec_node->gen_key1 = smspec_alloc_segment_key( key_join_string , smspec_node->keyword , smspec_node->wgname , smspec_node->num);
     break;
   case(ECL_SMSPEC_REGION_2_REGION_VAR):
     // KEYWORDS:RXF:NUM and RXF:R1-R2
@@ -495,23 +495,23 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
     break;
   case(ECL_SMSPEC_LOCAL_BLOCK_VAR):
     /* KEYWORD:LGR:i,j,k */
-    smspec_node->gen_key1 = smspec_alloc_local_block_key( key_join_string , 
-                                                         smspec_node->keyword , 
-                                                         smspec_node->lgr_name , 
-                                                         smspec_node->lgr_ijk[0] , 
-                                                         smspec_node->lgr_ijk[1] , 
+    smspec_node->gen_key1 = smspec_alloc_local_block_key( key_join_string ,
+                                                         smspec_node->keyword ,
+                                                         smspec_node->lgr_name ,
+                                                         smspec_node->lgr_ijk[0] ,
+                                                         smspec_node->lgr_ijk[1] ,
                                                          smspec_node->lgr_ijk[2] );
     break;
   case(ECL_SMSPEC_LOCAL_COMPLETION_VAR):
     /* KEYWORD:LGR:WELL:i,j,k */
-    smspec_node->gen_key1 = smspec_alloc_local_completion_key( key_join_string , 
-                                                              smspec_node->keyword , 
-                                                              smspec_node->lgr_name , 
-                                                              smspec_node->wgname , 
+    smspec_node->gen_key1 = smspec_alloc_local_completion_key( key_join_string ,
+                                                              smspec_node->keyword ,
+                                                              smspec_node->lgr_name ,
+                                                              smspec_node->wgname ,
                                                               smspec_node->lgr_ijk[0],
                                                               smspec_node->lgr_ijk[1],
                                                               smspec_node->lgr_ijk[2]);
-    
+
     break;
   default:
     util_abort("%s: internal error - should not be here? \n" , __func__);
@@ -539,20 +539,20 @@ static void smspec_node_common_init( smspec_node_type * node , ecl_smspec_var_ty
 
 
 
-bool smspec_node_init( smspec_node_type * smspec_node, 
-                        ecl_smspec_var_type var_type , 
-                        const char * wgname  , 
-                        const char * keyword , 
-                        const char * unit    , 
-                        const char * key_join_string , 
-                        const int grid_dims[3] , 
+bool smspec_node_init( smspec_node_type * smspec_node,
+                        ecl_smspec_var_type var_type ,
+                        const char * wgname  ,
+                        const char * keyword ,
+                        const char * unit    ,
+                        const char * key_join_string ,
+                        const int grid_dims[3] ,
                         int num) {
-  
+
   bool initOK    = true;
   bool wgnameOK = true;
   if ((wgname != NULL) && (IS_DUMMY_WELL(wgname)))
     wgnameOK = false;
-  
+
   smspec_node_common_init( smspec_node , var_type , keyword , unit );
   switch (var_type) {
   case(ECL_SMSPEC_COMPLETION_VAR):
@@ -565,14 +565,14 @@ bool smspec_node_init( smspec_node_type * smspec_node,
     break;
   case(ECL_SMSPEC_GROUP_VAR):
     /* Group variable : WGNAME */
-    if (wgnameOK) 
+    if (wgnameOK)
       smspec_node_set_wgname( smspec_node , wgname );
     else
       initOK = false;
     break;
   case(ECL_SMSPEC_WELL_VAR):
     /* Well variable : WGNAME */
-    if (wgnameOK) 
+    if (wgnameOK)
       smspec_node_set_wgname( smspec_node , wgname );
     else
       initOK = false;
@@ -613,7 +613,7 @@ bool smspec_node_init( smspec_node_type * smspec_node,
     smspec_node_set_gen_keys( smspec_node , key_join_string );
   return initOK;
 }
-  
+
 /**
    This function will allocate a smspec_node instance, and initialize
    all the elements. Observe that the function can return NULL, in the
@@ -630,12 +630,12 @@ bool smspec_node_init( smspec_node_type * smspec_node,
 
 
 
-smspec_node_type * smspec_node_alloc( ecl_smspec_var_type var_type , 
-                                       const char * wgname  , 
-                                       const char * keyword , 
-                                       const char * unit    , 
-                                       const char * key_join_string , 
-                                       const int grid_dims[3] , 
+smspec_node_type * smspec_node_alloc( ecl_smspec_var_type var_type ,
+                                       const char * wgname  ,
+                                       const char * keyword ,
+                                       const char * unit    ,
+                                       const char * key_join_string ,
+                                       const int grid_dims[3] ,
                                        int num , int param_index, float default_value) {
   /*
     Well and group names in the wgname parameter is quite messy. The
@@ -643,10 +643,10 @@ smspec_node_type * smspec_node_alloc( ecl_smspec_var_type var_type ,
 
      o The ECLIPSE SMSPEC files are very verbose, and contain many
        entries like this:
- 
+
             KEYWORD : "WWCT"
             WGNAME  : ":+:+:+:+"
-  
+
        i.e. the keyword indicates that this is a perfectly legitimate
        well variable, however the special wgname value ":+:+:+:+"
        shows that this just a rubbish entry. We do not want to
@@ -666,7 +666,7 @@ smspec_node_type * smspec_node_alloc( ecl_smspec_var_type var_type ,
        at all, e.g. like "FOPT" - the wgname input value is ignored
        completely.
   */
-  
+
   smspec_node_type * smspec_node = smspec_node_alloc_new( param_index , default_value );
   if (smspec_node_init( smspec_node , var_type , wgname , keyword , unit , key_join_string , grid_dims, num))
     return smspec_node;
@@ -678,20 +678,20 @@ smspec_node_type * smspec_node_alloc( ecl_smspec_var_type var_type ,
 
 
 
-bool smspec_node_init_lgr( smspec_node_type * smspec_node , 
-                           ecl_smspec_var_type var_type , 
-                           const char * wgname  , 
-                           const char * keyword , 
-                           const char * unit    , 
-                           const char * lgr , 
-                           const char * key_join_string , 
+bool smspec_node_init_lgr( smspec_node_type * smspec_node ,
+                           ecl_smspec_var_type var_type ,
+                           const char * wgname  ,
+                           const char * keyword ,
+                           const char * unit    ,
+                           const char * lgr ,
+                           const char * key_join_string ,
                            int   lgr_i, int lgr_j , int lgr_k
                            ) {
   bool initOK = true;
   bool wgnameOK = true;
   if ((wgname != NULL) && (IS_DUMMY_WELL(wgname)))
     wgnameOK = false;
-  
+
   smspec_node_common_init( smspec_node , var_type , keyword , unit );
   switch (var_type) {
   case(ECL_SMSPEC_LOCAL_WELL_VAR):
@@ -723,15 +723,15 @@ bool smspec_node_init_lgr( smspec_node_type * smspec_node ,
 
 
 
-smspec_node_type * smspec_node_alloc_lgr( ecl_smspec_var_type var_type , 
-                                          const char * wgname  , 
-                                          const char * keyword , 
-                                          const char * unit    , 
-                                          const char * lgr , 
-                                          const char * key_join_string , 
+smspec_node_type * smspec_node_alloc_lgr( ecl_smspec_var_type var_type ,
+                                          const char * wgname  ,
+                                          const char * keyword ,
+                                          const char * unit    ,
+                                          const char * lgr ,
+                                          const char * key_join_string ,
                                           int   lgr_i, int lgr_j , int lgr_k,
                                           int param_index , float default_value) {
-  
+
   smspec_node_type * smspec_node = smspec_node_alloc_new( param_index , default_value );
   if (smspec_node_init_lgr( smspec_node , var_type , wgname , keyword , unit , lgr , key_join_string , lgr_i, lgr_j , lgr_k))
     return smspec_node;
@@ -805,11 +805,11 @@ bool smspec_node_is_rate( const smspec_node_type * smspec_node ) {
 }
 
 
-bool smspec_node_is_total( const smspec_node_type * smspec_node ){ 
+bool smspec_node_is_total( const smspec_node_type * smspec_node ){
   return smspec_node->total_variable;
 }
 
-bool smspec_node_is_historical( const smspec_node_type * smspec_node ){ 
+bool smspec_node_is_historical( const smspec_node_type * smspec_node ){
   return smspec_node->historical;
 }
 
@@ -821,7 +821,7 @@ const char  * smspec_node_get_unit( const smspec_node_type * smspec_node) {
 void smspec_node_set_unit( smspec_node_type * smspec_node , const char * unit ) {
   // ECLIPSE Standard: Max eight characters - everything beyond is silently dropped
   util_safe_free( smspec_node->unit );
-  smspec_node->unit = util_alloc_substring_copy( unit , 0 , 8);       
+  smspec_node->unit = util_alloc_substring_copy( unit , 0 , 8);
 }
 
 

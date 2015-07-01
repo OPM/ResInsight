@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'job_lsf_test.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'job_lsf_test.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,6 +32,7 @@ void test_option(torque_driver_type * driver, const char * option, const char * 
 
 void setoption_setalloptions_optionsset() {
   torque_driver_type * driver = torque_driver_alloc();
+
   test_option(driver, TORQUE_QSUB_CMD, "XYZaaa");
   test_option(driver, TORQUE_QSTAT_CMD, "xyZfff");
   test_option(driver, TORQUE_QDEL_CMD, "ZZyfff");
@@ -42,6 +43,15 @@ void setoption_setalloptions_optionsset() {
   test_option(driver, TORQUE_KEEP_QSUB_OUTPUT, "0");
   test_option(driver, TORQUE_CLUSTER_LABEL, "thecluster");
   test_option(driver, TORQUE_JOB_PREFIX_KEY, "coolJob");
+
+  test_assert_int_equal( 0 , torque_driver_get_submit_sleep(driver));
+  test_assert_NULL( torque_driver_get_debug_stream(driver) );
+
+  test_assert_true( torque_driver_set_option( driver , TORQUE_SUBMIT_SLEEP , "0.25"));
+  test_assert_int_equal( 250000 , torque_driver_get_submit_sleep(driver));
+
+  test_assert_true( torque_driver_set_option( driver , TORQUE_DEBUG_OUTPUT , "/tmp/torqueue_debug.txt"));
+  test_assert_not_NULL( torque_driver_get_debug_stream(driver) );
 
   printf("Options OK\n");
   torque_driver_free(driver);
@@ -58,6 +68,7 @@ void setoption_set_typed_options_wrong_format_returns_false() {
   test_assert_false(torque_driver_set_option(driver, TORQUE_KEEP_QSUB_OUTPUT, "ja"));
   test_assert_false(torque_driver_set_option(driver, TORQUE_KEEP_QSUB_OUTPUT, "22"));
   test_assert_false(torque_driver_set_option(driver, TORQUE_KEEP_QSUB_OUTPUT, "1.1"));
+  test_assert_false(torque_driver_set_option(driver, TORQUE_SUBMIT_SLEEP, "X45"));
 }
 
 void getoption_nooptionsset_defaultoptionsreturned() {
@@ -86,11 +97,11 @@ void create_submit_script_script_according_to_input() {
     torque_job_create_submit_script(script_filename, "job_program.py", 2, (const char **) args);
     free( args );
   }
-  
+
   {
     FILE* file_stream = util_fopen(script_filename, "r");
     bool at_eof = false;
-    
+
     char * line = util_fscanf_alloc_line(file_stream, &at_eof);
     test_assert_string_equal("#!/bin/sh", line);
     free(line);

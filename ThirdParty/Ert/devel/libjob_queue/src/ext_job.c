@@ -346,26 +346,26 @@ void ext_job_set_max_time( ext_job_type * ext_job , int max_time ) {
 
 */
 
-void ext_job_set_executable(ext_job_type * ext_job, const char * executable, const char * executable_raw) {
+void ext_job_set_executable(ext_job_type * ext_job, const char * executable_abs, const char * executable_input,bool search_path) {
 
-  if (util_file_exists(executable)) {
+  if (util_file_exists(executable_abs)) {
     /*
        The @executable parameter points to an existing file; we store
        the full path as the executable field of the job; we also try
        to update the mode of the full_path executable to make sure it
        is executable.
     */
-    char * full_path = util_alloc_realpath( executable );
+    char * full_path = util_alloc_realpath( executable_abs );
     __update_mode( full_path , S_IRUSR + S_IWUSR + S_IXUSR + S_IRGRP + S_IWGRP + S_IXGRP + S_IROTH + S_IXOTH);  /* u:rwx  g:rwx  o:rx */
     ext_job->executable = util_realloc_string_copy(ext_job->executable , full_path);
     free( full_path );
-  } else if (util_file_exists(executable_raw)) {
+  } else if (util_file_exists(executable_input)) {
     /*
        This "if" case means that we have found an executable relative
        to the current working directory. This is deprecated behaviour,
        support will be removed
     */
-    char * full_path                  = util_alloc_abs_path(executable_raw);
+    char * full_path                  = util_alloc_abs_path(executable_input);
     const char * job_description_file = ext_job_get_config_file(ext_job);
     char * path_to_job_descr_file     = util_split_alloc_dirname(job_description_file);
     char * new_relative_path_to_exe   = util_alloc_rel_path(path_to_job_descr_file, full_path);
@@ -392,39 +392,43 @@ void ext_job_set_executable(ext_job_type * ext_job, const char * executable, con
     fprintf(stderr,"| job description file and the executable can be relocated.\n");
     fprintf(stderr,"\\----------------------------------------------------------------\n\n");
 
-    ext_job_set_executable(ext_job, full_path, NULL);
+    ext_job_set_executable(ext_job, full_path, NULL, search_path);
 
     free(new_relative_path_to_exe);
     free(path_to_job_descr_file);
     free(full_path);
     free(relative_config_file);
 
-   } else  if (util_is_abs_path( executable_raw )) {
+   } else  if (util_is_abs_path( executable_input )) {
     /* If you have given an absolute path (i.e. starting with '/' to
        a non existing job we mark it as invalid - no possibility to
        provide context replacement afterwards. The job will be
        discarded by the calling scope.
     */
     fprintf(stderr , "** Warning: the executable:%s can not be found,\n"
-                     "   job:%s will not be available.\n" , executable , ext_job->name );
+                     "   job:%s will not be available.\n" , executable_abs , ext_job->name );
     ext_job->__valid = false;
   } else {
-    /* Go through the PATH variable to try to locate the executable. */
-    char * path_executable = util_alloc_PATH_executable( executable_raw );
+      if (search_path){
+        /* Go through the PATH variable to try to locate the executable. */
+        char * path_executable = util_alloc_PATH_executable( executable_input );
 
-    if (path_executable != NULL) {
-      ext_job_set_executable( ext_job , path_executable, NULL );
-      free( path_executable );
-    } else {
-      /* We take the chance that user will supply a valid subst key for this later;
-         if the final executable is not an actually executable file when exporting the
-         job from ext_job_python_fprintf() a big warning will be written on stderr.
-      */
-      fprintf(stderr , "** Warning: Unable to locate the executable %s for job %s.\n"
-                       "   Path to executable must be relative to the job description file, or an absolute path.\n"
-                       "   Please update job EXECUTABLE for job %s. \n" , executable , ext_job->name, ext_job->name);
-      ext_job->__valid = false;
-    }
+        if (path_executable != NULL) {
+          ext_job_set_executable( ext_job , path_executable, NULL, search_path );
+          free( path_executable );
+        } else {
+          /* We take the chance that user will supply a valid subst key for this later;
+             if the final executable is not an actually executable file when exporting the
+             job from ext_job_python_fprintf() a big warning will be written on stderr.
+          */
+          fprintf(stderr , "** Warning: Unable to locate the executable %s for job %s.\n"
+                           "   Path to executable must be relative to the job description file, or an absolute path.\n"
+                           "   Please update job EXECUTABLE for job %s. \n" , executable_abs , ext_job->name, ext_job->name);
+          ext_job->__valid = false;
+        }
+      } else {
+          ext_job->executable = util_realloc_string_copy(ext_job->executable , executable_input);
+      }
   }
 
   /*
@@ -432,7 +436,7 @@ void ext_job_set_executable(ext_job_type * ext_job, const char * executable, con
      discard the job.
   */
   if (ext_job->executable != NULL) {
-    if (util_file_exists(executable)) {
+    if (util_file_exists(executable_abs)) {
       if (!util_is_executable( ext_job->executable )) {
         fprintf(stderr , "** You do not have execute rights to:%s - job will not be available.\n" , ext_job->executable);
         ext_job->__valid = false;  /* Mark the job as NOT successfully installed - the ext_job
@@ -673,24 +677,8 @@ static void ext_job_fprintf_python_argList( const ext_job_type * ext_job , FILE 
 }
 
 
-static bool ext_job_check_executable( const ext_job_type * ext_job , const subst_list_type * global_args) {
-  bool OK = true;
-  char * executable;
-  executable = subst_list_alloc_filtered_string( ext_job->private_args , ext_job->executable );
-  if (global_args != NULL)
-    subst_list_update_string( global_args , &executable );
-
-  if (!util_is_executable( executable ))
-    OK = false;
-  free( executable );
-  return OK;
-}
-
 
 void ext_job_python_fprintf(const ext_job_type * ext_job, FILE * stream, const subst_list_type * global_args) {
-  if (!ext_job_check_executable( ext_job , global_args ))
-    fprintf(stderr," ** WARNING: The executable:%s could not be located on host computer - job will most probably fail.\n", ext_job->executable);
-
   fprintf(stream," {");
   {
     __indent(stream, 0); __fprintf_python_string(stream , "name"                , ext_job->name                , ext_job->private_args , NULL);        __end_line(stream);
@@ -792,7 +780,7 @@ void ext_job_fprintf_config(const ext_job_type * ext_job , const char * fmt , FI
 
 
 
-ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_root_path , bool private_job , const char * config_file) {
+ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_root_path , bool private_job , const char * config_file, bool search_path) {
   {
     mode_t target_mode = S_IRUSR + S_IWUSR + S_IRGRP + S_IWGRP + S_IROTH;  /* u+rw  g+rw  o+r */
     __update_mode( config_file , target_mode );
@@ -836,7 +824,7 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
         {
           const char * executable     = config_content_get_value_as_abspath(content  , "EXECUTABLE");
           const char * executable_raw = config_content_iget(content  , "EXECUTABLE" , 0,0);
-          ext_job_set_executable(ext_job , executable, executable_raw);
+          ext_job_set_executable(ext_job , executable, executable_raw, search_path);
         }
 
 

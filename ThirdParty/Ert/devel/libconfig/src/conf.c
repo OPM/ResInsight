@@ -1190,7 +1190,16 @@ bool conf_instance_has_valid_mutexes(
   return ok;
 }
 
-
+static bool __instance_has_sub_instance_of_type(
+        const conf_class_type * __conf_class, int num_sub_instances, conf_class_type  ** class_signatures)
+{
+  for(int sub_instance_nr = 0; sub_instance_nr < num_sub_instances; sub_instance_nr++)
+  {
+    if(class_signatures[sub_instance_nr] == __conf_class)
+      return true;
+  }
+  return false;
+}
 
 static
 bool conf_instance_has_required_sub_instances(
@@ -1218,16 +1227,7 @@ bool conf_instance_has_required_sub_instances(
   }
 
   
-  bool __instance_has_sub_instance_of_type(
-    const conf_class_type * __conf_class)
-  {
-    for(int sub_instance_nr = 0; sub_instance_nr < num_sub_instances; sub_instance_nr++)
-    {
-      if(class_signatures[sub_instance_nr] == __conf_class)
-        return true;
-    }
-    return false;
-  }
+
 
 
 
@@ -1243,7 +1243,7 @@ bool conf_instance_has_required_sub_instances(
       const conf_class_type * sub_conf_class = hash_get(conf_class->sub_classes, sub_class_name);
       if(sub_conf_class->require_instance)
       {
-        if(!__instance_has_sub_instance_of_type(sub_conf_class))
+        if(!__instance_has_sub_instance_of_type(sub_conf_class, num_sub_instances, class_signatures))
         {
           printf("ERROR: Missing required instance of sub class \"%s\" in instance \"%s\" of class \"%s\".\n",
                  sub_conf_class->class_name, conf_instance->name, conf_instance->conf_class->class_name);

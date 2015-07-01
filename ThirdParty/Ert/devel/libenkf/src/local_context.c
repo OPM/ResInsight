@@ -106,7 +106,7 @@ static void local_context_add_polygon__( local_context_type * context , const ch
 }
 
 void local_context_add_polygon( local_context_type * context , const char * polygon_name )  {
-  geo_polygon_type * polygon = geo_polygon_alloc( );
+  geo_polygon_type * polygon = geo_polygon_alloc( polygon_name );
   local_context_add_polygon__(context , polygon_name , polygon );
 }
 

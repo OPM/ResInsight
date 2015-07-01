@@ -17,6 +17,9 @@
 import sys
 import socket
 import json
+import datetime
+from ert.server import ErtServer
+
 
 class ErtClient(object):
     def __init__(self , port , host):
@@ -29,20 +32,33 @@ class ErtClient(object):
         except socket.error:
             sys.exit("Failed to connect to port:%d at %s." % (port , host))
 
+    @staticmethod
+    def convert_to_datetime(data):
+        result = []
+        for d in data:
+            try:
+                result.append(datetime.datetime.strptime(d, ErtServer.DATE_FORMAT))
+            except:
+                pass
+        return result
 
     def sendRecv(self , data):
         self.socket.sendall( json.dumps(data) + "\n" )
-        recv = self.socket.recv(1024)
+        recv = self.socket.recv(4096)
         result = json.loads(recv)
 
         result0 = result[0]
         if result0 == "OK":
-            return result[1:]
+            result = result[1:]
+            if data == ["TIME_STEP"]:
+                result = ErtClient.convert_to_datetime(result)
+
+            return result
         elif result0 == "ERROR":
             raise Exception("Ert server returned error: %s" % result[1:])
         else:
             raise Exception("Ert server returned result[0] == %s - must have OK|ERROR as first element in return list" % result[0])
-            
+
 
 
     @staticmethod

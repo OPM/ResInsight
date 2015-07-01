@@ -73,3 +73,4 @@ DoubleVector.cNamespace().select_unique       = cwrapper.prototype("void double_
 DoubleVector.cNamespace().element_sum       = cwrapper.prototype("double double_vector_sum(double_vector)")
 DoubleVector.cNamespace().get_data_ptr      = cwrapper.prototype("double* double_vector_get_ptr(double_vector)")
 DoubleVector.cNamespace().count_equal       = cwrapper.prototype("int double_vector_count_equal(double_vector, double)")
+DoubleVector.cNamespace().init_range        = cwrapper.prototype("void double_vector_init_range(double_vector, double , double , double)")

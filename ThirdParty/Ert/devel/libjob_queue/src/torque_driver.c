@@ -1,23 +1,27 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'torque_driver.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'torque_driver.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
  */
+#include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+
 #include <ert/util/util.h>
 #include <ert/util/type_macros.h>
+
 #include <ert/job_queue/torque_driver.h>
 
 
@@ -38,6 +42,8 @@ struct torque_driver_struct {
   int num_cpus_per_node;
   int num_nodes;
   char * cluster_label;
+  int    submit_sleep;
+  FILE * debug_stream;
 };
 
 struct torque_job_struct {
@@ -66,15 +72,28 @@ void * torque_driver_alloc() {
   torque_driver->num_nodes = 1;
   torque_driver->cluster_label = NULL;
   torque_driver->job_prefix = NULL;
+  torque_driver->debug_stream = NULL;
 
   torque_driver_set_option(torque_driver, TORQUE_QSUB_CMD, TORQUE_DEFAULT_QSUB_CMD);
   torque_driver_set_option(torque_driver, TORQUE_QSTAT_CMD, TORQUE_DEFAULT_QSTAT_CMD);
   torque_driver_set_option(torque_driver, TORQUE_QDEL_CMD, TORQUE_DEFAULT_QDEL_CMD);
   torque_driver_set_option(torque_driver, TORQUE_NUM_CPUS_PER_NODE, "1");
   torque_driver_set_option(torque_driver, TORQUE_NUM_NODES, "1");
+  torque_driver_set_option(torque_driver, TORQUE_SUBMIT_SLEEP, TORQUE_DEFAULT_SUBMIT_SLEEP);
 
   return torque_driver;
 }
+
+static void torque_driver_set_debug_output(torque_driver_type * driver, const char * debug_file) {
+  if (driver->debug_stream)
+    fclose( driver->debug_stream );
+
+  if (debug_file)
+    driver->debug_stream = util_mkdir_fopen( debug_file , "w");
+  else
+    driver->debug_stream = NULL;
+}
+
 
 static void torque_driver_set_qsub_cmd(torque_driver_type * driver, const char * qsub_cmd) {
   driver->qsub_cmd = util_realloc_string_copy(driver->qsub_cmd, qsub_cmd);
@@ -91,6 +110,16 @@ static void torque_driver_set_qdel_cmd(torque_driver_type * driver, const char *
 static void torque_driver_set_queue_name(torque_driver_type * driver, const char * queue_name) {
   driver->queue_name = util_realloc_string_copy(driver->queue_name, queue_name);
 }
+
+static bool torque_driver_set_submit_sleep(torque_driver_type * driver, const char* submit_sleep) {
+  double seconds_sleep;
+  if (util_sscanf_double( submit_sleep , &seconds_sleep)) {
+    driver->submit_sleep = (int) (seconds_sleep * 1000000);
+    return true;
+  } else
+    return false;
+}
+
 
 static bool torque_driver_set_num_nodes(torque_driver_type * driver, const char* num_nodes_char) {
   int num_nodes = 0;
@@ -115,7 +144,7 @@ static bool torque_driver_set_keep_qsub_output(torque_driver_type * driver, cons
 }
 
 static void torque_driver_set_job_prefix(torque_driver_type * driver, const char * job_prefix){
-    driver->job_prefix = job_prefix;
+  driver->job_prefix = util_realloc_string_copy( driver->job_prefix , job_prefix);
 }
 
 static void torque_driver_set_cluster_label(torque_driver_type * driver, const char* cluster_label) {
@@ -153,8 +182,12 @@ bool torque_driver_set_option(void * __driver, const char * option_key, const vo
       option_set = torque_driver_set_keep_qsub_output(driver, value);
     else if (strcmp(TORQUE_CLUSTER_LABEL, option_key) == 0)
       torque_driver_set_cluster_label(driver, value);
-    else if(strcmp(TORQUE_JOB_PREFIX_KEY, option_key) == 0)
+    else if (strcmp(TORQUE_JOB_PREFIX_KEY, option_key) == 0)
       torque_driver_set_job_prefix(driver, value);
+    else if (strcmp(TORQUE_DEBUG_OUTPUT, option_key) == 0)
+      torque_driver_set_debug_output(driver, value);
+    else if (strcmp(TORQUE_SUBMIT_SLEEP, option_key) == 0)
+      option_set = torque_driver_set_submit_sleep(driver, value);
     else
       option_set = false;
   }
@@ -181,7 +214,7 @@ const void * torque_driver_get_option(const void * __driver, const char * option
     else if (strcmp(TORQUE_CLUSTER_LABEL, option_key) == 0)
       return driver->cluster_label;
     else if(strcmp(TORQUE_JOB_PREFIX_KEY, option_key) == 0)
-        return driver->job_prefix;
+      return driver->job_prefix;
     else {
       util_abort("%s: option_id:%s not recognized for TORQUE driver \n", __func__, option_key);
       return NULL;
@@ -250,6 +283,20 @@ stringlist_type * torque_driver_alloc_cmd(torque_driver_type * driver,
   return argv;
 }
 
+static void torque_debug(torque_driver_type * driver , const char * fmt , ...) {
+  if (driver->debug_stream) {
+    {
+      va_list ap;
+      va_start(ap , fmt);
+      vfprintf(driver->debug_stream , fmt , ap );
+      va_end(ap);
+    }
+    fprintf(driver->debug_stream , "\n");
+    fsync( fileno(driver->debug_stream) );
+  }
+}
+
+
 static int torque_job_parse_qsub_stdout(const torque_driver_type * driver, const char * stdout_file) {
   int jobid;
   {
@@ -275,10 +322,10 @@ void torque_job_create_submit_script(const char * script_filename, const char * 
   if (submit_cmd == NULL) {
     util_abort("%s: cannot create submit script, because there is no executing commmand specified.", __func__);
   }
-  
+
   FILE* script_file = util_fopen(script_filename, "w");
   fprintf(script_file, "#!/bin/sh\n");
-  
+
   fprintf(script_file, "%s", submit_cmd);
   for (int i = 0; i < argc; i++) {
 
@@ -288,6 +335,7 @@ void torque_job_create_submit_script(const char * script_filename, const char * 
   util_fclose(script_file);
 }
 
+
 static int torque_driver_submit_shell_job(torque_driver_type * driver,
         const char * run_path,
         const char * job_name,
@@ -295,30 +343,36 @@ static int torque_driver_submit_shell_job(torque_driver_type * driver,
         int num_cpu,
         int job_argc,
         const char ** job_argv) {
-  int job_id;
-  char * tmp_file = util_alloc_tmp_file("/tmp", "enkf-submit", true);
-  char * script_filename = util_alloc_filename(run_path, "qsub_script", "sh");
-  torque_job_create_submit_script(script_filename, submit_cmd, job_argc, job_argv);
+
+  usleep( driver->submit_sleep );
   {
-    int p_units_from_driver = driver->num_cpus_per_node * driver->num_nodes;
-    if (num_cpu > p_units_from_driver) {
-      util_abort("%s: Error in config, job's config requires %d processing units, but config says %s: %d, and %s: %d, which multiplied becomes: %d \n",
-              __func__, num_cpu, TORQUE_NUM_CPUS_PER_NODE, driver->num_cpus_per_node, TORQUE_NUM_NODES, driver->num_nodes, p_units_from_driver);
+    int job_id;
+    char * tmp_file = util_alloc_tmp_file("/tmp", "enkf-submit", true);
+    char * script_filename = util_alloc_filename(run_path, "qsub_script", "sh");
+    torque_job_create_submit_script(script_filename, submit_cmd, job_argc, job_argv);
+    {
+      int p_units_from_driver = driver->num_cpus_per_node * driver->num_nodes;
+      if (num_cpu > p_units_from_driver) {
+        util_abort("%s: Error in config, job's config requires %d processing units, but config says %s: %d, and %s: %d, which multiplied becomes: %d \n",
+                   __func__, num_cpu, TORQUE_NUM_CPUS_PER_NODE, driver->num_cpus_per_node, TORQUE_NUM_NODES, driver->num_nodes, p_units_from_driver);
+      }
+      {
+        stringlist_type * remote_argv = torque_driver_alloc_cmd(driver, job_name, script_filename);
+        char ** argv = stringlist_alloc_char_ref(remote_argv);
+        util_fork_exec(driver->qsub_cmd , stringlist_get_size(remote_argv), (const char **) argv, true, NULL, NULL, NULL, tmp_file, NULL);
+
+        free(argv);
+        stringlist_free(remote_argv);
+      }
     }
-    stringlist_type * remote_argv = torque_driver_alloc_cmd(driver, job_name, script_filename);
-    char ** argv = stringlist_alloc_char_ref(remote_argv);
-    util_fork_exec(driver->qsub_cmd, stringlist_get_size(remote_argv), (const char **) argv, true, NULL, NULL, NULL, tmp_file, NULL);
 
-    free(argv);
-    stringlist_free(remote_argv);
+    job_id = torque_job_parse_qsub_stdout(driver, tmp_file);
+
+    util_unlink_existing(tmp_file);
+    free(tmp_file);
+
+    return job_id;
   }
-
-  job_id = torque_job_parse_qsub_stdout(driver, tmp_file);
-
-  util_unlink_existing(tmp_file);
-  free(tmp_file);
-
-  return job_id;
 }
 
 void torque_job_free(torque_job_type * job) {
@@ -341,22 +395,23 @@ void * torque_driver_submit_job(void * __driver,
         int argc,
         const char ** argv) {
   torque_driver_type * driver = torque_driver_safe_cast(__driver);
-  char * local_job_name = NULL;
-  if(driver->job_prefix != NULL){
-    local_job_name = util_alloc_sprintf("%s%s",driver->job_prefix, job_name);
-  }
-  else{
-     local_job_name = job_name;
-  }
   torque_job_type * job = torque_job_alloc();
+
+  torque_debug( driver , "Submitting job in:%s" , run_path);
   {
+    char * local_job_name = NULL;
+    if (driver->job_prefix)
+      local_job_name = util_alloc_sprintf("%s%s",driver->job_prefix, job_name);
+    else
+      local_job_name = util_alloc_string_copy( job_name );
+
     job->torque_jobnr = torque_driver_submit_shell_job(driver, run_path, local_job_name, submit_cmd, num_cpu, argc, argv);
     job->torque_jobnr_char = util_alloc_sprintf("%ld", job->torque_jobnr);
+
+    torque_debug( driver , "Job:%s Id:%d" , run_path , job->torque_jobnr);
+    free(local_job_name);
   }
 
-  if(driver->job_prefix != NULL){
-      free(local_job_name);
-  }
   if (job->torque_jobnr > 0)
     return job;
   else {
@@ -365,7 +420,6 @@ void * torque_driver_submit_job(void * __driver,
       NULL return values.
      */
     torque_job_free(job);
-
     return NULL;
   }
 }
@@ -439,16 +493,17 @@ void torque_driver_kill_job(void * __driver, void * __job) {
 }
 
 void torque_driver_free(torque_driver_type * driver) {
-
+  torque_driver_set_debug_output(driver, NULL);
   util_safe_free(driver->queue_name);
   free(driver->qdel_cmd);
   free(driver->qstat_cmd);
   free(driver->qsub_cmd);
   free(driver->num_cpus_per_node_char);
   free(driver->num_nodes_char);
+  if (driver->job_prefix)
+    free(driver->job_prefix);
 
   free(driver);
-  driver = NULL;
 }
 
 void torque_driver_free__(void * __driver) {
@@ -456,3 +511,10 @@ void torque_driver_free__(void * __driver) {
   torque_driver_free(driver);
 }
 
+int torque_driver_get_submit_sleep( const torque_driver_type * driver ) {
+  return driver->submit_sleep;
+}
+
+FILE * torque_driver_get_debug_stream( const torque_driver_type * driver ) {
+  return driver->debug_stream;
+}

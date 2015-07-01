@@ -31,6 +31,7 @@ define extern "C" {
 
 typedef struct config_content_node_struct config_content_node_type;
 
+         config_item_types            config_content_node_iget_type( const config_content_node_type * node , int index);
          config_content_node_type   * config_content_node_alloc( const config_schema_item_type * schema , const config_path_elm_type * cwd);
          void                         config_content_node_add_value(config_content_node_type * node , const char * value);
          void                         config_content_node_set(config_content_node_type * node , const stringlist_type * token_list);

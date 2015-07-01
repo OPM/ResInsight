@@ -24,6 +24,7 @@
 
 #include <ert/util/util.h>
 #include <ert/util/buffer.h>
+#include <ert/util/int_vector.h>
 
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_util.h>
@@ -208,7 +209,6 @@ const char * ecl_kw_get_write_fmt( ecl_type_enum ecl_type ) {
     return NULL;
   }
 }
-
 
 static int get_blocksize( ecl_type_enum ecl_type ) {
   if (ecl_type == ECL_CHAR_TYPE)
@@ -404,21 +404,22 @@ bool ecl_kw_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2) {
 }
 
 
-#define CMP(ctype) \
+#define CMP(ctype,ABS)                                           \
 static bool CMP_ ## ctype( ctype v1, ctype v2 , ctype epsilon) { \
-  if ((abs(v1) + abs(v2)) == 0)                                  \
+  if ((ABS(v1) + ABS(v2)) == 0)                                  \
      return true;                                                \
   else {                                                         \
-      ctype d = fabs(v1 - v2) / (fabs(v1) + fabs(v2));           \
+      ctype d = ABS(v1 - v2) / (ABS(v1) + ABS(v2));              \
       if (d < epsilon)                                           \
         return true;                                             \
    else                                                          \
         return false;                                            \
     }                                                            \
 }
-CMP(float)
-CMP(double)
+CMP(float,fabsf)
+CMP(double,fabs)
 #undef CMP
+
 
 #define ECL_KW_NUMERIC_CMP(ctype)                                                                                           \
   static bool ecl_kw_numeric_equal_ ## ctype( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2 , ctype rel_diff) { \
@@ -2687,3 +2688,5 @@ void ecl_kw_fprintf_data( const ecl_kw_type * ecl_kw , const char * fmt , FILE *
     ecl_kw_fprintf_data_char( ecl_kw , fmt , stream );
 }
 
+
+#include "ecl_kw_functions.c"

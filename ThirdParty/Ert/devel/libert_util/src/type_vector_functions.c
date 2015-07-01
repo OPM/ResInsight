@@ -81,4 +81,3 @@ bool double_vector_approx_equal( const double_vector_type * v1 , const double_ve
 
 
 
-

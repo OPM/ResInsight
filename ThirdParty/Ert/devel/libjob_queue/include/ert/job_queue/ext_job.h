@@ -46,12 +46,12 @@ void                    ext_job_set_private_arg(ext_job_type * , const char *  ,
 
 void                    ext_job_set_argc(ext_job_type *   , const char ** , int);
 void                    ext_job_python_fprintf(const ext_job_type * , FILE * , const subst_list_type *);
-ext_job_type          * ext_job_fscanf_alloc(const char * , const char * , bool private_job , const char *);
+ext_job_type          * ext_job_fscanf_alloc(const char * , const char * , bool private_job , const char *, bool search_path);
 const stringlist_type * ext_job_get_arglist( const ext_job_type * ext_job );
 bool                    ext_job_is_shared( const ext_job_type * ext_job );
 bool                    ext_job_is_private( const ext_job_type * ext_job );
 
-void                    ext_job_set_executable(ext_job_type * ext_job, const char * executable, const char * execuatble_raw);
+void                    ext_job_set_executable(ext_job_type * ext_job, const char * executable_abs, const char * executable_input, bool search_path);
 const char *            ext_job_get_executable(const ext_job_type * ext_job);
 
 

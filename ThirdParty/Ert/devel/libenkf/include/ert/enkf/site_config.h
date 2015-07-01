@@ -83,6 +83,7 @@ typedef struct site_config_struct site_config_type;
 
   void                     site_config_set_rsh_command( site_config_type * site_config , const char * rsh_command);
   const char             * site_config_get_rsh_command( const site_config_type * site_config );
+  void                     site_config_set_ext_job_search_path(site_config_type * site_config, bool search_path);
 
 
   bool                     site_config_set_job_script( site_config_type * site_config , const char * job_script );

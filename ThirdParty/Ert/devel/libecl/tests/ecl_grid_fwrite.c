@@ -28,7 +28,7 @@
 void test_fwrite_EGRID(ecl_grid_type * grid ) {
   test_work_area_type * work_area = test_work_area_alloc("grid-has-mapaxes");
   
-  ecl_grid_fwrite_EGRID( grid , "TEST.EGRID");
+  ecl_grid_fwrite_EGRID( grid , "TEST.EGRID", true);
   {
     ecl_grid_type * copy = ecl_grid_alloc( "TEST.EGRID" );
     test_assert_true( ecl_grid_compare( grid , copy , false , false , true ));

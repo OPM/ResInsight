@@ -3153,6 +3153,16 @@ char * util_alloc_date_stamp( ) {
 }
 
 
+void util_inplace_forward_seconds(time_t * t , double seconds) {
+  struct tm ts;
+  int isdst;
+
+  util_localtime(t , &ts);
+  isdst = ts.tm_isdst;
+  (*t) += ( time_t ) (seconds);
+  util_localtime(t , &ts);
+  (*t) += 3600 * (isdst - ts.tm_isdst);  /* Extra adjustment of +/- one hour if we have crossed exactly one daylight savings border. */
+}
 /*
    This function takes a pointer to a time_t instance, and shifts the
    value days forward. Observe the calls to localtime_r() which give
@@ -3165,14 +3175,7 @@ char * util_alloc_date_stamp( ) {
 */
 
 void util_inplace_forward_days(time_t * t , double days) {
-  struct tm ts;
-  int isdst;
-
-  util_localtime(t , &ts);
-  isdst = ts.tm_isdst;
-  (*t) += ( time_t ) (days * 3600 * 24);
-  util_localtime(t , &ts);
-  (*t) += 3600 * (isdst - ts.tm_isdst);  /* Extra adjustment of +/- one hour if we have crossed exactly one daylight savings border. */
+  util_inplace_forward_seconds( t , days * 3600 * 24 );
 }
 
 

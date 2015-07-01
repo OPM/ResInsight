@@ -41,11 +41,13 @@ from .summary_key_matcher import SummaryKeyMatcher
 from .enkf_fs import EnkfFs
 
 from .ert_workflow_list import ErtWorkflowList
-
-from .observations import SummaryObservation, ObsVector
+from .active_list import ActiveList
+from .data import *
 
 from .local_obsdata_node import LocalObsdataNode
 from .local_obsdata import LocalObsdata
+from .observations import *
+
 from .obs_block import ObsBlock
 from .obs_data import ObsData
 from .meas_block import MeasBlock
@@ -55,11 +57,10 @@ from .analysis_iter_config import AnalysisIterConfig
 from .analysis_config import AnalysisConfig
 from .ecl_config import EclConfig
 
-from .data import *
 from .custom_kw_config_set import CustomKWConfigSet
+from .ensemble_config import EnsembleConfig
 from .enkf_obs import EnkfObs
 from .enkf_state import EnKFState
-from .ensemble_config import EnsembleConfig
 from .ert_template import ErtTemplate
 from .ert_templates import ErtTemplates
 from .local_config import LocalConfig
@@ -75,7 +76,6 @@ from .run_arg import RunArg
 from .ert_run_context import ErtRunContext
 from .enkf_main import EnKFMain
 from .ert_log import ErtLog
-
 
 from ert.job_queue import ErtScript as ErtScript
 from ert.job_queue import ErtPlugin as ErtPlugin, CancelPluginException as CancelPluginException

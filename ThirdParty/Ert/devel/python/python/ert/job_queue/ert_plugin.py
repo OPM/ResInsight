@@ -19,3 +19,7 @@ class ErtPlugin(ErtScript):
     def getDescription(self):
         """ @rtype: str """
         return "No description provided!"
+
+    def checkIfCancelled(self):
+        if self.isCancelled():
+            raise CancelPluginException("Plugin '%s' cancelled by user!" % self.getName())

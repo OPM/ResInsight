@@ -1,0 +1,3 @@
+EXECUTABLE       realization_fail.py
+TARGET_FILE      realization.ok
+ARGLIST          <IENS>

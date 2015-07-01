@@ -42,7 +42,7 @@ class Cases(ShellFunction):
             fs = self.ert().getEnkfFsManager().getFileSystem(case_name)
             self.ert().getEnkfFsManager().switchFileSystem(fs)
         else:
-            print("Error: Unknown case '%s'" % case_name)
+            self.lastCommandFailed("Unknown case '%s'" % case_name)
 
     @assertConfigLoaded
     def complete_select(self, text, line, begidx, endidx):
@@ -50,13 +50,18 @@ class Cases(ShellFunction):
 
 
     @assertConfigLoaded
-    def do_create(self, case_name):
-        case_name = case_name.strip()
-        if not case_name in self.getFileSystemNames():
-            fs = self.ert().getEnkfFsManager().getFileSystem(case_name)
-            self.ert().getEnkfFsManager().switchFileSystem(fs)
+    def do_create(self, line):
+        arguments = self.splitArguments(line)
+
+        if len(arguments) == 1:
+            case_name = arguments[0]
+            if case_name not in self.getFileSystemNames():
+                fs = self.ert().getEnkfFsManager().getFileSystem(case_name)
+                self.ert().getEnkfFsManager().switchFileSystem(fs)
+            else:
+                self.lastCommandFailed("Case '%s' already exists!" % case_name)
         else:
-            print("Error: Case '%s' already exists!" % case_name)
+            self.lastCommandFailed("Expected one argument: <case_name> received: '%s'" % line)
 
     @assertConfigLoaded
     def do_summary_key_set(self, line):
@@ -70,7 +75,7 @@ class Cases(ShellFunction):
         if not case_name:
             case_name = self.ert().getEnkfFsManager().getCurrentFileSystem().getCaseName()
         elif not case_name in self.getFileSystemNames():
-            print("Error: Unknown case name '%s'" % case_name)
+            self.lastCommandFailed("Unknown case name '%s'" % case_name)
             return False
 
         state_map = self.ert().getEnkfFsManager().getStateMapForCase(case_name)
@@ -88,7 +93,7 @@ class Cases(ShellFunction):
         if not case_name:
             case_name = self.ert().getEnkfFsManager().getCurrentFileSystem().getCaseName()
         elif not case_name in self.getFileSystemNames():
-            print("Error: Unknown case name '%s'" % case_name)
+            self.lastCommandFailed("Unknown case name '%s'" % case_name)
             return False
 
         time_map = self.ert().getEnkfFsManager().getTimeMapForCase(case_name)

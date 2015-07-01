@@ -1705,9 +1705,6 @@ void enkf_state_init_eclipse(enkf_state_type *enkf_state, const run_arg_type * r
   const member_config_type  * my_config = enkf_state->my_config;  
   const ecl_config_type * ecl_config = enkf_state->shared_info->ecl_config;
   {
-    if (!run_arg_is_ready(run_arg))
-      util_abort("%s: must initialize run parameters with enkf_state_init_run() first \n",__func__);
-    
     if (member_config_pre_clear_runpath( my_config )) 
       util_clear_directory( run_arg_get_runpath( run_arg ) , true , false );
 
@@ -1898,7 +1895,6 @@ static bool enkf_state_complete_forward_modelOK(enkf_state_type * enkf_state , r
     ert_log_add_fmt_message( 2 , NULL , "[%03d:%04d-%04d] Results loaded successfully." , iens , run_arg_get_step1(run_arg), run_arg_get_step2(run_arg));
     
     enkf_state_clear_runpath( enkf_state , run_arg );
-    run_arg_set_ready( run_arg , false );
     run_arg_complete_run(run_arg);              /* free() on runpath */
   } 
   return (0 == result) ? true : false; 

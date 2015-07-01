@@ -26,11 +26,11 @@ def findRelativeModulePath(directory):
     index += len("python/")
     return directory[index:len(directory)]
 
-def createPythonSources(files):
+def createPythonSources(files, test_sources=False):
     result = ""
 
     if len(files) > 0:
-        result = "set(PYTHON_SOURCES\n"
+        result = "set(%s\n" % ("PYTHON_SOURCES" if not test_sources else "TEST_SOURCES")
 
     files = [f for f in files if f.endswith(".py")]
 
@@ -50,11 +50,14 @@ def addSubDirectories(directories):
 
     return result
 
-def addPythonPackage(relative_module_path):
+def addPythonPackage(relative_module_path, test_sources=False):
     module_name = ".".join(relative_module_path.split("/"))
-    template = "add_python_package(\"python.%s\"  ${PYTHON_INSTALL_PREFIX}/%s \"${PYTHON_SOURCES}\" True)"
+    source_type = "PYTHON_SOURCES" if not test_sources else "TEST_SOURCES"
+    template = "add_python_package(\"python.%s\" ${PYTHON_INSTALL_PREFIX}/%s \"${%s}\" %s)"
 
-    return template % (module_name, relative_module_path)
+    install = "False" if test_sources else "True"
+
+    return template % (module_name, relative_module_path, source_type, install)
 
 def addInclude(filename):
     with open(filename, "r") as include_file:
@@ -65,10 +68,11 @@ files, directories = findFilesAndDirectories(sys.argv[1])
 module_path = findRelativeModulePath(sys.argv[1])
 
 output_file = join(sys.argv[1], "CMakeLists.txt")
+test_sources = module_path.startswith("tests")
 with open(output_file, "w+") as text_file:
-    text_file.write(createPythonSources(files))
+    text_file.write(createPythonSources(files, test_sources=test_sources))
     text_file.write("\n\n")
-    text_file.write(addPythonPackage(module_path))
+    text_file.write(addPythonPackage(module_path, test_sources=test_sources))
     text_file.write("\n\n")
     text_file.write(addSubDirectories(directories))
 

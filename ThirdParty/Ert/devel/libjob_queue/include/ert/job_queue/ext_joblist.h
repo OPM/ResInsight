@@ -41,7 +41,7 @@ ext_job_type     * ext_joblist_get_job_copy(const ext_joblist_type *  , const ch
 bool               ext_joblist_has_job(const ext_joblist_type *  , const char * );
 stringlist_type  * ext_joblist_alloc_list( const ext_joblist_type * joblist);
 bool               ext_joblist_del_job( ext_joblist_type * joblist , const char * job_name );
-void               ext_joblist_add_jobs_in_directory(ext_joblist_type * joblist  , const char * path, const char * license_root_path, bool user_mode );
+void               ext_joblist_add_jobs_in_directory(ext_joblist_type * joblist  , const char * path, const char * license_root_path, bool user_mode, bool search_path );
 
 #ifdef __cplusplus
 }

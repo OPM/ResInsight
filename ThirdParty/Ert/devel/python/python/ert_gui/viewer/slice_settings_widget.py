@@ -25,10 +25,10 @@ class SliceSettingsWidget(QWidget):
 
         self.addCheckBox("Hide inactive cells", self.inactiveCellsHidden)
         self.addSpinBox("Slice #", 0, max_slice_count - 1, self.currentSliceChanged)
-        self.addCheckBox("Orthographic proj.", self.toggleOrthographicProjection)
+        self.addCheckBox("Orthographic proj.", self.toggleOrthographicProjection , initial_state = True)
         self.addCheckBox("Lighting", self.toggleLighting)
         self.addComboBox("Color scale", self.colorScalesChanged, color_scales)
-        self.addCheckBox("Region scaling", self.regionToggling)
+        self.addCheckBox("Region scaling", self.regionToggling , initial_state = True)
         self.addCheckBox("Interpolate data", self.toggleInterpolation)
         self.addCheckBox("Mirror X", self.mirrorX)
         self.addCheckBox("Mirror Y", self.mirrorY)
@@ -38,10 +38,12 @@ class SliceSettingsWidget(QWidget):
         self.setLayout(self.__layout)
 
 
-    def addCheckBox(self, label, signal):
+    def addCheckBox(self, label, signal, initial_state = False):
         checkbox = QCheckBox()
         checkbox.toggled.connect(signal)
         self.__layout.addRow(label, checkbox)
+        checkbox.setChecked( initial_state )
+        
 
 
     def addSpinBox(self, label, min_value, max_value, signal):

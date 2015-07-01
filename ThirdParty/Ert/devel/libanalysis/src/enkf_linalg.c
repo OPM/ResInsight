@@ -134,15 +134,39 @@ int enkf_linalg_svd_truncation(const matrix_type * S ,
 }
 
 
+static int enkf_linalg_num_significant(int num_singular_values , const double * sig0 , double truncation ) {
+  int num_significant  = 0;
+  double total_sigma2  = 0;
+  for (int i=0; i < num_singular_values; i++)
+    total_sigma2 += sig0[i] * sig0[i];
+  
+  /*
+    Determine the number of singular values by enforcing that
+    less than a fraction @truncation of the total variance be
+    accounted for.
+  */
+  {
+    double running_sigma2  = 0;
+    for (int i=0; i < num_singular_values; i++) {
+      if (running_sigma2 / total_sigma2 < truncation) {  /* Include one more singular value ? */
+	num_significant++;
+	running_sigma2 += sig0[i] * sig0[i];
+      } else
+	break;
+    }
+  }
+
+  return num_significant;
+}
 
 
 int enkf_linalg_svdS(const matrix_type * S ,
-                     double truncation ,
-                     int ncomp ,
-                     dgesvd_vector_enum store_V0T ,
-                     double * inv_sig0,
-                     matrix_type * U0 ,
-                     matrix_type * V0T) {
+		     double truncation ,
+		     int ncomp ,
+		     dgesvd_vector_enum store_V0T ,
+		     double * inv_sig0,
+		     matrix_type * U0 ,
+		     matrix_type * V0T) {
 
   double * sig0 = inv_sig0;
   int    num_significant = 0;
@@ -156,45 +180,48 @@ int enkf_linalg_svdS(const matrix_type * S ,
         matrix_dgesvd(DGESVD_MIN_RETURN , store_V0T , workS , sig0 , U0 , V0T);
         matrix_free( workS );
       }
-      int i;
 
       if (ncomp > 0)
         num_significant = ncomp;
-      else {
-        double total_sigma2    = 0;
-        for (i=0; i < num_singular_values; i++)
-          total_sigma2 += sig0[i] * sig0[i];
+      else 
+        num_significant = enkf_linalg_num_significant( num_singular_values , sig0 , truncation );
 
-        /*
-           Determine the number of singular values by enforcing that
-           less than a fraction @truncation of the total variance be
-           accounted for.
-        */
-        num_significant = 0;
-        {
-          double running_sigma2  = 0;
-          for (i=0; i < num_singular_values; i++) {
-            if (running_sigma2 / total_sigma2 < truncation) {  /* Include one more singular value ? */
-              num_significant++;
-              running_sigma2 += sig0[i] * sig0[i];
-            } else
-              break;
-          }
-        }
+      {
+	int i;
+	/* Inverting the significant singular values */
+	for (i = 0; i < num_significant; i++)
+	  inv_sig0[i] = 1.0 / sig0[i];
+
+	/* Explicitly setting the insignificant singular values to zero. */
+	for (i=num_significant; i < num_singular_values; i++)
+	  inv_sig0[i] = 0;
       }
-
-      /* Inverting the significant singular values */
-      for (i = 0; i < num_significant; i++)
-        inv_sig0[i] = 1.0 / sig0[i];
-
-      /* Explicitly setting the insignificant singular values to zero. */
-      for (i=num_significant; i < num_singular_values; i++)
-        inv_sig0[i] = 0;
-
   } else
+
     util_abort("%s:  truncation:%g  ncomp:%d  - invalid ambigous input.\n",__func__ , truncation , ncomp );
+
   return num_significant;
 }
+
+
+int enkf_linalg_num_PC(const matrix_type * S , double truncation ) {
+  int num_singular_values = util_int_min( matrix_get_rows( S ) , matrix_get_columns( S ));
+  int num_significant;
+  double * sig0      = util_calloc( num_singular_values , sizeof * sig0);
+
+  {
+    matrix_type * workS = matrix_alloc_copy( S );
+    matrix_dgesvd(DGESVD_NONE , DGESVD_NONE , workS , sig0 , NULL , NULL);
+    matrix_free( workS );
+  }
+  
+  num_significant = enkf_linalg_num_significant( num_singular_values , sig0 , truncation );
+  free( sig0 );
+  return num_significant;
+}
+
+
+
 
 
 void enkf_linalg_Cee(matrix_type * B, int nrens , const matrix_type * R , const matrix_type * U0 , const double * inv_sig0) {
@@ -588,7 +615,7 @@ void enkf_linalg_checkX(const matrix_type * X , bool bootstrap) {
 
 /*****************************************************************/
 
-void enkf_linalg_get_PC( const matrix_type * S0,
+int enkf_linalg_get_PC( const matrix_type * S0,
                          const matrix_type * dObs ,
                          double truncation,
                          int ncomp,
@@ -603,6 +630,7 @@ void enkf_linalg_get_PC( const matrix_type * S0,
   matrix_type * U0  = matrix_alloc( nrobs , nrens );
   matrix_type * S   = matrix_alloc_copy( S0 );
   double * inv_sig0;
+  int num_PC;
 
   double_vector_iset( singular_values , nrmin - 1 , 0 );
   matrix_subtract_row_mean( S );
@@ -610,7 +638,7 @@ void enkf_linalg_get_PC( const matrix_type * S0,
   inv_sig0 = double_vector_get_ptr( singular_values );
   {
     matrix_type * S_mean = matrix_alloc( nrobs , 1 );
-    int num_PC = enkf_linalg_svdS(S , truncation , ncomp, DGESVD_NONE , inv_sig0 , U0 , NULL);
+    num_PC = enkf_linalg_svdS(S , truncation , ncomp, DGESVD_NONE , inv_sig0 , U0 , NULL);
 
     matrix_assign( S , S0);  // The svd routine will overwrite S - we therefor must pick it up again from S0.
     matrix_subtract_and_store_row_mean( S , S_mean);
@@ -642,6 +670,8 @@ void enkf_linalg_get_PC( const matrix_type * S0,
   }
   matrix_free( S );
   matrix_free( U0 );
+
+  return num_PC;
 }
 
 

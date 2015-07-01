@@ -103,6 +103,9 @@ class EclKW(CClass):
            soil_kw = EclKW.new( "SOIL" , 10000 , ECL_FLOAT_TYPE )
            
         """
+        if len(name) > 8:
+            raise ValueError("Sorry - maximum eight characters in keyword name")
+
         obj   = cls()
         c_ptr = cfunc.alloc_new( name , size , data_type )
         obj.init_cobj( c_ptr , cfunc.free )
@@ -428,6 +431,12 @@ class EclKW(CClass):
                         return cfunc.iset_char_ptr( self , index , value)
                     else:
                         raise SystemError("Internal implementation error ...")
+        elif isinstance( index , slice):
+            (start , stop , step) = index.indices( len(self) )
+            index = start
+            while index < stop:
+                self[index] = value
+                index += step
         else:
             raise TypeError("Index should be integer type")
 
@@ -998,6 +1007,15 @@ class EclKW(CClass):
         cfunc.fprintf_data( self , fmt , cfile )
 
 
+    def fixUninitialized(self , grid):
+        """
+        Special case function for region code.
+        """
+        dims = grid.getDims( )
+        actnum = grid.exportACTNUM( )
+        cfunc.fix_uninitialized( self , dims[0] , dims[1], dims[2] , actnum.getDataPtr() )
+
+
 
 #################################################################
 
@@ -1061,6 +1079,7 @@ cfunc.set_float                  = cwrapper.prototype("void     ecl_kw_scalar_se
 cfunc.max_min_int                = cwrapper.prototype("void     ecl_kw_max_min_int( ecl_kw , int* , int*)")
 cfunc.max_min_float              = cwrapper.prototype("void     ecl_kw_max_min_float( ecl_kw , float* , float*)")
 cfunc.max_min_double             = cwrapper.prototype("void     ecl_kw_max_min_double( ecl_kw , double* , double*)")
+cfunc.fix_uninitialized          = cwrapper.prototype("void     ecl_kw_fix_uninitialized( ecl_kw ,int , int , int, int*)")
 
 
 

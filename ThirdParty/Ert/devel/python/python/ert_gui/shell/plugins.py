@@ -46,7 +46,7 @@ class Plugins(ShellFunction):
                 except CancelPluginException:
                     print("Plugin cancelled before execution!")
             else:
-                print("Error: Unknown plugin: '%s'" % plugin_name)
+                self.lastCommandFailed("Unknown plugin: '%s'" % plugin_name)
 
 
     @assertConfigLoaded
@@ -81,7 +81,7 @@ class Plugins(ShellFunction):
             else:
                 print("Plugin has no arguments.")
         else:
-            print("Error: Unknown plugin: '%s'" % plugin_name)
+            self.lastCommandFailed("Unknown plugin: '%s'" % plugin_name)
 
     @assertConfigLoaded
     def complete_arguments(self, text, line, begidx, endidx):
@@ -97,7 +97,7 @@ class Plugins(ShellFunction):
         arguments = self.splitArguments(line)
 
         if len(arguments) < 1:
-            print("Error: This keyword requires a name of a plugin to run.")
+            self.lastCommandFailed("This keyword requires a name of a plugin to run.")
         else:
             plugin_name = arguments[0]
             plugin_job = self.getWorkflowJob(plugin_name)
@@ -107,7 +107,7 @@ class Plugins(ShellFunction):
 
                 print(script.__doc__)
             else:
-                print("Error: Unknown plugin: '%s'" % plugin_name)
+                self.lastCommandFailed("Unknown plugin: '%s'" % plugin_name)
 
 
     @assertConfigLoaded

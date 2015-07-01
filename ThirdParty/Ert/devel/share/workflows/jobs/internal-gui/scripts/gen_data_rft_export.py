@@ -127,6 +127,9 @@ class GenDataRFTCSVExportJob(ErtPlugin):
                 
                 # Trajectory
                 trajectory_file = os.path.join( trajectory_path , "%s.txt" % well)
+                if not os.path.isfile(trajectory_file):
+                    trajectory_file = os.path.join( trajectory_path , "%s_R.txt" % well)
+                    
                 trajectory = WellTrajectory( trajectory_file )
                 arg = ArgLoader.load( trajectory_file , column_names = ["utm_x" , "utm_y" , "md" , "tvd"])
                 tvd_arg = arg["tvd"]
@@ -136,7 +139,10 @@ class GenDataRFTCSVExportJob(ErtPlugin):
                 # Observations
                 obs = numpy.empty(shape = (data_size , 2 ) , dtype=numpy.float64)
                 obs.fill( numpy.nan )
-                for (value,std,data_index) in obs_node:
+                for obs_index in range(len(obs_node)):
+                    data_index = obs_node.getDataIndex( obs_index )
+                    value = obs_node.getValue( obs_index )
+                    std = obs_node.getStandardDeviation( obs_index )
                     obs[data_index,0] = value
                     obs[data_index,1] = std
                     

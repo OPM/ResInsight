@@ -1,5 +1,3 @@
-// Fauilure Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-A3.EGRID
-
 /*
    Copyright (c) 2011  statoil asa, norway.
 
@@ -32,6 +30,7 @@
 #include <ert/util/stringlist.h>
 
 #include <ert/geometry/geo_util.h>
+#include <ert/geometry/geo_polygon.h>
 
 #include <ert/ecl/ecl_util.h>
 #include <ert/ecl/ecl_kw.h>
@@ -566,6 +565,7 @@ typedef struct ecl_cell_struct           ecl_cell_type;
 
 #define GET_CELL_FLAG(cell,flag) (((cell->cell_flags & (flag)) == 0) ? false : true)
 #define SET_CELL_FLAG(cell,flag) ((cell->cell_flags |= (flag)))
+#define METER_TO_FEET_SCALE_FACTOR 3.28084
 
 struct ecl_cell_struct {
   point_type center;
@@ -638,6 +638,7 @@ struct ecl_grid_struct {
                                         recalculate this from the cell coordinates,
                                         but in cases with skewed cells this has proved
                                         numerically challenging. */
+  bool                  is_metric;
 };
 
 
@@ -1297,6 +1298,7 @@ static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid , int du
   grid->fracture_index_map    = NULL;
   grid->inv_fracture_index_map = NULL;
   ecl_grid_alloc_cells( grid , init_valid );
+  grid->is_metric             = true;
 
 
   if (global_grid != NULL) {
@@ -3697,8 +3699,89 @@ int ecl_grid_get_global_index_from_xyz(ecl_grid_type * grid , double x , double 
 }
 
 
+static bool ecl_grid_sublayer_contanins_xy__(const ecl_grid_type * grid , double x , double y , int k , int i1 , int i2 , int j1 , int j2, geo_polygon_type * polygon) {
+  int i,j;
+
+  geo_polygon_reset( polygon );
+
+  /* Bottom edge */
+  for (i=i1; i < i2; i++) {
+    double corner_pos[3];
+    ecl_grid_get_corner_xyz( grid , i , j1 , k , &corner_pos[0] , &corner_pos[1] , &corner_pos[2]);
+    geo_polygon_add_point( polygon , corner_pos[0] , corner_pos[1]);
+  }
+
+  /* Right edge */
+  for (j=j1; j < j2; j++) {
+    double corner_pos[3];
+    ecl_grid_get_corner_xyz( grid , i2 , j , k , &corner_pos[0] , &corner_pos[1] , &corner_pos[2]);
+    geo_polygon_add_point( polygon , corner_pos[0] , corner_pos[1]);
+  }
+
+  /* Top edge */
+  for (i=i2; i > i1; i--) {
+    double corner_pos[3];
+    ecl_grid_get_corner_xyz( grid , i , j2 , k , &corner_pos[0] , &corner_pos[1] , &corner_pos[2]);
+    geo_polygon_add_point( polygon , corner_pos[0] , corner_pos[1]);
+  }
+
+  /* Left edge */
+  for (j=j2; j > j1; j--) {
+    double corner_pos[3];
+    ecl_grid_get_corner_xyz( grid , i1 , j , k , &corner_pos[0] , &corner_pos[1] , &corner_pos[2]);
+    geo_polygon_add_point( polygon , corner_pos[0] , corner_pos[1]);
+  }
+  geo_polygon_close( polygon );
+  return geo_polygon_contains_point__( polygon , x  , y , true );
+}
 
 
+
+bool ecl_grid_get_ij_from_xy( const ecl_grid_type * grid , double x , double y , int k , int* i, int* j) {
+  geo_polygon_type * polygon = geo_polygon_alloc( NULL );
+  int nx = ecl_grid_get_nx( grid );
+  int ny = ecl_grid_get_ny( grid );
+  bool inside = ecl_grid_sublayer_contanins_xy__(grid , x , y , k , 0 , nx , 0 , ny , polygon);
+  if (inside) {
+    int i1 = 0;
+    int i2 = nx;
+    int j1 = 0;
+    int j2 = ny;
+
+    while (true) {
+      if ((i2 - i1) > 1) {
+        int ic = (i1 + i2) / 2;
+        if (ecl_grid_sublayer_contanins_xy__(grid , x , y , k , i1 , ic , j1 , j2 , polygon))
+          i2 = ic;
+        else {
+          if (!ecl_grid_sublayer_contanins_xy__(grid , x , y , k , ic , i2 , j1 , j2 , polygon))
+            util_abort("%s: point nowhere to be found ... \n",__func__);
+          i1 = ic;
+        }
+      }
+
+      if ((j2 - j1) > 1) {
+        int jc = (j1 + j2) / 2;
+        if (ecl_grid_sublayer_contanins_xy__(grid , x , y , k , i1 , i2 , j1 , jc , polygon))
+          j2 = jc;
+        else {
+          if (!ecl_grid_sublayer_contanins_xy__(grid , x , y , k , i1 , i2 , jc , j2 , polygon))
+            util_abort("%s: point nowhere to be found ... \n",__func__);
+          j1 = jc;
+        }
+      }
+
+      if ((i2 - i1) == 1 && (j2 - j1) == 1) {
+        *i = i1;
+        *j = j1;
+        break;
+      }
+    }
+  }
+
+  geo_polygon_free( polygon );
+  return inside;
+}
 
 
 
@@ -5526,6 +5609,37 @@ ecl_kw_type * ecl_grid_alloc_actnum_kw( const ecl_grid_type * grid ) {
   return actnum_kw;
 }
 
+
+void ecl_grid_compressed_kw_copy( const ecl_grid_type * grid , ecl_kw_type * target_kw , const ecl_kw_type * src_kw) {
+  if ((ecl_kw_get_size( target_kw ) == ecl_grid_get_nactive(grid)) && (ecl_kw_get_size( src_kw ) == ecl_grid_get_global_size(grid))) {
+    int active_index = 0;
+    int global_index;
+    for (global_index = 0; global_index < ecl_grid_get_global_size( grid ); global_index++) {
+      if (ecl_grid_cell_active1(grid, global_index)) {
+        ecl_kw_iset( target_kw , active_index , ecl_kw_iget_ptr(src_kw , global_index));
+        active_index++;
+      }
+    }
+  } else
+    util_abort("%s: size mismatch target:%d  src:%d  expected %d,%d \n",ecl_kw_get_size( target_kw ), ecl_kw_get_size( src_kw ) , ecl_grid_get_nactive(grid) , ecl_grid_get_global_size(grid));
+}
+
+
+void ecl_grid_global_kw_copy( const ecl_grid_type * grid , ecl_kw_type * target_kw , const ecl_kw_type * src_kw) {
+  if ((ecl_kw_get_size( src_kw ) == ecl_grid_get_nactive(grid)) && (ecl_kw_get_size( target_kw ) == ecl_grid_get_global_size(grid))) {
+    int active_index = 0;
+    int global_index;
+    for (global_index = 0; global_index < ecl_grid_get_global_size( grid ); global_index++) {
+      if (ecl_grid_cell_active1(grid, global_index)) {
+        ecl_kw_iset( target_kw , global_index , ecl_kw_iget_ptr(src_kw , active_index));
+        active_index++;
+      }
+    }
+  } else
+    util_abort("%s: size mismatch target:%d  src:%d  expected %d,%d \n",ecl_kw_get_size( target_kw ), ecl_kw_get_size( src_kw ) , ecl_grid_get_global_size(grid), ecl_grid_get_nactive(grid));
+}
+
+
 /*****************************************************************/
 
 static void ecl_grid_init_hostnum_data( const ecl_grid_type * grid , int * hostnum ) {
@@ -5604,7 +5718,8 @@ void ecl_grid_reset_actnum( ecl_grid_type * grid , const int * actnum ) {
 }
 
 
-static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio) {
+
+static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio, bool metric_output) {
   bool is_lgr = true;
   if (grid->parent_grid == NULL)
     is_lgr = false;
@@ -5637,11 +5752,36 @@ static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio
   {
     {
       ecl_grid_assert_coord_kw( grid );
-      ecl_kw_fwrite( grid->coord_kw , fortio );
+      if(metric_output != grid->is_metric){
+          ecl_kw_type * coord_kw = ecl_kw_alloc_copy(grid->coord_kw);
+          double scale_factor = 0.0;
+          if (grid->is_metric){
+            scale_factor = METER_TO_FEET_SCALE_FACTOR;
+          } else{ 
+            scale_factor = (1 / METER_TO_FEET_SCALE_FACTOR);
+          }
+          ecl_kw_scale_float(coord_kw, scale_factor);
+          ecl_kw_fwrite(coord_kw, fortio);
+          ecl_kw_free(coord_kw);
+      }else{
+          ecl_kw_fwrite( grid->coord_kw , fortio );
+      }
     }
     {
       ecl_kw_type * zcorn_kw = ecl_grid_alloc_zcorn_kw( grid );
+      if(metric_output != grid->is_metric){
+          double scale_factor = 0.0;
+          if (grid->is_metric){
+            scale_factor = METER_TO_FEET_SCALE_FACTOR;
+          } else{ 
+            scale_factor = (1 / METER_TO_FEET_SCALE_FACTOR);
+          }
+          ecl_kw_scale_float(zcorn_kw, scale_factor);
+      }
       ecl_kw_fwrite( zcorn_kw , fortio );
+
+
+
       ecl_kw_free( zcorn_kw );
     }
     {
@@ -5675,16 +5815,16 @@ static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio
 }
 
 
-void ecl_grid_fwrite_EGRID( ecl_grid_type * grid , const char * filename) {
+void ecl_grid_fwrite_EGRID( ecl_grid_type * grid , const char * filename, bool output_metric) {
   bool fmt_file        = false;
   fortio_type * fortio = fortio_open_writer( filename , fmt_file , ECL_ENDIAN_FLIP );
 
-  ecl_grid_fwrite_EGRID__( grid , fortio );
+  ecl_grid_fwrite_EGRID__( grid , fortio, output_metric );
   {
     int grid_nr;
     for (grid_nr = 0; grid_nr < vector_get_size( grid->LGR_list ); grid_nr++) {
       ecl_grid_type * igrid = vector_iget( grid->LGR_list , grid_nr );
-      ecl_grid_fwrite_EGRID__( igrid , fortio );
+      ecl_grid_fwrite_EGRID__( igrid , fortio, output_metric );
     }
   }
   fortio_fclose( fortio );

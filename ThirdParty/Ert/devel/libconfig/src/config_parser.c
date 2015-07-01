@@ -506,7 +506,8 @@ static void config_parse__(config_parser_type * config ,
 
 
   {
-    basic_parser_type * parser = basic_parser_alloc(" \t" , "\"", NULL , NULL , "--" , "\n");
+    const char * comment_end = comment_string ? "\n" : NULL;
+    basic_parser_type * parser = basic_parser_alloc(" \t" , "\"", NULL , NULL , comment_string , comment_end);
     FILE * stream = util_fopen(config_file , "r");
     bool   at_eof = false;
 

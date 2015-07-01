@@ -23,4 +23,4 @@ ANALYSIS_LIB = clib.ert_load("libanalysis")
 from .enums import AnalysisModuleOptionsEnum, AnalysisModuleLoadStatusEnum
 
 from .analysis_module import AnalysisModule
-
+from .linalg import Linalg

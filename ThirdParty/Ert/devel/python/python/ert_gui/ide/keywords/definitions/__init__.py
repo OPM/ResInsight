@@ -9,6 +9,7 @@ from .proper_name_argument import ProperNameArgument
 from .proper_name_format_argument import ProperNameFormatArgument
 from .proper_name_format_string_argument import ProperNameFormatStringArgument
 from .range_string_argument import RangeStringArgument
+from .number_list_string_argument import NumberListStringArgument
 
 from .argument_definition import ArgumentDefinition
 from .keyword_definition import KeywordDefinition

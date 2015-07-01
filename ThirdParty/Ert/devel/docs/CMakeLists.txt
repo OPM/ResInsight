@@ -13,10 +13,11 @@ else()
     set( ERT_DOC_LINK "" )    
 endif()
 
-configure_file(index.rst.in ${PROJECT_BINARY_DIR}/tmp_doc/index.rst )
+configure_file(index.rst.in ${PROJECT_BINARY_DIR}/tmp_doc/index.rst) 
+configure_file(conf.py.in ${PROJECT_BINARY_DIR}/conf.py)
 
-add_custom_target(doc_out ALL 
-                          COMMAND ${CMAKE_COMMAND}  -Dccsd=${CMAKE_CURRENT_SOURCE_DIR} -Dpbd=${PROJECT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/build_doc.cmake 
+add_custom_target(doc_out ALL
+                          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/script/run-sphinx.py ${PROJECT_BINARY_DIR}/conf.py ${PROJECT_BINARY_DIR}/python ${PROJECT_BINARY_DIR}/tmp_doc
                           DEPENDS enkf )                                  
 
 INSTALL( DIRECTORY ${PROJECT_BINARY_DIR}/tmp_doc/_build/ DESTINATION ${CMAKE_INSTALL_PREFIX}/documentation )

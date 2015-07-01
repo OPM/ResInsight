@@ -38,7 +38,7 @@ class CustomKWKeys(ShellFunction):
         keys = matchItems(line, self.fetchSupportedKeys())
 
         if len(keys) == 0:
-            print("Error: Must have at least one CustomKW key")
+            self.lastCommandFailed("Must have at least one CustomKW key")
             return False
 
         case_name = self.ert().getEnkfFsManager().getCurrentFileSystem().getCaseName()

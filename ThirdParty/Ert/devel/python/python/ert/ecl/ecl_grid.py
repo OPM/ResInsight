@@ -25,10 +25,11 @@ wrapper around the ecl_grid.c implementation from the libecl library.
 """
 import ctypes
 
-import  numpy
+import numpy
 import sys
 import warnings
 import os.path
+import math
 from ert.cwrap import CClass, CFILE, CWrapper, CWrapperNameSpace
 from ert.util import IntVector
 from ert.ecl import EclTypeEnum, EclKW, ECL_LIB, FortIO
@@ -211,13 +212,20 @@ class EclGrid(CClass):
         """The number of active cells fracture in the grid - for dual porosity."""
         return cfunc.get_active_fracture( self )
 
+
     @property
     def dims( self ):
+        warnings.warn("The dims property is deprecated - use getDims() method instead" , DeprecationWarning)
+        return self.getDims( )
+
+
+    def getDims(self):
         """A tuple of four elements: (nx , ny , nz , nactive)."""
         return ( cfunc.get_nx( self ) ,
                  cfunc.get_ny( self ) ,
                  cfunc.get_nz( self ) ,
                  cfunc.get_active( self ) )
+
 
     def getNX(self):
         """ The number of elements in the x direction"""
@@ -545,15 +553,18 @@ class EclGrid(CClass):
         return self.getCellCorner(corner_nr , active_index , global_index , ijk)
 
 
-    def getLayerXYZ(self , xy_corner , layer):
+    def getNodeXYZ(self , i,j,k):
+        """
+        This function returns the position of Vertex (i,j,k).
+    
+        The coordinates are in the inclusive interval [0,nx] x [0,ny] x [0,nz].
+        """
         nx = self.getNX()
         ny = self.getNY()
         nz = self.getNZ()
 
-        (j , i) = divmod(xy_corner , nx + 1)
-        k = layer
         corner = 0
-
+        
         if i == nx:
             i -= 1
             corner += 1
@@ -571,6 +582,15 @@ class EclGrid(CClass):
         else:
             raise IndexError("Invalid coordinates: (%d,%d,%d) " % (i,j,k))
 
+
+
+    def getLayerXYZ(self , xy_corner , layer):
+        nx = self.getNX()
+        
+        (j , i) = divmod(xy_corner , nx + 1)
+        k = layer
+        return self.getNodeXYZ(i,j,k)
+        
 
 
     def distance( self , global_index1 , global_index2):
@@ -659,6 +679,67 @@ class EclGrid(CClass):
         """
         gi = self.__global_index( ijk = ijk , active_index = active_index , global_index = global_index)
         return cfunc.cell_contains( self , gi , x,y,z)
+
+
+    def findCellXY(self , x, y , k):
+        """Will find the i,j of cell with utm coordinates x,y.
+        
+        The @k input is the layer you are interested in, the allowed
+        values for k are [0,nz]. If the coordinates (x,y) are found to
+        be outside the grid a ValueError exception is raised.
+        """
+        if 0 <= k <= self.getNZ():
+            i = ctypes.c_int()
+            j = ctypes.c_int()
+            ok = cfunc.get_ij_xy( self , x,y,k , ctypes.byref(i) , ctypes.byref(j))
+            if ok:
+                return (i.value , j.value)
+            else:
+                raise ValueError("Could not find the point:(%g,%g) in layer:%d" % (x,y,k))
+        else:
+            raise IndexError("Invalid layer value:%d" % k)
+        
+
+    @staticmethod
+    def d_cmp(a,b):
+        return cmp(a[0] , b[0])
+
+
+    def findCellCornerXY(self , x, y , k):
+        """Will find the corner nr of corner closest to utm coordinates x,y.
+        
+        The @k input is the layer you are interested in, the allowed
+        values for k are [0,nz]. If the coordinates (x,y) are found to
+        be outside the grid a ValueError exception is raised.
+        """
+        i,j = self.findCellXY(x,y,k)
+        if k == self.getNZ():
+            k -= 1
+            corner_shift = 4
+        else:
+            corner_shift = 0
+        
+        nx = self.getNX()
+        x0,y0,z0 = self.getCellCorner( corner_shift , ijk = (i,j,k))
+        d0 = math.sqrt( (x0 - x)*(x0 - x) + (y0 - y)*(y0 - y))
+        c0 = i + j*(nx + 1)
+
+        x1,y1,z1 = self.getCellCorner( 1 + corner_shift , ijk = (i,j,k))
+        d1 = math.sqrt( (x1 - x)*(x1 - x) + (y1 - y)*(y1 - y))
+        c1 = i + 1 + j*(nx + 1)
+
+        x2,y2,z2 = self.getCellCorner( 2 + corner_shift , ijk = (i,j,k))
+        d2 = math.sqrt( (x2 - x)*(x2 - x) + (y2 - y)*(y2 - y))
+        c2 = i + (j + 1)*(nx + 1)
+
+        x3,y3,z3 = self.getCellCorner( 3 + corner_shift , ijk = (i,j,k))
+        d3 = math.sqrt( (x3 - x)*(x3 - x) + (y3 - y)*(y3 - y))
+        c3 = i + 1 + (j + 1)*(nx + 1)
+
+        l = [(d0 , c0) , (d1,c1) , (d2 , c2) , (d3,c3)]
+        l.sort( EclGrid.d_cmp )
+        return l[0][1]
+        
 
 
     def cell_regular(self, active_index = None , global_index = None , ijk = None):
@@ -906,11 +987,11 @@ class EclGrid(CClass):
         cfile = CFILE( pyfile )
         cfunc.fprintf_grdecl( self , cfile )
 
-    def save_EGRID( self , filename ):
+    def save_EGRID( self , filename , output_metric = True):
         """
         Will save the current grid as a EGRID file.
         """
-        cfunc.fwrite_EGRID( self , filename )
+        cfunc.fwrite_EGRID( self , filename, output_metric )
 
     def save_GRID( self , filename ):
         """
@@ -949,6 +1030,34 @@ class EclGrid(CClass):
             raise ValueError("Keyword: %s has invalid size(%d), must be either nactive:%d  or nx*ny*nz:%d" % (ecl_kw.name , ecl_kw.size , self.nactive , self.size))
 
 
+    def exportACTNUM(self):
+        actnum = IntVector( initial_size = self.getGlobalSize() )
+        cfunc.init_actnum( self , actnum.getDataPtr() )
+        return actnum
+
+
+    def compressedKWCopy(self, kw):
+        if len(kw) == self.getNumActive():
+            return EclKW.copy( kw )
+        elif len(kw) == self.getGlobalSize():
+            kw_copy = EclKW.create( kw.getName() , self.getNumActive() , kw.getEclType())
+            cfunc.compressed_kw_copy( self , kw_copy , kw)
+            return kw_copy
+        else:
+            raise ValueError("The input keyword must have nx*n*nz or nactive elements. Size:%d invalid" % len(kw))
+
+    def globalKWCopy(self, kw , default_value):
+        if len(kw) == self.getGlobalSize( ):
+            return EclKW.copy( kw )
+        elif len(kw) == self.getNumActive():
+            kw_copy = EclKW.create( kw.getName() , self.getGlobalSize() , kw.getEclType())
+            kw_copy.assign( default_value )
+            cfunc.global_kw_copy( self , kw_copy , kw)
+            return kw_copy
+        else:
+            raise ValueError("The input keyword must have nx*n*nz or nactive elements. Size:%d invalid" % len(kw))
+
+        
 
 # 2. Creating a wrapper object around the libecl library, 
 #    registering the type map : ecl_kw <-> EclKW
@@ -994,6 +1103,7 @@ cfunc.get_xyz1                     = cwrapper.prototype("void ecl_grid_get_xyz1(
 cfunc.get_cell_corner_xyz1         = cwrapper.prototype("void ecl_grid_get_cell_corner_xyz1( ecl_grid , int , int , double* , double* , double*)")
 cfunc.get_corner_xyz               = cwrapper.prototype("void ecl_grid_get_corner_xyz( ecl_grid , int , int , int, double* , double* , double*)")
 cfunc.get_xyz1A                    = cwrapper.prototype("void ecl_grid_get_xyz1A( ecl_grid , int , double* , double* , double*)")
+cfunc.get_ij_xy                    = cwrapper.prototype("bool ecl_grid_get_ij_from_xy( ecl_grid , double , double , int , int* , int*)")
 cfunc.get_ijk_xyz                  = cwrapper.prototype("int  ecl_grid_get_global_index_from_xyz( ecl_grid , double , double , double , int)")
 cfunc.cell_contains                = cwrapper.prototype("bool ecl_grid_cell_contains_xyz1( ecl_grid , int , double , double , double )")
 cfunc.cell_regular                 = cwrapper.prototype("bool ecl_grid_cell_regular1( ecl_grid , int)")
@@ -1012,7 +1122,9 @@ cfunc.invalid_cell                 = cwrapper.prototype("bool   ecl_grid_cell_in
 cfunc.get_distance                 = cwrapper.prototype("void   ecl_grid_get_distance( ecl_grid , int , int , double* , double* , double*)")
 cfunc.fprintf_grdecl               = cwrapper.prototype("void   ecl_grid_fprintf_grdecl( ecl_grid , FILE) ")
 cfunc.fwrite_GRID                  = cwrapper.prototype("void   ecl_grid_fwrite_GRID( ecl_grid , char* )")
-cfunc.fwrite_EGRID                 = cwrapper.prototype("void   ecl_grid_fwrite_EGRID( ecl_grid , char* )")
+cfunc.fwrite_EGRID                 = cwrapper.prototype("void   ecl_grid_fwrite_EGRID( ecl_grid , char*, bool )")
 cfunc.equal                        = cwrapper.prototype("bool   ecl_grid_compare(ecl_grid , ecl_grid , bool, bool)")
 cfunc.dual_grid                    = cwrapper.prototype("bool   ecl_grid_dual_grid( ecl_grid )")
-
+cfunc.init_actnum                  = cwrapper.prototype("void   ecl_grid_init_actnum_data( ecl_grid , int* )")
+cfunc.compressed_kw_copy           = cwrapper.prototype("void   ecl_grid_compressed_kw_copy( ecl_grid , ecl_kw , ecl_kw)")
+cfunc.global_kw_copy               = cwrapper.prototype("void   ecl_grid_global_kw_copy( ecl_grid , ecl_kw , ecl_kw)")

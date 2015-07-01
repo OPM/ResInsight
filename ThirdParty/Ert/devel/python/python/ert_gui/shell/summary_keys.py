@@ -51,7 +51,7 @@ class SummaryKeys(ShellFunction):
         args = self.splitArguments(line)
 
         if len(args) < 1:
-            print("Error: A summary key is required.")
+            self.lastCommandFailed("A summary key is required.")
             return False
 
 
@@ -68,7 +68,7 @@ class SummaryKeys(ShellFunction):
         keys = matchItems(line, self.summaryKeys())
 
         if len(keys) == 0:
-            print("Error: Must have at least one Summary key")
+            self.lastCommandFailed("Must have at least one Summary key")
             return False
 
         case_list = self.shellContext()["plot_settings"].getCurrentPlotCases()
@@ -77,11 +77,14 @@ class SummaryKeys(ShellFunction):
             plot = ShellPlot(key)
             for case_name in case_list:
                 data = SummaryCollector.loadAllSummaryData(self.ert(), case_name, [key])
-                plot.plot(data, value_column=key, legend_label=case_name)
+                if not data.empty:
+                    plot.plot(data, value_column=key, legend_label=case_name)
 
             if len(case_list) > 0 and SummaryObservationCollector.summaryKeyHasObservations(self.ert(), key):
                 observation_data = SummaryObservationCollector.loadObservationData(self.ert(), case_list[0], [key])
-                plot.plotObservations(observation_data, value_column=key)
+
+                if not observation_data.empty:
+                    plot.plotObservations(observation_data, value_column=key)
 
             plot.showLegend()
 
@@ -95,7 +98,7 @@ class SummaryKeys(ShellFunction):
         keys = matchItems(line, self.summaryKeys())
 
         if len(keys) == 0:
-            print("Error: Must have at least one Summary key")
+            self.lastCommandFailed("Must have at least one Summary key")
             return False
 
         case_list = self.shellContext()["plot_settings"].getCurrentPlotCases()
@@ -104,11 +107,13 @@ class SummaryKeys(ShellFunction):
             plot = ShellPlot(key)
             for case_name in case_list:
                 data = SummaryCollector.loadAllSummaryData(self.ert(), case_name, [key])
-                plot.plotArea(data, value_column=key, legend_label=case_name)
+                if not data.empty:
+                    plot.plotArea(data, value_column=key, legend_label=case_name)
 
             if len(case_list) > 0 and SummaryObservationCollector.summaryKeyHasObservations(self.ert(), key):
                 observation_data = SummaryObservationCollector.loadObservationData(self.ert(), case_list[0], [key])
-                plot.plotObservations(observation_data, value_column=key)
+                if not observation_data.empty:
+                    plot.plotObservations(observation_data, value_column=key)
 
             plot.showLegend()
 
@@ -122,7 +127,7 @@ class SummaryKeys(ShellFunction):
         keys = matchItems(line, self.summaryKeys())
 
         if len(keys) == 0:
-            print("Error: Must have at least one Summary key")
+            self.lastCommandFailed("Must have at least one Summary key")
             return False
 
         case_list = self.shellContext()["plot_settings"].getCurrentPlotCases()
@@ -131,11 +136,13 @@ class SummaryKeys(ShellFunction):
             plot = ShellPlot(key)
             for case_name in case_list:
                 data = SummaryCollector.loadAllSummaryData(self.ert(), case_name, [key])
-                plot.plotQuantiles(data, value_column=key, legend_label=case_name)
+                if not data.empty:
+                    plot.plotQuantiles(data, value_column=key, legend_label=case_name)
 
             if len(case_list) > 0 and SummaryObservationCollector.summaryKeyHasObservations(self.ert(), key):
                 observation_data = SummaryObservationCollector.loadObservationData(self.ert(), case_list[0], [key])
-                plot.plotObservations(observation_data, value_column=key)
+                if not observation_data.empty:
+                    plot.plotObservations(observation_data, value_column=key)
 
             plot.showLegend()
 

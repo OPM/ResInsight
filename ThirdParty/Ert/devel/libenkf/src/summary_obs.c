@@ -44,6 +44,7 @@ struct summary_obs_struct {
 
   double    value;          /** Observation value. */
   double    std;            /** Standard deviation of observation. */
+  double    std_scaling;
 
   auto_corrf_ftype   * auto_corrf;
   double               auto_corrf_param;
@@ -105,6 +106,7 @@ summary_obs_type * summary_obs_alloc(const char   * summary_key,
   obs->obs_key          = util_alloc_string_copy( obs_key );
   obs->value            = value;
   obs->std              = std;
+  obs->std_scaling      = 1.0;
   obs->auto_corrf       = summary_obs_lookup_auto_corrf( auto_corrf_name );
   obs->auto_corrf_param = auto_corrf_param;
 
@@ -156,10 +158,10 @@ void summary_obs_get_observations(const summary_obs_type * summary_obs,
                                   int report_step ,
                                   const active_list_type * __active_list) {
 
-  int active_size              = active_list_get_active_size( __active_list , OBS_SIZE );
+  int active_size = active_list_get_active_size( __active_list , OBS_SIZE );
   if (active_size == 1) {
     obs_block_type * obs_block   = obs_data_add_block( obs_data , summary_obs->obs_key , OBS_SIZE , NULL , false);
-    obs_block_iset( obs_block , 0 , summary_obs->value , summary_obs->std );
+    obs_block_iset( obs_block , 0 , summary_obs->value , summary_obs->std * summary_obs->std_scaling);
   }
 }
 
@@ -200,13 +202,19 @@ double summary_obs_get_std( const summary_obs_type * summary_obs ) {
   return summary_obs->std;
 }
 
-void summary_obs_scale_std(summary_obs_type * summary_obs, double std_multiplier ) {
-   summary_obs->std = summary_obs->std * std_multiplier;
+double summary_obs_get_std_scaling( const summary_obs_type * summary_obs ) {
+  return summary_obs->std_scaling;
 }
 
-void summary_obs_scale_std__(void * summary_obs, double std_multiplier ) {
-  summary_obs_type * observation = summary_obs_safe_cast(summary_obs);
-  summary_obs_scale_std(observation, std_multiplier);
+
+void summary_obs_update_std_scale(summary_obs_type * summary_obs, double std_multiplier , const active_list_type * active_list) {
+  if (active_list_get_mode( active_list ) == ALL_ACTIVE)
+    summary_obs->std_scaling = std_multiplier;
+  else {
+    int size = active_list_get_active_size( active_list , OBS_SIZE );
+    if (size > 0)
+      summary_obs->std_scaling = std_multiplier;
+  }
 }
 
 
@@ -217,3 +225,4 @@ VOID_GET_OBS(summary_obs)
 VOID_USER_GET_OBS(summary_obs)
 VOID_MEASURE(summary_obs , summary)
 VOID_CHI2(summary_obs , summary)
+VOID_UPDATE_STD_SCALE(summary_obs);

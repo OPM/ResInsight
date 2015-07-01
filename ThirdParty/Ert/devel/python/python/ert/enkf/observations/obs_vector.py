@@ -60,6 +60,16 @@ class ObsVector(BaseCClass):
         else:
             raise AssertionError("Node type '%s' currently not supported!" % node_type)
 
+    
+    def __iter__(self):
+        """ Iterate over active report steps; return node"""
+        cur = -1
+        run = True
+        for step in self.getStepList():
+            yield self.getNode( step )
+            
+
+        
     def getStepList(self):
         """
         Will return an IntVector with the active report steps.
@@ -103,18 +113,14 @@ class ObsVector(BaseCClass):
         """ @rtype: EnkfConfigNode """
         return ObsVector.cNamespace().get_config_node(self).setParent(self)
 
-    def __iter__(self):
-        """ Iterate over active report steps. """
-        cur = -1
-        run = True
-        while run:
-            report_step = self.getNextActiveStep(cur)
-            if report_step >= 0:
-                cur = report_step
-                yield cur
-            else:
-                run = False
+    
+    def createLocalObs(self):
+        """
+        Will create a LocalObsDataNode instance with all timesteps set.
+        """
+        return ObsVector.cNamespace().create_local_node( self )
 
+    
     def hasData(self, active_mask, fs):
         """ @rtype: bool """
         return ObsVector.cNamespace().has_data(self, active_mask, fs)
@@ -145,3 +151,4 @@ ObsVector.cNamespace().get_config_node = cwrapper.prototype("enkf_config_node_re
 ObsVector.cNamespace().get_total_chi2 = cwrapper.prototype("double obs_vector_total_chi2(obs_vector, enkf_fs, int, enkf_state_type_enum)")
 ObsVector.cNamespace().get_obs_key = cwrapper.prototype("char* obs_vector_get_obs_key(obs_vector)")
 ObsVector.cNamespace().get_step_list = cwrapper.prototype("int_vector_ref obs_vector_get_step_list(obs_vector)")
+ObsVector.cNamespace().create_local_node = cwrapper.prototype("local_obsdata_node_obj obs_vector_alloc_local_node(obs_vector)")

@@ -18,9 +18,10 @@ from ert.enkf import ENKF_LIB
 
 
 class FieldConfig(BaseCClass):
-    def __init__(self):
-        raise NotImplementedError("Class can not be instantiated directly!")
-
+    def __init__(self , kw , grid):
+        c_ptr = FieldConfig.cNamespace().alloc( kw , grid , None , False )
+        super(FieldConfig, self).__init__(c_ptr)
+        
     def get_type(self):
         return FieldConfig.cNamespace().get_type(self)
 
@@ -56,10 +57,9 @@ class FieldConfig(BaseCClass):
 
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("field_config", FieldConfig)
-cwrapper.registerType("field_config_obj", FieldConfig.createPythonObject)
-cwrapper.registerType("field_config_ref", FieldConfig.createCReference)
+cwrapper.registerObjectType("field_config", FieldConfig)
 
+FieldConfig.cNamespace().alloc = cwrapper.prototype("c_void_p field_config_alloc_empty(char* , ecl_grid , c_void_p , bool)")  
 FieldConfig.cNamespace().free = cwrapper.prototype("void field_config_free( field_config )")
 FieldConfig.cNamespace().get_type = cwrapper.prototype("int field_config_get_type(field_config)")
 FieldConfig.cNamespace().get_truncation_mode = cwrapper.prototype("int field_config_get_truncation_mode(field_config)")
@@ -72,3 +72,4 @@ FieldConfig.cNamespace().get_nx = cwrapper.prototype("int field_config_get_nx(fi
 FieldConfig.cNamespace().get_ny = cwrapper.prototype("int field_config_get_ny(field_config)")
 FieldConfig.cNamespace().get_nz = cwrapper.prototype("int field_config_get_nz(field_config)")
 FieldConfig.cNamespace().get_grid = cwrapper.prototype("c_void_p field_config_get_grid(field_config)")  #todo: fix return type
+

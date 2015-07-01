@@ -1,1 +1,1 @@
-lib_path = "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}"
+lib_path = "${LIBRARY_OUTPUT_PATH}"

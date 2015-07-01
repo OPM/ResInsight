@@ -10,6 +10,7 @@ class GenKWKeys(ShellFunction):
         self.addHelpFunction("list", None, "Shows a list of all available gen_kw keys.")
         self.addHelpFunction("histogram", "<key_1> [key_2..key_n]", "Plot the histogram for the specified key(s).")
         self.addHelpFunction("density", "<key_1> [key_2..key_n]", "Plot the density for the specified key(s).")
+        self.addHelpFunction("print", "<key_1> [key_2..key_n]", "Print the values for the specified key(s).")
 
 
     def fetchSupportedKeys(self):
@@ -26,7 +27,7 @@ class GenKWKeys(ShellFunction):
         keys = matchItems(line, self.fetchSupportedKeys())
 
         if len(keys) == 0:
-            print("Error: Must have at least one GenKW key")
+            self.lastCommandFailed("Must have at least one GenKW key")
             return False
 
         case_list = self.shellContext()["plot_settings"].getCurrentPlotCases()
@@ -34,8 +35,9 @@ class GenKWKeys(ShellFunction):
         for key in keys:
             for case_name in case_list:
                 data = GenKwCollector.loadAllGenKwData(self.ert(), case_name, [key])
-                plot = ShellPlot(key)
-                plot.histogram(data, key, log_on_x=key.startswith("LOG10_"))
+                if not data.empty:
+                    plot = ShellPlot(key)
+                    plot.histogram(data, key, log_on_x=key.startswith("LOG10_"))
 
     @assertConfigLoaded
     def complete_histogram(self, text, line, begidx, endidx):
@@ -48,7 +50,7 @@ class GenKWKeys(ShellFunction):
         keys = matchItems(line, self.fetchSupportedKeys())
 
         if len(keys) == 0:
-            print("Error: Must have at least one GenKW key")
+            self.lastCommandFailed("Must have at least one GenKW key")
             return False
 
         case_list = self.shellContext()["plot_settings"].getCurrentPlotCases()
@@ -57,10 +59,31 @@ class GenKWKeys(ShellFunction):
             plot = ShellPlot(key)
             for case_name in case_list:
                 data = GenKwCollector.loadAllGenKwData(self.ert(), case_name, [key])
-                plot.density(data, key, legend_label=case_name)
+
+                if not data.empty:
+                    plot.density(data, key, legend_label=case_name)
             plot.showLegend()
 
     @assertConfigLoaded
     def complete_density(self, text, line, begidx, endidx):
+        key = extractFullArgument(line, endidx)
+        return autoCompleteListWithSeparator(key, self.fetchSupportedKeys())
+
+    @assertConfigLoaded
+    def do_print(self, line):
+        keys = matchItems(line, self.fetchSupportedKeys())
+
+        if len(keys) == 0:
+            self.lastCommandFailed("Must have at least one GenKW key")
+            return False
+
+        case_name = self.ert().getEnkfFsManager().getCurrentFileSystem().getCaseName()
+
+        data = GenKwCollector.loadAllGenKwData(self.ert(), case_name, keys)
+        print(data)
+
+
+    @assertConfigLoaded
+    def complete_print(self, text, line, begidx, endidx):
         key = extractFullArgument(line, endidx)
         return autoCompleteListWithSeparator(key, self.fetchSupportedKeys())

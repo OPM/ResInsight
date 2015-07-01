@@ -5,9 +5,16 @@ if(POLICY CMP0042)
   cmake_policy(SET CMP0042 OLD)
 endif()
 
+#-----------------------------------------------------------------
+
 set( ERT_VERSION_MAJOR 1 )
-set( ERT_VERSION_MINOR 8 )
-set( ERT_VERSION_MICRO X )
+set( ERT_VERSION_MINOR 10 )
+set( ERT_VERSION_MICRO git )
+
+# If the micro version is not integer, that should be interpreted as a
+# development version leading towards version MAJOR.MINOR.0
+
+#-----------------------------------------------------------------
 
 
 option( BUILD_ERT           "Build the full ERT application - Linux only" OFF)
@@ -21,7 +28,7 @@ option( INSTALL_ERT         "Should anything be installed when issuing make inst
 option( ERT_BUILD_GUI       "Should the pyQt based gui be compiled and installed" OFF )
 option( ERT_USE_OPENMP      "Use OpenMP - currently only in EclGrid" OFF)
 option( ERT_DOC             "Build ERT documantation" OFF)
-
+option( ERT_BUILD_CXX       "Build (some) CXX wrappers" ON) 
 
 include( CheckFunctionExists )
 include( CheckTypeSize )
@@ -61,6 +68,7 @@ if (MSVC)
     add_definitions( -DCOMPILER_MSVC )
 elseif (CMAKE_COMPILER_IS_GNUCC) 
     add_definitions( -DCOMPILER_GCC )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x" )
 endif()
 
 
@@ -81,6 +89,24 @@ include(cmake/ert_find.cmake)
 include(cmake/Modules/UseMultiArch.cmake)
 include(cmake/ert_link.cmake)
 
+
+#-----------------------------------------------------------------
+# Should we build the block_fs filesystem; this is used extensively
+# by the ert application; but if you are only building the support
+# eclipse related support libraries you can safely leave this at the
+# default OFF value.
+
+if (BUILD_ERT)
+   set( ERT_BUILD_BLOCK_FS ON)
+else()
+   if (WITH_PTHREAD)
+      set( ERT_BUILD_BLOCK_FS OFF CACHE BOOL "Build the block_fs filesystem. Used by ERT application")
+   else()
+      set( ERT_BUILD_BLOCK_FS OFF)
+   endif()
+endif()
+
+#-----------------------------------------------------------------
 
 set(INSTALL_GROUP          ""     CACHE STRING "Group to install as - blank to install as current group")
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
@@ -135,6 +161,15 @@ endif()
 
 include_directories( ${PROJECT_SOURCE_DIR}/libecl/include )
 add_subdirectory( libecl )
+
+if (ERT_BUILD_CXX)
+   if (HAVE_CXX_SHARED_PTR)
+      include_directories( ${PROJECT_SOURCE_DIR}/libeclxx/include )
+      add_subdirectory( libeclxx )
+   else()
+      message(STATUS "Skipping CXX support - missing Cxx11 features.")
+   endif()
+endif()
 
 include_directories( ${PROJECT_SOURCE_DIR}/libecl_well/include )
 add_subdirectory( libecl_well )

@@ -70,6 +70,7 @@ extern "C" {
   bool            ecl_grid_cell_contains1(const ecl_grid_type * grid , int global_index , double x , double y , double z);
   bool            ecl_grid_cell_contains3(const ecl_grid_type * grid , int i , int j ,int k , double x , double y , double z);
   int             ecl_grid_get_global_index_from_xyz(ecl_grid_type * grid , double x , double y , double z , int start_index);
+  bool            ecl_grid_get_ij_from_xy( const ecl_grid_type * grid , double x , double y , int k , int* i, int* j);
   const  char   * ecl_grid_get_name( const ecl_grid_type * );
   int             ecl_grid_get_active_index3(const ecl_grid_type * ecl_grid , int i , int j , int k);
   int             ecl_grid_get_active_index1(const ecl_grid_type * ecl_grid , int global_index);
@@ -171,7 +172,7 @@ extern "C" {
   void                    ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream , double double_default);
   bool                    ecl_grid_test_lgr_consistency( const ecl_grid_type * ecl_grid );
 
-  void                    ecl_grid_fwrite_EGRID(  ecl_grid_type * grid , const char * filename);
+  void                    ecl_grid_fwrite_EGRID(  ecl_grid_type * grid , const char * filename, bool metric_output);
   void                    ecl_grid_fwrite_GRID( const ecl_grid_type * grid , const char * filename);
   void                    ecl_grid_fprintf_grdecl(  ecl_grid_type * grid , FILE * stream );
   void                    ecl_grid_fwrite_EGRID_header__( int dims[3] , const float mapaxes[6], int dualp_flag , fortio_type * fortio);
@@ -206,6 +207,8 @@ extern "C" {
   bool ecl_grid_use_mapaxes( const ecl_grid_type * grid );
   void ecl_grid_init_mapaxes_data_double( const ecl_grid_type * grid , double * mapaxes);
   void ecl_grid_reset_actnum( ecl_grid_type * grid , const int * actnum );
+  void ecl_grid_compressed_kw_copy( const ecl_grid_type * grid , ecl_kw_type * target_kw , const ecl_kw_type * src_kw);
+  void ecl_grid_global_kw_copy( const ecl_grid_type * grid , ecl_kw_type * target_kw , const ecl_kw_type * src_kw);
 
   UTIL_IS_INSTANCE_HEADER( ecl_grid );
   UTIL_SAFE_CAST_HEADER( ecl_grid );

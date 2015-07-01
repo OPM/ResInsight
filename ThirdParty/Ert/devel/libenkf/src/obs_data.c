@@ -84,23 +84,25 @@ struct obs_block_struct {
   double             * value;
   double             * std;
 
-  int                * active_mode;
+  active_type        * active_mode;
   int                  active_size;
   matrix_type        * error_covar;
   bool                 error_covar_owner;   /* If true the error_covar matrix is free'd when construction of the R matrix is complete. */
+  double               global_std_scaling;
 };
 
 
 
 struct obs_data_struct {
   vector_type   * data;            /* vector with obs_block instances. */
+  double          global_std_scaling;
 };
 
 
 
 static UTIL_SAFE_CAST_FUNCTION(obs_block , OBS_BLOCK_TYPE_ID )
 
-obs_block_type * obs_block_alloc( const char * obs_key , int obs_size , matrix_type * error_covar , bool error_covar_owner) {
+obs_block_type * obs_block_alloc( const char * obs_key , int obs_size , matrix_type * error_covar , bool error_covar_owner, double global_std_scaling) {
   obs_block_type * obs_block = util_malloc( sizeof * obs_block );
 
   UTIL_TYPE_ID_INIT( obs_block , OBS_BLOCK_TYPE_ID );
@@ -111,6 +113,7 @@ obs_block_type * obs_block_alloc( const char * obs_key , int obs_size , matrix_t
   obs_block->active_mode = util_calloc( obs_size , sizeof * obs_block->active_mode );
   obs_block->error_covar = error_covar;
   obs_block->error_covar_owner = error_covar_owner;
+  obs_block->global_std_scaling = global_std_scaling;
   {
     for (int iobs = 0; iobs < obs_size; iobs++)
       obs_block->active_mode[iobs] = LOCAL_INACTIVE;
@@ -165,7 +168,7 @@ void obs_block_iset_missing( obs_block_type * obs_block , int iobs ) {
 
 
 double obs_block_iget_std( const obs_block_type * obs_block , int iobs) {
-  return obs_block->std[ iobs ];
+  return obs_block->std[ iobs ] * obs_block->global_std_scaling;
 }
 
 
@@ -200,7 +203,7 @@ static void obs_block_init_scaling( const obs_block_type * obs_block , double * 
   int iobs;
   for (iobs =0; iobs < obs_block->size; iobs++) {
     if (obs_block->active_mode[iobs] == ACTIVE) {
-      scale_factor[ obs_offset ] = 1.0 / obs_block->std[ iobs ];
+      scale_factor[ obs_offset ] = 1.0 / obs_block_iget_std(obs_block, iobs);
       obs_offset++;
     }
   }
@@ -246,7 +249,7 @@ static void obs_block_initR( const obs_block_type * obs_block , matrix_type * R,
     int iactive = 0;
     for (iobs =0; iobs < obs_block->size; iobs++) {
       if (obs_block->active_mode[iobs] == ACTIVE) {
-        double var = obs_block->std[iobs] * obs_block->std[iobs];
+        double var = obs_block_iget_std(obs_block, iobs) * obs_block_iget_std(obs_block, iobs);
         matrix_iset_safe(R , obs_offset + iactive, obs_offset + iactive, var);
         iactive++;
       }
@@ -280,7 +283,7 @@ static void obs_block_initE( const obs_block_type * obs_block , matrix_type * E,
   int iobs;
   for (iobs =0; iobs < obs_block->size; iobs++) {
     if (obs_block->active_mode[iobs] == ACTIVE) {
-      double factor = obs_block->std[iobs] * sqrt( ens_size / pert_var[ obs_offset ]);
+      double factor = obs_block_iget_std(obs_block, iobs) * sqrt( ens_size / pert_var[ obs_offset ]);
       for (int iens = 0; iens < ens_size; iens++)
         matrix_imul(E , obs_offset , iens , factor );
 
@@ -298,7 +301,7 @@ static void obs_block_initE_non_centred( const obs_block_type * obs_block , matr
   int iobs;
   for (iobs =0; iobs < obs_block->size; iobs++) {
     if (obs_block->active_mode[iobs] == ACTIVE) {
-      double factor = obs_block->std[iobs];
+      double factor = obs_block_iget_std(obs_block, iobs);
       for (int iens = 0; iens < ens_size; iens++)
         matrix_imul(E , obs_offset , iens , factor );
 
@@ -331,9 +334,10 @@ static void obs_block_initD( const obs_block_type * obs_block , matrix_type * D,
 /*****************************************************************/
 
 
-obs_data_type * obs_data_alloc() {
+obs_data_type * obs_data_alloc(double global_std_scaling) {
   obs_data_type * obs_data = util_malloc(sizeof * obs_data );
   obs_data->data = vector_alloc_new();
+  obs_data->global_std_scaling = global_std_scaling;
   obs_data_reset(obs_data);
   return obs_data;
 }
@@ -346,7 +350,7 @@ void obs_data_reset(obs_data_type * obs_data) {
 
 
 obs_block_type * obs_data_add_block( obs_data_type * obs_data , const char * obs_key , int obs_size , matrix_type * error_covar, bool error_covar_owner) {
-  obs_block_type * new_block = obs_block_alloc( obs_key , obs_size , error_covar , error_covar_owner);
+  obs_block_type * new_block = obs_block_alloc( obs_key , obs_size , error_covar , error_covar_owner, obs_data->global_std_scaling);
   vector_append_owned_ref( obs_data->data , new_block , obs_block_free__ );
   return new_block;
 }

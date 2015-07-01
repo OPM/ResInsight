@@ -39,6 +39,7 @@ class ShellFunction(object):
         setattr(self.shellContext().shell().__class__, "help_%s" % name, self.helpKeywords)
 
     def shellContext(self):
+        """ :rtype: ShellContext """
         return self.__shell_context
 
     def ert(self):
@@ -108,7 +109,7 @@ class ShellFunction(object):
             func = getattr(self, "do_%s" % keyword)
             return func(arguments)
         else:
-            print("Error: Unknown keyword: '%s'" % keyword)
+            self.lastCommandFailed("Unknown keyword: '%s'" % keyword)
 
     def splitArguments(self, line):
         """ @rtype: list of str """
@@ -152,3 +153,6 @@ class ShellFunction(object):
         if not cr:
             cr = (env.get('LINES', 25), env.get('COLUMNS', 80))
         return int(cr[1]), int(cr[0])
+
+    def lastCommandFailed(self, message):
+        self.shellContext().shell().lastCommandFailed(message)
