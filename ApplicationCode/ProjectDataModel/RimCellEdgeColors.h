@@ -54,6 +54,7 @@ public:
     void                                  setReservoirView(RimEclipseView* ownerReservoirView);
 
     caf::PdmField<QString>                resultVariable;
+    caf::PdmField<bool>                   enableCellEdgeColors;
 
     caf::PdmField<RimLegendConfig*>       legendConfig;
     double                                ignoredScalarValue() { return m_ignoredResultScalar; }
@@ -78,7 +79,6 @@ private:
 
     virtual caf::PdmFieldHandle*          objectToggleField();
 
-    caf::PdmField<bool>                   enableCellEdgeColors;
     caf::PdmField<bool>                   useXVariable;
     caf::PdmField<bool>                   useYVariable;
     caf::PdmField<bool>                   useZVariable;

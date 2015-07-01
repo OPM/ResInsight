@@ -138,6 +138,8 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
     RimEclipseView* riv = new RimEclipseView();
     riv->setEclipseCase(this);
+    riv->cellEdgeResult()->resultVariable = "MULT";
+    riv->cellEdgeResult()->enableCellEdgeColors = false;
 
     caf::PdmDocument::updateUiIconStateRecursively(riv);
 
