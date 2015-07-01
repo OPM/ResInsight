@@ -100,7 +100,7 @@ RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::createAndAppendPro
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
 
-    propertyFilter->name = QString("New Filter (%1)").arg(propertyFilters().size());
+    propertyFilter->name = m_reservoirView->cellResult->resultVariable() + QString(" (%1)").arg(propertyFilters().size());
 
 
     return propertyFilter;
