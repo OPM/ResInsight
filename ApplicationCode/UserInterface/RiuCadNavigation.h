@@ -43,4 +43,5 @@ protected:
     bool            m_isRotCenterInitialized; 
     bool            m_isRotating;
     cvf::Vec3d      m_pointOfInterest;
+    bool            m_navigationUpdated;
 };

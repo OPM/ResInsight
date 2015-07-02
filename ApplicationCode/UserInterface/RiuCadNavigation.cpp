@@ -40,6 +40,7 @@ void RiuCadNavigation::init()
     m_trackball->setCamera(m_viewer->mainCamera());
     m_isRotCenterInitialized = false;
     m_isRotating = false;
+    m_navigationUpdated = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +59,13 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
             int translatedMousePosX = me->x();
             int translatedMousePosY = m_viewer->height() - me->y();
 
-            if (me->button() == Qt::MidButton)
+            if (me->button() == Qt::LeftButton)
+            {
+                m_trackball->startNavigation(cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY);
+                m_isRotating = true;
+                isEventHandled = true;
+            }
+            else if (me->button() == Qt::MidButton)
             {
                 if (me->modifiers() & Qt::ShiftModifier)
                 {
@@ -88,11 +95,10 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     isEventHandled = true;
                 }
             }
-            else if (me->button() == Qt::RightButton)
+
+            if (isEventHandled)
             {
-                m_trackball->startNavigation(cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY);
-                m_isRotating = true;
-                isEventHandled = true;
+                m_navigationUpdated = false;
             }
         }
         break;
@@ -101,12 +107,14 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
             if (m_isRotating)
             {
                 QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
-                if (me->button() == Qt::MidButton || me->button() == Qt::RightButton)
+                if (me->button() == Qt::MidButton || me->button() == Qt::LeftButton)
                 {
                     m_trackball->endNavigation();
                     //m_viewer->setCursor(RiuCursors::get(RiuCursors::PICK));
                     m_isRotating = false;
-                    isEventHandled = true;
+                    
+                    isEventHandled = m_navigationUpdated;
+                    m_navigationUpdated = false;
                 }
             }
         }
@@ -126,6 +134,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     if (needRedraw)
                     {
                         m_viewer->update();
+                        m_navigationUpdated = true;
                     }
                     isEventHandled = true;
                 }
