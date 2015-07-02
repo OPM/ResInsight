@@ -28,6 +28,7 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 #include "RimGeoMechView.h"
+#include "RiuMainWindow.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
@@ -79,6 +80,7 @@ void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &filterMode == changedField)
     {
         this->updateIconState();
+        this->updateFilterName();
         ((RimView*)resultDefinition->reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
         resultDefinition->reservoirView()->scheduleCreateDisplayModelAndRedraw();
     }
@@ -111,6 +113,7 @@ void RimGeoMechPropertyFilter::setToDefaultValues()
 
     lowerBound = m_minimumResultValue;
     upperBound = m_maximumResultValue;
+    this->updateFilterName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,3 +180,27 @@ void RimGeoMechPropertyFilter::computeResultValueRange()
     lowerBound.setUiName(QString("Min (%1)").arg(min));
     upperBound.setUiName(QString("Max (%1)").arg(max));
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilter::updateFilterName()
+{
+    RigFemResultAddress resultAddress = resultDefinition->resultAddress();
+    QString newFiltername;
+    QString posName;
+
+    switch (resultAddress.resultPosType)
+    {
+        case RIG_NODAL: posName = "N"; break;
+        case RIG_ELEMENT_NODAL: posName = "EN"; break;
+        case RIG_INTEGRATION_POINT: posName = "IP"; break;
+    }
+
+    newFiltername =  posName + ", " + QString::fromStdString(resultAddress.fieldName + ", " + resultAddress.componentName) + " ("
+     + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
+    this->name = newFiltername;
+
+    RiuMainWindow::instance()->forceProjectTreeRepaint();
+}
+

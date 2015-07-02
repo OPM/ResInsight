@@ -45,6 +45,7 @@ public:
     void                                        setParentContainer(RimGeoMechPropertyFilterCollection* parentContainer);
     RimGeoMechPropertyFilterCollection*         parentContainer();
     void                                        setToDefaultValues();
+    void                                        updateFilterName();
     void                                        computeResultValueRange();
     
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

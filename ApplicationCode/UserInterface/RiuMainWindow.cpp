@@ -2132,3 +2132,14 @@ void RiuMainWindow::setExpanded(const caf::PdmObject* pdmObject, bool expanded)
         m_treeView->setExpanded(mi, expanded);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::forceProjectTreeRepaint()
+{
+    // This is a hack to force the treeview redraw. 
+    // Needed for some reason when changing names and icons in the model
+    m_treeView->scroll(0,1);
+    m_treeView->scroll(0,-1);
+}

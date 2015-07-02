@@ -98,10 +98,8 @@ RimGeoMechPropertyFilter* RimGeoMechPropertyFilterCollection::createAndAppendPro
     propertyFilter->resultDefinition->setResultAddress(m_reservoirView->cellResult()->resultAddress());
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
-
-    RigFemResultAddress resAddr = m_reservoirView->cellResult()->resultAddress();
-    propertyFilter->name = QString::fromStdString(resAddr.fieldName  + ", "  + resAddr.componentName) + QString(" (%1)").arg(propertyFilters().size());
-
+    propertyFilter->updateFilterName();
+ 
     return propertyFilter;
 }
 

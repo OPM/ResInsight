@@ -28,6 +28,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cvfAssert.h"
 #include "cvfMath.h"
+#include "RiuMainWindow.h"
 
 
 namespace caf
@@ -110,6 +111,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
         setToDefaultValues();
         m_parentContainer->fieldChangedByUi(changedField, oldValue,  newValue);
+        updateFilterName();
     }
 
     if (   &lowerBound == changedField 
@@ -119,6 +121,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &filterMode == changedField)
     {
         m_parentContainer->fieldChangedByUi(changedField, oldValue, newValue);
+        updateFilterName();
         this->updateIconState();
     }
 }
@@ -253,5 +256,17 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     lowerBound.setUiName(QString("Min (%1)").arg(min));
     upperBound.setUiName(QString("Max (%1)").arg(max));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateFilterName()
+{
+    QString newFiltername;
+    newFiltername = resultDefinition->resultVariable() + " ("
+     + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
+    this->name = newFiltername;
+    RiuMainWindow::instance()->forceProjectTreeRepaint();
 }
 

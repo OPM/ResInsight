@@ -84,6 +84,7 @@ public:
 
     void            refreshAnimationActions();
     void            updateScaleValue();
+    void            forceProjectTreeRepaint();
 
     RimUiTreeModelPdm* uiPdmModel() { return m_treeModelPdm;}
 

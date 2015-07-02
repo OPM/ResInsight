@@ -50,6 +50,7 @@ public:
     void                                    setParentContainer(RimEclipsePropertyFilterCollection* parentContainer);
     RimEclipsePropertyFilterCollection*        parentContainer();
     void                                    setToDefaultValues();
+    void                                    updateFilterName();
     void                                    computeResultValueRange();
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -59,6 +60,7 @@ protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
+
     RimEclipsePropertyFilterCollection*        m_parentContainer;
     double                                  m_minimumResultValue; 
     double                                  m_maximumResultValue;
