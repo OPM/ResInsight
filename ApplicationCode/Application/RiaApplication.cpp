@@ -96,7 +96,7 @@ void AppEnum< RiaApplication::RINavigationPolicy >::setUp()
     addItem(RiaApplication::NAVIGATION_POLICY_CAD,      "NAVIGATION_POLICY_CAD",        "CAD");
     addItem(RiaApplication::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST",   "GEOQUEST");
     addItem(RiaApplication::NAVIGATION_POLICY_RMS,      "NAVIGATION_POLICY_RMS",        "RMS");
-    setDefault(RiaApplication::NAVIGATION_POLICY_CAD);
+    setDefault(RiaApplication::NAVIGATION_POLICY_RMS);
 }
 }
 
