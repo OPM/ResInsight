@@ -427,6 +427,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
     m_faultLabelLinePart = NULL;
 
     if (!part) return;
+    if (m_rimFault->name().isEmpty()) return;
 
     cvf::BoundingBox bb = part->boundingBox();
 

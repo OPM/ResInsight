@@ -282,7 +282,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         m_wellHeadParts.push_back(part.p());
     }
 
-    if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel())
+    if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel() && !well->name().isEmpty())
     {
         cvf::Font* standardFont = RiaApplication::instance()->standardFont();
 

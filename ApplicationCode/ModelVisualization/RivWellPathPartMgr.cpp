@@ -185,7 +185,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     textPosition.z() += 1.2 * characteristicCellSize;
 
     m_wellLabelPart = NULL;
-    if (m_wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel())
+    if (m_wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
     {
         cvf::Font* standardFont = RiaApplication::instance()->standardFont();
 
