@@ -45,7 +45,9 @@
 #include "RimEclipseFaultColors.h"
 
 #include "cafCeetronNavigation.h"
-#include "cafCadNavigation.h"
+#include "RiuCadNavigation.h"
+#include "RiuRmsNavigation.h"
+#include "RiuGeoQuestNavigation.h"
 #include "RiaSocketServer.h"
 #include "cafUiProcess.h"
 //
@@ -96,10 +98,11 @@ void AppEnum< RiaApplication::RINavigationPolicy >::setUp()
 {
     addItem(RiaApplication::NAVIGATION_POLICY_CEETRON,  "NAVIGATION_POLICY_CEETRON",    "Ceetron");
     addItem(RiaApplication::NAVIGATION_POLICY_CAD,      "NAVIGATION_POLICY_CAD",        "CAD");
+    addItem(RiaApplication::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST",   "GEOQUEST");
+    addItem(RiaApplication::NAVIGATION_POLICY_RMS,      "NAVIGATION_POLICY_RMS",        "RMS");
     setDefault(RiaApplication::NAVIGATION_POLICY_CAD);
 }
 }
-
 
 namespace RegTestNames
 {
@@ -1380,11 +1383,23 @@ void RiaApplication::applyPreferences()
     {
         if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_CAD)
         {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CadNavigation);
+            m_activeReservoirView->viewer()->setNavigationPolicy(new RiuCadNavigation);
+        }
+        else if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_CEETRON)
+        {
+            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CeetronPlusNavigation);
+        }
+        else if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_GEOQUEST)
+        {
+            m_activeReservoirView->viewer()->setNavigationPolicy(new RiuGeoQuestNavigation);
+        }
+        else if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_RMS)
+        {
+            m_activeReservoirView->viewer()->setNavigationPolicy(new RiuRmsNavigation);
         }
         else
         {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CeetronPlusNavigation);
+            CVF_ASSERT(0);
         }
 
         m_activeReservoirView->viewer()->enablePerfInfoHud(m_preferences->showHud());

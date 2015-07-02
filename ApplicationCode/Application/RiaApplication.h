@@ -61,7 +61,9 @@ public:
     enum RINavigationPolicy
     {
         NAVIGATION_POLICY_CEETRON,
-        NAVIGATION_POLICY_CAD
+        NAVIGATION_POLICY_CAD,
+        NAVIGATION_POLICY_GEOQUEST,
+        NAVIGATION_POLICY_RMS
     };
 
 public:

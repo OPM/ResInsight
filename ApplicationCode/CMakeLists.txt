@@ -59,7 +59,9 @@ set( USER_INTERFACE_FILES
     UserInterface/RiuMultiCaseImportDialog.cpp
     UserInterface/RiuProcessMonitor.cpp
     UserInterface/RiuViewerCommands.cpp
-
+    UserInterface/RiuCadNavigation.cpp
+    UserInterface/RiuRmsNavigation.cpp
+	UserInterface/RiuGeoQuestNavigation.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
