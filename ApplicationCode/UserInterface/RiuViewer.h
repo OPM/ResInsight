@@ -71,6 +71,7 @@ public:
     void            removeAllColorLegends();
     void            addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend);
 
+    void            updateNavigationPolicy();
  
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);

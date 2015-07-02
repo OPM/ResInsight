@@ -44,10 +44,6 @@
 #include "RimFaultCollection.h"
 #include "RimEclipseFaultColors.h"
 
-#include "cafCeetronNavigation.h"
-#include "RiuCadNavigation.h"
-#include "RiuRmsNavigation.h"
-#include "RiuGeoQuestNavigation.h"
 #include "RiaSocketServer.h"
 #include "cafUiProcess.h"
 //
@@ -1381,27 +1377,7 @@ void RiaApplication::applyPreferences()
 {
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {
-        if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_CAD)
-        {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new RiuCadNavigation);
-        }
-        else if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_CEETRON)
-        {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CeetronPlusNavigation);
-        }
-        else if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_GEOQUEST)
-        {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new RiuGeoQuestNavigation);
-        }
-        else if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_RMS)
-        {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new RiuRmsNavigation);
-        }
-        else
-        {
-            CVF_ASSERT(0);
-        }
-
+        m_activeReservoirView->viewer()->updateNavigationPolicy();
         m_activeReservoirView->viewer()->enablePerfInfoHud(m_preferences->showHud());
     }
 

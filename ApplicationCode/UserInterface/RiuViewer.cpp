@@ -26,6 +26,11 @@
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
 
+#include "cafCeetronPlusNavigation.h"
+#include "RiuCadNavigation.h"
+#include "RiuRmsNavigation.h"
+#include "RiuGeoQuestNavigation.h"
+
 #include "RimEclipseView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
@@ -455,5 +460,34 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
         firstRendering->addOverlayItem(legend);
 
         m_visibleLegends.push_back(legend);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateNavigationPolicy()
+{
+    switch (RiaApplication::instance()->navigationPolicy())
+    {
+        case RiaApplication::NAVIGATION_POLICY_CAD:
+            setNavigationPolicy(new RiuCadNavigation);
+            break;
+
+        case RiaApplication::NAVIGATION_POLICY_CEETRON:
+            setNavigationPolicy(new caf::CeetronPlusNavigation);
+            break;
+
+        case RiaApplication::NAVIGATION_POLICY_GEOQUEST:
+            setNavigationPolicy(new RiuGeoQuestNavigation);
+            break;
+
+        case RiaApplication::NAVIGATION_POLICY_RMS:
+            setNavigationPolicy(new RiuRmsNavigation);
+            break;
+
+        default:
+            CVF_ASSERT(0);
+            break;
     }
 }

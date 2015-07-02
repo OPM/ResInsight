@@ -6,10 +6,6 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiuViewer.h"
 #include "RiuMainWindow.h"
-#include "cafCeetronPlusNavigation.h"
-#include "RiuCadNavigation.h"
-#include "RiuRmsNavigation.h"
-#include "RiuGeoQuestNavigation.h"
 #include "cvfCamera.h"
 #include "cvfModel.h"
 #include "cvfModelBasicList.h"
@@ -141,26 +137,7 @@ void RimView::updateViewerWidget()
            
             this->resetLegendsInViewer();
 
-            if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CAD)
-            {
-                m_viewer->setNavigationPolicy(new RiuCadNavigation);
-            }
-            else if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
-            {
-                m_viewer->setNavigationPolicy(new caf::CeetronPlusNavigation);
-            }
-            else if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_GEOQUEST)
-            {
-                m_viewer->setNavigationPolicy(new RiuGeoQuestNavigation);
-            }
-            else if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_RMS)
-            {
-                m_viewer->setNavigationPolicy(new RiuRmsNavigation);
-            }
-            else
-            {
-                CVF_ASSERT(0);
-            }
+            m_viewer->updateNavigationPolicy();
             m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
 
             isViewerCreated = true;
