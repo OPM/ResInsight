@@ -61,7 +61,7 @@ bool RiuGeoQuestNavigation::handleInputEvent(QInputEvent* inputEvent)
             int translatedMousePosX = me->x();
             int translatedMousePosY = m_viewer->height() - me->y();
 
-            if (me->button() == Qt::RightButton)
+            if (me->button() == Qt::LeftButton)
             {
                 cvf::HitItemCollection hic;
                 bool hitSomething = m_viewer->rayPick(me->x(), me->y(), &hic);
@@ -100,7 +100,7 @@ bool RiuGeoQuestNavigation::handleInputEvent(QInputEvent* inputEvent)
             if (m_isNavigating)
             {
                 QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
-                if (me->button() == Qt::RightButton || me->button() == Qt::MidButton )
+                if (me->button() == Qt::LeftButton || me->button() == Qt::MidButton )
                 {
                     m_trackball->endNavigation();
 
@@ -161,7 +161,7 @@ bool RiuGeoQuestNavigation::handleInputEvent(QInputEvent* inputEvent)
                     else
                         ray = m_viewer->mainCamera()->rayFromWindowCoordinates((int)(1.0*translatedMousePosX), (int)(1.0*translatedMousePosY));
 
-                    zoomAlongRay(ray.p(), delta);
+                    zoomAlongRay(ray.p(), -delta);
 
                 }
                 isEventHandled = true;
