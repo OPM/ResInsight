@@ -10,6 +10,17 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
 
 
 include_directories(
+    ${cafPdmCore_SOURCE_DIR}
+    ${cafPdmUiCore_SOURCE_DIR}
+    ${cafPdmXml_SOURCE_DIR}
+    ${cafProjectDataModel_SOURCE_DIR}
+
+    ${cafCommand_SOURCE_DIR}
+    ${cafViewer_SOURCE_DIR}
+    ${cafUserInterface_SOURCE_DIR}
+    ${cafPdmCvf_SOURCE_DIR}
+    ${CommonCode_SOURCE_DIR}
+
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
@@ -290,13 +301,28 @@ endif ()
 set( LINK_LIBRARIES
     WellPathImportSsihub
 
-    cafPdmCvf
+#    cafPdmCvf
+#    cafUserInterface
+#    cafProjectDataModel
+#    cafViewer
+#    cafAnimControl
+#	cafTensor
+#    CommonCode
+
+    #cafPdmCore
+    #cafPdmUiCore
+    cafPdmXml
+    #cafProjectDataModel
+    
     cafUserInterface
-    cafProjectDataModel
     cafViewer
     cafAnimControl
+    cafCommand
+    cafPdmCvf
+
 	cafTensor
     CommonCode
+    
     LibGuiQt
     LibViewing
     LibRender
