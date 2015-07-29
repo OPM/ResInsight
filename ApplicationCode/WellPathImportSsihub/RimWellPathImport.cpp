@@ -168,17 +168,17 @@ void RimWellPathImport::updateFieldVisibility()
 {
     if (utmFilterMode == UTM_FILTER_CUSTOM)
     {
-        north.setUiReadOnly(false);
-        south.setUiReadOnly(false);
-        east.setUiReadOnly(false);
-        west.setUiReadOnly(false);
+        north.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(false);
+        south.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(false);
+        east.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(false);
+        west.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(false);
     }
     else
     {
-        north.setUiReadOnly(true);
-        south.setUiReadOnly(true);
-        east.setUiReadOnly(true);
-        west.setUiReadOnly(true);
+        north.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
+        south.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
+        east.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
+        west.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
     }
 }
 

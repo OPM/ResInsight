@@ -590,7 +590,7 @@ void RiuWellImportWizard::slotCurrentIdChanged(int currentId)
             for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
             {
                 RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
-                oilField->wells.setUiHidden(hideWells);
+                oilField->wells.capability<caf::PdmUiFieldHandle>()->setUiHidden(hideWells);
             }
         }
     }
@@ -775,7 +775,7 @@ FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, QWidge
 
     // Tree view
     caf::PdmUiTreeView* treeView = new caf::PdmUiTreeView(this);
-    treeView->setPdmObject(wellPathImport);
+    treeView->setPdmItem(wellPathImport);
     layout->addWidget(treeView);
     layout->setStretchFactor(treeView, 10);
 
@@ -896,7 +896,7 @@ void WellSelectionPage::buildWellTreeView()
         if (oilRegion->selected)
         {
             caf::PdmObjectGroup* regGroup = new caf::PdmObjectGroup;
-            regGroup->setUiName(oilRegion->userDescriptionField()->uiValue().toString());
+            regGroup->setUiName(uiField(oilRegion->userDescriptionField())->uiValue().toString());
 
             m_regionsWithVisibleWells->objects.push_back(regGroup);
 
@@ -906,7 +906,7 @@ void WellSelectionPage::buildWellTreeView()
                 if (oilField->selected)
                 {
                     caf::PdmObjectGroup* fieldGroup = new caf::PdmObjectGroup;
-                    fieldGroup->setUiName(oilField->userDescriptionField()->uiValue().toString());
+                    fieldGroup->setUiName(uiField(oilField->userDescriptionField())->uiValue().toString());
 
                     regGroup->objects.push_back(fieldGroup);
 
@@ -920,7 +920,7 @@ void WellSelectionPage::buildWellTreeView()
         }
     }
 
-    m_wellSelectionTreeView->setPdmObject(m_regionsWithVisibleWells);
+    m_wellSelectionTreeView->setPdmItem(m_regionsWithVisibleWells);
     m_regionsWithVisibleWells->updateConnectedEditors();
     
     m_wellSelectionTreeView->treeView()->expandAll();
