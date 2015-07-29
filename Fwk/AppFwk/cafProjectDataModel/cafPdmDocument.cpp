@@ -38,69 +38,20 @@
 #include "cafPdmDocument.h"
 
 #include <QFile>
+#include <QXmlStreamReader>
 
 namespace caf
 {
-
-CAF_PDM_SOURCE_INIT(PdmObjectGroup, "PdmObjectGroup");
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmObjectGroup::PdmObjectGroup()
-{
-    CAF_PDM_InitObject("Object Group", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects","", "", "", "")
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmObjectGroup::~PdmObjectGroup()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmObjectGroup::deleteObjects()
-{
-    size_t it;
-    for (it = 0; it != objects.size(); ++it)
-    {
-        delete objects[it];
-    }
-    removeNullPtrs();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmObjectGroup::removeNullPtrs()
-{
-    objects.removeChildObject(NULL);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmObjectGroup::addObject(PdmObject * obj)
-{
-    objects.push_back(obj);
-}
-
-
-
 
 CAF_PDM_SOURCE_INIT(PdmDocument, "PdmDocument");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmDocument::PdmDocument()
+PdmDocument::PdmDocument() 
 {
-    CAF_PDM_InitObject("File", "", "", "");
-    CAF_PDM_InitField(&fileName, "DocumentFileName", QString(""), "File Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fileName, "DocumentFileName", "File Name", "", "", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,7 +84,7 @@ void PdmDocument::readFile(QIODevice* xmlFile)
                 // Error: This is not a Ceetron Pdm based xml document
                 return;
             }
-            readFields(xmlStream);
+            readFields(xmlStream, PdmDefaultObjectFactory::instance());
         }
     }
 
@@ -141,7 +92,6 @@ void PdmDocument::readFile(QIODevice* xmlFile)
     // after everything is read from file
 
     PdmDocument::initAfterReadTraversal(this);
-    PdmDocument::updateUiIconStateRecursively(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,17 +127,15 @@ void PdmDocument::writeFile(QIODevice* xmlFile)
     xmlStream.writeEndDocument();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmDocument::setupBeforeSaveTraversal(PdmObject * object)
+
+void PdmDocument::setupBeforeSaveTraversal(PdmObjectHandle * object)
 {
     if (object == NULL) return;
 
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);
 
-    std::vector<PdmObject*> children;
+    std::vector<PdmObjectHandle*> children;
     size_t fIdx;
     for (fIdx = 0; fIdx < fields.size(); ++fIdx)
     {
@@ -200,20 +148,24 @@ void PdmDocument::setupBeforeSaveTraversal(PdmObject * object)
         PdmDocument::setupBeforeSaveTraversal(children[cIdx]);
     }
 
-    object->setupBeforeSave();
+    PdmXmlObjectHandle* xmlObject = xmlObj(object);
+    if (xmlObject)
+    {
+        xmlObject->setupBeforeSave();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::initAfterReadTraversal(PdmObject* object)
+void PdmDocument::initAfterReadTraversal(PdmObjectHandle* object)
 {
     if (object == NULL) return;
 
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);
 
-    std::vector<PdmObject*> children;
+    std::vector<PdmObjectHandle*> children;
     size_t fIdx;
     for (fIdx = 0; fIdx < fields.size(); ++fIdx)
     {
@@ -226,20 +178,24 @@ void PdmDocument::initAfterReadTraversal(PdmObject* object)
         PdmDocument::initAfterReadTraversal(children[cIdx]);
     }
 
-    object->initAfterRead();
+    PdmXmlObjectHandle* xmlObject = xmlObj(object);
+    if (xmlObject)
+    {
+        xmlObject->initAfterRead();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::updateUiIconStateRecursively(PdmObject* object)
+void PdmDocument::updateUiIconStateRecursively(PdmObjectHandle* object)
 {
     if (object == NULL) return;
 
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);
 
-    std::vector<PdmObject*> children;
+    std::vector<PdmObjectHandle*> children;
     size_t fIdx;
     for (fIdx = 0; fIdx < fields.size(); ++fIdx)
     {
@@ -252,8 +208,13 @@ void PdmDocument::updateUiIconStateRecursively(PdmObject* object)
         PdmDocument::updateUiIconStateRecursively(children[cIdx]);
     }
 
-    object->updateUiIconFromToggleField();
+    PdmUiObjectHandle* uiObjectHandle = uiObj(object);
+    if (uiObjectHandle)
+    {
+        uiObjectHandle->updateUiIconFromToggleField();
+    }
 }
+
 
 } //End of namespace caf
 

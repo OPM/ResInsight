@@ -64,7 +64,11 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     assert(!m_label.isNull());
 
     PdmUiCheckBoxEditorAttribute attributes;
-    field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
+    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+    }
 
     if (attributes.m_useNativeCheckBoxLabel)
     {

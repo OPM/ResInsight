@@ -1,0 +1,93 @@
+#pragma once
+
+#include "cafPdmBase.h"
+
+class QString;
+
+#include <vector>
+#include <set>
+
+
+namespace caf
+{
+
+class PdmObjectCapability;
+class PdmFieldHandle;
+
+
+//==================================================================================================
+/// The base class of all objects
+//==================================================================================================
+class PdmObjectHandle
+{
+public:
+    PdmObjectHandle()           { m_parentField = NULL;  }
+    virtual ~PdmObjectHandle();
+
+    /// The registered fields contained in this PdmObject. 
+    void                    fields(std::vector<PdmFieldHandle*>& fields) const;
+    PdmFieldHandle*         findField(const QString& keyword);
+
+    /// The field referencing this object as a child
+    PdmFieldHandle*         parentField() const;
+
+    // PtrReferences
+    /// The PdmPtrField's containing pointers to this PdmObjecthandle 
+    /// Use ownerObject() on the fieldHandle to get the PdmObjectHandle 
+    void                    referringPtrFields(std::vector<PdmFieldHandle*>& fieldsReferringToMe) const;
+    /// Convenience method to get the objects pointing to this field 
+    void                    objectsWithReferringPtrFields(std::vector<PdmObjectHandle*>& objects) const;
+
+    // Object capabilities
+    void                    addCapability(PdmObjectCapability* capability, bool takeOwnership) { m_capabilities.push_back(std::make_pair(capability, takeOwnership)); }
+
+    template <typename CapabilityType>
+    CapabilityType* capability() 
+    {
+        for (size_t i = 0; i < m_capabilities.size(); ++i)
+        {
+            CapabilityType* capability = dynamic_cast<CapabilityType*>(m_capabilities[i].first);
+            if (capability) return capability;
+        }
+        return NULL;
+    }
+
+protected: 
+    void addField(PdmFieldHandle* field, const QString& keyword);
+
+private:
+    PDM_DISABLE_COPY_AND_ASSIGN(PdmObjectHandle);
+
+    // Fields
+    std::vector<PdmFieldHandle*>    m_fields;
+
+    // Capabilities
+    std::vector<std::pair<PdmObjectCapability*, bool> > m_capabilities;
+
+    // Child/Parent Relationships
+    void                            setAsParentField(PdmFieldHandle* parentField);
+    void                            removeAsParentField(PdmFieldHandle* parentField);
+    PdmFieldHandle*                 m_parentField;
+
+    // PtrReferences
+    void                            addReferencingPtrField(PdmFieldHandle* fieldReferringToMe);
+    void                            removeReferencingPtrField(PdmFieldHandle* fieldReferringToMe);
+    std::multiset<PdmFieldHandle*>  m_referencingPtrFields;
+
+    // Give access to set/removeAsParentField
+    template < class T > friend class PdmChildArrayField;
+    template < class T > friend class PdmChildField;
+    template < class T > friend class PdmPtrField;
+    template < class T > friend class PdmField; // For backwards compatibility layer
+
+    template < class T > friend class PdmFieldXmlCap; 
+    
+    static const char* classKeywordStatic() { return "PdmObjectHandle";} // For PdmXmlFieldCap to be able to handle fields of PdmObjectHandle directly
+
+    // Support system for PdmPointer
+    friend class PdmPointerImpl;
+    std::set<PdmObjectHandle**>         m_pointersReferencingMe;
+};
+
+} // End of namespace caf
+

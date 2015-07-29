@@ -73,12 +73,12 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class UiTableModelPdm : public QAbstractTableModel
+class UiListViewModelPdm : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    UiTableModelPdm(QObject* parent);
+    UiListViewModelPdm(QObject* parent);
     
     void                setPdmData(PdmObjectGroup* objectGroup, const QString& configName);
 
@@ -118,7 +118,7 @@ private:
     QLayout*            m_layout;
 
     QTableView*         m_tableView;
-    UiTableModelPdm*    m_tableModelPdm;
+    UiListViewModelPdm* m_tableModelPdm;
 };
 
 

@@ -49,9 +49,9 @@
 namespace caf
 {
 
-class PdmObject;
+class PdmObjectHandle;
 
-typedef UiTreeItem<PdmPointer<PdmObject> > PdmUiTreeItem;
+typedef UiTreeItem<PdmPointer<PdmObjectHandle> > PdmUiTreeItem;
 
 //==================================================================================================
 /// 
@@ -69,8 +69,8 @@ public:
     void                    emitDataChanged(const QModelIndex& index);
 
     static PdmUiTreeItem*   getTreeItemFromIndex(const QModelIndex& index);
-    QModelIndex             getModelIndexFromPdmObject(const PdmObject* object) const;
-    void                    updateUiSubTree(PdmObject* root);
+    QModelIndex             getModelIndexFromPdmObject(const PdmObjectHandle* object) const;
+    void                    updateUiSubTree(PdmObjectHandle* root);
 
     void                    notifyModelChanged();
     void                    setColumnHeaders(const QStringList& columnHeaders);
@@ -91,7 +91,7 @@ public:
     virtual bool            removeRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
 
 protected:
-    QModelIndex             getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const;
+    QModelIndex             getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObjectHandle * object) const;
 private:
     void                    updateModelSubTree(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeItem* uiModelSubTreeRoot, PdmUiTreeItem* updatedPdmSubTreeRoot);
 
@@ -107,7 +107,7 @@ private:
 class UiTreeItemBuilderPdm
 {
 public:
-    static PdmUiTreeItem* buildViewItems(PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* object);
+    static PdmUiTreeItem* buildViewItems(PdmUiTreeItem* parentTreeItem, int position, caf::PdmObjectHandle* object);
 };
 
 } // End of namespace caf

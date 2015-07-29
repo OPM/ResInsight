@@ -2,7 +2,17 @@ cmake_minimum_required (VERSION 2.8)
 
 project (cafViewer)
 
+# Qt
+find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
+include (${QT_USE_FILE})
+
 include_directories(
+    ${LibCore_SOURCE_DIR}
+    ${LibGeometry_SOURCE_DIR}
+    ${LibViewing_SOURCE_DIR}
+    ${LibRender_SOURCE_DIR}
+    ${LibGuiQt_SOURCE_DIR}
+
     ${cafAnimControl_SOURCE_DIR}
 )
 

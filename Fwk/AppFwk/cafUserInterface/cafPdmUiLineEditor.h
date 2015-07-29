@@ -36,22 +36,23 @@
 
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
+
+#include <QLabel>
+#include <QLineEdit>
+#include <QPointer>
 #include <QString>
 #include <QWidget>
-#include <QPointer>
-#include <QLineEdit>
-#include <QLabel>
 
 class QGridLayout;
 
 namespace caf 
 {
 
-//==================================================================================================
-/// The default editor for several PdmFields.
-//==================================================================================================
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class PdmUiLineEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -69,6 +70,37 @@ public:
 };
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiLineEditorAttributeUniqueValues : public PdmUiEditorAttribute
+{
+public:
+    PdmUiLineEditorAttributeUniqueValues()
+    {}
+
+public:
+    std::set<int> usedIds;
+    QString errorMessage;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiLineEditorAttributeUiDisplayString : public PdmUiEditorAttribute
+{
+public:
+    PdmUiLineEditorAttributeUiDisplayString()
+    {}
+
+public:
+    QString m_displayString;
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class PdmUiLineEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -85,6 +117,9 @@ protected:
 
 protected slots:
     void                slotEditingFinished();
+
+private:
+    bool                isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
 
 private:
     QPointer<QLineEdit> m_lineEdit;

@@ -42,7 +42,7 @@
 
 #include <QHBoxLayout>
 #include "cafPdmUiTreeViewEditor.h"
-
+#include <QTreeView>
 
 namespace caf
 {
@@ -55,9 +55,7 @@ PdmUiTreeView::PdmUiTreeView(QWidget* parent, Qt::WindowFlags f)
     : QWidget (parent, f)
 {
     m_layout = new QVBoxLayout(this);
-    m_layout->insertStretch(1, 1);
     m_layout->setContentsMargins(0, 0, 0, 0);
-    m_layout->setSpacing(0);
 
     setLayout(m_layout);
 
@@ -66,7 +64,8 @@ PdmUiTreeView::PdmUiTreeView(QWidget* parent, Qt::WindowFlags f)
     QWidget * widget = m_treeViewEditor->getOrCreateWidget(this);
 
     this->m_layout->insertWidget(0, widget);
-    this->m_layout->setStretchFactor(widget, 10);
+
+    connect(treeView()->selectionModel(), SIGNAL(selectionChanged( const QItemSelection & , const QItemSelection & )), SLOT(slotOnSelectionChanged( const QItemSelection & , const QItemSelection & )));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,9 +93,10 @@ void PdmUiTreeView::setUiConfigurationName(QString uiConfigName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::setPdmObject(caf::PdmObject* object)
+void PdmUiTreeView::setPdmItem(caf::PdmUiItem* object)
 {
-    m_treeViewEditor->setPdmObject(object);
+    m_treeViewEditor->setPdmItemRoot(object);
+    m_treeViewEditor->updateUi(m_uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +105,38 @@ void PdmUiTreeView::setPdmObject(caf::PdmObject* object)
 QTreeView* PdmUiTreeView::treeView()
 {
     return m_treeViewEditor->treeView();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::selectedObjects(std::vector<PdmUiItem*>& objects)
+{
+    m_treeViewEditor->selectedUiItems(objects);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
+{
+    emit selectionChanged();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::enableDefaultContextMenu(bool enable)
+{
+    m_treeViewEditor->enableDefaultContextMenu(enable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::setCurrentSelectionToCurrentEditorSelection(bool enable)
+{
+    m_treeViewEditor->setCurrentSelectionToCurrentEditorSelection(enable);
 }
 
 } //End of namespace caf

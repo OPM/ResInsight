@@ -74,7 +74,7 @@ protected:
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
 
 protected slots:
-    void                slotCurrentIndexChanged(int index);
+    void                slotIndexActivated(int index);
 
 private:
     QPointer<QComboBox> m_comboBox;

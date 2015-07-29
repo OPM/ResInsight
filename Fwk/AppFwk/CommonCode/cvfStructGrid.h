@@ -41,7 +41,7 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-#include "../cafProjectDataModel/cafAppEnum.h"
+#include "cafAppEnum.h"
 
 
 

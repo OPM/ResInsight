@@ -44,7 +44,7 @@ class QVBoxLayout;
 namespace caf
 {
 
-class PdmObject;
+class PdmObjectHandle;
 class PdmUiObjectEditorHandle;
 
 //==================================================================================================
@@ -59,9 +59,9 @@ public:
     ~PdmUiPropertyView();
 
     void setUiConfigurationName(QString uiConfigName);
-    caf::PdmObject* currentObject();
+    caf::PdmObjectHandle* currentObject();
 public slots:
-    void showProperties(caf::PdmObject* object);
+    void showProperties(caf::PdmObjectHandle* object);
 
 private:
     PdmUiObjectEditorHandle*    m_currentObjectView; 

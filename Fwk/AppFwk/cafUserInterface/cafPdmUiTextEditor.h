@@ -50,9 +50,8 @@ namespace caf
 {
 
 //==================================================================================================
-/// An editor to show (and possibly edit?) formatted larger portions of text
+/// 
 //==================================================================================================
-
 class PdmUiTextEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -73,7 +72,26 @@ public:
     bool        showSaveButton;
 };
 
+//==================================================================================================
+/// Override focus out event and emit editinghFinished to avoid multiple field changed events
+//==================================================================================================
+class TextEdit : public QTextEdit
+{
+    Q_OBJECT
+public:
+    explicit TextEdit(QWidget *parent = 0);
 
+protected:
+    virtual void focusOutEvent(QFocusEvent *e);
+
+signals: 
+    void editingFinished(); 
+};
+
+
+//==================================================================================================
+/// An editor to show (and possibly edit?) formatted larger portions of text
+//==================================================================================================
 class PdmUiTextEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -89,11 +107,10 @@ protected:
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
 
 protected slots:
-    void                slotTextChanged();
-    void                slotSaveButtonClicked();
+    void                slotSetValueToField();
 
 private:
-    QPointer<QTextEdit>     m_textEdit;
+    QPointer<TextEdit>      m_textEdit;
     QPointer<QPushButton>   m_saveButton;
     QPointer<QLabel>        m_label;
 

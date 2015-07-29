@@ -44,7 +44,7 @@ class QVBoxLayout;
 namespace caf
 {
 
-class PdmObject;
+class PdmObjectHandle;
 class PdmUiListViewEditor;
 
 //==================================================================================================
@@ -57,7 +57,7 @@ public:
     PdmUiListView(QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~PdmUiListView();
 
-    void setPdmObject(caf::PdmObject* object);
+    void setPdmObject(caf::PdmObjectHandle* object);
 
 private:
     PdmUiListViewEditor*    m_listViewEditor; 

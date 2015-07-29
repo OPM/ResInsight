@@ -1,8 +1,9 @@
 #pragma once
 
-#include "cafPdmField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmChildArrayField.h"
 
 #if 0
 class PdmPointerTarget
@@ -47,6 +48,6 @@ public:
 
     void doSome();
 
-    caf::PdmPointersField<Child*>           m_simpleObjectsField;
-    caf::PdmField<Child*>           m_simpleObjectF;
+    caf::PdmChildArrayField<Child*> m_simpleObjectsField;
+    caf::PdmChildField<Child*>           m_simpleObjectF;
 };

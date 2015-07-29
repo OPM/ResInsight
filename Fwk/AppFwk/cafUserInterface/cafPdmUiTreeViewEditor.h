@@ -37,25 +37,27 @@
 
 #pragma once
 
-#include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiTreeEditorHandle.h"
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QWidget>
+#include <QAbstractItemModel>
 #include <QPointer>
+#include <QWidget>
+
 
 class MySortFilterProxyModel;
 
 class QGridLayout;
-class QVBoxLayout;
+class QMenu;
 class QTreeView;
+class QVBoxLayout;
 
 namespace caf 
 {
-class PdmUiFieldEditorHandle;
-class PdmUiItem;
-class UiTreeModelPdm;
-class PdmUiProxyEditorHandle;
 
+class PdmUiItem;
+class PdmUiTreeViewModel;
+class PdmChildArrayFieldHandle;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -72,35 +74,50 @@ public:
 };
 
 
-class PdmUiTreeViewEditor : public PdmUiObjectEditorHandle
+class PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
 {
+    Q_OBJECT
 public:
     PdmUiTreeViewEditor();
     ~PdmUiTreeViewEditor();
 
+    void                enableDefaultContextMenu(bool enable);
+    void                setCurrentSelectionToCurrentEditorSelection(bool enable);
+
     QTreeView*          treeView();
 
+    void                selectedUiItems(std::vector<PdmUiItem*>& objects);
+    QWidget*            createWidget(QWidget* parent);
+
+
 protected:
-    virtual QWidget*    createWidget(QWidget* parent);
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
 
-private:
-    void                addEditorRecursively(PdmObject* pdmObject, PdmUiEditorHandle* editorHandle);
+    virtual void        updateMySubTree(PdmUiItem* uiItem);
 
-    static void         childObjects(PdmObject* pdmObject, std::vector<PdmObject*>& children);
+    void                updateContextMenuSignals();
+
+private slots:
+    void                customMenuRequested(QPoint pos);
+    void                slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
+
+private:
+    void                uiItemsFromModelIndexList(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
+    
+    PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
+
 
 private:
     QPointer<QWidget>   m_mainWidget;
     QVBoxLayout*        m_layout;
 
-    QTreeView*              m_treeView;
-    UiTreeModelPdm*         m_treeModelPdm;
-    MySortFilterProxyModel* m_proxyTreeModelPdm;
-
-    // Forward update events to the tree view editor connected to Pdm root object using a proxy editor
-    PdmUiProxyEditorHandle* m_proxyEditor;
+    QTreeView*          m_treeView;
+    PdmUiTreeViewModel* m_treeViewModel;
 
     PdmUiTreeViewEditorAttribute m_editorAttributes;
+
+    bool                m_useDefaultContextMenu;
+    bool                m_currentSelectionFollowsEditorSelection;
 };
 
 

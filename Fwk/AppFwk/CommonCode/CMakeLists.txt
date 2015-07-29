@@ -2,6 +2,23 @@ cmake_minimum_required (VERSION 2.8)
 
 project (CommonCode)
 
+# Qt
+find_package ( Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl )
+include (${QT_USE_FILE})
+
+# Open GL
+find_package( OpenGL )
+
+include_directories(
+    ${LibCore_SOURCE_DIR}
+    ${LibGeometry_SOURCE_DIR}
+    ${LibGuiQt_SOURCE_DIR}
+    ${LibRender_SOURCE_DIR}
+    ${LibViewing_SOURCE_DIR}
+
+	${cafPdmCore_SOURCE_DIR}
+)
+
 # These headers need to go through Qt's MOC compiler
 set( QOBJECT_HEADERS    
     cafMessagePanel.h

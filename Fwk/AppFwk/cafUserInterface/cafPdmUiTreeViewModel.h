@@ -34,26 +34,22 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafUiTreeItem.h"
 
 #include <QAbstractItemModel>
 #include <QStringList>
-
-#include <assert.h>
-#include "cafPdmPointer.h"
-
+#include "cafPdmUiTreeOrdering.h"
 
 namespace caf
 {
 
-class PdmObject;
-
-//typedef UiTreeItem<PdmPointer<PdmObject> > PdmUiTreeItem;
+class PdmObjectHandle;
+class PdmUiItem;
+class PdmUiTreeViewEditor;
 class PdmUiTreeOrdering;
-typedef UiTreeItem<PdmUiTreeOrdering* > PdmUiTreeItem;
+
 //==================================================================================================
 //
 // This class is intended to replace UiTreeModelPdm (cafUiTreeModelPdm)
@@ -64,51 +60,52 @@ class PdmUiTreeViewModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    PdmUiTreeViewModel(QObject* parent);
+    PdmUiTreeViewModel(PdmUiTreeViewEditor* treeViewEditor);
 
-    void                    setTreeItemRoot(PdmUiTreeItem* root);
-    PdmUiTreeItem*          treeItemRoot();
+    void                    setPdmItemRoot(PdmUiItem* rootItem);
+    void                    updateSubTree(PdmUiItem* subTreeRoot);
 
-    void                    emitDataChanged(const QModelIndex& index);
-
-    static PdmUiTreeItem*   getTreeItemFromIndex(const QModelIndex& index);
-    QModelIndex             getModelIndexFromPdmObject(const PdmObject* object) const;
-    void                    updateUiSubTree(PdmObject* root);
-
-    void                    notifyModelChanged();
     void                    setColumnHeaders(const QStringList& columnHeaders);
+    void                    setUiConfigName(const QString& uiConfigName) { m_uiConfigName = uiConfigName; }
+ 
+    void                    selectedUiItems(std::vector<PdmUiItem*>& objects);
 
-public:
+    PdmUiTreeOrdering*      treeItemFromIndex(const QModelIndex& index) const;
+
+private:
+    void                    updateSubTreeRecursive(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);
+
+    QModelIndex             findModelIndex(const PdmUiItem* object) const;
+    QModelIndex             findModelIndexRecursive(const QModelIndex& currentIndex, const PdmUiItem * object) const;
+
+    void                    resetTree(PdmUiTreeOrdering* root);
+    void                    emitDataChanged(const QModelIndex& index);
+    void                    updateEditorsForSubTree(PdmUiTreeOrdering* root);
+    static int              findChildItemIndex(const PdmUiTreeOrdering * parent, const PdmUiItem* pdmItemToFindInChildren);
+
+    PdmUiTreeOrdering*      m_treeOrderingRoot;
+    QStringList             m_columnHeaders;
+    QString                 m_uiConfigName;
+
+    PdmUiTreeViewEditor*    m_treeViewEditor;
+
+private:
+
     // Overrides from QAbstractItemModel
+
     virtual QModelIndex     index(int row, int column, const QModelIndex &parentIndex = QModelIndex( )) const;
     virtual QModelIndex     parent(const QModelIndex &index) const;
+
     virtual int             rowCount(const QModelIndex &parentIndex = QModelIndex( ) ) const;
     virtual int             columnCount(const QModelIndex &parentIndex = QModelIndex( ) ) const;
+
     virtual QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole ) const;
-    virtual QVariant        headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
-    
-    virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    virtual QVariant        headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
-
-protected:
-    QModelIndex             getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const;
-private:
-    void                    updateModelSubTree(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeItem* uiModelSubTreeRoot, PdmUiTreeItem* updatedPdmSubTreeRoot);
-
-    PdmUiTreeItem*          m_treeItemRoot;
-    QStringList             m_columnHeaders;
+    virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
 };
 
 
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class UiTreeItemBuilderPdm
-{
-public:
-    static PdmUiTreeItem* buildViewItems(PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* object);
-};
 
 } // End of namespace caf

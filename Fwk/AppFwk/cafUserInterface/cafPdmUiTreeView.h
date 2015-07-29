@@ -41,11 +41,13 @@
 
 class QVBoxLayout;
 class QTreeView;
+class QItemSelection;
+class QMenu;
 
 namespace caf
 {
 
-class PdmObject;
+class PdmUiItem;
 class PdmUiTreeViewEditor;
 
 //==================================================================================================
@@ -59,12 +61,24 @@ public:
     PdmUiTreeView(QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~PdmUiTreeView();
 
+    void        enableDefaultContextMenu(bool enable);
+    void        setCurrentSelectionToCurrentEditorSelection(bool enable);
+
+
     void        setUiConfigurationName(QString uiConfigName);
-    void        setPdmObject(caf::PdmObject* object);
+    void        setPdmItem(caf::PdmUiItem* object);
 
     QTreeView*  treeView();
 
+    void        selectedObjects(std::vector<PdmUiItem*>& objects);
+
+signals:
+    void        selectionChanged();
+
+private slots:
+    void        slotOnSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
 private:
+
     PdmUiTreeViewEditor*    m_treeViewEditor; 
     QString                 m_uiConfigName;
     QVBoxLayout*            m_layout;
