@@ -17,6 +17,7 @@ include_directories(
 
     ${cafCommand_SOURCE_DIR}
     ${cafViewer_SOURCE_DIR}
+    ${cafAnimControl_SOURCE_DIR}
     ${cafUserInterface_SOURCE_DIR}
     ${cafPdmCvf_SOURCE_DIR}
     ${CommonCode_SOURCE_DIR}
