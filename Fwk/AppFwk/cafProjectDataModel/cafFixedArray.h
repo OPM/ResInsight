@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include "cvfAssert.h"
+
 namespace caf
 {
 
