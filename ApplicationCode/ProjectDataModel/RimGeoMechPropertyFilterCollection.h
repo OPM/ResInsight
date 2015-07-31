@@ -19,8 +19,9 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 class RimGeoMechPropertyFilter;
@@ -43,7 +44,7 @@ public:
 
     // Fields:
     caf::PdmField<bool> active;
-    caf::PdmPointersField<RimGeoMechPropertyFilter*> propertyFilters;
+    caf::PdmChildArrayField<RimGeoMechPropertyFilter*> propertyFilters;
 
     // Methods
     RimGeoMechPropertyFilter*  createAndAppendPropertyFilter();

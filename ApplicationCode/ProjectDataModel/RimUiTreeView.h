@@ -91,7 +91,7 @@ private slots:
     void slotComputeStatistics();
     
     void slotAddCaseGroup();
-    void slotDeleteObjectFromPdmPointersField();
+    void slotDeleteObjectFromPdmChildArrayField();
 
     void slotAddScriptPath();
     void slotDeleteScriptPath(); 
@@ -108,7 +108,7 @@ private slots:
     void slotDeleteAllWellPaths();
 
 signals:
-    void selectedObjectChanged( caf::PdmObject* pdmObject );
+    void selectedObjectChanged( caf::PdmObjectHandle* pdmObject );
 
 public:
     enum SelectionToggleType

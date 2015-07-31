@@ -28,11 +28,12 @@
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
+#include "RimCommandObject.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -57,20 +58,20 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");
-    m_matrixModelResults.setUiHidden(true);
+    m_matrixModelResults.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
-    m_fractureModelResults.setUiHidden(true);
+    m_fractureModelResults.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
     CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&filesContainingFaults,    "FilesContainingFaults", "", "", "", "");
-    filesContainingFaults.setUiHidden(true);
+    filesContainingFaults.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     // Obsolete field
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
-    caseName.setIOWritable(false);
-    caseName.setUiHidden(true);
+    caseName.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    caseName.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
     m_fractureModelResults = new RimReservoirCellResultsStorage;
@@ -297,6 +298,8 @@ void RimEclipseCase::computeCachedData()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseCase::parentCaseCollection()
 {
+    return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
+/*
     std::vector<RimCaseCollection*> parentObjects;
     this->parentObjectsOfType(parentObjects);
 
@@ -306,6 +309,7 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
     }
 
     return NULL;
+*/
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,15 +20,17 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafAppEnum.h"
 #include "RimDefines.h"
+
+#include "cafAppEnum.h"
 #include "cafFixedArray.h"
+#include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 class RigCaseCellResultsData;
-class RimLegendConfig;
 class RimEclipseView;
+class RimLegendConfig;
 
 
 //==================================================================================================
@@ -56,7 +58,7 @@ public:
     caf::PdmField<QString>                resultVariable;
     caf::PdmField<bool>                   enableCellEdgeColors;
 
-    caf::PdmField<RimLegendConfig*>       legendConfig;
+    caf::PdmChildField<RimLegendConfig*>  legendConfig;
     double                                ignoredScalarValue() { return m_ignoredResultScalar; }
     void                                  gridScalarIndices(size_t resultIndices[6]);
     void                                  gridScalarResultNames(QStringList* resultNames);

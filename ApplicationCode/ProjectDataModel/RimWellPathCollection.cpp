@@ -56,7 +56,7 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
-    isActive.setUiHidden(true);
+    isActive.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     CAF_PDM_InitField(&showWellPathLabel,               "ShowWellPathLabel",        true,                       "Show well path labels", "", "", "");
 
@@ -67,9 +67,9 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitField(&wellPathRadiusScaleFactor,       "WellPathRadiusScale",      0.1,                        "Well Path radius scale", "", "", "");
     CAF_PDM_InitField(&wellPathCrossSectionVertexCount, "WellPathVertexCount",      12,                          "Well Path vertex count", "", "", "");
-    wellPathCrossSectionVertexCount.setIOWritable(false);
-    wellPathCrossSectionVertexCount.setIOReadable(false);
-    wellPathCrossSectionVertexCount.setUiHidden(true);
+    wellPathCrossSectionVertexCount.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    wellPathCrossSectionVertexCount.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
+    wellPathCrossSectionVertexCount.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
     CAF_PDM_InitField(&wellPathClip,                    "WellPathClip",             true,                       "Clip Well Paths", "", "", "");
     CAF_PDM_InitField(&wellPathClipZDistance,           "WellPathClipZDistance",    100,                        "Well path clipping depth distance", "", "", "");
 

@@ -23,7 +23,9 @@
 #include "cafPdmDocument.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmUiPropertyDialog.h"
+
+// MODTODO
+//#include "cafPdmUiPropertyDialog.h"
 
 #include <QAction>
 #include <QMenu>
@@ -73,6 +75,7 @@
 #include "RigSingleWellResultsData.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
+#include "cafPdmUiPropertyViewDialog.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -232,7 +235,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
                 menu.addAction(m_pasteAction);
-                menu.addAction(QString("Close"), this, SLOT(slotDeleteObjectFromPdmPointersField()));
+                menu.addAction(QString("Close"), this, SLOT(slotDeleteObjectFromPdmChildArrayField()));
             }
             else if (dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p()))
             {
@@ -718,7 +721,7 @@ void RimUiTreeView::slotDeleteView()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-    caf::PdmObject* pdmObject = NULL;
+    caf::PdmObjectHandle* pdmObject = NULL;
 
     if (selected.indexes().size() == 1)
     {
@@ -828,18 +831,10 @@ void RimUiTreeView::slotWriteInputProperty()
     // Find input reservoir for this property
     RimEclipseInputCase* inputReservoir = NULL;
     {
-        std::vector<RimEclipseInputPropertyCollection*> parentObjects;
-        inputProperty->parentObjectsOfType(parentObjects);
-        CVF_ASSERT(parentObjects.size() == 1);
-
-        RimEclipseInputPropertyCollection* inputPropertyCollection = parentObjects[0];
+        RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(inputProperty->parentField()->ownerObject());
         if (!inputPropertyCollection) return;
 
-        std::vector<RimEclipseInputCase*> parentObjects2;
-        inputPropertyCollection->parentObjectsOfType(parentObjects2);
-        CVF_ASSERT(parentObjects2.size() == 1);
-
-        inputReservoir = parentObjects2[0];
+        inputReservoir = dynamic_cast<RimEclipseInputCase*>(inputPropertyCollection->parentField()->ownerObject());
     }
 
     if (!inputReservoir) return;
@@ -864,7 +859,7 @@ void RimUiTreeView::slotWriteInputProperty()
         exportSettings.fileName = outputFileName;
     }
 
-    caf::PdmUiPropertyDialog propertyDialog(this, &exportSettings, "Export Eclipse Property to Text File");
+    caf::PdmUiPropertyViewDialog propertyDialog(this, &exportSettings, "Export Eclipse Property to Text File", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         bool isOk = RifEclipseInputFileTools::writePropertyToTextFile(exportSettings.fileName, inputReservoir->reservoirData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
@@ -917,7 +912,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
         exportSettings.fileName = outputFileName;
     }
 
-    caf::PdmUiPropertyDialog propertyDialog(this, &exportSettings, "Export Binary Eclipse Data to Text File");
+    caf::PdmUiPropertyViewDialog propertyDialog(this, &exportSettings, "Export Binary Eclipse Data to Text File", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         size_t timeStep = resultColors->reservoirView()->currentTimeStep();
@@ -1025,12 +1020,12 @@ void RimUiTreeView::slotAddCaseGroup()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeView::slotDeleteObjectFromPdmPointersField()
+void RimUiTreeView::slotDeleteObjectFromPdmChildArrayField()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (myModel)
     {
-        myModel->deleteObjectFromPdmPointersField(currentIndex());
+        myModel->deleteObjectFromPdmChildArrayField(currentIndex());
     }
 }
 
@@ -1657,7 +1652,7 @@ void RimUiTreeView::selectedUiItems(std::vector<caf::PdmUiItem*>& objects)
         caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(idxList[i]);
         if (uiItem)
         {
-            caf::PdmUiItem* item = uiItem->dataObject();
+            caf::PdmUiItem* item = uiObj(uiItem->dataObject());
             objects.push_back(item);
         }
     }

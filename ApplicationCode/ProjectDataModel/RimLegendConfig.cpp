@@ -114,7 +114,7 @@ RimLegendConfig::RimLegendConfig()
     CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Min value of the legend", "");
     CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Max value of the legend", "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
-    resultVariableName.setUiHidden(true);
+    resultVariableName.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     m_linDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
     m_logDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLog;
@@ -392,20 +392,20 @@ void RimLegendConfig::updateLegend()
 
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
    {
-       m_userDefinedMaxValue.setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax, 'g', m_precision) + ")");
+       m_userDefinedMaxValue.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax, 'g', m_precision) + ")");
    }
    else
    {
-       m_userDefinedMaxValue.setUiName(QString());
+       m_userDefinedMaxValue.capability<caf::PdmUiFieldHandle>()->setUiName(QString());
    }
 
    if (m_globalAutoMin != cvf::UNDEFINED_DOUBLE )
    {
-       m_userDefinedMinValue.setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin, 'g', m_precision) + ")");
+       m_userDefinedMinValue.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin, 'g', m_precision) + ")");
    }
    else
    {
-        m_userDefinedMinValue.setUiName(QString());
+        m_userDefinedMinValue.capability<caf::PdmUiFieldHandle>()->setUiName(QString());
    }
 }
 
@@ -470,13 +470,13 @@ void RimLegendConfig::updateFieldVisibility()
 {
     if (m_rangeMode == USER_DEFINED)
     {
-        m_userDefinedMaxValue.setUiHidden(false);
-        m_userDefinedMinValue.setUiHidden(false);
+        m_userDefinedMaxValue.capability<caf::PdmUiFieldHandle>()->setUiHidden(false);
+        m_userDefinedMinValue.capability<caf::PdmUiFieldHandle>()->setUiHidden(false);
     }
     else
     {
-        m_userDefinedMaxValue.setUiHidden(true);
-        m_userDefinedMinValue.setUiHidden(true);
+        m_userDefinedMaxValue.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+        m_userDefinedMinValue.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
     }
 }
 

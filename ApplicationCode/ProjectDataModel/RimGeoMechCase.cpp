@@ -34,7 +34,7 @@ RimGeoMechCase::RimGeoMechCase(void)
     CAF_PDM_InitObject("Geomechanical Case", ":/GeoMechCase48x48.png", "", "");
 
     CAF_PDM_InitField(&m_caseFileName, "CaseFileName", QString(), "Case file name", "", "", "");
-    m_caseFileName.setUiReadOnly(true);
+    m_caseFileName.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
 
 }

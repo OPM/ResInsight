@@ -19,12 +19,16 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "cafAppEnum.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
-#include "cafAppEnum.h"
+#include "cafPdmObject.h"
+
 #include "RivCellSetEnum.h"
+
+#include <QPointer>
 
 class RiuViewer;
 class Rim3dOverlayInfoConfig;
@@ -63,7 +67,7 @@ public:
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
 
-    caf::PdmField<RimCellRangeFilterCollection*>    rangeFilterCollection;
+    caf::PdmChildField<RimCellRangeFilterCollection*>    rangeFilterCollection;
 
     // Draw style 
 
@@ -140,7 +144,7 @@ protected:
     QPointer<RiuViewer>                     m_viewer;
 
     caf::PdmField<int>                      m_currentTimeStep;
-    caf::PdmField<Rim3dOverlayInfoConfig*>  overlayInfoConfig;
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>  overlayInfoConfig;
 
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();

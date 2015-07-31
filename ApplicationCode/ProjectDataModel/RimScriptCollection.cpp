@@ -42,7 +42,7 @@ RimScriptCollection::RimScriptCollection()
     CAF_PDM_InitFieldNoDefault(&calcScripts, "CalcScripts", "",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&subDirectories, "SubDirectories", "",  "", "", "");
 
-    directory.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    directory.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------

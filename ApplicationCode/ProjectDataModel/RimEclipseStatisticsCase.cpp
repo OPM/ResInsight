@@ -59,24 +59,24 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_calculateEditCommand,   "m_editingAllowed", "", "", "", "");
-    m_calculateEditCommand.setIOWritable(false);
-    m_calculateEditCommand.setIOReadable(false);
-    m_calculateEditCommand.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_calculateEditCommand.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_calculateEditCommand.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    m_calculateEditCommand.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
+    m_calculateEditCommand.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_calculateEditCommand.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_calculateEditCommand = false;
 
     CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of calculation setup", "", "", "");
-    m_selectionSummary.setIOWritable(false);
-    m_selectionSummary.setIOReadable(false);
-    m_selectionSummary.setUiReadOnly(true);
-    m_selectionSummary.setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_selectionSummary.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_selectionSummary.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    m_selectionSummary.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
+    m_selectionSummary.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
+    m_selectionSummary.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_selectionSummary.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Result Type", "", "", "");
-    m_resultType.setIOWritable(false);
+    m_resultType.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
     CAF_PDM_InitFieldNoDefault(&m_porosityModel, "PorosityModel", "Porosity Model", "", "", "");
-    m_porosityModel.setIOWritable(false);
+    m_porosityModel.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedDynamicProperties,   "DynamicPropertiesToCalculate", "Dyn Prop", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedStaticProperties,    "StaticPropertiesToCalculate", "Stat Prop", "", "", "");
@@ -88,15 +88,15 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitFieldNoDefault(&m_selectedFractureGeneratedProperties, "FractureGeneratedPropertiesToCalculate", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedFractureInputProperties,     "FractureInputPropertiesToCalculate", "", "", "", "");
 
-    m_selectedDynamicProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedStaticProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedGeneratedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedInputProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedDynamicProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedStaticProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedGeneratedProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedInputProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_selectedFractureDynamicProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedFractureStaticProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN); 
-    m_selectedFractureGeneratedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedFractureInputProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureDynamicProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureStaticProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN); 
+    m_selectedFractureGeneratedProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureInputProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "");
@@ -161,6 +161,10 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
 {
+    return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
+
+    // MODTODO Remove
+/*
     std::vector<RimCaseCollection*> parentObjects;
     this->parentObjectsOfType(parentObjects);
 
@@ -170,6 +174,7 @@ RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
     }
 
     return NULL;
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,18 +595,18 @@ void RimEclipseStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* 
 void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 {
     bool isLocked = hasComputedStatistics();
-    m_resultType.setUiHidden(isLocked);
-    m_porosityModel.setUiHidden(isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()
+    m_resultType.capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked);
+    m_porosityModel.capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()
 
-    m_selectedDynamicProperties.setUiHidden(           isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
-    m_selectedStaticProperties.setUiHidden(            isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
-    m_selectedGeneratedProperties.setUiHidden(         isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::GENERATED));
-    m_selectedInputProperties.setUiHidden(             isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+    m_selectedDynamicProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(           isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
+    m_selectedStaticProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(            isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
+    m_selectedGeneratedProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(         isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::GENERATED));
+    m_selectedInputProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(             isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
 
-    m_selectedFractureDynamicProperties.setUiHidden(   isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
-    m_selectedFractureStaticProperties.setUiHidden(    isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
-    m_selectedFractureGeneratedProperties.setUiHidden( isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
-    m_selectedFractureInputProperties.setUiHidden(     isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+    m_selectedFractureDynamicProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(   isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
+    m_selectedFractureStaticProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(    isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
+    m_selectedFractureGeneratedProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden( isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
+    m_selectedFractureInputProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(     isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -610,11 +615,11 @@ void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 {
     bool isLocked = hasComputedStatistics();
-    m_calculatePercentiles.setUiHidden(isLocked);
-    m_percentileCalculationType.setUiHidden( isLocked || !m_calculatePercentiles());
-    m_lowPercentile .setUiHidden(isLocked || !m_calculatePercentiles());
-    m_midPercentile .setUiHidden(isLocked || !m_calculatePercentiles());
-    m_highPercentile.setUiHidden(isLocked || !m_calculatePercentiles());
+    m_calculatePercentiles.capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked);
+    m_percentileCalculationType.capability<caf::PdmUiFieldHandle>()->setUiHidden( isLocked || !m_calculatePercentiles());
+    m_lowPercentile .capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked || !m_calculatePercentiles());
+    m_midPercentile .capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked || !m_calculatePercentiles());
+    m_highPercentile.capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked || !m_calculatePercentiles());
 }
 
 //--------------------------------------------------------------------------------------------------

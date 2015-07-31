@@ -38,7 +38,7 @@ RimCase::RimCase()
     CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case name", "", "" ,"");
 
     CAF_PDM_InitField(&caseId, "CaseId", -1, "Case ID", "", "" ,"");
-    caseId.setUiReadOnly(true);
+    caseId.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
 
 }
 

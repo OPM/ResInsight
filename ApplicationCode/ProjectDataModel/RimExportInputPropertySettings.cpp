@@ -32,7 +32,7 @@ RimExportInputSettings::RimExportInputSettings()
     CAF_PDM_InitObject("RimExportInputSettings", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export filename", "", "", "");
-    fileName.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    fileName.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     CAF_PDM_InitFieldNoDefault(&eclipseKeyword, "Eclipse Keyword", "Keyword", "", "", "");
 
 }

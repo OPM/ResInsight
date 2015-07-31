@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -72,7 +73,7 @@ public:
     caf::PdmField<bool>                 wellPathClip;
     caf::PdmField<int>                  wellPathClipZDistance;
 
-    caf::PdmPointersField<RimWellPath*> wellPaths;
+    caf::PdmChildArrayField<RimWellPath*> wellPaths;
     
    
     RivWellPathCollectionPartMgr*       wellPathCollectionPartMgr() { return m_wellPathCollectionPartManager.p(); }

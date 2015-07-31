@@ -22,6 +22,8 @@
 
 #include "RimCellFilter.h"
 
+#include "cafPdmChildField.h"
+
 class RimEclipseView;
 class RimEclipsePropertyFilterCollection;
 class RimEclipseResultDefinition;
@@ -42,7 +44,7 @@ public:
     RimEclipsePropertyFilter();
     virtual ~RimEclipsePropertyFilter();
 
-    caf::PdmField<RimEclipseResultDefinition*>     resultDefinition;
+    caf::PdmChildField<RimEclipseResultDefinition*>     resultDefinition;
 
     caf::PdmField<double>                   lowerBound;
     caf::PdmField<double>                   upperBound;

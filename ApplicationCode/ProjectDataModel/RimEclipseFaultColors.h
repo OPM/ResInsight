@@ -20,6 +20,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -56,7 +57,7 @@ protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
 
 private:
-    caf::PdmField<RimEclipseCellColors*>    m_customFaultResultColors;
+    caf::PdmChildField<RimEclipseCellColors*>    m_customFaultResultColors;
     caf::PdmPointer<RimEclipseView>         m_reservoirView;
 };
 

@@ -275,7 +275,11 @@ void RiuViewerCommands::slotHideFault()
         RimFault* rimFault = eclipseView->faultCollection()->findFaultByName(faultName);
         if (rimFault)
         {
-            rimFault->showFault.setValueFromUi(!rimFault->showFault);
+            caf::PdmUiFieldHandle* uiFieldHandle = uiField(&rimFault->showFault);
+            if (uiFieldHandle)
+            {
+                uiFieldHandle->setValueFromUi(!rimFault->showFault);
+            }
         }
     }
 }

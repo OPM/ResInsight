@@ -20,10 +20,12 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+#include "cvfBase.h"
+#include "cvfObject.h"
 
 class RimEclipseStatisticsCase;
 class RimIdenticalGridCaseGroup;
@@ -42,7 +44,7 @@ public:
     RimEclipseStatisticsCaseCollection();
     virtual ~RimEclipseStatisticsCaseCollection();
 
-    caf::PdmPointersField<RimEclipseStatisticsCase*> cases;
+    caf::PdmChildArrayField<RimEclipseStatisticsCase*> cases;
 
     RimIdenticalGridCaseGroup* parentCaseGroup();
 

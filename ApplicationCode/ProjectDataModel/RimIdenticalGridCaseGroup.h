@@ -20,19 +20,21 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "RifReaderInterface.h"
+
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RifReaderInterface.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
+
+class RigActiveCellInfo;
+class RigMainGrid;
 
 class RimCaseCollection;
-class RimEclipseStatisticsCase;
-
 class RimEclipseCase;
-class RigMainGrid;
-class RigActiveCellInfo;
+class RimEclipseStatisticsCase;
 
 //==================================================================================================
 //
@@ -49,8 +51,8 @@ public:
 
     caf::PdmField<QString>              name;
     caf::PdmField<int>                  groupId;
-    caf::PdmField<RimCaseCollection*>   caseCollection;
-    caf::PdmField<RimCaseCollection*>   statisticsCaseCollection;
+    caf::PdmChildField<RimCaseCollection*>   caseCollection;
+    caf::PdmChildField<RimCaseCollection*>   statisticsCaseCollection;
 
     void                                addCase(RimEclipseCase* reservoir);
     void                                removeCase(RimEclipseCase* reservoir);

@@ -58,7 +58,7 @@ RimFaultCollection::RimFaultCollection()
 
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
     CAF_PDM_InitField(&showFaultCollection,     "Active",        true,   "Active", "", "", "");
-    showFaultCollection.setUiHidden(true);
+    showFaultCollection.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
@@ -325,9 +325,9 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 {
     bool isGridVizMode = isGridVisualizationMode();
 
-    faultResult.setUiReadOnly(isGridVizMode);
-    showFaultFaces.setUiReadOnly(isGridVizMode);
-    showOppositeFaultFaces.setUiReadOnly(isGridVizMode);
+    faultResult.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(isGridVizMode);
+    showFaultFaces.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(isGridVizMode);
+    showOppositeFaultFaces.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(isGridVizMode);
 
     caf::PdmUiGroup* labs = uiOrdering.addNewGroup("Fault Labels");
     labs->add(&showFaultLabel);

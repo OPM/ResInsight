@@ -39,24 +39,24 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_resultType,     "ResultType",           "Type", "", "", "");
-    m_resultType.setUiHidden(true);
+    m_resultType.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_porosityModel,  "PorosityModelType",    "Porosity", "", "", "");
-    m_porosityModel.setUiHidden(true);
+    m_porosityModel.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
     CAF_PDM_InitField(&m_resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
-    m_resultVariable.setUiHidden(true);
+    m_resultVariable.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_resultTypeUiField,     "MResultType",           "Type", "", "", "");
-    m_resultTypeUiField.setIOReadable(false);
-    m_resultTypeUiField.setIOWritable(false);
+    m_resultTypeUiField.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
+    m_resultTypeUiField.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
     CAF_PDM_InitFieldNoDefault(&m_porosityModelUiField,  "MPorosityModelType",    "Porosity", "", "", "");
-    m_porosityModelUiField.setIOReadable(false);
-    m_porosityModelUiField.setIOWritable(false);
+    m_porosityModelUiField.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
+    m_porosityModelUiField.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
     CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RimDefines::undefinedResultName(), "Result property", "", "", "" );
-    m_resultVariableUiField.setIOReadable(false);
-    m_resultVariableUiField.setIOWritable(false);
+    m_resultVariableUiField.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
+    m_resultVariableUiField.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
 
 
-    m_resultVariableUiField.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_resultVariableUiField.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,11 +357,11 @@ void RimEclipseResultDefinition::updateFieldVisibility()
     {
         if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() == 0)
         {
-            m_porosityModelUiField.setUiHidden(true);
+            m_porosityModelUiField.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
         }
         else
         {
-            m_porosityModelUiField.setUiHidden(false);
+            m_porosityModelUiField.capability<caf::PdmUiFieldHandle>()->setUiHidden(false);
         }
     }
 }

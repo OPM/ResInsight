@@ -39,7 +39,7 @@ RimCellEdgeColors::RimCellEdgeColors()
     CAF_PDM_InitObject("Cell Edge Result", "", "", "");
 
     CAF_PDM_InitField(&enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable cell edge results", "", "", "");
-    enableCellEdgeColors.setUiHidden(true);
+    enableCellEdgeColors.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result property", "", "", "");
     CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
@@ -48,7 +48,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
 
-    resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    resultVariable.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
     legendConfig = new RimLegendConfig();
 

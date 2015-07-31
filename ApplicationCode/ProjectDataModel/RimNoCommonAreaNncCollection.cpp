@@ -19,6 +19,8 @@
 
 #include "RimNoCommonAreaNncCollection.h"
 
+#include "RimNoCommonAreaNNC.h"
+
 CAF_PDM_SOURCE_INIT(RimNoCommonAreaNncCollection, "RimNoCommonAreaNncCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -29,7 +31,7 @@ RimNoCommonAreaNncCollection::RimNoCommonAreaNncCollection()
     CAF_PDM_InitObject("RimNoCommonAreaNncCollection", "", "", "");
 
     CAF_PDM_InitField(&name, "UserDescription", QString("No Common Area Nncs"), "Name", "", "", "");
-    name.setUiHidden(true);
+    name.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNncs, "NoCommonAreaNncs", "NoCommonAreaNncs", "", "", "");
 }

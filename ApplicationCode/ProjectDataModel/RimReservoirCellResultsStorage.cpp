@@ -50,9 +50,9 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     CAF_PDM_InitObject("Cacher", "", "", "");
 
     CAF_PDM_InitField(&m_resultCacheFileName, "ResultCacheFileName",  QString(), "UiDummyname", "", "" ,"");
-    m_resultCacheFileName.setUiHidden(true);
+    m_resultCacheFileName.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname", "", "", "");
-    m_resultCacheMetaData.setUiHidden(true);
+    m_resultCacheMetaData.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
 }
 
@@ -1527,8 +1527,11 @@ double RimReservoirCellResultsStorage::darchysValue()
 
     double darchy = 0.008527; // (ECLIPSE 100) (METRIC)
 
+    // MODTODO Fix usage of firstAncestorOfType
+    return darchy;
+
     RimEclipseCase* rimCase = NULL;
-    this->firstAncestorOfType(rimCase);
+    //this->firstAncestorOfType(rimCase);
 
     if (rimCase && rimCase->reservoirData())
     {

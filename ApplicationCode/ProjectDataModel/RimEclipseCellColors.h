@@ -24,6 +24,9 @@
 #include "RimLegendConfig.h"
 #include "RimEclipseResultDefinition.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
+
 class RimTernaryLegendConfig;
 
 //==================================================================================================
@@ -38,8 +41,8 @@ public:
     virtual ~RimEclipseCellColors();
 
     virtual void setReservoirView(RimEclipseView* ownerReservoirView);
-    caf::PdmField<RimLegendConfig*> legendConfig;
-    caf::PdmField<RimTernaryLegendConfig*> ternaryLegendConfig;
+    caf::PdmChildField<RimLegendConfig*> legendConfig;
+    caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
 
     // Overridden methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -52,6 +55,9 @@ protected:
 private:
     void changeLegendConfig(QString resultVarNameOfNewLegend);
 
-    caf::PdmField<std::list<caf::PdmPointer<RimLegendConfig> > >    m_legendConfigData;
+    // MODTODO
+    // Possibly replace with PdmChildArrayField
+    //caf::PdmField<std::list<caf::PdmPointer<RimLegendConfig> > >    m_legendConfigData;
+    caf::PdmChildArrayField<RimLegendConfig*>    m_legendConfigData;
 };
 

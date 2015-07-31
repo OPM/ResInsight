@@ -21,6 +21,7 @@
 #include "RimEclipseStatisticsCaseCollection.h"
 
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimEclipseStatisticsCase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimEclipseStatisticsCaseCollection, "RimStatisticalCollection");
@@ -49,6 +50,12 @@ RimEclipseStatisticsCaseCollection::~RimEclipseStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimEclipseStatisticsCaseCollection::parentCaseGroup()
 {
+
+    RimIdenticalGridCaseGroup* parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>(this->owner());
+    return parentObject;
+
+    // MODTODO Remove
+/*
     std::vector<RimIdenticalGridCaseGroup*> parentObjects;
     this->parentObjectsOfType(parentObjects);
 
@@ -58,5 +65,6 @@ RimIdenticalGridCaseGroup* RimEclipseStatisticsCaseCollection::parentCaseGroup()
     }
 
     return NULL;
+*/
 }
 

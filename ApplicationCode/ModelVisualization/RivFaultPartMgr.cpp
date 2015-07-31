@@ -457,12 +457,14 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         
         cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
         {
-            std::vector<RimFaultCollection*> parentObjects;
-            m_rimFault->parentObjectsOfType(parentObjects);
-
-            if (parentObjects.size() > 0)
+            RimFault* noConstRimFault = const_cast<RimFault*>(m_rimFault);
+            if (noConstRimFault)
             {
-                defWellLabelColor = parentObjects[0]->faultLabelColor();;
+                RimFaultCollection* parentObject = dynamic_cast<RimFaultCollection*>(noConstRimFault->owner());
+                if (parentObject)
+                {
+                    defWellLabelColor = parentObject->faultLabelColor();;
+                }
             }
         }
 

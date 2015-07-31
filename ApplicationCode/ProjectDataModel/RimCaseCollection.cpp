@@ -49,6 +49,8 @@ RimCaseCollection::~RimCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
 {
+    // MODTODO Remove
+/*
     std::vector<RimIdenticalGridCaseGroup*> parentObjects;
     this->parentObjectsOfType(parentObjects);
 
@@ -56,8 +58,10 @@ RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
     {
         return parentObjects[0];
     }
+*/
+    RimIdenticalGridCaseGroup* parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>(this->owner());
 
-    return NULL;
+    return parentObject;
 }
 
 //--------------------------------------------------------------------------------------------------

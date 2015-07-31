@@ -205,7 +205,9 @@ void RimUiTreeModelPdm::deleteReservoirViews(const std::vector<caf::PdmUiItem*>&
         RimView* reservoirView = dynamic_cast<RimView*>(treeSelection[sIdx]);
         ownerCases.insert(reservoirView->ownerCase());
 
-        reservoirView->removeFromParentFields();
+        // MODTODO how to hanle this??
+        //reservoirView->removeFromParentFields();
+        
         delete reservoirView;
         
     }
@@ -223,25 +225,22 @@ void RimUiTreeModelPdm::deleteReservoirViews(const std::vector<caf::PdmUiItem*>&
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeModelPdm::deleteGeoMechCases(const std::vector<caf::PdmUiItem*>& treeSelection)
 {
-    std::set<caf::PdmObject*> allParents;
+    std::set<caf::PdmObjectHandle*> allParents;
     
     for (size_t sIdx = 0; sIdx < treeSelection.size(); ++sIdx)
     {
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(treeSelection[sIdx]);
         if (!geomCase) continue;
 
-        std::vector<caf::PdmObject*> parents;
-        geomCase->parentObjects(parents);
-        for (size_t pIdx = 0; pIdx < treeSelection.size(); ++pIdx)
-        {
-            allParents.insert(parents[pIdx]);
-        }
+        allParents.insert(geomCase->parentField()->ownerObject());
 
-        geomCase->removeFromParentFields();
+        // MODTODO how to handle this?
+        //geomCase->removeFromParentFields();
+
         delete geomCase;
     }
 
-    for (std::set<caf::PdmObject*>::iterator it = allParents.begin(); it != allParents.end(); ++it)
+    for (std::set<caf::PdmObjectHandle*>::iterator it = allParents.begin(); it != allParents.end(); ++it)
     {
         updateUiSubTree(*it); 
     }
@@ -535,11 +534,9 @@ void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QSt
     RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(currentItem->dataObject().p());
     CVF_ASSERT(inputPropertyCollection);
     
-    std::vector<RimEclipseInputCase*> parentObjects;
-    inputPropertyCollection->parentObjectsOfType(parentObjects);
-    CVF_ASSERT(parentObjects.size() == 1);
 
-    RimEclipseInputCase* inputReservoir = parentObjects[0];
+
+    RimEclipseInputCase* inputReservoir = dynamic_cast<RimEclipseInputCase*>(inputPropertyCollection->parentField()->ownerObject());
     CVF_ASSERT(inputReservoir);
     if (inputReservoir)
     {
@@ -559,25 +556,17 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
     if (!uiItem) return;
 
-    caf::PdmObject* object = uiItem->dataObject().p();
+    caf::PdmObjectHandle* object = uiItem->dataObject().p();
     RimEclipseInputProperty* inputProperty = dynamic_cast<RimEclipseInputProperty*>(object);
     if (!inputProperty) return;
 
     // Remove item from UI tree model before delete of project data structure
     removeRows_special(itemIndex.row(), 1, itemIndex.parent());
 
-    std::vector<RimEclipseInputPropertyCollection*> parentObjects;
-    object->parentObjectsOfType(parentObjects);
-    CVF_ASSERT(parentObjects.size() == 1);
-
-    RimEclipseInputPropertyCollection* inputPropertyCollection = parentObjects[0];
+    RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(object->parentField()->ownerObject());
     if (!inputPropertyCollection) return;
 
-    std::vector<RimEclipseInputCase*> parentObjects2;
-    inputPropertyCollection->parentObjectsOfType(parentObjects2);
-    CVF_ASSERT(parentObjects2.size() == 1);
-
-    RimEclipseInputCase* inputReservoir = parentObjects2[0];
+    RimEclipseInputCase* inputReservoir = dynamic_cast<RimEclipseInputCase*>(inputPropertyCollection->parentField()->ownerObject());
     if (!inputReservoir) return;
 
     inputReservoir->removeProperty(inputProperty);
@@ -682,7 +671,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
     if (gridCaseGroup)
     {
         std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
-        pdmObjects.createCopyByType(&typedObjects);
+        pdmObjects.createCopyByType(&typedObjects, caf::PdmDefaultObjectFactory::instance());
 
         if (typedObjects.size() == 0)
         {
@@ -781,7 +770,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
     else if (caseFromItemIndex(itemIndex))
     {
         std::vector<caf::PdmPointer<RimEclipseView> > eclipseViews;
-        pdmObjects.createCopyByType(&eclipseViews);
+        pdmObjects.createCopyByType(&eclipseViews, caf::PdmDefaultObjectFactory::instance());
 
         if (eclipseViews.size() != 0)
         {
@@ -817,7 +806,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
         }
     }
 
-    caf::PdmObject* selectedObject = getTreeItemFromIndex(itemIndex)->dataObject().p();
+    caf::PdmObjectHandle* selectedObject = getTreeItemFromIndex(itemIndex)->dataObject().p();
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(selectedObject);
     if (!geomCase && selectedObject)
     {
@@ -828,7 +817,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
     if (geomCase)
     {
         std::vector<caf::PdmPointer<RimGeoMechView> > geomViews;
-        pdmObjects.createCopyByType(&geomViews);
+        pdmObjects.createCopyByType(&geomViews, caf::PdmDefaultObjectFactory::instance());
 
         if (geomViews.size() != 0)
         {
@@ -874,7 +863,7 @@ void RimUiTreeModelPdm::moveObjects(const QModelIndex& itemIndex, caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::deleteObjectFromPdmPointersField(const QModelIndex& itemIndex)
+bool RimUiTreeModelPdm::deleteObjectFromPdmChildArrayField(const QModelIndex& itemIndex)
 {
     if (!itemIndex.isValid())
     {
@@ -884,13 +873,11 @@ bool RimUiTreeModelPdm::deleteObjectFromPdmPointersField(const QModelIndex& item
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
     CVF_ASSERT(currentItem);
 
-    caf::PdmObject* currentPdmObject = currentItem->dataObject().p();
+    caf::PdmObjectHandle* currentPdmObject = currentItem->dataObject().p();
     CVF_ASSERT(currentPdmObject);
 
-    std::vector<caf::PdmFieldHandle*> parentFields;
-    currentPdmObject->parentFields(parentFields);
+    caf::PdmFieldHandle* parentField = currentPdmObject->parentField();
 
-    if (parentFields.size() == 1)
     {
         beginRemoveRows(itemIndex.parent(), itemIndex.row(), itemIndex.row());
         if (currentItem->parent())
@@ -899,7 +886,7 @@ bool RimUiTreeModelPdm::deleteObjectFromPdmPointersField(const QModelIndex& item
         }
         endRemoveRows();
 
-        caf::PdmPointersField<RimIdenticalGridCaseGroup*>* caseGroup = dynamic_cast<caf::PdmPointersField<RimIdenticalGridCaseGroup*> *>(parentFields[0]);
+        caf::PdmChildArrayField<RimIdenticalGridCaseGroup*>* caseGroup = dynamic_cast<caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> *>(parentField);
         if (caseGroup)
         {
             caseGroup->removeChildObject(currentPdmObject);
@@ -979,7 +966,7 @@ bool RimUiTreeModelPdm::dropMimeData(const QMimeData *data, Qt::DropAction actio
         {
             QModelIndex mi = myMimeData->indexes().at(i);
             caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(mi);
-            caf::PdmObject* pdmObj = currentItem->dataObject().p();
+            caf::PdmObjectHandle* pdmObj = currentItem->dataObject().p();
 
             pog.objects().push_back(pdmObj);
         }
@@ -1116,19 +1103,24 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
         caf::PdmUiTreeItem* treeItem = UiTreeModelPdm::getTreeItemFromIndex(index);
         assert(treeItem);
 
-        caf::PdmObject* obj = treeItem->dataObject();
+        caf::PdmObjectHandle* obj = treeItem->dataObject();
         assert(obj);
+
+        caf::PdmUiObjectHandle* uiObjectHandle = uiObj(obj);
+        assert(uiObjectHandle);
 
         if (selectedIndexes.size() != 1)
         {
-            if (obj && obj->objectToggleField())
+            if (uiObjectHandle && uiObjectHandle->objectToggleField())
             {
-                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(obj->objectToggleField());
-                if (field)
+                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(uiObjectHandle->objectToggleField());
+
+                caf::PdmUiFieldHandle* uiFieldHandle = uiField(field);
+                if (uiFieldHandle)
                 {
-                    if (state == RimUiTreeView::TOGGLE_ON)  field->setValueFromUi(true);
-                    if (state == RimUiTreeView::TOGGLE_OFF) field->setValueFromUi(false);
-                    if (state == RimUiTreeView::TOGGLE)     field->setValueFromUi(!(field->v()));
+                    if (state == RimUiTreeView::TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
+                    if (state == RimUiTreeView::TOGGLE_OFF) uiFieldHandle->setValueFromUi(false);
+                    if (state == RimUiTreeView::TOGGLE)     uiFieldHandle->setValueFromUi(!(field->v()));
                 }
             }
         }
@@ -1142,16 +1134,19 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
                 caf::PdmUiTreeItem*  child = treeItem->child(cIdx);
                 if (!child) continue;
 
-                caf::PdmObject* childObj = child->dataObject();
+                caf::PdmObjectHandle* childObj = child->dataObject();
+                caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj(obj);
 
-                if (childObj && childObj->objectToggleField())
+                if (uiObjectHandleChild && uiObjectHandleChild->objectToggleField())
                 {
-                    caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(childObj->objectToggleField());
-                    if (field)
+                    caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(uiObjectHandleChild->objectToggleField());
+
+                    caf::PdmUiFieldHandle* uiFieldHandle = uiField(field);
+                    if (uiFieldHandle)
                     {
-                        if (state == RimUiTreeView::TOGGLE_ON)  field->setValueFromUi(true);
-                        if (state == RimUiTreeView::TOGGLE_OFF) field->setValueFromUi(false);
-                        if (state == RimUiTreeView::TOGGLE)     field->setValueFromUi(!(field->v()));
+                        if (state == RimUiTreeView::TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
+                        if (state == RimUiTreeView::TOGGLE_OFF) uiFieldHandle->setValueFromUi(false);
+                        if (state == RimUiTreeView::TOGGLE)     uiFieldHandle->setValueFromUi(!(field->v()));
                     }
                 }
             }
@@ -1169,7 +1164,7 @@ void RimUiTreeModelPdm::deleteAllWellPaths(const QModelIndex& itemIndex)
     caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
     if (!uiItem) return;
 
-    caf::PdmObject* object = uiItem->dataObject().p();
+    caf::PdmObjectHandle* object = uiItem->dataObject().p();
     RimWellPathCollection* wellPathCollection = dynamic_cast<RimWellPathCollection*>(object);
     if (!wellPathCollection) return;
 

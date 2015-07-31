@@ -99,7 +99,7 @@ public:
 
     void            setDefaultWindowSize();
 
-    void            appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu);
+    void            appendActionsContextMenuForPdmObject(caf::PdmObjectHandle* pdmObject, QMenu* menu);
     void            refreshDrawStyleActions();
     
     void            setExpanded(const caf::PdmObject* pdmObject, bool expanded);

@@ -59,8 +59,12 @@
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmUiPropertyDialog.h"
+
+// MODTODO
+//#include "cafPdmUiPropertyDialog.h"
+
 #include "cafPdmUiPropertyView.h"
+#include "cafPdmUiPropertyViewDialog.h"
 
 #include "cvfTimer.h"
 #include "RimGeoMechModels.h"
@@ -572,7 +576,7 @@ void RiuMainWindow::createDockPanels()
         dockWidget->setWidget(m_pdmUiPropertyView);
 
         m_pdmUiPropertyView->layout()->setContentsMargins(5,0,0,0);
-        connect(m_treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), m_pdmUiPropertyView, SLOT(showProperties( caf::PdmObject* )));
+        connect(m_treeView, SIGNAL(selectedObjectChanged( caf::PdmObjectHandle* )), m_pdmUiPropertyView, SLOT(showProperties( caf::PdmObjectHandle* )));
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
@@ -1438,6 +1442,10 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotEditPreferences()
 {
+
+    // MODTODO
+    // See RPM to find a solution for read/write to registry from pdm object
+/*
     RiaApplication* app = RiaApplication::instance();
     caf::PdmUiPropertyDialog propertyDialog(this, app->preferences(), "Preferences");
     if (propertyDialog.exec() == QDialog::Accepted)
@@ -1451,6 +1459,7 @@ void RiuMainWindow::slotEditPreferences()
         // Read back currently stored values using QSettings
         app->readFieldsFromApplicationStore(app->preferences());
     }
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1469,7 +1478,8 @@ void RiuMainWindow::slotFramerateChanged(double frameRate)
 {
     if (RiaApplication::instance()->activeReservoirView() != NULL)
     {
-        RiaApplication::instance()->activeReservoirView()->maximumFrameRate.setValueFromUi(QVariant(frameRate));
+        caf::PdmUiFieldHandle* uiFieldHandle = uiField(&RiaApplication::instance()->activeReservoirView()->maximumFrameRate);
+        uiFieldHandle->setValueFromUi(QVariant(frameRate));
     }
 }
 
@@ -1518,7 +1528,7 @@ void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModel
     while (tmp.isValid())
     {
         caf::PdmUiTreeItem* treeItem = m_treeModelPdm->getTreeItemFromIndex(tmp);
-        caf::PdmObject* pdmObject = treeItem->dataObject();
+        caf::PdmObjectHandle* pdmObject = treeItem->dataObject();
 
         RimView* rimReservoirView = dynamic_cast<RimView*>(pdmObject);
         if (rimReservoirView)
@@ -1596,7 +1606,7 @@ void RiuMainWindow::slotNewObjectPropertyView()
 
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
-        connect(treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), propView, SLOT(showProperties( caf::PdmObject* )));
+        connect(treeView, SIGNAL(selectedObjectChanged( caf::PdmObjectHandle* )), propView, SLOT(showProperties( caf::PdmObjectHandle* )));
         additionalPropertyEditors.push_back(dockWidget);
     }
 }
@@ -1731,7 +1741,8 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
     RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeRiv) return;
 
-    activeRiv->faultCollection->showFaultLabel.setValueFromUi(showLabels);
+    caf::PdmUiFieldHandle* uiFieldHandle = uiField(&activeRiv->faultCollection->showFaultLabel);
+    uiFieldHandle->setValueFromUi(showLabels);
 
     refreshDrawStyleActions();
 }
@@ -1861,7 +1872,8 @@ void RiuMainWindow::slotScaleChanged(int scaleValue)
 {
     if (RiaApplication::instance()->activeReservoirView())
     {
-        RiaApplication::instance()->activeReservoirView()->scaleZ.setValueFromUi(scaleValue);
+        caf::PdmUiFieldHandle* uiFieldHandle = uiField(&RiaApplication::instance()->activeReservoirView()->scaleZ);
+        uiFieldHandle->setValueFromUi(scaleValue);
     }
 }
 
@@ -1930,7 +1942,23 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
     wellPathsFolderPath += "_wellpaths";
     QDir::root().mkpath(wellPathsFolderPath);
 
-    RimWellPathImport* copyOfWellPathImport = dynamic_cast<RimWellPathImport*>(app->project()->wellPathImport->deepCopy());
+    RimWellPathImport* copyOfWellPathImport = NULL;
+
+    // Create a copy of the object
+    // MODTODO: Verify that behaviour is correct
+    {
+        caf::PdmObjectGroup objGroup;
+        objGroup.addObject(app->project()->wellPathImport);
+
+        std::vector<caf::PdmPointer<RimWellPathImport> > typedObjects;
+
+        objGroup.createCopyByType(&typedObjects, caf::PdmDefaultObjectFactory::instance());
+        if (typedObjects.size() == 1)
+        {
+            copyOfWellPathImport = typedObjects[0];
+        }
+    }
+
     RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);
 
     RimWellPathImport* wellPathObjectToBeDeleted = NULL;
@@ -2014,7 +2042,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     RiaApplication* app = RiaApplication::instance();
     app->readFieldsFromApplicationStore(&regTestConfig);
 
-    caf::PdmUiPropertyDialog regressionTestDialog(this, &regTestConfig, "Regression Test");
+    caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings and apply them to the application
@@ -2074,7 +2102,12 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
     {
         caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> rangeAddType;
         rangeAddType = doAdd ? RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL : RimEclipseWellCollection::RANGE_ADD_NONE;
-        riv->wellCollection()->wellCellsToRangeFilterMode.setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
+
+        caf::PdmUiFieldHandle* pdmUiFieldHandle = uiField(&riv->wellCollection()->wellCellsToRangeFilterMode);
+        if (pdmUiFieldHandle)
+        {
+            pdmUiFieldHandle->setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
+        }
     }
 }
 
@@ -2095,7 +2128,7 @@ void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu)
+void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObjectHandle* pdmObject, QMenu* menu)
 {
     if (!menu)
     {

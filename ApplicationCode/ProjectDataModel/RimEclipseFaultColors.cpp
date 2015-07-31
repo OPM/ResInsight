@@ -40,17 +40,23 @@ RimEclipseFaultColors::RimEclipseFaultColors()
     CAF_PDM_InitObject("Fault Result Slot", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
-    showCustomFaultResult.setUiHidden(true);
+    showCustomFaultResult.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
     m_customFaultResultColors = new RimEclipseCellColors();
-    m_customFaultResultColors.setOwnerObject(this);
-    m_customFaultResultColors.setUiHidden(true);
 
+    // MODTODO how to handle this?
+    //m_customFaultResultColors.setOwnerObject(this);
+
+    m_customFaultResultColors.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+
+    // MODTODO how to handle this?
+/*
     // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
     m_customFaultResultColors->m_resultTypeUiField.setOwnerObject(this);
     m_customFaultResultColors->m_porosityModelUiField.setOwnerObject(this);
     m_customFaultResultColors->m_resultVariableUiField.setOwnerObject(this);
+*/
 
 
     updateFieldVisibility();

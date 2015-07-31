@@ -1293,6 +1293,11 @@ bool RiaApplication::launchProcessForMultipleCases(const QString& program, const
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, const QString context)
 {
+    // MODTODO
+
+    // Replace with existing caf functionality
+
+/*
     QSettings settings;
     std::vector<caf::PdmFieldHandle*> fields;
 
@@ -1302,11 +1307,11 @@ void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, cons
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
 
-        std::vector<caf::PdmObject*> children;
+        std::vector<caf::PdmObjectHandle*> children;
         fieldHandle->childObjects(&children);
         for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
         {
-            caf::PdmObject* child = children[childIdx];
+            caf::PdmObjectHandle* child = children[childIdx];
             QString subContext = context + child->classKeyword() + "/";
             readFieldsFromApplicationStore(child, subContext);
         }
@@ -1322,6 +1327,7 @@ void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, cons
             }
         }
     }
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1329,6 +1335,12 @@ void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, cons
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context)
 {
+    // MODTODO
+
+    // Replace with existing caf functionality
+
+
+/*
     CVF_ASSERT(object);
 
     QSettings settings;
@@ -1360,6 +1372,7 @@ void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object,
             settings.setValue(context + fieldHandle->keyword(), fieldHandle->uiValue());
         }
     }
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1665,7 +1678,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         this->preferences()->fields(fields);
         for (size_t i = 0; i < fields.size(); i++)
         {
-            QVariant v = fields[i]->uiValue();
+            QVariant v = fields[i]->capability<caf::PdmUiFieldHandle>()->uiValue();
             preferencesValues.push_back(v);
         }
     }
@@ -1721,7 +1734,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
             for (size_t i = 0; i < preferencesValues.size(); i++)
             {
-                fields[i]->setValueFromUi(preferencesValues[i]);
+                fields[i]->capability<caf::PdmUiFieldHandle>()->setValueFromUi(preferencesValues[i]);
             }
         }
     }
@@ -2140,7 +2153,12 @@ void RiaApplication::regressionTestConfigureProject()
             if (resvView)
             {
                 resvView->faultCollection->setShowFaultsOutsideFilters(false);
-                resvView->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+
+                caf::PdmUiFieldHandle* uiFieldHandle = uiField(&resvView->faultResultSettings->showCustomFaultResult);
+                if (uiFieldHandle)
+                {
+                    uiFieldHandle->setValueFromUi(false);
+                }
             }
         }
     }

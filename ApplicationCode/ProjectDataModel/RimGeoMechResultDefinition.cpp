@@ -53,22 +53,22 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     CAF_PDM_InitObject("Color Result", ":/CellResult.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionType, "ResultPositionType" , "Result Position", "", "", "");
-    m_resultPositionType.setUiHidden(true);
+    m_resultPositionType.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
     CAF_PDM_InitField(&m_resultFieldName, "ResultFieldName", QString(""), "Field Name", "", "", "");
-    m_resultFieldName.setUiHidden(true);
+    m_resultFieldName.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
     CAF_PDM_InitField(&m_resultComponentName, "ResultComponentName", QString(""), "Component", "", "", "");
-    m_resultComponentName.setUiHidden(true);
+    m_resultComponentName.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position", "", "", "");
-    m_resultPositionTypeUiField.setIOWritable(false);
-    m_resultPositionTypeUiField.setIOReadable(false);
+    m_resultPositionTypeUiField.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    m_resultPositionTypeUiField.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
 
     CAF_PDM_InitField(&m_resultVariableUiField, "ResultVariableUI", QString(""), "Value", "", "", "");
-    m_resultVariableUiField.setIOWritable(false);
-    m_resultVariableUiField.setIOReadable(false);
+    m_resultVariableUiField.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    m_resultVariableUiField.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
 
-    m_resultVariableUiField.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_resultVariableUiField.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_resultVariableUiField.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_resultVariableUiField.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 }
 
 //--------------------------------------------------------------------------------------------------

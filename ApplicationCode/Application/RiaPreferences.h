@@ -22,9 +22,10 @@
 
 #include "RiaApplication.h"
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
@@ -67,7 +68,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
     caf::PdmField<bool>     loadAndShowSoil;
 
-    caf::PdmField<RifReaderSettings*> readerSettings;
+    caf::PdmChildField<RifReaderSettings*> readerSettings;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

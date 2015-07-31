@@ -36,7 +36,7 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
     CAF_PDM_InitField(&active,                  "Active", true, "Active", "", "", "");
-    active.setUiHidden(true);
+    active.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

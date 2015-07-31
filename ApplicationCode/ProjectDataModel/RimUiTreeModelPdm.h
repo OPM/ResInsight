@@ -78,7 +78,7 @@ public:
     RimEclipseStatisticsCase*   addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimIdenticalGridCaseGroup*  addCaseGroup(QModelIndex& insertedModelIndex);
 
-    bool                        deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
+    bool                        deleteObjectFromPdmChildArrayField(const QModelIndex& itemIndex);
 
     void                        updateScriptPaths();
 

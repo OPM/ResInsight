@@ -31,8 +31,11 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "cafPdmSettings.h"
-#include "cafPdmUiPropertyDialog.h"
+// MODTODO Replace with other classes in new caf
+//#include "cafPdmSettings.h"
+//#include "cafPdmUiPropertyDialog.h"
+
+
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -49,17 +52,17 @@ RimEclipseResultCase::RimEclipseResultCase()
     CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
-    caseFileName.setUiReadOnly(true);
+    caseFileName.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
 
     // Obsolete, unused field
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
-    caseDirectory.setIOWritable(false); 
-    caseDirectory.setUiHidden(true);
+    caseDirectory.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false); 
+    caseDirectory.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
-    flipXAxis.setIOWritable(true);
-    //flipXAxis.setUiHidden(true);
-    flipYAxis.setIOWritable(true);
-    //flipYAxis.setUiHidden(true);
+    flipXAxis.capability<caf::PdmXmlFieldHandle>()->setIOWritable(true);
+    //flipXAxis.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    flipYAxis.capability<caf::PdmXmlFieldHandle>()->setIOWritable(true);
+    //flipYAxis.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -245,6 +248,10 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
     }
     else if (modelName == RimDefines::mockModelCustomized())
     {
+
+        // MODTODO
+        // Replace with other caf structures
+/*
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 
         RimMockModelSettings rimMockModelSettings;
@@ -281,6 +288,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
         {
              QApplication::restoreOverrideCursor();
         }
+*/
     }
 
     this->setReservoirData( reservoir.p() );
