@@ -969,7 +969,7 @@ bool RimUiTreeModelPdm::dropMimeData(const QMimeData *data, Qt::DropAction actio
             caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(mi);
             caf::PdmObjectHandle* pdmObj = currentItem->dataObject().p();
 
-            pog.objects().push_back(pdmObj);
+            pog.objects.push_back(pdmObj);
         }
 
         if (action == Qt::CopyAction)

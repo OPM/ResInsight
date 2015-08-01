@@ -16,7 +16,6 @@ CAF_PDM_SOURCE_INIT(PdmObjectGroup, "PdmObjectGroup");
 PdmObjectGroup::PdmObjectGroup() 
 {
     CAF_PDM_InitObject("Object Group", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "Children","", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,15 +35,6 @@ void PdmObjectGroup::deleteObjects()
     {
         delete objects[it];
     }
-    removeNullPtrs();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmObjectGroup::removeNullPtrs()
-{
-    objects.removeChildObject(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------

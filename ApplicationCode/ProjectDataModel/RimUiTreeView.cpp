@@ -1070,7 +1070,7 @@ void RimUiTreeView::slotPastePdmObjects()
     {
         caf::PdmObjectGroup objectGroup;
         createPdmObjectsFromClipboard(&objectGroup);
-        if (objectGroup.objects().size() == 0) return;
+        if (objectGroup.objects.size() == 0) return;
 
         myModel->addObjects(currentIndex(), objectGroup);
     }
@@ -1214,7 +1214,7 @@ bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndexList& item
             {
                 if (hasAnyStatisticsResults(gridCaseGroup))
                 {
-                    if (pog.objects().count(gridCaseGroup) == 0)
+                    if (std::find(pog.objects.begin(), pog.objects.end(), gridCaseGroup) == pog.objects.end())
                     {
                         pog.addObject(gridCaseGroup);
                     }

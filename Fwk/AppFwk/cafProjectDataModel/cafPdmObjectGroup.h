@@ -28,10 +28,9 @@ public:
     PdmObjectGroup();
     ~PdmObjectGroup();
 
-    PdmChildArrayField<PdmObjectHandle*> objects;
+    std::vector<PdmObjectHandle*> objects;
 
     void                         deleteObjects();
-    void                         removeNullPtrs();
     void                         addObject(PdmObjectHandle * obj);
 
     template <typename T>
