@@ -18,21 +18,21 @@
 
 #include "RiuWellImportWizard.h"
 
+#include "RifJsonEncodeDecode.h"
+#include "RimWellPathImport.h"
+
+#include "cafPdmDocument.h"
+#include "cafPdmObjectGroup.h"
+#include "cafPdmUiListView.h"
+#include "cafPdmUiListViewEditor.h"
+#include "cafPdmUiPropertyView.h"
+#include "cafPdmUiTreeView.h"
+#include "cafPdmUiTreeViewEditor.h"
+#include "cafUiTreeModelPdm.h"
+
 #include <QObject>
 #include <QtGui>
 #include <QtNetwork>
-
-#include "cafPdmUiPropertyView.h"
-#include "cafPdmUiTreeView.h"
-#include "cafPdmDocument.h"
-#include "cafPdmUiListViewEditor.h"
-#include "cafPdmUiListView.h"
-#include "cafUiTreeModelPdm.h"
-
-#include "RimWellPathImport.h"
-
-#include "RifJsonEncodeDecode.h"
-#include "cafPdmUiTreeViewEditor.h"
 
 
 //--------------------------------------------------------------------------------------------------

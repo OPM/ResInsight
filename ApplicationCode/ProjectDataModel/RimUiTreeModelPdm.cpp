@@ -22,34 +22,35 @@
 
 #include "RiaApplication.h"
 #include "RigGridManager.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimGeoMechPropertyFilterCollection.h"
-#include "RimGeoMechPropertyFilter.h"
-#include "RimIdenticalGridCaseGroup.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultCase.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechView.h"
+#include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimEclipseView.h"
-#include "RimEclipseResultCase.h"
 #include "RimScriptCollection.h"
-#include "RimEclipseStatisticsCase.h"
 #include "RimUiTreeView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimGeoMechView.h"
 
+#include "cafPdmObjectGroup.h"
 #include "cvfAssert.h"
 
 #include <QClipboard>
 #include <QFileSystemWatcher>
-#include "RimGeoMechCase.h"
 
 
 

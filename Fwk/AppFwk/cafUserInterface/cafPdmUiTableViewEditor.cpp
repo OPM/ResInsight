@@ -37,21 +37,22 @@
 
 #include "cafPdmUiTableViewEditor.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiCheckBoxDelegate.h"
-#include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiCommandSystemProxy.h"
+#include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTableViewDelegate.h"
 #include "cafPdmUiTableViewModel.h"
 
 #include <QApplication>
+#include <QEvent>
 #include <QGridLayout>
 #include <QLabel>
 #include <QMenu>
 #include <QTableView>
 #include <QWidget>
-#include <QEvent>
 
 
 

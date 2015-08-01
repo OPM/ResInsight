@@ -37,14 +37,14 @@
 
 #include "cafPdmUiListViewEditor.h"
 
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmObjectGroup.h"
 #include "cafPdmUiEditorHandle.h"
-#include "cafPdmDocument.h"
 
-#include <QWidget>
 #include <QGridLayout>
 #include <QTableView>
+#include <QWidget>
 
 
 

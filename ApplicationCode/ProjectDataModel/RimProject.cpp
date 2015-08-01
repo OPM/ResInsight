@@ -20,23 +20,26 @@
 
 #include "RimProject.h"
 
+
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
+
 #include "RigCaseData.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCase.h"
+
 #include "RimCaseCollection.h"
+#include "RimCommandObject.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
-#include "RimEclipseView.h"
 #include "RimScriptCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
-#include "RimCommandObject.h"
 
 #include <QDir>
-#include "RimGeoMechModels.h"
-#include "RimGeoMechCase.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------

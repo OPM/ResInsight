@@ -39,7 +39,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafPdmObjectGroup.h"
 
 namespace caf 
 {
@@ -48,7 +47,7 @@ namespace caf
 /// The PdmDocument class is the main class to do file based IO, 
 /// and is also supposed to act as the overall container of the objects read.
 //==================================================================================================
-class PdmDocument: public PdmObjectGroup
+class PdmDocument: public PdmObject
 {
     CAF_PDM_HEADER_INIT;
  public:

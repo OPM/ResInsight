@@ -20,63 +20,64 @@
 
 //#include "RiaStdInclude.h"
 
-#include "cafPdmDocument.h"
+#include "RimUiTreeView.h"
+
+
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+#include "RifEclipseInputFileTools.h"
+#include "RigCaseCellResultsData.h"
+#include "RigSingleWellResultsData.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimBinaryExportSettings.h"
+#include "RimCalcScript.h"
+#include "RimCaseCollection.h"
+#include "RimCellEdgeColors.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultCase.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseStatisticsCaseCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
+#include "RimExportInputPropertySettings.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechView.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimMimeData.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimScriptCollection.h"
+#include "RimUiTreeModelPdm.h"
+#include "RimWellPathCollection.h"
+#include "RiuMainWindow.h"
+
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmObjectGroup.h"
+#include "cafPdmUiPropertyViewDialog.h"
+
+#include <QAction>
+#include <QClipboard>
+#include <QContextMenuEvent>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QMenu>
+#include <QMessageBox>
+
 
 // MODTODO
 //#include "cafPdmUiPropertyDialog.h"
-
-#include <QAction>
-#include <QMenu>
-#include <QContextMenuEvent>
-#include <QMessageBox>
-#include <QFileInfo>
-#include <QFileDialog>
-#include <QClipboard>
-
-#include "RimUiTreeView.h"
-#include "RimUiTreeModelPdm.h"
-#include "RimEclipseView.h"
-#include "RimCalcScript.h"
-#include "RiaApplication.h"
-#include "RiuMainWindow.h"
-#include "RimEclipseInputPropertyCollection.h"
-#include "RimExportInputPropertySettings.h"
-#include "RiaPreferences.h"
-#include "RifEclipseInputFileTools.h"
-#include "RimEclipseInputCase.h"
-#include "RimBinaryExportSettings.h"
-#include "RigCaseCellResultsData.h"
-#include "RimEclipseStatisticsCase.h"
-#include "RimEclipseResultCase.h"
-#include "RimMimeData.h"
-
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseStatisticsCaseCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimCaseCollection.h"
-#include "RimScriptCollection.h"
-#include "RimEclipseWell.h"
-#include "RimCellEdgeColors.h"
-#include "RimEclipseWellCollection.h"
-#include "RimWellPathCollection.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimProject.h"
-#include "RimOilField.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseInputProperty.h"
-#include "RigSingleWellResultsData.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-#include "cafPdmUiPropertyViewDialog.h"
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

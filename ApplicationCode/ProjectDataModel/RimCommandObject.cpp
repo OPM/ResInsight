@@ -25,7 +25,7 @@
 #include "RimProject.h"
 #include "RimEclipseStatisticsCase.h"
 
-#include "cafPdmDocument.h"
+#include "cafPdmObjectGroup.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 

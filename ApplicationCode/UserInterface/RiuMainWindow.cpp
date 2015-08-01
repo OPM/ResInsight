@@ -59,6 +59,7 @@
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmObjectGroup.h"
 
 // MODTODO
 //#include "cafPdmUiPropertyDialog.h"
