@@ -47,12 +47,13 @@ class RimCase;
 
 namespace caf
 {
+    class AnimationToolBar;
+    class FrameAnimationControl;
+    class PdmObject;
+    class PdmUiPropertyView;
+	class PdmUiTreeView;
     class UiPropertyCreatorPdm;
     class UiTreeModelPdm;
-    class PdmObject;
-    class FrameAnimationControl;
-    class AnimationToolBar;
-    class PdmUiPropertyView;
 }
 
 namespace ssihub
@@ -275,7 +276,10 @@ private slots:
     void    slotOpenUsersGuideInBrowserAction();
 
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
-    void    slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
+    void    OBSOLETE_slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
+
+	void	selectedObjectsChanged(const QItemSelection& selected, const QItemSelection & deselected);
+
 
     // Animation slots
     void    slotSetCurrentFrame(int frameIndex);
@@ -287,6 +291,8 @@ public:
 private:
     RimUiTreeView*              m_OBSOLETE_treeView;
     RimUiTreeModelPdm*          m_OBSOLETE_treeModelPdm;
+
+	caf::PdmUiTreeView*			m_projectTreeView;
 
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;

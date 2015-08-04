@@ -63,6 +63,7 @@
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafPdmUiTreeView.h"
 
 #include "cvfTimer.h"
 #include "RimGeoMechModels.h"
@@ -545,8 +546,25 @@ void RiuMainWindow::createToolBars()
 
 void RiuMainWindow::createDockPanels()
 {
-    {
-        QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
+	{
+		QDockWidget* dockWidget = new QDockWidget("NEW Project Tree", this);
+		dockWidget->setObjectName("dockWidget");
+		dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+		m_projectTreeView = new caf::PdmUiTreeView(this);
+		dockWidget->setWidget(m_projectTreeView);
+
+		addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+
+		connect(m_projectTreeView->treeView()->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+			this, SLOT(selectedObjectsChanged(const QItemSelection&, const QItemSelection &)));
+
+		// MODTODO
+		//m_windowsMenu->addAction(dockWidget->toggleViewAction());
+	}
+	
+	{
+        QDockWidget* dockWidget = new QDockWidget("OBSOLETE Project Tree", this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -1247,8 +1265,10 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 
     if (OBSOLETE_treeItemRoot && m_OBSOLETE_treeView->selectionModel())
     {
-        connect(m_OBSOLETE_treeView->selectionModel(), SIGNAL(currentChanged ( const QModelIndex & , const QModelIndex & )), SLOT(slotCurrentChanged( const QModelIndex & , const QModelIndex & )));
+        connect(m_OBSOLETE_treeView->selectionModel(), SIGNAL(currentChanged ( const QModelIndex & , const QModelIndex & )), SLOT(OBSOLETE_slotCurrentChanged( const QModelIndex & , const QModelIndex & )));
     }
+
+	m_projectTreeView->setPdmItem(pdmRoot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1510,7 +1530,7 @@ void RiuMainWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
+void RiuMainWindow::OBSOLETE_slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
     RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
     QModelIndex activeViewModelIndex = m_OBSOLETE_treeModelPdm->getModelIndexFromPdmObject(activeReservoirView);
@@ -2168,4 +2188,13 @@ void RiuMainWindow::forceProjectTreeRepaint()
     // Needed for some reason when changing names and icons in the model
     m_OBSOLETE_treeView->scroll(0,1);
     m_OBSOLETE_treeView->scroll(0,-1);
+}
+
+void RiuMainWindow::selectedObjectsChanged(const QItemSelection& selected, const QItemSelection & deselected)
+{
+
+	// MODTODO
+
+	// Wire up update of property editor
+
 }
