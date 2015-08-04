@@ -30,6 +30,9 @@ set( PROJECT_FILES
 	cafPdmDefaultObjectFactory.cpp
 	cafPdmDefaultObjectFactory.h
 	cafPdmObjectFactory.h
+	
+	cafPdmSettings.h
+	cafPdmSettings.cpp
 )
 
 
