@@ -86,7 +86,7 @@ public:
     void            updateScaleValue();
     void            forceProjectTreeRepaint();
 
-    RimUiTreeModelPdm* uiPdmModel() { return m_treeModelPdm;}
+    RimUiTreeModelPdm* uiPdmModel() { return m_OBSOLETE_treeModelPdm;}
 
     RiuProcessMonitor* processMonitor();
 
@@ -285,8 +285,9 @@ private slots:
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 private:
-    RimUiTreeView*              m_treeView;
-    RimUiTreeModelPdm*          m_treeModelPdm;
+    RimUiTreeView*              m_OBSOLETE_treeView;
+    RimUiTreeModelPdm*          m_OBSOLETE_treeModelPdm;
+
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 
