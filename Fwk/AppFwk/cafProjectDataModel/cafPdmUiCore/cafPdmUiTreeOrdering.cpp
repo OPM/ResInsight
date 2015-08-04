@@ -105,7 +105,7 @@ bool PdmUiTreeOrdering::containsObject(const PdmObjectHandle* object)
     {
         PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>(this->child(cIdx)); // What again ???
 
-        if (child->object() == object)
+        if (child->isRepresentingObject() && child->object() == object)
         {
             return true;
         }

@@ -483,7 +483,8 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
     bool isFieldRep = uitreeOrdering->isRepresentingField();
     bool isDisplayOnly = uitreeOrdering->isDisplayItemOnly();
 
-    assert (uitreeOrdering->isValid()); // Tree generation has some error.
+	// MODTODO
+    //assert (uitreeOrdering->isValid()); // Tree generation has some error.
 
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
