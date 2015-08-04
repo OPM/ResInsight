@@ -22,7 +22,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafPdmDocument.h"
+#include "cafPdmObjectGroup.h"
 #include "cafUiTreeModelPdm.h"
 
 class QFileSystemWatcher;

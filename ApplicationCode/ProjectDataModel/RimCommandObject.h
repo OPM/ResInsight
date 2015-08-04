@@ -20,11 +20,11 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmDocument.h"
+#include "cafPdmObjectGroup.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
 
 
 //--------------------------------------------------------------------------------------------------
