@@ -25,6 +25,7 @@
 #include "cafEffectCache.h"
 #include "cafUtils.h"
 #include "cafAppEnum.h"
+#include "cafPdmSettings.h"
 
 #include "RiaVersionInfo.h"
 #include "RiaBaseDefs.h"
@@ -141,7 +142,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     //cvf::Trace::enable(false);
 
     m_preferences = new RiaPreferences;
-    readFieldsFromApplicationStore(m_preferences);
+	caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
     applyPreferences();
 
     if (useShaders())
@@ -314,7 +315,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // VL check regarding specific order mentioned in comment above...
 
     m_preferences->lastUsedProjectFileName = projectFileName;
-    writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
@@ -518,7 +519,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
     m_project->writeFile();
 
     m_preferences->lastUsedProjectFileName = fileName;
-    writeFieldsToApplicationStore(m_preferences);
+	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
     return true;
 }
@@ -827,7 +828,7 @@ void RiaApplication::setActiveReservoirView(RimView* rv)
 void RiaApplication::setUseShaders(bool enable)
 {
     m_preferences->useShaders = enable;
-    writeFieldsToApplicationStore(m_preferences);
+	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -859,7 +860,7 @@ RiaApplication::RINavigationPolicy RiaApplication::navigationPolicy() const
 void RiaApplication::setShowPerformanceInfo(bool enable)
 {
     m_preferences->showHud = enable;
-    writeFieldsToApplicationStore(m_preferences);
+	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 
@@ -1286,93 +1287,6 @@ bool RiaApplication::launchProcessForMultipleCases(const QString& program, const
     m_currentArguments = arguments;
 
     return launchProcess(m_currentProgram, m_currentArguments);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Read fields of a Pdm object using QSettings
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, const QString context)
-{
-    // MODTODO
-
-    // Replace with existing caf functionality
-
-/*
-    QSettings settings;
-    std::vector<caf::PdmFieldHandle*> fields;
-
-    object->fields(fields);
-    size_t i;
-    for (i = 0; i < fields.size(); i++)
-    {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
-
-        std::vector<caf::PdmObjectHandle*> children;
-        fieldHandle->childObjects(&children);
-        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
-        {
-            caf::PdmObjectHandle* child = children[childIdx];
-            QString subContext = context + child->classKeyword() + "/";
-            readFieldsFromApplicationStore(child, subContext);
-        }
-        
-        
-        if (children.size() == 0)
-        {
-            QString key = context + fieldHandle->keyword();
-            if (settings.contains(key))
-            {
-                QVariant val = settings.value(key);
-                fieldHandle->setValueFromUi(val);
-            }
-        }
-    }
-*/
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Write fields of a Pdm object using QSettings
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context)
-{
-    // MODTODO
-
-    // Replace with existing caf functionality
-
-
-/*
-    CVF_ASSERT(object);
-
-    QSettings settings;
-
-    std::vector<caf::PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    size_t i;
-    for (i = 0; i < fields.size(); i++)
-    {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
-
-        std::vector<caf::PdmObject*> children;
-        fieldHandle->childObjects(&children);
-        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
-        {
-            caf::PdmObject* child = children[childIdx];
-            QString subContext;
-            if (context.isEmpty())
-            {
-                subContext = context + child->classKeyword() + "/";
-            }
-
-            writeFieldsToApplicationStore(child, subContext);
-        }
-
-        if (children.size() == 0)
-        {
-            settings.setValue(context + fieldHandle->keyword(), fieldHandle->uiValue());
-        }
-    }
-*/
 }
 
 //--------------------------------------------------------------------------------------------------

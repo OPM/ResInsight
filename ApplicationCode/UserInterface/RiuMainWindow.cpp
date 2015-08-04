@@ -60,10 +60,7 @@
 #include "cafAnimationToolBar.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmObjectGroup.h"
-
-// MODTODO
-//#include "cafPdmUiPropertyDialog.h"
-
+#include "cafPdmSettings.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
 
@@ -1443,24 +1440,19 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotEditPreferences()
 {
-
-    // MODTODO
-    // See RPM to find a solution for read/write to registry from pdm object
-/*
-    RiaApplication* app = RiaApplication::instance();
-    caf::PdmUiPropertyDialog propertyDialog(this, app->preferences(), "Preferences");
+	RiaApplication* app = RiaApplication::instance();
+	caf::PdmUiPropertyViewDialog propertyDialog(this, app->preferences(), "Preferences", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
-        app->writeFieldsToApplicationStore(app->preferences());
+		caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
         app->applyPreferences();
     }
     else
     {
         // Read back currently stored values using QSettings
-        app->readFieldsFromApplicationStore(app->preferences());
+		caf::PdmSettings::readFieldsFromApplicationStore(app->preferences());
     }
-*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2041,13 +2033,13 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     RiaRegressionTest regTestConfig;
 
     RiaApplication* app = RiaApplication::instance();
-    app->readFieldsFromApplicationStore(&regTestConfig);
+	caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
 
     caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings and apply them to the application
-        app->writeFieldsToApplicationStore(&regTestConfig);
+		caf::PdmSettings::writeFieldsToApplicationStore(&regTestConfig);
 
         QString currentApplicationPath = QDir::currentPath();
 

@@ -31,11 +31,8 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 
-// MODTODO Replace with other classes in new caf
-//#include "cafPdmSettings.h"
-//#include "cafPdmUiPropertyDialog.h"
-
-
+#include "cafPdmSettings.h"
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -248,21 +245,17 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
     }
     else if (modelName == RimDefines::mockModelCustomized())
     {
-
-        // MODTODO
-        // Replace with other caf structures
-/*
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 
         RimMockModelSettings rimMockModelSettings;
-        caf::Settings::readFieldsFromApplicationStore(&rimMockModelSettings);
+		caf::PdmSettings::readFieldsFromApplicationStore(&rimMockModelSettings);
 
-        caf::PdmUiPropertyDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model");
+		caf::PdmUiPropertyViewDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model", "");
         if (propertyDialog.exec() == QDialog::Accepted)
         {
             QApplication::restoreOverrideCursor();
 
-            caf::Settings::writeFieldsToApplicationStore(&rimMockModelSettings);
+			caf::PdmSettings::writeFieldsToApplicationStore(&rimMockModelSettings);
 
             double startX = 0;
             double startY = 0;
@@ -288,7 +281,6 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
         {
              QApplication::restoreOverrideCursor();
         }
-*/
     }
 
     this->setReservoirData( reservoir.p() );
