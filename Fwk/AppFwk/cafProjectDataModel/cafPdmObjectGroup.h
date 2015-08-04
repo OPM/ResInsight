@@ -2,12 +2,6 @@
 
 #include "cafPdmObject.h"
 
-#include "cafPdmChildArrayField.h"
-//#include "cafPdmDataValueField.h"
-//#include "cafPdmObjectHandle.h"
-//#include "cafPdmPointer.h"
-//#include "cafPdmXmlObjectHandle.h"
-
 #include <QXmlStreamWriter>
 
 namespace caf 
@@ -16,10 +10,9 @@ namespace caf
 class PdmReferenceHelper;
 
 //==================================================================================================
-/// The PdmObjectGroup serves as a container of unknown PdmObjects, and is inherited by
-/// PdmDocument. Can be used to create sub assemblies.
-/// This class should possibly be merged with PdmDocument. It is not clear whether it really has 
-/// a reusable value on its own.
+/// The PdmObjectGroup serves as a container of unknown PdmObjects
+
+/// It is not clear whether it really has a reusable value on its own.
 //==================================================================================================
 class PdmObjectGroup : public PdmObject
 {
