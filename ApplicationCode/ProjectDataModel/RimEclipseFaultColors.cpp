@@ -40,7 +40,7 @@ RimEclipseFaultColors::RimEclipseFaultColors()
     CAF_PDM_InitObject("Fault Result Slot", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
-    showCustomFaultResult.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    showCustomFaultResult.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
     m_customFaultResultColors = new RimEclipseCellColors();
@@ -48,7 +48,7 @@ RimEclipseFaultColors::RimEclipseFaultColors()
     // MODTODO how to handle this?
     //m_customFaultResultColors.setOwnerObject(this);
 
-    m_customFaultResultColors.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    m_customFaultResultColors.uiCapability()->setUiHidden(true);
 
     // MODTODO how to handle this?
 /*

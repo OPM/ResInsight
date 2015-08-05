@@ -51,7 +51,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
 
     CAF_PDM_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "" ,"");
-    groupId.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
+    groupId.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "Derived Statistics", ":/Histograms16x16.png", "", "");
     CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Source Cases", ":/Cases16x16.png", "", "");

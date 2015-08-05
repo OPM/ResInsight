@@ -59,24 +59,24 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_calculateEditCommand,   "m_editingAllowed", "", "", "", "");
-    m_calculateEditCommand.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
-    m_calculateEditCommand.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
-    m_calculateEditCommand.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_calculateEditCommand.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_calculateEditCommand.xmlCapability()->setIOWritable(false);
+    m_calculateEditCommand.xmlCapability()->setIOReadable(false);
+    m_calculateEditCommand.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_calculateEditCommand.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_calculateEditCommand = false;
 
     CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of calculation setup", "", "", "");
-    m_selectionSummary.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
-    m_selectionSummary.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
-    m_selectionSummary.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
-    m_selectionSummary.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_selectionSummary.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_selectionSummary.xmlCapability()->setIOWritable(false);
+    m_selectionSummary.xmlCapability()->setIOReadable(false);
+    m_selectionSummary.uiCapability()->setUiReadOnly(true);
+    m_selectionSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_selectionSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Result Type", "", "", "");
-    m_resultType.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    m_resultType.xmlCapability()->setIOWritable(false);
     CAF_PDM_InitFieldNoDefault(&m_porosityModel, "PorosityModel", "Porosity Model", "", "", "");
-    m_porosityModel.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    m_porosityModel.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedDynamicProperties,   "DynamicPropertiesToCalculate", "Dyn Prop", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedStaticProperties,    "StaticPropertiesToCalculate", "Stat Prop", "", "", "");
@@ -88,15 +88,15 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitFieldNoDefault(&m_selectedFractureGeneratedProperties, "FractureGeneratedPropertiesToCalculate", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedFractureInputProperties,     "FractureInputPropertiesToCalculate", "", "", "", "");
 
-    m_selectedDynamicProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedStaticProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedGeneratedProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedInputProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedDynamicProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedStaticProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedGeneratedProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedInputProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_selectedFractureDynamicProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedFractureStaticProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN); 
-    m_selectedFractureGeneratedProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedFractureInputProperties.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureDynamicProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureStaticProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN); 
+    m_selectedFractureGeneratedProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureInputProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "");
@@ -595,18 +595,18 @@ void RimEclipseStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* 
 void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 {
     bool isLocked = hasComputedStatistics();
-    m_resultType.capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked);
-    m_porosityModel.capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()
+    m_resultType.uiCapability()->setUiHidden(isLocked);
+    m_porosityModel.uiCapability()->setUiHidden(isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()
 
-    m_selectedDynamicProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(           isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
-    m_selectedStaticProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(            isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
-    m_selectedGeneratedProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(         isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::GENERATED));
-    m_selectedInputProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(             isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+    m_selectedDynamicProperties.uiCapability()->setUiHidden(           isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
+    m_selectedStaticProperties.uiCapability()->setUiHidden(            isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
+    m_selectedGeneratedProperties.uiCapability()->setUiHidden(         isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::GENERATED));
+    m_selectedInputProperties.uiCapability()->setUiHidden(             isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
 
-    m_selectedFractureDynamicProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(   isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
-    m_selectedFractureStaticProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(    isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
-    m_selectedFractureGeneratedProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden( isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
-    m_selectedFractureInputProperties.capability<caf::PdmUiFieldHandle>()->setUiHidden(     isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+    m_selectedFractureDynamicProperties.uiCapability()->setUiHidden(   isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
+    m_selectedFractureStaticProperties.uiCapability()->setUiHidden(    isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
+    m_selectedFractureGeneratedProperties.uiCapability()->setUiHidden( isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
+    m_selectedFractureInputProperties.uiCapability()->setUiHidden(     isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -615,11 +615,11 @@ void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 {
     bool isLocked = hasComputedStatistics();
-    m_calculatePercentiles.capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked);
-    m_percentileCalculationType.capability<caf::PdmUiFieldHandle>()->setUiHidden( isLocked || !m_calculatePercentiles());
-    m_lowPercentile .capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked || !m_calculatePercentiles());
-    m_midPercentile .capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked || !m_calculatePercentiles());
-    m_highPercentile.capability<caf::PdmUiFieldHandle>()->setUiHidden(isLocked || !m_calculatePercentiles());
+    m_calculatePercentiles.uiCapability()->setUiHidden(isLocked);
+    m_percentileCalculationType.uiCapability()->setUiHidden( isLocked || !m_calculatePercentiles());
+    m_lowPercentile .uiCapability()->setUiHidden(isLocked || !m_calculatePercentiles());
+    m_midPercentile .uiCapability()->setUiHidden(isLocked || !m_calculatePercentiles());
+    m_highPercentile.uiCapability()->setUiHidden(isLocked || !m_calculatePercentiles());
 }
 
 //--------------------------------------------------------------------------------------------------

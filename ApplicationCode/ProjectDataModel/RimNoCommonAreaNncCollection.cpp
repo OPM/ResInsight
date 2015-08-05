@@ -31,7 +31,7 @@ RimNoCommonAreaNncCollection::RimNoCommonAreaNncCollection()
     CAF_PDM_InitObject("RimNoCommonAreaNncCollection", "", "", "");
 
     CAF_PDM_InitField(&name, "UserDescription", QString("No Common Area Nncs"), "Name", "", "", "");
-    name.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNncs, "NoCommonAreaNncs", "NoCommonAreaNncs", "", "", "");
 }

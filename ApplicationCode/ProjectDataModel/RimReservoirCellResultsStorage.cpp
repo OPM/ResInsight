@@ -50,9 +50,9 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     CAF_PDM_InitObject("Cacher", "", "", "");
 
     CAF_PDM_InitField(&m_resultCacheFileName, "ResultCacheFileName",  QString(), "UiDummyname", "", "" ,"");
-    m_resultCacheFileName.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    m_resultCacheFileName.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname", "", "", "");
-    m_resultCacheMetaData.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    m_resultCacheMetaData.uiCapability()->setUiHidden(true);
 
 }
 

@@ -46,22 +46,22 @@ RimCellRangeFilter::RimCellRangeFilter()
     CAF_PDM_InitField(&propagateToSubGrids, "PropagateToSubGrids",  true,  "Apply to Subgrids", "", "","");
 
     CAF_PDM_InitField(&startIndexI, "StartIndexI",  1,  "Start index I", "", "","");
-    startIndexI.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    startIndexI.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
     
     CAF_PDM_InitField(&cellCountI,  "CellCountI",   1,  "Cell Count I", "", "","");
-    cellCountI.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    cellCountI.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&startIndexJ, "StartIndexJ",  1,  "Start index J", "", "","");
-    startIndexJ.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    startIndexJ.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&cellCountJ,  "CellCountJ",   1,  "Cell Count J", "", "","");
-    cellCountJ.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    cellCountJ.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&startIndexK, "StartIndexK",  1,  "Start index K", "", "","");
-    startIndexK.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    startIndexK.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&cellCountK,  "CellCountK",   1,  "Cell Count K", "", "","");
-    cellCountK.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    cellCountK.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
     
     updateIconState();
 }
@@ -211,21 +211,21 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         max.y() = max.y() + 1;
         max.z() = max.z() + 1;
 
-        startIndexI.capability<caf::PdmUiFieldHandle>()->setUiName(QString("I Start (%1)").arg(min.x()));
-        startIndexJ.capability<caf::PdmUiFieldHandle>()->setUiName(QString("J Start (%1)").arg(min.y()));
-        startIndexK.capability<caf::PdmUiFieldHandle>()->setUiName(QString("K Start (%1)").arg(min.z()));
-        cellCountI.capability<caf::PdmUiFieldHandle>()->setUiName(QString("  Width (%1)").arg(max.x() - min.x() + 1));
-        cellCountJ.capability<caf::PdmUiFieldHandle>()->setUiName(QString("  Width (%1)").arg(max.y() - min.y() + 1));
-        cellCountK.capability<caf::PdmUiFieldHandle>()->setUiName(QString("  Width (%1)").arg(max.z() - min.z() + 1));
+        startIndexI.uiCapability()->setUiName(QString("I Start (%1)").arg(min.x()));
+        startIndexJ.uiCapability()->setUiName(QString("J Start (%1)").arg(min.y()));
+        startIndexK.uiCapability()->setUiName(QString("K Start (%1)").arg(min.z()));
+        cellCountI.uiCapability()->setUiName(QString("  Width (%1)").arg(max.x() - min.x() + 1));
+        cellCountJ.uiCapability()->setUiName(QString("  Width (%1)").arg(max.y() - min.y() + 1));
+        cellCountK.uiCapability()->setUiName(QString("  Width (%1)").arg(max.z() - min.z() + 1));
     }
     else
     {
-        startIndexI.capability<caf::PdmUiFieldHandle>()->setUiName(QString("I Start"));
-        startIndexJ.capability<caf::PdmUiFieldHandle>()->setUiName(QString("J Start"));
-        startIndexK.capability<caf::PdmUiFieldHandle>()->setUiName(QString("K Start"));
-        cellCountI.capability<caf::PdmUiFieldHandle>()->setUiName(QString("  Width"));
-        cellCountJ.capability<caf::PdmUiFieldHandle>()->setUiName(QString("  Width"));
-        cellCountK.capability<caf::PdmUiFieldHandle>()->setUiName(QString("  Width"));
+        startIndexI.uiCapability()->setUiName(QString("I Start"));
+        startIndexJ.uiCapability()->setUiName(QString("J Start"));
+        startIndexK.uiCapability()->setUiName(QString("K Start"));
+        cellCountI.uiCapability()->setUiName(QString("  Width"));
+        cellCountJ.uiCapability()->setUiName(QString("  Width"));
+        cellCountK.uiCapability()->setUiName(QString("  Width"));
     }
 }
 

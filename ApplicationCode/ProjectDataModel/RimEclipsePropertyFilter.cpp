@@ -56,8 +56,8 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation region", "", "", "");
-    obsoleteField_evaluationRegion.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    obsoleteField_evaluationRegion.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
+    obsoleteField_evaluationRegion.uiCapability()->setUiHidden(true);
+    obsoleteField_evaluationRegion.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimEclipseResultDefinition();
@@ -67,22 +67,22 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 /*
     // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
     resultDefinition->m_resultTypeUiField.setparOwnerObject(this);
-    resultDefinition->m_resultTypeUiField.capability<caf::PdmUiFieldHandle>()->setUiName("");
+    resultDefinition->m_resultTypeUiField.uiCapability()->setUiName("");
     resultDefinition->m_porosityModelUiField.setOwnerObject(this);
-    resultDefinition->m_porosityModelUiField.capability<caf::PdmUiFieldHandle>()->setUiName("");
+    resultDefinition->m_porosityModelUiField.uiCapability()->setUiName("");
     resultDefinition->m_resultVariableUiField.setOwnerObject(this);
-    resultDefinition->m_resultVariableUiField.capability<caf::PdmUiFieldHandle>()->setUiName("");
+    resultDefinition->m_resultVariableUiField.uiCapability()->setUiName("");
 */
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
-    resultDefinition.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    resultDefinition.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&lowerBound, "LowerBound", 0.0, "Min", "", "", "");
-    lowerBound.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&upperBound, "UpperBound", 0.0, "Max", "", "", "");
-    upperBound.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
 
@@ -260,8 +260,8 @@ void RimEclipsePropertyFilter::computeResultValueRange()
     m_maximumResultValue = max;
     m_minimumResultValue = min;
 
-    lowerBound.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Min (%1)").arg(min));
-    upperBound.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Max (%1)").arg(max));
+    lowerBound.uiCapability()->setUiName(QString("Min (%1)").arg(min));
+    upperBound.uiCapability()->setUiName(QString("Max (%1)").arg(max));
 }
 
 //--------------------------------------------------------------------------------------------------

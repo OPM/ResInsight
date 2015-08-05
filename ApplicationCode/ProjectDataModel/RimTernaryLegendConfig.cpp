@@ -57,29 +57,29 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     CAF_PDM_InitField(&rangeMode, "RangeType", RangeModeEnum(USER_DEFINED), "Range type", "", "Switches between automatic and user defined range on the legend", "");
 
     CAF_PDM_InitFieldNoDefault(&applyLocalMinMax,   "m_applyLocalMinMax", "", "", "", "");
-    applyLocalMinMax.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
-    applyLocalMinMax.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
-    applyLocalMinMax.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyLocalMinMax.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    applyLocalMinMax.xmlCapability()->setIOWritable(false);
+    applyLocalMinMax.xmlCapability()->setIOReadable(false);
+    applyLocalMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    applyLocalMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     applyLocalMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&applyGlobalMinMax,   "m_applyGlobalMinMax", "", "", "", "");
-    applyGlobalMinMax.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
-    applyGlobalMinMax.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
-    applyGlobalMinMax.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyGlobalMinMax.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    applyGlobalMinMax.xmlCapability()->setIOWritable(false);
+    applyGlobalMinMax.xmlCapability()->setIOReadable(false);
+    applyGlobalMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    applyGlobalMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     applyGlobalMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&applyFullRangeMinMax,   "m_applyFullRangeMinMax", "", "", "", "");
-    applyFullRangeMinMax.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
-    applyFullRangeMinMax.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
-    applyFullRangeMinMax.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyFullRangeMinMax.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    applyFullRangeMinMax.xmlCapability()->setIOWritable(false);
+    applyFullRangeMinMax.xmlCapability()->setIOReadable(false);
+    applyFullRangeMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    applyFullRangeMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     applyFullRangeMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&ternaryRangeSummary,        "ternaryRangeSummary", "Range summary", "", "", "");
-    ternaryRangeSummary.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    ternaryRangeSummary.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    ternaryRangeSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    ternaryRangeSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
 
     CAF_PDM_InitField(&userDefinedMaxValueSoil, "UserDefinedMaxSoil", 1.0, "Max", "", "Min value of the legend", "");
@@ -380,47 +380,47 @@ void RimTernaryLegendConfig::ternaryRanges(double& soilLower, double& soilUpper,
 void RimTernaryLegendConfig::updateLabelText()
 {
     {
-        userDefinedMinValueSoil.capability<caf::PdmUiFieldHandle>()->setUiName("Min");
-        userDefinedMaxValueSoil.capability<caf::PdmUiFieldHandle>()->setUiName("Max");
+        userDefinedMinValueSoil.uiCapability()->setUiName("Min");
+        userDefinedMaxValueSoil.uiCapability()->setUiName("Max");
 
         if (m_globalAutoMin[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSoil.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision) + ")");
+            userDefinedMinValueSoil.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision) + ")");
         }
 
         if (m_globalAutoMax[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSoil.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSoil.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision) + ")");
         }
     }
 
     {
-        userDefinedMinValueSgas.capability<caf::PdmUiFieldHandle>()->setUiName("Min");
-        userDefinedMaxValueSgas.capability<caf::PdmUiFieldHandle>()->setUiName("Max");
+        userDefinedMinValueSgas.uiCapability()->setUiName("Min");
+        userDefinedMaxValueSgas.uiCapability()->setUiName("Max");
 
         if (m_globalAutoMin[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSgas.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision) + ")");
+            userDefinedMinValueSgas.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision) + ")");
         }
 
         if (m_globalAutoMax[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSgas.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSgas.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision) + ")");
         }
     }
 
     {
-        userDefinedMinValueSwat.capability<caf::PdmUiFieldHandle>()->setUiName("Min");
-        userDefinedMaxValueSwat.capability<caf::PdmUiFieldHandle>()->setUiName("Max");
+        userDefinedMinValueSwat.uiCapability()->setUiName("Min");
+        userDefinedMaxValueSwat.uiCapability()->setUiName("Max");
 
         if (m_globalAutoMin[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSwat.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision) + ")");
+            userDefinedMinValueSwat.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision) + ")");
         }
 
         if (m_globalAutoMax[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSwat.capability<caf::PdmUiFieldHandle>()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSwat.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision) + ")");
         }
     }
 

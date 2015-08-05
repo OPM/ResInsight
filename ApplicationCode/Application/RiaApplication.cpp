@@ -1592,7 +1592,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         this->preferences()->fields(fields);
         for (size_t i = 0; i < fields.size(); i++)
         {
-            QVariant v = fields[i]->capability<caf::PdmUiFieldHandle>()->uiValue();
+            QVariant v = fields[i]->uiCapability()->uiValue();
             preferencesValues.push_back(v);
         }
     }
@@ -1648,7 +1648,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
             for (size_t i = 0; i < preferencesValues.size(); i++)
             {
-                fields[i]->capability<caf::PdmUiFieldHandle>()->setValueFromUi(preferencesValues[i]);
+                fields[i]->uiCapability()->setValueFromUi(preferencesValues[i]);
             }
         }
     }

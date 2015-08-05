@@ -590,7 +590,7 @@ void RiuWellImportWizard::slotCurrentIdChanged(int currentId)
             for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
             {
                 RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
-                oilField->wells.capability<caf::PdmUiFieldHandle>()->setUiHidden(hideWells);
+                oilField->wells.uiCapability()->setUiHidden(hideWells);
             }
         }
     }

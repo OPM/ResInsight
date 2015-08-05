@@ -36,18 +36,18 @@ RimEclipseCellColors::RimEclipseCellColors()
 
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     this->legendConfig = new RimLegendConfig();
-    this->legendConfig.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    this->legendConfig.capability<caf::PdmUiFieldHandle>()->setUiChildrenHidden(true);
+    this->legendConfig.uiCapability()->setUiHidden(true);
+    this->legendConfig.uiCapability()->setUiChildrenHidden(true);
 
     // MODTODO
     CAF_PDM_InitFieldNoDefault(&m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "");
-    m_legendConfigData.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    m_legendConfigData.capability<caf::PdmUiFieldHandle>()->setUiChildrenHidden(true);
+    m_legendConfigData.uiCapability()->setUiHidden(true);
+    m_legendConfigData.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
     this->ternaryLegendConfig = new RimTernaryLegendConfig();
-    this->ternaryLegendConfig.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    this->ternaryLegendConfig.capability<caf::PdmUiFieldHandle>()->setUiChildrenHidden(true);
+    this->ternaryLegendConfig.uiCapability()->setUiHidden(true);
+    this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,15 +92,15 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
     if (resultVarNameOfNewLegend == RimDefines::ternarySaturationResultName())
     {
-        this->ternaryLegendConfig.capability<caf::PdmUiFieldHandle>()->setUiHidden(false);
-        this->ternaryLegendConfig.capability<caf::PdmUiFieldHandle>()->setUiChildrenHidden(false);
-        this->legendConfig.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-        this->legendConfig.capability<caf::PdmUiFieldHandle>()->setUiChildrenHidden(true);
+        this->ternaryLegendConfig.uiCapability()->setUiHidden(false);
+        this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(false);
+        this->legendConfig.uiCapability()->setUiHidden(true);
+        this->legendConfig.uiCapability()->setUiChildrenHidden(true);
     }
     else
     {
-        this->ternaryLegendConfig.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-        this->ternaryLegendConfig.capability<caf::PdmUiFieldHandle>()->setUiChildrenHidden(true);
+        this->ternaryLegendConfig.uiCapability()->setUiHidden(true);
+        this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(true);
 
         if (this->legendConfig()->resultVariableName() != resultVarNameOfNewLegend)
         {
@@ -130,8 +130,8 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
             }
         }
     
-        this->legendConfig.capability<caf::PdmUiFieldHandle>()->setUiHidden(false);
-        this->legendConfig.capability<caf::PdmUiFieldHandle>()->setUiChildrenHidden(false);
+        this->legendConfig.uiCapability()->setUiHidden(false);
+        this->legendConfig.uiCapability()->setUiChildrenHidden(false);
     }
 
 }

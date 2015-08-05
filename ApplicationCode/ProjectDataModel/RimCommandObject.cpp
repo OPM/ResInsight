@@ -60,16 +60,16 @@ RimCommandExecuteScript::RimCommandExecuteScript()
     CAF_PDM_InitFieldNoDefault(&name,       "Name",      "Name", "", "", "");
 
     CAF_PDM_InitField(&scriptText, "ScriptText",  QString(), "ScriptText", "", "" ,"");
-    scriptText.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    scriptText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&isEnabled,         "IsEnabled",      true, "Enabled ", "", "", "");
     
     
     CAF_PDM_InitField(&execute,         "Execute",      true, "Execute", "", "", "");
-    execute.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
-    execute.capability<caf::PdmXmlFieldHandle>()->setIOReadable(false);
-    execute.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    execute.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    execute.xmlCapability()->setIOWritable(false);
+    execute.xmlCapability()->setIOReadable(false);
+    execute.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    execute.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,7 +46,7 @@ RimCellFilter::RimCellFilter()
 
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Filter Name"), "Name", "", "", "");
     CAF_PDM_InitField(&isActive,  "Active",           true,                   "Active",   "", "", "");
-    isActive.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    isActive.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&filterMode, "FilterType", "Filter Type", "", "", "");
 }

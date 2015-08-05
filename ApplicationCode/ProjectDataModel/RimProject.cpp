@@ -48,44 +48,44 @@ CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 RimProject::RimProject(void)
 {
     CAF_PDM_InitFieldNoDefault(&m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "");
-    m_projectFileVersionString.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    m_projectFileVersionString.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&nextValidCaseId, "NextValidCaseId", 0, "Next Valid Case ID", "", "" ,"");
-    nextValidCaseId.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    nextValidCaseId.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&nextValidCaseGroupId, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "" ,"");
-    nextValidCaseGroupId.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    nextValidCaseGroupId.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&oilFields, "OilFields", "Oil Fields",  "", "", "");
-    oilFields.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    oilFields.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
-    treeViewState.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    treeViewState.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
-    wellPathImport.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    wellPathImport.capability<caf::PdmUiFieldHandle>()->setUiChildrenHidden(true);
+    wellPathImport.uiCapability()->setUiHidden(true);
+    wellPathImport.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
-    //wellPathImport.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    //wellPathImport.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
-    currentModelIndexPath.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    currentModelIndexPath.uiCapability()->setUiHidden(true);
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
-    casesObsolete.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    casesObsolete.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    casesObsolete.uiCapability()->setUiHidden(true);
+    casesObsolete.xmlCapability()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
     CAF_PDM_InitFieldNoDefault(&caseGroupsObsolete, "CaseGroups", "",  "", "", "");
-    caseGroupsObsolete.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    caseGroupsObsolete.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    caseGroupsObsolete.uiCapability()->setUiHidden(true);
+    caseGroupsObsolete.xmlCapability()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
 
     // Initialization
 
     scriptCollection = new RimScriptCollection();
-    scriptCollection->directory.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    scriptCollection->directory.uiCapability()->setUiHidden(true);
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back(new RimOilField);

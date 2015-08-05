@@ -33,11 +33,11 @@ RimFault::RimFault()
     CAF_PDM_InitObject("RimFault", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&name,       "FaultName",             "Name", "", "", "");
-    name.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    name.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
+    name.uiCapability()->setUiHidden(true);
+    name.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&showFault,         "ShowFault",      true, "Show fault", "", "", "");
-    showFault.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    showFault.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&faultColor,       "Color",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault color", "", "", "");
 

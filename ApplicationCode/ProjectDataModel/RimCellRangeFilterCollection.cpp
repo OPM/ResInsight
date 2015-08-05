@@ -42,7 +42,7 @@ RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 
     CAF_PDM_InitFieldNoDefault(&rangeFilters,   "RangeFilters", "Range Filters", "", "", "");
     CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
-    isActive.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    isActive.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

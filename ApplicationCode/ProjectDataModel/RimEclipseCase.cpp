@@ -58,20 +58,20 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");
-    m_matrixModelResults.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    m_matrixModelResults.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
-    m_fractureModelResults.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    m_fractureModelResults.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
     CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&filesContainingFaults,    "FilesContainingFaults", "", "", "", "");
-    filesContainingFaults.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    filesContainingFaults.uiCapability()->setUiHidden(true);
 
     // Obsolete field
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
-    caseName.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false);
-    caseName.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    caseName.xmlCapability()->setIOWritable(false);
+    caseName.uiCapability()->setUiHidden(true);
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
     m_fractureModelResults = new RimReservoirCellResultsStorage;

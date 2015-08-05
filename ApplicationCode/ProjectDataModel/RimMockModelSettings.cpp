@@ -39,7 +39,7 @@ RimMockModelSettings::RimMockModelSettings()
     CAF_PDM_InitField(&cellCountZ,    "CellCountZ",  quint64(10), "Cell Count Z", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&totalCellCount,  "TotalCellCount", "Total Cell Count",   "", "", "");
-    totalCellCount.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
+    totalCellCount.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&resultCount,    "ResultCount",    quint64(3),    "Result Count", "", "", "");
     CAF_PDM_InitField(&timeStepCount,  "TimeStepCount",  quint64(10),   "Time Step Count", "", "", "");

@@ -61,7 +61,7 @@ RimView::RimView(void)
     CAF_PDM_InitField(&name, "UserDescription", QString(""), "Name", "", "", "");
 
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
-    showWindow.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    showWindow.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
 
     double defaultScaleFactor = 1.0;
@@ -72,12 +72,12 @@ RimView::RimView(void)
     CAF_PDM_InitField(&backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum frame rate", "", "", "");
-    maximumFrameRate.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    maximumFrameRate.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "");
-    hasUserRequestedAnimation.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    hasUserRequestedAnimation.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "");
-    m_currentTimeStep.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    m_currentTimeStep.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();

@@ -49,17 +49,17 @@ RimEclipseResultCase::RimEclipseResultCase()
     CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
-    caseFileName.capability<caf::PdmUiFieldHandle>()->setUiReadOnly(true);
+    caseFileName.uiCapability()->setUiReadOnly(true);
 
     // Obsolete, unused field
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
-    caseDirectory.capability<caf::PdmXmlFieldHandle>()->setIOWritable(false); 
-    caseDirectory.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    caseDirectory.xmlCapability()->setIOWritable(false); 
+    caseDirectory.uiCapability()->setUiHidden(true);
 
-    flipXAxis.capability<caf::PdmXmlFieldHandle>()->setIOWritable(true);
-    //flipXAxis.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
-    flipYAxis.capability<caf::PdmXmlFieldHandle>()->setIOWritable(true);
-    //flipYAxis.capability<caf::PdmUiFieldHandle>()->setUiHidden(true);
+    flipXAxis.xmlCapability()->setIOWritable(true);
+    //flipXAxis.uiCapability()->setUiHidden(true);
+    flipYAxis.xmlCapability()->setIOWritable(true);
+    //flipYAxis.uiCapability()->setUiHidden(true);
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
