@@ -299,17 +299,6 @@ void RimEclipseCase::computeCachedData()
 RimCaseCollection* RimEclipseCase::parentCaseCollection()
 {
     return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
-/*
-    std::vector<RimCaseCollection*> parentObjects;
-    this->parentObjectsOfType(parentObjects);
-
-    if (parentObjects.size() > 0)
-    {
-        return parentObjects[0];
-    }
-
-    return NULL;
-*/
 }
 
 //--------------------------------------------------------------------------------------------------

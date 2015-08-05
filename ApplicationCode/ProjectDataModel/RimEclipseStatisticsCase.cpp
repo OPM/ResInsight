@@ -162,19 +162,6 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
 {
     return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
-
-    // MODTODO Remove
-/*
-    std::vector<RimCaseCollection*> parentObjects;
-    this->parentObjectsOfType(parentObjects);
-
-    if (parentObjects.size() > 0)
-    {
-        return parentObjects[0];
-    }
-
-    return NULL;
-*/
 }
 
 //--------------------------------------------------------------------------------------------------
