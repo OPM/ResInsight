@@ -224,10 +224,10 @@ void RimCommandIssueFieldChanged::redo()
     if (pdmObject)
     {
         caf::PdmFieldHandle* fieldHandle = findFieldByKeyword(pdmObject, this->fieldName);
-        caf::PdmUiFieldHandle* uiFieldHandle = uiField(fieldHandle);
 
-        if (uiFieldHandle)
+		if (fieldHandle && fieldHandle->uiCapability())
         {
+			caf::PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
             QVariant variantValue(this->fieldValueToApply);
             uiFieldHandle->setValueFromUi(variantValue);
         }

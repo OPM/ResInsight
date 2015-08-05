@@ -251,8 +251,8 @@ PdmUiItem* PdmUiTreeOrdering::uiItem() const
 PdmUiItem* PdmUiTreeOrdering::activeItem() const 
 {
     if (isRepresentingObject()) return uiObj(m_object); 
-    if (isRepresentingField())  return uiField(m_field); 
-    if (isDisplayItemOnly()) return m_uiItem;
+	if (isRepresentingField())  return m_field->uiCapability();
+	if (isDisplayItemOnly()) return m_uiItem;
     return NULL;
 }
 

@@ -174,11 +174,11 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
-    if (m_pdmListField && uiField(m_pdmListField))
+	if (m_pdmListField && m_pdmListField->uiCapability())
     {
         QString text = "";
-        m_tableHeadingIcon->setPixmap(uiField(m_pdmListField)->uiIcon(uiConfigName).pixmap(16, 16));
-        m_tableHeading->setText(uiField(m_pdmListField)->uiName(uiConfigName));
+		m_tableHeadingIcon->setPixmap(m_pdmListField->uiCapability()->uiIcon(uiConfigName).pixmap(16, 16));
+		m_tableHeading->setText(m_pdmListField->uiCapability()->uiName(uiConfigName));
     }
     else
     {
@@ -194,8 +194,12 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 void PdmUiTableViewEditor::setListField(PdmChildArrayFieldHandle* pdmListField)
 {
     m_pdmListField = pdmListField;
-    caf::PdmUiFieldHandle* uifield = uiField(m_pdmListField);
 
+	caf::PdmUiFieldHandle* uifield = NULL;
+	if (m_pdmListField)
+	{
+		uifield = m_pdmListField->uiCapability();
+	}
     this->bindToPdmItem(uifield);
 
     if (!m_pdmListField)
@@ -398,10 +402,10 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
         {
             QModelIndex mi = modelIndexList[i];
             PdmFieldHandle* pdmFieldHandle = m_tableModelPdm->getField(mi);
-            PdmUiFieldHandle* uiFieldHandle = uiField(pdmFieldHandle);
-            if (uiFieldHandle)
-            {
-                items.push_back(uiFieldHandle);
+
+			if (pdmFieldHandle && pdmFieldHandle->uiCapability())
+			{
+				items.push_back(pdmFieldHandle->uiCapability());
             }
         }
 

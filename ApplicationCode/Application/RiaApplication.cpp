@@ -2068,7 +2068,7 @@ void RiaApplication::regressionTestConfigureProject()
             {
                 resvView->faultCollection->setShowFaultsOutsideFilters(false);
 
-                caf::PdmUiFieldHandle* uiFieldHandle = uiField(&resvView->faultResultSettings->showCustomFaultResult);
+				caf::PdmUiFieldHandle* uiFieldHandle = resvView->faultResultSettings->showCustomFaultResult.uiCapability();
                 if (uiFieldHandle)
                 {
                     uiFieldHandle->setValueFromUi(false);

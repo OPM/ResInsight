@@ -59,7 +59,7 @@ void RimMockModelSettings::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 {
     totalCellCount = cellCountX * cellCountY * cellCountZ;
 
-    caf::PdmUiFieldHandle* uiFieldHandle = uiField(&totalCellCount);
+	caf::PdmUiFieldHandle* uiFieldHandle = totalCellCount.uiCapability();
     if (uiFieldHandle)
     {
         uiFieldHandle->updateConnectedEditors();

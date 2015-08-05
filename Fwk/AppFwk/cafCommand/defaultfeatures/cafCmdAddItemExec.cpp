@@ -77,9 +77,9 @@ void CmdAddItemExec::redo()
     PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject,  m_commandData->m_pathToField);
 
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
-    if (listField && xmlField(field))
+    if (listField && field->xmlCapability())
     {
-        QString classKeyword = xmlField(field)->childClassKeyword();
+		QString classKeyword = field->xmlCapability()->childClassKeyword();
 
         if (classKeyword.isEmpty()) return;
 

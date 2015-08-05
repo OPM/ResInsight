@@ -57,7 +57,7 @@ QString CmdFieldChangeExec::name()
     {
         QString fieldText;
 
-        PdmUiFieldHandle* uiFieldHandle = uiField(field);
+		PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
         {
             fieldText = QString("Change field '%1'").arg(uiFieldHandle->uiName());
@@ -91,8 +91,8 @@ void CmdFieldChangeExec::redo()
         return;
     }
 
-    PdmUiFieldHandle* uiFieldHandle = uiField(field);
-    PdmXmlFieldHandle* xmlFieldHandle = xmlField(field);
+	PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+	PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
     if (uiFieldHandle && xmlFieldHandle)
     {
         if (m_commandData->m_redoFieldValueSerialized.isEmpty())
@@ -140,8 +140,8 @@ void CmdFieldChangeExec::undo()
         return;
     }
 
-    PdmUiFieldHandle* uiFieldHandle = uiField(field);
-    PdmXmlFieldHandle* xmlFieldHandle = xmlField(field);
+	PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+	PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
     if (uiFieldHandle && xmlFieldHandle)
     {
         QXmlStreamReader xmlStream(m_commandData->m_undoFieldValueSerialized);

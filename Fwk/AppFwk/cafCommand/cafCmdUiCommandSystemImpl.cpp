@@ -109,7 +109,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand(PdmFieldHandle* editorField, co
     for (int i = 0; i < fieldsToUpdate.size(); i++)
     {
         PdmFieldHandle* field = fieldsToUpdate[i];
-        PdmUiFieldHandle* uiFieldHandle = uiField(field);
+		PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
         {
             QVariant fieldCurrentUiValue = uiFieldHandle->uiValue();

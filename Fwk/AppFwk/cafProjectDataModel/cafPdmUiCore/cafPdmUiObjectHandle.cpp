@@ -47,7 +47,7 @@ void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrderi
         m_owner->fields(fields);
         for (size_t i = 0; i < fields.size(); ++i)
         {
-            PdmUiFieldHandle * field = uiField(fields[i]);
+			PdmUiFieldHandle * field = fields[i]->uiCapability();
             if (!uiOrdering.contains(field))
             {
                 uiOrdering.add(field->fieldHandle());
@@ -114,7 +114,7 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrderi
         {
             if (fields[fIdx]->hasChildObjects() && !uiTreeOrdering->containsField(fields[fIdx]))
             {
-                if (uiField(fields[fIdx])->isUiHidden() && !uiField(fields[fIdx])->isUiChildrenHidden())
+				if (fields[fIdx]->uiCapability()->isUiHidden() && !fields[fIdx]->uiCapability()->isUiChildrenHidden())
                 {
                     std::vector<PdmObjectHandle*> children;
                     fields[fIdx]->childObjects(&children);
@@ -127,7 +127,7 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrderi
                         }
                     }
                 }
-                else if (!uiField(fields[fIdx])->isUiHidden())
+				else if (!fields[fIdx]->uiCapability()->isUiHidden())
                 {
                     uiTreeOrdering->add(fields[fIdx]);
                 }
@@ -162,7 +162,7 @@ void PdmUiObjectHandle::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigNa
     {
         if (!root->ignoreSubTree())
         {
-            if (root->isRepresentingField() && !uiField(root->field())->isUiChildrenHidden(uiConfigName))
+			if (root->isRepresentingField() && !root->field()->uiCapability()->isUiChildrenHidden(uiConfigName))
             {
                 std::vector<PdmObjectHandle*> fieldsChildObjects;
                 root->field()->childObjects(&fieldsChildObjects);
@@ -196,7 +196,7 @@ void PdmUiObjectHandle::updateUiIconFromToggleField()
 {
     if (objectToggleField())
     {
-        PdmUiFieldHandle* uiFieldHandle = uiField(objectToggleField());
+		PdmUiFieldHandle* uiFieldHandle = objectToggleField()->uiCapability();
         if (uiFieldHandle)
         {
             bool active = uiFieldHandle->uiValue().toBool();

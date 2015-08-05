@@ -8,16 +8,6 @@
 namespace caf
 {
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle* uiField(PdmFieldHandle* field)
-{
-    if (!field) return NULL;
-    PdmUiFieldHandle* uiField = field->capability<PdmUiFieldHandle>();
-    return uiField;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -64,5 +54,15 @@ void PdmUiFieldHandle::updateConnectedUiEditors(PdmFieldHandle* field)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Implementation of uiCapability() defined in cafPdmFieldHandle.h
+//--------------------------------------------------------------------------------------------------
+PdmUiFieldHandle* PdmFieldHandle::uiCapability()
+{
+	PdmUiFieldHandle* uiField = capability<PdmUiFieldHandle>();
+	assert(uiField);
+
+	return uiField;
+}
 
 } // End of namespace caf

@@ -896,7 +896,7 @@ void WellSelectionPage::buildWellTreeView()
         if (oilRegion->selected)
         {
             caf::PdmObjectGroup* regGroup = new caf::PdmObjectGroup;
-            regGroup->setUiName(uiField(oilRegion->userDescriptionField())->uiValue().toString());
+            regGroup->setUiName(oilRegion->userDescriptionField()->uiCapability()->uiValue().toString());
 
             m_regionsWithVisibleWells->objects.push_back(regGroup);
 
@@ -906,7 +906,7 @@ void WellSelectionPage::buildWellTreeView()
                 if (oilField->selected)
                 {
                     caf::PdmObjectGroup* fieldGroup = new caf::PdmObjectGroup;
-                    fieldGroup->setUiName(uiField(oilField->userDescriptionField())->uiValue().toString());
+					fieldGroup->setUiName(oilField->userDescriptionField()->uiCapability()->uiValue().toString());
 
                     regGroup->objects.push_back(fieldGroup);
 

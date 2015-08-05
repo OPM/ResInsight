@@ -33,6 +33,5 @@ private:
     PdmFieldHandle* m_owner;
 };
 
-PdmUiFieldHandle* uiField(PdmFieldHandle* field);
 
 } // End of namespace caf

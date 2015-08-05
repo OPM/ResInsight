@@ -57,6 +57,7 @@ class QXmlStreamWriter;
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmXmlObjectHandleMacros.h"
 
+#include "cafPdmFieldHandle.h"
 #include "cafInternalPdmUiFieldCapability.h"
 #include "cafInternalPdmXmlFieldCapability.h"
 
@@ -153,7 +154,7 @@ public:
     {
         addField(field, keyword);
 
-        PdmUiFieldHandle* uiFieldHandle = uiField(field);
+		PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
         {
             uiFieldHandle->setUiItemInfo(fieldDescription);

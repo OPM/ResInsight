@@ -8,6 +8,8 @@ namespace caf
 {
 
 class PdmObjectHandle;
+class PdmUiFieldHandle;
+class PdmXmlFieldHandle;
 
 //==================================================================================================
 /// Base class for all fields, making it possible to handle them generically
@@ -38,6 +40,9 @@ public:
 
     template <typename CapabilityType>
     CapabilityType*  capability();
+
+	PdmUiFieldHandle*  uiCapability();
+	PdmXmlFieldHandle* xmlCapability();
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN(PdmFieldHandle);

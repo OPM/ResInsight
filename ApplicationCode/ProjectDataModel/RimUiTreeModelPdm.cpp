@@ -1116,7 +1116,7 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
             {
                 caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(uiObjectHandle->objectToggleField());
 
-                caf::PdmUiFieldHandle* uiFieldHandle = uiField(field);
+				caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
                 if (uiFieldHandle)
                 {
                     if (state == RimUiTreeView::TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
@@ -1142,7 +1142,7 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
                 {
                     caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(uiObjectHandleChild->objectToggleField());
 
-                    caf::PdmUiFieldHandle* uiFieldHandle = uiField(field);
+					caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
                     if (uiFieldHandle)
                     {
                         if (state == RimUiTreeView::TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);

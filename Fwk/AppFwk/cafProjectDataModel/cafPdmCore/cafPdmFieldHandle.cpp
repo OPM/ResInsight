@@ -68,5 +68,17 @@ bool PdmFieldHandle::hasPtrReferencedObjects()
     return (ptrReffedObjs.size() > 0);
 }
 
+// These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
+/*
+PdmUiFieldHandle* PdmFieldHandle::uiCapability()
+{
+	return NULL;
+}
+
+PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
+{
+	return NULL;
+}
+*/
 
 } // End of namespace caf

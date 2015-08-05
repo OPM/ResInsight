@@ -51,8 +51,6 @@ private:
  
 };
 
-PdmXmlFieldHandle* xmlField(PdmFieldHandle* field);
-
 } // End of namespace caf
 
 #include "cafInternalPdmXmlFieldCapability.h"

@@ -8,15 +8,6 @@
 namespace caf
 {
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmXmlFieldHandle* xmlField(PdmFieldHandle* field)
-{
-    if (!field) return NULL;
-    PdmXmlFieldHandle* xmlField = field->capability<PdmXmlFieldHandle>();
-    return xmlField;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -56,6 +47,17 @@ PdmXmlFieldHandle::PdmXmlFieldHandle(PdmFieldHandle* owner, bool giveOwnership) 
 QString PdmXmlFieldHandle::childClassKeyword()
 {
     return m_childClassKeyword;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Implementation of uiCapability() defined in cafPdmFieldHandle.h
+//--------------------------------------------------------------------------------------------------
+PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
+{
+	PdmXmlFieldHandle* xmlField = capability<PdmXmlFieldHandle>();
+	assert(xmlField);
+
+	return xmlField;
 }
 
 } // End of namespace caf

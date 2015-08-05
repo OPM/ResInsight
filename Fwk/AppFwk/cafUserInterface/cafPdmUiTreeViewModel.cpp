@@ -484,7 +484,7 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
     bool isDisplayOnly = uitreeOrdering->isDisplayItemOnly();
 
 	// MODTODO
-    //assert (uitreeOrdering->isValid()); // Tree generation has some error.
+	//assert (uitreeOrdering->isValid()); // Tree generation has some error.
 
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
@@ -495,7 +495,7 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
             {
                 if (pdmUiObject->userDescriptionField())
                 {
-                    caf::PdmUiFieldHandle* uiFieldHandle = uiField(pdmUiObject->userDescriptionField());
+					caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObject->userDescriptionField()->uiCapability();
                     if (uiFieldHandle)
                     {
                         return uiFieldHandle->uiValue();
@@ -559,7 +559,7 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
             PdmUiObjectHandle* pdmUiObj = uiObj(uitreeOrdering->object());
             if (pdmUiObj && pdmUiObj->objectToggleField())
             {
-                caf::PdmUiFieldHandle* uiFieldHandle = uiField(pdmUiObj->objectToggleField());
+				caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObj->objectToggleField()->uiCapability();
                 if (uiFieldHandle)
             {
                     bool isToggledOn = uiFieldHandle->uiValue().toBool();
@@ -603,7 +603,7 @@ bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value
     {
         if (role == Qt::EditRole && uiObject->userDescriptionField())
         {
-            PdmUiFieldHandle* userDescriptionUiField = uiField(uiObject->userDescriptionField());
+			PdmUiFieldHandle* userDescriptionUiField = uiObject->userDescriptionField()->uiCapability();
             if (userDescriptionUiField)
             {
                 userDescriptionUiField->setValueFromUi(value);
@@ -615,7 +615,7 @@ bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value
         {
             bool toggleOn = (value == Qt::Checked);
 
-            PdmUiFieldHandle* toggleUiField = uiField(uiObject->objectToggleField());
+			PdmUiFieldHandle* toggleUiField = uiObject->objectToggleField()->uiCapability();
             if (toggleUiField)
             {
                 toggleUiField->setValueFromUi(value);
@@ -649,7 +649,7 @@ Qt::ItemFlags PdmUiTreeViewModel::flags(const QModelIndex &index) const
         PdmUiObjectHandle* pdmUiObject = uiObj(treeItem->object());
         if (pdmUiObject)
         {
-            if (pdmUiObject->userDescriptionField() && !uiField(pdmUiObject->userDescriptionField())->isUiReadOnly())
+			if (pdmUiObject->userDescriptionField() && !pdmUiObject->userDescriptionField()->uiCapability()->isUiReadOnly())
         {
             flagMask = flagMask | Qt::ItemIsEditable;
         }

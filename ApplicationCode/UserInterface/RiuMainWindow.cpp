@@ -1491,7 +1491,7 @@ void RiuMainWindow::slotFramerateChanged(double frameRate)
 {
     if (RiaApplication::instance()->activeReservoirView() != NULL)
     {
-        caf::PdmUiFieldHandle* uiFieldHandle = uiField(&RiaApplication::instance()->activeReservoirView()->maximumFrameRate);
+		caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->maximumFrameRate.uiCapability();
         uiFieldHandle->setValueFromUi(QVariant(frameRate));
     }
 }
@@ -1754,7 +1754,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
     RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeRiv) return;
 
-    caf::PdmUiFieldHandle* uiFieldHandle = uiField(&activeRiv->faultCollection->showFaultLabel);
+	caf::PdmUiFieldHandle* uiFieldHandle = activeRiv->faultCollection->showFaultLabel.uiCapability();
     uiFieldHandle->setValueFromUi(showLabels);
 
     refreshDrawStyleActions();
@@ -1885,7 +1885,7 @@ void RiuMainWindow::slotScaleChanged(int scaleValue)
 {
     if (RiaApplication::instance()->activeReservoirView())
     {
-        caf::PdmUiFieldHandle* uiFieldHandle = uiField(&RiaApplication::instance()->activeReservoirView()->scaleZ);
+		caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->scaleZ.uiCapability();
         uiFieldHandle->setValueFromUi(scaleValue);
     }
 }
@@ -2116,7 +2116,7 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
         caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> rangeAddType;
         rangeAddType = doAdd ? RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL : RimEclipseWellCollection::RANGE_ADD_NONE;
 
-        caf::PdmUiFieldHandle* pdmUiFieldHandle = uiField(&riv->wellCollection()->wellCellsToRangeFilterMode);
+		caf::PdmUiFieldHandle* pdmUiFieldHandle = riv->wellCollection()->wellCellsToRangeFilterMode.uiCapability();
         if (pdmUiFieldHandle)
         {
             pdmUiFieldHandle->setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
