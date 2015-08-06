@@ -69,6 +69,7 @@
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
 #include "RigFemPartResultsCollection.h"
+#include "cafSelectionManager.h"
 
 
 //==================================================================================================
@@ -558,6 +559,9 @@ void RiuMainWindow::createDockPanels()
 
 		connect(m_projectTreeView->treeView()->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
 			this, SLOT(selectedObjectsChanged(const QItemSelection&, const QItemSelection &)));
+        m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
+
 
 		// MODTODO
 		//m_windowsMenu->addAction(dockWidget->toggleViewAction());
@@ -2190,11 +2194,33 @@ void RiuMainWindow::forceProjectTreeRepaint()
     m_OBSOLETE_treeView->scroll(0,-1);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::selectedObjectsChanged(const QItemSelection& selected, const QItemSelection & deselected)
 {
+    std::vector<caf::PdmUiItem*> uiItems;
+    m_projectTreeView->selectedObjects(uiItems);
 
-	// MODTODO
+    caf::SelectionManager::instance()->setSelectedItems(uiItems);
+}
 
-	// Wire up update of property editor
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::customMenuRequested(const QPoint& pos)
+{
+    QMenu menu;
 
+    std::vector<QAction*> actions;
+
+    RiaApplication* app = RiaApplication::instance();
+    app->project()->actionsBasedOnSelection(actions);
+
+    for (size_t i = 0; i < actions.size(); i++)
+    {
+        menu.addAction(actions[i]);
+    }
+
+    menu.exec(pos);
 }

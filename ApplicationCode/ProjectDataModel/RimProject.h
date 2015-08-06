@@ -24,6 +24,8 @@
 #include "cafPdmChildField.h"
 #include "cafPdmDocument.h"
 
+#include <vector>
+
 class RigCaseData;
 class RigGridManager;
 class RigMainGrid;
@@ -34,6 +36,9 @@ class RimIdenticalGridCaseGroup;
 class RimOilField;
 class RimScriptCollection;
 class RimWellPathImport;
+
+
+class QAction;
 
 //==================================================================================================
 ///  
@@ -69,6 +74,8 @@ public:
     void            computeUtmAreaOfInterest();
 
     RimOilField*    activeOilField();
+
+    void            actionsBasedOnSelection(std::vector<QAction*>& actions);
 
 protected:
     // Overridden methods

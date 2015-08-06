@@ -503,3 +503,50 @@ void RimProject::computeUtmAreaOfInterest()
     }
 }
 
+
+
+
+
+
+
+#include "cafCmdFeatureManager.h"
+#include "cafSelectionManager.h"
+
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellRangeFilter.h"
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
+{
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+
+    std::vector<caf::PdmUiItem*> uiItems;
+    caf::SelectionManager::instance()->selectedItems(uiItems);
+
+    if (uiItems.size() == 1)
+    {
+        if (dynamic_cast<RimCellRangeFilterCollection*>(uiItems[0]))
+        {
+            actions.push_back(commandManager->action("RicRangeFilterNew"));
+        }
+        if (dynamic_cast<RimCellRangeFilter*>(uiItems[0]))
+        {
+            actions.push_back(commandManager->action("RicRangeFilterNew"));
+        }
+    }
+    
+    
+/*
+    for (size_t i = 0; i < uiItems.size(); i++)
+    {
+        if (dynamic_cast<RimCellRangeFilter*>(uiItems[i]))
+        {
+            actions.push_back(commandManager->action("NewRangeFilter"));
+        }
+    }
+*/
+}
+
