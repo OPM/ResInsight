@@ -107,11 +107,9 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
    
     this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
 
-    this->cellEdgeResult()->setReservoirView(this);
+	this->cellEdgeResult()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setReservoirView(this);
-    this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
     this->faultResultSettings()->setReservoirView(this);
@@ -120,7 +118,6 @@ RimEclipseView::RimEclipseView()
 
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
     m_reservoir = NULL;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,7 +138,6 @@ RimEclipseView::~RimEclipseView()
 
     m_reservoir = NULL;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -957,16 +953,16 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
             localNegClosestToZero = globalNegClosestToZero;
         }
 
-        resultColors->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        resultColors->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+        resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
-        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig->legend());
-        resultColors->legendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
+        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
+        resultColors->legendConfig()->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
     }
     else
     {
-        resultColors->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        resultColors->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+        resultColors->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
+        resultColors->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
@@ -1431,12 +1427,12 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::resetLegendsInViewer()
 {
-    this->cellResult()->legendConfig->recreateLegend();
+    this->cellResult()->legendConfig()->recreateLegend();
     this->cellResult()->ternaryLegendConfig->recreateLegend();
     this->cellEdgeResult()->legendConfig->recreateLegend();
 
     m_viewer->removeAllColorLegends();
-    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig()->legend());
     m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
 }
 

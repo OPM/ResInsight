@@ -125,7 +125,6 @@ RimLegendConfig::RimLegendConfig()
 
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     m_legend = new cvf::OverlayScalarMapperLegend(standardFont);
-    m_position = cvf::Vec2ui(20, 50);
 
     updateFieldVisibility();
     updateLegend();
@@ -536,14 +535,6 @@ cvf::ref<cvf::Color3ubArray> RimLegendConfig::interpolateColorArray(const cvf::C
     return colors;
 }
 */
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimLegendConfig::setPosition(cvf::Vec2ui position)
-{
-    m_position = position;
-    updateLegend();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -78,7 +78,6 @@ RimGeoMechView::RimGeoMechView(void)
     propertyFilterCollection->setReservoirView(this);
 
     this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
     this->cellResult()->legendConfig()->setReservoirView(this);
 
     m_scaleTransform = new cvf::Transform();
