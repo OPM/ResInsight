@@ -6,10 +6,16 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNew.h
+${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceI.h
+${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.h
+${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNew.cpp
+${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceI.cpp
+${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.cpp
+${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -25,7 +25,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicRangeFilterNewSliceI : public caf::CmdFeature
+class RicRangeFilterNewSliceK : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

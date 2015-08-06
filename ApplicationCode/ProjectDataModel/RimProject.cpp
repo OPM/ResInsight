@@ -531,8 +531,11 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         if (dynamic_cast<RimCellRangeFilterCollection*>(uiItems[0]))
         {
             actions.push_back(commandManager->action("RicRangeFilterNew"));
+            actions.push_back(commandManager->action("RicRangeFilterNewSliceI"));
+            actions.push_back(commandManager->action("RicRangeFilterNewSliceJ"));
+            actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
         }
-        if (dynamic_cast<RimCellRangeFilter*>(uiItems[0]))
+        else if (dynamic_cast<RimCellRangeFilter*>(uiItems[0]))
         {
             actions.push_back(commandManager->action("RicRangeFilterNew"));
         }

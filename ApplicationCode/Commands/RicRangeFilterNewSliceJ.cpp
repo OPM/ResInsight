@@ -1,13 +1,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2014 Ceetron Solutions AS, USFOS AS, AMOS - NTNU
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
-//  RPM is free software: you can redistribute it and/or modify
+//  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 // 
-//  RPM is distributed in the hope that it will be useful, but WITHOUT ANY
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
 // 
@@ -16,22 +17,23 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRangeFilterNew.h"
+#include "RicRangeFilterNewSliceJ.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimEclipseView.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicRangeFilterNew, "RicRangeFilterNew");
+#include <vector>
+
+CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceJ, "RicRangeFilterNewSliceJ");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicRangeFilterNew::isCommandEnabled()
+bool RicRangeFilterNewSliceJ::isCommandEnabled()
 {
     std::vector<RimCellRangeFilter*> selectedRangeFilter;
     caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
@@ -52,21 +54,11 @@ bool RicRangeFilterNew::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNew::onActionTriggered(bool isChecked)
+void RicRangeFilterNewSliceJ::onActionTriggered(bool isChecked)
 {
-    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
-    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
+    // MODTODO
 
-    if (selectedRangeFilterCollection.size() == 1)
-    {
-//         selectedRangeFilterCollection[0]->rangeFilters.push_back(new RimCellRangeFilter);
-//         selectedRangeFilterCollection[0]->reservoirView()->createDisplayModelAndRedraw();
-    }
-
-
-
-/*
-    EvmProject* proj = EvaApplication::instance()->project();
+/*    EvmProject* proj = EvaApplication::instance()->project();
 
     std::vector<EvmNode*> selectedNodes;
     caf::SelectionManager::instance()->objectsByType(&selectedNodes, caf::SelectionManager::CURRENT);
@@ -116,9 +108,8 @@ void RicRangeFilterNew::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNew::setupActionLook(QAction* actionToSetup)
+void RicRangeFilterNewSliceJ::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/CellFilter_Range.png"));
-    actionToSetup->setText("New Range Filter");
+    actionToSetup->setText("New J-slice range filter");
 }
 

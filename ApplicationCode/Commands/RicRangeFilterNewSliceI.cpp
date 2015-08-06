@@ -1,13 +1,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2014 Ceetron Solutions AS, USFOS AS, AMOS - NTNU
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
-//  RPM is free software: you can redistribute it and/or modify
+//  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 // 
-//  RPM is distributed in the hope that it will be useful, but WITHOUT ANY
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
 // 
@@ -16,38 +17,31 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "EvcNewBoundaryConditionSelectedItemsFeature.h"
+#include "RicRangeFilterNewSliceI.h"
 
-#include "EvaApplication.h"
+#include "RimCellRangeFilter.h"
+#include "RimCellRangeFilterCollection.h"
 
-#include "EvmNode.h"
-#include "EvmProject.h"
-
-#include "cafCmdExecCommandManager.h"
-#include "cafCmdSelectionChangeExec.h"
-#include "cafCmdFeatureManager.h"
-#include "cafCmdSelectionHelper.h"
 #include "cafSelectionManager.h"
-
-#include "defaultfeatures/cafCmdAddItemFeature.h"
-#include "defaultfeatures/cafCmdAddItemExec.h"
-#include "defaultfeatures/cafCmdAddItemExecData.h"
 
 #include <QAction>
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT(EvcNewBoundaryConditionSelectedItemsFeature, "EvcNewBoundaryConditionSelectedItemsFeature");
+CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceI, "RicRangeFilterNewSliceI");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool EvcNewBoundaryConditionSelectedItemsFeature::isCommandEnabled()
+bool RicRangeFilterNewSliceI::isCommandEnabled()
 {
-    std::vector<EvmNode*> selectedNodes;
-    caf::SelectionManager::instance()->objectsByType(&selectedNodes, caf::SelectionManager::CURRENT);
+    std::vector<RimCellRangeFilter*> selectedRangeFilter;
+    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
 
-    if (selectedNodes.size() > 0)
+    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
+    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
+
+    if (selectedRangeFilter.size() > 0 || selectedRangeFilterCollection.size() > 0)
     {
         return true;
     }
@@ -60,9 +54,11 @@ bool EvcNewBoundaryConditionSelectedItemsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void EvcNewBoundaryConditionSelectedItemsFeature::onActionTriggered(bool isChecked)
+void RicRangeFilterNewSliceI::onActionTriggered(bool isChecked)
 {
-    EvmProject* proj = EvaApplication::instance()->project();
+    // MODTODO
+
+/*    EvmProject* proj = EvaApplication::instance()->project();
 
     std::vector<EvmNode*> selectedNodes;
     caf::SelectionManager::instance()->objectsByType(&selectedNodes, caf::SelectionManager::CURRENT);
@@ -106,13 +102,14 @@ void EvcNewBoundaryConditionSelectedItemsFeature::onActionTriggered(bool isCheck
 
         caf::CmdExecCommandManager::instance()->processExecuteCommandsAsMacro("New Boundary Conditions", commands);
     }
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void EvcNewBoundaryConditionSelectedItemsFeature::setupActionLook(QAction* actionToSetup)
+void RicRangeFilterNewSliceI::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/Constraint16x16.png"));
+    actionToSetup->setText("New I-slice range filter");
 }
 
