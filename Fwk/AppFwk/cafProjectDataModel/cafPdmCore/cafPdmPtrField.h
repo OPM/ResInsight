@@ -61,6 +61,10 @@ public:
 
     bool                        operator==(const DataTypePtr& fieldValue)   { return m_fieldValue == fieldValue; }
 
+	// Child objects
+	
+	virtual void childObjects(std::vector<PdmObjectHandle*>*);
+
     // Ptr referenced objects
 
     virtual void ptrReferencedObjects(std::vector<PdmObjectHandle*>* objectsToFill);
@@ -70,7 +74,8 @@ private:
 
     friend class PdmFieldXmlCap< PdmPtrField <DataType*> >;
     void setRawPtr(PdmObjectHandle* obj);
-    PdmPointer<DataType>        m_fieldValue;
+
+	PdmPointer<DataType>        m_fieldValue;
 };
 
 } // End of namespace caf

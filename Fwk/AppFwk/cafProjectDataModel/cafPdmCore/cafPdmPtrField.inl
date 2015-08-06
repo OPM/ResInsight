@@ -72,6 +72,22 @@ caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=(const FieldDataTy
     return *this;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+void caf::PdmPtrField<DataType*>::childObjects(std::vector<PdmObjectHandle*>* objects)
+{
+	assert(objects);
+	PdmObjectHandle* obj = m_fieldValue.rawPtr();
+	if (obj)
+	{
+		objects->push_back(obj);
+	}
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
