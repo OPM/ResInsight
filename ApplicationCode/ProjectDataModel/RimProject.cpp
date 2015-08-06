@@ -39,6 +39,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
+#include "cafPdmUiTreeOrdering.h"
+
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -555,5 +557,24 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         }
     }
 */
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    RimOilField* field = activeOilField();
+    if (field)
+    {
+        if (field->analysisModels())     uiTreeOrdering.add(&(field->analysisModels()->cases));
+        if (field->geoMechModels())      uiTreeOrdering.add(&(field->geoMechModels()->cases));
+        if (field->wellPathCollection()) uiTreeOrdering.add(&(field->wellPathCollection()->wellPaths));
+    }
+
+    uiTreeOrdering.add(&scriptCollection);
+
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 

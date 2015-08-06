@@ -37,6 +37,11 @@ class RimOilField;
 class RimScriptCollection;
 class RimWellPathImport;
 
+namespace caf
+{
+    class PdmUiTreeOrdering;
+}
+
 
 class QAction;
 
@@ -82,6 +87,8 @@ protected:
     void            initScriptDirectories();
     virtual void    initAfterRead();
     virtual void    setupBeforeSave();
+
+    virtual void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
     caf::PdmField<QString>      m_projectFileVersionString;
