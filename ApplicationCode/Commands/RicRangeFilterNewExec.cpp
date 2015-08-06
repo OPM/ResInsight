@@ -16,67 +16,65 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRangeFilterNew.h"
 #include "RicRangeFilterNewExec.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 
-#include "cafSelectionManager.h"
-
-#include "cafCmdFeatureManager.h"
-#include "cafCmdExecCommandManager.h"
-
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT(RicRangeFilterNew, "RicRangeFilterNew");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicRangeFilterNew::isCommandEnabled()
+RicRangeFilterNewExec::RicRangeFilterNewExec(caf::NotificationCenter* notificationCenter)
+    : CmdExecuteCommand(notificationCenter)
 {
-    std::vector<RimCellRangeFilter*> selectedRangeFilter;
-    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
-
-    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
-    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
-
-    if (selectedRangeFilter.size() > 0 || selectedRangeFilterCollection.size() > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    m_filterI = false;
+    m_filterJ = false;
+    m_filterK = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNew::onActionTriggered(bool isChecked)
+QString RicRangeFilterNewExec::name()
 {
-    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
-    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
-
-    if (selectedRangeFilterCollection.size() == 1)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = selectedRangeFilterCollection[0];
-
-        RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(NULL);
-        filterExec->cellRangeFilterCollection = rangeFilterCollection;
-
-        caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
-    }
+    return "New Range Filter";
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNew::setupActionLook(QAction* actionToSetup)
+void RicRangeFilterNewExec::redo()
 {
-    actionToSetup->setIcon(QIcon(":/CellFilter_Range.png"));
-    actionToSetup->setText("New Range Filter");
+    assert(cellRangeFilterCollection);
+
+    RimCellRangeFilter* newFilter = cellRangeFilterCollection->createAndAppendRangeFilter();
+    if (m_filterI)
+    {
+        newFilter->cellCountI = 1;
+    }
+    
+    if (m_filterJ)
+    {
+        newFilter->cellCountJ = 1;
+    }
+    
+    if (m_filterK)
+    {
+        newFilter->cellCountK = 1;
+    }
+
+    caf::PdmUiFieldHandle::updateConnectedUiEditors(cellRangeFilterCollection->parentField());
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicRangeFilterNewExec::undo()
+{
+    assert(cellRangeFilterCollection);
+
+    cellRangeFilterCollection->rangeFilters.erase(cellRangeFilterCollection->rangeFilters.size() - 1);
+
+    caf::PdmUiFieldHandle::updateConnectedUiEditors(cellRangeFilterCollection->parentField());
+}
