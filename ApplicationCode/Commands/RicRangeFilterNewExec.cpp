@@ -20,6 +20,7 @@
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimView.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -28,9 +29,9 @@
 RicRangeFilterNewExec::RicRangeFilterNewExec(caf::NotificationCenter* notificationCenter)
     : CmdExecuteCommand(notificationCenter)
 {
-    m_filterI = false;
-    m_filterJ = false;
-    m_filterK = false;
+    m_iSlice = -1;
+    m_jSlice = -1;
+    m_kSlice = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,20 +50,27 @@ void RicRangeFilterNewExec::redo()
     assert(cellRangeFilterCollection);
 
     RimCellRangeFilter* newFilter = cellRangeFilterCollection->createAndAppendRangeFilter();
-    if (m_filterI)
+    if (m_iSlice)
     {
         newFilter->cellCountI = 1;
     }
     
-    if (m_filterJ)
+    if (m_jSlice)
     {
         newFilter->cellCountJ = 1;
     }
     
-    if (m_filterK)
+    if (m_kSlice)
     {
         newFilter->cellCountK = 1;
     }
+
+    if (m_iSliceStart > -1)    newFilter->startIndexI = m_iSliceStart;
+    if (m_jSliceStart > -1)    newFilter->startIndexJ = m_jSliceStart;
+    if (m_kSliceStart > -1)    newFilter->startIndexK = m_kSliceStart;
+
+    cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+    cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
     caf::PdmUiFieldHandle::updateConnectedUiEditors(cellRangeFilterCollection->parentField());
 }

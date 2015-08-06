@@ -38,9 +38,13 @@ public:
 public:
     caf::PdmPointer<RimCellRangeFilterCollection> cellRangeFilterCollection;
 
-    bool m_filterI;
-    bool m_filterJ;
-    bool m_filterK;
+    bool m_iSlice;
+    bool m_jSlice;
+    bool m_kSlice;
+
+    int m_iSliceStart;
+    int m_jSliceStart;
+    int m_kSliceStart;
 };
 
 
