@@ -27,6 +27,8 @@
 #include <QAction>
 
 #include <vector>
+#include "RicRangeFilterNewExec.h"
+#include "cafCmdExecCommandManager.h"
 
 CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceK, "RicRangeFilterNewSliceK");
 
@@ -56,53 +58,19 @@ bool RicRangeFilterNewSliceK::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicRangeFilterNewSliceK::onActionTriggered(bool isChecked)
 {
-    // MODTODO
+    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
+    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
 
-/*    EvmProject* proj = EvaApplication::instance()->project();
-
-    std::vector<EvmNode*> selectedNodes;
-    caf::SelectionManager::instance()->objectsByType(&selectedNodes, caf::SelectionManager::CURRENT);
-
-    caf::CmdAddItemFeature* addItemFeature = dynamic_cast<caf::CmdAddItemFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature(caf::CmdAddItemFeature::idNameStatic()));
-    assert(addItemFeature);
-
-    if (selectedNodes.size() > 0)
+    if (selectedRangeFilterCollection.size() == 1)
     {
-        caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&proj->boundaryConditions);
+        RimCellRangeFilterCollection* rangeFilterCollection = selectedRangeFilterCollection[0];
 
-        std::vector<caf::CmdExecuteCommand*> commands;
-        for (size_t i = 0; i < selectedNodes.size(); i++)
-        {
-            // Not allowed to add more than one BC
-            if (proj->findBoundaryConditionForNode(selectedNodes[i]->id)) continue;
+        RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(NULL);
+        filterExec->cellRangeFilterCollection = rangeFilterCollection;
+        filterExec->m_kSlice = true;
 
-            std::vector<caf::PdmObjectHandle*> newSelection;
-            newSelection.push_back(selectedNodes[i]);
-            caf::CmdSelectionChangeExec* selectionChangeExec = caf::CmdSelectionHelper::createSelectionCommand(newSelection, caf::SelectionManager::CURRENT);
-            commands.push_back(selectionChangeExec);
-
-            int indexAfter = -1;
-            caf::CmdAddItemExec* addItemExec = new caf::CmdAddItemExec(caf::SelectionManager::instance()->notificationCenter());
-
-            caf::CmdAddItemExecData* data = addItemExec->commandData();
-            data->m_rootObject = caf::PdmReferenceHelper::findRoot(&proj->nodalLoads);
-            data->m_pathToField = caf::PdmReferenceHelper::referenceFromRootToField(data->m_rootObject, &proj->boundaryConditions);
-            data->m_indexAfter = indexAfter;
-
-            commands.push_back(addItemExec);
-        }
-
-        if (commands.size() > 0)
-        {
-            // Add an empty selection when boundary conditions has been assigned
-            std::vector<caf::PdmObjectHandle*> newSelection;
-            caf::CmdSelectionChangeExec* selectionChangeExec = caf::CmdSelectionHelper::createSelectionCommand(newSelection, caf::SelectionManager::CURRENT);
-            commands.push_back(selectionChangeExec);
-        }
-
-        caf::CmdExecCommandManager::instance()->processExecuteCommandsAsMacro("New Boundary Conditions", commands);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
     }
-*/
 }
 
 //--------------------------------------------------------------------------------------------------

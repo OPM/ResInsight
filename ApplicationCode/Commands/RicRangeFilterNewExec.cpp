@@ -29,9 +29,13 @@
 RicRangeFilterNewExec::RicRangeFilterNewExec(caf::NotificationCenter* notificationCenter)
     : CmdExecuteCommand(notificationCenter)
 {
-    m_iSlice = -1;
-    m_jSlice = -1;
-    m_kSlice = -1;
+    m_iSlice = false;
+    m_jSlice = false;
+    m_kSlice = false;
+
+    m_iSliceStart = -1;
+    m_jSliceStart = -1;
+    m_kSliceStart = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,7 +43,14 @@ RicRangeFilterNewExec::RicRangeFilterNewExec(caf::NotificationCenter* notificati
 //--------------------------------------------------------------------------------------------------
 QString RicRangeFilterNewExec::name()
 {
-    return "New Range Filter";
+    if (m_iSlice)
+        return "Add I-slice Filter";
+    else if (m_jSlice)
+        return "Add J-slice Filter";
+    else if (m_kSlice)
+        return "Add K-slice Filter";
+
+    return "Add Range Filter";
 }
 
 //--------------------------------------------------------------------------------------------------
