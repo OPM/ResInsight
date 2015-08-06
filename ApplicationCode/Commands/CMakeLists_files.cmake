@@ -5,6 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNew.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNew.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceI.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.h
@@ -12,6 +13,7 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNew.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNew.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceI.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.cpp
