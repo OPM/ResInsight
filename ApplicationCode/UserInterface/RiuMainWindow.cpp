@@ -26,50 +26,52 @@
 #include "RiaBaseDefs.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTest.h"
+
 #include "RigCaseCellResultsData.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCase.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
+
 #include "RimCaseCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechModels.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-
-#include "RimEclipseCellColors.h"
-#include "RimGeoMechCellColors.h"
 #include "RimTools.h"
 #include "RimUiTreeModelPdm.h"
 #include "RimUiTreeView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
+
 #include "RiuMultiCaseImportDialog.h"
 #include "RiuProcessMonitor.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
 
-#include "RigGeoMechCaseData.h"
-
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
+#include "cafCmdExecCommandManager.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
+#include "cafSelectionManager.h"
 
 #include "cvfTimer.h"
-#include "RimGeoMechModels.h"
-#include "RimGeoMechView.h"
-#include "RigFemPartResultsCollection.h"
-#include "cafSelectionManager.h"
 
 
 //==================================================================================================
@@ -87,7 +89,7 @@ RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = NULL;
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow::RiuMainWindow()
-:   m_OBSOLETE_treeView(NULL),   
+    : m_OBSOLETE_treeView(NULL),
     m_pdmRoot(NULL),
     m_mainViewer(NULL),
     m_windowMenu(NULL)
@@ -100,7 +102,7 @@ RiuMainWindow::RiuMainWindow()
     setCentralWidget(m_CentralFrame);
 #else
     m_mdiArea = new QMdiArea;
-    connect(m_mdiArea, SIGNAL(subWindowActivated ( QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
+    connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 #endif
 
@@ -119,12 +121,14 @@ RiuMainWindow::RiuMainWindow()
     loadWinGeoAndDockToolBarLayout();
 
     sm_mainWindowInstance = this;
-    
+
     slotRefreshFileActions();
     slotRefreshEditActions();
 
     // Set pdm root so scripts are displayed
     setPdmRoot(RiaApplication::instance()->project());
+
+    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 }
 
 
@@ -567,6 +571,24 @@ void RiuMainWindow::createDockPanels()
 		//m_windowsMenu->addAction(dockWidget->toggleViewAction());
 	}
 	
+    {
+        QDockWidget* dockWidget = new QDockWidget("Undo stack", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+        m_undoView = new QUndoView(this);
+        m_undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
+        //connect(caf::CmdExecCommandManager::instance()->undoStack(), SIGNAL(indexChanged(int)), SLOT(slotIndexChanged()));
+
+        dockWidget->setWidget(m_undoView);
+
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+
+        dockWidget->hide();
+
+        //m_windowsMenu->addAction(dockWidget->toggleViewAction());
+    }
+
 	{
         QDockWidget* dockWidget = new QDockWidget("OBSOLETE Project Tree", this);
         dockWidget->setObjectName("dockWidget");

@@ -22,36 +22,37 @@
 
 #include "cafUiTreeModelPdm.h"
 
-#include <QMainWindow>
 #include <QEvent>
+#include <QMainWindow>
 #include <QPointer>
 
-class QTreeView;
-class QMdiArea;
-class QFrame;
-class QMdiSubWindow;
+class QActionGroup;
 class QComboBox;
+class QFrame;
+class QItemSelection;
 class QLabel;
 class QLineEdit;
-class QItemSelection;
-class QActionGroup;
+class QMdiArea;
+class QMdiSubWindow;
 class QSpinBox;
+class QTreeView;
+class QUndoView;
 
-class RiuViewer;
-class RiuResultInfoPanel;
-class RiuProcessMonitor;
+class RimCase;
+class RimEclipseCase;
 class RimUiTreeModelPdm;
 class RimUiTreeView;
-class RimEclipseCase;
-class RimCase;
+class RiuProcessMonitor;
+class RiuResultInfoPanel;
+class RiuViewer;
 
 namespace caf
 {
+	class PdmUiTreeView;
     class AnimationToolBar;
     class FrameAnimationControl;
     class PdmObject;
     class PdmUiPropertyView;
-	class PdmUiTreeView;
     class UiPropertyCreatorPdm;
     class UiTreeModelPdm;
 }
@@ -294,6 +295,7 @@ private:
     RimUiTreeModelPdm*          m_OBSOLETE_treeModelPdm;
 
 	caf::PdmUiTreeView*			m_projectTreeView;
+    QUndoView*                  m_undoView;
 
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
