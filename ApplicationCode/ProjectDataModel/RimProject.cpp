@@ -532,7 +532,14 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
 
     if (uiItems.size() == 1)
     {
-        if (dynamic_cast<RimCellRangeFilterCollection*>(uiItems[0])
+        if (dynamic_cast<RimEclipseView*>(uiItems[0]))
+        {
+            actions.push_back(commandManager->action("RicEclipseViewNew"));
+            actions.push_back(commandManager->action("RicEclipseViewCopy"));
+            actions.push_back(commandManager->action("RicEclipseViewPaste"));
+            actions.push_back(commandManager->action("RicEclipseViewDelete"));
+        }
+        else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItems[0])
             || dynamic_cast<RimCellRangeFilter*>(uiItems[0]))
         {
             actions.push_back(commandManager->action("RicRangeFilterNew"));
