@@ -161,6 +161,8 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiBeforeProjectClose()
 {
+    caf::CmdExecCommandManager::instance()->undoStack()->clear();
+
     setPdmRoot(NULL);
     setResultInfo("");
     
@@ -2225,6 +2227,14 @@ void RiuMainWindow::selectedObjectsChanged(const QItemSelection& selected, const
     m_projectTreeView->selectedObjects(uiItems);
 
     caf::SelectionManager::instance()->setSelectedItems(uiItems);
+
+    if (uiItems.size() == 1)
+    {
+        if (dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]))
+        {
+            m_pdmUiPropertyView->showProperties(dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]));
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
