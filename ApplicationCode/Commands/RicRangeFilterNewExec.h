@@ -29,15 +29,15 @@ class RimCellRangeFilterCollection;
 class RicRangeFilterNewExec : public caf::CmdExecuteCommand
 {
 public:
-    RicRangeFilterNewExec(caf::NotificationCenter* notificationCenter);
+    RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection);
+    
+    virtual ~RicRangeFilterNewExec();
 
     virtual QString name();
     virtual void redo();
     virtual void undo();
 
 public:
-    caf::PdmPointer<RimCellRangeFilterCollection> cellRangeFilterCollection;
-
     bool m_iSlice;
     bool m_jSlice;
     bool m_kSlice;
@@ -45,6 +45,9 @@ public:
     int m_iSliceStart;
     int m_jSliceStart;
     int m_kSliceStart;
+
+private:
+    caf::PdmPointer<RimCellRangeFilterCollection> cellRangeFilterCollection;
 };
 
 

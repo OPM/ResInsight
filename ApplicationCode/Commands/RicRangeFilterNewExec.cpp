@@ -26,8 +26,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterNewExec::RicRangeFilterNewExec(caf::NotificationCenter* notificationCenter)
-    : CmdExecuteCommand(notificationCenter)
+RicRangeFilterNewExec::RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection)
+    : CmdExecuteCommand(NULL)
 {
     m_iSlice = false;
     m_jSlice = false;
@@ -36,6 +36,16 @@ RicRangeFilterNewExec::RicRangeFilterNewExec(caf::NotificationCenter* notificati
     m_iSliceStart = -1;
     m_jSliceStart = -1;
     m_kSliceStart = -1;
+
+    cellRangeFilterCollection = rangeFilterCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicRangeFilterNewExec::~RicRangeFilterNewExec()
+{
+
 }
 
 //--------------------------------------------------------------------------------------------------

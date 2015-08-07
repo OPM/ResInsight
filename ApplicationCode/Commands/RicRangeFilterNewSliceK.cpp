@@ -65,8 +65,7 @@ void RicRangeFilterNewSliceK::onActionTriggered(bool isChecked)
     {
         RimCellRangeFilterCollection* rangeFilterCollection = selectedRangeFilterCollection[0];
 
-        RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(NULL);
-        filterExec->cellRangeFilterCollection = rangeFilterCollection;
+        RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
         filterExec->m_kSlice = true;
 
         caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
