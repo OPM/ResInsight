@@ -42,8 +42,7 @@ void PdmObjectHandle::fields(std::vector<PdmFieldHandle*>& fields) const
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::setAsParentField(PdmFieldHandle* parentField)
 {
-	// MODTODO This asserts must be reintroduced when ptrfield is implemented
-	//    assert(m_parentField == NULL);
+	assert(m_parentField == NULL);
 
 	m_parentField = parentField;
 }
@@ -53,8 +52,7 @@ void PdmObjectHandle::setAsParentField(PdmFieldHandle* parentField)
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::removeAsParentField(PdmFieldHandle* parentField)
 {
-	// MODTODO This asserts must be reintroduced when ptrfield is implemented
-	//    assert(m_parentField == parentField);
+	assert(m_parentField == parentField);
 
 	m_parentField = NULL;
 }
