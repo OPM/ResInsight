@@ -44,13 +44,13 @@ RicRangeFilterNewExec::RicRangeFilterNewExec(caf::NotificationCenter* notificati
 QString RicRangeFilterNewExec::name()
 {
     if (m_iSlice)
-        return "Add I-slice Filter";
+        return "Create I Slice Filter";
     else if (m_jSlice)
-        return "Add J-slice Filter";
+        return "Create J Slice Filter";
     else if (m_kSlice)
-        return "Add K-slice Filter";
+        return "Create K Slice Filter";
 
-    return "Add Range Filter";
+    return "Create Range Filter";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,25 +60,35 @@ void RicRangeFilterNewExec::redo()
 {
     assert(cellRangeFilterCollection);
 
-    RimCellRangeFilter* newFilter = cellRangeFilterCollection->createAndAppendRangeFilter();
+    RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
+    rangeFilter->setParentContainer(cellRangeFilterCollection);
+    rangeFilter->setDefaultValues();
+
+    rangeFilter->name = QString("Range Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
+
     if (m_iSlice)
     {
-        newFilter->cellCountI = 1;
+        rangeFilter->cellCountI = 1;
+        rangeFilter->name = QString("I Slice Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
     }
     
     if (m_jSlice)
     {
-        newFilter->cellCountJ = 1;
+        rangeFilter->cellCountJ = 1;
+        rangeFilter->name = QString("J Slice Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
     }
     
     if (m_kSlice)
     {
-        newFilter->cellCountK = 1;
+        rangeFilter->cellCountK = 1;
+        rangeFilter->name = QString("K Slice Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
     }
 
-    if (m_iSliceStart > -1)    newFilter->startIndexI = m_iSliceStart;
-    if (m_jSliceStart > -1)    newFilter->startIndexJ = m_jSliceStart;
-    if (m_kSliceStart > -1)    newFilter->startIndexK = m_kSliceStart;
+    if (m_iSliceStart > -1) rangeFilter->startIndexI = m_iSliceStart;
+    if (m_jSliceStart > -1) rangeFilter->startIndexJ = m_jSliceStart;
+    if (m_kSliceStart > -1) rangeFilter->startIndexK = m_kSliceStart;
+
+    cellRangeFilterCollection->rangeFilters.push_back(rangeFilter);
 
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
