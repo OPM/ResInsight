@@ -205,7 +205,6 @@ void RimCellRangeFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::remove(RimCellRangeFilter* rangeFilter)
 {
-    // MODTODO Verify that we only have one instance of a filter in a collection
     for (size_t i = 0; i < rangeFilters.size(); i++)
     {
         if (rangeFilters[i] == rangeFilter)
