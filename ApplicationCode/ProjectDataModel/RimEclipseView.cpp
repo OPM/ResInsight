@@ -953,17 +953,15 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
             localNegClosestToZero = globalNegClosestToZero;
         }
 
+        CVF_ASSERT(resultColors->legendConfig());
+
         resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
         resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
         resultColors->legendConfig()->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
     }
-    else
-    {
-        resultColors->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
-        resultColors->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
-    }
+
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
     if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)
@@ -1427,12 +1425,16 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::resetLegendsInViewer()
 {
-    this->cellResult()->legendConfig()->recreateLegend();
+    RimLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
+    if (cellResultNormalLegendConfig) cellResultNormalLegendConfig->recreateLegend();
+
     this->cellResult()->ternaryLegendConfig->recreateLegend();
     this->cellEdgeResult()->legendConfig->recreateLegend();
 
     m_viewer->removeAllColorLegends();
-    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig()->legend());
+    
+    if (cellResultNormalLegendConfig) m_viewer->addColorLegendToBottomLeftCorner(cellResultNormalLegendConfig->legend());
+
     m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
 }
 

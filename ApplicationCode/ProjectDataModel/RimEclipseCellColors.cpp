@@ -58,7 +58,10 @@ RimEclipseCellColors::RimEclipseCellColors()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::~RimEclipseCellColors()
 {
-    delete obsoleteField_legendConfig();
+    CVF_ASSERT(obsoleteField_legendConfig() == NULL);
+
+    m_legendConfigData.deleteAllChildObjects();
+
     delete ternaryLegendConfig();
 }
 
@@ -113,11 +116,6 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
         {
             legendResultVariable = this->m_legendConfigPtrField()->resultVariableName();
         }
-        else if (obsoleteField_legendConfig)
-        {
-            // Use resultVariableName from obsolete legend config if present
-            legendResultVariable = obsoleteField_legendConfig->resultVariableName();
-        }
 
         if (!this->m_legendConfigPtrField() || legendResultVariable != resultVarNameOfNewLegend)
         {
@@ -164,6 +162,8 @@ void RimEclipseCellColors::initAfterRead()
     {
         // The current legend config is NOT stored in <ResultVarLegendDefinitionList> in ResInsight up to v 1.3.7-dev
         m_legendConfigData.push_back(obsoleteField_legendConfig);
+        m_legendConfigPtrField = obsoleteField_legendConfig;
+        obsoleteField_legendConfig = NULL;
     }
 
     changeLegendConfig(this->resultVariable());
