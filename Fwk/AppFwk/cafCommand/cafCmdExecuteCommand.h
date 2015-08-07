@@ -57,6 +57,8 @@ public:
         m_notificationCenter = notificationCenter;
     }
 
+    virtual ~CmdExecuteCommand() {};
+
     virtual QString name() = 0;
     virtual void redo() = 0;
     virtual void undo() = 0;
