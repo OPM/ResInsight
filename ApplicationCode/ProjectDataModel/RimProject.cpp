@@ -518,6 +518,8 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimCellRangeFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipsePropertyFilter.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -532,20 +534,46 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
 
     if (uiItems.size() == 1)
     {
-        if (dynamic_cast<RimEclipseView*>(uiItems[0]))
+        if (dynamic_cast<RimEclipseCase*>(uiItems[0]))
+        {
+            actions.push_back(commandManager->action("RicEclipseCaseCopy"));
+            actions.push_back(commandManager->action("RicEclipseCasePaste"));
+            actions.push_back(commandManager->action("RicEclipseCaseClose"));
+            actions.push_back(commandManager->action("RicEclipseCaseNewView"));
+            actions.push_back(commandManager->action("RicEclipseCaseNewGroup"));
+            actions.push_back(commandManager->action("RicEclipseCaseExecuteScript"));
+        }
+        else if (dynamic_cast<RimEclipseView*>(uiItems[0]))
         {
             actions.push_back(commandManager->action("RicEclipseViewNew"));
             actions.push_back(commandManager->action("RicEclipseViewCopy"));
             actions.push_back(commandManager->action("RicEclipseViewPaste"));
             actions.push_back(commandManager->action("RicEclipseViewDelete"));
         }
-        else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItems[0])
-            || dynamic_cast<RimCellRangeFilter*>(uiItems[0]))
+        // MODTODO: Find out why this cast doesn't work
+        else if (dynamic_cast<RimEclipseCellColors*>(uiItems[0]))
+        {
+            actions.push_back(commandManager->action("RicEclipseCellResultSave"));
+        }
+        // MODTODO: Make sure that "Custom Fault Result" appears in the treeview
+        else if (dynamic_cast<RimEclipseFaultColors*>(uiItems[0]))
+        {
+            actions.push_back(commandManager->action("RicEclipseFaultResultSave"));
+        }
+        else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItems[0]))
         {
             actions.push_back(commandManager->action("RicRangeFilterNew"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceI"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceJ"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
+        }
+        else if (dynamic_cast<RimCellRangeFilter*>(uiItems[0]))
+        {
+            actions.push_back(commandManager->action("RicRangeFilterInsert"));
+            actions.push_back(commandManager->action("RicRangeFilterNewSliceI"));
+            actions.push_back(commandManager->action("RicRangeFilterNewSliceJ"));
+            actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
+            actions.push_back(commandManager->action("RicRangeFilterDelete"));
         }
         else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItems[0])
             || dynamic_cast<RimEclipsePropertyFilter*>(uiItems[0]))
