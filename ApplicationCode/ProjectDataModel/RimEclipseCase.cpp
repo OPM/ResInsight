@@ -53,9 +53,8 @@ CAF_PDM_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
-    
-
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
+    reservoirViews.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");
     m_matrixModelResults.uiCapability()->setUiHidden(true);
@@ -74,7 +73,12 @@ RimEclipseCase::RimEclipseCase()
     caseName.uiCapability()->setUiHidden(true);
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
+    m_matrixModelResults.uiCapability()->setUiHidden(true);
+    m_matrixModelResults.uiCapability()->setUiChildrenHidden(true);
+
     m_fractureModelResults = new RimReservoirCellResultsStorage;
+    m_fractureModelResults.uiCapability()->setUiHidden(true);
+    m_fractureModelResults.uiCapability()->setUiChildrenHidden(true);
 
     this->setReservoirData( NULL );
 }

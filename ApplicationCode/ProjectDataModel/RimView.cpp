@@ -82,6 +82,7 @@ RimView::RimView(void)
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
     overlayInfoConfig->setReservoirView(this);
+    overlayInfoConfig.uiCapability()->setUiHidden(true);
 
     caf::AppEnum<RimView::MeshModeType> defaultMeshType = NO_MESH;
     if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;

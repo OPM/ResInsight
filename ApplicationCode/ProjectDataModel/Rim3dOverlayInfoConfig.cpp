@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 //--------------------------------------------------------------------------------------------------
 Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig() 
 {
-    CAF_PDM_InitObject("Overlay 3D info", ":/InfoBox16x16.png", "", "");
+    CAF_PDM_InitObject("Info Box", ":/InfoBox16x16.png", "", "");
 
     CAF_PDM_InitField(&active,              "Active",               true,   "Active",   "", "", "");
     active.uiCapability()->setUiHidden(true);

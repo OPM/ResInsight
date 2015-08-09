@@ -93,6 +93,8 @@ RimProject::RimProject(void)
     oilFields.push_back(new RimOilField);
 
     initScriptDirectories();
+
+    this->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -603,8 +605,8 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
     RimOilField* field = activeOilField();
     if (field)
     {
-        if (field->analysisModels())     uiTreeOrdering.add(&(field->analysisModels()->cases));
-        if (field->geoMechModels())      uiTreeOrdering.add(&(field->geoMechModels()->cases));
+        if (field->analysisModels())     uiTreeOrdering.add(field->analysisModels());
+        if (field->geoMechModels())      uiTreeOrdering.add(&(field->geoMechModels));
         if (field->wellPathCollection()) uiTreeOrdering.add(&(field->wellPathCollection()->wellPaths));
     }
 
