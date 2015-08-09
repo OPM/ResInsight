@@ -35,6 +35,7 @@ RimEclipseStatisticsCaseCollection::RimEclipseStatisticsCaseCollection()
     CAF_PDM_InitObject("Derived Statistics", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&cases, "Reservoirs", "",  "", "", "");
+    cases.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

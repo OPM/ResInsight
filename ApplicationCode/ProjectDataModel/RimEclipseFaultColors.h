@@ -55,6 +55,7 @@ protected:
     virtual caf::PdmFieldHandle*    objectToggleField();
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
     caf::PdmChildField<RimEclipseCellColors*>    m_customFaultResultColors;

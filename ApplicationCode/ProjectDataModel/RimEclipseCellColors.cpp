@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::RimEclipseCellColors()
 {
-    CAF_PDM_InitObject("Result Slot", "", "", "");
+    CAF_PDM_InitObject("Cell Result", ":/CellResult.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&obsoleteField_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     this->obsoleteField_legendConfig.uiCapability()->setUiHidden(true);
@@ -100,7 +100,6 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
     {
         this->ternaryLegendConfig.uiCapability()->setUiHidden(false);
         this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(false);
-        this->m_legendConfigPtrField.uiCapability()->setUiHidden(true);
         this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(true);
     }
     else
@@ -141,7 +140,6 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
             }
         }
 
-        this->m_legendConfigPtrField.uiCapability()->setUiHidden(false);
         this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(false);
     }
 }

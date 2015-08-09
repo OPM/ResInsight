@@ -79,13 +79,15 @@ RimEclipseView::RimEclipseView()
  
     CAF_PDM_InitFieldNoDefault(&cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
     cellResult = new RimEclipseCellColors();
+    cellResult.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeColors();
+    cellEdgeResult.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Separate Fault Result", "", "", "");
     faultResultSettings = new RimEclipseFaultColors();
-
+    faultResultSettings.uiCapability()->setUiHidden(true);
   
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimEclipseWellCollection;

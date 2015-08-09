@@ -27,6 +27,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
+#include "cafPdmUiTreeOrdering.h"
 
 
 
@@ -49,6 +50,7 @@ RimEclipseFaultColors::RimEclipseFaultColors()
     //m_customFaultResultColors.setOwnerObject(this);
 
     m_customFaultResultColors.uiCapability()->setUiHidden(true);
+    m_customFaultResultColors()->setUiHidden(true);
 
     // MODTODO how to handle this?
 /*
@@ -163,4 +165,14 @@ bool RimEclipseFaultColors::hasValidCustomResult()
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(m_customFaultResultColors()->legendConfig());
+
+    uiTreeOrdering.setForgetRemainingFields(true);
 }

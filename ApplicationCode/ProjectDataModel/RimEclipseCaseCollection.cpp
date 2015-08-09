@@ -42,6 +42,7 @@ RimEclipseCaseCollection::RimEclipseCaseCollection(void)
     cases.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "",  "", "", "");
+    caseGroups.uiCapability()->setUiHidden(true);
 
     m_gridCollection = new RigGridManager;
 }
