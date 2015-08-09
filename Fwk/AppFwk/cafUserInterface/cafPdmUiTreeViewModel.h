@@ -83,6 +83,8 @@ private:
     void                    updateEditorsForSubTree(PdmUiTreeOrdering* root);
     static int              findChildItemIndex(const PdmUiTreeOrdering * parent, const PdmUiItem* pdmItemToFindInChildren);
 
+    static void             findFirstVisibleUiItemInAllBranches(PdmUiItem* uiItem, std::vector<PdmUiItem*>& visibleItems, const QString& uiConfigName);
+
     PdmUiTreeOrdering*      m_treeOrderingRoot;
     QStringList             m_columnHeaders;
     QString                 m_uiConfigName;

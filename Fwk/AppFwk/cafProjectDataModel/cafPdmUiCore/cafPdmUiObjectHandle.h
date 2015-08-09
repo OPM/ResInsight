@@ -63,6 +63,7 @@ protected:
     /// Fill up the uiOrdering object with groups and field references to create the gui structure
     /// If the uiOrdering is empty, it is interpreted as meaning all fields w/o grouping.
     virtual void            defineUiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering)  {}
+    friend class PdmUiTreeViewModel;
 
     /// Override to customize the tree representations of the object hierarchy.
     /// If the PdmUiTreeOrdering is empty, it is interpreted as meaning all fields containing child objects in order
