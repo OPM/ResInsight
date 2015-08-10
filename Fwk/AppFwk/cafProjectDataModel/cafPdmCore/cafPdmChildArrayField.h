@@ -76,6 +76,7 @@ public:
     size_t              count(const DataType* pointer) const;
 
     void                erase(size_t index);
+    size_t              index(DataType* pointer);
 
     // Child objects
 

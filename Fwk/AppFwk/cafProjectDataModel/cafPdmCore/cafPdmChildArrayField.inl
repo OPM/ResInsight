@@ -141,6 +141,18 @@ void PdmChildArrayField<DataType*>::erase(size_t index)
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// Get the index of the given object pointer
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+size_t PdmChildArrayField<DataType*>::index(DataType* pointer)
+{
+    typename std::vector< PdmPointer<DataType> >::iterator it = std::find(m_pointers.begin(), m_pointers.end(), pointer);
+    return it - m_pointers.begin();
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
