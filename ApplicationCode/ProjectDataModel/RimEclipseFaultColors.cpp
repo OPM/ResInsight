@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT(RimEclipseFaultColors, "RimFaultResultSlot");
 //--------------------------------------------------------------------------------------------------
 RimEclipseFaultColors::RimEclipseFaultColors()
 {
-    CAF_PDM_InitObject("Simulation Wells", ":/draw_style_faults_24x24.png", "", "");
+    CAF_PDM_InitObject("Separate Fault Result", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
     showCustomFaultResult.uiCapability()->setUiHidden(true);
