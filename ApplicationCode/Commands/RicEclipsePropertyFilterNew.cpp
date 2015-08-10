@@ -20,10 +20,11 @@
 #include "RicEclipsePropertyFilterNew.h"
 
 #include "RicEclipsePropertyFilterNewExec.h"
+#include "RicEclipsePropertyFilter.h"
+
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 
-#include "cafSelectionManager.h"
 #include "cafCmdExecCommandManager.h"
 
 #include <QAction>
@@ -35,20 +36,8 @@ CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterNew, "RicEclipsePropertyFilterNew");
 //--------------------------------------------------------------------------------------------------
 bool RicEclipsePropertyFilterNew::isCommandEnabled()
 {
-    std::vector<RimEclipsePropertyFilter*> selectedPropertyFilter;
-    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilter);
-
-    std::vector<RimEclipsePropertyFilterCollection*> selectedPropertyFilterCollection;
-    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilterCollection);
-
-    if (selectedPropertyFilter.size() > 0 || selectedPropertyFilterCollection.size() > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    std::vector<RimEclipsePropertyFilterCollection*> filterCollections = RicEclipsePropertyFilter::selectedPropertyFilterCollections();
+    return filterCollections.size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,25 +45,10 @@ bool RicEclipsePropertyFilterNew::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterNew::onActionTriggered(bool isChecked)
 {
-    RimEclipsePropertyFilterCollection* propertyFilterCollection = NULL;
-
-    std::vector<RimEclipsePropertyFilter*> selectedPropertyFilter;
-    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilter);
-
-    std::vector<RimEclipsePropertyFilterCollection*> selectedPropertyFilterCollection;
-    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilterCollection);
-    if (selectedPropertyFilterCollection.size() == 1)
+    std::vector<RimEclipsePropertyFilterCollection*> filterCollections = RicEclipsePropertyFilter::selectedPropertyFilterCollections();
+    if (filterCollections.size() == 1)
     {
-        propertyFilterCollection = selectedPropertyFilterCollection[0];
-    }
-    else if (selectedPropertyFilter.size() > 0)
-    {
-        propertyFilterCollection = dynamic_cast<RimEclipsePropertyFilterCollection*>(selectedPropertyFilter[0]->owner());
-    }
-
-    if (propertyFilterCollection)
-    {
-        RicEclipsePropertyFilterNewExec* filterExec = new RicEclipsePropertyFilterNewExec(propertyFilterCollection);
+        RicEclipsePropertyFilterNewExec* filterExec = new RicEclipsePropertyFilterNewExec(filterCollections[0]);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
     }
 }

@@ -20,9 +20,10 @@
 #include "RicEclipsePropertyFilterDelete.h"
 
 #include "RicEclipsePropertyFilterDeleteExec.h"
+#include "RicEclipsePropertyFilter.h"
+
 #include "RimEclipsePropertyFilter.h"
 
-#include "cafSelectionManager.h"
 #include "cafCmdExecCommandManager.h"
 
 #include <QAction>
@@ -36,10 +37,8 @@ CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterDelete, "RicEclipsePropertyFilterDel
 //--------------------------------------------------------------------------------------------------
 bool RicEclipsePropertyFilterDelete::isCommandEnabled()
 {
-    std::vector<RimEclipsePropertyFilter*> selectedPropertyFilter;
-    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilter);
-
-    return selectedPropertyFilter.size() == 1;
+    std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilter::selectedPropertyFilters();
+    return propertyFilters.size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,12 +46,10 @@ bool RicEclipsePropertyFilterDelete::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterDelete::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipsePropertyFilter*> selectedPropertyFilter;
-    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilter);
-
-    if (selectedPropertyFilter.size() == 1)
+    std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilter::selectedPropertyFilters();
+    if (propertyFilters.size() == 1)
     {
-        RicEclipsePropertyFilterDeleteExec* filterExec = new RicEclipsePropertyFilterDeleteExec(selectedPropertyFilter[0]);
+        RicEclipsePropertyFilterDeleteExec* filterExec = new RicEclipsePropertyFilterDeleteExec(propertyFilters[0]);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
     }
 }

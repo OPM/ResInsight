@@ -19,11 +19,10 @@
 
 #include "RicEclipsePropertyFilterNewExec.h"
 
+#include "RicEclipsePropertyFilter.h"
+
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseResultDefinition.h"
-#include "RimEclipseCellColors.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -56,25 +55,7 @@ QString RicEclipsePropertyFilterNewExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterNewExec::redo()
 { 
-    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-    propertyFilter->setParentContainer(m_propertyFilterCollection);
-
-    RimEclipseView* reservoirView = m_propertyFilterCollection->reservoirView();
-    assert(reservoirView);
-
-    propertyFilter->resultDefinition->setReservoirView(reservoirView);
-    propertyFilter->resultDefinition->setResultVariable(reservoirView->cellResult->resultVariable());
-    propertyFilter->resultDefinition->setPorosityModel(reservoirView->cellResult->porosityModel());
-    propertyFilter->resultDefinition->setResultType(reservoirView->cellResult->resultType());
-    propertyFilter->resultDefinition->loadResult();
-    propertyFilter->setToDefaultValues();
-    propertyFilter->updateFilterName();
-
-    m_propertyFilterCollection->propertyFilters.push_back(propertyFilter);
-    m_propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
-
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(m_propertyFilterCollection->parentField());
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(&m_propertyFilterCollection->propertyFilters);
+    RicEclipsePropertyFilter::addPropertyFilter(m_propertyFilterCollection);
 }
 
 //--------------------------------------------------------------------------------------------------
