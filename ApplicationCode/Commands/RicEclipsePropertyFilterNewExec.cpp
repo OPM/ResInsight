@@ -57,6 +57,7 @@ QString RicEclipsePropertyFilterNewExec::name()
 void RicEclipsePropertyFilterNewExec::redo()
 { 
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
+    propertyFilter->setParentContainer(m_propertyFilterCollection);
 
     RimEclipseView* reservoirView = m_propertyFilterCollection->reservoirView();
     assert(reservoirView);
@@ -69,7 +70,6 @@ void RicEclipsePropertyFilterNewExec::redo()
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();
 
-    propertyFilter->setParentContainer(m_propertyFilterCollection);
     m_propertyFilterCollection->propertyFilters.push_back(propertyFilter);
     m_propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
