@@ -577,10 +577,14 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
             actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
             actions.push_back(commandManager->action("RicRangeFilterDelete"));
         }
-        else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItems[0])
-            || dynamic_cast<RimEclipsePropertyFilter*>(uiItems[0]))
+        else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItems[0]))
         {
             actions.push_back(commandManager->action("RicEclipsePropertyFilterNew"));
+        }
+        else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItems[0]))
+        {
+            actions.push_back(commandManager->action("RicEclipsePropertyFilterInsert"));
+            actions.push_back(commandManager->action("RicEclipsePropertyFilterDelete"));
         }
     }
     
