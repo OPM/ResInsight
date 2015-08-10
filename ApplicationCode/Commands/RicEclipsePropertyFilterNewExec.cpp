@@ -47,7 +47,7 @@ RicEclipsePropertyFilterNewExec::~RicEclipsePropertyFilterNewExec()
 //--------------------------------------------------------------------------------------------------
 QString RicEclipsePropertyFilterNewExec::name()
 {
-    return "Create Property Filter";
+    return "New Property Filter";
 }
 
 //--------------------------------------------------------------------------------------------------

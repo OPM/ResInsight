@@ -49,7 +49,7 @@ RicEclipsePropertyFilterInsertExec::~RicEclipsePropertyFilterInsertExec()
 //--------------------------------------------------------------------------------------------------
 QString RicEclipsePropertyFilterInsertExec::name()
 {
-    return "Delete";
+    return "Insert Property Filter";
 }
 
 //--------------------------------------------------------------------------------------------------
