@@ -19,9 +19,11 @@
 
 #include "RicEclipsePropertyFilterDelete.h"
 
+#include "RicEclipsePropertyFilterDeleteExec.h"
 #include "RimEclipsePropertyFilter.h"
 
 #include "cafSelectionManager.h"
+#include "cafCmdExecCommandManager.h"
 
 #include <QAction>
 
@@ -45,7 +47,14 @@ bool RicEclipsePropertyFilterDelete::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterDelete::onActionTriggered(bool isChecked)
 {
-    // TODO
+    std::vector<RimEclipsePropertyFilter*> selectedPropertyFilter;
+    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilter);
+
+    if (selectedPropertyFilter.size() == 1)
+    {
+        RicEclipsePropertyFilterDeleteExec* filterExec = new RicEclipsePropertyFilterDeleteExec(selectedPropertyFilter[0]);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
