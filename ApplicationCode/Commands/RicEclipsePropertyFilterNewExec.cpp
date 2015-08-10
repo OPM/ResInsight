@@ -64,5 +64,6 @@ void RicEclipsePropertyFilterNewExec::redo()
 void RicEclipsePropertyFilterNewExec::undo()
 {
     m_propertyFilterCollection->propertyFilters.erase(m_propertyFilterCollection->propertyFilters.size() - 1);
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(m_propertyFilterCollection->parentField());
+
+    m_propertyFilterCollection->updateConnectedEditors();
 }

@@ -103,8 +103,7 @@ void RicRangeFilterNewExec::redo()
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(cellRangeFilterCollection->parentField());
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(&cellRangeFilterCollection->rangeFilters);
+    cellRangeFilterCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,5 +115,5 @@ void RicRangeFilterNewExec::undo()
 
     cellRangeFilterCollection->rangeFilters.erase(cellRangeFilterCollection->rangeFilters.size() - 1);
 
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(cellRangeFilterCollection->parentField());
+    cellRangeFilterCollection->updateConnectedEditors();
 }

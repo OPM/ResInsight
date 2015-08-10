@@ -62,8 +62,7 @@ void RicEclipsePropertyFilter::addPropertyFilter(RimEclipsePropertyFilterCollect
     propertyFilterCollection->propertyFilters.push_back(propertyFilter);
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(propertyFilterCollection->parentField());
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(&propertyFilterCollection->propertyFilters);
+    propertyFilterCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,8 +76,7 @@ void RicEclipsePropertyFilter::insertPropertyFilter(RimEclipsePropertyFilterColl
     propertyFilterCollection->propertyFilters.insertAt(index, propertyFilter);
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(propertyFilterCollection->parentField());
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(&propertyFilterCollection->propertyFilters);
+    propertyFilterCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

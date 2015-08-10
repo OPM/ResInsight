@@ -104,7 +104,7 @@ RimEclipseView::RimEclipseView()
 
     CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilterCollection = new RimEclipsePropertyFilterCollection();
-    rangeFilterCollection.uiCapability()->setUiHidden(true);
+    propertyFilterCollection.uiCapability()->setUiHidden(true);
     propertyFilterCollection->setReservoirView(this);
 
     // Visualization fields
