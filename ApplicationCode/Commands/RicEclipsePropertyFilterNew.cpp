@@ -19,10 +19,12 @@
 
 #include "RicEclipsePropertyFilterNew.h"
 
+#include "RicEclipsePropertyFilterNewExec.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 
 #include "cafSelectionManager.h"
+#include "cafCmdExecCommandManager.h"
 
 #include <QAction>
 
@@ -54,7 +56,27 @@ bool RicEclipsePropertyFilterNew::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterNew::onActionTriggered(bool isChecked)
 {
-    // MODTODO
+    RimEclipsePropertyFilterCollection* propertyFilterCollection = NULL;
+
+    std::vector<RimEclipsePropertyFilter*> selectedPropertyFilter;
+    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilter);
+
+    std::vector<RimEclipsePropertyFilterCollection*> selectedPropertyFilterCollection;
+    caf::SelectionManager::instance()->objectsByType(&selectedPropertyFilterCollection);
+    if (selectedPropertyFilterCollection.size() == 1)
+    {
+        propertyFilterCollection = selectedPropertyFilterCollection[0];
+    }
+    else if (selectedPropertyFilter.size() > 0)
+    {
+        propertyFilterCollection = dynamic_cast<RimEclipsePropertyFilterCollection*>(selectedPropertyFilter[0]->owner());
+    }
+
+    if (propertyFilterCollection)
+    {
+        RicEclipsePropertyFilterNewExec* filterExec = new RicEclipsePropertyFilterNewExec(propertyFilterCollection);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
