@@ -61,18 +61,6 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimEclipseResultDefinition();
-    
-    // MODOTODO
-    // How to handle this???
-/*
-    // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
-    resultDefinition->m_resultTypeUiField.setparOwnerObject(this);
-    resultDefinition->m_resultTypeUiField.uiCapability()->setUiName("");
-    resultDefinition->m_porosityModelUiField.setOwnerObject(this);
-    resultDefinition->m_porosityModelUiField.uiCapability()->setUiName("");
-    resultDefinition->m_resultVariableUiField.setOwnerObject(this);
-    resultDefinition->m_resultVariableUiField.uiCapability()->setUiName("");
-*/
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
@@ -105,20 +93,6 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
 {
     if (&name == changedField)
     {
-    }
-
-    if (   &(resultDefinition->m_resultTypeUiField) == changedField 
-        || &(resultDefinition->m_porosityModelUiField) == changedField)
-    {
-        resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
-    }
-
-    if ( &(resultDefinition->m_resultVariableUiField) == changedField )
-    {
-        resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
-        setToDefaultValues();
-        m_parentContainer->fieldChangedByUi(changedField, oldValue,  newValue);
-        updateFilterName();
     }
 
     if (   &lowerBound == changedField 

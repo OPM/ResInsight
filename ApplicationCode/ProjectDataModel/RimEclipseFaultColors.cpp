@@ -47,20 +47,7 @@ RimEclipseFaultColors::RimEclipseFaultColors()
     CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
     m_customFaultResultColors = new RimEclipseCellColors();
 
-    // MODTODO how to handle this?
-    //m_customFaultResultColors.setOwnerObject(this);
-
     m_customFaultResultColors.uiCapability()->setUiHidden(true);
-    m_customFaultResultColors()->setUiHidden(true);
-
-    // MODTODO how to handle this?
-/*
-    // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
-    m_customFaultResultColors->m_resultTypeUiField.setOwnerObject(this);
-    m_customFaultResultColors->m_porosityModelUiField.setOwnerObject(this);
-    m_customFaultResultColors->m_resultVariableUiField.setOwnerObject(this);
-*/
-
 
     updateFieldVisibility();
 }
@@ -87,13 +74,6 @@ void RimEclipseFaultColors::setReservoirView(RimEclipseView* ownerReservoirView)
 void RimEclipseFaultColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->updateUiIconFromToggleField();
-
-    m_customFaultResultColors->fieldChangedByUi(changedField, oldValue, newValue);
-
-    if (changedField == &m_customFaultResultColors->m_resultVariableUiField)
-    {
-        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
-    }
 
     if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }

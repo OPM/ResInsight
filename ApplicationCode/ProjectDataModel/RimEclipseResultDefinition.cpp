@@ -27,6 +27,8 @@
 #include "RimEclipseView.h"
 
 #include "cafPdmUiListEditor.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipseFaultColors.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 
@@ -117,6 +119,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             m_resultVariableUiField = "";
         }
+
     }
   
     if (&m_resultVariableUiField == changedField)
@@ -124,8 +127,30 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         m_porosityModel = m_porosityModelUiField;
         m_resultType = m_resultTypeUiField;
         m_resultVariable = m_resultVariableUiField;
-
+        
         loadResult();
+
+        RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
+        if (propFilter)
+        {
+            propFilter->setToDefaultValues();
+            propFilter->updateFilterName();
+            m_reservoirView->scheduleGeometryRegen(PROPERTY_FILTERED);
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+
+    }
+
+    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
+    if (propFilter)
+    {
+        propFilter->updateConnectedEditors();
+    }
+
+    RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>(this->parentField()->ownerObject());
+    if (faultColors)
+    {
+        faultColors->updateConnectedEditors();
     }
 }
 

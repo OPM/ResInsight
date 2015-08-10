@@ -24,6 +24,7 @@
 #include "RimTernaryLegendConfig.h"
 #include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
+#include "RimEclipseFaultColors.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
 
@@ -72,7 +73,7 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 {
     RimEclipseResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);
 
-    // Update of legend config must happen after RimResultDefinition::fieldChangedByUi(), as this function modifies this->resultVariable()
+    // Update of legend config must happen after RimEclipseResultDefinition::fieldChangedByUi(), as this function modifies this->resultVariable()
     if (changedField == &m_resultVariableUiField)
     {
         if (oldValue != newValue)
@@ -85,7 +86,15 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             if (m_reservoirView) m_reservoirView->hasUserRequestedAnimation = true;
         }
 
-        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
+        RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>(this->parentField()->ownerObject());
+        if (faultColors)
+        {
+            RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(faultColors);
+        }
+        else
+        {
+            RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
+        }
     }
 
     if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
