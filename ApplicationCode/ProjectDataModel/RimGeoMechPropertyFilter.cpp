@@ -43,7 +43,6 @@ RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimGeoMechResultDefinition();
-    resultDefinition->setOwnerPropertyFilter(this);
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()

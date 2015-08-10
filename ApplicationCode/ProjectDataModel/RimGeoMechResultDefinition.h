@@ -57,8 +57,6 @@ public:
     QString                    resultComponentName() { return m_resultComponentName();}
     void                       setResultAddress(const RigFemResultAddress& resultAddress);
 
-    void                       setOwnerPropertyFilter(RimGeoMechPropertyFilter* propertyFilter);
-
     QString                    resultFieldUiName();
     QString                    resultComponentUiName();
 
@@ -85,7 +83,6 @@ private:
     caf::PdmField<QString>                           m_resultVariableUiField;
 
     caf::PdmPointer<RimGeoMechView>                  m_reservoirView;
-    caf::PdmPointer<RimGeoMechPropertyFilter>        m_propertyFilter;
 
     static QString convertToUiResultFieldName(QString resultFieldName);
 };

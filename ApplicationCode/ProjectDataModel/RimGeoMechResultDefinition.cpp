@@ -165,6 +165,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     }
 
+    // Get the possible property filter owner
+    RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
+
     if (&m_resultVariableUiField == changedField)
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split(QRegExp("\\s+"));
@@ -186,9 +189,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 m_reservoirView->hasUserRequestedAnimation = true;
             }
             
-            if (m_propertyFilter)
+            if (propFilter)
             {
-                m_propertyFilter->setToDefaultValues();
+                propFilter->setToDefaultValues();
 
                 ((RimView*)reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
             }
@@ -196,10 +199,10 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             reservoirView()->scheduleCreateDisplayModelAndRedraw();
         }
     }
-
-    if (m_propertyFilter)
+      
+    if (propFilter)
     {
-        m_propertyFilter->updateConnectedEditors();
+        propFilter->updateConnectedEditors();
     }
 
 }
@@ -326,13 +329,6 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName(QString resultFie
     return resultFieldName;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechResultDefinition::setOwnerPropertyFilter( RimGeoMechPropertyFilter* propertyFilter )
-{
-    m_propertyFilter = propertyFilter;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
