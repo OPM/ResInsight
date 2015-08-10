@@ -53,5 +53,5 @@ void RicEclipsePropertyFilterInsert::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterInsert::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Insert");
+    actionToSetup->setText("Insert Property Filter");
 }
