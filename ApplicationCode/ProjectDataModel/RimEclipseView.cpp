@@ -91,16 +91,20 @@ RimEclipseView::RimEclipseView()
   
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimEclipseWellCollection;
+    wellCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&faultCollection, "FaultCollection", "Faults", "", "", "");
     faultCollection = new RimFaultCollection;
+    faultCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         "", "", "");
     rangeFilterCollection = new RimCellRangeFilterCollection();
+    rangeFilterCollection.uiCapability()->setUiHidden(true);
     rangeFilterCollection->setReservoirView(this);
 
     CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilterCollection = new RimEclipsePropertyFilterCollection();
+    rangeFilterCollection.uiCapability()->setUiHidden(true);
     propertyFilterCollection->setReservoirView(this);
 
     // Visualization fields

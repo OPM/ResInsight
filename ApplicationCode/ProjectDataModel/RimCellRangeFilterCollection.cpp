@@ -38,9 +38,11 @@ CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 {
-    CAF_PDM_InitObject("Cell Range Filters", ":/CellFilter_Range.png", "", "");
+    CAF_PDM_InitObject("Range Filters", ":/CellFilter_Range.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&rangeFilters,   "RangeFilters", "Range Filters", "", "", "");
+    rangeFilters.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 }

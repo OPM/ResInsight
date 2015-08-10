@@ -32,9 +32,11 @@ CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilterCollection, "CellPropertyFilters");
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 {
-    CAF_PDM_InitObject("Cell Property Filters", ":/CellFilter_Values.png", "", "");
+    CAF_PDM_InitObject("Property Filters", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
+    propertyFilters.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&active,                  "Active", true, "Active", "", "", "");
     active.uiCapability()->setUiHidden(true);
 }

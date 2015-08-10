@@ -34,6 +34,7 @@ RimNoCommonAreaNncCollection::RimNoCommonAreaNncCollection()
     name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNncs, "NoCommonAreaNncs", "NoCommonAreaNncs", "", "", "");
+    noCommonAreaNncs.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

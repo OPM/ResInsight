@@ -82,7 +82,7 @@ CAF_PDM_SOURCE_INIT(RimEclipseWellCollection, "Wells");
 //--------------------------------------------------------------------------------------------------
 RimEclipseWellCollection::RimEclipseWellCollection()
 {
-    CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("Simulation Wells", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
@@ -109,6 +109,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
+    wells.uiCapability()->setUiHidden(true);
 
     m_reservoirView = NULL;
 }
