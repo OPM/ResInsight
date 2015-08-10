@@ -668,6 +668,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
+    analysisModels->updateConnectedEditors();
+
     return true;
 }
 
