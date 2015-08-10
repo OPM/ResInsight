@@ -16,46 +16,59 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRangeFilterNew.h"
-
 #include "RicRangeFilterHelper.h"
 #include "RicRangeFilterNewExec.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 
-#include "cafCmdFeatureManager.h"
-#include "cafCmdExecCommandManager.h"
+#include "cafSelectionManager.h"
 
-#include <QAction>
-
-
-CAF_CMD_SOURCE_INIT(RicRangeFilterNew, "RicRangeFilterNew");
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicRangeFilterNew::isCommandEnabled()
+bool RicRangeFilterHelper::isRangeFilterCommandAvailable()
 {
-    return RicRangeFilterHelper::isRangeFilterCommandAvailable();
+    return findRangeFilterCollection() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNew::onActionTriggered(bool isChecked)
+RicRangeFilterNewExec* RicRangeFilterHelper::createRangeFilterExecCommand()
 {
-    RicRangeFilterNewExec* filterExec = RicRangeFilterHelper::createRangeFilterExecCommand();
+    RimCellRangeFilterCollection* rangeFilterCollection = findRangeFilterCollection();
 
-    caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
+    RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
+    assert(rangeFilterCollection);
+
+    return filterExec;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNew::setupActionLook(QAction* actionToSetup)
+RimCellRangeFilterCollection* RicRangeFilterHelper::findRangeFilterCollection()
 {
-    actionToSetup->setIcon(QIcon(":/CellFilter_Range.png"));
-    actionToSetup->setText("New Range Filter");
-}
+    RimCellRangeFilterCollection* rangeFilterCollection = NULL;
 
+    std::vector<RimCellRangeFilter*> selectedRangeFilter;
+    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
+
+    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
+    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
+    if (selectedRangeFilterCollection.size() == 1)
+    {
+        rangeFilterCollection = selectedRangeFilterCollection[0];
+    }
+    else if (selectedRangeFilter.size() > 0)
+    {
+        rangeFilterCollection = dynamic_cast<RimCellRangeFilterCollection*>(selectedRangeFilter[0]->owner());
+    }
+
+    // TODO : When a menu is created in the 3D view, add code to find collection based on a RimView
+
+    return rangeFilterCollection;
+}

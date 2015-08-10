@@ -24,6 +24,7 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseViewPaste.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterDelete.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsert.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNew.h
+${CEE_CURRENT_LIST_DIR}RicRangeFilterHelper.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceI.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.h
@@ -50,6 +51,7 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseViewPaste.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterDelete.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsert.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNew.cpp
+${CEE_CURRENT_LIST_DIR}RicRangeFilterHelper.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceI.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.cpp

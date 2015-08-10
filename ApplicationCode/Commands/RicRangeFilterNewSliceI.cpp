@@ -18,17 +18,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicRangeFilterNewSliceI.h"
+
 #include "RicRangeFilterNewExec.h"
+#include "RicRangeFilterHelper.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 
 #include "cafCmdExecCommandManager.h"
-#include "cafSelectionManager.h"
 
 #include <QAction>
 
-#include <vector>
 
 CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceI, "RicRangeFilterNewSliceI");
 
@@ -37,20 +37,7 @@ CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceI, "RicRangeFilterNewSliceI");
 //--------------------------------------------------------------------------------------------------
 bool RicRangeFilterNewSliceI::isCommandEnabled()
 {
-    std::vector<RimCellRangeFilter*> selectedRangeFilter;
-    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
-
-    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
-    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
-
-    if (selectedRangeFilter.size() > 0 || selectedRangeFilterCollection.size() > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return RicRangeFilterHelper::isRangeFilterCommandAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,18 +45,10 @@ bool RicRangeFilterNewSliceI::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicRangeFilterNewSliceI::onActionTriggered(bool isChecked)
 {
-    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
-    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
+    RicRangeFilterNewExec* filterExec = RicRangeFilterHelper::createRangeFilterExecCommand();
+    filterExec->m_iSlice = true;
 
-    if (selectedRangeFilterCollection.size() == 1)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = selectedRangeFilterCollection[0];
-
-        RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
-        filterExec->m_iSlice = true;
-
-        caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
-    }
+    caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
 }
 
 //--------------------------------------------------------------------------------------------------
