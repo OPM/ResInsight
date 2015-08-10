@@ -37,8 +37,6 @@
 
 #include "cafPdmUiTreeViewModel.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeItemEditor.h"
@@ -72,42 +70,28 @@ void PdmUiTreeViewModel::setPdmItemRoot(PdmUiItem* rootItem)
         return;
     }
 
-    PdmUiTreeOrdering* invisibleRoot = NULL;
-    if (rootItem)
+    PdmUiTreeOrdering* newRoot = NULL;
+    PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (rootItem);
+
+    if (field)
     {
-        std::vector<PdmUiItem*> visibleItems;
-        findFirstVisibleUiItemInAllBranches(rootItem, visibleItems, m_uiConfigName);
-
-        if (visibleItems.size() > 0)
+        newRoot = new PdmUiTreeOrdering(field->fieldHandle());
+        PdmUiObjectHandle::expandUiTree(newRoot, m_uiConfigName);
+    }
+    else
+    {
+        PdmUiObjectHandle * obj = dynamic_cast<PdmUiObjectHandle*> (rootItem);
+        if (obj)
         {
-            invisibleRoot = new PdmUiTreeOrdering("Invisible Tree Root", "");
-
-            for (size_t i = 0; i < visibleItems.size(); i++)
-            {
-                PdmUiTreeOrdering* nextTreeOrdering = NULL;
-
-                PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (visibleItems[i]);
-                if (field)
-                {
-                    nextTreeOrdering = new PdmUiTreeOrdering(field->fieldHandle());
-                    PdmUiObjectHandle::expandUiTree(nextTreeOrdering, m_uiConfigName);
-                }
-                else
-                {
-                    PdmUiObjectHandle * obj = dynamic_cast<PdmUiObjectHandle*> (visibleItems[i]);
-                    if (obj)
-                    {
-                        nextTreeOrdering = obj->uiTreeOrdering(m_uiConfigName);
-                    }
-                }
-
-                assert(nextTreeOrdering);
-                invisibleRoot->appendChild(nextTreeOrdering);
-            }
+            newRoot = obj->uiTreeOrdering(m_uiConfigName);
         }
     }
 
-    this->resetTree(invisibleRoot);
+    assert( newRoot || rootItem == NULL ); // Only fields, objects or NULL is allowed.
+
+    if (newRoot) newRoot->debugDump(0);
+
+    this->resetTree(newRoot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -703,79 +687,6 @@ QVariant PdmUiTreeViewModel::headerData(int section, Qt::Orientation orientation
     }
 
     return QVariant();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Do a search recursively to find the first visible object of all child branches
-/// If the incoming object is visible, this is the only object returned
-/// defineUiTreeOrdering is used to 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::findFirstVisibleUiItemInAllBranches(PdmUiItem* uiItem, std::vector<PdmUiItem*>& visibleItems, const QString& uiConfigName)
-{
-    if (!uiItem) return;
-
-    if (!uiItem->isUiHidden(uiConfigName))
-    {
-        visibleItems.push_back(uiItem);
-    }
-    else
-    {
-        // Check if ui tree ordering is defined in the data model
-        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*> (uiItem);
-        if (uiObjectHandle)
-        {
-            PdmUiTreeOrdering treeOrderingDefinedByApplication("", "");
-            uiObjectHandle->defineUiTreeOrdering(treeOrderingDefinedByApplication, uiConfigName);
-            if (treeOrderingDefinedByApplication.childCount() > 0)
-            {
-                for (int i = 0; i < treeOrderingDefinedByApplication.childCount(); i++)
-                {
-                    // The referenced objects in uiOrdering might be set as hidden
-                    // Do a recursive search from the referenced objects to find first visible ui item
-                    findFirstVisibleUiItemInAllBranches(treeOrderingDefinedByApplication.child(i)->activeItem(), visibleItems, uiConfigName);
-                }
-
-                return;
-            }
-        }
-
-        if (uiItem->isUiChildrenHidden(uiConfigName))
-        {
-            return;
-        }
-
-        PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (uiItem);
-        if (field)
-        {
-            std::vector<caf::PdmObjectHandle*> children;
-            field->fieldHandle()->childObjects(&children);
-            
-            for (size_t i = 0; i < children.size(); i++)
-            {
-                findFirstVisibleUiItemInAllBranches(uiObj(children[i]), visibleItems, uiConfigName);
-            }
-        }
-
-        if (uiObjectHandle)
-        {
-            std::vector<PdmFieldHandle*> fields;
-            uiObjectHandle->owner()->fields(fields);
-            
-            for (size_t i = 0; i < fields.size(); i++)
-            {
-                if (dynamic_cast<PdmChildArrayFieldHandle*>(fields[i]))
-                {
-                    // Always show a container object, even if the container is empty
-                    findFirstVisibleUiItemInAllBranches(fields[i]->uiCapability(), visibleItems, uiConfigName);
-                }
-                else if (fields[i]->hasChildObjects())
-                {
-                    // Show a child object only if an object is present
-                    findFirstVisibleUiItemInAllBranches(fields[i]->uiCapability(), visibleItems, uiConfigName);
-                }
-            }
-        }
-    }
 }
 
 
