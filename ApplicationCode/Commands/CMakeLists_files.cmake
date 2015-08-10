@@ -13,9 +13,11 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewView.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePaste.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCellResultSave.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseFaultResultSave.h
+${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDelete.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDeleteExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsert.h
+${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNew.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewCopy.h
@@ -45,9 +47,11 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewView.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePaste.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCellResultSave.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseFaultResultSave.cpp
+${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDelete.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDeleteExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsert.cpp
+${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNew.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewCopy.cpp
