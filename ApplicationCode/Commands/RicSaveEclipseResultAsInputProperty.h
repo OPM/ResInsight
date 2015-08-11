@@ -25,7 +25,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicEclipseCellResultSave : public caf::CmdFeature
+class RicSaveEclipseResultAsInputProperty : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

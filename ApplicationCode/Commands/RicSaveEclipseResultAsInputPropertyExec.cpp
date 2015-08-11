@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEclipseCellResultSaveExec.h"
+#include "RicSaveEclipseResultAsInputPropertyExec.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimBinaryExportSettings.h"
@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicEclipseCellResultSaveExec::RicEclipseCellResultSaveExec(RimEclipseCellColors* cellColors)
+RicSaveEclipseResultAsInputPropertyExec::RicSaveEclipseResultAsInputPropertyExec(RimEclipseCellColors* cellColors)
     : CmdExecuteCommand(NULL)
 {
     CVF_ASSERT(cellColors);
@@ -51,14 +51,14 @@ RicEclipseCellResultSaveExec::RicEclipseCellResultSaveExec(RimEclipseCellColors*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicEclipseCellResultSaveExec::~RicEclipseCellResultSaveExec()
+RicSaveEclipseResultAsInputPropertyExec::~RicSaveEclipseResultAsInputPropertyExec()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicEclipseCellResultSaveExec::name()
+QString RicSaveEclipseResultAsInputPropertyExec::name()
 {
     return "Save Property To File";
 }
@@ -66,7 +66,7 @@ QString RicEclipseCellResultSaveExec::name()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseCellResultSaveExec::redo()
+void RicSaveEclipseResultAsInputPropertyExec::redo()
 {
     CVF_ASSERT(m_cellColors);
 
@@ -113,7 +113,7 @@ void RicEclipseCellResultSaveExec::redo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseCellResultSaveExec::undo()
+void RicSaveEclipseResultAsInputPropertyExec::undo()
 {
     // TODO
     CVF_ASSERT(0);

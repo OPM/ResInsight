@@ -17,9 +17,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEclipseCellResultSave.h"
+#include "RicSaveEclipseResultAsInputProperty.h"
 
-#include "RicEclipseCellResultSaveExec.h"
+#include "RicSaveEclipseResultAsInputPropertyExec.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimView.h"
@@ -29,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipseCellResultSave, "RicEclipseCellResultSave");
+CAF_CMD_SOURCE_INIT(RicSaveEclipseResultAsInputProperty, "RicEclipseCellResultSave");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseCellResultSave::isCommandEnabled()
+bool RicSaveEclipseResultAsInputProperty::isCommandEnabled()
 {
     std::vector<RimEclipseCellColors*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -45,13 +45,13 @@ bool RicEclipseCellResultSave::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseCellResultSave::onActionTriggered(bool isChecked)
+void RicSaveEclipseResultAsInputProperty::onActionTriggered(bool isChecked)
 {
     std::vector<RimEclipseCellColors*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     if (selection.size() == 1)
     {
-        RicEclipseCellResultSaveExec* cellResultSaveExec = new RicEclipseCellResultSaveExec(selection[0]);
+        RicSaveEclipseResultAsInputPropertyExec* cellResultSaveExec = new RicSaveEclipseResultAsInputPropertyExec(selection[0]);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(cellResultSaveExec);
     }
 }
@@ -59,7 +59,7 @@ void RicEclipseCellResultSave::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseCellResultSave::setupActionLook(QAction* actionToSetup)
+void RicSaveEclipseResultAsInputProperty::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Save Property To File");
 }
