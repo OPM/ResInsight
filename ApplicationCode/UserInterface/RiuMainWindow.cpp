@@ -567,10 +567,6 @@ void RiuMainWindow::createDockPanels()
 			this, SLOT(selectedObjectsChanged(const QItemSelection&, const QItemSelection &)));
         m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
-
-
-		// MODTODO
-		//m_windowsMenu->addAction(dockWidget->toggleViewAction());
 	}
 	
     {

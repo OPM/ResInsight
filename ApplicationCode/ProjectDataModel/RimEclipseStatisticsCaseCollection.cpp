@@ -51,21 +51,7 @@ RimEclipseStatisticsCaseCollection::~RimEclipseStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimEclipseStatisticsCaseCollection::parentCaseGroup()
 {
-
-    RimIdenticalGridCaseGroup* parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>(this->owner());
+    RimIdenticalGridCaseGroup* parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>(this->parentField()->ownerObject());
     return parentObject;
-
-    // MODTODO Remove
-/*
-    std::vector<RimIdenticalGridCaseGroup*> parentObjects;
-    this->parentObjectsOfType(parentObjects);
-
-    if (parentObjects.size() > 0)
-    {
-        return parentObjects[0];
-    }
-
-    return NULL;
-*/
 }
 

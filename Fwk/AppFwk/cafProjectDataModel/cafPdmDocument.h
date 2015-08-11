@@ -61,7 +61,6 @@ class PdmDocument: public PdmObject
     void                readFile(QIODevice* device);
     void                writeFile(QIODevice* device);
 
-    // MODTODO is it possible to move this to private?
     static void         updateUiIconStateRecursively(PdmObjectHandle* root);
     static void         initAfterReadTraversal(PdmObjectHandle* root);
 
