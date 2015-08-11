@@ -37,7 +37,6 @@ public:
     static void insertPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index);
 
 private:
-    static RimEclipsePropertyFilter* createPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection);
     static void setDefaults(RimEclipsePropertyFilter* propertyFilter);
 };
 

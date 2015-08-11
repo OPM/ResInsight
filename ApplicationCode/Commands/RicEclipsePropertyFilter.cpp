@@ -56,10 +56,10 @@ std::vector<RimEclipsePropertyFilterCollection*> RicEclipsePropertyFilter::selec
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilter::addPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection)
 {
-    RimEclipsePropertyFilter* propertyFilter = createPropertyFilter(propertyFilterCollection);
-    CVF_ASSERT(propertyFilter);
-
+    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
     propertyFilterCollection->propertyFilters.push_back(propertyFilter);
+    setDefaults(propertyFilter);
+
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();
@@ -70,28 +70,13 @@ void RicEclipsePropertyFilter::addPropertyFilter(RimEclipsePropertyFilterCollect
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilter::insertPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index)
 {
-    RimEclipsePropertyFilter* propertyFilter = createPropertyFilter(propertyFilterCollection);
-    CVF_ASSERT(propertyFilter);
-
+    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
     propertyFilterCollection->propertyFilters.insertAt(index, propertyFilter);
+    setDefaults(propertyFilter);
+
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEclipsePropertyFilter* RicEclipsePropertyFilter::createPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection )
-{
-    CVF_ASSERT(propertyFilterCollection);
-
-    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-    propertyFilter->setParentContainer(propertyFilterCollection);
-
-    setDefaults(propertyFilter);
-
-    return propertyFilter;
 }
 
 //--------------------------------------------------------------------------------------------------

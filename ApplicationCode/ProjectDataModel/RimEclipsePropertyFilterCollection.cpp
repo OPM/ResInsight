@@ -93,7 +93,6 @@ RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::createAndAppendPro
     
     propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
 
-    propertyFilter->setParentContainer(this);
     propertyFilters.push_back(propertyFilter);
 
     propertyFilter->resultDefinition->setResultVariable(m_reservoirView->cellResult->resultVariable());
@@ -102,7 +101,6 @@ RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::createAndAppendPro
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();
-
 
     return propertyFilter;
 }
@@ -116,8 +114,6 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
-
-        propertyFilter->setParentContainer(this);
 
         propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
         propertyFilter->resultDefinition->loadResult();

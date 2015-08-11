@@ -51,7 +51,6 @@ CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilter, "CellPropertyFilter");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilter::RimEclipsePropertyFilter()
-    : m_parentContainer(NULL)
 {
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
@@ -101,7 +100,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &isActive == changedField
         || &filterMode == changedField)
     {
-        m_parentContainer->fieldChangedByUi(changedField, oldValue, newValue);
+        parentContainer()->fieldChangedByUi(changedField, oldValue, newValue);
         updateFilterName();
         this->updateIconState();
     }
@@ -139,17 +138,9 @@ QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::setParentContainer(RimEclipsePropertyFilterCollection* parentContainer)
-{
-    m_parentContainer = parentContainer;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 {
-    return m_parentContainer;
+    return dynamic_cast<RimEclipsePropertyFilterCollection*>(this->parentField()->ownerObject());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,7 +148,7 @@ RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::setToDefaultValues()
 {
-    CVF_ASSERT(m_parentContainer);
+    CVF_ASSERT(parentContainer());
 
     computeResultValueRange();
 
@@ -217,7 +208,7 @@ void RimEclipsePropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::computeResultValueRange()
 {
-    CVF_ASSERT(m_parentContainer);
+    CVF_ASSERT(parentContainer());
 
     double min = 0.0;
     double max = 0.0;
