@@ -19,9 +19,12 @@
 
 #include "RicEclipseCaseNewGroup.h"
 
+#include "RicEclipseCaseNewGroupExec.h"
+
 #include "RimCase.h"
 
 #include "cafSelectionManager.h"
+#include "cafCmdExecCommandManager.h"
 
 #include <QAction>
 
@@ -50,6 +53,8 @@ bool RicEclipseCaseNewGroup::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipseCaseNewGroup::onActionTriggered(bool isChecked)
 {
+    RicEclipseCaseNewGroupExec* cmdExec = new RicEclipseCaseNewGroupExec();
+    caf::CmdExecCommandManager::instance()->processExecuteCommand(cmdExec);
 }
 
 //--------------------------------------------------------------------------------------------------

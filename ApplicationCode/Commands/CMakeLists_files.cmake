@@ -9,6 +9,7 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseCaseClose.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseCopy.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseExecuteScript.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroup.h
+${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewView.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePaste.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilter.h
@@ -48,6 +49,7 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseCaseClose.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseCopy.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseExecuteScript.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroup.cpp
+${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewView.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePaste.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilter.cpp
