@@ -71,7 +71,7 @@ void RicRangeFilterNewExec::redo()
     assert(cellRangeFilterCollection);
 
     RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
-    rangeFilter->setParentContainer(cellRangeFilterCollection);
+    cellRangeFilterCollection->rangeFilters.push_back(rangeFilter);
     rangeFilter->setDefaultValues();
 
     rangeFilter->name = QString("Range Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
@@ -97,8 +97,6 @@ void RicRangeFilterNewExec::redo()
     if (m_iSliceStart > -1) rangeFilter->startIndexI = m_iSliceStart;
     if (m_jSliceStart > -1) rangeFilter->startIndexJ = m_jSliceStart;
     if (m_kSliceStart > -1) rangeFilter->startIndexK = m_kSliceStart;
-
-    cellRangeFilterCollection->rangeFilters.push_back(rangeFilter);
 
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);

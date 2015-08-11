@@ -42,6 +42,11 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputProperty.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
+
+# General delete of any object in a child array field
+${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
+${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.h
+${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -81,6 +86,11 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputProperty.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
+
+# General delete of any object in a child array field
+${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.cpp
+${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.cpp
+${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
