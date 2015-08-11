@@ -520,6 +520,8 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimCellRangeFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipsePropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechPropertyFilter.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 
@@ -588,6 +590,14 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         {
             actions.push_back(commandManager->action("RicEclipsePropertyFilterInsert"));
             actions.push_back(commandManager->action("RicEclipsePropertyFilterDelete"));
+        }
+        else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
+        {
+            actions.push_back(commandManager->action("RicGeoMechPropertyFilterNew"));
+        }
+        else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
+        {
+            actions.push_back(commandManager->action("RicGeoMechPropertyFilterInsert"));
         }
     }
     

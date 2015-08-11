@@ -11,8 +11,11 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseCaseExecuteScript.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroup.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewView.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePaste.h
-${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputProperty.h
-${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilter.h
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsert.h
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.h
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNew.h
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDelete.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDeleteExec.h
@@ -36,6 +39,8 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceI.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.h
+${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputProperty.h
+${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -45,8 +50,11 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseCaseExecuteScript.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroup.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewView.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePaste.cpp
-${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputProperty.cpp
-${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilter.cpp
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsert.cpp
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.cpp
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNew.cpp
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDelete.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDeleteExec.cpp
@@ -69,6 +77,8 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceI.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.cpp
+${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputProperty.cpp
+${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
