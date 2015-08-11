@@ -562,11 +562,6 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         {
             actions.push_back(commandManager->action("RicEclipseCellResultSave"));
         }
-        // MODTODO: Make sure that "Custom Fault Result" appears in the treeview
-        else if (dynamic_cast<RimEclipseFaultColors*>(uiItem))
-        {
-            actions.push_back(commandManager->action("RicEclipseFaultResultSave"));
-        }
         else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
         {
             actions.push_back(commandManager->action("RicRangeFilterNew"));
