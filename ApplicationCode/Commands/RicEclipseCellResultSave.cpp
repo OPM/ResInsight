@@ -19,10 +19,13 @@
 
 #include "RicEclipseCellResultSave.h"
 
-#include "RimView.h"
+#include "RicEclipseCellResultSaveExec.h"
+
 #include "RimEclipseCellColors.h"
+#include "RimView.h"
 
 #include "cafSelectionManager.h"
+#include "cafCmdExecCommandManager.h"
 
 #include <QAction>
 
@@ -36,14 +39,7 @@ bool RicEclipseCellResultSave::isCommandEnabled()
     std::vector<RimEclipseCellColors*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
-    if (selection.size() > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return selection.size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +47,13 @@ bool RicEclipseCellResultSave::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipseCellResultSave::onActionTriggered(bool isChecked)
 {
+    std::vector<RimEclipseCellColors*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
+    if (selection.size() == 1)
+    {
+        RicEclipseCellResultSaveExec* cellResultSaveExec = new RicEclipseCellResultSaveExec(selection[0]);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(cellResultSaveExec);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
