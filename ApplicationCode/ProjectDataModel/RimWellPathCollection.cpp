@@ -74,6 +74,7 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField(&wellPathClipZDistance,           "WellPathClipZDistance",    100,                        "Well path clipping depth distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wellPaths,              "WellPaths",                                            "Well Paths",  "", "", "");
+    wellPaths.uiCapability()->setUiHidden(true);
 
     m_wellPathCollectionPartManager = new RivWellPathCollectionPartMgr(this);
     m_project = NULL;

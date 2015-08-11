@@ -609,12 +609,12 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
 //--------------------------------------------------------------------------------------------------
 void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    RimOilField* field = activeOilField();
-    if (field)
+    RimOilField* oilField = activeOilField();
+    if (oilField)
     {
-        if (field->analysisModels())     uiTreeOrdering.add(field->analysisModels());
-        if (field->geoMechModels())      uiTreeOrdering.add(&(field->geoMechModels));
-        if (field->wellPathCollection()) uiTreeOrdering.add(&(field->wellPathCollection()->wellPaths));
+        if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
+        if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
+        if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
     }
 
     uiTreeOrdering.add(&scriptCollection);
