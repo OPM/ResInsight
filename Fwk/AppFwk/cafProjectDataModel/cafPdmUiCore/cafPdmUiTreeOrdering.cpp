@@ -54,6 +54,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeOrdering::add(PdmFieldHandle * field)
 {
+    assert(field);
+
     PdmUiTreeOrdering* child = new PdmUiTreeOrdering(this, field);
 }
 
@@ -62,6 +64,8 @@ void PdmUiTreeOrdering::add(PdmFieldHandle * field)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeOrdering::add(PdmObjectHandle* object)
 {
+    assert(object);
+
     PdmUiTreeOrdering* child = new PdmUiTreeOrdering(this, object);
 }
 
@@ -71,6 +75,7 @@ void PdmUiTreeOrdering::add(PdmObjectHandle* object)
 PdmUiTreeOrdering* PdmUiTreeOrdering::add(const QString & title, const QString& iconResourceName)
 {
     PdmUiTreeOrdering* child = new PdmUiTreeOrdering(title, iconResourceName);
+    assert(child->isValid());
 
     this->appendChild(child);
     return child;

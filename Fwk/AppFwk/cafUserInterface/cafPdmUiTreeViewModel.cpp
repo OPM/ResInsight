@@ -89,7 +89,7 @@ void PdmUiTreeViewModel::setPdmItemRoot(PdmUiItem* rootItem)
 
     assert( newRoot || rootItem == NULL ); // Only fields, objects or NULL is allowed.
 
-    if (newRoot) newRoot->debugDump(0);
+    //if (newRoot) newRoot->debugDump(0);
 
     this->resetTree(newRoot);
 }
@@ -483,8 +483,17 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
     bool isFieldRep = uitreeOrdering->isRepresentingField();
     bool isDisplayOnly = uitreeOrdering->isDisplayItemOnly();
 
-	// MODTODO
-	//assert (uitreeOrdering->isValid()); // Tree generation has some error.
+
+    if (role == Qt::DisplayRole && !uitreeOrdering->isValid())
+    {
+        QString str;
+
+#ifdef DEBUG
+        str = "Invalid uiordering";
+#endif
+
+        return QVariant(str);
+    }
 
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
@@ -512,8 +521,8 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
        
         if (uitreeOrdering->activeItem())
         {
-        return uitreeOrdering->activeItem()->uiName();
-    }
+            return uitreeOrdering->activeItem()->uiName();
+        }
         else
         {
             return QVariant();
@@ -523,8 +532,8 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
     {
         if (uitreeOrdering->activeItem())
         {
-        return uitreeOrdering->activeItem()->uiIcon();
-    }
+            return uitreeOrdering->activeItem()->uiIcon();
+        }
         else
         {
             return QVariant();
@@ -534,8 +543,8 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
     {
         if (uitreeOrdering->activeItem())
         {
-         return uitreeOrdering->activeItem()->uiToolTip();
-    }
+             return uitreeOrdering->activeItem()->uiToolTip();
+        }
         else
         {
             return QVariant();
@@ -545,8 +554,8 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
     {
         if (uitreeOrdering->activeItem())
         {
-        return uitreeOrdering->activeItem()->uiWhatsThis();
-    }
+            return uitreeOrdering->activeItem()->uiWhatsThis();
+        }
         else
         {
             return QVariant();
@@ -561,23 +570,23 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
             {
 				caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObj->objectToggleField()->uiCapability();
                 if (uiFieldHandle)
-            {
+                {
                     bool isToggledOn = uiFieldHandle->uiValue().toBool();
-                if (isToggledOn)
-                {
-                    return Qt::Checked;
+                    if (isToggledOn)
+                    {
+                        return Qt::Checked;
+                    }
+                    else
+                    {
+                        return Qt::Unchecked;
+                    }
                 }
-                else
-                {
-                    return Qt::Unchecked;
-                }
-            }
                 else
                 {
                     return QVariant();
                 }
+            }
         }
-    }
     }
 
     return QVariant();

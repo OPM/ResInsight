@@ -119,8 +119,8 @@ private:
     PdmUiTreeOrdering(PdmUiTreeOrdering* parent, PdmFieldHandle* pdmField );
 
     // Item that we represent
-    PdmPointer<PdmObjectHandle>       m_object;
-    PdmFieldHandle*             m_field;
+    PdmPointer<PdmObjectHandle> m_object;   // We keep both pointer to object and pointer to field when representing a field
+    PdmFieldHandle*             m_field;    // because m_object is guarded while PdmFieldHandle::ownerObject() is not guarded
     PdmUiItem*                  m_uiItem;
 
     // Tree generation control 
