@@ -89,6 +89,7 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>(this->parentField()->ownerObject());
         if (faultColors)
         {
+            faultColors->updateConnectedEditors();
             RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(faultColors);
         }
         else

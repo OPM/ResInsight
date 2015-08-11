@@ -153,7 +153,10 @@ bool RimEclipseFaultColors::hasValidCustomResult()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseFaultColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    uiTreeOrdering.add(m_customFaultResultColors()->legendConfig());
+    if (m_customFaultResultColors()->legendConfig())
+    {
+        uiTreeOrdering.add(m_customFaultResultColors()->legendConfig());
+    }
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }
