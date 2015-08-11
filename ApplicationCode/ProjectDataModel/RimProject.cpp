@@ -536,7 +536,10 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
 
     if (uiItems.size() == 1)
     {
-        if (dynamic_cast<RimEclipseCase*>(uiItems[0]))
+        caf::PdmUiItem* uiItem = uiItems[0];
+        CVF_ASSERT(uiItem);
+
+        if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
             actions.push_back(commandManager->action("RicEclipseCaseCopy"));
             actions.push_back(commandManager->action("RicEclipseCasePaste"));
@@ -545,7 +548,7 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
             actions.push_back(commandManager->action("RicEclipseCaseNewGroup"));
             actions.push_back(commandManager->action("RicEclipseCaseExecuteScript"));
         }
-        else if (dynamic_cast<RimEclipseView*>(uiItems[0]))
+        else if (dynamic_cast<RimEclipseView*>(uiItem))
         {
             actions.push_back(commandManager->action("RicEclipseViewNew"));
             actions.push_back(commandManager->action("RicEclipseViewCopy"));
@@ -553,23 +556,23 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
             actions.push_back(commandManager->action("RicEclipseViewDelete"));
         }
         // MODTODO: Find out why this cast doesn't work
-        else if (dynamic_cast<RimEclipseCellColors*>(uiItems[0]))
+        else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
             actions.push_back(commandManager->action("RicEclipseCellResultSave"));
         }
         // MODTODO: Make sure that "Custom Fault Result" appears in the treeview
-        else if (dynamic_cast<RimEclipseFaultColors*>(uiItems[0]))
+        else if (dynamic_cast<RimEclipseFaultColors*>(uiItem))
         {
             actions.push_back(commandManager->action("RicEclipseFaultResultSave"));
         }
-        else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItems[0]))
+        else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
         {
             actions.push_back(commandManager->action("RicRangeFilterNew"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceI"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceJ"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
         }
-        else if (dynamic_cast<RimCellRangeFilter*>(uiItems[0]))
+        else if (dynamic_cast<RimCellRangeFilter*>(uiItem))
         {
             actions.push_back(commandManager->action("RicRangeFilterInsert"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceI"));
@@ -577,11 +580,11 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
             actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
             actions.push_back(commandManager->action("RicRangeFilterDelete"));
         }
-        else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItems[0]))
+        else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
         {
             actions.push_back(commandManager->action("RicEclipsePropertyFilterNew"));
         }
-        else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItems[0]))
+        else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
         {
             actions.push_back(commandManager->action("RicEclipsePropertyFilterInsert"));
             actions.push_back(commandManager->action("RicEclipsePropertyFilterDelete"));
