@@ -162,10 +162,8 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 RimCellRangeFilter* RimCellRangeFilterCollection::createAndAppendRangeFilter()
 {
     RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
-    rangeFilter->setParentContainer(this);
-    rangeFilter->setDefaultValues();
-
     rangeFilters.push_back(rangeFilter);
+    rangeFilter->setDefaultValues();
 
     rangeFilter->name = QString("New Filter (%1)").arg(rangeFilters().size());
 
@@ -195,7 +193,6 @@ void RimCellRangeFilterCollection::initAfterRead()
     for (size_t i = 0; i < rangeFilters.size(); i++)
     {
         RimCellRangeFilter* rangeFilter = rangeFilters[i];
-        rangeFilter->setParentContainer(this);
         rangeFilter->updateIconState();
     }
 

@@ -38,7 +38,6 @@ CAF_PDM_SOURCE_INIT(RimCellRangeFilter, "CellRangeFilter");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilter::RimCellRangeFilter()
-    : m_parentContainer(NULL)
 {
     CAF_PDM_InitObject("Cell Range Filter", ":/CellFilter_Range.png", "", "");
 
@@ -82,17 +81,9 @@ void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     {
         computeAndSetValidValues();
     
-        CVF_ASSERT(m_parentContainer);
-        m_parentContainer->fieldChangedByUi(changedField, oldValue, newValue);
+        CVF_ASSERT(parentContainer());
+        parentContainer()->fieldChangedByUi(changedField, oldValue, newValue);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::setParentContainer(RimCellRangeFilterCollection* parentContainer)
-{
-    m_parentContainer = parentContainer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +91,7 @@ void RimCellRangeFilter::setParentContainer(RimCellRangeFilterCollection* parent
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::computeAndSetValidValues()
 {
-    CVF_ASSERT(m_parentContainer);
+    CVF_ASSERT(parentContainer());
 
     const cvf::StructGridInterface* grid = selectedGrid();
     if (grid && grid->cellCountI() > 0 && grid->cellCountJ() > 0 && grid->cellCountK() > 0)
@@ -122,12 +113,12 @@ void RimCellRangeFilter::computeAndSetValidValues()
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues()
 {
-    CVF_ASSERT(m_parentContainer);
+    CVF_ASSERT(parentContainer());
 
     const cvf::StructGridInterface* grid = selectedGrid();
 
-    RigActiveCellInfo* actCellInfo = m_parentContainer->activeCellInfo();
-    if (grid == m_parentContainer->gridByIndex(0) && actCellInfo)
+    RigActiveCellInfo* actCellInfo = parentContainer()->activeCellInfo();
+    if (grid == parentContainer()->gridByIndex(0) && actCellInfo)
     {
         cvf::Vec3st min, max;
         actCellInfo->IJKBoundingBox(min, max);
@@ -164,7 +155,7 @@ void RimCellRangeFilter::setDefaultValues()
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 {
-    return m_parentContainer;
+    return dynamic_cast<RimCellRangeFilterCollection*>(this->parentField()->ownerObject());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +164,7 @@ RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
     caf::PdmUiSliderEditorAttribute* myAttr = static_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
-    if (!myAttr || !m_parentContainer)
+    if (!myAttr || !parentContainer())
     {
         return;
     }
@@ -196,8 +187,8 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         myAttr->m_maximum = static_cast<int>(grid->cellCountK());
     }
 
-    RigActiveCellInfo* actCellInfo = m_parentContainer->activeCellInfo();
-    if (grid == m_parentContainer->gridByIndex(0) && actCellInfo)
+    RigActiveCellInfo* actCellInfo = parentContainer()->activeCellInfo();
+    if (grid == parentContainer()->gridByIndex(0) && actCellInfo)
     {
         cvf::Vec3st min, max;
         actCellInfo->IJKBoundingBox(min, max);
@@ -265,12 +256,12 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RimCellRangeFilter::selectedGrid()
 {
-    if (gridIndex() >= m_parentContainer->gridCount())
+    if (gridIndex() >= parentContainer()->gridCount())
     {
         gridIndex = 0;
     }
 
-    const cvf::StructGridInterface* grid = m_parentContainer->gridByIndex(gridIndex());
+    const cvf::StructGridInterface* grid = parentContainer()->gridByIndex(gridIndex());
 
     CVF_ASSERT(grid);
 
