@@ -32,6 +32,7 @@ RimGeoMechCellColors::RimGeoMechCellColors(void)
 {
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     this->legendConfig = new RimLegendConfig();
+    legendConfig.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
