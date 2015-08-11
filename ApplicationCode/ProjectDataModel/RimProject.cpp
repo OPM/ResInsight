@@ -557,10 +557,9 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
             actions.push_back(commandManager->action("RicEclipseViewPaste"));
             actions.push_back(commandManager->action("RicEclipseViewDelete"));
         }
-        // MODTODO: Find out why this cast doesn't work
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicEclipseCellResultSave"));
+            actions.push_back(commandManager->action("RicSaveEclipseResultAsInputProperty"));
         }
         else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
         {
