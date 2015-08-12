@@ -206,9 +206,7 @@ void RimUiTreeModelPdm::deleteReservoirViews(const std::vector<caf::PdmUiItem*>&
         RimView* reservoirView = dynamic_cast<RimView*>(treeSelection[sIdx]);
         ownerCases.insert(reservoirView->ownerCase());
 
-        // MODTODO how to hanle this??
-        //reservoirView->removeFromParentFields();
-        
+        reservoirView->parentField()->removeChildObject(reservoirView);
         delete reservoirView;
         
     }
@@ -235,8 +233,7 @@ void RimUiTreeModelPdm::deleteGeoMechCases(const std::vector<caf::PdmUiItem*>& t
 
         allParents.insert(geomCase->parentField()->ownerObject());
 
-        // MODTODO how to handle this?
-        //geomCase->removeFromParentFields();
+        geomCase->parentField()->removeChildObject(geomCase);
 
         delete geomCase;
     }

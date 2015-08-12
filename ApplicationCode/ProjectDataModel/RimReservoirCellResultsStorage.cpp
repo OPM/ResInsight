@@ -1527,11 +1527,8 @@ double RimReservoirCellResultsStorage::darchysValue()
 
     double darchy = 0.008527; // (ECLIPSE 100) (METRIC)
 
-    // MODTODO Fix usage of firstAncestorOfType
-    return darchy;
-
     RimEclipseCase* rimCase = NULL;
-    //this->firstAncestorOfType(rimCase);
+    this->firstAncestorOfType(rimCase);
 
     if (rimCase && rimCase->reservoirData())
     {

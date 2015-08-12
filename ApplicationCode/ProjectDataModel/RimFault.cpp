@@ -70,8 +70,7 @@ void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const Q
     {
         RimEclipseView* reservoirView = NULL;
 
-        // MODTODO fix usage of firstAncestorOfType
-        //this->firstAncestorOfType(reservoirView);
+        this->firstAncestorOfType(reservoirView);
 
         if (reservoirView) 
         {
