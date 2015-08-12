@@ -39,7 +39,10 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputProperty.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
+
 ${CEE_CURRENT_LIST_DIR}RicImportWellPathsSsihubFeature.h
+${CEE_CURRENT_LIST_DIR}RicImportWellPathsFileFeature.h
+${CEE_CURRENT_LIST_DIR}RicImportWellPathsDeleteAllFeature.h
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
@@ -81,7 +84,10 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJ.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceK.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputProperty.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
+
 ${CEE_CURRENT_LIST_DIR}RicImportWellPathsSsihubFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicImportWellPathsFileFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicImportWellPathsDeleteAllFeature.cpp
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.cpp

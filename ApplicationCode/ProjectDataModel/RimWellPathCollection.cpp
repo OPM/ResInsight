@@ -26,6 +26,7 @@
 #include "RimWellPath.h"
 #include "RivWellPathCollectionPartMgr.h"
 
+#include "cafPdmUiEditorHandle.h"
 #include "cafProgressInfo.h"
 
 #include <QFile>
@@ -44,6 +45,30 @@ namespace caf
         addItem(RimWellPathCollection::FORCE_ALL_ON,        "FORCE_ALL_ON",       "On");
     }
 }
+
+class RimWellPathCollectionEditorHandle : public caf::PdmUiEditorHandle
+{
+public:
+    RimWellPathCollectionEditorHandle(caf::PdmFieldHandle* a)
+    {
+        this->bindToPdmItem(a->uiCapability());
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void configureAndUpdateUi(const QString& uiConfigName)
+    {
+        caf::PdmUiFieldHandle* uiFieldHandle = dynamic_cast<caf::PdmUiFieldHandle*>(this->pdmItem());
+        RimWellPathCollection* wellPathColl = dynamic_cast<RimWellPathCollection*>(uiFieldHandle->fieldHandle()->ownerObject());
+
+        wellPathColl->scheduleGeometryRegenAndRedrawViews();
+
+        // This will update UI editors related to tree view (and others), as there is no tree view entity for editor for 
+        // the property filters childarrayfield (this field is hidden)
+        uiObj(wellPathColl)->updateConnectedEditors();
+    }
+};
 
 
 CAF_PDM_SOURCE_INIT(RimWellPathCollection, "WellPaths");
@@ -80,6 +105,8 @@ RimWellPathCollection::RimWellPathCollection()
     m_project = NULL;
 
     m_asciiFileReader = new RimWellPathAsciiFileReader;
+
+    wellPaths.uiCapability()->addFieldEditor(new RimWellPathCollectionEditorHandle(&wellPaths));
 }
 
 

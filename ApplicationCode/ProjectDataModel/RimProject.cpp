@@ -36,6 +36,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
@@ -602,6 +603,12 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {
             actions.push_back(commandManager->action("RicImportWellPathsSsihubFeature"));
+            actions.push_back(commandManager->action("RicImportWellPathsFileFeature"));
+            actions.push_back(commandManager->action("RicWellPathsDeleteAllFeature"));
+        }
+        else if (dynamic_cast<RimWellPath*>(uiItem))
+        {
+            actions.push_back(commandManager->action("RicDeleteItemFeature"));
         }
     }
     

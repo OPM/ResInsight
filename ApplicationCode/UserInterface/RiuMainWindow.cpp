@@ -1000,18 +1000,9 @@ void RiuMainWindow::slotOpenLastUsedProject()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotImportWellPathsFromFile()
 {
-    // Open dialog box to select well path files
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->defaultFileDialogDirectory("WELLPATH_DIR");
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(this, "Import Well Paths", defaultDir, "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)");
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
-    if (wellPathFilePaths.size() < 1) return;
-
-    // Remember the path to next time
-    app->setDefaultFileDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
-
-    app->addWellPathsToModel(wellPathFilePaths);
-    if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
+    commandManager->action("RicImportWellPathsFileFeature")->trigger();
 }
 
 //--------------------------------------------------------------------------------------------------
