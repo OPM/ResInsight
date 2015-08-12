@@ -44,6 +44,7 @@
 
 #include "cafNotificationCenter.h"
 #include "cafSelectionManager.h"
+#include "cafPdmDocument.h"
 
 
 namespace caf
@@ -75,18 +76,12 @@ void RicDeleteItemExec::redo()
 
         if (m_commandData->m_deletedObjectAsXml().isEmpty())
         {
-            QString encodedXml;
-            {
-                m_commandData->m_deletedObjectAsXml = xmlObj(obj)->writeObjectToXmlString();
-            }
+            m_commandData->m_deletedObjectAsXml = xmlObj(obj)->writeObjectToXmlString();
         }
 
         listField->erase(m_commandData->m_indexToObject);
 
         listField->uiCapability()->updateConnectedEditors();
-        uiObj(listField->ownerObject())->updateConnectedEditors();
-
-        if (m_notificationCenter) m_notificationCenter->notifyObservers();
 
         delete obj;
     }
@@ -106,8 +101,16 @@ void RicDeleteItemExec::undo()
 
         listField->insertAt(m_commandData->m_indexToObject, obj);
 
+        PdmDocument::initAfterReadTraversal(obj);
+
+        listField->uiCapability()->updateConnectedEditors();
+
+/*
+        uiObj(obj)->updateConnectedEditors();
+
         listField->uiCapability()->updateConnectedEditors();
         uiObj(listField->ownerObject())->updateConnectedEditors();
+*/
 
         if (m_notificationCenter) m_notificationCenter->notifyObservers();
     }

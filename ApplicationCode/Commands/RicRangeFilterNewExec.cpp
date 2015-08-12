@@ -113,5 +113,8 @@ void RicRangeFilterNewExec::undo()
 
     cellRangeFilterCollection->rangeFilters.erase(cellRangeFilterCollection->rangeFilters.size() - 1);
 
+    cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+    cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+
     cellRangeFilterCollection->updateConnectedEditors();
 }

@@ -576,9 +576,8 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
             actions.push_back(commandManager->action("RicRangeFilterNewSliceI"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceJ"));
             actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
-            actions.push_back(commandManager->action("RicRangeFilterDelete"));
-            actions.push_back(commandManager->action("RicDeleteItemFeature"));
 
+            actions.push_back(commandManager->action("RicDeleteItemFeature"));
         }
         else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
         {
@@ -587,7 +586,8 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
         {
             actions.push_back(commandManager->action("RicEclipsePropertyFilterInsert"));
-            actions.push_back(commandManager->action("RicEclipsePropertyFilterDelete"));
+
+            actions.push_back(commandManager->action("RicDeleteItemFeature"));
         }
         else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
         {
@@ -596,6 +596,8 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
         {
             actions.push_back(commandManager->action("RicGeoMechPropertyFilterInsert"));
+
+            actions.push_back(commandManager->action("RicDeleteItemFeature"));
         }
     }
     

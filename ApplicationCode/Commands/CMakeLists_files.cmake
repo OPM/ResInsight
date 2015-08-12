@@ -18,8 +18,6 @@ ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNew.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilter.h
-${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDelete.h
-${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDeleteExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsert.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNew.h
@@ -32,7 +30,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseViewPaste.h
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImport.h
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImportInput.h
 ${CEE_CURRENT_LIST_DIR}RicPropertyFilterNewExec.cpp
-${CEE_CURRENT_LIST_DIR}RicRangeFilterDelete.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsert.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNew.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterHelper.h
@@ -63,8 +60,6 @@ ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNew.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilter.cpp
-${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDelete.cpp
-${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterDeleteExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsert.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNew.cpp
@@ -76,7 +71,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseViewPaste.cpp
 #${CEE_CURRENT_LIST_DIR}RicGridModelsCreateCaseGroupFromFiles.cpp
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImport.cpp
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImportInput.cpp
-${CEE_CURRENT_LIST_DIR}RicRangeFilterDelete.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsert.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNew.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterHelper.cpp
