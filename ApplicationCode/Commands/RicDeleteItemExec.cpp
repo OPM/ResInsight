@@ -105,13 +105,6 @@ void RicDeleteItemExec::undo()
 
         listField->uiCapability()->updateConnectedEditors();
 
-/*
-        uiObj(obj)->updateConnectedEditors();
-
-        listField->uiCapability()->updateConnectedEditors();
-        uiObj(listField->ownerObject())->updateConnectedEditors();
-*/
-
         if (m_notificationCenter) m_notificationCenter->notifyObservers();
     }
 }
