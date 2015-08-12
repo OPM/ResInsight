@@ -23,12 +23,14 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+
 #include "cvfAssert.h"
 #include "cvfMath.h"
 
@@ -240,5 +242,18 @@ void RimEclipsePropertyFilter::updateFilterName()
      + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
     this->name = newFiltername;
     RiuMainWindow::instance()->forceProjectTreeRepaint();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::initAfterRead()
+{
+    resultDefinition->initAfterRead();
+
+    resultDefinition->setReservoirView(parentContainer()->reservoirView());
+    resultDefinition->loadResult();
+    updateIconState();
+    computeResultValueRange();
 }
 

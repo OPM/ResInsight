@@ -55,6 +55,8 @@ public:
     void                                    computeResultValueRange();
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                            initAfterRead();
+
 protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
