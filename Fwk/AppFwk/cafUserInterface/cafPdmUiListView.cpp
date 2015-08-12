@@ -37,8 +37,9 @@
 
 #include "cafPdmUiListView.h"
 
-#include "cafPdmUiListViewEditor.h"
+#include "cafPdmObjectGroup.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmUiListViewEditor.h"
 
 #include <QHBoxLayout>
 
@@ -79,7 +80,7 @@ PdmUiListView::~PdmUiListView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiListView::setPdmObject(caf::PdmObjectHandle* object)
+void PdmUiListView::setPdmObject(caf::PdmGuardedObjects* object)
 {
     assert(m_listViewEditor);
 

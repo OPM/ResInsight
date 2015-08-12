@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cafPdmObject.h"
+#include "cafPdmChildArrayField.h"
 
 #include <QXmlStreamWriter>
 
@@ -88,6 +89,16 @@ void PdmObjectGroup::createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedOb
     }
 }
 
+
+class PdmGuardedObjects : public PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    PdmGuardedObjects();
+    ~PdmGuardedObjects();
+
+    caf::PdmChildArrayField<PdmObjectHandle*> objects;
+};
 
 
 } // End of namespace caf

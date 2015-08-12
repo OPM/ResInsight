@@ -47,6 +47,24 @@ void PdmObjectGroup::addObject(PdmObjectHandle * obj)
 
 
 
+CAF_PDM_SOURCE_INIT(PdmGuardedObjects, "PdmGuardedObjects");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmGuardedObjects::PdmGuardedObjects()
+{
+    CAF_PDM_InitObject("PdmGuardedObjects", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmGuardedObjects::~PdmGuardedObjects()
+{
+
+}
 
 } //End of namespace caf
 
