@@ -30,10 +30,9 @@ public:
 
     /// The field referencing this object as a child
     PdmFieldHandle*         parentField() const;
-
-    /// 
+    /// Convenience function. Traverses from parent to parents parent to find first object of the requested type.
     template <typename T>
-    void                      firstAncestorOfType(T*& ancestor) const;
+    void                    firstAncestorOfType(T*& ancestor) const;
 
     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle 
@@ -99,20 +98,26 @@ private:
 template <typename T>
 void PdmObjectHandle::firstAncestorOfType(T*& ancestor) const
 {
-    PdmObjectHandle* parentObject = this->parentField()->ownerObject();
-    while (parentObject)
+    PdmObjectHandle* parent = NULL;
+    PdmFieldHandle* parentField = this->parentField();
+    if (parentField) parent = parentField->ownerObject();
+
+    while (parent != NULL)
     {
-        T* objectOfType = dynamic_cast<T*>(parentObject);
+        T* objectOfType = dynamic_cast<T*>(parent);
         if (objectOfType)
         {
             ancestor = objectOfType;
             return;
         }
 
-        parentObject = parentObject->parentField()->ownerObject();
+        // Get next level parent
+
+        PdmObjectHandle* nextParent = NULL;
+        PdmFieldHandle*  nextParentField = parent->parentField();
+        if (nextParentField) parent = nextParentField->ownerObject();
     }
 }
-
 
 } // End of namespace caf
 
