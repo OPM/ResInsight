@@ -31,6 +31,10 @@ public:
     /// The field referencing this object as a child
     PdmFieldHandle*         parentField() const;
 
+    /// 
+    template <typename T>
+    void                      firstAncestorOfType(T*& ancestor) const;
+
     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle 
     /// Use ownerObject() on the fieldHandle to get the PdmObjectHandle 
@@ -88,6 +92,27 @@ private:
     friend class PdmPointerImpl;
     std::set<PdmObjectHandle**>         m_pointersReferencingMe;
 };
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::firstAncestorOfType(T*& ancestor) const
+{
+    PdmObjectHandle* parentObject = this->parentField()->ownerObject();
+    while (parentObject)
+    {
+        T* objectOfType = dynamic_cast<T*>(parentObject);
+        if (objectOfType)
+        {
+            ancestor = objectOfType;
+            return;
+        }
+
+        parentObject = parentObject->parentField()->ownerObject();
+    }
+}
+
 
 } // End of namespace caf
 
