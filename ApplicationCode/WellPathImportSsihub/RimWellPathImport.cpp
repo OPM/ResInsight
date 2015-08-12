@@ -62,6 +62,7 @@ RimWellPathImport::RimWellPathImport()
     CAF_PDM_InitField(&west,  "UtmWest",  0.0,    "West", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&regions, "Regions", "",  "", "", "");
+    regions.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

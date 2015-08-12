@@ -444,12 +444,15 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
         //printf("Create well path collection.\n");
         oilField->wellPathCollection = new RimWellPathCollection();
         oilField->wellPathCollection->setProject(m_project);
+
+        m_project->updateConnectedEditors();
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project);
     }
 
     if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
     
     RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(oilField->wellPathCollection);
+    oilField->wellPathCollection->updateConnectedEditors();
 }
 
 
