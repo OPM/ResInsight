@@ -40,6 +40,14 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiLineEditor.h"
 
-// TODO: This macro is never run, because this compile unit is never touched
-// See RPM EvcSplitElementUi where it is needed to set up an editor for a cvf::Vec3d
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiLineEditor, cvf::Vec3d);
+
+//--------------------------------------------------------------------------------------------------
+// If the macro for registering the editor is put as the single statement
+// in a cpp file, a dummy static class must be used to make sure the compile unit
+// is included
+//--------------------------------------------------------------------------------------------------
+Vec3dDummy::Vec3dDummy()
+{
+
+}

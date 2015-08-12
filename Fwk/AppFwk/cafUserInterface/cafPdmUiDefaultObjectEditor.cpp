@@ -257,6 +257,16 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                     m_fieldViews[field->fieldHandle()->keyword()] = fieldEditor;
                     fieldEditor->createWidgets(parent);
                 }
+                else
+                {
+                    // This assert happens if no editor is available for a given field
+                    // If the macro for registering the editor is put as the single statement
+                    // in a cpp file, a dummy static class must be used to make sure the compile unit
+                    // is included
+                    //
+                    // See cafPdmUiCoreColor3f and cafPdmUiCoreVec3d
+                    assert(false);
+                }
             }
             else
             {

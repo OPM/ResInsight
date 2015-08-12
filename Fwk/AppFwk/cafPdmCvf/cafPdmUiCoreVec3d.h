@@ -46,6 +46,13 @@
 
 #include "cafPdmCoreVec3d.h"
 
+class Vec3dDummy
+{
+public:
+    Vec3dDummy();
+};
+
+
 namespace caf 
 {
 
@@ -56,6 +63,8 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert(const cvf::Vec3d& value)
     {
+        static Vec3dDummy dummy;
+
         return PdmValueFieldSpecialization< cvf::Vec3d >::convert(value);
     }
 

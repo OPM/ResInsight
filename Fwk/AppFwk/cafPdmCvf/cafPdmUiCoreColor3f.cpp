@@ -41,3 +41,13 @@
 #include "cafPdmUiColorEditor.h"
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiColorEditor, cvf::Color3f);
+
+//--------------------------------------------------------------------------------------------------
+// If the macro for registering the editor is put as the single statement
+// in a cpp file, a dummy static class must be used to make sure the compile unit
+// is included
+//--------------------------------------------------------------------------------------------------
+Color3fDummy::Color3fDummy()
+{
+
+}

@@ -46,6 +46,12 @@
 
 #include "cafPdmCoreColor3f.h"
 
+class Color3fDummy
+{
+public:
+    Color3fDummy();
+};
+
 namespace caf 
 {
 
@@ -56,6 +62,8 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert(const cvf::Color3f& value)
     {
+        static Color3fDummy dummy;
+
         return PdmValueFieldSpecialization< cvf::Color3f >::convert(value);
     }
 

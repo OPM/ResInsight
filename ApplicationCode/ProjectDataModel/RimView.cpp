@@ -63,6 +63,7 @@ RimView::RimView(void)
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
     showWindow.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
+    cameraPosition.uiCapability()->setUiHidden(true);
 
     double defaultScaleFactor = 1.0;
     if (preferences) defaultScaleFactor = preferences->defaultScaleFactorZ;
