@@ -1,0 +1,146 @@
+//##################################################################################################
+//
+//   Custom Visualization Core library
+//   Copyright (C) 2011-2013 Ceetron AS
+//
+//   This library may be used under the terms of either the GNU General Public License or
+//   the GNU Lesser General Public License as follows:
+//
+//   GNU General Public License Usage
+//   This library is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//   for more details.
+//
+//   GNU Lesser General Public License Usage
+//   This library is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as published by
+//   the Free Software Foundation; either version 2.1 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//   for more details.
+//
+//##################################################################################################
+
+#include "RicImportWellPathsSsihubFeature.h"
+
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+#include "RimProject.h"
+#include "RimTools.h"
+#include "RimWellPathImport.h"
+#include "RiuMainWindow.h"
+#include "RiuWellImportWizard.h"
+
+#include <QAction>
+#include <QDir>
+#include <QFile>
+
+namespace caf
+{
+    CAF_CMD_SOURCE_INIT(RicImportWellPathsSsihubFeature, "RicImportWellPathsSsihubFeature");
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportWellPathsSsihubFeature::isCommandEnabled()
+{
+    RiaApplication* app = RiaApplication::instance();
+    if (!app->project())
+    {
+        return false;
+    }
+
+    if (!QFile::exists(app->project()->fileName()))
+    {
+        return false;
+    }
+    
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicImportWellPathsSsihubFeature::onActionTriggered(bool isChecked)
+{
+    RiaApplication* app = RiaApplication::instance();
+    if (!app->project())
+    {
+        return;
+    }
+
+    if (!QFile::exists(app->project()->fileName()))
+    {
+        return;
+    }
+
+    // Update the UTM bounding box from the reservoir
+    app->project()->computeUtmAreaOfInterest();
+
+    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
+    wellPathsFolderPath += "_wellpaths";
+    QDir::root().mkpath(wellPathsFolderPath);
+
+
+    // Keep a copy of the import settings, and restore if cancel is pressed in the import wizard
+    QString copyOfOriginalObject = xmlObj(app->project()->wellPathImport())->writeObjectToXmlString();
+
+    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport(), RiuMainWindow::instance());
+
+    // Get password/username from application cache
+    {
+        QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
+        QString ssihubPassword = app->cacheDataObject("ssihub_password").toString();
+
+#ifdef _DEBUG
+
+        // Valid credentials for ssihubfake received in mail from Håkon 
+        ssihubUsername = "admin";
+        ssihubPassword = "resinsight";
+#endif
+
+        wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
+    }
+
+    if (QDialog::Accepted == wellImportwizard.exec())
+    {
+        QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
+        if (wellPaths.size() > 0)
+        {
+            app->addWellPathsToModel(wellPaths);
+            app->project()->createDisplayModelAndRedrawAllViews();
+        }
+
+        app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
+        app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
+    }
+    else
+    {
+        xmlObj(app->project()->wellPathImport())->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicImportWellPathsSsihubFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Import Well Paths from &SSI-hub");
+    actionToSetup->setIcon(QIcon(":/WellCollection.png"));
+}
+
+} // end namespace caf

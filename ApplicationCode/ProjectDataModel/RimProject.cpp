@@ -599,6 +599,10 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
 
             actions.push_back(commandManager->action("RicDeleteItemFeature"));
         }
+        else if (dynamic_cast<RimWellPathCollection*>(uiItem))
+        {
+            actions.push_back(commandManager->action("RicImportWellPathsSsihubFeature"));
+        }
     }
     
     

@@ -63,6 +63,8 @@
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
+#include "cafCmdFeatureManager.h"
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmSettings.h"
@@ -72,7 +74,6 @@
 #include "cafSelectionManager.h"
 
 #include "cvfTimer.h"
-#include "cafPdmDefaultObjectFactory.h"
 
 
 //==================================================================================================
@@ -1964,61 +1965,9 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotImportWellPathsFromSSIHub()
 {
-    RiaApplication* app = RiaApplication::instance();
-    if (!app->project())
-    {
-        return;
-    }
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
-    if (!QFile::exists(app->project()->fileName()))
-    {
-        return;
-    }
-
-    // Update the UTM bounding box from the reservoir
-    app->project()->computeUtmAreaOfInterest();
-
-    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
-    wellPathsFolderPath += "_wellpaths";
-    QDir::root().mkpath(wellPathsFolderPath);
-
-
-    // Keep a copy of the import settings, and restore if cancel is pressed in the import wizard
-    QString copyOfOriginalObject = xmlObj(app->project()->wellPathImport())->writeObjectToXmlString();
-
-    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport(), this);
-
-    // Get password/username from application cache
-    {
-        QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
-        QString ssihubPassword = app->cacheDataObject("ssihub_password").toString();
-
-#ifdef _DEBUG
-
-        // Valid credentials for ssihubfake received in mail from Håkon 
-        ssihubUsername = "admin";
-        ssihubPassword = "resinsight";
-#endif
-
-        wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
-    }
-
-    if (QDialog::Accepted == wellImportwizard.exec())
-    {
-        QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
-        if (wellPaths.size() > 0)
-        {
-            app->addWellPathsToModel(wellPaths);
-            app->project()->createDisplayModelAndRedrawAllViews();
-        }
-
-        app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
-        app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
-    }
-    else
-    {
-        xmlObj(app->project()->wellPathImport())->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
-    }
+    commandManager->action("RicImportWellPathsSsihubFeature")->trigger();
 }
 
 //--------------------------------------------------------------------------------------------------
