@@ -72,6 +72,7 @@
 #include "cafSelectionManager.h"
 
 #include "cvfTimer.h"
+#include "cafPdmDefaultObjectFactory.h"
 
 
 //==================================================================================================
@@ -1981,31 +1982,23 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
     wellPathsFolderPath += "_wellpaths";
     QDir::root().mkpath(wellPathsFolderPath);
 
-    RimWellPathImport* copyOfWellPathImport = NULL;
 
-    // Create a copy of the object
-    // MODTODO: Verify that behaviour is correct
-    {
-        caf::PdmObjectGroup objGroup;
-        objGroup.addObject(app->project()->wellPathImport);
+    // Keep a copy of the import settings, and restore if cancel is pressed in the import wizard
+    QString copyOfOriginalObject = xmlObj(app->project()->wellPathImport())->writeObjectToXmlString();
 
-        std::vector<caf::PdmPointer<RimWellPathImport> > typedObjects;
-
-        objGroup.createCopyByType(&typedObjects, caf::PdmDefaultObjectFactory::instance());
-        if (typedObjects.size() == 1)
-        {
-            copyOfWellPathImport = typedObjects[0];
-        }
-    }
-
-    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);
-
-    RimWellPathImport* wellPathObjectToBeDeleted = NULL;
+    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport(), this);
 
     // Get password/username from application cache
     {
         QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
         QString ssihubPassword = app->cacheDataObject("ssihub_password").toString();
+
+#ifdef _DEBUG
+
+        // Valid credentials for ssihubfake received in mail from Håkon 
+        ssihubUsername = "admin";
+        ssihubPassword = "resinsight";
+#endif
 
         wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
     }
@@ -2019,18 +2012,13 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
             app->project()->createDisplayModelAndRedrawAllViews();
         }
 
-        wellPathObjectToBeDeleted = app->project()->wellPathImport;
-        app->project()->wellPathImport = copyOfWellPathImport;
-
         app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
         app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
     }
     else
     {
-        wellPathObjectToBeDeleted = copyOfWellPathImport;
+        xmlObj(app->project()->wellPathImport())->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
     }
-
-    delete wellPathObjectToBeDeleted;
 }
 
 //--------------------------------------------------------------------------------------------------
