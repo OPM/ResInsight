@@ -127,6 +127,8 @@ void RimProject::close()
 
     nextValidCaseId = 0;
     nextValidCaseGroupId = 0;
+    currentModelIndexPath = "";
+    treeViewState = "";
 }
 
 
