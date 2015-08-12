@@ -45,7 +45,7 @@ namespace caf
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicImportWellPathsSsihubFeature : public CmdFeature
+class RicWellPathsImportSsihubFeature : public CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:

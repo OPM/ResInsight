@@ -1002,7 +1002,7 @@ void RiuMainWindow::slotImportWellPathsFromFile()
 {
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
-    commandManager->action("RicImportWellPathsFileFeature")->trigger();
+    commandManager->action("RicWellPathsImportFileFeature")->trigger();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1958,7 +1958,7 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
 {
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
-    commandManager->action("RicImportWellPathsSsihubFeature")->trigger();
+    commandManager->action("RicWellPathsImportSsihubFeature")->trigger();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -34,7 +34,7 @@
 //
 //##################################################################################################
 
-#include "RicImportWellPathsSsihubFeature.h"
+#include "RicWellPathsImportSsihubFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
@@ -50,13 +50,13 @@
 
 namespace caf
 {
-    CAF_CMD_SOURCE_INIT(RicImportWellPathsSsihubFeature, "RicImportWellPathsSsihubFeature");
+    CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportWellPathsSsihubFeature::isCommandEnabled()
+bool RicWellPathsImportSsihubFeature::isCommandEnabled()
 {
     RiaApplication* app = RiaApplication::instance();
     if (!app->project())
@@ -75,7 +75,7 @@ bool RicImportWellPathsSsihubFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportWellPathsSsihubFeature::onActionTriggered(bool isChecked)
+void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     if (!app->project())
@@ -137,7 +137,7 @@ void RicImportWellPathsSsihubFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportWellPathsSsihubFeature::setupActionLook(QAction* actionToSetup)
+void RicWellPathsImportSsihubFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Import Well Paths from &SSI-hub");
     actionToSetup->setIcon(QIcon(":/WellCollection.png"));

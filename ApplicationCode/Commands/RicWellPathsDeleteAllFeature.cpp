@@ -34,7 +34,7 @@
 //
 //##################################################################################################
 
-#include "RicImportWellPathsDeleteAllFeature.h"
+#include "RicWellPathsDeleteAllFeature.h"
 
 #include "RimWellPathCollection.h"
 

@@ -34,7 +34,7 @@
 //
 //##################################################################################################
 
-#include "RicImportWellPathsFileFeature.h"
+#include "RicWellPathsImportFileFeature.h"
 
 #include "RiaApplication.h"
 #include "RimProject.h"
@@ -45,13 +45,13 @@
 
 namespace caf
 {
-    CAF_CMD_SOURCE_INIT(RicImportWellPathsFileFeature, "RicImportWellPathsFileFeature");
+    CAF_CMD_SOURCE_INIT(RicWellPathsImportFileFeature, "RicWellPathsImportFileFeature");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportWellPathsFileFeature::isCommandEnabled()
+bool RicWellPathsImportFileFeature::isCommandEnabled()
 {
     return true;
 }
@@ -59,7 +59,7 @@ bool RicImportWellPathsFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportWellPathsFileFeature::onActionTriggered(bool isChecked)
+void RicWellPathsImportFileFeature::onActionTriggered(bool isChecked)
 {
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
@@ -81,7 +81,7 @@ void RicImportWellPathsFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportWellPathsFileFeature::setupActionLook(QAction* actionToSetup)
+void RicWellPathsImportFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Import &Well Paths from File");
     actionToSetup->setIcon(QIcon(":/Well.png"));
