@@ -534,7 +534,7 @@ void RimProject::computeUtmAreaOfInterest()
 //--------------------------------------------------------------------------------------------------
 void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
 {
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    QStringList commandIds;
 
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems(uiItems);
@@ -546,82 +546,81 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
 
         if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicEclipseCaseCopy"));
-            actions.push_back(commandManager->action("RicEclipseCasePaste"));
-            actions.push_back(commandManager->action("RicEclipseCaseClose"));
-            actions.push_back(commandManager->action("RicEclipseCaseNewView"));
-            actions.push_back(commandManager->action("RicEclipseCaseNewGroup"));
-            actions.push_back(commandManager->action("RicEclipseCaseExecuteScript"));
+            commandIds << "RicEclipseCaseCopy";
+            commandIds << "RicEclipseCasePaste";
+            commandIds << "RicEclipseCaseClose";
+            commandIds << "RicEclipseCaseNewView";
+            commandIds << "RicEclipseCaseNewGroup";
+            commandIds << "RicEclipseCaseExecuteScript";
         }
         else if (dynamic_cast<RimEclipseView*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicEclipseViewNew"));
-            actions.push_back(commandManager->action("RicEclipseViewCopy"));
-            actions.push_back(commandManager->action("RicEclipseViewPaste"));
-            actions.push_back(commandManager->action("RicEclipseViewDelete"));
+            commandIds << "RicEclipseViewNew";
+            commandIds << "RicEclipseViewCopy";
+            commandIds << "RicEclipseViewPaste";
+            commandIds << "RicEclipseViewDelete";
         }
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicSaveEclipseResultAsInputProperty"));
+            commandIds << "RicSaveEclipseResultAsInputProperty";
         }
         else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicRangeFilterNew"));
-            actions.push_back(commandManager->action("RicRangeFilterNewSliceI"));
-            actions.push_back(commandManager->action("RicRangeFilterNewSliceJ"));
-            actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
+            commandIds << "RicRangeFilterNew";
+            commandIds << "RicRangeFilterNewSliceI";
+            commandIds << "RicRangeFilterNewSliceJ";
+            commandIds << "RicRangeFilterNewSliceK";
         }
         else if (dynamic_cast<RimCellRangeFilter*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicRangeFilterInsert"));
-            actions.push_back(commandManager->action("RicRangeFilterNewSliceI"));
-            actions.push_back(commandManager->action("RicRangeFilterNewSliceJ"));
-            actions.push_back(commandManager->action("RicRangeFilterNewSliceK"));
+            commandIds << "RicRangeFilterInsert";
+            commandIds << "RicRangeFilterNewSliceI";
+            commandIds << "RicRangeFilterNewSliceJ";
+            commandIds << "RicRangeFilterNewSliceK";
 
-            actions.push_back(commandManager->action("RicDeleteItemFeature"));
+            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicEclipsePropertyFilterNew"));
+            commandIds << "RicEclipsePropertyFilterNew";
         }
         else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicEclipsePropertyFilterInsert"));
+            commandIds << "RicEclipsePropertyFilterInsert";
 
-            actions.push_back(commandManager->action("RicDeleteItemFeature"));
+            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicGeoMechPropertyFilterNew"));
+            commandIds << "RicGeoMechPropertyFilterNew";
         }
         else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicGeoMechPropertyFilterInsert"));
+            commandIds << "RicGeoMechPropertyFilterInsert";
 
-            actions.push_back(commandManager->action("RicDeleteItemFeature"));
+            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicWellPathsImportSsihubFeature"));
-            actions.push_back(commandManager->action("RicWellPathsImportFileFeature"));
-            actions.push_back(commandManager->action("RicWellPathsDeleteAllFeature"));
+            commandIds << "RicWellPathsImportSsihubFeature";
+            commandIds << "RicWellPathsImportFileFeature";
+            commandIds << "RicWellPathsDeleteAllFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
-            actions.push_back(commandManager->action("RicDeleteItemFeature"));
+            commandIds << "RicDeleteItemFeature";
         }
     }
     
-    
-/*
-    for (size_t i = 0; i < uiItems.size(); i++)
+
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    for (int i = 0; i < commandIds.size(); i++)
     {
-        if (dynamic_cast<RimCellRangeFilter*>(uiItems[i]))
-        {
-            actions.push_back(commandManager->action("NewRangeFilter"));
-        }
+        QAction* act = commandManager->action(commandIds[i]);
+        CVF_ASSERT(act);
+
+        actions.push_back(act);
     }
-*/
 }
 
 
