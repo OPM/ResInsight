@@ -93,8 +93,8 @@ public:
     EffectGenerator()           {}
     virtual ~EffectGenerator()  {}
 
-    cvf::ref<cvf::Effect>       generateEffect() const;
-    cvf::ref<cvf::Effect>       generateEffectFromCache() const;
+    cvf::ref<cvf::Effect>       generateUnCachedEffect() const;
+    cvf::ref<cvf::Effect>       generateCachedEffect() const;
     void                        updateEffect(cvf::Effect* effect) const;
 
     static void                 setRenderingMode(RenderingModeType effectType);

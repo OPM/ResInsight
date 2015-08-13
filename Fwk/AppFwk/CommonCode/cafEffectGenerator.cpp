@@ -157,13 +157,13 @@ EffectGenerator::RenderingModeType EffectGenerator::renderingMode()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Effect> EffectGenerator::generateEffectFromCache() const
+cvf::ref<cvf::Effect> EffectGenerator::generateCachedEffect() const
 {
     cvf::ref<cvf::Effect> eff = caf::EffectCache::instance()->findEffect(this);
 
     if (eff.notNull()) return eff.p();
 
-    eff = generateEffect();
+    eff = generateUnCachedEffect();
     caf::EffectCache::instance()->addEffect(this, eff.p());
 
     return eff;
@@ -173,7 +173,7 @@ cvf::ref<cvf::Effect> EffectGenerator::generateEffectFromCache() const
 /// Creates a new effect using the settings in the inherited generator. 
 /// Creates a new effect and calls the correct update-Effect method dep. on the effect type (software/shader)
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Effect> EffectGenerator::generateEffect() const
+cvf::ref<cvf::Effect> EffectGenerator::generateUnCachedEffect() const
 {
     cvf::ref<cvf::Effect> eff = new cvf::Effect;
 

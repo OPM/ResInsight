@@ -78,10 +78,10 @@ RivWellPathPartMgr::RivWellPathPartMgr(RimWellPathCollection* wellPathCollection
     m_scalarMapper = scalarMapper;
 
     caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
-    m_scalarMapperSurfaceEffect = surfEffGen.generateEffect();
+    m_scalarMapperSurfaceEffect = surfEffGen.generateCachedEffect();
 
     caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
-    m_scalarMapperMeshEffect = meshEffGen.generateEffect();
+    m_scalarMapperMeshEffect = meshEffGen.generateCachedEffect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), caf::PO_1);
-            cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
+            cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             pbd.m_surfacePart->setEffect(eff.p());
         }
@@ -171,7 +171,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
             pbd.m_centerLinePart->setDrawable(pbd.m_centerLineDrawable.p());
 
             caf::MeshEffectGenerator gen(m_rimWellPath->wellPathColor());
-            cvf::ref<cvf::Effect> eff = gen.generateEffect();
+            cvf::ref<cvf::Effect> eff = gen.generateCachedEffect();
 
             pbd.m_centerLinePart->setEffect(eff.p());
         }

@@ -133,7 +133,7 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             
             // Set default effect
             caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), caf::PO_1);
-            cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
+            cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
             part->setEffect(geometryOnlyEffect.p());
             part->setEnableMask(surfaceBit);
             m_surfaceFaces = part;
@@ -161,7 +161,7 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
 
             cvf::ref<cvf::Effect> eff;
             caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
-            eff = effGen.generateEffect();
+            eff = effGen.generateCachedEffect();
 
             // Set priority to make sure fault lines are rendered first
             part->setPriority(10);
@@ -193,7 +193,7 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen(color, caf::PO_1);
-    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
+    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
 
     if (m_surfaceFaces.notNull()) m_surfaceFaces->setEffect(geometryOnlyEffect.p());
 
@@ -213,7 +213,7 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
     if (m_surfaceFaces.notNull())
     {
         caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
-        eff = effGen.generateEffect();
+        eff = effGen.generateCachedEffect();
         m_surfaceGridLines->setEffect(eff.p());
     }
 }
