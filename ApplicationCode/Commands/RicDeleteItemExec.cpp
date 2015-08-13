@@ -80,10 +80,10 @@ void RicDeleteItemExec::redo()
         }
 
         listField->erase(m_commandData->m_indexToObject);
+        delete obj;
 
         listField->uiCapability()->updateConnectedEditors();
 
-        delete obj;
     }
 }
 
