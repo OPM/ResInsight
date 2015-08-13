@@ -265,7 +265,10 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                     // is included
                     //
                     // See cafPdmUiCoreColor3f and cafPdmUiCoreVec3d
-                    assert(false);
+
+                    // This assert will trigger for PdmChildArrayField and PdmChildField
+                    // Consider to exclude assert or add editors for these types if the assert is reintroduced
+                    //assert(false);
                 }
             }
             else
