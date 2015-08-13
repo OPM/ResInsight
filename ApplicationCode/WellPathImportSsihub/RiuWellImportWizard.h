@@ -46,7 +46,7 @@ namespace caf
     class PdmUiTreeView;
     class PdmUiListView;
     class PdmUiPropertyView;
-    class PdmGuardedObjects;
+    class PdmObjectCollection;
 }
 
 
@@ -86,7 +86,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// Container class used to define column headers
 //--------------------------------------------------------------------------------------------------
-class ObjectGroupWithHeaders : public caf::PdmGuardedObjects
+class ObjectGroupWithHeaders : public caf::PdmObjectCollection
 {
 public:
     ObjectGroupWithHeaders()    {};
@@ -164,7 +164,7 @@ private:
     RimWellPathImport*  m_wellPathImportObject;
     QTextEdit*          m_textEdit;
     caf::PdmUiListView* m_listView;
-    caf::PdmGuardedObjects*  m_objectGroup;
+    caf::PdmObjectCollection*  m_objectGroup;
 };
 
 

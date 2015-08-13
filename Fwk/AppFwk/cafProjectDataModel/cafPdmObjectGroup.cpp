@@ -47,21 +47,21 @@ void PdmObjectGroup::addObject(PdmObjectHandle * obj)
 
 
 
-CAF_PDM_SOURCE_INIT(PdmGuardedObjects, "PdmGuardedObjects");
+CAF_PDM_SOURCE_INIT(PdmObjectCollection, "PdmObjectCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmGuardedObjects::PdmGuardedObjects()
+PdmObjectCollection::PdmObjectCollection()
 {
-    CAF_PDM_InitObject("PdmGuardedObjects", "", "", "");
+    CAF_PDM_InitObject("PdmObjectCollection", "", "", "");
     CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmGuardedObjects::~PdmGuardedObjects()
+PdmObjectCollection::~PdmObjectCollection()
 {
 
 }

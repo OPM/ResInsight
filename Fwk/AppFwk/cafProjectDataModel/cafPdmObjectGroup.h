@@ -12,8 +12,6 @@ class PdmReferenceHelper;
 
 //==================================================================================================
 /// The PdmObjectGroup serves as a container of unknown PdmObjects
-
-/// It is not clear whether it really has a reusable value on its own.
 //==================================================================================================
 class PdmObjectGroup : public PdmObject
 {
@@ -90,12 +88,15 @@ void PdmObjectGroup::createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedOb
 }
 
 
-class PdmGuardedObjects : public PdmObject
+//==================================================================================================
+/// The PdmObjectCollection serves as a container of unknown PdmObjects stored in a PdmChildArrayField
+//==================================================================================================
+class PdmObjectCollection : public PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    PdmGuardedObjects();
-    ~PdmGuardedObjects();
+    PdmObjectCollection();
+    ~PdmObjectCollection();
 
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
 };

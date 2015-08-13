@@ -80,7 +80,7 @@ PdmUiListView::~PdmUiListView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiListView::setPdmObject(caf::PdmGuardedObjects* object)
+void PdmUiListView::setPdmObject(caf::PdmObjectCollection* object)
 {
     assert(m_listViewEditor);
 

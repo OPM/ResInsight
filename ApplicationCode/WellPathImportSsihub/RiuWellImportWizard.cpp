@@ -860,7 +860,7 @@ void WellSelectionPage::buildWellTreeView()
         RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
         if (oilRegion->selected)
         {
-            caf::PdmGuardedObjects* regGroup = new caf::PdmGuardedObjects;
+            caf::PdmObjectCollection* regGroup = new caf::PdmObjectCollection;
             regGroup->objects.uiCapability()->setUiHidden(true);
 
             regGroup->setUiName(oilRegion->userDescriptionField()->uiCapability()->uiValue().toString());
@@ -872,7 +872,7 @@ void WellSelectionPage::buildWellTreeView()
                 RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
                 if (oilField->selected)
                 {
-                    caf::PdmGuardedObjects* fieldGroup = new caf::PdmGuardedObjects;
+                    caf::PdmObjectCollection* fieldGroup = new caf::PdmObjectCollection;
                     fieldGroup->objects.uiCapability()->setUiHidden(true);
 
 					fieldGroup->setUiName(oilField->userDescriptionField()->uiCapability()->uiValue().toString());
@@ -982,7 +982,7 @@ WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* par
     layout->addWidget(m_listView);
     m_listView->hide();
 
-    m_objectGroup = new caf::PdmGuardedObjects;
+    m_objectGroup = new caf::PdmObjectCollection;
 
     setButtonText(QWizard::FinishButton, "Import");
 }

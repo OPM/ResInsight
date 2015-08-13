@@ -184,7 +184,7 @@ QVariant caf::UiListViewModelPdm::data(const QModelIndex &index, int role /*= Qt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::UiListViewModelPdm::setPdmData(PdmGuardedObjects* objectGroup, const QString& configName)
+void caf::UiListViewModelPdm::setPdmData(PdmObjectCollection* objectGroup, const QString& configName)
 {
     m_pdmObjectGroup = objectGroup;
     m_configName = configName;
@@ -244,7 +244,7 @@ QWidget* PdmUiListViewEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiListViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    PdmGuardedObjects* objectGroup = dynamic_cast<PdmGuardedObjects*>(pdmObject());
+    PdmObjectCollection* objectGroup = dynamic_cast<PdmObjectCollection*>(pdmObject());
     m_tableModelPdm->setPdmData(objectGroup, uiConfigName);
 
     m_tableView->resizeColumnsToContents();
