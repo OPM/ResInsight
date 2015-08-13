@@ -383,7 +383,9 @@ void PdmUiTableViewEditor::tableViewWidgetFocusChanged(QEvent* focusEvent)
         }
         else if (focusEvent->type() == QEvent::FocusOut)
         {
-            SelectionManager::instance()->clear(m_selectionRole);
+            // Clearing the selection here causes the Menu to not display all items
+            // Not sure how this can be handled correctly
+            // SelectionManager::instance()->clear(m_selectionRole);
         }
     }
 }

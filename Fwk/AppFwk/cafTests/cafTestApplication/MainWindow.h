@@ -10,7 +10,7 @@ class QUndoView;
 
 namespace caf
 {
-    class PdmObjectGroup;
+    class PdmObjectCollection;
     class PdmObjectHandle;
     class UiTreeModelPdm;
     class PdmUiPropertyView;
@@ -58,6 +58,6 @@ private:
     caf::PdmUiTreeView*         m_pdmUiTreeView2;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
     caf::PdmUiTableView*        m_pdmUiTableView;
-    caf::PdmObjectGroup*        m_testRoot;
+    caf::PdmObjectCollection*        m_testRoot;
 };
 

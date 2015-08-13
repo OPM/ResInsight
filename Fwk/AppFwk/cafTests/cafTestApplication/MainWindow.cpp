@@ -19,29 +19,30 @@
 #include "cafCmdFeatureManager.h"
 #endif 
 
-#include "cafPdmDocument.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectGroup.h"
+#include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
+#include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiTableView.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeView.h"
-#include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
 #include "cafUiTreeModelPdm.h"
-#include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
 
 
 
-class DemoPdmObjectGroup: public caf::PdmObjectGroup
+class DemoPdmObjectGroup : public caf::PdmObjectCollection
 {
     CAF_PDM_HEADER_INIT;
 public:
 
     DemoPdmObjectGroup() 
     {
+        objects.uiCapability()->setUiHidden(true);
         
     }
 };
@@ -181,12 +182,12 @@ public:
                 {
                     if (uiObject->userDescriptionField())
                     {
-                        caf::PdmUiFieldHandle* uiFieldHandle = caf::uiField(uiObject->userDescriptionField());
-                    if (uiFieldHandle)
-                    {
-                        userDesc = uiFieldHandle->uiValue().toString();
-                }
-                }
+						caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
+						if (uiFieldHandle)
+						{
+							userDesc = uiFieldHandle->uiValue().toString();
+						}
+		            }
 
                     options.push_back(caf::PdmOptionItemInfo(uiObject->uiName() + "(" + userDesc + ")", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(objects[i]))));
                 }
@@ -460,13 +461,13 @@ void MainWindow::buildTestModel()
     m_testRoot = new DemoPdmObjectGroup;
     
     DemoPdmObject* demoObject = new DemoPdmObject;
-    m_testRoot->addObject(demoObject);
+    m_testRoot->objects.push_back(demoObject);
 
     SmallDemoPdmObject* smallObj1 = new SmallDemoPdmObject;
-    m_testRoot->addObject(smallObj1);
+    m_testRoot->objects.push_back(smallObj1);
 
     SmallDemoPdmObjectA* smallObj2 = new SmallDemoPdmObjectA;
-    m_testRoot->addObject(smallObj2);
+    m_testRoot->objects.push_back(smallObj2);
 
     DemoPdmObject* demoObj2 = new DemoPdmObject;
    
@@ -512,7 +513,7 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     if (fields.size())
     {
         caf::PdmFieldHandle* field = fields[0];
-        caf::PdmUiFieldHandle* uiFieldHandle = uiField(field);
+		caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
         {
             m_pdmUiTreeView2->setPdmItem(uiFieldHandle);
@@ -546,7 +547,7 @@ void MainWindow::releaseTestData()
 {
     if (m_testRoot)
     {
-        m_testRoot->deleteObjects();
+        m_testRoot->objects.deleteAllChildObjects();
         delete m_testRoot;
     }
 }
