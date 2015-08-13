@@ -279,7 +279,7 @@ private slots:
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
     void    OBSOLETE_slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
 
-	void	selectedObjectsChanged(const QItemSelection& selected, const QItemSelection & deselected);
+	void	selectedObjectsChanged();
     void    customMenuRequested(const QPoint& pos);
 
 

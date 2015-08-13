@@ -565,8 +565,7 @@ void RiuMainWindow::createDockPanels()
 
 		addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
-		connect(m_projectTreeView->treeView()->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-			this, SLOT(selectedObjectsChanged(const QItemSelection&, const QItemSelection &)));
+		connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
         m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
 	}
@@ -1594,6 +1593,66 @@ void RiuMainWindow::OBSOLETE_slotCurrentChanged(const QModelIndex & current, con
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::selectedObjectsChanged()
+{
+    std::vector<caf::PdmUiItem*> uiItems;
+    m_projectTreeView->selectedObjects(uiItems);
+
+    caf::SelectionManager::instance()->setSelectedItems(uiItems);
+    caf::PdmObjectHandle* firstSelectedObject = NULL;
+
+    if (uiItems.size() == 1)
+    {
+        firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]);
+    }
+
+    m_pdmUiPropertyView->showProperties(firstSelectedObject);
+    
+    RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
+
+    // Find the reservoir view that the selected item is within 
+
+    if (!firstSelectedObject) 
+    {
+        caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
+        if (selectedField) firstSelectedObject = selectedField->ownerObject();
+    }
+
+    RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
+    if (!selectedReservoirView && firstSelectedObject )
+    {
+        firstSelectedObject->firstAncestorOfType(selectedReservoirView);
+    }
+
+    // If current selection is an item within a different reservoir view than active, 
+    // show new reservoir view and set this as activate view
+
+    if (selectedReservoirView && selectedReservoirView != activeReservoirView)
+    {
+        RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
+        // Set focus in MDI area to this window if it exists
+        if (selectedReservoirView->viewer())
+        {
+            setActiveViewer(selectedReservoirView->viewer());
+        }
+
+        // m_OBSOLETE_treeView->setCurrentIndex(current);
+
+        refreshDrawStyleActions();
+        refreshAnimationActions();
+        slotRefreshFileActions();
+        slotRefreshEditActions();
+        slotRefreshViewActions();
+
+        // The only way to get to this code is by selection change initiated from the project tree view
+        // As we are activating an MDI-window, the focus is given to this MDI-window
+        // Set focus back to the tree view to be able to continue keyboard tree view navigation
+        m_projectTreeView->treeView()->setFocus();
+    }
+}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -2142,25 +2201,6 @@ void RiuMainWindow::forceProjectTreeRepaint()
     // Needed for some reason when changing names and icons in the model
     m_OBSOLETE_treeView->scroll(0,1);
     m_OBSOLETE_treeView->scroll(0,-1);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectedObjectsChanged(const QItemSelection& selected, const QItemSelection & deselected)
-{
-    std::vector<caf::PdmUiItem*> uiItems;
-    m_projectTreeView->selectedObjects(uiItems);
-
-    caf::SelectionManager::instance()->setSelectedItems(uiItems);
-
-    if (uiItems.size() == 1)
-    {
-        if (dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]))
-        {
-            m_pdmUiPropertyView->showProperties(dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]));
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
