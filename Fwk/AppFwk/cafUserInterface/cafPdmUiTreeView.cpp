@@ -65,7 +65,7 @@ PdmUiTreeView::PdmUiTreeView(QWidget* parent, Qt::WindowFlags f)
 
     this->m_layout->insertWidget(0, widget);
 
-    connect(treeView()->selectionModel(), SIGNAL(selectionChanged( const QItemSelection & , const QItemSelection & )), SLOT(slotOnSelectionChanged( const QItemSelection & , const QItemSelection & )));
+    connect(m_treeViewEditor, SIGNAL(selectionChanged()), SLOT(slotOnSelectionChanged()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ void PdmUiTreeView::selectedObjects(std::vector<PdmUiItem*>& objects)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
+void PdmUiTreeView::slotOnSelectionChanged()
 {
     emit selectionChanged();
 }
@@ -136,7 +136,15 @@ void PdmUiTreeView::enableDefaultContextMenu(bool enable)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::setCurrentSelectionToCurrentEditorSelection(bool enable)
 {
-    m_treeViewEditor->setCurrentSelectionToCurrentEditorSelection(enable);
+    m_treeViewEditor->enableSelectionManagerUpdating(enable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::selectAsCurrentItem(PdmUiItem* uiItem)
+{
+    m_treeViewEditor->selectAsCurrentItem(uiItem);
 }
 
 } //End of namespace caf

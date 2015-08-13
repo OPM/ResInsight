@@ -61,7 +61,7 @@ namespace caf
 PdmUiTreeViewEditor::PdmUiTreeViewEditor()
 {
     m_useDefaultContextMenu = false;
-    m_currentSelectionFollowsEditorSelection = false;
+    m_updateSelectionManager = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,8 +86,8 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
     m_treeView = new QTreeView(m_mainWidget);
     m_treeView->setModel(m_treeViewModel);
 
-    connect(m_treeView->selectionModel(), SIGNAL(currentChanged( const QModelIndex & , const QModelIndex & )), SLOT(slotCurrentChanged( const QModelIndex& , const QModelIndex& )));
-    
+    connect(treeView()->selectionModel(), SIGNAL(selectionChanged( const QItemSelection & , const QItemSelection & )), SLOT(slotOnSelectionChanged( const QItemSelection & , const QItemSelection & )));
+
     m_layout->addWidget(m_treeView);
 
     updateContextMenuSignals();
@@ -121,34 +121,26 @@ QTreeView* PdmUiTreeViewEditor::treeView()
     return m_treeView;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::selectedUiItems(std::vector<PdmUiItem*>& objects)
 {
-    if (m_treeViewModel) { m_treeViewModel->selectedUiItems(objects);  }
-}
+    if (!this->treeView()) return;
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::uiItemsFromModelIndexList(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects)
-{
-    if (m_treeViewModel)
+    QModelIndexList idxList = this->treeView()->selectionModel()->selectedIndexes();
+
+    for (int i = 0; i < idxList.size(); i++)
     {
-
-        for (int i = 0; i < modelIndexList.size(); i++)
+        caf::PdmUiItem* item = this->m_treeViewModel->uiItemFromModelIndex(idxList[i]);
+        if (item)
         {
-            QModelIndex mi = modelIndexList.at(i);
-
-            PdmUiTreeOrdering* treeOrdering = m_treeViewModel->treeItemFromIndex(mi);
-            if (treeOrdering->activeItem())
-            {
-                objects.push_back(treeOrdering->activeItem());
-            }
+            objects.push_back(item);
         }
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -171,9 +163,9 @@ void PdmUiTreeViewEditor::enableDefaultContextMenu(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::setCurrentSelectionToCurrentEditorSelection(bool enable)
+void PdmUiTreeViewEditor::enableSelectionManagerUpdating(bool enable)
 {
-    m_currentSelectionFollowsEditorSelection = enable;
+    m_updateSelectionManager = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,6 +192,7 @@ void PdmUiTreeViewEditor::updateContextMenuSignals()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::customMenuRequested(QPoint pos)
 {
+    // This seems a bit strange. Why ?
     SelectionManager::instance()->setActiveChildArrayFieldHandle(this->currentChildArrayFieldHandle());
 
     QMenu menu;
@@ -214,22 +207,6 @@ void PdmUiTreeViewEditor::customMenuRequested(QPoint pos)
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
-{
-    if (m_currentSelectionFollowsEditorSelection)
-    {
-        QModelIndexList list;
-        list.append(current);
-
-        std::vector<PdmUiItem*> items;
-        uiItemsFromModelIndexList(list, items);
-
-        SelectionManager::instance()->setSelectedItems(items, SelectionManager::CURRENT);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -261,6 +238,31 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewEditor::selectAsCurrentItem(PdmUiItem* uiItem)
+{
+    QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
+    m_treeView->setCurrentIndex(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewEditor::slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
+{
+   if (m_updateSelectionManager)
+    {
+        std::vector<PdmUiItem*> items;
+        this->selectedUiItems(items);
+
+        SelectionManager::instance()->setSelectedItems(items, SelectionManager::CURRENT);
+    }
+
+    emit selectionChanged();
 }
 
 

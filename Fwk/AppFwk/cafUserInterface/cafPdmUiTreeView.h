@@ -64,19 +64,19 @@ public:
     void        enableDefaultContextMenu(bool enable);
     void        setCurrentSelectionToCurrentEditorSelection(bool enable);
 
-
     void        setUiConfigurationName(QString uiConfigName);
     void        setPdmItem(caf::PdmUiItem* object);
 
     QTreeView*  treeView();
 
     void        selectedObjects(std::vector<PdmUiItem*>& objects);
+    void        selectAsCurrentItem(PdmUiItem* uiItem);
 
 signals:
     void        selectionChanged();
 
 private slots:
-    void        slotOnSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
+    void        slotOnSelectionChanged();
 private:
 
     PdmUiTreeViewEditor*    m_treeViewEditor; 

@@ -68,14 +68,15 @@ public:
     void                    setColumnHeaders(const QStringList& columnHeaders);
     void                    setUiConfigName(const QString& uiConfigName) { m_uiConfigName = uiConfigName; }
  
-    void                    selectedUiItems(std::vector<PdmUiItem*>& objects);
-
-    PdmUiTreeOrdering*      treeItemFromIndex(const QModelIndex& index) const;
+    // These are supposed to be used from the Editor only, and to implement selection support.
+ 
+    PdmUiItem*              uiItemFromModelIndex(const QModelIndex& index) const;
+    QModelIndex             findModelIndex(const PdmUiItem* object) const;
 
 private:
     void                    updateSubTreeRecursive(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);
 
-    QModelIndex             findModelIndex(const PdmUiItem* object) const;
+    PdmUiTreeOrdering*      treeItemFromIndex(const QModelIndex& index) const;
     QModelIndex             findModelIndexRecursive(const QModelIndex& currentIndex, const PdmUiItem * object) const;
 
     void                    resetTree(PdmUiTreeOrdering* root);

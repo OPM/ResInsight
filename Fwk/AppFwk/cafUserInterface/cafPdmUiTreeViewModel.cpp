@@ -367,26 +367,6 @@ QModelIndex caf::PdmUiTreeViewModel::findModelIndexRecursive(const QModelIndex& 
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeViewModel::selectedUiItems(std::vector<PdmUiItem*>& objects)
-{
-    if (!(m_treeViewEditor && m_treeViewEditor->treeView())) return;
-
-    QModelIndexList idxList = m_treeViewEditor->treeView()->selectionModel()->selectedIndexes();
-
-    for (int i = 0; i < idxList.size(); i++)
-    {
-        PdmUiTreeOrdering* treeItem = this->treeItemFromIndex(idxList[i]);
-        if (treeItem)
-        {
-            caf::PdmUiItem* item = treeItem->activeItem();
-            objects.push_back(item);
-        }
-    }
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// An invalid parent index is implicitly meaning the root item, and not "above" root, since
@@ -696,6 +676,20 @@ QVariant PdmUiTreeViewModel::headerData(int section, Qt::Orientation orientation
     }
 
     return QVariant();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiItem* PdmUiTreeViewModel::uiItemFromModelIndex(const QModelIndex& index) const
+{
+    PdmUiTreeOrdering* treeItem = this->treeItemFromIndex(index);
+    if (treeItem)
+    {
+        return treeItem->activeItem();
+    }
+    
+    return NULL;
 }
 
 

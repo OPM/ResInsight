@@ -43,6 +43,7 @@
 #include <QAbstractItemModel>
 #include <QPointer>
 #include <QWidget>
+#include <QItemSelectionModel>
 
 
 class MySortFilterProxyModel;
@@ -82,13 +83,17 @@ public:
     ~PdmUiTreeViewEditor();
 
     void                enableDefaultContextMenu(bool enable);
-    void                setCurrentSelectionToCurrentEditorSelection(bool enable);
+    void                enableSelectionManagerUpdating(bool enable);
 
     QTreeView*          treeView();
 
+    void                selectAsCurrentItem(PdmUiItem* uiItem);
     void                selectedUiItems(std::vector<PdmUiItem*>& objects);
+    
     QWidget*            createWidget(QWidget* parent);
 
+signals:
+    void                selectionChanged();
 
 protected:
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
@@ -99,7 +104,7 @@ protected:
 
 private slots:
     void                customMenuRequested(QPoint pos);
-    void                slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
+    void                slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 private:
     void                uiItemsFromModelIndexList(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
@@ -117,7 +122,7 @@ private:
     PdmUiTreeViewEditorAttribute m_editorAttributes;
 
     bool                m_useDefaultContextMenu;
-    bool                m_currentSelectionFollowsEditorSelection;
+    bool                m_updateSelectionManager;
 };
 
 
