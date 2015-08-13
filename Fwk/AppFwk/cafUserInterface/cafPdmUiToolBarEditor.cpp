@@ -170,9 +170,9 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     assert(m_fields.size() == m_fieldViews.size());
-    assert(m_fields.size() == m_actions.size());
+    assert(static_cast<int>(m_fields.size()) == m_actions.size());
 
-    for (int i = 0; i < m_fields.size(); i++)
+    for (size_t i = 0; i < m_fields.size(); i++)
     {
         caf::PdmFieldHandle* field = m_fields[i];
 

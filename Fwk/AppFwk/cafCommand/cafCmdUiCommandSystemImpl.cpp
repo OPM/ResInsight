@@ -76,7 +76,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand(PdmFieldHandle* editorField, co
         std::vector<PdmUiItem*> items;
         SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
 
-        for (int i = 0; i < items.size(); i++)
+        for (size_t i = 0; i < items.size(); i++)
         {
             PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>(items[i]);
             if (objectHandle)
@@ -106,7 +106,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand(PdmFieldHandle* editorField, co
 
     std::vector<CmdExecuteCommand*> commands;
 
-    for (int i = 0; i < fieldsToUpdate.size(); i++)
+    for (size_t i = 0; i < fieldsToUpdate.size(); i++)
     {
         PdmFieldHandle* field = fieldsToUpdate[i];
 		PdmUiFieldHandle* uiFieldHandle = field->uiCapability();

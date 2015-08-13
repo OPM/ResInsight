@@ -290,7 +290,7 @@ bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* ed
     std::vector<PdmUiItem*> items;
     SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
 
-    for (int i = 0; i < items.size(); i++)
+    for (size_t i = 0; i < items.size(); i++)
     {
         PdmUiFieldHandle* uiField = dynamic_cast<PdmUiFieldHandle*>(items[i]);
         if (!uiField) continue;

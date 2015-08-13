@@ -148,8 +148,15 @@ void PdmChildArrayField<DataType*>::erase(size_t index)
 template<typename DataType>
 size_t PdmChildArrayField<DataType*>::index(DataType* pointer)
 {
-    typename std::vector< PdmPointer<DataType> >::iterator it = std::find(m_pointers.begin(), m_pointers.end(), pointer);
-    return it - m_pointers.begin();
+    for (size_t i = 0; i < m_pointers.size(); ++i)
+    {
+        if (pointer == m_pointers[i].p())
+        {
+          return i;
+        }
+    }
+
+    return (size_t)(-1); // Undefined size_t > m_pointers.size();
 }
 
 
@@ -198,7 +205,7 @@ void PdmChildArrayField<DataType*>::childObjects(std::vector<PdmObjectHandle*>* 
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-void PdmChildArrayField<DataType*>::insertAt(size_t indexAfter, PdmObjectHandle* obj)
+void PdmChildArrayField<DataType*>::insertAt(int indexAfter, PdmObjectHandle* obj)
 {
     // This method should assert if obj to insert is not castable to the container type, but since this
     // is a virtual method, its implementation is always created and that makes a dyn_cast add the need for 

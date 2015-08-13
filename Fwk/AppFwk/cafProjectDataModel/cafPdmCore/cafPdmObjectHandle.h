@@ -91,7 +91,12 @@ private:
     friend class PdmPointerImpl;
     std::set<PdmObjectHandle**>         m_pointersReferencingMe;
 };
+}
 
+#include "cafPdmFieldHandle.h"
+
+namespace caf
+{
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

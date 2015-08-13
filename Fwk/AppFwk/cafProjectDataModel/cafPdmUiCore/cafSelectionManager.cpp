@@ -174,7 +174,7 @@ void SelectionManager::setSelectionFromReferences(const std::vector<QString>& re
 {
     std::vector<PdmUiItem*> uiItems;
 
-    for (int i = 0; i < referenceList.size(); i++)
+    for (size_t i = 0; i < referenceList.size(); i++)
     {
         QString reference = referenceList[i];
 
@@ -197,7 +197,7 @@ void SelectionManager::setSelectionFromReferences(const std::vector<QString>& re
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::clearAll()
 {
-    for (int i = 0; i < m_selectionForRole.size(); i++)
+    for (size_t i = 0; i < m_selectionForRole.size(); i++)
     {
         m_selectionForRole[i].clear();
     }
@@ -250,7 +250,7 @@ void SelectionManager::removeObjectFromAllSelections(PdmObjectHandle* pdmObject)
 {
     bool doNotifySelectionChanged = false;
 
-    for (int role = 0; role < m_selectionForRole.size(); role++)
+    for (size_t role = 0; role < m_selectionForRole.size(); role++)
     {
         std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> >& selection = m_selectionForRole[role];
 

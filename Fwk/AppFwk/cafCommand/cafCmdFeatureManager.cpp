@@ -159,7 +159,7 @@ void CmdFeatureManager::refreshStates(const QStringList& commandIdList)
 {
     if (commandIdList.size() == 0)
     {
-        for (int i = 0; i < m_commandFeatures.size(); i++)
+        for (size_t i = 0; i < m_commandFeatures.size(); i++)
         {
             CmdFeature* cmdFeature = m_commandFeatures[i];
 
@@ -192,7 +192,7 @@ void CmdFeatureManager::refreshEnabledState(const QStringList& commandIdList)
 {
     if (commandIdList.size() == 0)
     {
-        for (int i = 0; i < m_commandFeatures.size(); i++)
+        for (size_t i = 0; i < m_commandFeatures.size(); i++)
         {
             m_commandFeatures[i]->refreshEnabledState();
         }
@@ -218,7 +218,7 @@ void CmdFeatureManager::refreshCheckedState(const QStringList& commandIdList)
 {
     if (commandIdList.size() == 0)
     {
-        for (int i = 0; i < m_commandFeatures.size(); i++)
+        for (size_t i = 0; i < m_commandFeatures.size(); i++)
         {
             m_commandFeatures[i]->refreshCheckedState();
         }

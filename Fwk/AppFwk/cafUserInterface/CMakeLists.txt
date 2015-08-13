@@ -29,7 +29,6 @@ set( QOBJECT_HEADERS
     cafPdmUiListView.h
     cafPdmUiListViewEditor.h
     cafPdmUiPropertyView.h
-    cafPdmUiPropertyViewDialog.h
     cafPdmUiPushButtonEditor.h
     cafPdmUiSliderEditor.h
     cafPdmUiTableView.h
@@ -37,7 +36,7 @@ set( QOBJECT_HEADERS
     cafPdmUiTableViewEditor.h
     cafPdmUiTableViewModel.h
     cafPdmUiTextEditor.h
-	cafPdmUiToolButtonEditor.h
+    cafPdmUiToolButtonEditor.h
     cafPdmUiTreeView.h
     cafPdmUiTreeViewModel.h
     cafPdmUiTreeViewEditor.h

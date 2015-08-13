@@ -412,7 +412,7 @@ PdmFieldHandle* PdmUiTableViewModel::getField(const QModelIndex &index) const
         m_pdmList->childObjects(&listObjects);
     }
 
-    if (index.row() < listObjects.size())
+    if (index.row() < static_cast<int>(listObjects.size()))
     {
         PdmObjectHandle* pdmObject = listObjects[index.row()];
         if (pdmObject)
@@ -421,7 +421,7 @@ PdmFieldHandle* PdmUiTableViewModel::getField(const QModelIndex &index) const
             pdmObject->fields(fields);
 
             int fieldIndex = m_modelColumnIndexToFieldIndex[index.column()];
-            if (fieldIndex < fields.size())
+            if (fieldIndex < static_cast<int>(fields.size()))
             {
                 return fields[fieldIndex];
             }
@@ -530,7 +530,7 @@ PdmObjectHandle* PdmUiTableViewModel::pdmObjectForRow(int row) const
         m_pdmList->childObjects(&listObjects);
     }
 
-    if (row < listObjects.size())
+    if (row < static_cast<int>(listObjects.size()))
     {
         return listObjects[row];
     }

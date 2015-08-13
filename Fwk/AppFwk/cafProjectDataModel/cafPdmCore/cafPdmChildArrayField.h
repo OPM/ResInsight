@@ -23,7 +23,7 @@ public:
     virtual size_t      size() const = 0;
     virtual bool        empty() const = 0;
     virtual void        clear() = 0;
-    virtual void        insertAt(size_t indexAfter, PdmObjectHandle* obj) = 0;
+    virtual void        insertAt(int indexAfter, PdmObjectHandle* obj) = 0;
     virtual void        erase(size_t index) = 0;
     virtual void        deleteAllChildObjects() = 0;
 
@@ -63,7 +63,7 @@ public:
     virtual bool        empty() const                             { return m_pointers.empty(); }
     virtual void        clear();
     virtual void        deleteAllChildObjects();
-    virtual void        insertAt(size_t indexAfter, PdmObjectHandle* obj);
+    virtual void        insertAt(int indexAfter, PdmObjectHandle* obj);
 
     // std::vector-like access
 
