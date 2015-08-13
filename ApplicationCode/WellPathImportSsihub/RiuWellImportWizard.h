@@ -100,6 +100,7 @@ public:
 class DownloadEntity
 {
 public:
+    QString name;
     QString requestUrl;
     QString responseFilename;
 };
@@ -114,6 +115,7 @@ class SummaryPageDownloadEntity : public caf::PdmObject
 public:
     SummaryPageDownloadEntity();
 
+    caf::PdmField<QString> name;
     caf::PdmField<QString> requestUrl;
     caf::PdmField<QString> responseFilename;
 };

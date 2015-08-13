@@ -941,6 +941,7 @@ void WellSelectionPage::selectedWellPathEntries(std::vector<DownloadEntity>& dow
                 {
                     DownloadEntity urlToFile;
 
+                    urlToFile.name = wellPathEntry->name;
                     urlToFile.requestUrl = wellPathEntry->requestUrl;
                     urlToFile.responseFilename = wellPathEntry->wellPathFilePath;
 
@@ -1021,10 +1022,12 @@ void WellSummaryPage::updateSummaryPage()
         }
         else
         {
-            errorString += QString("Failed to get file '%1' from well '%2'\n").arg(downloadEntities[i].responseFilename).arg(downloadEntities[i].requestUrl);
+            errorString += QString("Failed to get file '%1' from well '%2'\n").arg(downloadEntities[i].responseFilename).arg(downloadEntities[i].name);
         }
 
+
         SummaryPageDownloadEntity* sumPageEntity = new SummaryPageDownloadEntity;
+        sumPageEntity->name = downloadEntities[i].name;
         sumPageEntity->responseFilename = downloadEntities[i].responseFilename;
         sumPageEntity->requestUrl = downloadEntities[i].requestUrl;
 
@@ -1084,7 +1087,8 @@ CAF_PDM_SOURCE_INIT(SummaryPageDownloadEntity, "SummaryPageDownloadEntity");
 SummaryPageDownloadEntity::SummaryPageDownloadEntity()
 {
     CAF_PDM_InitObject("SummaryPageDownloadEntity", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&name, "Name", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&requestUrl, "RequestUrl", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&responseFilename, "ResponseFilename", "", "", "", "");
-
 }
