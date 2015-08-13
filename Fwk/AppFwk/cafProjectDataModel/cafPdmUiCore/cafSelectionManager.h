@@ -84,8 +84,8 @@ public:
     void        selectedItems(std::vector<PdmUiItem*>& items, int role = SelectionManager::APPLICATION_GLOBAL);
     void        setSelectedItems(const std::vector<PdmUiItem*>& items, int role = SelectionManager::APPLICATION_GLOBAL);
 
-    void        selectionAsReferences(std::vector<QString>& referenceList, int role) const;
-    void        setSelectionFromReferences(const std::vector<QString>& referenceList, int role);
+    void        selectionAsReferences(std::vector<QString>& referenceList, int role = SelectionManager::APPLICATION_GLOBAL) const;
+    void        setSelectionFromReferences(const std::vector<QString>& referenceList, int role = SelectionManager::APPLICATION_GLOBAL);
 
     void        clearAll();
     void        clear(int role);

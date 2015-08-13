@@ -525,8 +525,10 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimEclipsePropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -544,9 +546,14 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         caf::PdmUiItem* uiItem = uiItems[0];
         CVF_ASSERT(uiItem);
 
-        if (dynamic_cast<RimEclipseCase*>(uiItem))
+        if (dynamic_cast<RimGeoMechView*>(uiItem))
         {
-            commandIds << "RicEclipseCaseCopy";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+        }
+        else if (dynamic_cast<RimEclipseCase*>(uiItem))
+        {
+            commandIds << "RicCopyReferencesToClipboardFeature";
+
             commandIds << "RicEclipseCasePaste";
             commandIds << "RicEclipseCaseClose";
             commandIds << "RicEclipseCaseNewView";

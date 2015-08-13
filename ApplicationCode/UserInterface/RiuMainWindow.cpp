@@ -1287,6 +1287,8 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 	m_projectTreeView->setPdmItem(pdmRoot);
 
     m_projectTreeView->treeView()->expandAll();
+
+    caf::SelectionManager::instance()->setPdmRootObject(pdmRoot);
 }
 
 //--------------------------------------------------------------------------------------------------
