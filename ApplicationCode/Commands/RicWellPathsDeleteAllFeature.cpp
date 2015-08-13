@@ -75,7 +75,8 @@ void RicWellPathsDeleteAllFeature::onActionTriggered(bool isChecked)
     RimWellPathCollection* wellPathCollection = objects[0];
 
     wellPathCollection->wellPaths.deleteAllChildObjects();
-    uiObj(wellPathCollection)->updateConnectedEditors();
+
+    wellPathCollection->wellPaths.uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
