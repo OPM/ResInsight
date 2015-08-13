@@ -812,7 +812,7 @@ void MeshEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) con
     
     if (m_lineStipple)
     {
-        // MODTODO
+        // TODO: Use when VizFwk is updated
         //eff->setRenderState(new cvf::RenderStateLineStipple_FF);
     }
 }
@@ -831,7 +831,7 @@ void MeshEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) c
 
     if (m_lineStipple)
     {
-        // MODTODO
+        // TODO: Use when VizFwk is updated
         //eff->setRenderState(new cvf::RenderStateLineStipple_FF);
     }
 }
