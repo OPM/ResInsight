@@ -79,6 +79,7 @@ class CmdSelectionChangeExec : public CmdExecuteCommand
 {
 public:
     CmdSelectionChangeExec(NotificationCenter* notificationCenter);
+    virtual ~CmdSelectionChangeExec();;
 
     CmdSelectionChangeExecData* commandData();
 

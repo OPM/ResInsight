@@ -52,6 +52,8 @@ class CmdDeleteItemExec : public CmdExecuteCommand
 {
 public:
     CmdDeleteItemExec(NotificationCenter* notificationCenter);
+    virtual ~CmdDeleteItemExec() {};
+
 
     CmdDeleteItemExecData* commandData();
 

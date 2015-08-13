@@ -60,7 +60,7 @@ namespace caf
 CmdUiCommandSystemImpl::CmdUiCommandSystemImpl()
 {
     m_undoFeatureEnabled = false;
-    m_disableUndoFeatureOverride = false;
+    m_disableUndoForFieldChange = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,10 +137,10 @@ void CmdUiCommandSystemImpl::fieldChangedCommand(PdmFieldHandle* editorField, co
     }
 
     caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj(editorField->ownerObject());
-    if (uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoFramework())
+    if (uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged())
     {
         // Temporarily disable undo framework as requested by the PdmUiObjectHandle
-        m_disableUndoFeatureOverride = true;
+        m_disableUndoForFieldChange = true;
     }
 
     if (commands.size() == 1)
@@ -152,10 +152,10 @@ void CmdUiCommandSystemImpl::fieldChangedCommand(PdmFieldHandle* editorField, co
         CmdExecCommandManager::instance()->processExecuteCommandsAsMacro("Multiple Field Change", commands);
     }
 
-    if (uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoFramework())
+    if (uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged())
     {
         // Restore undo feature to normal operation
-        m_disableUndoFeatureOverride = false;
+        m_disableUndoForFieldChange = false;
     }
 }
 
@@ -183,8 +183,6 @@ void CmdUiCommandSystemImpl::populateMenuWithDefaultCommands(const QString& uiCo
 //--------------------------------------------------------------------------------------------------
 bool CmdUiCommandSystemImpl::isUndoEnabled()
 {
-    if (m_disableUndoFeatureOverride) return false;
-
     return m_undoFeatureEnabled;
 }
 
@@ -194,6 +192,14 @@ bool CmdUiCommandSystemImpl::isUndoEnabled()
 void CmdUiCommandSystemImpl::enableUndoFeature(bool enable)
 {
     m_undoFeatureEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool CmdUiCommandSystemImpl::disableUndoForFieldChange()
+{
+    return m_disableUndoForFieldChange;
 }
 
 } // end namespace caf

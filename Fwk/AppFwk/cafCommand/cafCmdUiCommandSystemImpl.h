@@ -56,9 +56,11 @@ public:
     bool isUndoEnabled();
     void enableUndoFeature(bool enable);
 
+    bool disableUndoForFieldChange();
+
 private:
     bool m_undoFeatureEnabled;
-    bool m_disableUndoFeatureOverride;
+    bool m_disableUndoForFieldChange;
 };
 
 

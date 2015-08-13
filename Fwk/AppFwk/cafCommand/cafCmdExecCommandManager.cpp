@@ -38,6 +38,7 @@
 #include "cafCmdExecCommandManager.h"
 
 #include "cafCmdExecuteCommand.h"
+#include "cafCmdFieldChangeExec.h"
 #include "cafCmdUiCommandSystemImpl.h"
 #include "cafPdmUiCommandSystemProxy.h"
 
@@ -140,7 +141,18 @@ QUndoStack* CmdExecCommandManager::undoStack()
 //--------------------------------------------------------------------------------------------------
 void CmdExecCommandManager::processExecuteCommand(CmdExecuteCommand* executeCommand)
 {
-    if (m_commandFeatureInterface && m_commandFeatureInterface->isUndoEnabled())
+    bool useUndo = false;
+
+    if (dynamic_cast<CmdFieldChangeExec*>(executeCommand) && m_commandFeatureInterface->disableUndoForFieldChange())
+    {
+        useUndo = false;
+    }
+    else if (m_commandFeatureInterface && m_commandFeatureInterface->isUndoEnabled())
+    {
+        useUndo = true;
+    }
+
+    if (useUndo)
     {
         // Transfer ownership of execute command to wrapper object
         UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper(executeCommand);

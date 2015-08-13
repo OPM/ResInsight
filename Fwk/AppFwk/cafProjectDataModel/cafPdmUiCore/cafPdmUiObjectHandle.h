@@ -40,7 +40,7 @@ public:
     void                    objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute);
 
     /// Field used to control if field change of and object should be covered by undo/redo framework
-    virtual bool            useUndoRedoFramework() { return true; }
+    virtual bool            useUndoRedoForFieldChanged() { return true; }
 
     void                    updateUiIconFromToggleField();
 
