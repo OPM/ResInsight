@@ -94,6 +94,7 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     delete propertyFilter;
 
     // updateUiSubTree(propertyFilterCollection); // To be enabled
+    propertyFilterCollection->updateConnectedEditors();
 
     if (wasFilterActive)
     {
@@ -136,6 +137,7 @@ bool RimUiTreeModelPdm::deleteGeoMechPropertyFilter(const QModelIndex& itemIndex
     delete propertyFilter;
 
     // updateUiSubTree(propertyFilterCollection); // To be enabled
+    propertyFilterCollection->updateConnectedEditors();
 
     if (wasFilterActive)
     {
@@ -178,6 +180,7 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
     delete rangeFilter;
 
     // updateUiSubTree(rangeFilterCollection); // To be enabled
+    rangeFilterCollection->updateConnectedEditors();
 
     if (wasFilterActive)
     {
@@ -214,6 +217,7 @@ void RimUiTreeModelPdm::deleteReservoirViews(const std::vector<caf::PdmUiItem*>&
     for (std::set<RimCase*>::iterator it = ownerCases.begin(); it != ownerCases.end(); ++it)
     {
         updateUiSubTree(*it); 
+        (*it)->updateConnectedEditors();
     }
 
     clearClipboard();
@@ -241,6 +245,7 @@ void RimUiTreeModelPdm::deleteGeoMechCases(const std::vector<caf::PdmUiItem*>& t
     for (std::set<caf::PdmObjectHandle*>::iterator it = allParents.begin(); it != allParents.end(); ++it)
     {
         updateUiSubTree(*it); 
+        (*it)->capability<caf::PdmUiObjectHandle>()->updateConnectedEditors();
     }
 
     clearClipboard();
@@ -478,8 +483,8 @@ RimView* RimUiTreeModelPdm::addReservoirView(const std::vector<caf::PdmUiItem*>&
     
     insertedView->loadDataAndUpdate();
 
-    if (eclipseCase ) this->updateUiSubTree(eclipseCase);
-    if (geomCase )    this->updateUiSubTree(geomCase);
+    if (eclipseCase ){ this->updateUiSubTree(eclipseCase); eclipseCase->updateConnectedEditors();}
+    if (geomCase )   { this->updateUiSubTree(geomCase); geomCase->updateConnectedEditors();}
    
     return insertedView;
 }    
@@ -519,6 +524,7 @@ void RimUiTreeModelPdm::slotRefreshScriptTree(QString path)
     {
         changedSColl->readContentFromDisc();
         this->updateUiSubTree(changedSColl);
+        changedSColl->updateConnectedEditors();
     }
 }
 
@@ -542,6 +548,7 @@ void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QSt
     }
 
     this->updateUiSubTree(inputPropertyCollection);
+    inputPropertyCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -647,6 +654,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
         analysisModels->caseGroups().push_back(createdObject);
 
         this->updateUiSubTree(analysisModels);
+        analysisModels->updateConnectedEditors();
         insertedModelIndex = getModelIndexFromPdmObject(createdObject);
 
         return createdObject;
@@ -835,6 +843,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
                 rimReservoirView->loadDataAndUpdate();
 
                 this->updateUiSubTree(geomCase);
+                geomCase->updateConnectedEditors();
             }
         }
     }

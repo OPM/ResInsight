@@ -495,6 +495,7 @@ void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collectio
         reservoirView->updateDisplayModelForWellResults();
 
         treeModel->updateUiSubTree(reservoirView->wellCollection());
+        reservoirView->wellCollection()->updateConnectedEditors();
 
         progInfo.incrementProgress();
     }

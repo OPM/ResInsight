@@ -1954,6 +1954,8 @@ void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
             m_OBSOLETE_treeView->setCurrentIndex(mi);
         }
     }
+
+    // Todo: m_projectTreeView->setCurrentItemInTreeView(object);
 }
 
 //--------------------------------------------------------------------------------------------------
