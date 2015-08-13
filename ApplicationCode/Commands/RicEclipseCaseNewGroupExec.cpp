@@ -27,6 +27,7 @@
 #include "RimOilField.h"
 
 #include "RiaApplication.h"
+#include "RiuMainWindow.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -72,6 +73,8 @@ void RicEclipseCaseNewGroupExec::redo()
 
         analysisModels->caseGroups().push_back(createdObject);
         analysisModels->updateConnectedEditors();
+        RiuMainWindow::instance()->setCurrentObjectInTreeView(createdObject);
+
     }
 }
 

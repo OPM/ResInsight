@@ -28,6 +28,7 @@
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
+#include "RiuMainWindow.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -63,6 +64,8 @@ void RicGeoMechPropertyFilter::addPropertyFilter(RimGeoMechPropertyFilterCollect
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,6 +80,8 @@ void RicGeoMechPropertyFilter::insertPropertyFilter(RimGeoMechPropertyFilterColl
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
+
 }
 
 //--------------------------------------------------------------------------------------------------

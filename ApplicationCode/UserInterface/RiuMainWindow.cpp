@@ -1607,50 +1607,50 @@ void RiuMainWindow::selectedObjectsChanged()
     if (uiItems.size() == 1)
     {
         firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]);
-    }
 
-    m_pdmUiPropertyView->showProperties(firstSelectedObject);
-    
-    RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
+        m_pdmUiPropertyView->showProperties(firstSelectedObject);
 
-    // Find the reservoir view that the selected item is within 
+        RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
 
-    if (!firstSelectedObject) 
-    {
-        caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
-        if (selectedField) firstSelectedObject = selectedField->ownerObject();
-    }
+        // Find the reservoir view that the selected item is within 
 
-    RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
-    if (!selectedReservoirView && firstSelectedObject )
-    {
-        firstSelectedObject->firstAncestorOfType(selectedReservoirView);
-    }
-
-    // If current selection is an item within a different reservoir view than active, 
-    // show new reservoir view and set this as activate view
-
-    if (selectedReservoirView && selectedReservoirView != activeReservoirView)
-    {
-        RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
-        // Set focus in MDI area to this window if it exists
-        if (selectedReservoirView->viewer())
+        if (!firstSelectedObject)
         {
-            setActiveViewer(selectedReservoirView->viewer());
+            caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
+            if (selectedField) firstSelectedObject = selectedField->ownerObject();
         }
 
-        // m_OBSOLETE_treeView->setCurrentIndex(current);
+        RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
+        if (!selectedReservoirView && firstSelectedObject)
+        {
+            firstSelectedObject->firstAncestorOfType(selectedReservoirView);
+        }
 
-        refreshDrawStyleActions();
-        refreshAnimationActions();
-        slotRefreshFileActions();
-        slotRefreshEditActions();
-        slotRefreshViewActions();
+        // If current selection is an item within a different reservoir view than active, 
+        // show new reservoir view and set this as activate view
 
-        // The only way to get to this code is by selection change initiated from the project tree view
-        // As we are activating an MDI-window, the focus is given to this MDI-window
-        // Set focus back to the tree view to be able to continue keyboard tree view navigation
-        m_projectTreeView->treeView()->setFocus();
+        if (selectedReservoirView && selectedReservoirView != activeReservoirView)
+        {
+            RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
+            // Set focus in MDI area to this window if it exists
+            if (selectedReservoirView->viewer())
+            {
+                setActiveViewer(selectedReservoirView->viewer());
+            }
+
+            // m_OBSOLETE_treeView->setCurrentIndex(current);
+
+            refreshDrawStyleActions();
+            refreshAnimationActions();
+            slotRefreshFileActions();
+            slotRefreshEditActions();
+            slotRefreshViewActions();
+
+            // The only way to get to this code is by selection change initiated from the project tree view
+            // As we are activating an MDI-window, the focus is given to this MDI-window
+            // Set focus back to the tree view to be able to continue keyboard tree view navigation
+            m_projectTreeView->treeView()->setFocus();
+        }
     }
 }
 
@@ -1955,7 +1955,7 @@ void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
         }
     }
 
-    // Todo: m_projectTreeView->setCurrentItemInTreeView(object);
+    m_projectTreeView->selectAsCurrentItem(object);
 }
 
 //--------------------------------------------------------------------------------------------------

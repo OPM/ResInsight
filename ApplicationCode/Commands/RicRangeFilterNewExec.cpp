@@ -21,6 +21,7 @@
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimView.h"
+#include "RiuMainWindow.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -102,6 +103,8 @@ void RicRangeFilterNewExec::redo()
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
     cellRangeFilterCollection->updateConnectedEditors();
+
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(rangeFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
