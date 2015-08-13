@@ -113,9 +113,16 @@ void PdmObjectHandle::firstAncestorOfType(T*& ancestor) const
 
         // Get next level parent
 
-        PdmObjectHandle* nextParent = NULL;
         PdmFieldHandle*  nextParentField = parent->parentField();
-        if (nextParentField) parent = nextParentField->ownerObject();
+        
+        if (nextParentField)
+        {
+            parent = nextParentField->ownerObject();
+        }
+        else
+        {
+            parent = NULL;
+        }
     }
 }
 
