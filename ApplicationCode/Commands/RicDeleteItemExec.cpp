@@ -28,6 +28,11 @@
 #include "cafNotificationCenter.h"
 #include "cafSelectionManager.h"
 #include "cafPdmDocument.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimWellPathCollection.h"
+#include "RimView.h"
 
 
 namespace caf
@@ -63,10 +68,45 @@ void RicDeleteItemExec::redo()
         }
 
         listField->erase(m_commandData->m_indexToObject);
+
         delete obj;
 
-        listField->uiCapability()->updateConnectedEditors();
+        caf::PdmObjectHandle* parentObj = listField->ownerObject();
+        parentObj->capability<caf::PdmUiObjectHandle>()->updateConnectedEditors();
+        
+        RimView* view = NULL;
+        parentObj->firstAnchestorOrThisOfType(view);
 
+        RimCellRangeFilterCollection* rangeFilterColl;
+        parentObj->firstAnchestorOrThisOfType(rangeFilterColl);
+
+        if (view && rangeFilterColl)
+        {
+            view->scheduleGeometryRegen(RANGE_FILTERED);
+            view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+
+        RimEclipsePropertyFilterCollection* eclipsePropColl;
+        parentObj->firstAnchestorOrThisOfType(eclipsePropColl);
+        
+        RimGeoMechPropertyFilterCollection* geoMechPropColl;
+        parentObj->firstAnchestorOrThisOfType(geoMechPropColl);
+
+        if (view && (eclipsePropColl || geoMechPropColl))
+        {
+            view->scheduleGeometryRegen(PROPERTY_FILTERED);
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+
+        RimWellPathCollection* wellPathColl;
+        parentObj->firstAnchestorOrThisOfType(wellPathColl);
+
+        if (wellPathColl)
+        {
+            wellPathColl->scheduleGeometryRegenAndRedrawViews();
+        }
     }
 }
 
@@ -87,6 +127,7 @@ void RicDeleteItemExec::undo()
         PdmDocument::initAfterReadTraversal(obj);
 
         listField->uiCapability()->updateConnectedEditors();
+        listField->ownerObject()->capability<caf::PdmUiObjectHandle>()->updateConnectedEditors();
 
         if (m_notificationCenter) m_notificationCenter->notifyObservers();
     }

@@ -33,37 +33,6 @@
 
 #include "cafPdmUiEditorHandle.h"
 
-class ResViewRangeFiltersEditorHandle : public caf::PdmUiEditorHandle
-{
-public:
-    ResViewRangeFiltersEditorHandle(caf::PdmFieldHandle* a)
-    {
-        this->bindToPdmItem(a->uiCapability());
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    virtual void configureAndUpdateUi(const QString& uiConfigName)
-    {
-        caf::PdmUiFieldHandle* uiFieldHandle = dynamic_cast<caf::PdmUiFieldHandle*>(this->pdmItem());
-        caf::PdmObjectHandle* objHandle = uiFieldHandle->fieldHandle()->ownerObject();
-
-        RimView* view = NULL;
-        objHandle->firstAnchestorOrThisOfType(view);
-        CVF_ASSERT(view);
-
-        view->scheduleGeometryRegen(RANGE_FILTERED);
-        view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
-
-        view->scheduleCreateDisplayModelAndRedraw();
-
-        // This will update UI editors related to tree view (and others), as there is no tree view entity for editor for 
-        // the property filters childarrayfield (this field is hidden)
-        uiObj(objHandle)->updateConnectedEditors();
-    }
-};
-
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
 
@@ -80,7 +49,6 @@ RimCellRangeFilterCollection::RimCellRangeFilterCollection()
     CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    rangeFilters.uiCapability()->addFieldEditor(new ResViewRangeFiltersEditorHandle(&rangeFilters));
 }
 
 //--------------------------------------------------------------------------------------------------
