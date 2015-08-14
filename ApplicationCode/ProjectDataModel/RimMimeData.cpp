@@ -97,6 +97,7 @@ MimeDataWithReferences::MimeDataWithReferences()
 /// 
 //--------------------------------------------------------------------------------------------------
 MimeDataWithReferences::MimeDataWithReferences(const MimeDataWithReferences& other)
+    : QMimeData()
 {
     setReferences(other.references());
 }

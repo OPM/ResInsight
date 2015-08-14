@@ -56,10 +56,10 @@
 
 #include <QStatusBar>
 #include "RiuFemResultTextBuilder.h"
-#include "Commands\RicRangeFilterNewExec.h"
+#include "RicRangeFilterNewExec.h"
 #include "cafCmdExecCommandManager.h"
-#include "Commands\RicGeoMechPropertyFilterNewExec.h"
-#include "Commands\RicEclipsePropertyFilterNewExec.h"
+#include "RicGeoMechPropertyFilterNewExec.h"
+#include "RicEclipsePropertyFilterNewExec.h"
 
 //==================================================================================================
 //

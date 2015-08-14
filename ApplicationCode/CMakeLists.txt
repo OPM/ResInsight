@@ -25,12 +25,13 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
+    ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
-	${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
+    ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
