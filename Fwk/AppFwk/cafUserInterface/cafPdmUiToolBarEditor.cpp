@@ -179,7 +179,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
         // Enabled state of a tool button is controlled by the QAction associated with a tool button
         // Changing the state of a widget directly has no effect
         // See Qt doc for QToolBar::insertWidget 
-        QAction* action = m_actions[i];
+        QAction* action = m_actions[static_cast<int>(i)];
 
 		caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
