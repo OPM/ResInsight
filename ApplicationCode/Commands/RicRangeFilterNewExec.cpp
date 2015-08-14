@@ -81,19 +81,19 @@ void RicRangeFilterNewExec::redo()
     if (m_iSlice)
     {
         rangeFilter->cellCountI = 1;
-        rangeFilter->name = QString("I Slice Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
+        rangeFilter->name = QString("Slice I (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
     }
     
     if (m_jSlice)
     {
         rangeFilter->cellCountJ = 1;
-        rangeFilter->name = QString("J Slice Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
+        rangeFilter->name = QString("Slice J (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
     }
     
     if (m_kSlice)
     {
         rangeFilter->cellCountK = 1;
-        rangeFilter->name = QString("K Slice Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
+        rangeFilter->name = QString("Slice K (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
     }
 
     if (m_iSliceStart > -1) rangeFilter->startIndexI = m_iSliceStart;
@@ -102,6 +102,7 @@ void RicRangeFilterNewExec::redo()
 
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
     cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+    cellRangeFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     cellRangeFilterCollection->updateConnectedEditors();
 

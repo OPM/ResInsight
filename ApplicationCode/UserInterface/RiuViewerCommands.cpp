@@ -56,6 +56,10 @@
 
 #include <QStatusBar>
 #include "RiuFemResultTextBuilder.h"
+#include "Commands\RicRangeFilterNewExec.h"
+#include "cafCmdExecCommandManager.h"
+#include "Commands\RicGeoMechPropertyFilterNewExec.h"
+#include "Commands\RicEclipsePropertyFilterNewExec.h"
 
 //==================================================================================================
 //
@@ -213,8 +217,29 @@ void RiuViewerCommands::createSliceRangeFilter(int ijOrk)
     size_t i, j, k;
     ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
 
+    RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
+
+    RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
+
+    if (ijOrk == 0){
+        filterExec->m_iSlice = true;
+        filterExec->m_iSliceStart = CVF_MAX(static_cast<int>(i + 1), 1);
+    }
+    else if (ijOrk == 1){
+        filterExec->m_jSlice = true;
+        filterExec->m_jSliceStart = CVF_MAX(static_cast<int>(j + 1), 1);
+
+    }
+    else if (ijOrk == 2){
+        filterExec->m_kSlice = true;
+        filterExec->m_kSliceStart = CVF_MAX(static_cast<int>(k + 1), 1);
+    }
+
+    caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
+
+    #if 0 // OBSOLETE
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
+    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel_OBSOLETE();
     if (myModel)
     {
         RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
@@ -252,6 +277,7 @@ void RiuViewerCommands::createSliceRangeFilter(int ijOrk)
 
         mainWindow->setCurrentObjectInTreeView(rangeFilter);
     }
+    #endif
 
     eclipseView->setSurfaceDrawstyle();
 }
@@ -292,8 +318,12 @@ void RiuViewerCommands::slotAddEclipsePropertyFilter()
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if (eclipseView)
     {
+        RimEclipsePropertyFilterCollection* filterCollection = eclipseView->propertyFilterCollection();
+        RicEclipsePropertyFilterNewExec* propCmdExe = new RicEclipsePropertyFilterNewExec(filterCollection);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
+        #if 0 // OBSOLETE
         RiuMainWindow* mainWindow = RiuMainWindow::instance();
-        RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
+        RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel_OBSOLETE();
         if (myModel)
         {
             RimEclipsePropertyFilterCollection* filterCollection = eclipseView->propertyFilterCollection();
@@ -305,6 +335,7 @@ void RiuViewerCommands::slotAddEclipsePropertyFilter()
 
             mainWindow->setCurrentObjectInTreeView(propertyFilter);
         }
+        #endif
     }
 }
 
@@ -316,8 +347,13 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
     if (geoMechView)
     {
+        RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->propertyFilterCollection();
+        RicGeoMechPropertyFilterNewExec* propCmdExe = new RicGeoMechPropertyFilterNewExec(filterCollection);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
+
+        #if 0 // OBSOLETE
         RiuMainWindow* mainWindow = RiuMainWindow::instance();
-        RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
+        RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel_OBSOLETE();
         if (myModel)
         {
             RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->propertyFilterCollection();
@@ -329,6 +365,7 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
 
             mainWindow->setCurrentObjectInTreeView(propertyFilter);
         }
+        #endif
     }
 }
 
