@@ -43,7 +43,6 @@ RicRangeFilterNewExec* RicRangeFilterHelper::createRangeFilterExecCommand()
     RimCellRangeFilterCollection* rangeFilterCollection = findRangeFilterCollection();
 
     RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
-    assert(rangeFilterCollection);
 
     return filterExec;
 }
@@ -54,22 +53,26 @@ RicRangeFilterNewExec* RicRangeFilterHelper::createRangeFilterExecCommand()
 RimCellRangeFilterCollection* RicRangeFilterHelper::findRangeFilterCollection()
 {
     RimCellRangeFilterCollection* rangeFilterCollection = NULL;
-
+    
     std::vector<RimCellRangeFilter*> selectedRangeFilter;
     caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
 
     std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
     caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
+
     if (selectedRangeFilterCollection.size() == 1)
     {
         rangeFilterCollection = selectedRangeFilterCollection[0];
     }
     else if (selectedRangeFilter.size() > 0)
     {
-        rangeFilterCollection = dynamic_cast<RimCellRangeFilterCollection*>(selectedRangeFilter[0]->owner());
+        selectedRangeFilter[0]->firstAncestorOfType(rangeFilterCollection);
     }
 
+    assert(rangeFilterCollection);
+
     // TODO : When a menu is created in the 3D view, add code to find collection based on a RimView
+    // See RiuViewerCommands
 
     return rangeFilterCollection;
 }
