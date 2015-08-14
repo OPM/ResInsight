@@ -451,7 +451,7 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_wellDataSourceCase == changedField)
     {
-        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
+        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
 
         // Find or load well data for given case
         RimEclipseCase* sourceResultCase = caseGroup()->caseCollection()->findByDescription(m_wellDataSourceCase);
@@ -479,7 +479,7 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
 {
-    RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
+    RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
 
     this->reservoirData()->setWellResults(sourceCaseWellResults);
     

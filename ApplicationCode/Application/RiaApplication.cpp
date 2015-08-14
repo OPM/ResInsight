@@ -446,12 +446,12 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
         oilField->wellPathCollection->setProject(m_project);
 
         m_project->updateConnectedEditors();
-        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project);
+        RiuMainWindow::instance()->uiPdmModel_OBSOLETE()->updateUiSubTree(m_project);
     }
 
     if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
     
-    RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(oilField->wellPathCollection);
+    RiuMainWindow::instance()->uiPdmModel_OBSOLETE()->updateUiSubTree(oilField->wellPathCollection);
     oilField->wellPathCollection->updateConnectedEditors();
 }
 
@@ -665,7 +665,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
 
     uiModel->updateUiSubTree(analysisModels);
     analysisModels->updateConnectedEditors();
@@ -704,7 +704,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
     uiModel->updateUiSubTree(analysisModels);
     analysisModels->updateConnectedEditors();
 
@@ -751,7 +751,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
     //}
     progress.incrementProgress();
     progress.setProgressDescription("Loading results information");
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
 
     uiModel->updateUiSubTree(m_project);
     m_project->updateConnectedEditors();
@@ -1327,7 +1327,7 @@ void RiaApplication::applyPreferences()
     if (this->project())
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
-        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
+        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
         if (treeModel) treeModel->updateUiSubTree(this->project()->scriptCollection());
         this->project()->scriptCollection()->updateConnectedEditors();
     }
@@ -1783,7 +1783,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         gridCaseGroup->loadMainCaseAndActiveCellInfo();
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
  
     uiModel->updateUiSubTree( m_project->activeOilField()->analysisModels());
     m_project->activeOilField()->analysisModels()->updateConnectedEditors();

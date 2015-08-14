@@ -88,7 +88,7 @@ public:
     void            updateScaleValue();
     void            forceProjectTreeRepaint();
 
-    RimUiTreeModelPdm* uiPdmModel() { return m_OBSOLETE_treeModelPdm;}
+    RimUiTreeModelPdm* uiPdmModel_OBSOLETE() { return m_OBSOLETE_treeModelPdm;}
 
     RiuProcessMonitor* processMonitor();
 
