@@ -55,6 +55,7 @@ namespace caf
     class PdmUiPropertyView;
     class UiPropertyCreatorPdm;
     class UiTreeModelPdm;
+    class PdmUiItem;
 }
 
 namespace ssihub
@@ -104,7 +105,7 @@ public:
     void            appendActionsContextMenuForPdmObject(caf::PdmObjectHandle* pdmObject, QMenu* menu);
     void            refreshDrawStyleActions();
     
-    void            setExpanded(const caf::PdmObject* pdmObject, bool expanded);
+    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);

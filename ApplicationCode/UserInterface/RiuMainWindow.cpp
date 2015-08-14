@@ -2008,10 +2008,12 @@ void RiuMainWindow::updateScaleValue()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 {
+    caf::SelectionManager::instance()->objectsByType(&cases);
+#if 0 // OBSOLETE
     if (m_OBSOLETE_treeView && m_OBSOLETE_treeView->selectionModel())
     {
         QModelIndexList selectedModelIndexes = m_OBSOLETE_treeView->selectionModel()->selectedIndexes();
-        
+
         caf::PdmObjectGroup group;
         m_OBSOLETE_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndexes, &group);
 
@@ -2023,6 +2025,7 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
             cases.push_back(typedObjects[i]);
         }
     }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2198,13 +2201,10 @@ void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObjectHandle* p
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setExpanded(const caf::PdmObject* pdmObject, bool expanded)
+void RiuMainWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
-    QModelIndex mi = m_OBSOLETE_treeModelPdm->getModelIndexFromPdmObject(pdmObject);
-    if (m_OBSOLETE_treeView && mi.isValid())
-    {
-        m_OBSOLETE_treeView->setExpanded(mi, expanded);
-    }
+   
+    m_projectTreeView->setExpanded(uiItem, expanded);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2216,6 +2216,9 @@ void RiuMainWindow::forceProjectTreeRepaint()
     // Needed for some reason when changing names and icons in the model
     m_OBSOLETE_treeView->scroll(0,1);
     m_OBSOLETE_treeView->scroll(0,-1);
+
+    m_projectTreeView->scroll(0,1);
+    m_projectTreeView->scroll(0,-1);
 }
 
 //--------------------------------------------------------------------------------------------------
