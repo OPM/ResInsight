@@ -259,7 +259,7 @@ void PdmUiTreeViewEditor::slotOnSelectionChanged(const QItemSelection & selected
         std::vector<PdmUiItem*> items;
         this->selectedUiItems(items);
 
-        SelectionManager::instance()->setSelectedItems(items, SelectionManager::CURRENT);
+        SelectionManager::instance()->setSelectedItems(items);
     }
 
     emit selectionChanged();
