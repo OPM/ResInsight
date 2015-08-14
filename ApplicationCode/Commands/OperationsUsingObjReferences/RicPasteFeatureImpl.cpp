@@ -99,7 +99,7 @@ RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup(PdmObjectHandl
              dynamic_cast<RimEclipseCase*>(objectHandle))
     {
         RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-        objectHandle->firstAncestorOfType(gridCaseGroup);
+        objectHandle->firstAnchestorOrThisOfType(gridCaseGroup);
 
         return gridCaseGroup;
     }

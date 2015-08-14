@@ -66,7 +66,7 @@ RimCellRangeFilterCollection* RicRangeFilterHelper::findRangeFilterCollection()
     }
     else if (selectedRangeFilter.size() > 0)
     {
-        selectedRangeFilter[0]->firstAncestorOfType(rangeFilterCollection);
+        selectedRangeFilter[0]->firstAnchestorOrThisOfType(rangeFilterCollection);
     }
 
     assert(rangeFilterCollection);

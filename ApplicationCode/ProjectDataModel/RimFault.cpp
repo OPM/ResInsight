@@ -70,7 +70,7 @@ void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const Q
     {
         RimEclipseView* reservoirView = NULL;
 
-        this->firstAncestorOfType(reservoirView);
+        this->firstAnchestorOrThisOfType(reservoirView);
 
         if (reservoirView) 
         {

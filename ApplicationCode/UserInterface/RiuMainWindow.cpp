@@ -1636,7 +1636,7 @@ void RiuMainWindow::selectedObjectsChanged()
         RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
         if (!selectedReservoirView && firstSelectedObject)
         {
-            firstSelectedObject->firstAncestorOfType(selectedReservoirView);
+            firstSelectedObject->firstAnchestorOrThisOfType(selectedReservoirView);
         }
 
         // If current selection is an item within a different reservoir view than active, 

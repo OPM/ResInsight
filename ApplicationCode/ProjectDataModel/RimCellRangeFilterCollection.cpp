@@ -50,7 +50,7 @@ public:
         caf::PdmObjectHandle* objHandle = uiFieldHandle->fieldHandle()->ownerObject();
 
         RimView* view = NULL;
-        objHandle->firstAncestorOfType(view);
+        objHandle->firstAnchestorOrThisOfType(view);
         CVF_ASSERT(view);
 
         view->scheduleGeometryRegen(RANGE_FILTERED);

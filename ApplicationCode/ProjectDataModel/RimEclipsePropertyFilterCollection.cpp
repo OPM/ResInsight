@@ -44,7 +44,7 @@ public:
         caf::PdmObjectHandle* objHandle = uiFieldHandle->fieldHandle()->ownerObject();
 
         RimEclipseView* view = NULL;
-        objHandle->firstAncestorOfType(view);
+        objHandle->firstAnchestorOrThisOfType(view);
         CVF_ASSERT(view);
 
         view->scheduleGeometryRegen(PROPERTY_FILTERED);
@@ -115,7 +115,7 @@ void RimEclipsePropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHan
     this->updateUiIconFromToggleField();
 
     RimEclipseView* view = NULL;
-    this->firstAncestorOfType(view);
+    this->firstAnchestorOrThisOfType(view);
     CVF_ASSERT(view);
 
     view->scheduleGeometryRegen(PROPERTY_FILTERED);
