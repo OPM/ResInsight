@@ -103,6 +103,8 @@ namespace caf
 template <typename T>
 void PdmObjectHandle::firstAnchestorOrThisOfType(T*& ancestor) const
 {
+    ancestor = NULL;
+
     // Check if this matches the type
 
     const T* objectOfType = dynamic_cast<const T*>(this);
