@@ -69,7 +69,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
     {
         if (dynamic_cast<caf::PdmUiObjectHandle*>(items[i]))
         {
-            currentPdmObject = dynamic_cast<caf::PdmUiObjectHandle*>(items[i])->owner();
+            currentPdmObject = dynamic_cast<caf::PdmUiObjectHandle*>(items[i])->objectHandle();
         }
     }
 

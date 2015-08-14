@@ -20,7 +20,7 @@ public:
     PdmUiObjectHandle(PdmObjectHandle* owner, bool giveOwnership);
     virtual ~PdmUiObjectHandle() { }
 
-    PdmObjectHandle* owner() { return m_owner; }
+    PdmObjectHandle*        objectHandle() { return m_owner; }
 
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented

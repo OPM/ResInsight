@@ -75,7 +75,7 @@ PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
     PdmUiObjectHandle* uiObject = dynamic_cast<PdmUiObjectHandle*>(pdmItem());
     if (uiObject)
     {
-        return uiObject->owner();
+        return uiObject->objectHandle();
     }
     else
     {

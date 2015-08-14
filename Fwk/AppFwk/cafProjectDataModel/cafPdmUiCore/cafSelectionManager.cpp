@@ -96,7 +96,7 @@ void SelectionManager::setSelectedItems(const std::vector<PdmUiItem*>& items, in
             PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*>(items[i]);
             if (obj)
             {
-                selection.push_back(std::make_pair(obj->owner(), obj));
+                selection.push_back(std::make_pair(obj->objectHandle(), obj));
             }
         }
     }
@@ -159,7 +159,7 @@ void SelectionManager::selectionAsReferences(std::vector<QString>& referenceList
 	        PdmUiObjectHandle* pdmObj = dynamic_cast<PdmUiObjectHandle*>(selection[i].second);
 	        if (pdmObj)
     	    {
-        	    QString itemRef = PdmReferenceHelper::referenceFromRootToObject(m_rootObject, pdmObj->owner());
+        	    QString itemRef = PdmReferenceHelper::referenceFromRootToObject(m_rootObject, pdmObj->objectHandle());
 
             	referenceList.push_back(itemRef);
         	}

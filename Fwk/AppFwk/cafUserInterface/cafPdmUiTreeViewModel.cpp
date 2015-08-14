@@ -147,7 +147,7 @@ void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
         PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*> (pdmRoot);
         if (obj)
         {
-            newTreeRootTmp = new PdmUiTreeOrdering(obj->owner());
+            newTreeRootTmp = new PdmUiTreeOrdering(obj->objectHandle());
         }
     }
 
