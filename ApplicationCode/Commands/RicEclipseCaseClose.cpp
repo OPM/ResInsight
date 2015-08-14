@@ -50,6 +50,8 @@ bool RicEclipseCaseClose::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipseCaseClose::onActionTriggered(bool isChecked)
 {
+    // TODO
+    assert(false);
 }
 
 //--------------------------------------------------------------------------------------------------

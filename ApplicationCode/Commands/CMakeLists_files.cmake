@@ -6,7 +6,6 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseClose.h
-${CEE_CURRENT_LIST_DIR}RicEclipseCaseCopy.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseExecuteScript.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroup.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.h
@@ -22,7 +21,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsert.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNew.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.h
-${CEE_CURRENT_LIST_DIR}RicEclipseViewCopy.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewDelete.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewNew.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewPaste.h
@@ -52,7 +50,6 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseClose.cpp
-${CEE_CURRENT_LIST_DIR}RicEclipseCaseCopy.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseExecuteScript.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroup.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.cpp
@@ -68,7 +65,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsert.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNew.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.cpp
-${CEE_CURRENT_LIST_DIR}RicEclipseViewCopy.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewDelete.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewNew.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewPaste.cpp
