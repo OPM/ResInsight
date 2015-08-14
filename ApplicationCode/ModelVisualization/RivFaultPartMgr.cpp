@@ -460,7 +460,8 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
             RimFault* noConstRimFault = const_cast<RimFault*>(m_rimFault);
             if (noConstRimFault)
             {
-                RimFaultCollection* parentObject = dynamic_cast<RimFaultCollection*>(noConstRimFault->objectHandle());
+                RimFaultCollection* parentObject;
+                noConstRimFault->firstAnchestorOrThisOfType(parentObject);
                 if (parentObject)
                 {
                     defWellLabelColor = parentObject->faultLabelColor();;
