@@ -51,39 +51,16 @@ void PdmObjectGroup::createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedOb
     std::vector<PdmPointer<T> > sourceTypedObjects;
     objectsByType(&sourceTypedObjects);
 
-    QString encodedXml;
+    for (size_t i = 0; i < sourceTypedObjects.size(); i++)
     {
-        // Write original objects to XML file
-        QXmlStreamWriter xmlStream(&encodedXml);
-        xmlStream.setAutoFormatting(true);
+        QString xml = xmlObj(sourceTypedObjects[i])->writeObjectToXmlString();
 
-        xmlStream.writeStartElement("", "PdmObjects");
-        for (size_t i = 0; i < sourceTypedObjects.size(); i++)
-        {
-            PdmXmlObjectHandle* xmlObjHandle = sourceTypedObjects[i]->capability<PdmXmlObjectHandle>();
-            assert(xmlObjHandle);
+        PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xml, PdmDefaultObjectFactory::instance());
 
-            QString className = xmlObjHandle->classKeyword();
+        T* typedObject = dynamic_cast<T*>(objectCopy);
+        assert(typedObject);
 
-            xmlStream.writeStartElement("", className);
-            xmlObjHandle->writeFields(xmlStream);
-            xmlStream.writeEndElement();
-        }
-        xmlStream.writeEndElement();
-    }
-
-    // Read back XML into object group, factory methods will be called that will create new objects
-    PdmObjectGroup destinationObjectGroup;
-    QXmlStreamReader xmlStream(encodedXml);
-
-    PdmXmlObjectHandle* xmlObjHandle = destinationObjectGroup.capability<PdmXmlObjectHandle>();
-    assert(xmlObjHandle);
-    xmlObjHandle->readFields(xmlStream, objectFactory);
-
-    for (size_t it = 0; it < destinationObjectGroup.objects.size(); it++)
-    {
-        T* obj = dynamic_cast<T*>(destinationObjectGroup.objects[it]);
-        if (obj) copyOfTypedObjects->push_back(obj);
+        copyOfTypedObjects->push_back(typedObject);
     }
 }
 
