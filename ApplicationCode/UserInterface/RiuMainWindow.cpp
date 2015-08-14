@@ -563,6 +563,15 @@ void RiuMainWindow::createDockPanels()
 		m_projectTreeView = new caf::PdmUiTreeView(this);
 		dockWidget->setWidget(m_projectTreeView);
 
+        m_projectTreeView->treeView()->setHeaderHidden(true);
+        m_projectTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+        // TODO :Drag and drop configuration
+//         m_projectTreeView->treeView()->setDragEnabled(true);
+//         m_projectTreeView->treeView()->viewport()->setAcceptDrops(true);
+//         m_projectTreeView->treeView()->setDropIndicatorShown(true);
+//         m_projectTreeView->treeView()->setDragDropMode(QAbstractItemView::DragDrop);
+
 		addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
 		connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
