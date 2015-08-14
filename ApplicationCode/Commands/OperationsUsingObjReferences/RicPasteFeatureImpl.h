@@ -20,23 +20,35 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+
+#include <vector>
+
+class QString;
+
+class RimIdenticalGridCaseGroup;
+class RimEclipseCase;
 
 namespace caf 
 {
 
+class PdmObjectGroup;
+class PdmObjectHandle;
+
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicCopyReferencesToClipboardFeature : public CmdFeature
+class RicPasteFeatureImpl
 {
-    CAF_CMD_HEADER_INIT;
-protected:
+public:
+    static void findObjectsFromClipboardRefs(caf::PdmObjectGroup* objectGroup);
 
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    static RimIdenticalGridCaseGroup* findGridCaseGroup(PdmObjectHandle* objectHandle);
+    static RimEclipseCase* findEclipseCase(PdmObjectHandle* objectHandle);
+
+
+private:
+    static void populateObjectGroupFromReferences(const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup);
+    static void referencesFromClipboard(std::vector<QString>& referenceList);
 };
 
 

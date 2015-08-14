@@ -81,6 +81,8 @@ public:
     void                refreshEnabledState();
     void                refreshCheckedState();
 
+    bool                canFeatureBeExecuted() { return this->isCommandEnabled(); }
+
 public slots:
     void actionTriggered(bool isChecked) { this->onActionTriggered(isChecked); }
 

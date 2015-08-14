@@ -22,21 +22,22 @@
 
 #include "cafCmdFeature.h"
 
+
 namespace caf 
 {
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicCopyReferencesToClipboardFeature : public CmdFeature
+class RicPasteEclipseViewsFeature : public caf::CmdFeature
 {
-    CAF_CMD_HEADER_INIT;
-protected:
+CAF_CMD_HEADER_INIT;
 
+protected:
     // Overrides
     virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual void onActionTriggered(bool isChecked);
+    virtual void setupActionLook(QAction* actionToSetup);
 };
 
 

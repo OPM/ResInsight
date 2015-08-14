@@ -24,19 +24,20 @@
 
 namespace caf 
 {
-
+   
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicCopyReferencesToClipboardFeature : public CmdFeature
+class RicPasteEclipseCasesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-protected:
 
+protected:
     // Overrides
     virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual void onActionTriggered(bool isChecked);
+    virtual void setupActionLook(QAction* actionToSetup);
+
 };
 
 

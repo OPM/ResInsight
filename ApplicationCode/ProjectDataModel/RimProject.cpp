@@ -43,6 +43,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QDir>
+#include "cafCmdFeature.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -554,17 +555,31 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         {
             commandIds << "RicCopyReferencesToClipboardFeature";
 
-            commandIds << "RicEclipseCasePaste";
+            commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "RicPasteEclipseViewsFeature";
+
             commandIds << "RicEclipseCaseClose";
             commandIds << "RicEclipseCaseNewView";
             commandIds << "RicEclipseCaseNewGroup";
             commandIds << "RicEclipseCaseExecuteScript";
         }
+        else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
+        {
+            commandIds << "RicEclipseCaseNewView";
+            commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "RicPasteEclipseViewsFeature";
+        }
+
+        else if (dynamic_cast<RimCaseCollection*>(uiItem))
+        {
+            commandIds << "RicPasteEclipseCasesFeature";
+        }
         else if (dynamic_cast<RimEclipseView*>(uiItem))
         {
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteEclipseViewsFeature";
+
             commandIds << "RicEclipseViewNew";
-            commandIds << "RicEclipseViewCopy";
-            commandIds << "RicEclipseViewPaste";
             commandIds << "RicEclipseViewDelete";
         }
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
@@ -619,14 +634,17 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         }
     }
     
-
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     for (int i = 0; i < commandIds.size(); i++)
     {
-        QAction* act = commandManager->action(commandIds[i]);
-        CVF_ASSERT(act);
+        caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+        if (feature->canFeatureBeExecuted())
+        {
+            QAction* act = commandManager->action(commandIds[i]);
+            CVF_ASSERT(act);
 
-        actions.push_back(act);
+            actions.push_back(act);
+        }
     }
 }
 

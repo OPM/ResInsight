@@ -6,10 +6,18 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicCopyReferencesToClipboardFeature.h
+${CEE_CURRENT_LIST_DIR}RicPasteFeatureImpl.h
+
+${CEE_CURRENT_LIST_DIR}RicPasteEclipseCasesFeature.h
+${CEE_CURRENT_LIST_DIR}RicPasteEclipseViewsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCopyReferencesToClipboardFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteFeatureImpl.cpp
+
+${CEE_CURRENT_LIST_DIR}RicPasteEclipseCasesFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteEclipseViewsFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
