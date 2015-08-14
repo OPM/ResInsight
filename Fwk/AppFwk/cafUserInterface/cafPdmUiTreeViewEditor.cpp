@@ -265,5 +265,14 @@ void PdmUiTreeViewEditor::slotOnSelectionChanged(const QItemSelection & selected
     emit selectionChanged();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewEditor::setExpanded(const PdmUiItem* uiItem, bool doExpand) const
+{
+    QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
+    m_treeView->setExpanded(index, doExpand);
+}
+
 
 } // end namespace caf

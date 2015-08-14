@@ -71,6 +71,7 @@ public:
 
     void        selectedObjects(std::vector<PdmUiItem*>& objects);
     void        selectAsCurrentItem(PdmUiItem* uiItem);
+    void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
 
 signals:
     void        selectionChanged();

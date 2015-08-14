@@ -147,5 +147,13 @@ void PdmUiTreeView::selectAsCurrentItem(PdmUiItem* uiItem)
     m_treeViewEditor->selectAsCurrentItem(uiItem);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::setExpanded(const PdmUiItem* uiItem, bool doExpand) const 
+{
+    m_treeViewEditor->setExpanded(uiItem, doExpand);
+}
+
 } //End of namespace caf
 

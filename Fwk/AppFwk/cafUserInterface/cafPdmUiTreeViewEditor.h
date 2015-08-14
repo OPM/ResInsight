@@ -89,7 +89,8 @@ public:
 
     void                selectAsCurrentItem(PdmUiItem* uiItem);
     void                selectedUiItems(std::vector<PdmUiItem*>& objects);
-    
+    void                setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
+
     QWidget*            createWidget(QWidget* parent);
 
 signals:
