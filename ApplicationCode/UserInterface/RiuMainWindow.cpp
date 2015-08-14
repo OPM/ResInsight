@@ -1607,9 +1607,11 @@ void RiuMainWindow::selectedObjectsChanged()
     if (uiItems.size() == 1)
     {
         firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]);
+    }
+    m_pdmUiPropertyView->showProperties(firstSelectedObject);
 
-        m_pdmUiPropertyView->showProperties(firstSelectedObject);
-
+    if (uiItems.size() == 1)
+    {
         RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
 
         // Find the reservoir view that the selected item is within 
@@ -1638,7 +1640,7 @@ void RiuMainWindow::selectedObjectsChanged()
                 setActiveViewer(selectedReservoirView->viewer());
             }
 
-            // m_OBSOLETE_treeView->setCurrentIndex(current);
+            // m_projectTreeView->selectAsCurrentItem(uiItems[0]); TODO: Is this neccesary ? Was done in the old tree view.
 
             refreshDrawStyleActions();
             refreshAnimationActions();
