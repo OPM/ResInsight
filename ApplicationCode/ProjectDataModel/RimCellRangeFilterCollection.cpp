@@ -49,7 +49,7 @@ public:
         caf::PdmUiFieldHandle* uiFieldHandle = dynamic_cast<caf::PdmUiFieldHandle*>(this->pdmItem());
         caf::PdmObjectHandle* objHandle = uiFieldHandle->fieldHandle()->ownerObject();
 
-        RimEclipseView* view = NULL;
+        RimView* view = NULL;
         objHandle->firstAncestorOfType(view);
         CVF_ASSERT(view);
 
