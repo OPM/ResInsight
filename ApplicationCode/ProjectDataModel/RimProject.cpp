@@ -549,7 +549,18 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
 
         if (dynamic_cast<RimGeoMechView*>(uiItem))
         {
+            //commandIds << "RicEclipseViewNew";
             commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteGeoMechViewsFeature";
+            //commandIds << "RicEclipseViewDelete";
+        }
+        else if (dynamic_cast<RimEclipseView*>(uiItem))
+        {
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteEclipseViewsFeature";
+
+            commandIds << "RicEclipseViewNew";
+            commandIds << "RicEclipseViewDelete";
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
@@ -563,6 +574,12 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
             commandIds << "RicEclipseCaseNewGroup";
             commandIds << "RicEclipseCaseExecuteScript";
         }
+        else if (dynamic_cast<RimGeoMechCase*>(uiItem))
+        {
+            commandIds << "RicPasteGeoMechViewsFeature";
+            //commandIds << "RicEclipseCaseClose";
+            //commandIds << "RicEclipseCaseNewView";
+        }
         else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
         {
             commandIds << "RicEclipseCaseNewView";
@@ -574,14 +591,7 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         {
             commandIds << "RicPasteEclipseCasesFeature";
         }
-        else if (dynamic_cast<RimEclipseView*>(uiItem))
-        {
-            commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "RicPasteEclipseViewsFeature";
-
-            commandIds << "RicEclipseViewNew";
-            commandIds << "RicEclipseViewDelete";
-        }
+       
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
             commandIds << "RicSaveEclipseResultAsInputProperty";

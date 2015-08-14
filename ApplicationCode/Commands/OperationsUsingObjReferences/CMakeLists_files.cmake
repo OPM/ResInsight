@@ -10,6 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RicPasteFeatureImpl.h
 
 ${CEE_CURRENT_LIST_DIR}RicPasteEclipseCasesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicPasteEclipseViewsFeature.h
+${CEE_CURRENT_LIST_DIR}RicPasteGeoMechViewsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -18,6 +19,7 @@ ${CEE_CURRENT_LIST_DIR}RicPasteFeatureImpl.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicPasteEclipseCasesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicPasteEclipseViewsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteGeoMechViewsFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

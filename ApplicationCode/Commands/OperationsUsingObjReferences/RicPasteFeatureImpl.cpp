@@ -23,6 +23,8 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
 #include "RimProject.h"
@@ -122,6 +124,21 @@ RimEclipseCase* RicPasteFeatureImpl::findEclipseCase(PdmObjectHandle* objectHand
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RicPasteFeatureImpl::findGeoMechCase(PdmObjectHandle* objectHandle)
+{
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(objectHandle);
+    if (!geomCase)
+    {
+        RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(objectHandle);
+        if (geomView) geomCase = geomView->geoMechCase();
+    }
+
+    return geomCase;
 }
 
 } // end namespace caf

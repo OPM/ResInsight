@@ -20,36 +20,24 @@
 
 #pragma once
 
+#include "cafCmdFeature.h"
 
-#include <vector>
-
-class QString;
-
-class RimEclipseCase;
-class RimGeoMechCase;
-class RimIdenticalGridCaseGroup;
 
 namespace caf 
 {
 
-class PdmObjectGroup;
-class PdmObjectHandle;
-
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicPasteFeatureImpl
+    class RicPasteGeoMechViewsFeature : public caf::CmdFeature
 {
-public:
-    static void findObjectsFromClipboardRefs(caf::PdmObjectGroup* objectGroup);
+CAF_CMD_HEADER_INIT;
 
-    static RimIdenticalGridCaseGroup* findGridCaseGroup(PdmObjectHandle* objectHandle);
-    static RimEclipseCase* findEclipseCase(PdmObjectHandle* objectHandle);
-    static RimGeoMechCase* findGeoMechCase(PdmObjectHandle* objectHandle);
-
-private:
-    static void populateObjectGroupFromReferences(const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup);
-    static void referencesFromClipboard(std::vector<QString>& referenceList);
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered(bool isChecked);
+    virtual void setupActionLook(QAction* actionToSetup);
 };
 
 
