@@ -91,6 +91,9 @@ public:
     void                selectedUiItems(std::vector<PdmUiItem*>& objects);
     void                setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
 
+    PdmUiItem*          uiItemFromModelIndex(const QModelIndex& index) const;
+    QModelIndex         findModelIndex(const PdmUiItem* object) const;
+
     QWidget*            createWidget(QWidget* parent);
 
 signals:

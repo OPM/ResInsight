@@ -274,5 +274,21 @@ void PdmUiTreeViewEditor::setExpanded(const PdmUiItem* uiItem, bool doExpand) co
     m_treeView->setExpanded(index, doExpand);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiItem* PdmUiTreeViewEditor::uiItemFromModelIndex(const QModelIndex& index) const
+{
+    return m_treeViewModel->uiItemFromModelIndex(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QModelIndex PdmUiTreeViewEditor::findModelIndex(const PdmUiItem* object) const
+{
+    return m_treeViewModel->findModelIndex(object);
+}
+
 
 } // end namespace caf

@@ -43,6 +43,7 @@ class QVBoxLayout;
 class QTreeView;
 class QItemSelection;
 class QMenu;
+class QModelIndex;
 
 namespace caf
 {
@@ -72,6 +73,10 @@ public:
     void        selectedObjects(std::vector<PdmUiItem*>& objects);
     void        selectAsCurrentItem(PdmUiItem* uiItem);
     void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
+
+    PdmUiItem*  uiItemFromModelIndex(const QModelIndex& index) const;
+    QModelIndex findModelIndex(const PdmUiItem* object) const;
+
 
 signals:
     void        selectionChanged();
