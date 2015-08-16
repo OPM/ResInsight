@@ -1411,11 +1411,13 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                 RiaApplication::instance()->setActiveReservoirView(riv);
                 if (previousActiveReservoirView && previousActiveReservoirView != riv)
                 {
-                    QModelIndex previousViewModelIndex = m_OBSOLETE_treeModelPdm->getModelIndexFromPdmObject(previousActiveReservoirView);
-                    QModelIndex newViewModelIndex = m_OBSOLETE_treeModelPdm->getModelIndexFromPdmObject(riv);
+                    // Try to select the same entry in the new View, as was selected in the previous
+
+                    QModelIndex previousViewModelIndex = m_projectTreeView->findModelIndex(previousActiveReservoirView);
+                    QModelIndex newViewModelIndex = m_projectTreeView->findModelIndex(riv);
 
                     QModelIndex newSelectionIndex = newViewModelIndex;
-                    QModelIndex currentSelectionIndex = m_OBSOLETE_treeView->selectionModel()->currentIndex();
+                    QModelIndex currentSelectionIndex = m_projectTreeView->treeView()->selectionModel()->currentIndex();
 
                     if (currentSelectionIndex != newViewModelIndex &&
                         currentSelectionIndex.isValid())
@@ -1439,7 +1441,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                             QModelIndex tmp = route[i];
                             if (newSelectionIndex.isValid())
                             {
-                                newSelectionIndex = m_OBSOLETE_treeModelPdm->index(tmp.row(), tmp.column(), newSelectionIndex);
+                                newSelectionIndex = m_projectTreeView->treeView()->model()->index(tmp.row(), tmp.column(), newSelectionIndex);
                             }
                         }
 
@@ -1450,10 +1452,10 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                         }
                     }
 
-                    m_OBSOLETE_treeView->setCurrentIndex(newSelectionIndex);
+                    m_projectTreeView->treeView()->setCurrentIndex(newSelectionIndex);
                     if (newSelectionIndex != newViewModelIndex)
                     {
-                        m_OBSOLETE_treeView->setExpanded(newViewModelIndex, true);
+                        m_projectTreeView->treeView()->setExpanded(newViewModelIndex, true);
                     }
                 }
 
