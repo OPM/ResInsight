@@ -20,7 +20,7 @@
 #include "RicEclipsePropertyFilterInsertFeature.h"
 
 #include "RicEclipsePropertyFilterInsertExec.h"
-#include "RicEclipsePropertyFilterImpl.h"
+#include "RicEclipsePropertyFilterFeatureImpl.h"
 
 #include "RimEclipsePropertyFilter.h"
 
@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterInsertFeature, "RicEclipsePropertyFi
 //--------------------------------------------------------------------------------------------------
 bool RicEclipsePropertyFilterInsertFeature::isCommandEnabled()
 {
-    std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilterImpl::selectedPropertyFilters();
+    std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilters();
     return propertyFilters.size() == 1;
 }
 
@@ -46,7 +46,7 @@ bool RicEclipsePropertyFilterInsertFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterInsertFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilterImpl::selectedPropertyFilters();
+    std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilters();
     if (propertyFilters.size() == 1)
     {
         RicEclipsePropertyFilterInsertExec* filterExec = new RicEclipsePropertyFilterInsertExec(propertyFilters[0]);

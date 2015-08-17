@@ -20,7 +20,7 @@
 #include "RicRangeFilterNewSliceIFeature.h"
 
 #include "RicRangeFilterNewExec.h"
-#include "RicRangeFilterImpl.h"
+#include "RicRangeFilterFeatureImpl.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceIFeature, "RicRangeFilterNewSliceI");
 //--------------------------------------------------------------------------------------------------
 bool RicRangeFilterNewSliceIFeature::isCommandEnabled()
 {
-    return RicRangeFilterImpl::isRangeFilterCommandAvailable();
+    return RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ bool RicRangeFilterNewSliceIFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicRangeFilterNewSliceIFeature::onActionTriggered(bool isChecked)
 {
-    RicRangeFilterNewExec* filterExec = RicRangeFilterImpl::createRangeFilterExecCommand();
+    RicRangeFilterNewExec* filterExec = RicRangeFilterFeatureImpl::createRangeFilterExecCommand();
     filterExec->m_iSlice = true;
 
     caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);

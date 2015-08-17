@@ -19,7 +19,7 @@
 
 #include "RicGeoMechPropertyFilterNewExec.h"
 
-#include "RicGeoMechPropertyFilterImpl.h"
+#include "RicGeoMechPropertyFilterFeatureImpl.h"
 
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -55,7 +55,7 @@ QString RicGeoMechPropertyFilterNewExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterNewExec::redo()
 { 
-    RicGeoMechPropertyFilterImpl::addPropertyFilter(m_propertyFilterCollection);
+    RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter(m_propertyFilterCollection);
 }
 
 //--------------------------------------------------------------------------------------------------

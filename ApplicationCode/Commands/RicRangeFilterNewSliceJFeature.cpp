@@ -20,7 +20,7 @@
 #include "RicRangeFilterNewSliceJFeature.h"
 
 #include "RicRangeFilterNewExec.h"
-#include "RicRangeFilterImpl.h"
+#include "RicRangeFilterFeatureImpl.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceJFeature, "RicRangeFilterNewSliceJ");
 //--------------------------------------------------------------------------------------------------
 bool RicRangeFilterNewSliceJFeature::isCommandEnabled()
 {
-    return RicRangeFilterImpl::isRangeFilterCommandAvailable();
+    return RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ bool RicRangeFilterNewSliceJFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicRangeFilterNewSliceJFeature::onActionTriggered(bool isChecked)
 {
-    RicRangeFilterNewExec* filterExec = RicRangeFilterImpl::createRangeFilterExecCommand();
+    RicRangeFilterNewExec* filterExec = RicRangeFilterFeatureImpl::createRangeFilterExecCommand();
     filterExec->m_jSlice = true;
 
     caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);

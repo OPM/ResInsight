@@ -20,7 +20,7 @@
 #include "RicGeoMechPropertyFilterNewFeature.h"
 
 #include "RicGeoMechPropertyFilterNewExec.h"
-#include "RicGeoMechPropertyFilterImpl.h"
+#include "RicGeoMechPropertyFilterFeatureImpl.h"
  
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterNewFeature, "RicGeoMechPropertyFilte
 //--------------------------------------------------------------------------------------------------
 bool RicGeoMechPropertyFilterNewFeature::isCommandEnabled()
 {
-    std::vector<RimGeoMechPropertyFilterCollection*> filterCollections = RicGeoMechPropertyFilterImpl::selectedPropertyFilterCollections();
+    std::vector<RimGeoMechPropertyFilterCollection*> filterCollections = RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilterCollections();
     return filterCollections.size() == 1;
 }
 
@@ -45,7 +45,7 @@ bool RicGeoMechPropertyFilterNewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterNewFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimGeoMechPropertyFilterCollection*> filterCollections = RicGeoMechPropertyFilterImpl::selectedPropertyFilterCollections();
+    std::vector<RimGeoMechPropertyFilterCollection*> filterCollections = RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilterCollections();
     if (filterCollections.size() == 1)
     {
         RicGeoMechPropertyFilterNewExec* filterExec = new RicGeoMechPropertyFilterNewExec(filterCollections[0]);

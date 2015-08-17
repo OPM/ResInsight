@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRangeFilterImpl.h"
+#include "RicRangeFilterFeatureImpl.h"
 #include "RicRangeFilterNewExec.h"
 
 #include "RimCellRangeFilter.h"
@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicRangeFilterImpl::isRangeFilterCommandAvailable()
+bool RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable()
 {
     return findRangeFilterCollection() != NULL;
 }
@@ -38,7 +38,7 @@ bool RicRangeFilterImpl::isRangeFilterCommandAvailable()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterNewExec* RicRangeFilterImpl::createRangeFilterExecCommand()
+RicRangeFilterNewExec* RicRangeFilterFeatureImpl::createRangeFilterExecCommand()
 {
     RimCellRangeFilterCollection* rangeFilterCollection = findRangeFilterCollection();
 
@@ -50,7 +50,7 @@ RicRangeFilterNewExec* RicRangeFilterImpl::createRangeFilterExecCommand()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilterCollection* RicRangeFilterImpl::findRangeFilterCollection()
+RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollection()
 {
     RimCellRangeFilterCollection* rangeFilterCollection = NULL;
     

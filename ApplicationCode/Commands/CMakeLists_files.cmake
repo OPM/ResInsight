@@ -11,12 +11,12 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePasteFeature.h
-${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterImpl.h
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewExec.h
-${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterImpl.h
+${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.h
@@ -29,7 +29,7 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseViewPasteFeature.h
 ${CEE_CURRENT_LIST_DIR}RicPropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertFeature.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewFeature.h
-${CEE_CURRENT_LIST_DIR}RicRangeFilterImpl.h
+${CEE_CURRENT_LIST_DIR}RicRangeFilterFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceIFeature.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJFeature.h
@@ -54,12 +54,12 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePasteFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterImpl.cpp
+${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterNewExec.cpp
-${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterImpl.cpp
+${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.cpp
@@ -71,7 +71,7 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseViewPasteFeature.cpp
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImportInput.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicRangeFilterImpl.cpp
+${CEE_CURRENT_LIST_DIR}RicRangeFilterFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceIFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJFeature.cpp

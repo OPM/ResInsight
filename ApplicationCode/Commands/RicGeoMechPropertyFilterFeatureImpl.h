@@ -19,20 +19,24 @@
 
 #pragma once
 
-class RicRangeFilterNewExec;
-class RimCellRangeFilterCollection;
+#include <vector>
+
+class RimGeoMechPropertyFilter;
+class RimGeoMechPropertyFilterCollection;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicRangeFilterImpl
+class RicGeoMechPropertyFilterFeatureImpl
 {
 public:
-    static bool isRangeFilterCommandAvailable();
-    static RicRangeFilterNewExec* createRangeFilterExecCommand();
+    static std::vector<RimGeoMechPropertyFilter*>              selectedPropertyFilters();
+    static std::vector<RimGeoMechPropertyFilterCollection*>    selectedPropertyFilterCollections();
+
+    static void addPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection);
+    static void insertPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection, size_t index);
 
 private:
-    static RimCellRangeFilterCollection* findRangeFilterCollection();
+    static RimGeoMechPropertyFilter* createPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection);
+    static void setDefaults(RimGeoMechPropertyFilter* propertyFilter);
 };
-
-

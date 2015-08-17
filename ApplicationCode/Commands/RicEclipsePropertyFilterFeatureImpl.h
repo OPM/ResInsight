@@ -27,7 +27,7 @@ class RimEclipsePropertyFilterCollection;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicEclipsePropertyFilterImpl
+class RicEclipsePropertyFilterFeatureImpl
 {
 public:
     static std::vector<RimEclipsePropertyFilter*>              selectedPropertyFilters();

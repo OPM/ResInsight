@@ -17,13 +17,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEclipsePropertyFilterImpl.h"
+#include "RicGeoMechPropertyFilterFeatureImpl.h"
 
-#include "RimEclipsePropertyFilter.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseResultDefinition.h"
-#include "RimEclipseCellColors.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechCellColors.h"
 
 #include "cafSelectionManager.h"
 
@@ -33,9 +33,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEclipsePropertyFilter*> RicEclipsePropertyFilterImpl::selectedPropertyFilters()
+std::vector<RimGeoMechPropertyFilter*> RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilters()
 {
-    std::vector<RimEclipsePropertyFilter*> propertyFilters;
+    std::vector<RimGeoMechPropertyFilter*> propertyFilters;
     caf::SelectionManager::instance()->objectsByType(&propertyFilters);
 
     return propertyFilters;
@@ -44,9 +44,9 @@ std::vector<RimEclipsePropertyFilter*> RicEclipsePropertyFilterImpl::selectedPro
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEclipsePropertyFilterCollection*> RicEclipsePropertyFilterImpl::selectedPropertyFilterCollections()
+std::vector<RimGeoMechPropertyFilterCollection*> RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilterCollections()
 {
-    std::vector<RimEclipsePropertyFilterCollection*> propertyFilterCollections;
+    std::vector<RimGeoMechPropertyFilterCollection*> propertyFilterCollections;
     caf::SelectionManager::instance()->objectsByType(&propertyFilterCollections);
 
     return propertyFilterCollections;
@@ -55,12 +55,12 @@ std::vector<RimEclipsePropertyFilterCollection*> RicEclipsePropertyFilterImpl::s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterImpl::addPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection)
+void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
 {
-    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
+    RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter(propertyFilterCollection);
+    CVF_ASSERT(propertyFilter);
+
     propertyFilterCollection->propertyFilters.push_back(propertyFilter);
-    setDefaults(propertyFilter);
-
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();
@@ -71,35 +71,49 @@ void RicEclipsePropertyFilterImpl::addPropertyFilter(RimEclipsePropertyFilterCol
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterImpl::insertPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index)
+void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection, size_t index)
 {
-    RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-    propertyFilterCollection->propertyFilters.insertAt(index, propertyFilter);
-    setDefaults(propertyFilter);
+    RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter(propertyFilterCollection);
+    CVF_ASSERT(propertyFilter);
 
+    propertyFilterCollection->propertyFilters.insertAt(index, propertyFilter);
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();
     RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterImpl::setDefaults(RimEclipsePropertyFilter* propertyFilter)
+RimGeoMechPropertyFilter* RicGeoMechPropertyFilterFeatureImpl::createPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
+{
+    CVF_ASSERT(propertyFilterCollection);
+
+    RimGeoMechPropertyFilter* propertyFilter = new RimGeoMechPropertyFilter();
+    propertyFilter->setParentContainer(propertyFilterCollection);
+
+    setDefaults(propertyFilter);
+
+    return propertyFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicGeoMechPropertyFilterFeatureImpl::setDefaults(RimGeoMechPropertyFilter* propertyFilter)
 {
     CVF_ASSERT(propertyFilter);
 
-    RimEclipsePropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
+    RimGeoMechPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
     CVF_ASSERT(propertyFilterCollection);
 
-    RimEclipseView* reservoirView = propertyFilterCollection->reservoirView();
+    RimGeoMechView* reservoirView = propertyFilterCollection->reservoirView();
     CVF_ASSERT(reservoirView);
 
     propertyFilter->resultDefinition->setReservoirView(reservoirView);
-    propertyFilter->resultDefinition->setResultVariable(reservoirView->cellResult->resultVariable());
-    propertyFilter->resultDefinition->setPorosityModel(reservoirView->cellResult->porosityModel());
-    propertyFilter->resultDefinition->setResultType(reservoirView->cellResult->resultType());
+    propertyFilter->resultDefinition->setResultAddress(reservoirView->cellResult()->resultAddress());
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();
