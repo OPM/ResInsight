@@ -363,6 +363,7 @@ void RimUiTreeView::slotDeleteRangeFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicEclipsePropertyFilterInsert
 void RimUiTreeView::slotAddPropertyFilter()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
@@ -381,6 +382,7 @@ void RimUiTreeView::slotAddPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicGeoMechPropertyFilterInsert
 void RimUiTreeView::slotAddGeoMechPropertyFilter()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
@@ -412,6 +414,7 @@ void RimUiTreeView::slotDeleteGeoMechPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicRangeFilterNew
 void RimUiTreeView::slotAddRangeFilter()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
@@ -431,6 +434,7 @@ void RimUiTreeView::slotAddRangeFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicRangeFilterNewSliceI
 void RimUiTreeView::slotAddSliceFilterI()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
@@ -455,6 +459,7 @@ void RimUiTreeView::slotAddSliceFilterI()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicRangeFilterNewSliceJ
 void RimUiTreeView::slotAddSliceFilterJ()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
@@ -479,6 +484,7 @@ void RimUiTreeView::slotAddSliceFilterJ()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicRangeFilterNewSliceK
 void RimUiTreeView::slotAddSliceFilterK()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
@@ -877,6 +883,7 @@ void RimUiTreeView::slotWriteInputProperty()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicSaveEclipseResultAsInputProperty
 void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
 {
     QModelIndex index = currentIndex();
@@ -1004,6 +1011,7 @@ void RimUiTreeView::slotComputeStatistics()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicEclipseCaseNewGroup
 void RimUiTreeView::slotAddCaseGroup()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
