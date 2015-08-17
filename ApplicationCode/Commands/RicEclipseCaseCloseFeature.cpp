@@ -17,53 +17,49 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicGeoMechPropertyFilterNewExec.h"
+#include "RicEclipseCaseCloseFeature.h"
 
-#include "RicGeoMechPropertyFilterImpl.h"
+#include "RimCase.h"
 
-#include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
+#include "cafSelectionManager.h"
 
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT(RicEclipseCaseCloseFeature, "RicEclipseCaseClose");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
-    : CmdExecuteCommand(NULL)
+bool RicEclipseCaseCloseFeature::isCommandEnabled()
 {
-    assert(propertyFilterCollection);
-    m_propertyFilterCollection = propertyFilterCollection;
+    std::vector<RimCase*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
+
+    if (selection.size() > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::~RicGeoMechPropertyFilterNewExec()
+void RicEclipseCaseCloseFeature::onActionTriggered(bool isChecked)
 {
+    // TODO
+    assert(false);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicGeoMechPropertyFilterNewExec::name()
+void RicEclipseCaseCloseFeature::setupActionLook(QAction* actionToSetup)
 {
-    return "New Property Filter";
+    actionToSetup->setText("Close");
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::redo()
-{ 
-    RicGeoMechPropertyFilterImpl::addPropertyFilter(m_propertyFilterCollection);
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::undo()
-{
-    m_propertyFilterCollection->propertyFilters.erase(m_propertyFilterCollection->propertyFilters.size() - 1);
-
-    m_propertyFilterCollection->updateConnectedEditors();
-}

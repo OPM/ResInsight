@@ -17,53 +17,47 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicGeoMechPropertyFilterNewExec.h"
+#include "RicEclipsePropertyFilterNewFeature.h"
 
-#include "RicGeoMechPropertyFilterImpl.h"
+#include "RicEclipsePropertyFilterNewExec.h"
+#include "RicEclipsePropertyFilterImpl.h"
 
-#include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
 
+#include "cafCmdExecCommandManager.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterNewFeature, "RicEclipsePropertyFilterNew");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
-    : CmdExecuteCommand(NULL)
+bool RicEclipsePropertyFilterNewFeature::isCommandEnabled()
 {
-    assert(propertyFilterCollection);
-    m_propertyFilterCollection = propertyFilterCollection;
+    std::vector<RimEclipsePropertyFilterCollection*> filterCollections = RicEclipsePropertyFilterImpl::selectedPropertyFilterCollections();
+    return filterCollections.size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::~RicGeoMechPropertyFilterNewExec()
+void RicEclipsePropertyFilterNewFeature::onActionTriggered(bool isChecked)
 {
+    std::vector<RimEclipsePropertyFilterCollection*> filterCollections = RicEclipsePropertyFilterImpl::selectedPropertyFilterCollections();
+    if (filterCollections.size() == 1)
+    {
+        RicEclipsePropertyFilterNewExec* filterExec = new RicEclipsePropertyFilterNewExec(filterCollections[0]);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicGeoMechPropertyFilterNewExec::name()
+void RicEclipsePropertyFilterNewFeature::setupActionLook(QAction* actionToSetup)
 {
-    return "New Property Filter";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::redo()
-{ 
-    RicGeoMechPropertyFilterImpl::addPropertyFilter(m_propertyFilterCollection);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::undo()
-{
-    m_propertyFilterCollection->propertyFilters.erase(m_propertyFilterCollection->propertyFilters.size() - 1);
-
-    m_propertyFilterCollection->updateConnectedEditors();
+    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
+    actionToSetup->setText("New Property Filter");
 }

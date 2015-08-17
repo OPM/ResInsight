@@ -17,53 +17,44 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicGeoMechPropertyFilterNewExec.h"
+#include "RicRangeFilterNewSliceKFeature.h"
 
-#include "RicGeoMechPropertyFilterImpl.h"
+#include "RicRangeFilterImpl.h"
+#include "RicRangeFilterNewExec.h"
 
-#include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimCellRangeFilter.h"
+#include "RimCellRangeFilterCollection.h"
 
+#include "cafCmdExecCommandManager.h"
+#include "cafSelectionManager.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceKFeature, "RicRangeFilterNewSliceK");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
-    : CmdExecuteCommand(NULL)
+bool RicRangeFilterNewSliceKFeature::isCommandEnabled()
 {
-    assert(propertyFilterCollection);
-    m_propertyFilterCollection = propertyFilterCollection;
+    return RicRangeFilterImpl::isRangeFilterCommandAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::~RicGeoMechPropertyFilterNewExec()
+void RicRangeFilterNewSliceKFeature::onActionTriggered(bool isChecked)
 {
+    RicRangeFilterNewExec* filterExec = RicRangeFilterImpl::createRangeFilterExecCommand();
+    filterExec->m_kSlice = true;
+
+    caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicGeoMechPropertyFilterNewExec::name()
+void RicRangeFilterNewSliceKFeature::setupActionLook(QAction* actionToSetup)
 {
-    return "New Property Filter";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::redo()
-{ 
-    RicGeoMechPropertyFilterImpl::addPropertyFilter(m_propertyFilterCollection);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::undo()
-{
-    m_propertyFilterCollection->propertyFilters.erase(m_propertyFilterCollection->propertyFilters.size() - 1);
-
-    m_propertyFilterCollection->updateConnectedEditors();
+    actionToSetup->setText("New K-slice range filter");
 }

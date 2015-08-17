@@ -17,53 +17,49 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicGeoMechPropertyFilterNewExec.h"
+#include "RicRangeFilterInsertFeature.h"
 
-#include "RicGeoMechPropertyFilterImpl.h"
+#include "RimCellRangeFilter.h"
 
-#include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
+#include "cafSelectionManager.h"
 
+#include "cafCmdFeatureManager.h"
+#include "cafCmdExecCommandManager.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT(RicRangeFilterInsertFeature, "RicRangeFilterInsert");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
-    : CmdExecuteCommand(NULL)
+bool RicRangeFilterInsertFeature::isCommandEnabled()
 {
-    assert(propertyFilterCollection);
-    m_propertyFilterCollection = propertyFilterCollection;
+    std::vector<RimCellRangeFilter*> selectedRangeFilter;
+    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
+
+    if (selectedRangeFilter.size() > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::~RicGeoMechPropertyFilterNewExec()
+void RicRangeFilterInsertFeature::onActionTriggered(bool isChecked)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicGeoMechPropertyFilterNewExec::name()
+void RicRangeFilterInsertFeature::setupActionLook(QAction* actionToSetup)
 {
-    return "New Property Filter";
+    actionToSetup->setText("Insert Range Filter");
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::redo()
-{ 
-    RicGeoMechPropertyFilterImpl::addPropertyFilter(m_propertyFilterCollection);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::undo()
-{
-    m_propertyFilterCollection->propertyFilters.erase(m_propertyFilterCollection->propertyFilters.size() - 1);
-
-    m_propertyFilterCollection->updateConnectedEditors();
-}

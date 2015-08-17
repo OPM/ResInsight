@@ -17,53 +17,47 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RicGeoMechPropertyFilterNewFeature.h"
+
 #include "RicGeoMechPropertyFilterNewExec.h"
-
 #include "RicGeoMechPropertyFilterImpl.h"
-
+ 
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 
+#include "cafCmdExecCommandManager.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterNewFeature, "RicGeoMechPropertyFilterNew");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
-    : CmdExecuteCommand(NULL)
+bool RicGeoMechPropertyFilterNewFeature::isCommandEnabled()
 {
-    assert(propertyFilterCollection);
-    m_propertyFilterCollection = propertyFilterCollection;
+    std::vector<RimGeoMechPropertyFilterCollection*> filterCollections = RicGeoMechPropertyFilterImpl::selectedPropertyFilterCollections();
+    return filterCollections.size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::~RicGeoMechPropertyFilterNewExec()
+void RicGeoMechPropertyFilterNewFeature::onActionTriggered(bool isChecked)
 {
+    std::vector<RimGeoMechPropertyFilterCollection*> filterCollections = RicGeoMechPropertyFilterImpl::selectedPropertyFilterCollections();
+    if (filterCollections.size() == 1)
+    {
+        RicGeoMechPropertyFilterNewExec* filterExec = new RicGeoMechPropertyFilterNewExec(filterCollections[0]);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicGeoMechPropertyFilterNewExec::name()
+void RicGeoMechPropertyFilterNewFeature::setupActionLook(QAction* actionToSetup)
 {
-    return "New Property Filter";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::redo()
-{ 
-    RicGeoMechPropertyFilterImpl::addPropertyFilter(m_propertyFilterCollection);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterNewExec::undo()
-{
-    m_propertyFilterCollection->propertyFilters.erase(m_propertyFilterCollection->propertyFilters.size() - 1);
-
-    m_propertyFilterCollection->updateConnectedEditors();
+    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
+    actionToSetup->setText("New Property Filter");
 }

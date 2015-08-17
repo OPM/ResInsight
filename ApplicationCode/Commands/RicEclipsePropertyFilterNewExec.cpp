@@ -19,7 +19,7 @@
 
 #include "RicEclipsePropertyFilterNewExec.h"
 
-#include "RicEclipsePropertyFilter.h"
+#include "RicEclipsePropertyFilterImpl.h"
 
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -55,7 +55,7 @@ QString RicEclipsePropertyFilterNewExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterNewExec::redo()
 { 
-    RicEclipsePropertyFilter::addPropertyFilter(m_propertyFilterCollection);
+    RicEclipsePropertyFilterImpl::addPropertyFilter(m_propertyFilterCollection);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,0 +1,120 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RicGeoMechPropertyFilterImpl.h"
+
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechCellColors.h"
+
+#include "cafSelectionManager.h"
+
+#include "cvfAssert.h"
+#include "RiuMainWindow.h"
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGeoMechPropertyFilter*> RicGeoMechPropertyFilterImpl::selectedPropertyFilters()
+{
+    std::vector<RimGeoMechPropertyFilter*> propertyFilters;
+    caf::SelectionManager::instance()->objectsByType(&propertyFilters);
+
+    return propertyFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGeoMechPropertyFilterCollection*> RicGeoMechPropertyFilterImpl::selectedPropertyFilterCollections()
+{
+    std::vector<RimGeoMechPropertyFilterCollection*> propertyFilterCollections;
+    caf::SelectionManager::instance()->objectsByType(&propertyFilterCollections);
+
+    return propertyFilterCollections;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicGeoMechPropertyFilterImpl::addPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
+{
+    RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter(propertyFilterCollection);
+    CVF_ASSERT(propertyFilter);
+
+    propertyFilterCollection->propertyFilters.push_back(propertyFilter);
+    propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
+
+    propertyFilterCollection->updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicGeoMechPropertyFilterImpl::insertPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection, size_t index)
+{
+    RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter(propertyFilterCollection);
+    CVF_ASSERT(propertyFilter);
+
+    propertyFilterCollection->propertyFilters.insertAt(index, propertyFilter);
+    propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
+
+    propertyFilterCollection->updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGeoMechPropertyFilter* RicGeoMechPropertyFilterImpl::createPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
+{
+    CVF_ASSERT(propertyFilterCollection);
+
+    RimGeoMechPropertyFilter* propertyFilter = new RimGeoMechPropertyFilter();
+    propertyFilter->setParentContainer(propertyFilterCollection);
+
+    setDefaults(propertyFilter);
+
+    return propertyFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicGeoMechPropertyFilterImpl::setDefaults(RimGeoMechPropertyFilter* propertyFilter)
+{
+    CVF_ASSERT(propertyFilter);
+
+    RimGeoMechPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
+    CVF_ASSERT(propertyFilterCollection);
+
+    RimGeoMechView* reservoirView = propertyFilterCollection->reservoirView();
+    CVF_ASSERT(reservoirView);
+
+    propertyFilter->resultDefinition->setReservoirView(reservoirView);
+    propertyFilter->resultDefinition->setResultAddress(reservoirView->cellResult()->resultAddress());
+    propertyFilter->resultDefinition->loadResult();
+    propertyFilter->setToDefaultValues();
+    propertyFilter->updateFilterName();
+}

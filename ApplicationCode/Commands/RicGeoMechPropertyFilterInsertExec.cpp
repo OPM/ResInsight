@@ -20,7 +20,7 @@
 #include "RicGeoMechPropertyFilterInsertExec.h"
 
 
-#include "RicGeoMechPropertyFilter.h"
+#include "RicGeoMechPropertyFilterImpl.h"
 
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -63,7 +63,7 @@ void RicGeoMechPropertyFilterInsertExec::redo()
     size_t index = propertyFilterCollection->propertyFilters.index(m_propertyFilter);
     CVF_ASSERT(index < propertyFilterCollection->propertyFilters.size());
 
-    RicGeoMechPropertyFilter::insertPropertyFilter(propertyFilterCollection, index);
+    RicGeoMechPropertyFilterImpl::insertPropertyFilter(propertyFilterCollection, index);
 }
 
 //--------------------------------------------------------------------------------------------------

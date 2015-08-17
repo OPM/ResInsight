@@ -20,7 +20,7 @@
 #include "RicEclipsePropertyFilterInsertExec.h"
 
 
-#include "RicEclipsePropertyFilter.h"
+#include "RicEclipsePropertyFilterImpl.h"
 
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -63,7 +63,7 @@ void RicEclipsePropertyFilterInsertExec::redo()
     size_t index = propertyFilterCollection->propertyFilters.index(m_propertyFilter);
     CVF_ASSERT(index < propertyFilterCollection->propertyFilters.size());
 
-    RicEclipsePropertyFilter::insertPropertyFilter(propertyFilterCollection, index);
+    RicEclipsePropertyFilterImpl::insertPropertyFilter(propertyFilterCollection, index);
 }
 
 //--------------------------------------------------------------------------------------------------

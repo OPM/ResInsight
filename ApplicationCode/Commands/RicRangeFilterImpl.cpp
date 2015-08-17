@@ -17,46 +17,62 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEclipseViewDelete.h"
+#include "RicRangeFilterImpl.h"
+#include "RicRangeFilterNewExec.h"
 
-#include "RimEclipseView.h"
+#include "RimCellRangeFilter.h"
+#include "RimCellRangeFilterCollection.h"
 
 #include "cafSelectionManager.h"
 
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT(RicEclipseViewDeleteFeature, "RicEclipseViewDelete");
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseViewDeleteFeature::isCommandEnabled()
+bool RicRangeFilterImpl::isRangeFilterCommandAvailable()
 {
-    std::vector<RimEclipseView*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    if (selection.size() > 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return findRangeFilterCollection() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseViewDeleteFeature::onActionTriggered(bool isChecked)
+RicRangeFilterNewExec* RicRangeFilterImpl::createRangeFilterExecCommand()
 {
-    // MODTODO
+    RimCellRangeFilterCollection* rangeFilterCollection = findRangeFilterCollection();
+
+    RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec(rangeFilterCollection);
+
+    return filterExec;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseViewDeleteFeature::setupActionLook(QAction* actionToSetup)
+RimCellRangeFilterCollection* RicRangeFilterImpl::findRangeFilterCollection()
 {
-    actionToSetup->setText("Delete");
+    RimCellRangeFilterCollection* rangeFilterCollection = NULL;
+    
+    std::vector<RimCellRangeFilter*> selectedRangeFilter;
+    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilter);
+
+    std::vector<RimCellRangeFilterCollection*> selectedRangeFilterCollection;
+    caf::SelectionManager::instance()->objectsByType(&selectedRangeFilterCollection);
+
+    if (selectedRangeFilterCollection.size() == 1)
+    {
+        rangeFilterCollection = selectedRangeFilterCollection[0];
+    }
+    else if (selectedRangeFilter.size() > 0)
+    {
+        selectedRangeFilter[0]->firstAnchestorOrThisOfType(rangeFilterCollection);
+    }
+
+    assert(rangeFilterCollection);
+
+    // TODO : When a menu is created in the 3D view, add code to find collection based on a RimView
+    // See RiuViewerCommands
+
+    return rangeFilterCollection;
 }
