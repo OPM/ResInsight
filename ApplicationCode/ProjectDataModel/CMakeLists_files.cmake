@@ -60,6 +60,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
+${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -118,6 +119,8 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
+${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.cpp
+
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -74,6 +74,7 @@
 #include "cafSelectionManager.h"
 
 #include "cvfTimer.h"
+#include "RimTreeViewStateSerializer.h"
 
 
 //==================================================================================================
@@ -1917,15 +1918,15 @@ void RiuMainWindow::slotDisableLightingAction(bool disable)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::storeTreeViewState()
 {
-    if (m_OBSOLETE_treeView)
+    if (m_projectTreeView)
     {
         QString treeViewState;
-        m_OBSOLETE_treeView->storeTreeViewStateToString(treeViewState);
+        RimTreeViewStateSerializer::storeTreeViewStateToString(m_projectTreeView->treeView(), treeViewState);
 
-        QModelIndex mi = m_OBSOLETE_treeView->currentIndex();
+        QModelIndex mi = m_projectTreeView->treeView()->currentIndex();
 
         QString encodedModelIndexString;
-        RimUiTreeView::encodeStringFromModelIndex(mi, encodedModelIndexString);
+        RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
         
         RiaApplication::instance()->project()->treeViewState = treeViewState;
         RiaApplication::instance()->project()->currentModelIndexPath = encodedModelIndexString;
@@ -1937,20 +1938,20 @@ void RiuMainWindow::storeTreeViewState()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::restoreTreeViewState()
 {
-    if (m_OBSOLETE_treeView)
+    if (m_projectTreeView)
     {
         QString stateString = RiaApplication::instance()->project()->treeViewState;
         if (!stateString.isEmpty())
         {
-            m_OBSOLETE_treeView->collapseAll();
-            m_OBSOLETE_treeView->applyTreeViewStateFromString(stateString);
+            m_projectTreeView->treeView()->collapseAll();
+            RimTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
         }
 
         QString currentIndexString = RiaApplication::instance()->project()->currentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
-            QModelIndex mi = RimUiTreeView::getModelIndexFromString(m_OBSOLETE_treeView->model(), currentIndexString);
-            m_OBSOLETE_treeView->setCurrentIndex(mi);
+            QModelIndex mi = RimTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
+            m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }
 }
@@ -1960,6 +1961,7 @@ void RiuMainWindow::restoreTreeViewState()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
 {
+#if 1 // OBSOLETE
     if (m_OBSOLETE_treeView && m_OBSOLETE_treeModelPdm)
     {
         QModelIndex mi = m_OBSOLETE_treeModelPdm->getModelIndexFromPdmObject(object);
@@ -1969,7 +1971,7 @@ void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
             m_OBSOLETE_treeView->setCurrentIndex(mi);
         }
     }
-
+#endif
     m_projectTreeView->selectAsCurrentItem(object);
 }
 
@@ -2058,14 +2060,21 @@ void RiuMainWindow::slotCreateCommandObject()
     RiaApplication* app = RiaApplication::instance();
     if (!app->project()) return;
 
-    QItemSelectionModel* selectionModel = m_OBSOLETE_treeView->selectionModel();
-    if (selectionModel)
-    {
-        QModelIndexList selectedModelIndices = selectionModel->selectedIndexes();
-        
-        caf::PdmObjectGroup selectedObjects;
-        m_OBSOLETE_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndices, &selectedObjects);
+    std::vector<caf::PdmUiItem*> selectedUiItems;
+    m_projectTreeView->selectedObjects(selectedUiItems);
 
+    caf::PdmObjectGroup selectedObjects;
+    for (size_t i = 0; i < selectedUiItems.size(); ++i)
+    {
+        caf::PdmUiObjectHandle* uiObj = dynamic_cast<caf::PdmUiObjectHandle*>(selectedUiItems[i]);
+        if (uiObj) 
+        {
+            selectedObjects.addObject(uiObj->objectHandle());
+        }
+    }
+
+    if (selectedObjects.objects.size())
+    { 
         std::vector<RimCommandObject*> commandObjects;
         RimCommandFactory::createCommandObjects(selectedObjects, &commandObjects);
 

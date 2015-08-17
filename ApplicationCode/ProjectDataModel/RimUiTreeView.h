@@ -47,12 +47,6 @@ public:
     void selectedUiItems(std::vector<caf::PdmUiItem*>& objects);
 
 
-    void applyTreeViewStateFromString(const QString& treeViewState);
-    void storeTreeViewStateToString(QString& treeViewState);
-
-    static QModelIndex getModelIndexFromString(QAbstractItemModel* model, const QString& currentIndexString);
-    static void encodeStringFromModelIndex(const QModelIndex mi, QString& currentIndexString);
-
 protected:
     void contextMenuEvent(QContextMenuEvent* event);
 
