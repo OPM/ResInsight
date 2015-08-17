@@ -2240,15 +2240,8 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
 {
     QMenu menu;
 
-    std::vector<QAction*> actions;
-
     RiaApplication* app = RiaApplication::instance();
-    app->project()->actionsBasedOnSelection(actions);
-
-    for (size_t i = 0; i < actions.size(); i++)
-    {
-        menu.addAction(actions[i]);
-    }
+    app->project()->actionsBasedOnSelection(menu);
 
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
     QPoint globalPos = m_projectTreeView->treeView()->viewport()->mapToGlobal(pos);

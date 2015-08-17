@@ -45,6 +45,7 @@
 #include <QDir>
 #include "cafCmdFeature.h"
 
+
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -529,13 +530,13 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimGeoMechView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
-
+#include <QMenu>
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
+void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
 {
     QStringList commandIds;
 
@@ -613,7 +614,7 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
             commandIds << "RicRangeFilterNewSliceI";
             commandIds << "RicRangeFilterNewSliceJ";
             commandIds << "RicRangeFilterNewSliceK";
-
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
@@ -623,7 +624,7 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
         {
             commandIds << "RicEclipsePropertyFilterInsert";
-
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
@@ -633,7 +634,7 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
         else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
         {
             commandIds << "RicGeoMechPropertyFilterInsert";
-
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
@@ -651,13 +652,20 @@ void RimProject::actionsBasedOnSelection(std::vector<QAction*>& actions)
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     for (int i = 0; i < commandIds.size(); i++)
     {
-        caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
-        if (feature->canFeatureBeExecuted())
+        if (commandIds[i] == "Separator")
         {
-            QAction* act = commandManager->action(commandIds[i]);
-            CVF_ASSERT(act);
+            contextMenu.addSeparator();
+        }
+        else
+        {
+            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+            if (feature->canFeatureBeExecuted())
+            {
+                QAction* act = commandManager->action(commandIds[i]);
+                CVF_ASSERT(act);
 
-            actions.push_back(act);
+                contextMenu.addAction(act);
+            }
         }
     }
 }

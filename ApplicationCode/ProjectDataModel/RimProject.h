@@ -44,6 +44,7 @@ namespace caf
 
 
 class QAction;
+class QMenu;
 
 //==================================================================================================
 ///  
@@ -80,7 +81,7 @@ public:
 
     RimOilField*    activeOilField();
 
-    void            actionsBasedOnSelection(std::vector<QAction*>& actions);
+    void            actionsBasedOnSelection(QMenu& contextMenu);
 
 protected:
     // Overridden methods
