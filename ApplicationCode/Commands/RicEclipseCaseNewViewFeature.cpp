@@ -25,7 +25,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipseCaseNewViewFeature, "RicEclipseCaseNewView");
+CAF_CMD_SOURCE_INIT(RicEclipseCaseNewViewFeature, "RicEclipseCaseNewViewFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

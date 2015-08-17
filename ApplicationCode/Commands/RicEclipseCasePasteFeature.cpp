@@ -25,7 +25,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipseCasePasteFeature, "RicEclipseCasePaste");
+CAF_CMD_SOURCE_INIT(RicEclipseCasePasteFeature, "RicEclipseCasePasteFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

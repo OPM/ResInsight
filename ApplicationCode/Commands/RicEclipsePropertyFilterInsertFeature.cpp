@@ -30,7 +30,7 @@
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterInsertFeature, "RicEclipsePropertyFilterInsert");
+CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterInsertFeature, "RicEclipsePropertyFilterInsertFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

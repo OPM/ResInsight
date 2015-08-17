@@ -30,7 +30,7 @@
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterInsertFeature, "RicGeoMechPropertyFilterInsert");
+CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterInsertFeature, "RicGeoMechPropertyFilterInsertFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

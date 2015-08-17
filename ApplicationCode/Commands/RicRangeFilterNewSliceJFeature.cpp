@@ -29,7 +29,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceJFeature, "RicRangeFilterNewSliceJ");
+CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceJFeature, "RicRangeFilterNewSliceJFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

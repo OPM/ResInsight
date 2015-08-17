@@ -30,7 +30,7 @@
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceIFeature, "RicRangeFilterNewSliceI");
+CAF_CMD_SOURCE_INIT(RicRangeFilterNewSliceIFeature, "RicRangeFilterNewSliceIFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

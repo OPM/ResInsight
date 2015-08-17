@@ -25,7 +25,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipseCaseExecuteScriptFeature, "RicEclipseCaseExecuteScript");
+CAF_CMD_SOURCE_INIT(RicEclipseCaseExecuteScriptFeature, "RicEclipseCaseExecuteScriptFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

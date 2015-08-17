@@ -25,7 +25,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipseCaseCloseFeature, "RicEclipseCaseClose");
+CAF_CMD_SOURCE_INIT(RicEclipseCaseCloseFeature, "RicEclipseCaseCloseFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

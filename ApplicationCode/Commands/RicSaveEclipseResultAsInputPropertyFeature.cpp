@@ -29,7 +29,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicSaveEclipseResultAsInputPropertyFeature, "RicSaveEclipseResultAsInputProperty");
+CAF_CMD_SOURCE_INIT(RicSaveEclipseResultAsInputPropertyFeature, "RicSaveEclipseResultAsInputPropertyFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

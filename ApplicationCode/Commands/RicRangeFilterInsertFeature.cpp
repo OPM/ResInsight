@@ -28,7 +28,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicRangeFilterInsertFeature, "RicRangeFilterInsert");
+CAF_CMD_SOURCE_INIT(RicRangeFilterInsertFeature, "RicRangeFilterInsertFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

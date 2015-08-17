@@ -576,7 +576,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
 
             //commandIds << "RicEclipseCaseClose";
             //commandIds << "RicEclipseCaseNewView";
-            commandIds << "RicEclipseCaseNewGroup";
+            commandIds << "RicEclipseCaseNewGroupFeature";
             //commandIds << "RicEclipseCaseExecuteScript";
         }
         else if (dynamic_cast<RimGeoMechCase*>(uiItem))
@@ -599,41 +599,41 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
        
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
-            commandIds << "RicSaveEclipseResultAsInputProperty";
+            commandIds << "RicSaveEclipseResultAsInputPropertyFeature";
         }
         else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
         {
-            commandIds << "RicRangeFilterNew";
-            commandIds << "RicRangeFilterNewSliceI";
-            commandIds << "RicRangeFilterNewSliceJ";
-            commandIds << "RicRangeFilterNewSliceK";
+            commandIds << "RicRangeFilterNewFeature";
+            commandIds << "RicRangeFilterNewSliceIFeature";
+            commandIds << "RicRangeFilterNewSliceJFeature";
+            commandIds << "RicRangeFilterNewSliceKFeature";
         }
         else if (dynamic_cast<RimCellRangeFilter*>(uiItem))
         {
-            commandIds << "RicRangeFilterInsert";
-            commandIds << "RicRangeFilterNewSliceI";
-            commandIds << "RicRangeFilterNewSliceJ";
-            commandIds << "RicRangeFilterNewSliceK";
+            commandIds << "RicRangeFilterInsertFeature";
+            commandIds << "RicRangeFilterNewSliceIFeature";
+            commandIds << "RicRangeFilterNewSliceJFeature";
+            commandIds << "RicRangeFilterNewSliceKFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
         {
-            commandIds << "RicEclipsePropertyFilterNew";
+            commandIds << "RicEclipsePropertyFilterNewFeature";
         }
         else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
         {
-            commandIds << "RicEclipsePropertyFilterInsert";
+            commandIds << "RicEclipsePropertyFilterInsertFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
         {
-            commandIds << "RicGeoMechPropertyFilterNew";
+            commandIds << "RicGeoMechPropertyFilterNewFeature";
         }
         else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
         {
-            commandIds << "RicGeoMechPropertyFilterInsert";
+            commandIds << "RicGeoMechPropertyFilterInsertFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }

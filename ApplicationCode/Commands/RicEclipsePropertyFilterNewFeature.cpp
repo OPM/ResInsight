@@ -29,7 +29,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterNewFeature, "RicEclipsePropertyFilterNew");
+CAF_CMD_SOURCE_INIT(RicEclipsePropertyFilterNewFeature, "RicEclipsePropertyFilterNewFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

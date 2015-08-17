@@ -29,7 +29,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterNewFeature, "RicGeoMechPropertyFilterNew");
+CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterNewFeature, "RicGeoMechPropertyFilterNewFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 

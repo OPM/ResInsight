@@ -28,7 +28,7 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipseCaseNewGroupFeature, "RicEclipseCaseNewGroup");
+CAF_CMD_SOURCE_INIT(RicEclipseCaseNewGroupFeature, "RicEclipseCaseNewGroupFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
