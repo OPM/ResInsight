@@ -1285,7 +1285,7 @@ void RiuMainWindow::slotSaveProjectAs()
 void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 {
     m_pdmRoot = pdmRoot;
-
+#if 1 // OBSOLETE
     caf::PdmUiTreeItem* OBSOLETE_treeItemRoot = caf::UiTreeItemBuilderPdm::buildViewItems(NULL, -1, m_pdmRoot);
     m_OBSOLETE_treeModelPdm->setTreeItemRoot(OBSOLETE_treeItemRoot);
 
@@ -1293,7 +1293,7 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
     {
         connect(m_OBSOLETE_treeView->selectionModel(), SIGNAL(currentChanged ( const QModelIndex & , const QModelIndex & )), SLOT(OBSOLETE_slotCurrentChanged( const QModelIndex & , const QModelIndex & )));
     }
-
+#endif
 	m_projectTreeView->setPdmItem(pdmRoot);
 
     m_projectTreeView->treeView()->expandAll();
@@ -1560,8 +1560,9 @@ void RiuMainWindow::slotBuildWindowActions()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// This method is replaced by selectedObjectsChanged() below
 //--------------------------------------------------------------------------------------------------
+#if 1 // OBSOLETE
 void RiuMainWindow::OBSOLETE_slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
     RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
@@ -1606,7 +1607,7 @@ void RiuMainWindow::OBSOLETE_slotCurrentChanged(const QModelIndex & current, con
         tmp = tmp.parent();
     }
 }
-
+#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
