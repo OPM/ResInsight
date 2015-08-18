@@ -75,6 +75,8 @@ set( USER_INTERFACE_FILES
     UserInterface/RiuCadNavigation.cpp
     UserInterface/RiuRmsNavigation.cpp
 	UserInterface/RiuGeoQuestNavigation.cpp
+	UserInterface/RiuDragDrop.cpp
+	UserInterface/RiuDragDrop.h
 )
 
 set( SOCKET_INTERFACE_FILES

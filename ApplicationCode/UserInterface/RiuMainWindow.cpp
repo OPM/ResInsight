@@ -59,6 +59,7 @@
 #include "RiuResultInfoPanel.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
+#include "RiuDragDrop.h"
 
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
@@ -128,6 +129,8 @@ RiuMainWindow::RiuMainWindow()
     slotRefreshFileActions();
     slotRefreshEditActions();
 
+    m_dragDrop = new RiuDragDrop;
+
     // Set pdm root so scripts are displayed
     setPdmRoot(RiaApplication::instance()->project());
 
@@ -188,9 +191,9 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
         return;
     }
 
+    delete m_dragDrop;
+    
     saveWinGeoAndDockToolBarLayout();
-
-
         
     event->accept();
 }
@@ -568,10 +571,10 @@ void RiuMainWindow::createDockPanels()
         m_projectTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
         // TODO :Drag and drop configuration
-//         m_projectTreeView->treeView()->setDragEnabled(true);
-//         m_projectTreeView->treeView()->viewport()->setAcceptDrops(true);
-//         m_projectTreeView->treeView()->setDropIndicatorShown(true);
-//         m_projectTreeView->treeView()->setDragDropMode(QAbstractItemView::DragDrop);
+        m_projectTreeView->treeView()->setDragEnabled(true);
+        m_projectTreeView->treeView()->viewport()->setAcceptDrops(true);
+        m_projectTreeView->treeView()->setDropIndicatorShown(true);
+        m_projectTreeView->treeView()->setDragDropMode(QAbstractItemView::DragDrop);
 
 		addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
@@ -1297,6 +1300,8 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 	m_projectTreeView->setPdmItem(pdmRoot);
 
     m_projectTreeView->treeView()->expandAll();
+
+    m_projectTreeView->setDragDropHandle(m_dragDrop);
 
     caf::SelectionManager::instance()->setPdmRootObject(pdmRoot);
 }

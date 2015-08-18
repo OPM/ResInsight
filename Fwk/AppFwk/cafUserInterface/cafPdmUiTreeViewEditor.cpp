@@ -290,5 +290,13 @@ QModelIndex PdmUiTreeViewEditor::findModelIndex(const PdmUiItem* object) const
     return m_treeViewModel->findModelIndex(object);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewEditor::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
+{
+    m_treeViewModel->setDragDropHandle(dragDropHandle);
+}
+
 
 } // end namespace caf

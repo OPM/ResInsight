@@ -59,6 +59,7 @@ namespace caf
 class PdmUiItem;
 class PdmUiTreeViewModel;
 class PdmChildArrayFieldHandle;
+class PdmUiDragDropHandle;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -95,6 +96,8 @@ public:
     QModelIndex         findModelIndex(const PdmUiItem* object) const;
 
     QWidget*            createWidget(QWidget* parent);
+
+    void                setDragDropHandle(PdmUiDragDropHandle* dragDropHandle);
 
 signals:
     void                selectionChanged();

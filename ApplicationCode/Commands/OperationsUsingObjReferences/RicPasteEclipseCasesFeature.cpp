@@ -76,9 +76,6 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteEclipseCasesFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    CVF_ASSERT(proj);
-
     PdmObjectHandle* destinationObject = dynamic_cast<PdmObjectHandle*>(SelectionManager::instance()->selectedItem());
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup(destinationObject);
@@ -89,96 +86,9 @@ void RicPasteEclipseCasesFeature::onActionTriggered(bool isChecked)
 
     if (objectGroup.objects.size() == 0) return;
 
-    {
-        std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
-        objectGroup.createCopyByType(&typedObjects, PdmDefaultObjectFactory::instance());
-
-        if (typedObjects.size() == 0)
-        {
-            return;
-        }
-
-        RimEclipseResultCase* mainResultCase = NULL;
-        std::vector< std::vector<int> > mainCaseGridDimensions;
-
-        // Read out main grid and main grid dimensions if present in case group
-        if (gridCaseGroup->mainCase())
-        {
-            mainResultCase = dynamic_cast<RimEclipseResultCase*>(gridCaseGroup->mainCase());
-            CVF_ASSERT(mainResultCase);
-
-            mainResultCase->readGridDimensions(mainCaseGridDimensions);
-        }
-
-        std::vector<RimEclipseResultCase*> insertedCases;
-
-        // Add cases to case group
-        for (size_t i = 0; i < typedObjects.size(); i++)
-        {
-            RimEclipseResultCase* rimResultReservoir = typedObjects[i];
-
-            proj->assignCaseIdToCase(rimResultReservoir);
-
-            if (gridCaseGroup->contains(rimResultReservoir))
-            {
-                continue;
-            }
-
-            insertedCases.push_back(rimResultReservoir);
-        }
-
-        // Initialize the new objects
-        for (size_t i = 0; i < insertedCases.size(); i++)
-        {
-            RimEclipseResultCase* rimResultReservoir = insertedCases[i];
-            caf::PdmDocument::initAfterReadTraversal(rimResultReservoir);
-        }
-
-        // Load stuff 
-        for (size_t i = 0; i < insertedCases.size(); i++)
-        {
-            RimEclipseResultCase* rimResultReservoir = insertedCases[i];
-
-
-            if (!mainResultCase)
-            {
-                rimResultReservoir->openEclipseGridFile();
-                rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
-
-                mainResultCase = rimResultReservoir;
-            }
-            else
-            {
-                std::vector< std::vector<int> > caseGridDimensions;
-                rimResultReservoir->readGridDimensions(caseGridDimensions);
-
-                bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
-                if (!identicalGrid)
-                {
-                    continue;
-                }
-
-                if (!rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
-                {
-                    CVF_ASSERT(false);
-                }
-            }
-
-            RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-            RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
-            if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
-
-            caf::PdmDocument::updateUiIconStateRecursively(rimResultReservoir);
-
-            gridCaseGroup->updateConnectedEditors();
-
-            for (size_t rvIdx = 0; rvIdx < rimResultReservoir->reservoirViews.size(); rvIdx++)
-            {
-                RimEclipseView* riv = rimResultReservoir->reservoirViews()[rvIdx];
-                riv->loadDataAndUpdate();
-            }
-        }
-    }
+    addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
+    
+    return;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,6 +97,104 @@ void RicPasteEclipseCasesFeature::onActionTriggered(bool isChecked)
 void RicPasteEclipseCasesFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste (Eclipse Cases)");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    CVF_ASSERT(proj);
+
+    std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
+    objectGroup.createCopyByType(&typedObjects, PdmDefaultObjectFactory::instance());
+
+    if (typedObjects.size() == 0)
+    {
+        return;
+    }
+
+    RimEclipseResultCase* mainResultCase = NULL;
+    std::vector< std::vector<int> > mainCaseGridDimensions;
+
+    // Read out main grid and main grid dimensions if present in case group
+    if (gridCaseGroup->mainCase())
+    {
+        mainResultCase = dynamic_cast<RimEclipseResultCase*>(gridCaseGroup->mainCase());
+        CVF_ASSERT(mainResultCase);
+
+        mainResultCase->readGridDimensions(mainCaseGridDimensions);
+    }
+
+    std::vector<RimEclipseResultCase*> insertedCases;
+
+    // Add cases to case group
+    for (size_t i = 0; i < typedObjects.size(); i++)
+    {
+        RimEclipseResultCase* rimResultReservoir = typedObjects[i];
+
+        proj->assignCaseIdToCase(rimResultReservoir);
+
+        if (gridCaseGroup->contains(rimResultReservoir))
+        {
+            continue;
+        }
+
+        insertedCases.push_back(rimResultReservoir);
+    }
+
+    // Initialize the new objects
+    for (size_t i = 0; i < insertedCases.size(); i++)
+    {
+        RimEclipseResultCase* rimResultReservoir = insertedCases[i];
+        caf::PdmDocument::initAfterReadTraversal(rimResultReservoir);
+    }
+
+    // Load stuff 
+    for (size_t i = 0; i < insertedCases.size(); i++)
+    {
+        RimEclipseResultCase* rimResultReservoir = insertedCases[i];
+
+
+        if (!mainResultCase)
+        {
+            rimResultReservoir->openEclipseGridFile();
+            rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
+
+            mainResultCase = rimResultReservoir;
+        }
+        else
+        {
+            std::vector< std::vector<int> > caseGridDimensions;
+            rimResultReservoir->readGridDimensions(caseGridDimensions);
+
+            bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
+            if (!identicalGrid)
+            {
+                continue;
+            }
+
+            if (!rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
+            {
+                CVF_ASSERT(false);
+            }
+        }
+
+        RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
+        RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+        if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
+
+        caf::PdmDocument::updateUiIconStateRecursively(rimResultReservoir);
+
+        gridCaseGroup->updateConnectedEditors();
+
+        for (size_t rvIdx = 0; rvIdx < rimResultReservoir->reservoirViews.size(); rvIdx++)
+        {
+            RimEclipseView* riv = rimResultReservoir->reservoirViews()[rvIdx];
+            riv->loadDataAndUpdate();
+        }
+    }
 }
 
 

@@ -17,35 +17,24 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmUiDragDropHandle.h"
 
 
-class RimIdenticalGridCaseGroup;
-
-namespace caf 
-{
-    class PdmObjectGroup;
-   
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 /// 
-//==================================================================================================
-class RicPasteEclipseCasesFeature : public caf::CmdFeature
+//--------------------------------------------------------------------------------------------------
+class RiuDragDrop : public caf::PdmUiDragDropHandle
 {
-    CAF_CMD_HEADER_INIT;
-
 public:
-    static void addCasesToGridCaseGroup(PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
+    RiuDragDrop();
+    virtual ~RiuDragDrop();
 
-protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered(bool isChecked);
-    virtual void setupActionLook(QAction* actionToSetup);
+    virtual Qt::DropActions supportedDropActions() const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
+    virtual QStringList mimeTypes() const;
 };
 
-
-
-} // end namespace caf

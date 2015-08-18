@@ -56,6 +56,7 @@ namespace caf
     class UiPropertyCreatorPdm;
     class UiTreeModelPdm;
     class PdmUiItem;
+    class PdmUiDragDropHandle;
 }
 
 namespace ssihub
@@ -295,7 +296,11 @@ private:
     RimUiTreeView*              m_OBSOLETE_treeView;
     RimUiTreeModelPdm*          m_OBSOLETE_treeModelPdm;
 
+
 	caf::PdmUiTreeView*			m_projectTreeView;
+    
+    caf::PdmUiDragDropHandle*   m_dragDrop;
+    
     QUndoView*                  m_undoView;
 
     caf::PdmObject*             m_pdmRoot;

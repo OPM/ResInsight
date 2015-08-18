@@ -39,6 +39,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDragDropHandle.h"
 #include "cafPdmUiTreeItemEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
@@ -54,6 +55,8 @@ namespace caf
 PdmUiTreeViewModel::PdmUiTreeViewModel(PdmUiTreeViewEditor* treeViewEditor)
 {
     m_treeOrderingRoot = NULL;
+    m_dragDropHandle = NULL;
+
     m_treeViewEditor = treeViewEditor;
 }
 
@@ -658,6 +661,12 @@ Qt::ItemFlags PdmUiTreeViewModel::flags(const QModelIndex &index) const
         }
     }
 
+    if (m_dragDropHandle)
+    {
+        Qt::ItemFlags dragDropFlags = m_dragDropHandle->flags(index);
+        flagMask |= dragDropFlags;
+    }
+
     return flagMask;
 }
 
@@ -690,6 +699,74 @@ PdmUiItem* PdmUiTreeViewModel::uiItemFromModelIndex(const QModelIndex& index) co
     }
     
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewModel::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
+{
+    m_dragDropHandle = dragDropHandle;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList PdmUiTreeViewModel::mimeTypes() const
+{
+    if (m_dragDropHandle)
+    {
+        return m_dragDropHandle->mimeTypes();
+    }
+    else
+    {
+        return QAbstractItemModel::mimeTypes();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QMimeData * PdmUiTreeViewModel::mimeData(const QModelIndexList &indexes) const
+{
+    if (m_dragDropHandle)
+    {
+        return m_dragDropHandle->mimeData(indexes);
+    }
+    else
+    {
+        return QAbstractItemModel::mimeData(indexes);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (m_dragDropHandle)
+    {
+        return m_dragDropHandle->dropMimeData(data, action, row, column, parent);
+    }
+    else
+    {
+        return QAbstractItemModel::dropMimeData(data, action, row, column, parent);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Qt::DropActions PdmUiTreeViewModel::supportedDropActions() const
+{
+    if (m_dragDropHandle)
+    {
+        return m_dragDropHandle->supportedDropActions();
+    }
+    else
+    {
+        return QAbstractItemModel::supportedDropActions();
+    }
 }
 
 

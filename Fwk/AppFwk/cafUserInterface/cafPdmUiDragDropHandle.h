@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2015- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -36,64 +36,29 @@
 
 
 #pragma once
-#include <QString>
-#include <QWidget>
 
-class QVBoxLayout;
-class QTreeView;
-class QItemSelection;
-class QMenu;
-class QModelIndex;
+#include <QModelIndexList>
 
-namespace caf
+class QMimeData;
+
+namespace caf 
 {
 
-class PdmUiItem;
-class PdmUiTreeViewEditor;
-class PdmUiDragDropHandle;
-
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 /// 
-//==================================================================================================
-
-class PdmUiTreeView : public QWidget
+//--------------------------------------------------------------------------------------------------
+class PdmUiDragDropHandle
 {
-    Q_OBJECT
 public:
-    PdmUiTreeView(QWidget* parent = 0, Qt::WindowFlags f = 0);
-    ~PdmUiTreeView();
+    virtual ~PdmUiDragDropHandle() = 0;
 
-    void        enableDefaultContextMenu(bool enable);
-    void        setCurrentSelectionToCurrentEditorSelection(bool enable);
-
-    void        setUiConfigurationName(QString uiConfigName);
-    void        setPdmItem(caf::PdmUiItem* object);
-
-    QTreeView*  treeView();
-
-    void        selectedObjects(std::vector<PdmUiItem*>& objects);
-    void        selectAsCurrentItem(PdmUiItem* uiItem);
-    void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
-
-    PdmUiItem*  uiItemFromModelIndex(const QModelIndex& index) const;
-    QModelIndex findModelIndex(const PdmUiItem* object) const;
-
-    void        setDragDropHandle(PdmUiDragDropHandle* dragDropHandle);
-
-
-signals:
-    void        selectionChanged();
-
-private slots:
-    void        slotOnSelectionChanged();
-private:
-
-    PdmUiTreeViewEditor*    m_treeViewEditor; 
-    QString                 m_uiConfigName;
-    QVBoxLayout*            m_layout;
+    virtual Qt::DropActions     supportedDropActions() const = 0;
+    virtual Qt::ItemFlags       flags(const QModelIndex &index) const = 0;
+    virtual bool                dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) = 0;
+    virtual QMimeData*          mimeData(const QModelIndexList &indexes) const = 0;
+    virtual QStringList         mimeTypes() const = 0;
 };
 
+inline PdmUiDragDropHandle::~PdmUiDragDropHandle() { }
 
-
-} // End of namespace caf
-
+} // end namespace caf
