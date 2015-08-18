@@ -44,7 +44,7 @@
 
 #include <QDir>
 #include "cafCmdFeature.h"
-#include "ToggleCommands\RicToggleItemsFeatureImpl.h"
+#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
