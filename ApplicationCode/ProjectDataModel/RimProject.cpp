@@ -554,7 +554,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
 
         if (dynamic_cast<RimGeoMechView*>(uiItem))
         {
-            //commandIds << "RicEclipseViewNew";
+            commandIds << "RicNewViewFeature";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteGeoMechViewsFeature";
             //commandIds << "RicEclipseViewDelete";
@@ -564,7 +564,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteEclipseViewsFeature";
 
-            //commandIds << "RicEclipseViewNew";
+            commandIds << "RicNewViewFeature";
             //commandIds << "RicEclipseViewDelete";
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
@@ -575,7 +575,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicPasteEclipseViewsFeature";
 
             //commandIds << "RicEclipseCaseClose";
-            //commandIds << "RicEclipseCaseNewView";
+            commandIds << "RicNewViewFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
             //commandIds << "RicEclipseCaseExecuteScript";
         }
@@ -583,11 +583,11 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicPasteGeoMechViewsFeature";
             //commandIds << "RicEclipseCaseClose";
-            //commandIds << "RicEclipseCaseNewView";
+            commandIds << "RicNewViewFeature";
         }
         else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
         {
-            //commandIds << "RicEclipseCaseNewView";
+            commandIds << "RicNewViewFeature";
             commandIds << "RicPasteEclipseCasesFeature";
             commandIds << "RicPasteEclipseViewsFeature";
         }

@@ -30,7 +30,7 @@ class RimGeoMechView;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicEclipseViewNewFeature : public caf::CmdFeature
+class RicNewViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -41,7 +41,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    RimView* addReservoirView();
+    RimView*        addReservoirView();
 
     RimEclipseCase* selectedEclipseCase() const;
     RimGeoMechCase* selectedGeoMechCase() const;

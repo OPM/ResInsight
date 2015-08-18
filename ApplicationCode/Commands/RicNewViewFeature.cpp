@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEclipseViewNewFeature.h"
+#include "RicNewViewFeature.h"
 
 #include "RimView.h"
 #include "RimEclipseView.h"
@@ -29,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipseViewNewFeature, "RicEclipseViewNewFeature");
+CAF_CMD_SOURCE_INIT(RicNewViewFeature, "RicNewViewFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseViewNewFeature::isCommandEnabled()
+bool RicNewViewFeature::isCommandEnabled()
 {
     return selectedEclipseCase() != NULL
         || selectedEclipseView() != NULL
@@ -45,15 +45,17 @@ bool RicEclipseViewNewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseViewNewFeature::onActionTriggered(bool isChecked)
+void RicNewViewFeature::onActionTriggered(bool isChecked)
 {
     addReservoirView();
+
+    // MODTODO: expand new view when inserted
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseViewNewFeature::setupActionLook(QAction* actionToSetup)
+void RicNewViewFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New View");
 }
@@ -61,7 +63,7 @@ void RicEclipseViewNewFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RicEclipseViewNewFeature::addReservoirView()
+RimView* RicNewViewFeature::addReservoirView()
 {
     // Establish type of selected object
     RimEclipseCase* eclipseCase = selectedEclipseCase();
@@ -103,7 +105,7 @@ RimView* RicEclipseViewNewFeature::addReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicEclipseViewNewFeature::selectedEclipseCase() const
+RimEclipseCase* RicNewViewFeature::selectedEclipseCase() const
 {
     std::vector<RimEclipseCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -119,7 +121,7 @@ RimEclipseCase* RicEclipseViewNewFeature::selectedEclipseCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RicEclipseViewNewFeature::selectedGeoMechCase() const
+RimGeoMechCase* RicNewViewFeature::selectedGeoMechCase() const
 {
     std::vector<RimGeoMechCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -135,7 +137,7 @@ RimGeoMechCase* RicEclipseViewNewFeature::selectedGeoMechCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicEclipseViewNewFeature::selectedEclipseView() const
+RimEclipseView* RicNewViewFeature::selectedEclipseView() const
 {
     std::vector<RimEclipseView*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -151,7 +153,7 @@ RimEclipseView* RicEclipseViewNewFeature::selectedEclipseView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView* RicEclipseViewNewFeature::selectedGeoMechView() const
+RimGeoMechView* RicNewViewFeature::selectedGeoMechView() const
 {
     std::vector<RimGeoMechView*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);

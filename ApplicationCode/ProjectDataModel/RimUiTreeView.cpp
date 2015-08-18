@@ -693,6 +693,7 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicNewViewFeature
 void RimUiTreeView::slotAddView()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
