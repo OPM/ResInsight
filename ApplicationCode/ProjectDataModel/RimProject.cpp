@@ -654,6 +654,8 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
     {
         commandIds << "Separator";
         commandIds << "RicToggleItemsOnFeature";
+        commandIds << "RicToggleItemsOffFeature";
+        commandIds << "RicToggleItemsFeature";
     }
 
 
