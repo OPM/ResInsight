@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEclipseCaseExecuteScriptFeature.h"
+#include "RicExecuteScriptForCasesFeature.h"
 
 #include "RimCase.h"
 
@@ -25,12 +25,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicEclipseCaseExecuteScriptFeature, "RicEclipseCaseExecuteScriptFeature");
+CAF_CMD_SOURCE_INIT(RicExecuteScriptForCasesFeature, "RicExecuteScriptForCasesFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseCaseExecuteScriptFeature::isCommandEnabled()
+bool RicExecuteScriptForCasesFeature::isCommandEnabled()
 {
     std::vector<RimCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -48,14 +48,15 @@ bool RicEclipseCaseExecuteScriptFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseCaseExecuteScriptFeature::onActionTriggered(bool isChecked)
+void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
 {
+    // Dummy - handled by RiuMainWindow::slotExecuteScriptForSelectedCases()
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEclipseCaseExecuteScriptFeature::setupActionLook(QAction* actionToSetup)
+void RicExecuteScriptForCasesFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Execute Script");
+    actionToSetup->setText("Execute script");
 }

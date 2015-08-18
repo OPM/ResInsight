@@ -628,6 +628,7 @@ void RimUiTreeView::slotExecuteScript()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicExecuteScriptFeature
 void RimUiTreeView::slotExecuteScriptForSelectedCases()
 {
     QAction* action = qobject_cast<QAction*>(sender());

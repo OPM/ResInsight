@@ -92,6 +92,9 @@ protected:
     virtual void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
+    void            appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
+
+private:
     caf::PdmField<QString>      m_projectFileVersionString;
 
     caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts

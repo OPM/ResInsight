@@ -25,7 +25,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicEclipseCaseExecuteScriptFeature : public caf::CmdFeature
+class RicExecuteScriptForCasesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
