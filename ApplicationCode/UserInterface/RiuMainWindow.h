@@ -90,7 +90,7 @@ public:
     void            forceProjectTreeRepaint();
 
     RimUiTreeModelPdm* uiPdmModel_OBSOLETE() { return m_OBSOLETE_treeModelPdm;}
-
+    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();

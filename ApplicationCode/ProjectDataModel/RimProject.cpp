@@ -44,6 +44,7 @@
 
 #include <QDir>
 #include "cafCmdFeature.h"
+#include "ToggleCommands\RicToggleItemsFeatureImpl.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -649,6 +650,13 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
     }
     
+    if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
+    {
+        commandIds << "Separator";
+        commandIds << "RicToggleItemsOnFeature";
+    }
+
+
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     for (int i = 0; i < commandIds.size(); i++)
     {
