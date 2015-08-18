@@ -21,11 +21,13 @@
 
 #include "cafCmdFeature.h"
 
+class RimEclipseCase;
+class RimGeoMechCase;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicEclipseCaseCloseFeature : public caf::CmdFeature
+class RicCloseCaseFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -34,6 +36,14 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
+
+private:
+    RimEclipseCase* selectedEclipseCase() const;
+    RimGeoMechCase* selectedGeoMechCase() const;
+
+    void removeCaseFromAllGroups(RimEclipseCase* eclipseCase);
+    void deleteEclipseCase(RimEclipseCase* eclipseCase);
+    void deleteGeoMechCase(RimGeoMechCase* geoMechCase);
 };
 
 

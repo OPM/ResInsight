@@ -5,7 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
-${CEE_CURRENT_LIST_DIR}RicEclipseCaseCloseFeature.h
+${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseExecuteScriptFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.h
@@ -47,7 +47,7 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
-${CEE_CURRENT_LIST_DIR}RicEclipseCaseCloseFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseExecuteScriptFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.cpp

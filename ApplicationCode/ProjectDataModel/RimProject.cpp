@@ -575,7 +575,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicPasteEclipseCasesFeature";
             commandIds << "RicPasteEclipseViewsFeature";
 
-            //commandIds << "RicEclipseCaseClose";
+            commandIds << "RicCloseCaseFeature";
             commandIds << "RicNewViewFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
             //commandIds << "RicEclipseCaseExecuteScript";
@@ -583,8 +583,8 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         else if (dynamic_cast<RimGeoMechCase*>(uiItem))
         {
             commandIds << "RicPasteGeoMechViewsFeature";
-            //commandIds << "RicEclipseCaseClose";
             commandIds << "RicNewViewFeature";
+            commandIds << "RicCloseCaseFeature";
         }
         else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
         {

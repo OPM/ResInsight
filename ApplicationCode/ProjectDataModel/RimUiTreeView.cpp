@@ -937,6 +937,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - See RicCloseCaseFeature
 void RimUiTreeView::slotCloseCase()
 {
     QModelIndexList miList;
@@ -1546,6 +1547,7 @@ void RimUiTreeView::selectedUiItems(std::vector<caf::PdmUiItem*>& objects)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - See RicCloseCaseFeature
 void RimUiTreeView::slotCloseGeomechCase()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
