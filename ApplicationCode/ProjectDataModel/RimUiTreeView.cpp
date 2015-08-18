@@ -1395,6 +1395,7 @@ void RimUiTreeView::slotDeleteScriptPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE RicToggleItemsFeatureImpl/RimProject
 void RimUiTreeView::appendToggleItemActions(QMenu& contextMenu)
 {
     if (selectionModel() && selectionModel()->selectedIndexes().size() > 0)
@@ -1434,6 +1435,7 @@ void RimUiTreeView::appendToggleItemActions(QMenu& contextMenu)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE RicToggleItemsFeature
 void RimUiTreeView::slotToggleItems()
 {
     executeSelectionToggleOperation(TOGGLE);
@@ -1442,6 +1444,7 @@ void RimUiTreeView::slotToggleItems()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE RicToggleItemsFeatureImpl
 void RimUiTreeView::executeSelectionToggleOperation(SelectionToggleType toggleState)
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
@@ -1454,6 +1457,7 @@ void RimUiTreeView::executeSelectionToggleOperation(SelectionToggleType toggleSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE RicToggleItemsOnFeature
 void RimUiTreeView::slotToggleItemsOn()
 {
     executeSelectionToggleOperation(TOGGLE_ON);
@@ -1462,6 +1466,7 @@ void RimUiTreeView::slotToggleItemsOn()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE RicToggleItemsOffFeature
 void RimUiTreeView::slotToggleItemsOff()
 {
     executeSelectionToggleOperation(TOGGLE_OFF);
@@ -1509,6 +1514,7 @@ void RimUiTreeView::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE RicWellPathsDeleteAllFeature
 void RimUiTreeView::slotDeleteAllWellPaths()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
