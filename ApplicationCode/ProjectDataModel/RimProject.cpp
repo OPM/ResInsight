@@ -558,7 +558,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicNewViewFeature";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteGeoMechViewsFeature";
-            //commandIds << "RicEclipseViewDelete";
+            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipseView*>(uiItem))
         {
@@ -566,7 +566,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicPasteEclipseViewsFeature";
 
             commandIds << "RicNewViewFeature";
-            //commandIds << "RicEclipseViewDelete";
+            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
