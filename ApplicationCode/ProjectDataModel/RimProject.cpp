@@ -39,6 +39,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
+#include "RimCalcScript.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
@@ -548,7 +549,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
     {
         commandIds << "RicCopyReferencesToClipboardFeature";
     }
-    else   if (uiItems.size() == 1)
+    else if (uiItems.size() == 1)
     {
         caf::PdmUiItem* uiItem = uiItems[0];
         CVF_ASSERT(uiItem);
@@ -647,6 +648,10 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
             commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimCalcScript*>(uiItem))
+        {
+            commandIds << "RicExecuteScriptFeature";
         }
     }
     
