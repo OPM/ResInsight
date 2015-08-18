@@ -61,24 +61,29 @@ QAction* CmdFeature::action()
 //--------------------------------------------------------------------------------------------------
 QAction* CmdFeature::action(QString customText)
 {
+    QAction* action = NULL;
+
     std::map<QString, QAction*>::iterator it;
     it = m_customTextToActionMap.find(customText);
+
     if (it != m_customTextToActionMap.end() && it->second != NULL)
     {
-        return it->second;
+        action = it->second;
     }
     else
     {
-        QAction* action = new QAction(this);
-        this->setupActionLook(action);
-        if (!customText.isEmpty())
-        {
-            action->setText(customText);
-        }
+        action = new QAction(this);
         connect(action, SIGNAL(triggered(bool)), SLOT(actionTriggered(bool)));
         m_customTextToActionMap[customText]= action;
-        return action;
     }
+
+    this->setupActionLook(action);
+    if (!customText.isEmpty())
+    {
+        action->setText(customText);
+    }
+
+    return action;
 }
 
 //--------------------------------------------------------------------------------------------------
