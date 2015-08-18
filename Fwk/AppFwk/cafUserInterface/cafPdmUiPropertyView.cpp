@@ -94,7 +94,7 @@ void PdmUiPropertyView::setUiConfigurationName(QString uiConfigName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyView::showProperties(caf::PdmObjectHandle* object)
+void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 {
     // Find specialized object view handle 
 
@@ -151,7 +151,7 @@ void PdmUiPropertyView::showProperties(caf::PdmObjectHandle* object)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* PdmUiPropertyView::currentObject()
+PdmObjectHandle* PdmUiPropertyView::currentObject()
 {
     if (!m_currentObjectView) return NULL;
     return m_currentObjectView->pdmObject();

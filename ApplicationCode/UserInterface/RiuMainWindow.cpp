@@ -1298,9 +1298,7 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
     }
 #endif
 	m_projectTreeView->setPdmItem(pdmRoot);
-
-    m_projectTreeView->treeView()->expandAll();
-
+    // For debug only : m_projectTreeView->treeView()->expandAll();
     m_projectTreeView->setDragDropHandle(m_dragDrop);
 
     caf::SelectionManager::instance()->setPdmRootObject(pdmRoot);
@@ -1682,31 +1680,30 @@ void RiuMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotNewObjectPropertyView()
 {
-    if (!m_OBSOLETE_treeModelPdm) return;
 
-    RimUiTreeView* OBSOLETE_treeView = NULL;
+    caf::PdmUiTreeView* pdmTreeView = NULL;
     
     {
         QDockWidget* dockWidget = new QDockWidget("Additional Project Tree " + QString::number(additionalProjectTrees.size() + 1), this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        OBSOLETE_treeView = new RimUiTreeView(dockWidget);
-        OBSOLETE_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        pdmTreeView = new caf::PdmUiTreeView(dockWidget);
+        pdmTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
         // Drag and drop configuration
-        m_OBSOLETE_treeView->setDragEnabled(true);
-        m_OBSOLETE_treeView->viewport()->setAcceptDrops(true);
-        m_OBSOLETE_treeView->setDropIndicatorShown(true);
-        m_OBSOLETE_treeView->setDragDropMode(QAbstractItemView::DragDrop);
+        pdmTreeView->treeView()->setDragEnabled(true);
+        pdmTreeView->treeView()->viewport()->setAcceptDrops(true);
+        pdmTreeView->treeView()->setDropIndicatorShown(true);
+        pdmTreeView->treeView()->setDragDropMode(QAbstractItemView::DragDrop);
 
-        dockWidget->setWidget(OBSOLETE_treeView);
+        dockWidget->setWidget(pdmTreeView);
 
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
         additionalProjectTrees.push_back(dockWidget);
-    }
 
-    OBSOLETE_treeView->setModel(m_OBSOLETE_treeModelPdm);
+        pdmTreeView->setPdmItem(m_pdmRoot); 
+    }
 
 
     {
@@ -1719,8 +1716,8 @@ void RiuMainWindow::slotNewObjectPropertyView()
 
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
-        connect(OBSOLETE_treeView, SIGNAL(selectedObjectChanged( caf::PdmObjectHandle* )), propView, SLOT(showProperties( caf::PdmObjectHandle* )));
-        additionalPropertyEditors.push_back(dockWidget);
+        connect(pdmTreeView, SIGNAL(selectedObjectChanged( caf::PdmObjectHandle* )), propView, SLOT(showProperties( caf::PdmObjectHandle* )));
+       additionalPropertyEditors.push_back(dockWidget);
     }
 }
 

@@ -121,6 +121,21 @@ void PdmUiTreeView::selectedObjects(std::vector<PdmUiItem*>& objects)
 void PdmUiTreeView::slotOnSelectionChanged()
 {
     emit selectionChanged();
+
+    std::vector<PdmUiItem*> objects;
+    m_treeViewEditor->selectedUiItems(objects);
+    PdmObjectHandle* objHandle = NULL;
+
+    if (objects.size())
+    {
+        PdmUiObjectHandle* uiObjH = dynamic_cast< PdmUiObjectHandle*>(objects[0]);
+        if (uiObjH)
+        {
+            objHandle = uiObjH->objectHandle();
+        }
+    }
+
+    emit selectedObjectChanged(objHandle);
 }
 
 //--------------------------------------------------------------------------------------------------

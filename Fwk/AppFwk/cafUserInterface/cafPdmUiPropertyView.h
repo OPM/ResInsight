@@ -59,10 +59,9 @@ public:
     ~PdmUiPropertyView();
 
     void setUiConfigurationName(QString uiConfigName);
-    caf::PdmObjectHandle* currentObject();
+    PdmObjectHandle* currentObject();
 public slots:
-    void showProperties(caf::PdmObjectHandle* object);
-
+    void showProperties( caf::PdmObjectHandle* object);
 private:
     PdmUiObjectEditorHandle*    m_currentObjectView; 
     QString                     m_uiConfigName;

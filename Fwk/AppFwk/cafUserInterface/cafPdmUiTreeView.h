@@ -51,6 +51,7 @@ namespace caf
 class PdmUiItem;
 class PdmUiTreeViewEditor;
 class PdmUiDragDropHandle;
+class PdmObjectHandle;
 
 //==================================================================================================
 /// 
@@ -64,14 +65,14 @@ public:
     ~PdmUiTreeView();
 
     void        enableDefaultContextMenu(bool enable);
-    void        setCurrentSelectionToCurrentEditorSelection(bool enable);
+    void        setCurrentSelectionToCurrentEditorSelection(bool enable); // TODO: rename
 
     void        setUiConfigurationName(QString uiConfigName);
     void        setPdmItem(caf::PdmUiItem* object);
 
     QTreeView*  treeView();
 
-    void        selectedObjects(std::vector<PdmUiItem*>& objects);
+    void        selectedObjects(std::vector<PdmUiItem*>& objects); // TODO: rename
     void        selectAsCurrentItem(PdmUiItem* uiItem);
     void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
 
@@ -83,6 +84,9 @@ public:
 
 signals:
     void        selectionChanged();
+    // Convenience signal for use with PdmUiPropertyView
+signals:
+    void        selectedObjectChanged(caf::PdmObjectHandle* object);
 
 private slots:
     void        slotOnSelectionChanged();
