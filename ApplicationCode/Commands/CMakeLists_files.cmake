@@ -89,6 +89,12 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.cpp
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.cpp
 )
 
+set (QT_MOC_HEADERS
+${CEE_CURRENT_LIST_DIR}RicExecuteScriptForCasesFeature.h
+)
+
+qt4_wrap_cpp(MOC_FILES_CPP ${QT_MOC_HEADERS})
+
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
 )

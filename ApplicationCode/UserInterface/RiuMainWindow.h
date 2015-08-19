@@ -283,7 +283,6 @@ private slots:
 
 	void	selectedObjectsChanged();
     void    customMenuRequested(const QPoint& pos);
-    void    slotExecuteScriptForSelectedCases();
 
 
     // Animation slots

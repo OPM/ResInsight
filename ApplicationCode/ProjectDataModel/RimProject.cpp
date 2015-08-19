@@ -49,6 +49,7 @@
 #include <QDir>
 #include "cafCmdFeature.h"
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
+#include "RicExecuteScriptForCasesFeature.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -677,9 +678,9 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         else if (commandIds[i] == "RicExecuteScriptForCasesFeature")
         {
             // Execute script on selection of cases
-            RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
-            if (ruiMainWindow)
-            {
+             RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
+             if (ruiMainWindow)
+             { 
                 std::vector<RimCase*> cases;
                 ruiMainWindow->selectedCases(cases);
 
@@ -736,13 +737,19 @@ void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptColle
 
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
 
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(commandManager);
+
+    RicExecuteScriptForCasesFeature* executeScriptFeature = dynamic_cast<RicExecuteScriptForCasesFeature*>(commandManager->getCommandFeature("RicExecuteScriptForCasesFeature"));
+    CVF_ASSERT(executeScriptFeature);
+
     for (size_t i = 0; i < scriptCollection->calcScripts.size(); i++)
     {
         RimCalcScript* calcScript = scriptCollection->calcScripts[i];
         QFileInfo fi(calcScript->absolutePath());
 
         QString menuText = fi.baseName();
-        QAction* scriptAction = subMenu->addAction(menuText, mainWindow, SLOT(slotExecuteScriptForSelectedCases()));
+        QAction* scriptAction = subMenu->addAction(menuText, executeScriptFeature, SLOT(slotExecuteScriptForSelectedCases()));
 
         scriptAction->setData(QVariant(calcScript->absolutePath()));
     }

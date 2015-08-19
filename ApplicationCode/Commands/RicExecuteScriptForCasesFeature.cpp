@@ -20,10 +20,12 @@
 #include "RicExecuteScriptForCasesFeature.h"
 
 #include "RimCase.h"
+#include "RiaApplication.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT(RicExecuteScriptForCasesFeature, "RicExecuteScriptForCasesFeature");
 
@@ -50,7 +52,7 @@ bool RicExecuteScriptForCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
 {
-    // Dummy - handled by RiuMainWindow::slotExecuteScriptForSelectedCases()
+    // Dummy - handled by slotExecuteScriptForSelectedCases()
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,4 +61,48 @@ void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
 void RicExecuteScriptForCasesFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Execute script");
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExecuteScriptForCasesFeature::slotExecuteScriptForSelectedCases()
+{
+    QAction* action = qobject_cast<QAction*>(sender());
+    if (!action) return;
+
+    QString scriptAbsolutePath = action->data().toString();
+
+    RiaApplication* app = RiaApplication::instance();
+    QString octavePath = app->octavePath();
+    if (!octavePath.isEmpty())
+    {
+        // TODO: Must rename RimCalcScript::absolutePath to absoluteFileName, as the code below is confusing
+        // absolutePath() is a function in QFileInfo
+
+        QFileInfo fi(scriptAbsolutePath);
+        QString octaveFunctionSearchPath = fi.absolutePath();
+
+        QStringList arguments = app->octaveArguments();
+        arguments.append("--path");
+        arguments << octaveFunctionSearchPath;
+        arguments << scriptAbsolutePath;
+
+        std::vector<RimCase*> selection;
+        caf::SelectionManager::instance()->objectsByType(&selection);
+
+        // Get case ID from selected cases in selection model
+        std::vector<int> caseIdsInSelection;
+        for (size_t i = 0; i < selection.size(); i++)
+        {
+            RimCase* casePtr = selection[i];
+            caseIdsInSelection.push_back(casePtr->caseId);
+        }
+
+        if (caseIdsInSelection.size() > 0)
+        {
+            RiaApplication::instance()->launchProcessForMultipleCases(octavePath, arguments, caseIdsInSelection);
+        }
+    }
 }

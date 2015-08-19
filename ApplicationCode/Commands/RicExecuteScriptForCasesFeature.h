@@ -27,6 +27,7 @@
 //==================================================================================================
 class RicExecuteScriptForCasesFeature : public caf::CmdFeature
 {
+    Q_OBJECT
     CAF_CMD_HEADER_INIT;
 
 protected:
@@ -34,6 +35,9 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
+
+private slots:
+    void    slotExecuteScriptForSelectedCases();
 };
 
 
