@@ -656,6 +656,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
         {
+            commandIds << "RicEditScriptFeature";
             commandIds << "RicExecuteScriptFeature";
         }
     }

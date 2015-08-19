@@ -509,6 +509,7 @@ void RimUiTreeView::slotAddSliceFilterK()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicEditScriptFeature
 void RimUiTreeView::slotEditScript()
 {
     QModelIndex index = currentIndex();

@@ -6,11 +6,12 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.h
+${CEE_CURRENT_LIST_DIR}RicEditScriptFeature.h
+${CEE_CURRENT_LIST_DIR}RicExecuteScriptFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExecuteScriptForCasesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePasteFeature.h
-${CEE_CURRENT_LIST_DIR}RicExecuteScriptFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.h
@@ -49,11 +50,12 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicEditScriptFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicExecuteScriptFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExecuteScriptForCasesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCasePasteFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicExecuteScriptFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.cpp
