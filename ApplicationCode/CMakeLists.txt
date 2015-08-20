@@ -144,6 +144,7 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 #############################################################################
 
 set ( QT_MOC_HEADERS
+    ${QT_MOC_HEADERS}
     Application/RiaApplication.h
     
     ProjectDataModel/RimUiTreeModelPdm.h
@@ -157,7 +158,6 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
     UserInterface/RiuMultiCaseImportDialog.h
     UserInterface/RiuViewerCommands.h
-	
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
