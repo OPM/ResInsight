@@ -25,7 +25,10 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafSelectionManager.h"
+#include "cafPdmUiTreeView.h"
 
 #include <QAction>
 
@@ -47,9 +50,9 @@ bool RicNewViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewViewFeature::onActionTriggered(bool isChecked)
 {
-    addReservoirView();
+    RimView* newView = addReservoirView();
 
-    // MODTODO: expand new view when inserted
+    RiuMainWindow::instance()->projectTreeView()->setExpanded(newView, true);
 }
 
 //--------------------------------------------------------------------------------------------------
