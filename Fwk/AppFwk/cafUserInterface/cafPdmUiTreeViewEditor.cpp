@@ -51,6 +51,7 @@
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QWidget>
+#include <QEvent>
 
 namespace caf
 {
@@ -62,6 +63,7 @@ PdmUiTreeViewEditor::PdmUiTreeViewEditor()
 {
     m_useDefaultContextMenu = false;
     m_updateSelectionManager = false;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,6 +87,7 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
     m_treeViewModel = new caf::PdmUiTreeViewModel(this);
     m_treeView = new QTreeView(m_mainWidget);
     m_treeView->setModel(m_treeViewModel);
+    m_treeView->installEventFilter(this);
 
     connect(treeView()->selectionModel(), SIGNAL(selectionChanged( const QItemSelection & , const QItemSelection & )), SLOT(slotOnSelectionChanged( const QItemSelection & , const QItemSelection & )));
 
@@ -254,13 +257,7 @@ void PdmUiTreeViewEditor::selectAsCurrentItem(PdmUiItem* uiItem)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-   if (m_updateSelectionManager)
-    {
-        std::vector<PdmUiItem*> items;
-        this->selectedUiItems(items);
-
-        SelectionManager::instance()->setSelectedItems(items);
-    }
+    this->updateSelectionManager();
 
     emit selectionChanged();
 }
@@ -296,6 +293,35 @@ QModelIndex PdmUiTreeViewEditor::findModelIndex(const PdmUiItem* object) const
 void PdmUiTreeViewEditor::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
 {
     m_treeViewModel->setDragDropHandle(dragDropHandle);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeViewEditor::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::FocusIn)
+    {
+        this->updateSelectionManager();
+    }
+
+    // standard event processing
+    return QObject::eventFilter(obj, event);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewEditor::updateSelectionManager()
+{
+    if (m_updateSelectionManager)
+    {
+        std::vector<PdmUiItem*> items;
+        this->selectedUiItems(items);
+
+        SelectionManager::instance()->setSelectedItems(items);
+    }
 }
 
 

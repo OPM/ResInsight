@@ -118,6 +118,9 @@ private:
     
     PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
 
+    void                updateSelectionManager();
+
+    virtual bool        eventFilter(QObject *obj, QEvent *event);
 
 private:
     QPointer<QWidget>   m_mainWidget;

@@ -566,6 +566,8 @@ void RiuMainWindow::createDockPanels()
 		dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
 		m_projectTreeView = new caf::PdmUiTreeView(this);
+        m_projectTreeView->enableSelectionManagerUpdating(true);
+
 		dockWidget->setWidget(m_projectTreeView);
 
         m_projectTreeView->treeView()->setHeaderHidden(true);
@@ -1602,7 +1604,6 @@ void RiuMainWindow::selectedObjectsChanged()
     std::vector<caf::PdmUiItem*> uiItems;
     m_projectTreeView->selectedUiItems(uiItems);
 
-    caf::SelectionManager::instance()->setSelectedItems(uiItems);
     caf::PdmObjectHandle* firstSelectedObject = NULL;
 
     if (uiItems.size() == 1)
