@@ -77,6 +77,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuGeoQuestNavigation.cpp
 	UserInterface/RiuDragDrop.cpp
 	UserInterface/RiuDragDrop.h
+	UserInterface/RiuTreeViewEventFilter.cpp
+	UserInterface/RiuTreeViewEventFilter.h
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -158,6 +160,7 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
     UserInterface/RiuMultiCaseImportDialog.h
     UserInterface/RiuViewerCommands.h
+	UserInterface/RiuTreeViewEventFilter.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )

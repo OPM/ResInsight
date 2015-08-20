@@ -76,6 +76,7 @@
 
 #include "cvfTimer.h"
 #include "RimTreeViewStateSerializer.h"
+#include "RiuTreeViewEventFilter.h"
 
 
 //==================================================================================================
@@ -570,11 +571,15 @@ void RiuMainWindow::createDockPanels()
         m_projectTreeView->treeView()->setHeaderHidden(true);
         m_projectTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-        // TODO :Drag and drop configuration
+        // Drag and drop configuration
         m_projectTreeView->treeView()->setDragEnabled(true);
         m_projectTreeView->treeView()->viewport()->setAcceptDrops(true);
         m_projectTreeView->treeView()->setDropIndicatorShown(true);
         m_projectTreeView->treeView()->setDragDropMode(QAbstractItemView::DragDrop);
+
+        // Install event filter used to handle key press events
+        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter(this);
+        m_projectTreeView->treeView()->installEventFilter(treeViewEventFilter);
 
 		addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 

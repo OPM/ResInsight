@@ -19,24 +19,18 @@
 
 #pragma once
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicToggleItemsFeatureImpl 
+
+#include <QObject>
+
+class QEvent;
+
+//--------------------------------------------------------------------------------------------------
+class RiuTreeViewEventFilter : public QObject
 {
+    Q_OBJECT
 public:
-  enum SelectionToggleType
-  {
-      TOGGLE_ON,
-      TOGGLE_OFF,
-      TOGGLE_SUBITEMS,
-      TOGGLE,
-      TOGGLE_UNDEFINED
-  };
+    RiuTreeViewEventFilter(QObject* parent);
 
-  static bool isToggleCommandsAvailable();
-  static bool isToggleCommandsForSubItems();
-  static void setObjectToggleStateForSelection(SelectionToggleType state);
-  
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 };
-

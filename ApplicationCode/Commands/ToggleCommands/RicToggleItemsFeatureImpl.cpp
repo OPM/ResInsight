@@ -89,7 +89,7 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
 {
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems(selectedItems);
-    if (selectedItems.size() == 1)
+    if (state != TOGGLE && selectedItems.size() == 1)
     {
         // If only one item is selected, loop over its children, and toggle them instead of the 
         // selected item directly
@@ -118,7 +118,7 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
                 {
                     if (state == TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
                     if (state == TOGGLE_OFF) uiFieldHandle->setValueFromUi(false);
-                    if (state == TOGGLE)     uiFieldHandle->setValueFromUi(!(field->v()));
+                    if (state == TOGGLE_SUBITEMS)     uiFieldHandle->setValueFromUi(!(field->v()));
                 }
             }
         }
@@ -138,7 +138,10 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
                 {
                     if (state == TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
                     if (state == TOGGLE_OFF) uiFieldHandle->setValueFromUi(false);
-                    if (state == TOGGLE)     uiFieldHandle->setValueFromUi(!(field->v()));
+                    if (state == TOGGLE_SUBITEMS || state == TOGGLE)
+                    {
+                        uiFieldHandle->setValueFromUi(!(field->v()));
+                    }
                 }
             } 
         }

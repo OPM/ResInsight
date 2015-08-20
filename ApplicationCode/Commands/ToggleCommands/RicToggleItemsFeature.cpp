@@ -43,7 +43,7 @@ bool RicToggleItemsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicToggleItemsFeature::onActionTriggered(bool isChecked)
 {
-    RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(RicToggleItemsFeatureImpl::TOGGLE);
+    RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(RicToggleItemsFeatureImpl::TOGGLE_SUBITEMS);
 }
 
 //--------------------------------------------------------------------------------------------------
