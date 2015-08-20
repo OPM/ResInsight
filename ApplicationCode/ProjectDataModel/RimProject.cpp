@@ -563,6 +563,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicImportEclipseCaseFeature";
             commandIds << "RicImportInputEclipseCaseFeature";
             commandIds << "RicCreateGridCaseGroupFeature";
+            commandIds << "RicEclipseCaseNewGroupFeature";
         }
         else if (dynamic_cast<RimGeoMechView*>(uiItem))
         {
