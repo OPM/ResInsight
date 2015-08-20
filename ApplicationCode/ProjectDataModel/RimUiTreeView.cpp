@@ -540,6 +540,7 @@ void RimUiTreeView::slotEditScript()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicNewScriptFeature
 void RimUiTreeView::slotNewScript()
 {
     QModelIndex index = currentIndex();

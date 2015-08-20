@@ -7,6 +7,7 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEditScriptFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewScriptFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExecuteScriptFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExecuteScriptForCasesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.h
@@ -51,6 +52,7 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEditScriptFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewScriptFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExecuteScriptFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExecuteScriptForCasesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.cpp
