@@ -44,7 +44,7 @@ public:
     virtual ~RimScriptCollection();
 
 public: // Pdm Fields
-    caf::PdmField<QString>                      directory;
+    caf::PdmField<QString>                        directory;
     caf::PdmChildArrayField<RimCalcScript*>       calcScripts;
 
     caf::PdmChildArrayField<RimScriptCollection*> subDirectories;

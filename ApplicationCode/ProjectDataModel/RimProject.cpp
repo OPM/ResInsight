@@ -71,6 +71,7 @@ RimProject::RimProject(void)
     oilFields.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
+    scriptCollection.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
     treeViewState.uiCapability()->setUiHidden(true);
 
@@ -97,6 +98,8 @@ RimProject::RimProject(void)
 
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.uiCapability()->setUiHidden(true);
+    scriptCollection->uiCapability()->setUiName("Scripts");
+    scriptCollection->uiCapability()->setUiIcon(QIcon(":/Default.png"));
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back(new RimOilField);
@@ -790,7 +793,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
     }
 
-    uiTreeOrdering.add(&scriptCollection);
+    uiTreeOrdering.add(scriptCollection());
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }
