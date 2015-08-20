@@ -101,7 +101,7 @@ void CmdAddItemExec::redo()
 
         if (m_notificationCenter) m_notificationCenter->notifyObserversOfDataChange(obj);
 
-        caf::PdmUiFieldHandle::updateConnectedUiEditors(listField);
+        listField->uiCapability()->updateConnectedEditors();
 
         if (listField->ownerObject())
         {
@@ -132,7 +132,7 @@ void CmdAddItemExec::undo()
         caf::SelectionManager::instance()->removeObjectFromAllSelections(obj);
 
         listField->erase(m_commandData->m_createdItemIndex);
-        caf::PdmUiFieldHandle::updateConnectedUiEditors(listField);
+        listField->uiCapability()->updateConnectedEditors();
 
         if (m_notificationCenter) m_notificationCenter->notifyObservers();
 

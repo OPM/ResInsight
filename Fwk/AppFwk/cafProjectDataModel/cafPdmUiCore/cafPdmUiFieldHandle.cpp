@@ -41,20 +41,6 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiFieldHandle::updateConnectedUiEditors(PdmFieldHandle* field)
-{
-    if (!field) return;
-
-    PdmUiFieldHandle* uiFieldHandle = field->capability<PdmUiFieldHandle>();
-    if (uiFieldHandle)
-    {
-        uiFieldHandle->updateConnectedEditors();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Implementation of uiCapability() defined in cafPdmFieldHandle.h
 //--------------------------------------------------------------------------------------------------
 PdmUiFieldHandle* PdmFieldHandle::uiCapability()

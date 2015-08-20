@@ -93,7 +93,7 @@ void CmdDeleteItemExec::redo()
             ownerUiObject->fieldChangedByUi(field, QVariant(), QVariant());
         }
 
-        caf::PdmUiFieldHandle::updateConnectedUiEditors(listField);
+        listField->uiCapability()->updateConnectedEditors();
 
         if (m_notificationCenter) m_notificationCenter->notifyObservers();
 
@@ -124,7 +124,7 @@ void CmdDeleteItemExec::undo()
             ownerUiObject->fieldChangedByUi(field, QVariant(), QVariant());
         }
 
-        caf::PdmUiFieldHandle::updateConnectedUiEditors(listField);
+        listField->uiCapability()->updateConnectedEditors();
 
         if (m_notificationCenter) m_notificationCenter->notifyObservers();
     }

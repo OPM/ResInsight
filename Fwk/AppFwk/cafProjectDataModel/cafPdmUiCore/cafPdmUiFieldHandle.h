@@ -27,8 +27,6 @@ public:
     virtual QVariant toUiBasedQVariant() const                           { return QVariant(); }
     void             notifyFieldChanged(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant);
 
-    static void     updateConnectedUiEditors(PdmFieldHandle* field);
-
 private:
     PdmFieldHandle* m_owner;
 };
