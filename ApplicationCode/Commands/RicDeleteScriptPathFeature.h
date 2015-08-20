@@ -26,7 +26,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewScriptFeature : public caf::CmdFeature
+class RicDeleteScriptPathFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

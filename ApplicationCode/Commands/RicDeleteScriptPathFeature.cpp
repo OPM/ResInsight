@@ -17,63 +17,65 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEditScriptFeature.h"
+#include "RicDeleteScriptPathFeature.h"
 
 #include "RicScriptFeatureImpl.h"
 
-#include "RimCalcScript.h"
+#include "RimScriptCollection.h"
 #include "RiaApplication.h"
-
+#include "RiaPreferences.h"
 #include "RiuMainWindow.h"
 
-#include "cafSelectionManager.h"
 #include "cvfAssert.h"
 
 #include <QAction>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicEditScriptFeature, "RicEditScriptFeature");
+CAF_CMD_SOURCE_INIT(RicDeleteScriptPathFeature, "RicDeleteScriptPathFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEditScriptFeature::isCommandEnabled()
+bool RicDeleteScriptPathFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
+    std::vector<RimScriptCollection*> selection = RicScriptFeatureImpl::selectedScriptCollections();
     return selection.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditScriptFeature::onActionTriggered(bool isChecked)
+void RicDeleteScriptPathFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
-    CVF_ASSERT(selection.size() > 0);
-
-    RimCalcScript* calcScript = selection[0];
-
-    RiaApplication* app = RiaApplication::instance();
-    QString scriptEditor = app->scriptEditorPath();
-    if (!scriptEditor.isEmpty())
+    std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
+    RimScriptCollection* scriptCollection = calcScriptCollections.size() > 0 ? calcScriptCollections[0] : NULL;
+    if (scriptCollection)
     {
-        QStringList arguments;
-        arguments << calcScript->absolutePath;
+        QString toBeRemoved = scriptCollection->directory;
 
-        QProcess* myProcess = new QProcess(this);
-        myProcess->start(scriptEditor, arguments);
+        QString originalFilePathString = RiaApplication::instance()->preferences()->scriptDirectories();
+        QString filePathString = originalFilePathString.remove(toBeRemoved);
 
-        if (!myProcess->waitForStarted(1000))
+        // Remove duplicate separators
+        QChar separator(';');
+        QString regExpString = QString("%1{1,5}").arg(separator);
+        filePathString.replace(QRegExp(regExpString), separator);
+
+        // Remove separator at end
+        if (filePathString.endsWith(separator))
         {
-            QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+            filePathString = filePathString.left(filePathString.size() - 1);
         }
+
+        RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
+        RiaApplication::instance()->applyPreferences();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditScriptFeature::setupActionLook(QAction* actionToSetup)
+void RicDeleteScriptPathFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Edit");
+    actionToSetup->setText("Delete Script Path");
 }

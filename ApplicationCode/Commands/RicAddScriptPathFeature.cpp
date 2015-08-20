@@ -17,63 +17,58 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEditScriptFeature.h"
+#include "RicAddScriptPathFeature.h"
 
 #include "RicScriptFeatureImpl.h"
 
-#include "RimCalcScript.h"
+#include "RimScriptCollection.h"
 #include "RiaApplication.h"
-
+#include "RiaPreferences.h"
 #include "RiuMainWindow.h"
 
-#include "cafSelectionManager.h"
 #include "cvfAssert.h"
 
 #include <QAction>
-#include <QMessageBox>
+#include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicEditScriptFeature, "RicEditScriptFeature");
+CAF_CMD_SOURCE_INIT(RicAddScriptPathFeature, "RicAddScriptPathFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEditScriptFeature::isCommandEnabled()
+bool RicAddScriptPathFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
+    std::vector<RimScriptCollection*> selection = RicScriptFeatureImpl::selectedScriptCollections();
     return selection.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditScriptFeature::onActionTriggered(bool isChecked)
+void RicAddScriptPathFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
-    CVF_ASSERT(selection.size() > 0);
-
-    RimCalcScript* calcScript = selection[0];
-
-    RiaApplication* app = RiaApplication::instance();
-    QString scriptEditor = app->scriptEditorPath();
-    if (!scriptEditor.isEmpty())
+    QString selectedFolder = QFileDialog::getExistingDirectory(RiuMainWindow::instance(), "Select script folder");
+    if (!selectedFolder.isEmpty())
     {
-        QStringList arguments;
-        arguments << calcScript->absolutePath;
+        QString filePathString = RiaApplication::instance()->preferences()->scriptDirectories();
 
-        QProcess* myProcess = new QProcess(this);
-        myProcess->start(scriptEditor, arguments);
-
-        if (!myProcess->waitForStarted(1000))
+        QChar separator(';');
+        if (!filePathString.isEmpty() && !filePathString.endsWith(separator, Qt::CaseInsensitive))
         {
-            QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+            filePathString += separator;
         }
+
+        filePathString += selectedFolder;
+
+        RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
+        RiaApplication::instance()->applyPreferences();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditScriptFeature::setupActionLook(QAction* actionToSetup)
+void RicAddScriptPathFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Edit");
+    actionToSetup->setText("Add Script Path");
 }

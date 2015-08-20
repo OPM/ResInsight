@@ -661,6 +661,11 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "Separator";
             commandIds << "RicExecuteScriptFeature";
         }
+        else if (dynamic_cast<RimScriptCollection*>(uiItem))
+        {
+            commandIds << "RicAddScriptPathFeature";
+            commandIds << "RicDeleteScriptPathFeature";
+        }
     }
     
     if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())

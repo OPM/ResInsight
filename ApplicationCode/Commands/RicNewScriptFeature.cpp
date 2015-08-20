@@ -19,14 +19,14 @@
 
 #include "RicNewScriptFeature.h"
 
+#include "RicScriptFeatureImpl.h"
+
 #include "RimCalcScript.h"
 #include "RimScriptCollection.h"
 #include "RiaApplication.h"
  
 #include "RiuMainWindow.h"
  
-#include "cafSelectionManager.h"
-
 #include <QAction>
 #include <QFileInfo>
 #include <QMessageBox>
@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT(RicNewScriptFeature, "RicNewScriptFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewScriptFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*> selection = selectedScripts();
+    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
     return selection.size() > 0;
 }
 
@@ -47,8 +47,8 @@ bool RicNewScriptFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewScriptFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimCalcScript*> calcScripts = selectedScripts();
-    std::vector<RimScriptCollection*> calcScriptCollections = selectedScriptCollections();
+    std::vector<RimCalcScript*> calcScripts = RicScriptFeatureImpl::selectedScripts();
+    std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
 
     RimCalcScript* calcScript = calcScripts.size() > 0 ? calcScripts[0] : NULL;
     RimScriptCollection* scriptColl = calcScriptCollections.size() > 0 ? calcScriptCollections[0] : NULL;
@@ -102,26 +102,4 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
 void RicNewScriptFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimCalcScript*> RicNewScriptFeature::selectedScripts()
-{
-    std::vector<RimCalcScript*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    return selection;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimScriptCollection*> RicNewScriptFeature::selectedScriptCollections()
-{
-    std::vector<RimScriptCollection*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    return selection;
 }

@@ -1340,6 +1340,7 @@ void RimUiTreeView::setExpandedUpToRoot(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicAddScriptPathFeature
 void RimUiTreeView::slotAddScriptPath()
 {
     QString selectedFolder = QFileDialog::getExistingDirectory(this, "Select script folder");
@@ -1363,6 +1364,7 @@ void RimUiTreeView::slotAddScriptPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicDeleteScriptPathFeature
 void RimUiTreeView::slotDeleteScriptPath()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());

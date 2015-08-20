@@ -23,18 +23,17 @@
 
 #include <vector>
 
+class RimCalcScript;
+class RimScriptCollection;
+
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewScriptFeature : public caf::CmdFeature
+class RicScriptFeatureImpl
 {
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+public:
+    static std::vector<RimCalcScript*>          selectedScripts();
+    static std::vector<RimScriptCollection*>    selectedScriptCollections();
 };
 
 

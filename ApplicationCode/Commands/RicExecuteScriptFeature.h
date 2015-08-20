@@ -23,8 +23,6 @@
 
 #include <vector>
 
-class RimCalcScript;
-
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -37,9 +35,6 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
-
-private:
-    std::vector<RimCalcScript*> selectedScripts();
 };
 
 

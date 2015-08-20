@@ -19,6 +19,8 @@
 
 #include "RicExecuteScriptFeature.h"
 
+#include "RicScriptFeatureImpl.h"
+
 #include "RimCalcScript.h"
 #include "RiaApplication.h"
 
@@ -35,7 +37,7 @@ CAF_CMD_SOURCE_INIT(RicExecuteScriptFeature, "RicExecuteScriptFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicExecuteScriptFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*> selection = selectedScripts();
+    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
     return selection.size() > 0;
 }
 
@@ -44,7 +46,7 @@ bool RicExecuteScriptFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExecuteScriptFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimCalcScript*> selection = selectedScripts();
+    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
     CVF_ASSERT(selection.size() > 0);
 
     RimCalcScript* calcScript = selection[0];
@@ -73,15 +75,4 @@ void RicExecuteScriptFeature::onActionTriggered(bool isChecked)
 void RicExecuteScriptFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Execute");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimCalcScript*> RicExecuteScriptFeature::selectedScripts()
-{
-    std::vector<RimCalcScript*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    return selection;
 }
