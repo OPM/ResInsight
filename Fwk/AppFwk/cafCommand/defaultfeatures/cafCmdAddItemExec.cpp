@@ -62,7 +62,7 @@ QString CmdAddItemExec::name()
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
     if (listField)
     {
-        PdmXmlFieldHandle* xfh = listField->capability<PdmXmlFieldHandle>();
+        PdmXmlFieldHandle* xfh = listField->xmlCapability();
         containedObjectType = xfh->childClassKeyword();
     }
 

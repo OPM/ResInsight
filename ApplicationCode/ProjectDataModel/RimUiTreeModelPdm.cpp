@@ -245,7 +245,7 @@ void RimUiTreeModelPdm::deleteGeoMechCases(const std::vector<caf::PdmUiItem*>& t
     for (std::set<caf::PdmObjectHandle*>::iterator it = allParents.begin(); it != allParents.end(); ++it)
     {
         updateUiSubTree(*it); 
-        (*it)->capability<caf::PdmUiObjectHandle>()->updateConnectedEditors();
+        (*it)->uiCapability()->updateConnectedEditors();
     }
 
     clearClipboard();

@@ -59,12 +59,12 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     caseCollection.uiCapability()->setUiHidden(true);
  
     caseCollection = new RimCaseCollection;
-    caseCollection->capability<caf::PdmUiObjectHandle>()->setUiName("Source Cases");
-    caseCollection->capability<caf::PdmUiObjectHandle>()->setUiIcon(QIcon(":/Cases16x16.png"));
+    caseCollection->uiCapability()->setUiName("Source Cases");
+    caseCollection->uiCapability()->setUiIcon(QIcon(":/Cases16x16.png"));
 
     statisticsCaseCollection = new RimCaseCollection;
-    statisticsCaseCollection->capability<caf::PdmUiObjectHandle>()->setUiName("Derived Statistics");
-    statisticsCaseCollection->capability<caf::PdmUiObjectHandle>()->setUiIcon(QIcon(":/Histograms16x16.png"));
+    statisticsCaseCollection->uiCapability()->setUiName("Derived Statistics");
+    statisticsCaseCollection->uiCapability()->setUiIcon(QIcon(":/Histograms16x16.png"));
 
 
     m_mainGrid = NULL;

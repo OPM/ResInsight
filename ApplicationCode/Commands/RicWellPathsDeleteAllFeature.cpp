@@ -59,7 +59,7 @@ void RicWellPathsDeleteAllFeature::onActionTriggered(bool isChecked)
 
     wellPathCollection->wellPaths.deleteAllChildObjects();
 
-    wellPathCollection->capability<caf::PdmUiObjectHandle>()->updateConnectedEditors();
+    wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleGeometryRegenAndRedrawViews();
 }
 

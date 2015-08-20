@@ -72,7 +72,7 @@ void RicDeleteItemExec::redo()
         delete obj;
 
         caf::PdmObjectHandle* parentObj = listField->ownerObject();
-        parentObj->capability<caf::PdmUiObjectHandle>()->updateConnectedEditors();
+        parentObj->uiCapability()->updateConnectedEditors();
         
         RimView* view = NULL;
         parentObj->firstAnchestorOrThisOfType(view);
@@ -127,7 +127,7 @@ void RicDeleteItemExec::undo()
         PdmDocument::initAfterReadTraversal(obj);
 
         listField->uiCapability()->updateConnectedEditors();
-        listField->ownerObject()->capability<caf::PdmUiObjectHandle>()->updateConnectedEditors();
+        listField->ownerObject()->uiCapability()->updateConnectedEditors();
 
         if (m_notificationCenter) m_notificationCenter->notifyObservers();
     }
