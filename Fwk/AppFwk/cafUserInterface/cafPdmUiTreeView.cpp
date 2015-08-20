@@ -110,7 +110,7 @@ QTreeView* PdmUiTreeView::treeView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::selectedObjects(std::vector<PdmUiItem*>& objects)
+void PdmUiTreeView::selectedUiItems(std::vector<PdmUiItem*>& objects)
 {
     m_treeViewEditor->selectedUiItems(objects);
 }
@@ -147,9 +147,10 @@ void PdmUiTreeView::enableDefaultContextMenu(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Enables or disables automatic updating of the SelectionManager selection state based on 
+/// the selections in this tree view
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::setCurrentSelectionToCurrentEditorSelection(bool enable)
+void PdmUiTreeView::enableSelectionManagerUpdating(bool enable)
 {
     m_treeViewEditor->enableSelectionManagerUpdating(enable);
 }

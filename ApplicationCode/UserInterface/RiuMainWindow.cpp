@@ -1617,7 +1617,7 @@ void RiuMainWindow::OBSOLETE_slotCurrentChanged(const QModelIndex & current, con
 void RiuMainWindow::selectedObjectsChanged()
 {
     std::vector<caf::PdmUiItem*> uiItems;
-    m_projectTreeView->selectedObjects(uiItems);
+    m_projectTreeView->selectedUiItems(uiItems);
 
     caf::SelectionManager::instance()->setSelectedItems(uiItems);
     caf::PdmObjectHandle* firstSelectedObject = NULL;
@@ -2064,7 +2064,7 @@ void RiuMainWindow::slotCreateCommandObject()
     if (!app->project()) return;
 
     std::vector<caf::PdmUiItem*> selectedUiItems;
-    m_projectTreeView->selectedObjects(selectedUiItems);
+    m_projectTreeView->selectedUiItems(selectedUiItems);
 
     caf::PdmObjectGroup selectedObjects;
     for (size_t i = 0; i < selectedUiItems.size(); ++i)

@@ -65,33 +65,34 @@ public:
     ~PdmUiTreeView();
 
     void        enableDefaultContextMenu(bool enable);
-    void        setCurrentSelectionToCurrentEditorSelection(bool enable); // TODO: rename
+    void        enableSelectionManagerUpdating(bool enable); // TODO: rename
 
     void        setUiConfigurationName(QString uiConfigName);
     void        setPdmItem(caf::PdmUiItem* object);
 
     QTreeView*  treeView();
 
-    void        selectedObjects(std::vector<PdmUiItem*>& objects); // TODO: rename
+    void        selectedUiItems(std::vector<PdmUiItem*>& objects); // TODO: rename
     void        selectAsCurrentItem(PdmUiItem* uiItem);
     void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
 
+    // QModelIndex access
+    // Use this translation only when it is inconvenient to traverse 
+    // the Pdm model directly.
     PdmUiItem*  uiItemFromModelIndex(const QModelIndex& index) const;
     QModelIndex findModelIndex(const PdmUiItem* object) const;
 
     void        setDragDropHandle(PdmUiDragDropHandle* dragDropHandle);
 
-
 signals:
     void        selectionChanged();
     // Convenience signal for use with PdmUiPropertyView
-signals:
-    void        selectedObjectChanged(caf::PdmObjectHandle* object);
+    void        selectedObjectChanged(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
 
 private slots:
     void        slotOnSelectionChanged();
-private:
 
+private:
     PdmUiTreeViewEditor*    m_treeViewEditor; 
     QString                 m_uiConfigName;
     QVBoxLayout*            m_layout;

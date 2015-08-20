@@ -58,10 +58,11 @@ public:
     PdmUiPropertyView(QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~PdmUiPropertyView();
 
-    void setUiConfigurationName(QString uiConfigName);
-    PdmObjectHandle* currentObject();
+    void                        setUiConfigurationName(QString uiConfigName);
+    PdmObjectHandle*            currentObject();
 public slots:
-    void showProperties( caf::PdmObjectHandle* object);
+    void                        showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
+
 private:
     PdmUiObjectEditorHandle*    m_currentObjectView; 
     QString                     m_uiConfigName;
