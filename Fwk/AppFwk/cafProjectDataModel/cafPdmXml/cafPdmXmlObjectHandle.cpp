@@ -229,6 +229,16 @@ bool PdmXmlObjectHandle::isValidXmlElementName(const QString& name)
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// Implementation of xmlCapability() defined in cafPdmObjectHandle.h
+//--------------------------------------------------------------------------------------------------
+PdmXmlObjectHandle* PdmObjectHandle::xmlCapability()
+ {
+    PdmXmlObjectHandle* xmlField = capability<PdmXmlObjectHandle>();
+    assert(xmlField);
+    
+    return xmlField;
+}
 
 
 } // end namespace caf

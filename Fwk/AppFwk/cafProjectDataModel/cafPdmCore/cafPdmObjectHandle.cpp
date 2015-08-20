@@ -146,6 +146,18 @@ PdmFieldHandle* PdmObjectHandle::parentField() const
     return m_parentField;
 }
 
+// These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
+/*
+PdmUiObjectHandle* PdmObjectHandle::uiCapability()
+{
+return NULL;
+}
+
+PdmXmlObjectHandle* PdmObjectHandle::xmlCapability()
+{
+return NULL;
+}
+*/
 
 
 } // End namespace caf

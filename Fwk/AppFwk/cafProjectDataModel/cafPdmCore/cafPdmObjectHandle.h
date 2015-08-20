@@ -13,7 +13,8 @@ namespace caf
 
 class PdmObjectCapability;
 class PdmFieldHandle;
-
+class PdmUiObjectHandle;
+class PdmXmlObjectHandle;
 
 //==================================================================================================
 /// The base class of all objects
@@ -54,6 +55,9 @@ public:
         }
         return NULL;
     }
+
+    PdmUiObjectHandle*  uiCapability();     // Implementation is in cafPdmUiObjectHandle.cpp
+    PdmXmlObjectHandle* xmlCapability();    // Implementation is in cafPdmXmlObjectHandle.cpp
 
 protected: 
     void addField(PdmFieldHandle* field, const QString& keyword);
