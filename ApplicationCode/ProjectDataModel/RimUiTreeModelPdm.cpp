@@ -962,6 +962,7 @@ Qt::ItemFlags RimUiTreeModelPdm::flags(const QModelIndex &index) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - moved to RiuDragDrop
 bool RimUiTreeModelPdm::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
     const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(data);
@@ -996,6 +997,7 @@ bool RimUiTreeModelPdm::dropMimeData(const QMimeData *data, Qt::DropAction actio
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - moved to RiuDragDrop
 QMimeData* RimUiTreeModelPdm::mimeData(const QModelIndexList &indexes) const
 {
     MimeDataWithIndexes* myObj = new MimeDataWithIndexes();
@@ -1006,6 +1008,7 @@ QMimeData* RimUiTreeModelPdm::mimeData(const QModelIndexList &indexes) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - moved to RiuDragDrop
 QStringList RimUiTreeModelPdm::mimeTypes() const
 {
     QStringList types;

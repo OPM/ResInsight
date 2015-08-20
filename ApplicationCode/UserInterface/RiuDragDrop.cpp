@@ -19,16 +19,20 @@
 
 #include "RiuDragDrop.h"
 
+#include "OperationsUsingObjReferences/RicPasteEclipseCasesFeature.h"
+#include "RicCloseCaseFeature.h"
+
+#include "RimCaseCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimMimeData.h"
+
+#include "RiuMainWindow.h"
+
 #include "cafPdmObjectGroup.h"
 #include "cafPdmUiTreeView.h"
 
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimCaseCollection.h"
-#include "RimEclipseCase.h"
-#include "RimMimeData.h"
-#include "RiuMainWindow.h"
-
-#include "OperationsUsingObjReferences/RicPasteEclipseCasesFeature.h"
 #include <QAbstractItemModel>
 #include <QModelIndex>
 
@@ -78,27 +82,6 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 
     Qt::ItemFlags itemflags;
     return itemflags;
-/*
-    Qt::ItemFlags defaultFlags = caf::UiTreeModelPdm::flags(index);
-    if (index.isValid())
-    {
-        caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(index);
-        CVF_ASSERT(currentItem);
-
-        if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
-            dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
-        {
-            return Qt::ItemIsDropEnabled | defaultFlags;
-        }
-        else if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
-        {
-            // TODO: Remember to handle reservoir holding the main grid
-            return Qt::ItemIsDragEnabled | defaultFlags;
-        }
-    }
-
-    return itemFlags;
-*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,13 +123,10 @@ bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int
         if (action == Qt::CopyAction)
         {
             caf::RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(pog, gridCaseGroup);
-
-            //addObjects(parent, pog);
         }
         else if (action == Qt::MoveAction)
         {
-            assert(false);
-            //moveObjects(parent, pog);
+            moveCasesToGridGroup(pog, gridCaseGroup);
         }
 
         return true;
@@ -174,3 +154,30 @@ QStringList RiuDragDrop::mimeTypes() const
     types << MimeDataWithIndexes::formatName();
     return types;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuDragDrop::moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
+{
+    std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
+    objectGroup.objectsByType(&typedObjects);
+
+    std::vector<RimEclipseCase*> casesToBeDeleted;
+    for (size_t i = 0; i < typedObjects.size(); i++)
+    {
+        RimEclipseCase* eclipseCase = typedObjects[i];
+        casesToBeDeleted.push_back(eclipseCase);
+    }
+
+    if (RicCloseCaseFeature::userConfirmedGridCaseGroupChange(casesToBeDeleted))
+    {
+        caf::RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
+    
+        for (size_t i = 0; i < casesToBeDeleted.size(); i++)
+        {
+            RicCloseCaseFeature::deleteEclipseCase(casesToBeDeleted[i]);
+        }
+    }
+}
+

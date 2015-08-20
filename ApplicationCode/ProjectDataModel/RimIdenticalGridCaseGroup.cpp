@@ -385,11 +385,14 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
     {
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
 
-        rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
-
-        if (i == 0)
+        if (rimStaticsCase->reservoirData())
         {
-            rimStaticsCase->reservoirData()->computeActiveCellBoundingBoxes();
+            rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
+
+            if (i == 0)
+            {
+                rimStaticsCase->reservoirData()->computeActiveCellBoundingBoxes();
+            }
         }
     }
 }
@@ -404,8 +407,14 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
         if (!rimStaticsCase) continue;
 
-        rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
-        rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->clearAllResults();
+        if (rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults())
+        {
+            rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
+        }
+        if (rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults())
+        {
+            rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->clearAllResults();
+        }
 
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)
         {

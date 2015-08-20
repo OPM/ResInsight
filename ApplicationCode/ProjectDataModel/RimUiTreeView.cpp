@@ -1180,6 +1180,7 @@ bool RimUiTreeView::hasClipboardValidData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - See RiuDragDrop
 void RimUiTreeView::dropEvent(QDropEvent* dropEvent)
 {
     QModelIndexList affectedModels;

@@ -21,6 +21,12 @@
 
 #include "cafPdmUiDragDropHandle.h"
 
+class RimIdenticalGridCaseGroup;
+
+namespace caf
+{
+    class PdmObjectGroup;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -36,5 +42,8 @@ public:
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
     virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
     virtual QStringList mimeTypes() const;
+
+private:
+    void moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
 };
 

@@ -21,8 +21,11 @@
 
 #include "cafCmdFeature.h"
 
+#include <vector>
+
 class RimEclipseCase;
 class RimGeoMechCase;
+class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
 /// 
@@ -30,6 +33,10 @@ class RimGeoMechCase;
 class RicCloseCaseFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void deleteEclipseCase(RimEclipseCase* eclipseCase);
+    static bool userConfirmedGridCaseGroupChange(const std::vector<RimEclipseCase*>& casesToBeDeleted);
 
 protected:
     // Overrides
@@ -41,9 +48,10 @@ private:
     RimEclipseCase* selectedEclipseCase() const;
     RimGeoMechCase* selectedGeoMechCase() const;
 
-    void removeCaseFromAllGroups(RimEclipseCase* eclipseCase);
-    void deleteEclipseCase(RimEclipseCase* eclipseCase);
     void deleteGeoMechCase(RimGeoMechCase* geoMechCase);
+    
+    static bool hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseGroup);
+    static void removeCaseFromAllGroups(RimEclipseCase* eclipseCase);
 };
 
 
