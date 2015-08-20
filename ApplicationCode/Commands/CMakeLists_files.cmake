@@ -43,6 +43,7 @@ ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.h
+${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.h
@@ -92,6 +93,7 @@ ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.cpp

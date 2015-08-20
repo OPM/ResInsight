@@ -1756,14 +1756,10 @@ void RiuMainWindow::hideAllDockWindows()
 void RiuMainWindow::slotOpenMultipleCases()
 {
 #if 1
-    RiaApplication* app = RiaApplication::instance();
-    RiuMultiCaseImportDialog dialog;
-    int action = dialog.exec();
-    if (action == QDialog::Accepted)
-    {
-        QStringList gridFileNames = dialog.eclipseCaseFileNames();
-        app->addEclipseCases(gridFileNames);
-    }
+    QAction* action = caf::CmdFeatureManager::instance()->action("RicCreateGridCaseGroupFeature");
+    CVF_ASSERT(action);
+
+    action->trigger();
 
 #else  // Code to fast generate a test project
     RiaApplication* app = RiaApplication::instance();
