@@ -21,14 +21,17 @@
 
 #include "RicRangeFilterExecImpl.h"
 
+class RimCellRangeFilter;
+class RimCellRangeFilterCollection;
+
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicRangeFilterNewExec : public RicRangeFilterExecImpl
+class RicRangeFilterInsertExec : public RicRangeFilterExecImpl
 {
 public:
-    RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0);    
-    virtual ~RicRangeFilterNewExec();
+    RicRangeFilterInsertExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0);
+    virtual ~RicRangeFilterInsertExec();
 
     virtual QString name();
     virtual void redo();

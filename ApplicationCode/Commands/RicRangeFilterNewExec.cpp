@@ -28,18 +28,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterNewExec::RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection)
-    : CmdExecuteCommand(NULL)
+RicRangeFilterNewExec::RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter)
+    : RicRangeFilterExecImpl(rangeFilterCollection, rangeFilter)
 {
-    m_iSlice = false;
-    m_jSlice = false;
-    m_kSlice = false;
-
-    m_iSliceStart = -1;
-    m_jSliceStart = -1;
-    m_kSliceStart = -1;
-
-    cellRangeFilterCollection = rangeFilterCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +38,6 @@ RicRangeFilterNewExec::RicRangeFilterNewExec(RimCellRangeFilterCollection* range
 //--------------------------------------------------------------------------------------------------
 RicRangeFilterNewExec::~RicRangeFilterNewExec()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,43 +60,21 @@ QString RicRangeFilterNewExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicRangeFilterNewExec::redo()
 {
-    assert(cellRangeFilterCollection);
-
-    RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
-    cellRangeFilterCollection->rangeFilters.push_back(rangeFilter);
-    rangeFilter->setDefaultValues();
-
-    rangeFilter->name = QString("Range Filter (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
-
-    if (m_iSlice)
+    RimCellRangeFilter* rangeFilter = createRangeFilter();
+    if (rangeFilter)
     {
-        rangeFilter->cellCountI = 1;
-        rangeFilter->name = QString("Slice I (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
+        m_cellRangeFilterCollection->rangeFilters.push_back(rangeFilter);
+
+        rangeFilter->setDefaultValues();
+
+        m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+        m_cellRangeFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
+
+        m_cellRangeFilterCollection->updateConnectedEditors();
+
+        RiuMainWindow::instance()->setCurrentObjectInTreeView(rangeFilter);
     }
-    
-    if (m_jSlice)
-    {
-        rangeFilter->cellCountJ = 1;
-        rangeFilter->name = QString("Slice J (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
-    }
-    
-    if (m_kSlice)
-    {
-        rangeFilter->cellCountK = 1;
-        rangeFilter->name = QString("Slice K (%1)").arg(cellRangeFilterCollection->rangeFilters().size());
-    }
-
-    if (m_iSliceStart > -1) rangeFilter->startIndexI = m_iSliceStart;
-    if (m_jSliceStart > -1) rangeFilter->startIndexJ = m_jSliceStart;
-    if (m_kSliceStart > -1) rangeFilter->startIndexK = m_kSliceStart;
-
-    cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
-    cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
-    cellRangeFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
-
-    cellRangeFilterCollection->updateConnectedEditors();
-
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(rangeFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,12 +82,12 @@ void RicRangeFilterNewExec::redo()
 //--------------------------------------------------------------------------------------------------
 void RicRangeFilterNewExec::undo()
 {
-    assert(cellRangeFilterCollection);
+    assert(m_cellRangeFilterCollection);
 
-    cellRangeFilterCollection->rangeFilters.erase(cellRangeFilterCollection->rangeFilters.size() - 1);
+    m_cellRangeFilterCollection->rangeFilters.erase(m_cellRangeFilterCollection->rangeFilters.size() - 1);
 
-    cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
-    cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+    m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+    m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
-    cellRangeFilterCollection->updateConnectedEditors();
+    m_cellRangeFilterCollection->updateConnectedEditors();
 }

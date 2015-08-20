@@ -19,20 +19,40 @@
 
 #pragma once
 
-#include "RicRangeFilterExecImpl.h"
+#include "cafCmdExecuteCommand.h"
+#include "cafPdmPointer.h"
+
+class RimCellRangeFilter;
+class RimCellRangeFilterCollection;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicRangeFilterNewExec : public RicRangeFilterExecImpl
+class RicRangeFilterExecImpl : public caf::CmdExecuteCommand
 {
 public:
-    RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0);    
-    virtual ~RicRangeFilterNewExec();
+    RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0); 
+    virtual ~RicRangeFilterExecImpl();
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    virtual QString name() = 0;
+    virtual void redo() = 0;
+    virtual void undo() = 0;
+
+public:
+    bool m_iSlice;
+    bool m_jSlice;
+    bool m_kSlice;
+
+    int m_iSliceStart;
+    int m_jSliceStart;
+    int m_kSliceStart;
+
+protected:
+    RimCellRangeFilter* createRangeFilter();
+
+protected:
+    caf::PdmPointer<RimCellRangeFilterCollection>   m_cellRangeFilterCollection;
+    caf::PdmPointer<RimCellRangeFilter>             m_cellRangeFilter;
 };
 
 

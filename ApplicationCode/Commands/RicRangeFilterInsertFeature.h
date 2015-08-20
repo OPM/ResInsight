@@ -21,6 +21,9 @@
 
 #include "cafCmdFeature.h"
 
+#include <vector>
+
+class RimCellRangeFilter;
 
 //==================================================================================================
 /// 
@@ -34,6 +37,9 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
+
+private:
+    static std::vector<RimCellRangeFilter*> selectedCellRangeFilters();
 };
 
 

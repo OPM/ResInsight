@@ -31,7 +31,7 @@ public:
     static bool isRangeFilterCommandAvailable();
     static RicRangeFilterNewExec* createRangeFilterExecCommand();
 
-private:
+public:
     static RimCellRangeFilterCollection* findRangeFilterCollection();
 };
 

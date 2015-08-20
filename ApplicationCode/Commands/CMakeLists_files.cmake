@@ -31,7 +31,9 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseViewPasteFeature.h
 #${CEE_CURRENT_LIST_DIR}RicGridModelsCreateCaseGroupFromFiles.h
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImport.h
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImportInput.h
-${CEE_CURRENT_LIST_DIR}RicPropertyFilterNewExec.cpp
+${CEE_CURRENT_LIST_DIR}RicPropertyFilterNewExec.h
+${CEE_CURRENT_LIST_DIR}RicRangeFilterExecImpl.h
+${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertFeature.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterFeatureImpl.h
@@ -82,6 +84,8 @@ ${CEE_CURRENT_LIST_DIR}RicEclipseViewPasteFeature.cpp
 #${CEE_CURRENT_LIST_DIR}RicGridModelsCreateCaseGroupFromFiles.cpp
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImport.cpp
 #${CEE_CURRENT_LIST_DIR}RicGridModelsImportInput.cpp
+${CEE_CURRENT_LIST_DIR}RicRangeFilterExecImpl.cpp
+${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterFeatureImpl.cpp

@@ -17,59 +17,66 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRangeFilterInsertFeature.h"
-
 #include "RicRangeFilterInsertExec.h"
-#include "RicRangeFilterFeatureImpl.h"
 
 #include "RimCellRangeFilter.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimView.h"
+#include "RiuMainWindow.h"
 
-#include "cafSelectionManager.h"
-
-#include "cafCmdFeatureManager.h"
-#include "cafCmdExecCommandManager.h"
-
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT(RicRangeFilterInsertFeature, "RicRangeFilterInsertFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicRangeFilterInsertFeature::isCommandEnabled()
+RicRangeFilterInsertExec::RicRangeFilterInsertExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter)
+    : RicRangeFilterExecImpl(rangeFilterCollection, rangeFilter)
 {
-    std::vector<RimCellRangeFilter*> selection = selectedCellRangeFilters();
-    return selection.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterInsertFeature::onActionTriggered(bool isChecked)
+RicRangeFilterInsertExec::~RicRangeFilterInsertExec()
 {
-    std::vector<RimCellRangeFilter*> selection = selectedCellRangeFilters();
-    RimCellRangeFilterCollection* rangeFilterCollection = RicRangeFilterFeatureImpl::findRangeFilterCollection();
 
-    RicRangeFilterInsertExec* filterExec = new RicRangeFilterInsertExec(rangeFilterCollection, selection[0]);
-    caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterInsertFeature::setupActionLook(QAction* actionToSetup)
+QString RicRangeFilterInsertExec::name()
 {
-    actionToSetup->setText("Insert Range Filter");
+    return "Create Range Filter";
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimCellRangeFilter*> RicRangeFilterInsertFeature::selectedCellRangeFilters()
+void RicRangeFilterInsertExec::redo()
 {
-    std::vector<RimCellRangeFilter*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    RimCellRangeFilter* rangeFilter = createRangeFilter();
+    if (rangeFilter)
+    {
+        size_t index = m_cellRangeFilterCollection->rangeFilters.index(m_cellRangeFilter);
+        CVF_ASSERT(index < m_cellRangeFilterCollection->rangeFilters.size());
 
-    return selection;
+        m_cellRangeFilterCollection->rangeFilters.insertAt(index, rangeFilter);
+
+        rangeFilter->setDefaultValues();
+
+        m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+        m_cellRangeFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
+
+        m_cellRangeFilterCollection->updateConnectedEditors();
+
+        RiuMainWindow::instance()->setCurrentObjectInTreeView(rangeFilter);
+    }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicRangeFilterInsertExec::undo()
+{
+}
