@@ -558,7 +558,11 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         caf::PdmUiItem* uiItem = uiItems[0];
         CVF_ASSERT(uiItem);
 
-        if (dynamic_cast<RimGeoMechView*>(uiItem))
+        if (dynamic_cast<RimEclipseCaseCollection*>(uiItem))
+        {
+            commandIds << "RicImportEclipseCaseFeature";
+        }
+        else if (dynamic_cast<RimGeoMechView*>(uiItem))
         {
             commandIds << "RicNewViewFeature";
             commandIds << "RicCopyReferencesToClipboardFeature";

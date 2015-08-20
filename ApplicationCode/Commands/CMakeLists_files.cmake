@@ -41,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJFeature.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceKFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
+${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.h
@@ -88,6 +89,7 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceKFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
+${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.cpp

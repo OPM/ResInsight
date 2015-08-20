@@ -899,26 +899,10 @@ void RiuMainWindow::slotImportEclipseCase()
 {
     if (checkForDocumentModifications())
     {
-        RiaApplication* app = RiaApplication::instance();
+        QAction* action = caf::CmdFeatureManager::instance()->action("RicImportEclipseCaseFeature");
+        CVF_ASSERT(action);
 
-        QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
-        if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
-        app->setDefaultFileDialogDirectory("BINARY_GRID", defaultDir);
-
-        int i;
-        for (i = 0; i < fileNames.size(); i++)
-        {
-            QString fileName = fileNames[i];
-
-            if (!fileNames.isEmpty())
-            {
-                if (app->openEclipseCaseFromFile(fileName))
-                {
-                    addRecentFiles(fileName);
-                }
-            }
-        }
+        action->trigger();
     }
 }
 

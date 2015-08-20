@@ -108,6 +108,9 @@ public:
     
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
+    void            addRecentFiles(const QString& file);
+    void            removeRecentFiles(const QString& file);
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 
@@ -121,9 +124,7 @@ private:
     bool            checkForDocumentModifications();
 
     void            updateRecentFileActions();
-    void            addRecentFiles(const QString& file);
-    void            removeRecentFiles(const QString& file);
-    
+
     QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
 
     void            storeTreeViewState();
