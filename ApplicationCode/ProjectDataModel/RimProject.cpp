@@ -50,6 +50,8 @@
 #include "cafCmdFeature.h"
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 #include "RicExecuteScriptForCasesFeature.h"
+#include "RimEclipseStatisticsCaseCollection.h"
+#include "RimEclipseStatisticsCase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -573,15 +575,32 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicNewViewFeature";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteGeoMechViewsFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipseView*>(uiItem))
         {
+            commandIds << "RicNewViewFeature";
+
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteEclipseViewsFeature";
-
-            commandIds << "RicNewViewFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimEclipseStatisticsCaseCollection*>(uiItem))
+        {
+            //menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
+            //commandIds << "RicNewStatisticsCaseFeature"
+        }
+        else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
+        {
+            //menu.addAction(QString("New View"), this, SLOT(slotAddView()));
+            //menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
+            //menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
+            commandIds << "RicNewViewFeature";
+           // commandIds << "RicComputestatistics....";
+            commandIds << "RicCloseCaseFeature";
+            commandIds << "RicExecuteScriptForCasesFeature";
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
@@ -599,14 +618,15 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicPasteGeoMechViewsFeature";
             commandIds << "RicNewViewFeature";
+            commandIds << "Separator";
+
             commandIds << "RicCloseCaseFeature";
-            commandIds << "RicExecuteScriptForCasesFeature";
         }
         else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
         {
-            commandIds << "RicNewViewFeature";
+            commandIds << "RicEclipseCaseNewGroupFeature";
             commandIds << "RicPasteEclipseCasesFeature";
-            commandIds << "RicPasteEclipseViewsFeature";
+            //commandIds << "RicEcliseCaseGroupCloseFeature";
         }
 
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
@@ -658,6 +678,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicWellPathsImportSsihubFeature";
             commandIds << "RicWellPathsImportFileFeature";
+            commandIds << "Separator";
             commandIds << "RicWellPathsDeleteAllFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))

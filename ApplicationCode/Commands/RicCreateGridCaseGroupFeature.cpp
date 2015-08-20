@@ -61,5 +61,5 @@ void RicCreateGridCaseGroupFeature::onActionTriggered(bool isChecked)
 void RicCreateGridCaseGroupFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/CreateGridCaseGroup16x16.png"));
-    actionToSetup->setText("Import Eclipse Case");
+    actionToSetup->setText("&Create Grid Case Group from Files");
 }

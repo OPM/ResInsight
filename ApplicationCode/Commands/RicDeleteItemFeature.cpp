@@ -95,7 +95,7 @@ void RicDeleteItemFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Delete object");
+    actionToSetup->setText("Delete");
 }
 
 } // end namespace caf
