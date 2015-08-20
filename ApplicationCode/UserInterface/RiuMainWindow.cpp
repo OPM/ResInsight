@@ -914,16 +914,10 @@ void RiuMainWindow::slotImportInputEclipseFiles()
 {
     if (checkForDocumentModifications())
     {
-        RiaApplication* app = RiaApplication::instance();
-        QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL *)");
+        QAction* action = caf::CmdFeatureManager::instance()->action("RicImportInputEclipseCaseFeature");
+        CVF_ASSERT(action);
 
-        if (fileNames.isEmpty()) return;
-
-        // Remember the path to next time
-        app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
- 
-        app->openInputEclipseCaseFromFileNames(fileNames);
+        action->trigger();
     }
 }
 
