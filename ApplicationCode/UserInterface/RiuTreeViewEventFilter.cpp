@@ -19,7 +19,7 @@
 
 #include "RiuTreeViewEventFilter.h"
 
-#include "ToggleCommands\RicToggleItemsFeatureImpl.h"
+#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
@@ -32,6 +32,7 @@
 #include <QAction>
 #include <QKeyEvent>
 #include <QTreeView>
+#include "cafSelectionManager.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -53,9 +54,7 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
 
         QString featureToActivate;
 
-        caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
-        QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->treeView()->currentIndex();
-        caf::PdmUiItem* uiItem = uiTreeView->uiItemFromModelIndex(modIndex);
+        caf::PdmUiItem* uiItem = caf::SelectionManager::instance()->selectedItem();
         if (uiItem)
         {
             if (dynamic_cast<RimEclipseCase*>(uiItem)
