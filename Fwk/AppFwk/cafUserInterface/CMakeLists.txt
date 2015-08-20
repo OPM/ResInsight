@@ -84,6 +84,7 @@ set( PROJECT_FILES
     cafPdmUiDefaultObjectEditor.cpp
     cafPdmUiDefaultObjectEditor.h
     cafPdmUiListView.cpp
+    cafPdmUiListView.h
     cafPdmUiListViewEditor.cpp
     cafPdmUiListViewEditor.h
     cafPdmUiTableItemEditor.cpp
@@ -101,6 +102,7 @@ set( PROJECT_FILES
     cafPdmUiTreeItemEditor.cpp
     cafPdmUiTreeItemEditor.h
     cafPdmUiTreeView.cpp
+    cafPdmUiTreeView.h
     cafPdmUiTreeViewEditor.cpp
     cafPdmUiTreeViewEditor.h
     cafPdmUiTreeViewModel.cpp
