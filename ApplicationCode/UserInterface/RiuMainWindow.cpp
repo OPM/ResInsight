@@ -1673,6 +1673,11 @@ void RiuMainWindow::slotNewObjectPropertyView()
 
         pdmTreeView = new caf::PdmUiTreeView(dockWidget);
         pdmTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        pdmTreeView->enableSelectionManagerUpdating(true);
+
+        // Install event filter used to handle key press events
+        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter(this);
+        pdmTreeView->treeView()->installEventFilter(treeViewEventFilter);
 
         // Drag and drop configuration
         pdmTreeView->treeView()->setDragEnabled(true);
@@ -1686,6 +1691,9 @@ void RiuMainWindow::slotNewObjectPropertyView()
         additionalProjectTrees.push_back(dockWidget);
 
         pdmTreeView->setPdmItem(m_pdmRoot); 
+
+        pdmTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(pdmTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
     }
 
 
@@ -1700,7 +1708,7 @@ void RiuMainWindow::slotNewObjectPropertyView()
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
         connect(pdmTreeView, SIGNAL(selectedObjectChanged( caf::PdmObjectHandle* )), propView, SLOT(showProperties( caf::PdmObjectHandle* )));
-       additionalPropertyEditors.push_back(dockWidget);
+        additionalPropertyEditors.push_back(dockWidget);
     }
 }
 
@@ -2225,7 +2233,12 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
     app->project()->actionsBasedOnSelection(menu);
 
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
-    QPoint globalPos = m_projectTreeView->treeView()->viewport()->mapToGlobal(pos);
-
-    menu.exec(globalPos);
+    // Since we might get this signal from different treeViews, we need to map the position accordingly.  
+    QObject* senderObj = this->sender();
+    QTreeView* treeView = dynamic_cast<QTreeView*>(senderObj); 
+    if (treeView)
+    {
+        QPoint globalPos = treeView->viewport()->mapToGlobal(pos);
+        menu.exec(globalPos);
+    }
 }
