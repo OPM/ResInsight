@@ -626,7 +626,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicEclipseCaseNewGroupFeature";
             commandIds << "RicPasteEclipseCasesFeature";
-            //commandIds << "RicEcliseCaseGroupCloseFeature";
+            commandIds << "RicDeleteItemFeature";
         }
 
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
