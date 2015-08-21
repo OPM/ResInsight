@@ -975,6 +975,7 @@ void RimUiTreeView::slotCloseCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicNewStatisticsCaseFeature
 void RimUiTreeView::slotNewStatisticsCase()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());

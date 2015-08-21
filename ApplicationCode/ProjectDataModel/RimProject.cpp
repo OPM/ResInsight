@@ -587,10 +587,10 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
-        else if (dynamic_cast<RimEclipseStatisticsCaseCollection*>(uiItem))
+        else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
-            //menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
-            //commandIds << "RicNewStatisticsCaseFeature"
+            // Todo: "Paste"
+            commandIds << "RicNewStatisticsCaseFeature";
         }
         else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
         {
