@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'summary_config.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'summary_config.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef __SUMMARY_CONFIG_H__
@@ -50,7 +50,7 @@ typedef enum { LOAD_FAIL_SILENT  = 0,     // We just try to load - and if it is 
 
   typedef struct summary_config_struct summary_config_type;
   typedef struct summary_struct        summary_type;
-  
+
   void                   summary_config_update_load_fail_mode( summary_config_type * config , load_fail_type load_fail);
   void                   summary_config_set_load_fail_mode( summary_config_type * config , load_fail_type load_fail);
   load_fail_type         summary_config_get_load_fail_mode( const summary_config_type * config);
@@ -70,15 +70,15 @@ typedef enum { LOAD_FAIL_SILENT  = 0,     // We just try to load - and if it is 
   void                   summary_config_summarize(const summary_config_type * );
   void                   summary_config_add_obs_key(summary_config_type * , const char * );
   int                    summary_config_get_byte_size(const summary_config_type * );
-  
+
   UTIL_IS_INSTANCE_HEADER(summary_config);
   UTIL_SAFE_CAST_HEADER(summary_config);
   UTIL_SAFE_CAST_HEADER_CONST(summary_config);
   GET_DATA_SIZE_HEADER(summary);
   VOID_GET_DATA_SIZE_HEADER(summary);
   VOID_CONFIG_FREE_HEADER(summary);
-  
-  
+
+
 
 #ifdef __cplusplus
 }

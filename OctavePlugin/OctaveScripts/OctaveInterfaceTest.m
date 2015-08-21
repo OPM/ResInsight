@@ -61,8 +61,7 @@
 %! CoarseInfo1 = riGetCoarseningInfo();
 %! assert(rows(CoarseInfo1) == 0);
 %! assert(columns(CoarseInfo1) == 6);
-%! CoarseInfo2 = riGetCoarseningInfo(1);
-%! assert(CoarseInfo1 == CoarseInfo2);
+
 
 ### Matrix[numGrids][3] riGetGridDimensions([CaseId])
 %!test

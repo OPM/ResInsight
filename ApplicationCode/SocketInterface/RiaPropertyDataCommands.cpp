@@ -33,13 +33,13 @@
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
 
-#include "RimCase.h"
-#include "RimInputCase.h"
-#include "RimInputProperty.h"
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
 #include "RimUiTreeModelPdm.h"
 
 #include "RiuMainWindow.h"
@@ -57,7 +57,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
         QString propertyName = args[2];
         QString porosityModelName = args[3];
@@ -225,7 +225,7 @@ public:
         QString propertyName      = args[3];
         QString porosityModelName = args[4];
         
-        RimCase*rimCase = server->findReservoir(caseId);
+        RimEclipseCase*rimCase = server->findReservoir(caseId);
         if (rimCase == NULL)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID: \"%1\"").arg(caseId));
@@ -392,7 +392,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
         QString propertyName = args[2];
         QString porosityModelName = args[3];
@@ -547,6 +547,23 @@ public:
 
         // Make sure the size of the retreiving container is correct.
         // If it is, this is noops
+        {
+            size_t maxRequestedTimeStepIdx = cvf::UNDEFINED_SIZE_T;
+            for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
+            {
+                size_t tsId = m_requestedTimesteps[tIdx];
+                if (maxRequestedTimeStepIdx == cvf::UNDEFINED_SIZE_T || tsId > maxRequestedTimeStepIdx)
+                {
+                    maxRequestedTimeStepIdx = tsId;
+                }
+            }
+
+            if (maxRequestedTimeStepIdx != cvf::UNDEFINED_SIZE_T
+                && m_scalarResultsToAdd->size() <= maxRequestedTimeStepIdx)
+            {
+                m_scalarResultsToAdd->resize(maxRequestedTimeStepIdx + 1);
+            }
+        }
 
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
         {
@@ -613,14 +630,14 @@ public:
             if (m_currentReservoir != NULL)
             {
                 // Create a new input property if we have an input reservoir
-                RimInputCase* inputRes = dynamic_cast<RimInputCase*>(m_currentReservoir);
+                RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimInputProperty* inputProperty = NULL;
+                    RimEclipseInputProperty* inputProperty = NULL;
                     inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
-                        inputProperty = new RimInputProperty;
+                        inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
@@ -628,7 +645,7 @@ public:
                         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
                         treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
                     }
-                    inputProperty->resolvedState = RimInputProperty::RESOLVED_NOT_SAVED;
+                    inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
 
                 if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
@@ -680,7 +697,7 @@ public:
     }
 
 private:
-    RimCase*                            m_currentReservoir;
+    RimEclipseCase*                            m_currentReservoir;
     std::vector< std::vector<double> >* m_scalarResultsToAdd;
     size_t                              m_currentScalarIndex;
     QString                             m_currentPropertyName;
@@ -720,7 +737,7 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
     {
         int caseId = args[1].toInt();
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
@@ -909,6 +926,25 @@ public:
             return true;
         }
 
+        // Resize the timestep container
+        {
+            size_t maxRequestedTimeStepIdx = cvf::UNDEFINED_SIZE_T;
+            for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
+            {
+                size_t tsId = m_requestedTimesteps[tIdx];
+                if (maxRequestedTimeStepIdx == cvf::UNDEFINED_SIZE_T || tsId > maxRequestedTimeStepIdx)
+                {
+                    maxRequestedTimeStepIdx = tsId;
+                }
+            }
+
+            if (maxRequestedTimeStepIdx != cvf::UNDEFINED_SIZE_T
+                && m_scalarResultsToAdd->size() <= maxRequestedTimeStepIdx)
+            {
+                m_scalarResultsToAdd->resize(maxRequestedTimeStepIdx + 1);
+            }
+        }
+
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
         {
             size_t tsId = m_requestedTimesteps[tIdx];
@@ -959,14 +995,14 @@ public:
             if (m_currentReservoir != NULL)
             {
                 // Create a new input property if we have an input reservoir
-                RimInputCase* inputRes = dynamic_cast<RimInputCase*>(m_currentReservoir);
+                RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimInputProperty* inputProperty = NULL;
+                    RimEclipseInputProperty* inputProperty = NULL;
                     inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
-                        inputProperty = new RimInputProperty;
+                        inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
@@ -974,7 +1010,7 @@ public:
                         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
                         treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
                     }
-                    inputProperty->resolvedState = RimInputProperty::RESOLVED_NOT_SAVED;
+                    inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
 
                 if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
@@ -1026,7 +1062,7 @@ public:
     }
 
 private:
-    RimCase*                            m_currentReservoir;
+    RimEclipseCase*                            m_currentReservoir;
     std::vector< std::vector<double> >* m_scalarResultsToAdd;
     size_t                              m_currentGridIndex;
     size_t                              m_currentScalarIndex;
@@ -1054,7 +1090,7 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
         int caseId = args[1].toInt();
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));

@@ -93,7 +93,6 @@ static const char light_AmbientDiffuse_inl[] =
     "    return vec4(ambient + diffuse, srcFragColor.a);                                                   \n"
     "}                                                                                                     \n";
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +100,6 @@ cvf::String CommonShaderSources::light_AmbientDiffuse()
 {
     return cvf::String(light_AmbientDiffuse_inl);
 }
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -395,6 +393,7 @@ ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper
     m_opacityLevel = 1.0f;
     m_faceCulling = FC_NONE;
     m_enableDepthWrite = true;
+    m_disableLighting = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,8 +406,16 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
     cvf::ShaderProgramGenerator gen("ScalarMapperEffectGenerator", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
     gen.addFragmentCode(cvf::ShaderSourceRepository::src_Texture);
-    gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
-    gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+    
+    if (m_disableLighting)
+    {
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Unlit);
+    }
+    else
+    {
+        gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+    }
 
     cvf::ref<cvf::ShaderProgram> prog = gen.generate();
     eff->setShaderProgram(prog.p());
@@ -447,6 +454,7 @@ void ScalarMapperEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* e
 
     cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
     lighting->enableTwoSided(true);
+    lighting->enable(!m_disableLighting);
     eff->setRenderState(lighting.p());
 
     // Result mapping texture
@@ -534,7 +542,8 @@ bool ScalarMapperEffectGenerator::isEqual(const EffectGenerator* other) const
             && m_opacityLevel == otherTextureResultEffect->m_opacityLevel
             && m_undefinedColor == otherTextureResultEffect->m_undefinedColor
             && m_faceCulling == otherTextureResultEffect->m_faceCulling
-            && m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite)
+            && m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite
+            && m_disableLighting == otherTextureResultEffect->m_disableLighting)
         {
             cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
             otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
@@ -557,6 +566,7 @@ EffectGenerator* ScalarMapperEffectGenerator::copy() const
     scEffGen->m_undefinedColor = m_undefinedColor;
     scEffGen->m_faceCulling = m_faceCulling;
     scEffGen->m_enableDepthWrite = m_enableDepthWrite;
+    scEffGen->m_disableLighting = m_disableLighting;
 
     return scEffGen;
 }

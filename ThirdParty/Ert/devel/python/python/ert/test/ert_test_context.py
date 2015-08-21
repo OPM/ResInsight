@@ -20,11 +20,11 @@ from ert.enkf import ENKF_LIB, EnKFMain
 
 class ErtTest(BaseCClass):
 
-    def __init__(self, test_name, model_config, site_config=None, store_area=False):
+    def __init__(self, test_name, model_config, store_area=False):
         if not os.path.exists(model_config):
             raise IOError("The configuration file: %s does not exist" % model_config)
         else:
-            c_ptr = ErtTest.cNamespace().alloc(test_name, model_config, site_config)
+            c_ptr = ErtTest.cNamespace().alloc(test_name, model_config)
             super(ErtTest, self).__init__(c_ptr)
             self.setStore(store_area)
 
@@ -77,12 +77,11 @@ class ErtTest(BaseCClass):
 
 
 class ErtTestContext(object):
-    def __init__(self, test_name, model_config, site_config=None, store_area=False):
+    def __init__(self, test_name, model_config, store_area=False):
         self.__test_name = test_name
         self.__model_config = model_config
-        self.__site_config = site_config
         self.__store_area = store_area
-        self.__test_context = ErtTest(self.__test_name, self.__model_config, site_config=self.__site_config, store_area=self.__store_area)
+        self.__test_context = ErtTest(self.__test_name, self.__model_config, store_area=self.__store_area)
 
 
     def __enter__(self):
@@ -112,7 +111,7 @@ class ErtTestContext(object):
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("ert_test", ErtTest)
 
-ErtTest.cNamespace().alloc = cwrapper.prototype("c_void_p ert_test_context_alloc_python( char* , char* , char*)")
+ErtTest.cNamespace().alloc = cwrapper.prototype("c_void_p ert_test_context_alloc_python( char* , char*)")
 ErtTest.cNamespace().set_store = cwrapper.prototype("c_void_p ert_test_context_set_store( ert_test , bool)")
 ErtTest.cNamespace().free = cwrapper.prototype("void ert_test_context_free( ert_test )")
 ErtTest.cNamespace().get_enkf_main = cwrapper.prototype("enkf_main_ref ert_test_context_get_main( ert_test )")

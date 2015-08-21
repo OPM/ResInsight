@@ -18,6 +18,7 @@
 from ert.cwrap import BaseCClass, CWrapper
 from ert.ecl import ECL_LIB
 from ert.ecl import EclTypeEnum
+from ert.ecl.faults import Fault
 
 class FaultBlockLayer(BaseCClass):
 
@@ -51,6 +52,17 @@ class FaultBlockLayer(BaseCClass):
                 return self.cNamespace().iget_block( self , index ).setParent(self)
             else:
                 raise IndexError("Index:%d out of range: [0,%d)" % (index , len(self)))
+        elif isinstance(index,tuple):
+            i,j = index
+            if 0 <= i < self.grid_ref.getNX() and 0 <= j < self.grid_ref.getNY():
+                geo_layer = self.getGeoLayer()
+                block_id = geo_layer[i,j]
+                if block_id == 0:
+                    raise ValueError("No fault block defined for location (%d,%d)" % (i,j))
+                else:
+                    return self.getBlock( block_id )
+            else:
+                raise IndexError("Invalid i,j : (%d,%d)" % (i,j))
         else:
             raise TypeError("Index should be integer type")
 
@@ -130,6 +142,55 @@ class FaultBlockLayer(BaseCClass):
         self.cNamespace().export_kw( self , kw )
 
 
+    def addFaultBarrier(self , fault , link_segments = False):
+        layer = self.getGeoLayer( )
+        layer.addFaultBarrier( fault , self.getK() , link_segments )
+
+
+    def addFaultLink(self , fault1 , fault2 ):
+        if not fault1.intersectsFault( fault2 , self.getK()):
+            layer = self.getGeoLayer()
+            layer.addIJBarrier( fault1.extendToFault( fault2 , self.getK() ) )
+
+
+    def joinFaults(self , fault1 , fault2):
+        if not fault1.intersectsFault( fault2 , self.getK()):
+            layer = self.getGeoLayer()
+            try:
+                layer.addIJBarrier( Fault.joinFaults( fault1 , fault2 , self.getK()) )
+            except ValueError:
+                print "Failed to join faults %s and %s" % (fault1.getName() , fault2.getName())
+                raise ValueError("")
+
+
+    def addPolylineBarrier(self , polyline):
+        layer = self.getGeoLayer()
+        p0 = polyline[0]
+        c0 = self.grid_ref.findCellCornerXY( p0[0] ,  p0[1] , self.getK() )
+        i,j = self.grid_ref.findCellXY( p0[0] ,  p0[1] , self.getK() )
+        print "%g,%g -> %d,%d   %d" % (p0[0] , p0[1] , i,j,c0)
+        for index in range(1,len(polyline)):
+            p1 = polyline[index]
+            c1 = self.grid_ref.findCellCornerXY( p1[0] ,  p1[1] , self.getK() )
+            i,j = self.grid_ref.findCellXY( p1[0] ,  p1[1] , self.getK() )
+            layer.addInterpBarrier( c0 , c1 )
+            print "%g,%g -> %d,%d   %d" % (p1[0] , p1[1] , i,j,c1)
+            print "Adding barrier %d -> %d" % (c0 , c1)
+            c0 = c1
+            
+        
+
+    def getGeoLayer(self):
+        """Returns the underlying geometric layer."""
+        return self.cNamespace().get_layer( self )
+
+
+    def cellContact(self , p1 , p2):
+        layer = self.getGeoLayer()
+        return layer.cellContact(p1,p2)
+        
+
+
 cwrapper = CWrapper(ECL_LIB)
 CWrapper.registerObjectType("fault_block_layer", FaultBlockLayer)
 
@@ -149,3 +210,4 @@ FaultBlockLayer.cNamespace().get_next_id   = cwrapper.prototype("int   fault_blo
 FaultBlockLayer.cNamespace().scan_layer    = cwrapper.prototype("void  fault_block_layer_scan_layer( fault_block_layer , layer)")
 FaultBlockLayer.cNamespace().insert_block_content = cwrapper.prototype("void  fault_block_layer_insert_block_content( fault_block_layer , fault_block)")
 FaultBlockLayer.cNamespace().export_kw            = cwrapper.prototype("bool  fault_block_layer_export( fault_block_layer , ecl_kw )")
+FaultBlockLayer.cNamespace().get_layer            = cwrapper.prototype("layer_ref fault_block_layer_get_layer( fault_block_layer )")

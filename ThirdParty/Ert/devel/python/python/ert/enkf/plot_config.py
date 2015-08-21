@@ -25,7 +25,7 @@ class PlotConfig(BaseCClass):
         """ @rtype: str """
         return PlotConfig.cNamespace().get_path(self)
 
-    def set_path(self, path):
+    def setPath(self, path):
         PlotConfig.cNamespace().set_path(self, path)
 
     def get_driver(self):

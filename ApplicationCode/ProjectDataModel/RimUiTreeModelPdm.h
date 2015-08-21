@@ -27,13 +27,16 @@
 
 class QFileSystemWatcher;
 
-class RimCellPropertyFilter;
+class RimEclipsePropertyFilter;
 class RimCellRangeFilter;
-class RimCase;
-class RimReservoirView;
-class RimInputProperty;
-class RimStatisticsCase;
+class RimGeoMechPropertyFilter;
+class RimEclipseCase;
+class RimEclipseView;
+class RimEclipseInputProperty;
+class RimEclipseStatisticsCase;
 class RimIdenticalGridCaseGroup;
+
+class RimView;
 
     
 //==================================================================================================
@@ -47,21 +50,23 @@ class RimUiTreeModelPdm : public caf::UiTreeModelPdm
 public:
     RimUiTreeModelPdm(QObject* parent);
 
-
-    // TO BE DELETED, NOT USED
-    virtual bool                insertRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
-
     // Special edit methods
     bool                        deleteRangeFilter(const QModelIndex& itemIndex);
     bool                        deletePropertyFilter(const QModelIndex& itemIndex);
-    bool                        deleteReservoirView(const QModelIndex& itemIndex);
+    bool                        deleteGeoMechPropertyFilter(const QModelIndex& itemIndex);
+
     void                        deleteInputProperty(const QModelIndex& itemIndex);
-    void                        deleteReservoir(RimCase* reservoir);
+    void                        deleteReservoir(RimEclipseCase* reservoir);
     void                        deleteAllWellPaths(const QModelIndex& itemIndex);
 
-    RimCellPropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimEclipsePropertyFilter*   addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimGeoMechPropertyFilter*   addGeoMechPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
-    RimReservoirView*           addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+
+    RimView*                    addReservoirView(const std::vector<caf::PdmUiItem*>& treeSelection);
+    void                        deleteReservoirViews(const std::vector<caf::PdmUiItem*>& treeSelection);
+    void                        deleteGeoMechCases(const std::vector<caf::PdmUiItem*>& treeSelection);
+
     void                        addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
     
     void                        addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* pdmObject);
@@ -70,7 +75,7 @@ public:
     void                        addObjects(const QModelIndex& itemIndex, const caf::PdmObjectGroup& pdmObjects);
     void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
-    RimStatisticsCase*          addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimEclipseStatisticsCase*   addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimIdenticalGridCaseGroup*  addCaseGroup(QModelIndex& insertedModelIndex);
 
     bool                        deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
@@ -91,7 +96,7 @@ private slots:
 
 private:
     void                        clearClipboard();
-    RimCase*                    caseFromItemIndex(const QModelIndex& itemIndex);
+    RimEclipseCase*             caseFromItemIndex(const QModelIndex& itemIndex);
 private:
     QFileSystemWatcher*         m_scriptChangeDetector;
 };

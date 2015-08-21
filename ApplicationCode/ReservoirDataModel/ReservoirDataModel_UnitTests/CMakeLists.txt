@@ -14,6 +14,7 @@ include_directories(
     ${LibViewing_SOURCE_DIR}
 
     ${ResInsight_SOURCE_DIR}/ApplicationCode
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ResultStatisticsCache
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel
     ${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ProjectDataModel
@@ -53,6 +54,8 @@ source_group( "UnitTests"       FILES ${UNIT_TEST_CPP_SOURCES} )
 set( LINK_LIBRARIES
     CommonCode
 
+	ResultStatisticsCache
+
     LibViewing
     LibRender
     LibGeometry
@@ -87,6 +90,8 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
 
+ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(CMAKE_CXX_FLAGS         "-DGTEST_USE_OWN_TR1_TUPLE=1")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 

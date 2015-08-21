@@ -75,17 +75,21 @@ import ert.util
 import ert.geo
 
 
-
 ECL_LIB = clib.ert_load("libecl")
 
 from .ecl_sum import EclSum #, EclSumVector, EclSumNode, EclSMSPECNode
+from .ecl_sum_keyword_vector import EclSumKeyWordVector
 from .ecl_util import EclFileEnum, EclFileFlagEnum, EclPhaseEnum, EclTypeEnum, EclUtil
 from .ecl_default import EclDefault
 from .ecl_rft_cell import EclPLTCell, EclRFTCell
 from .ecl_rft import EclRFT, EclRFTFile
 from .fortio import FortIO, openFortIO
 from .ecl_kw import EclKW
-from .ecl_file import EclFile
+from .ecl_3dkw import Ecl3DKW
+from .ecl_file import EclFile , openEclFile
+from .ecl_3d_file import Ecl3DFile 
+from .ecl_init_file import EclInitFile 
+from .ecl_restart_file import EclRestartFile 
 from .ecl_grid import EclGrid
 from .ecl_region import EclRegion
 from .ecl_subsidence import EclSubsidence
@@ -94,5 +98,12 @@ from .ecl_sum_node import EclSumNode
 from .ecl_sum_vector import EclSumVector
 from .ecl_npv import EclNPV , NPVPriceVector
 
-#from .ecl_queue import
+
+# The EclQueue class uses the libjob_queue library which is only built
+# when the full ert distribution is built. If BUILD_ERT == False the
+# ecl_queue module is excluded from the build process.
+try:
+    from .ecl_queue import EclQueue
+except ImportError:
+    pass
 

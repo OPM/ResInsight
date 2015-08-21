@@ -84,7 +84,7 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   @TYPE@ *             @TYPE@_vector_get_ptr(const @TYPE@_vector_type * );
   @TYPE@ *             @TYPE@_vector_alloc_data_copy( const @TYPE@_vector_type * vector );
   const @TYPE@ *       @TYPE@_vector_get_const_ptr(const @TYPE@_vector_type * );
-  bool                 @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ min_value , @TYPE@ max_value , @TYPE@ delta);
+  void                 @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ value1 , @TYPE@ value2 , @TYPE@ delta);
   void                 @TYPE@_vector_set_many(@TYPE@_vector_type *  , int  , const @TYPE@ *  , int );
   void                 @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value);
   void                 @TYPE@_vector_append_many(@TYPE@_vector_type * vector , const @TYPE@ * data , int length);
@@ -119,7 +119,8 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   int                  @TYPE@_vector_count_equal( const @TYPE@_vector_type * vector , @TYPE@ cmp_value);
   int                  @TYPE@_vector_element_size( const @TYPE@_vector_type * vector );
   void                 @TYPE@_vector_range_fill(@TYPE@_vector_type * vector , @TYPE@ limit1 , @TYPE@ delta , @TYPE@ limit2);
-  
+  void                 @TYPE@_vector_shift(@TYPE@_vector_type * vector, @TYPE@ delta);
+
   UTIL_SAFE_CAST_HEADER( @TYPE@_vector );
   UTIL_IS_INSTANCE_HEADER( @TYPE@_vector );
 

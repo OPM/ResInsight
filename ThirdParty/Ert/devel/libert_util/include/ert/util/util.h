@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'util.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'util.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef __UTIL_H__
@@ -47,7 +47,7 @@
 #define UTIL_PATH_SEP_CHAR             '/'   /* A simple character used when we want an actual char instance (i.e. not a pointer). */
 #endif
 
-#define UTIL_NEWLINE_STRING "          \n"       
+#define UTIL_NEWLINE_STRING "          \n"
 #define UTIL_DEFAULT_MKDIR_MODE 0777         /* Directories are by default created with mode a+rwx - and then comes the umask ... */
 
 
@@ -81,7 +81,7 @@ typedef struct stat stat_type;
 
 /*****************************************************************/
 /*
-  
+
 */
 
 
@@ -110,6 +110,7 @@ typedef enum {left_pad   = 0,
   time_t       util_make_date(int , int , int);
   time_t       util_make_pure_date(time_t t);
   void         util_inplace_forward_days(time_t *  , double);
+  void         util_inplace_forward_seconds(time_t * t , double seconds);
   time_t       util_file_mtime(const char * file);
   double       util_difftime(time_t  , time_t  , int *  , int *  , int *  , int *);
   double       util_difftime_days(time_t  , time_t );
@@ -149,6 +150,7 @@ typedef enum {left_pad   = 0,
   double       util_file_difftime(const char * , const char *);
   bool         util_file_update_required(const char *, const char *);
   size_t       util_file_size(const char *);
+  size_t       util_fd_size(int fd);
   void         util_clear_directory(const char *path, bool strict_uid , bool unlink_root);
   void         util_unlink_existing(const char *filename);
   void         util_strupr(char *);
@@ -166,11 +168,12 @@ typedef enum {left_pad   = 0,
   bool         util_string_match(const char * string , const char * pattern);
   bool         util_string_has_wildcard( const char * s);
   bool         util_file_readable( const char * file );
-  bool         util_entry_readable( const char * entry );  
+  bool         util_entry_readable( const char * entry );
   bool         util_entry_writable( const char * entry );
   void         util_ftruncate(FILE * stream , long size);
-  
+
   void         util_usleep( unsigned long micro_seconds );
+  void         util_yield();
   char       * util_blocking_alloc_stdin_line(unsigned long );
 
   int          util_roundf( float x );
@@ -201,12 +204,12 @@ typedef enum {left_pad   = 0,
   bool         util_addmode_if_owner( const char * filename , mode_t add_mode );
   bool         util_delmode_if_owner( const char * filename , mode_t del_mode);
   bool         util_chmod_if_owner( const char * filename , mode_t new_mode);
-#endif 
+#endif
 
 #ifdef HAVE_PROC
   bool    util_proc_alive(pid_t pid);
 #endif
-  
+
   int          util_forward_line(FILE * , bool * );
   void         util_rewind_line(FILE *);
   int          util_count_content_file_lines(FILE * );
@@ -285,12 +288,12 @@ typedef enum {left_pad   = 0,
 
 
   void     util_fread_from_buffer(void *  , size_t  , size_t , char ** );
-  
+
   unsigned int util_clock_seed( );
   void         util_fread_dev_random(int , char * );
   void         util_fread_dev_urandom(int , char * );
   bool         util_string_isspace(const char * s);
-  
+
   char *  util_alloc_dump_filename();
   void    util_exit(const char * fmt , ...);
   void    util_abort__(const char * file , const char * function , int line , const char * fmt , ...);
@@ -307,9 +310,9 @@ typedef enum {left_pad   = 0,
   void *  util_alloc_copy(const void * , size_t );
   void    util_double_to_float(float  * , const double * , int );
   void    util_float_to_double(double * , const float  * , int );
-  
+
   int     util_get_month_nr(const char * );
-  
+
   char *  util_fread_alloc_file_content(const char * , int *);
   void    util_fwrite_string(const char * , FILE *);
   char *  util_fread_realloc_string(char *  , FILE *);
@@ -317,8 +320,8 @@ typedef enum {left_pad   = 0,
   void    util_fskip_string(FILE *stream);
   void     util_endian_flip_vector(void * data , int element_size , int elements);
   int      util_proc_mem_free(void);
-  
-  
+
+
   void     util_clamp_double(double * value , double limit1, double limit2);
   double   util_double_vector_mean(int , const double * );
   double   util_double_vector_stddev(int , const double * );
@@ -359,12 +362,12 @@ typedef enum {left_pad   = 0,
   void     util_fread_char_vector(char * , int , FILE * , const char * );
   int      util_type_get_id( const void * data );
 
-  
+
   bool     util_sscanf_bytesize(const char * , size_t *);
   int      util_get_current_linenr(FILE * stream);
   const char * util_update_path_var(const char * , const char * , bool );
-  
-  
+
+
   int      util_get_type( void * data );
   void     util_fskip_int(FILE * stream);
   void     util_fskip_long(FILE * stream);
@@ -387,7 +390,7 @@ typedef enum {left_pad   = 0,
   void         util_unsetenv( const char * variable);
   char       * util_alloc_envvar( const char * value );
   bool         util_is_link(const char * );  // Will always return false on windows
-  int          util_chdir(const char * path);  
+  int          util_chdir(const char * path);
 
 
 #define UTIL_FWRITE_SCALAR(s,stream) { if (fwrite(&s , sizeof s , 1 , stream) != 1) util_abort("%s: write failed: %s\n",__func__ , strerror(errno)); }
@@ -395,7 +398,7 @@ typedef enum {left_pad   = 0,
 
 #define UTIL_FWRITE_VECTOR(s,n,stream) { if (fwrite(s , sizeof s , (n) , stream) != (n)) util_abort("%s: write failed: %s \n",__func__ , strerror(errno)); }
 #define UTIL_FREAD_VECTOR(s,n,stream)  { if (fread(s , sizeof s , (n) , stream) != (n)) util_abort("%s: read failed: %s \n",__func__ , strerror(errno)); }
-  
+
 #define CONTAINS_HEADER(TYPE) int util_sorted_contains_ ## TYPE(const TYPE * data , int size , TYPE value)
   CONTAINS_HEADER(int);
   CONTAINS_HEADER(time_t);
@@ -418,7 +421,7 @@ typedef enum {left_pad   = 0,
      const char * <enum>_iget(int index, int * value) {
         ...
      }
-     
+
   which should take an enum element number as input argument and
   return a string representation of the corresponding enum element and
   also update the value reference to contain the corresponding enum
@@ -428,7 +431,7 @@ typedef enum {left_pad   = 0,
 
   The util_enum_element_type and the util_enum_iget() function are
   convenience functions which can be used to avoid indirectly
-  repeating the enum definition in the <enum>_iget() function. 
+  repeating the enum definition in the <enum>_iget() function.
 
   In the example below we create the enum definition in normal way in
   the header file, and then in addition we repeat the defintion in a
@@ -443,22 +446,22 @@ typedef enum {left_pad   = 0,
     VALUE1  = 2,
     VALUE2  = 17
   }
-    
+
   // The enum definition is repeated; but at at least at the very same spot of the code.
 
   #define MY_ENUM_DEF  { .value = INVALID, .name="INVALID"} , {.value = VALUE1 , .name="VALUE1"} , {.value = VALUE2 , .name="VALUE2"}
   #define MY_ENUM_SIZE 3
 
-  
+
   source file:
   ------------
-  
+
   const char * my_enum_iget(int index, int * value) {
      return util_enum_iget( index , MY_ENUM_SIZE , (const util_enum_element_type []) MY_ENUM_DEF , value);
   }
 
-*/  
-   
+*/
+
 
 typedef struct {
   int value;

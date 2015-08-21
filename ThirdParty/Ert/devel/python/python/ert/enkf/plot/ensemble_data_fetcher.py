@@ -1,4 +1,4 @@
-from ert.enkf import EnsConfig
+from ert.enkf import EnsembleConfig
 from ert.enkf.plot_data import EnsemblePlotData
 from ert.enkf.enums import ErtImplType
 from ert.enkf.plot.data_fetcher import DataFetcher
@@ -14,9 +14,9 @@ class EnsembleDataFetcher(DataFetcher):
 
 
     def getEnsembleConfigNode(self, key):
-        """ @rtype: EnsConfig """
+        """ @rtype: EnsembleConfig """
         ensemble_config = self.ert().ensembleConfig()
-        assert ensemble_config.hasKey(key)
+        assert key in ensemble_config
         return ensemble_config.getNode(key)
 
 

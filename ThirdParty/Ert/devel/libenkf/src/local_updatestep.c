@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'local_updatestep.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'local_updatestep.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <ert/util/util.h>
@@ -48,17 +48,17 @@ UTIL_SAFE_CAST_FUNCTION(local_updatestep , LOCAL_UPDATESTEP_TYPE_ID)
 
 local_updatestep_type * local_updatestep_alloc( const char * name ) {
   local_updatestep_type * updatestep = util_malloc( sizeof * updatestep );
-  
+
   UTIL_TYPE_ID_INIT( updatestep , LOCAL_UPDATESTEP_TYPE_ID );
   updatestep->name      = util_alloc_string_copy( name );
   updatestep->ministep  = vector_alloc_new();
-  
+
   return updatestep;
 }
 
 
 /**
-   Observe that use_count values are not copied. 
+   Observe that use_count values are not copied.
 */
 local_updatestep_type * local_updatestep_alloc_copy( const local_updatestep_type * src , const char * name ) {
   local_updatestep_type * new = local_updatestep_alloc( name );
@@ -92,8 +92,8 @@ local_ministep_type * local_updatestep_iget_ministep( const local_updatestep_typ
 }
 
 
-local_obsset_type * local_updatestep_iget_obsset( const local_updatestep_type * updatestep , int index) {
-  return local_ministep_get_obsset( vector_iget( updatestep->ministep , index ) );
+local_obsdata_type * local_updatestep_iget_obsdata( const local_updatestep_type * updatestep , int index) {
+  return local_ministep_get_obsdata( vector_iget( updatestep->ministep , index ) );
 }
 
 
@@ -102,7 +102,7 @@ int local_updatestep_get_num_ministep( const local_updatestep_type * updatestep)
 }
 
 const char * local_updatestep_get_name( const local_updatestep_type * updatestep ) {
-  return updatestep->name; 
+  return updatestep->name;
 }
 
 

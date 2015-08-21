@@ -29,11 +29,13 @@ import datetime
 # regarding order of arguments: The C code generally takes the time
 # index as the first argument and the key/key_index as second
 # argument. In the python code this order has been reversed.
-from ert.cwrap import BaseCClass, CWrapper
+from ert.cwrap import BaseCClass, CWrapper, CFILE
 from ert.ecl.ecl_sum_vector import EclSumVector
 from ert.ecl.ecl_smspec_node import EclSMSPECNode
 from ert.util import StringList, CTime, DoubleVector, TimeVector, IntVector
 from ert.ecl import ECL_LIB
+#, EclSumKeyWordVector
+
 
 
 
@@ -98,18 +100,18 @@ class EclSum(BaseCClass):
         """
         c_pointer = EclSum.cNamespace().fread_alloc( load_case , join_string , include_restart)
         if c_pointer is None:
-            raise AssertionError("Failed to create summary instance from argument:%s" % load_case)
+            raise IOError("Failed to create summary instance from argument:%s" % load_case)
         else:
             super(EclSum, self).__init__(c_pointer)
             self._initialize()
 
 
     @staticmethod
-    def writer(case , start_time , nx,ny,nz , fmt_output = False , unified = True , key_join_string = ":"):
+    def writer(case , start_time , nx,ny,nz , fmt_output = False , unified = True , time_in_days = True , key_join_string = ":"):
         """
         The writer is not generally usable.
         """
-        return EclSum.cNamespace().create_writer( case , fmt_output , unified , key_join_string , CTime(start_time) , nx , ny , nz)
+        return EclSum.cNamespace().create_writer( case , fmt_output , unified , key_join_string , CTime(start_time) , time_in_days , nx , ny , nz)
 
 
     def addVariable(self , variable , wgname = None , num = 0 , unit = "None" , default_value = 0):
@@ -359,15 +361,22 @@ class EclSum(BaseCClass):
         """
         Will check if the input date is in the time span [sim_start , sim_end].
         """
-        return EclSum.cNamespace().check_sim_time( self , CTime(date) )
+        if not isinstance(date, CTime):
+            date = CTime(date)
+        return EclSum.cNamespace().check_sim_time( self , date )
 
-    
+    def get_interp_direct(self,key , date):
+
+        if not isinstance(date, CTime):
+            date = CTime(date)
+        return EclSum.cNamespace().get_general_var_from_sim_time( self , date , key )
+
     def get_interp( self , key , days = None , date = None):
         """
         Will lookup vector @key at time given by @days or @date.
-        
+
         Requiers exactly one input argument @days or @date; will raise
-        exception ValueError if this is not satisfied. 
+        exception ValueError if this is not satisfied.
 
         The method will check that the time argument is within the
         time limits of the simulation; if else the method will raise
@@ -381,9 +390,11 @@ class EclSum(BaseCClass):
             raise ValueError("Must supply either days or date")
 
         if days is None:
-            if self.check_sim_time( date ):
-                return EclSum.cNamespace().get_general_var_from_sim_time( self , CTime(date) , key )
+            t = CTime(date)
+            if self.check_sim_time( t ):
+                return EclSum.cNamespace().get_general_var_from_sim_time( self , t , key )
             else:
+
                 raise ValueError("date:%s is outside range of simulation data" % date)
         elif date is None:
             if EclSum.cNamespace().check_sim_days( self , days ):
@@ -782,13 +793,7 @@ ime_index.
 
     @property 
     def sim_length( self ):
-        """
-        The length of the current dataset in simulation days.
-
-        Will include the length of a leading restart section,
-        irrespective of whether we have data for this or not.
-        """
-        return EclSum.cNamespace().sim_length( self )
+        return self.getSimulationLength( )
 
     @property
     def start_date(self):
@@ -827,7 +832,7 @@ ime_index.
         """
         The time of the last (loaded) time step.
         """
-        return CTime(EclSum.cNamespace().get_end_date( self )).datetime()
+        return self.getEndTime()
 
     
     @property
@@ -843,6 +848,22 @@ ime_index.
         """
         return CTime( EclSum.cNamespace().get_start_date( self ) ).datetime()
 
+
+    def getEndTime(self):
+        """
+        A Python datetime instance with the last loaded time.
+        """
+        return CTime(EclSum.cNamespace().get_end_date( self )).datetime()
+
+    def getSimulationLength(self):
+        """
+        The length of the current dataset in simulation days.
+
+        Will include the length of a leading restart section,
+        irrespective of whether we have data for this or not.
+        """
+        return EclSum.cNamespace().sim_length( self )
+        
 
 
     @property
@@ -864,7 +885,7 @@ ime_index.
         Returns the first index where @key is above @limit.
         """
         key_index  = EclSum.cNamespace().get_general_var_index( self , key )
-        time_index = EclSum.cNamespace().get_first_lt( self , key_index , limit )
+        time_index = EclSum.cNamespace().get_first_gt( self , key_index , limit )
         return time_index
 
     def first_lt_index( self , key , limit ):
@@ -925,6 +946,16 @@ ime_index.
 
     def free(self):
         EclSum.cNamespace().free(self)
+
+    def dumpCSVLine(self, time, keywords, pfile):
+        """
+        Will dump a csv formatted line of the keywords in @keywords,
+        evaluated at the intertpolated time @time. @pfile should point to an open Python file handle.
+        """
+        cfile = CFILE(pfile ) 
+        ctime = CTime( time )
+        EclSum.cNamespace().dump_csv_line(self, ctime, keywords, cfile)
+        
 
     @classmethod
     def createCReference(cls, c_pointer, parent=None):
@@ -999,6 +1030,9 @@ EclSum.cNamespace().get_var_node                  = cwrapper.prototype("smspec_n
 EclSum.cNamespace().create_well_list              = cwrapper.prototype("stringlist_obj ecl_sum_alloc_well_list( ecl_sum , char* )")
 EclSum.cNamespace().create_group_list             = cwrapper.prototype("stringlist_obj ecl_sum_alloc_group_list( ecl_sum , char* )")
 
-EclSum.cNamespace().create_writer                 = cwrapper.prototype("ecl_sum_obj  ecl_sum_alloc_writer( char* , bool , bool , char* , time_t , int , int , int)")
+EclSum.cNamespace().create_writer                 = cwrapper.prototype("ecl_sum_obj  ecl_sum_alloc_writer( char* , bool , bool , char* , time_t , bool , int , int , int)")
 EclSum.cNamespace().add_variable                  = cwrapper.prototype("void         ecl_sum_add_var(ecl_sum , char* , char* , int , char*, double)")
 EclSum.cNamespace().add_tstep                     = cwrapper.prototype("c_void_p     ecl_sum_add_tstep(ecl_sum , int , double)")
+
+import ert.ecl.ecl_sum_keyword_vector
+EclSum.cNamespace().dump_csv_line                = cwrapper.prototype("void ecl_sum_dump_line_to_csv_file(ecl_sum , time_t , ecl_sum_vector, FILE)")

@@ -106,9 +106,21 @@ endif()
 # underscore to avoid conflict with plplot which defines the
 # HAVE_USLEEP symbol.
 check_function_exists( usleep HAVE__USLEEP )
-if (HAVE_OPENDIR)
+if (HAVE__USLEEP)
   add_definitions( -DHAVE__USLEEP )
 endif()
+
+
+check_function_exists(pthread_yield_np HAVE_YIELD_NP)
+if (HAVE_YIELD_NP)
+  add_definitions(-DHAVE_YIELD_NP)
+endif()
+
+check_function_exists(pthread_yield HAVE_YIELD)
+if (HAVE_YIELD)
+  add_definitions(-DHAVE_YIELD)
+endif()
+
 
 # Checking based on compiling. Some of the code generates warnings, so we just cut down to bare-bone compiler flags.
 
@@ -117,7 +129,7 @@ set( CMAKE_CXX_FLAGS_main ${CMAKE_CXX_FLAGS} )
 
 if (NOT ERT_WINDOWS)
   set( CMAKE_C_FLAGS "-std=gnu99" )
-  set( CMAKE_CXX_FLAGS "")
+  set( CMAKE_CXX_FLAGS "-std=c++0x")
 endif()
 
 try_compile( HAVE_ISFINITE ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_isfinite.c )
@@ -145,6 +157,13 @@ try_compile( ISREG_POSIX ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/t
 if (ISREG_POSIX)
   add_definitions( -DHAVE_ISREG )
 endif()
+
+try_compile( HAVE_SIGBUS ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_have_sigbus.c )
+if (HAVE_SIGBUS)
+  add_definitions( -DHAVE_SIGBUS )
+endif()
+
+try_compile( HAVE_CXX_SHARED_PTR ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_shared_ptr.cpp )
 
 check_type_size(time_t SIZE_OF_TIME_T)
 if (${SIZE_OF_TIME_T} EQUAL 8)

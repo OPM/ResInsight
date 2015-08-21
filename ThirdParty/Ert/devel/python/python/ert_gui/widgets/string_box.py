@@ -34,6 +34,7 @@ class StringBox(HelpedWidget):
         self.connect(self.box_string, QtCore.SIGNAL('textChanged(QString)'), self.validateString)
         self.addWidget(self.box_string)
 
+        self.valid_color = self.box_string.palette().color(self.box_string.backgroundRole())
         self.box_string.setText(defaultString)
         self.__validator = None
 
@@ -49,17 +50,15 @@ class StringBox(HelpedWidget):
         if self.__validator is not None:
             status = self.__validator.validate(string_to_validate)
 
+            palette = QPalette()
             if not status:
                 self.setValidationMessage(str(status), HelpedWidget.EXCLAMATION)
-                palette = QPalette()
-                palette.setColor(QPalette.Text, Qt.red)
+                palette.setColor(self.box_string.backgroundRole(), self.ERROR_COLOR)
                 self.box_string.setPalette(palette)
             else:
                 self.setValidationMessage("")
-                palette = QPalette()
-                palette.setColor(QPalette.Text, Qt.black)
+                palette.setColor(self.box_string.backgroundRole(), self.valid_color)
                 self.box_string.setPalette(palette)
-                self.stringBoxChanged()
 
 
     def stringBoxChanged(self):

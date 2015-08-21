@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'hash.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'hash.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #define  _GNU_SOURCE   /* Must define this to get access to pthread_rwlock_t */
@@ -34,7 +34,7 @@
 #include <pthread.h>
 typedef pthread_rwlock_t lock_type;
 #else
-typedef int lock_type; 
+typedef int lock_type;
 #endif
 
 #ifdef __cplusplus
@@ -94,7 +94,7 @@ static void __hash_deadlock_abort(hash_type * hash) {
 
 static void __hash_rdlock(hash_type * hash) {
   int lock_error = pthread_rwlock_tryrdlock( &hash->rwlock );
-  if (lock_error != 0) 
+  if (lock_error != 0)
     util_abort("%s: did not get hash->read_lock - fix locking in calling scope\n",__func__);
 }
 
@@ -140,11 +140,11 @@ static void * __hash_get_node_unlocked(const hash_type *__hash , const char *key
   {
     const uint32_t global_index = hash->hashf(key , strlen(key));
     const uint32_t table_index  = (global_index % hash->size);
-    
+
     node = hash_sll_get(hash->table[table_index] , global_index , key);
-    if (node == NULL && abort_on_error) 
+    if (node == NULL && abort_on_error)
       util_abort("%s: tried to get from key:%s which does not exist - aborting \n",__func__ , key);
-    
+
   }
   return node;
 }
@@ -179,7 +179,7 @@ static node_data_type * hash_get_node_data(hash_type *hash , const char *key) {
 /**
    This function resizes the hash table when it has become to full.
    The table only grows - this function is called from
-   __hash_insert_node(). 
+   __hash_insert_node().
 
    If you know in advance (roughly) how large the hash table will be
    it can be advantageous to call hash_resize() manually, to avoid
@@ -190,7 +190,7 @@ void hash_resize(hash_type *hash, int new_size) {
   hash_sll_type ** new_table = hash_sll_alloc_table( new_size );
   hash_node_type * node;
   uint32_t i;
-  
+
   for (i=0; i < hash->size; i++) {
     node = hash_sll_get_head(hash->table[i]);
     while (node != NULL) {
@@ -200,18 +200,18 @@ void hash_resize(hash_type *hash, int new_size) {
       node = next_node;
     }
   }
-  
-  /* 
+
+  /*
      Only freeing the table structure, *NOT* calling the node_free()
      functions, which happens when hash_sll_free() is called.
   */
-  
+
   {
-    for (i=0; i < hash->size; i++) 
+    for (i=0; i < hash->size; i++)
       free( hash->table[i] );
     free( hash->table );
   }
-  
+
   hash->size     = new_size;
   hash->table    = new_table;
 }
@@ -222,7 +222,7 @@ void hash_resize(hash_type *hash, int new_size) {
    function takes a write-lock which is held during the execution of
    the function.
 */
-   
+
 static void __hash_insert_node(hash_type *hash , hash_node_type *node) {
   __hash_wrlock( hash );
   {
@@ -236,12 +236,12 @@ static void __hash_insert_node(hash_type *hash , hash_node_type *node) {
       if (existing_node != NULL) {
         hash_sll_del_node(hash->table[table_index] , existing_node);
         hash->elements--;
-      } 
+      }
     }
-    
-    hash_sll_add_node(hash->table[table_index] , node);  
+
+    hash_sll_add_node(hash->table[table_index] , node);
     hash->elements++;
-    if ((1.0 * hash->elements / hash->size) > hash->resize_fill) 
+    if ((1.0 * hash->elements / hash->size) > hash->resize_fill)
       hash_resize(hash , hash->size * 2);
   }
   __hash_unlock( hash );
@@ -261,12 +261,12 @@ static void hash_del_unlocked__(hash_type *hash , const char *key) {
   const uint32_t global_index = hash->hashf(key , strlen(key));
   const uint32_t table_index  = (global_index % hash->size);
   hash_node_type *node        = hash_sll_get(hash->table[table_index] , global_index , key);
-  
-  if (node == NULL) 
+
+  if (node == NULL)
     util_abort("%s: hash does not contain key:%s - aborting \n",__func__ , key);
   else
     hash_sll_del_node(hash->table[table_index] , node);
-  
+
   hash->elements--;
 }
 
@@ -287,7 +287,7 @@ static hash_node_type * hash_internal_iter_next(const hash_type *hash , const ha
       while (i < hash->size && hash_sll_empty(hash->table[i]))
         i++;
 
-      if (i < hash->size) 
+      if (i < hash->size)
         next_node = hash_sll_get_head(hash->table[i]);
     }
   }
@@ -298,7 +298,7 @@ static hash_node_type * hash_internal_iter_next(const hash_type *hash , const ha
 
 /**
    This is the low level function which traverses a hash table and
-   allocates a char ** list of keys. 
+   allocates a char ** list of keys.
 
    It takes a read-lock which is held during the execution of the
    function. The locking guarantees that the list of keys is valid
@@ -320,13 +320,13 @@ static char ** hash_alloc_keylist__(hash_type *hash , bool lock) {
         uint32_t i = 0;
         while (i < hash->size && hash_sll_empty(hash->table[i]))
           i++;
-        
-        if (i < hash->size) 
+
+        if (i < hash->size)
           node = hash_sll_get_head(hash->table[i]);
       }
-      
+
       while (node != NULL) {
-        const char *key = hash_node_get_key(node); 
+        const char *key = hash_node_get_key(node);
         keylist[i] = util_alloc_string_copy(key);
         node = hash_internal_iter_next(hash , node);
         i++;
@@ -343,7 +343,7 @@ static char ** hash_alloc_keylist__(hash_type *hash , bool lock) {
 
 
 /*****************************************************************/
-/** 
+/**
    The fundamental functions above relate the hash_node
    structure. Here comes a list of functions for inserting managed
    copies of various types.
@@ -432,7 +432,7 @@ void hash_del(hash_type *hash , const char *key) {
    This function will delete the key if it exists in the hash, but it
    will NOT fail if the key is not already in the hash table.
 */
-   
+
 void hash_safe_del(hash_type * hash , const char * key) {
   __hash_wrlock( hash );
   if (__hash_get_node_unlocked(hash , key , false))
@@ -462,7 +462,7 @@ void hash_clear(hash_type *hash) {
 void * hash_get(const hash_type *hash , const char *key) {
   hash_node_type * hash_node = __hash_get_node(hash , key , true);
   node_data_type * data_node = hash_node_get_data( hash_node );
-  return node_data_get_ptr( data_node ); 
+  return node_data_get_ptr( data_node );
 }
 
 
@@ -474,7 +474,7 @@ void * hash_safe_get( const hash_type * hash , const char * key ) {
   hash_node_type * hash_node = __hash_get_node(hash , key , false);
   if (hash_node != NULL) {
     node_data_type * data_node = hash_node_get_data( hash_node );
-    return node_data_get_ptr( data_node ); 
+    return node_data_get_ptr( data_node );
   } else
     return NULL;
 }
@@ -489,7 +489,7 @@ void * hash_safe_get( const hash_type * hash , const char * key ) {
    Observe that if the object has been installed with a destructor,
    the object will be destroyed by the hash_del() operation, and the
    return value is complete gibberish - i.e. this function can NOT be
-   used on hash-owned references.  
+   used on hash-owned references.
 */
 
 void * hash_pop( hash_type * hash , const char * key) {
@@ -516,7 +516,7 @@ static hash_type * __hash_alloc(int size, double resize_fill , hashf_type *hashf
   hash->elements  = 0;
   hash->resize_fill  = resize_fill;
   LOCK_INIT( &hash->rwlock );
-  
+
   return hash;
 }
 
@@ -527,7 +527,7 @@ hash_type * hash_alloc() {
 
 // Purely a helper in the process of removing the internal locking
 // in the hash implementation.
-hash_type * hash_alloc_unlocked() {  
+hash_type * hash_alloc_unlocked() {
   return __hash_alloc(HASH_DEFAULT_SIZE , 0.50 , hash_index);
 }
 
@@ -538,7 +538,7 @@ UTIL_IS_INSTANCE_FUNCTION(hash , HASH_TYPE_ID)
 
 void hash_free(hash_type *hash) {
   uint32_t i;
-  for (i=0; i < hash->size; i++) 
+  for (i=0; i < hash->size; i++)
     hash_sll_free(hash->table[i]);
   free(hash->table);
   LOCK_DESTROY( &hash->rwlock );
@@ -561,7 +561,7 @@ stringlist_type * hash_alloc_stringlist(hash_type * hash) {
   int i;
   for (i = 0; i < hash_get_size( hash ); i++)
     stringlist_append_owned_ref( stringlist , keylist[i] );
-  
+
   free( keylist );
   return stringlist;
 }
@@ -569,7 +569,7 @@ stringlist_type * hash_alloc_stringlist(hash_type * hash) {
 
 
 /*****************************************************************/
-/** 
+/**
     The standard functions for inserting an entry in the hash table:
 
     hash_insert_copy(): The hash table uses copyc() to make a copy of
@@ -591,7 +591,7 @@ stringlist_type * hash_alloc_stringlist(hash_type * hash) {
 
 void hash_insert_copy(hash_type *hash , const char *key , const void *value , copyc_ftype *copyc , free_ftype *del) {
   hash_node_type *hash_node;
-  if (copyc == NULL || del == NULL) 
+  if (copyc == NULL || del == NULL)
     util_abort("%s: must provide copy constructer and delete operator for insert copy - aborting \n",__func__);
   {
     node_data_type * data_node = node_data_alloc_ptr( value , copyc , del );
@@ -614,7 +614,7 @@ void hash_insert_copy(hash_type *hash , const char *key , const void *value , co
 
 void hash_insert_hash_owned_ref(hash_type *hash , const char *key , const void *value , free_ftype *del) {
   hash_node_type *hash_node;
-  if (del == NULL) 
+  if (del == NULL)
     util_abort("%s: must provide delete operator for insert hash_owned_ref - aborting \n",__func__);
   {
     node_data_type * data_node = node_data_alloc_ptr( value , NULL , del );
@@ -643,32 +643,32 @@ bool hash_has_key(const hash_type *hash , const char *key) {
 }
 
 
-int hash_get_size(const hash_type *hash) { 
-  return hash->elements; 
+int hash_get_size(const hash_type *hash) {
+  return hash->elements;
 }
 
 
 
 /******************************************************************/
-/** 
+/**
    Here comes a list of functions for allocating keylists which have
    been sorted in various ways.
 */
-   
+
 
 static hash_sort_type * hash_alloc_sort_list(const hash_type *hash ,
-                                             const char **keylist) { 
+                                             const char **keylist) {
 
-  int i; hash_sort_type * sort_list = calloc(hash_get_size(hash) , sizeof * sort_list); 
-  for (i=0; i < hash_get_size(hash); i++) 
+  int i; hash_sort_type * sort_list = calloc(hash_get_size(hash) , sizeof * sort_list);
+  for (i=0; i < hash_get_size(hash); i++)
     sort_list[i].key = util_alloc_string_copy(keylist[i]);
-  
+
   return sort_list;
 }
 
 static void hash_free_sort_list(const hash_type *hash , hash_sort_type *sort_list) {
   int i;
-  for (i=0; i < hash_get_size(hash); i++) 
+  for (i=0; i < hash_get_size(hash); i++)
     free(sort_list[i].key);
   free(sort_list);
 }
@@ -687,15 +687,15 @@ static int hash_sortlist_cmp(const void *_p1 , const void  *_p2) {
 }
 
 
-static char ** __hash_alloc_ordered_keylist(hash_type *hash , int ( hash_get_cmp_value) (const void * )) {    
+static char ** __hash_alloc_ordered_keylist(hash_type *hash , int ( hash_get_cmp_value) (const void * )) {
   int i;
   char **sorted_keylist;
   char **tmp_keylist   = hash_alloc_keylist(hash);
   hash_sort_type * sort_list = hash_alloc_sort_list(hash , (const char **) tmp_keylist);
 
-  for (i = 0; i < hash_get_size(hash); i++) 
+  for (i = 0; i < hash_get_size(hash); i++)
     sort_list[i].cmp_value = hash_get_cmp_value( hash_get(hash , sort_list[i].key) );
-  
+
   qsort(sort_list , hash_get_size(hash) , sizeof *sort_list , &hash_sortlist_cmp);
   sorted_keylist = calloc(hash_get_size(hash) , sizeof *sorted_keylist);
   for (i = 0; i < hash_get_size(hash); i++) {
@@ -720,14 +720,14 @@ char ** hash_alloc_sorted_keylist(hash_type *hash , int ( hash_get_cmp_value) (c
 static int key_cmp(const void *_s1 , const void *_s2) {
   const char * s1 = *((const char **) _s1);
   const char * s2 = *((const char **) _s2);
-  
+
   return strcmp(s1 , s2);
 }
 
 
-static char ** __hash_alloc_key_sorted_list(hash_type *hash, int (*cmp) (const void * , const void *)) { 
+static char ** __hash_alloc_key_sorted_list(hash_type *hash, int (*cmp) (const void * , const void *)) {
   char **keylist = hash_alloc_keylist(hash);
-  
+
   qsort(keylist , hash_get_size(hash) , sizeof *keylist , cmp);
   return keylist;
 }
@@ -749,7 +749,7 @@ bool hash_key_list_compare(hash_type * hash1, hash_type * hash2)
 {
   bool has_equal_keylist;
   int i,size1, size2;
-  char **keylist1, **keylist2; 
+  char **keylist1, **keylist2;
 
   size1 = hash_get_size(hash1);
   size2 = hash_get_size(hash2);
@@ -776,7 +776,7 @@ bool hash_key_list_compare(hash_type * hash1, hash_type * hash2)
   free( keylist1 );
   free( keylist2 );
   return has_equal_keylist;
-  
+
 }
 
 
@@ -784,7 +784,7 @@ bool hash_key_list_compare(hash_type * hash1, hash_type * hash2)
 
 /*****************************************************************/
 /**
-   This function will take a list of strings of type: 
+   This function will take a list of strings of type:
 
      ["OPT1:Value1" , "MIN:0.0001" , "MAX:1.00" , "FILE:XX"]
 
@@ -806,17 +806,17 @@ hash_type * hash_alloc_from_options(const stringlist_type * options) {
   for (iopt = 0; iopt < num_options; iopt++) {
     char * option;
     char * value;
-    
+
     util_binary_split_string( stringlist_iget(options , iopt) , ":" , true , &option , &value);
-    if ((option != NULL) && (value != NULL)) 
+    if ((option != NULL) && (value != NULL))
       hash_insert_hash_owned_ref( opt_hash , option , util_alloc_string_copy(value) , free);
     // Warning: could not interpret string as KEY:VALUE - ignored
-      
-    
+
+
     util_safe_free(option);
     util_safe_free(value);
   }
-  
+
   return opt_hash;
 }
 
@@ -832,7 +832,7 @@ hash_type * hash_alloc_from_options(const stringlist_type * options) {
        hash_insert_hash_owned_ref( hash , key , value , free );
        addOK = true;
      }
-     
+
      util_safe_free( key );
    }
    return addOK;
@@ -850,9 +850,9 @@ hash_type * hash_alloc_from_options(const stringlist_type * options) {
 */
 struct hash_iter_struct {
   const hash_type  * hash;            /* The hash we are iterating over. */
-  char            ** keylist;         /* The keys in the hash table - at the moment of hash_iter_alloc(). */ 
-  int                num_keys;        
-  int                current_key_num; /* This integer retains the state. */ 
+  char            ** keylist;         /* The keys in the hash table - at the moment of hash_iter_alloc(). */
+  int                num_keys;
+  int                current_key_num; /* This integer retains the state. */
 };
 
 
@@ -864,7 +864,7 @@ void hash_iter_restart( hash_iter_type * iter ) {
 
 
 hash_iter_type * hash_iter_alloc(const hash_type * hash) {
-  hash_iter_type * iter = util_malloc(sizeof * iter ); 
+  hash_iter_type * iter = util_malloc(sizeof * iter );
 
   iter->hash            = hash;
   iter->num_keys        = hash_get_size(hash);
@@ -931,9 +931,9 @@ void * hash_iter_get_next_value(hash_iter_type * iter) {
 
        ....
        value = hash_get( hash , key );
-       func( value );                      <-- The call is inplace - with no arguments, 
+       func( value );                      <-- The call is inplace - with no arguments,
        ....                                    and no return value. The content of 'value'
-                                               can obviously change, but 'value' itself 
+                                               can obviously change, but 'value' itself
                                                must still be a valid reference!
 */
 
@@ -943,7 +943,7 @@ void hash_apply( hash_type * hash , hash_apply_ftype * func) {
   while (!hash_iter_is_complete( iter )) {
     const char * key = hash_iter_get_next_key( iter );
     void * value     = hash_get( hash , key );
-    
+
     func( value );
   }
   hash_iter_free( iter );

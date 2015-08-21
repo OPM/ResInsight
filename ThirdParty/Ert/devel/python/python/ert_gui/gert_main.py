@@ -121,6 +121,7 @@ from ert_gui.main_window import GertMainWindow
 from ert_gui.ert_splash import ErtSplash
 from ert_gui.models import ErtConnector
 from ert_gui.pages.summary_panel import SummaryPanel
+from ert_gui.tools.plugins import PluginHandler
 from ert_gui.simulation.simulation_panel import SimulationPanel
 from ert_gui.tools import HelpCenter
 
@@ -130,6 +131,7 @@ from ert_gui.tools.load_results import LoadResultsTool
 from ert_gui.tools.manage_cases import ManageCasesTool
 from ert_gui.tools.plot import PlotTool
 from ert_gui.tools.export import ExportTool
+from ert_gui.tools.plugins import PluginsTool
 from ert_gui.tools.workflows import WorkflowsTool
 from ert_gui.widgets import util
 
@@ -170,15 +172,6 @@ class Ert(object):
 
 
 def main(argv):
-
-    try:
-        import site_config
-        site_config_file = site_config.config_file
-    except ImportError:
-        site_config_file = None
-
-    if os.getenv("ERT_SITE_CONFIG"):
-        site_config_file = os.getenv("ERT_SITE_CONFIG")
 
     app = QApplication(argv) #Early so that QT is initialized before other imports
     app.setWindowIcon(util.resourceIcon("application/window_icon_cutout"))
@@ -242,11 +235,13 @@ def main(argv):
     now = time.time()
 
 
-    ert = Ert(EnKFMain(config_file, site_config = site_config_file, strict=strict))
+    ert = Ert(EnKFMain(config_file, strict=strict))
     ErtConnector.setErt(ert.ert())
 
     window = GertMainWindow()
     window.setWidget(SimulationPanel())
+
+    plugin_handler = PluginHandler(ert.ert(), ert.ert().getWorkflowList().getPluginJobs(), window)
 
     help_tool = HelpTool("ERT", window)
 
@@ -254,8 +249,9 @@ def main(argv):
     window.addTool(IdeTool(os.path.basename(config_file), ert.reloadERT, help_tool))
     window.addTool(PlotTool())
     window.addTool(ExportTool())
-    window.addTool(WorkflowsTool(ert.reloadERT))
+    window.addTool(WorkflowsTool())
     window.addTool(ManageCasesTool())
+    window.addTool(PluginsTool(plugin_handler))
     window.addTool(LoadResultsTool())
     window.addTool(help_tool)
 

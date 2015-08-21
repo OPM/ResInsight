@@ -21,20 +21,26 @@
 #include "RiaStdInclude.h"
 
 #include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
 
-#include "RimReservoirView.h"
+#include "cafCeetronPlusNavigation.h"
+#include "RiuCadNavigation.h"
+#include "RiuRmsNavigation.h"
+#include "RiuGeoQuestNavigation.h"
+
+#include "RimEclipseView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimCase.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimCellEdgeColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimFaultCollection.h"
-#include "RimResultSlot.h"
-#include "RimWellCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseWellCollection.h"
 
 #include "RimUiTreeModelPdm.h"
 
@@ -50,7 +56,16 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "RivSourceInfo.h"
+#include "RivFemPickSourceInfo.h"
+
 #include "RiuResultTextBuilder.h"
+#include "RivFemPartGeometryGenerator.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
+#include "RigGeoMechCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPart.h"
+#include "RigFemPartGrid.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -65,6 +80,8 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 /// 
 ///
 //==================================================================================================
+
+#include "RiaBaseDefs.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -116,6 +133,18 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_InfoLabel->setFrameShape(QFrame::Box);
     m_showInfoText = true;
 
+    // Version info label
+    m_versionInfoLabel = new QLabel();
+    m_versionInfoLabel->setFrameShape(QFrame::NoFrame);
+    m_versionInfoLabel->setAlignment(Qt::AlignRight);
+    m_versionInfoLabel->setText(QString("%1 v%2").arg(RI_APPLICATION_NAME, RiaApplication::getVersionStringApp(false)));
+    
+    QPalette versionInfoPalette = p;
+    QColor versionInfoLabelColor = p.color(QPalette::Window);
+    versionInfoLabelColor.setAlpha(0);
+    versionInfoPalette.setColor(QPalette::Window, versionInfoLabelColor);
+    m_versionInfoLabel->setPalette(versionInfoPalette);
+
     // Animation progress bar
     m_animationProgress = new QProgressBar();
     m_animationProgress->setPalette(p);
@@ -131,6 +160,18 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_histogramWidget->setPalette(p);
     m_showHistogram = false;
 
+    m_viewerCommands = new RiuViewerCommands(this);
+
+    if (RiaApplication::instance()->isRunningRegressionTests())
+    {
+        QFont regTestFont = m_InfoLabel->font();
+        regTestFont.setPixelSize(11);
+
+        m_InfoLabel->setFont(regTestFont);
+        m_versionInfoLabel->setFont(regTestFont);
+        m_animationProgress->setFont(regTestFont);
+        m_histogramWidget->setFont(regTestFont);
+    }
 }
 
 
@@ -139,9 +180,11 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuViewer::~RiuViewer()
 {
-    m_reservoirView->showWindow = false;
-    m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
-
+    if (m_reservoirView)
+    {
+        m_reservoirView->showWindow = false;
+        m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
+    }
     delete m_InfoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
@@ -190,21 +233,15 @@ void RiuViewer::setDefaultView()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 {
-    m_mouseState.updateFromMouseEvent(event);
-
     if (!this->canRender()) return;
 
-    // Picking
     if (event->button() == Qt::LeftButton)
     {
-        handlePickAction(event->x(), event->y());
+        m_viewerCommands->handlePickAction(event->x(), event->y());
         return;
     }
     else if (event->button() == Qt::RightButton)
     {
-        m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
-        m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
-
         QPoint diffPoint = event->pos() - m_lastMousePressPosition;
         if (diffPoint.manhattanLength() > 3)
         {
@@ -212,250 +249,10 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
             return;
         }
 
-        int winPosX = event->x();
-        int winPosY = event->y();
-
-        uint faceIndex = cvf::UNDEFINED_UINT;
-        cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
-
-        cvf::Part* firstHitPart = NULL;
-        cvf::Part* nncFirstHitPart = NULL;
-        pickPointAndFace(winPosX, winPosY, &localIntersectionPoint, &firstHitPart, &faceIndex, &nncFirstHitPart, NULL);
-        if (firstHitPart)
-        {
-            if (faceIndex != cvf::UNDEFINED_UINT)
-            {
-                if (firstHitPart->sourceInfo())
-                {
-                    const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
-                    if (rivSourceInfo)
-                    {
-                        if (rivSourceInfo->hasCellFaceMapping())
-                        {
-                            m_currentGridIdx = firstHitPart->id();
-                            m_currentCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(faceIndex);
-                            m_currentFaceIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(faceIndex);
-
-                            QMenu menu;
-
-                            menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-                            menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-                            menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
-
-                            const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
-                            const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
-                            if (fault)
-                            {
-                                menu.addSeparator();
-
-                                QString faultName = fault->name();
-                                menu.addAction(QString("Hide ") + faultName, this, SLOT(slotHideFault()));
-                            }
-
-                            menu.exec(event->globalPos());
-                        }
-                    }
-                }
-            }
-        }
+        m_viewerCommands->displayContextMenu(event);
+        return;
     }
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::slotRangeFilterI()
-{
-    size_t i, j, k;
-    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
-    if (myModel)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
-
-        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
-
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
-
-        rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountI = 1;
-        int startIndex = CVF_MAX(static_cast<int>(i + 1), 1);
-        rangeFilter->startIndexI = startIndex;
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        mainWindow->setCurrentObjectInTreeView(rangeFilter);
-    }
-
-    m_reservoirView->setSurfaceDrawstyle();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::slotRangeFilterJ()
-{
-    size_t i, j, k;
-    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
-    if (myModel)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
-
-        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
-
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
-
-        rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountJ = 1;
-        int startIndex = CVF_MAX(static_cast<int>(j + 1), 1);
-        rangeFilter->startIndexJ = startIndex;
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        mainWindow->setCurrentObjectInTreeView(rangeFilter);
-    }
-
-    m_reservoirView->setSurfaceDrawstyle();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::slotRangeFilterK()
-{
-    size_t i, j, k;
-    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
-    if (myModel)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
-
-        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
-
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
-
-        rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountK = 1;
-        int startIndex = CVF_MAX(static_cast<int>(k + 1), 1);
-        rangeFilter->startIndexK = startIndex;
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        mainWindow->setCurrentObjectInTreeView(rangeFilter);
-    }
-
-    m_reservoirView->setSurfaceDrawstyle();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::keyPressEvent(QKeyEvent* event)
-{
-    // Trap escape key so we can get out of direct button press actions
-    if (event->key() == Qt::Key_Escape)
-    {
-
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::handlePickAction(int winPosX, int winPosY)
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
-    size_t gridIndex = cvf::UNDEFINED_SIZE_T;
-    size_t cellIndex = cvf::UNDEFINED_SIZE_T;
-    size_t nncIndex = cvf::UNDEFINED_SIZE_T;
-    cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::NO_FACE;
-    cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
-
-    {
-        cvf::Part* firstHitPart = NULL;
-        uint firstPartFaceIndex = cvf::UNDEFINED_UINT;
-
-        cvf::Part* firstNncHitPart = NULL;
-        uint nncPartFaceIndex = cvf::UNDEFINED_UINT;
-
-        pickPointAndFace(winPosX, winPosY, &localIntersectionPoint, &firstHitPart, &firstPartFaceIndex, &firstNncHitPart, &nncPartFaceIndex);
-
-        if (firstHitPart)
-        {
-            gridIndex = firstHitPart->id();
-            if (firstHitPart->sourceInfo())
-            {
-                const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
-                if (rivSourceInfo)
-                {
-                    if (rivSourceInfo->hasCellFaceMapping())
-                    {
-                        CVF_ASSERT(rivSourceInfo->m_cellFaceFromTriangleMapper.notNull());
-
-                        cellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(firstPartFaceIndex);
-                        face = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(firstPartFaceIndex);
-                    }
-                }
-            }
-        }
-
-
-        if (firstNncHitPart && firstNncHitPart->sourceInfo())
-        {
-            const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstNncHitPart->sourceInfo());
-            if (rivSourceInfo)
-            {
-                if (nncPartFaceIndex < rivSourceInfo->m_NNCIndices->size())
-                {
-                    nncIndex = rivSourceInfo->m_NNCIndices->get(nncPartFaceIndex);
-                }
-            }
-        }
-    }
-
-    QString pickInfo = "No hits";
-    QString resultInfo = "";
-
-    if (cellIndex != cvf::UNDEFINED_SIZE_T)
-    {
-        RiuResultTextBuilder textBuilder(m_reservoirView, gridIndex, cellIndex, m_reservoirView->currentTimeStep());
-        textBuilder.setFace(face);
-        textBuilder.setNncIndex(nncIndex);
-        textBuilder.setIntersectionPoint(localIntersectionPoint);
-
-        resultInfo = textBuilder.mainResultText();
-
-        pickInfo = textBuilder.topologyText(", ");
-    }
-
-    mainWnd->statusBar()->showMessage(pickInfo);
-    mainWnd->setResultInfo(resultInfo);
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -504,9 +301,10 @@ void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setOwnerReservoirView(RimReservoirView * owner)
+void RiuViewer::setOwnerReservoirView(RimView * owner)
 {
     m_reservoirView = owner;
+    m_viewerCommands->setOwnerView(owner);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -515,96 +313,6 @@ void RiuViewer::setOwnerReservoirView(RimReservoirView * owner)
 void RiuViewer::setEnableMask(unsigned int mask)
 {
     m_mainRendering->setEnableMask(mask);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Perform picking and return the index of the face that was hit, if a drawable geo was hit
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::pickPointAndFace(int winPosX, int winPosY, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit)
-{
-    cvf::HitItemCollection hitItems;
-    bool isSomethingHit = rayPick(winPosX, winPosY, &hitItems);
-
-    if (isSomethingHit)
-    {
-        CVF_ASSERT(hitItems.count() > 0);
-
-        double characteristicCellSize = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
-        double pickDepthThresholdSquared = characteristicCellSize / 100.0;
-        pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
-
-        cvf::HitItem* firstNonNncHitItem = NULL;
-        cvf::Vec3d firstItemIntersectionPoint = hitItems.item(0)->intersectionPoint();
-
-        // Check if we have a close hit item with NNC data
-        for (size_t i = 0; i < hitItems.count(); i++)
-        {
-            cvf::HitItem* hitItemCandidate = hitItems.item(i);
-            cvf::Vec3d diff = firstItemIntersectionPoint - hitItemCandidate->intersectionPoint();
-
-            const cvf::Part* pickedPartCandidate = hitItemCandidate->part();
-            bool isNncpart = false;
-            if (pickedPartCandidate && pickedPartCandidate->sourceInfo())
-            {
-                // Hit items are ordered by distance from eye
-                if (diff.lengthSquared() < pickDepthThresholdSquared)
-                {
-                    const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickedPartCandidate->sourceInfo());
-                    if (rivSourceInfo && rivSourceInfo->hasNNCIndices())
-                    {
-                        *nncPart = const_cast<cvf::Part*>(pickedPartCandidate);
-
-                        const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItemCandidate->detail());
-                        if (detail && nncPartFaceHit)
-                        {
-                            *nncPartFaceHit = detail->faceIndex();
-                        }
-
-                        isNncpart = true;
-                    }
-                }
-            }
-
-            if (!isNncpart && !firstNonNncHitItem)
-            {
-                firstNonNncHitItem = hitItemCandidate;
-                firstItemIntersectionPoint = firstNonNncHitItem->intersectionPoint();
-            }
-
-            if (firstNonNncHitItem && *nncPart)
-            {
-                break;
-            }
-        }
-
-        const cvf::Part* pickedPart = firstNonNncHitItem->part();
-        CVF_ASSERT(pickedPart);
-        *firstPart = const_cast<cvf::Part*>(pickedPart);
-
-        const cvf::Transform* xf = pickedPart->transform();
-        cvf::Vec3d globalPickedPoint = firstNonNncHitItem->intersectionPoint();
-
-        if(localIntersectionPoint) 
-        {
-            if (xf)
-            {
-                *localIntersectionPoint = globalPickedPoint.getTransformedPoint(xf->worldTransform().getInverted());
-            }
-            else
-            {
-                *localIntersectionPoint = globalPickedPoint;
-            }
-        }
-
-        if (firstPartFaceHit)
-        {
-            const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(firstNonNncHitItem->detail());
-            if (detail)
-            {
-                *firstPartFaceHit = detail->faceIndex();
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -653,7 +361,16 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
     {
         m_histogramWidget->resize(columnWidth, 40);
         m_histogramWidget->render(painter,QPoint(columnPos, yPos));
-        yPos +=  m_InfoLabel->height() + margin;
+        yPos +=  m_histogramWidget->height() + margin;
+    }
+
+    if (m_showInfoText)
+    {
+        QSize size(m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height());
+        QPoint pos(this->width() - size.width() - margin, this->height() - size.height() - margin);
+        m_versionInfoLabel->resize(size.width(), size.height());
+        m_versionInfoLabel->render(painter, pos);
+        yPos +=  size.height() + margin;
     }
 }
 
@@ -709,41 +426,12 @@ void RiuViewer::showHistogram(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size_t* i, size_t* j, size_t* k)
-{
-    if (m_reservoirView->eclipseCase())
-    {
-        m_reservoirView->eclipseCase()->reservoirData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuViewer::mousePressEvent(QMouseEvent* event)
 {
     m_lastMousePressPosition = event->pos();
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::slotHideFault()
-{
-    const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
-    const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
-    if (fault)
-    {
-        QString faultName = fault->name();
-
-        RimFault* rimFault = m_reservoirView->faultCollection()->findFaultByName(faultName);
-        if (rimFault)
-        {
-            rimFault->showFault.setValueFromUi(!rimFault->showFault);
-        }
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -775,3 +463,31 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateNavigationPolicy()
+{
+    switch (RiaApplication::instance()->navigationPolicy())
+    {
+        case RiaApplication::NAVIGATION_POLICY_CAD:
+            setNavigationPolicy(new RiuCadNavigation);
+            break;
+
+        case RiaApplication::NAVIGATION_POLICY_CEETRON:
+            setNavigationPolicy(new caf::CeetronPlusNavigation);
+            break;
+
+        case RiaApplication::NAVIGATION_POLICY_GEOQUEST:
+            setNavigationPolicy(new RiuGeoQuestNavigation);
+            break;
+
+        case RiaApplication::NAVIGATION_POLICY_RMS:
+            setNavigationPolicy(new RiuRmsNavigation);
+            break;
+
+        default:
+            CVF_ASSERT(0);
+            break;
+    }
+}

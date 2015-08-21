@@ -23,16 +23,16 @@
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 #include "RiuMainWindow.h"
@@ -43,7 +43,7 @@
 #include "RimScriptCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 
 
 
@@ -84,7 +84,7 @@ public:
         QString caseType;
         qint64  caseGroupId = -1;
 
-        RimCase* rimCase = server->findReservoir(caseId);
+        RimEclipseCase* rimCase = server->findReservoir(caseId);
 
         if (rimCase)
         {
@@ -174,7 +174,7 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        RimAnalysisModels* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
         if (analysisModels)
         {
             std::vector<QString> groupNames;
@@ -239,7 +239,7 @@ public:
         }
 
         RimProject* proj = RiaApplication::instance()->project();
-        RimAnalysisModels* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
         if (analysisModels)
         {
 

@@ -284,7 +284,7 @@ void enkf_tui_fs_copy_ensemble(void * arg)
           *newline = 0;
       }
 
-      if (target_case && (strlen(target_case))) {
+      if (strlen(target_case)) {
         char * report_step_to_as_char = util_scanf_int_with_limits_return_char("Target report step",prompt_len , 0 , last_report);
         if (strlen(report_step_to_as_char)) {
           util_sscanf_int(report_step_to_as_char , &report_step_to);
@@ -335,7 +335,7 @@ void enkf_tui_fs_copy_ensemble_of_parameters(void * arg)
           *newline = 0;
       }
 
-      if (target_case && strlen(target_case)) {
+      if (strlen(target_case)) {
         char * report_step_to_as_char = util_scanf_int_with_limits_return_char("Target report step",prompt_len , 0 , last_report);
         if(strlen(report_step_to_as_char) !=0){
           util_sscanf_int(report_step_to_as_char , &report_step_to);

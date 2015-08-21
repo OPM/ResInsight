@@ -34,8 +34,8 @@ namespace cvf
     class Effect;
 }
 
-class RimResultSlot;
-class RimCellEdgeResultSlot;
+class RimEclipseCellColors;
+class RimCellEdgeColors;
 
 
 
@@ -57,10 +57,10 @@ public:
     cvf::ref<cvf::UByteArray>  cellVisibility() { return  m_cellVisibility;}
 
     void updateCellColor(cvf::Color4f color);
-    void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
+    void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
 
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
-        RimCellEdgeResultSlot* cellEdgeResultSlot);
+    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, 
+        RimCellEdgeColors* cellEdgeResultColors);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 

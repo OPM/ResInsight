@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_kw_grdecl.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_kw_grdecl.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <string.h>
@@ -47,7 +47,7 @@
 
    3. The * notation can be used to print repeated values in a compact
       form, i.e.  1000*0.25 to get 1000 conecutive 0.25 values.
-      
+
   The typical ECLIPSE keywords found in the datafile contain a mixture
   of numeric and character data; the current code assumes that all the
   data of a keyword is of the same underlying type, and do NOT support
@@ -74,7 +74,7 @@ bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
   long start_pos = util_ftell( stream );
   long current_pos;
   char next_kw[256];
-  
+
   /*
     Determine if the current position of the file pointer is at the
     beginning of the line; if not skip the rest of the line; this is
@@ -83,17 +83,17 @@ bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
   {
     while (true) {
       char c;
-      if (util_ftell(stream) == 0) 
+      if (util_ftell(stream) == 0)
         /*
           We are at the very beginning of the file. Can just jump out of
           the loop.
         */
         break;
-      
+
       util_fseek( stream , -1 , SEEK_CUR );
       c = fgetc( stream );
       if (c == '\n') {
-        /* 
+        /*
            We have walked backwards reaching the start of the line. We
            have not reached any !isspace() characters on the way and
            can go back to start_pos and read from there.
@@ -101,9 +101,9 @@ bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
         util_fseek( stream , start_pos , SEEK_SET );
         break;
       }
-      
+
       if (!isspace( c )) {
-        /* 
+        /*
            We hit a non-whitespace character; this means that start_pos
            was not at the start of the line. We skip the rest of this
            line, and then start reading on the next line.
@@ -114,12 +114,12 @@ bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
       util_fseek( stream , -2 , SEEK_CUR );
     }
   }
-  
-  
+
+
   while (true) {
     current_pos = util_ftell( stream );
     if (fscanf(stream , "%s" , next_kw) == 1) {
-      if ((next_kw[0] == next_kw[1]) && (next_kw[0] == ECL_COMMENT_CHAR)) 
+      if ((next_kw[0] == next_kw[1]) && (next_kw[0] == ECL_COMMENT_CHAR))
         // This is a comment line - skip it.
         util_fskip_lines( stream , 1 );
       else {
@@ -140,7 +140,7 @@ bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
    Will use the ecl_kw_grdecl_fseek_next_header() to seek out the next
    header string, and read and return that string. If no more headers
    are found the function will return NULL. The storage allocated by
-   this function must be free'd by the calling scope.  
+   this function must be free'd by the calling scope.
 */
 
 char * ecl_kw_grdecl_alloc_next_header( FILE * stream ) {
@@ -153,7 +153,7 @@ char * ecl_kw_grdecl_alloc_next_header( FILE * stream ) {
 }
 
 
-/** 
+/**
   This function will search through a GRDECL file to look for the
   'kw'; input variables and return vales are similar to
   ecl_kw_fseek_kw(). Observe that the GRDECL files are extremely
@@ -161,7 +161,7 @@ char * ecl_kw_grdecl_alloc_next_header( FILE * stream ) {
   with a malformed GRDECL file.
 
   In particular the comparison is case sensitive; that is probably not
-  the case with ECLIPSE proper? 
+  the case with ECLIPSE proper?
 
   If the kw is not found the file pointer is repositioned.
 */
@@ -189,27 +189,27 @@ static bool ecl_kw_grdecl_fseek_kw__(const char * kw , FILE * stream) {
 // static bool ecl_kw_grdecl_fseek_kw__OLD(const char * kw , FILE * stream) {
 //   const int newline_char = '\n';
 //   long int init_pos = ftell(stream);
-//   
+//
 //   if (util_fseek_string(stream , kw , false , true)) {
 //     /*
 //       OK the keyword is found in the file; now we must verify that:
-// 
+//
 //       1. It is terminated with a blank, i.e. when searching for
 //          'COORD' we do not want a positive on 'COORDSYS'.
-// 
+//
 //       2. That the keyword indeed starts with a isspace() character; we
-//          are not interested in the 'SYS' in 'COORDSYS'. 
-// 
+//          are not interested in the 'SYS' in 'COORDSYS'.
+//
 //       3. That the current location is not a comment section.
 //     */
 //     long int kw_pos = ftell( stream );
 //     bool valid_kw = false;
 //     int c;
-// 
+//
 //     fseek( stream , strlen(kw) , SEEK_CUR);    // Seek to end of kw
-//     c = fgetc( stream );                       // Read one character  
+//     c = fgetc( stream );                       // Read one character
 //     fseek( stream , kw_pos , SEEK_SET );       // Seek back to beginning of kw
-// 
+//
 //     if (isspace(c)) {
 //       if (kw_pos > 0) {
 //         fseek( stream , kw_pos - 1 , SEEK_SET);
@@ -220,9 +220,9 @@ static bool ecl_kw_grdecl_fseek_kw__(const char * kw , FILE * stream) {
 //           valid_kw = true;
 //       } else
 //         valid_kw = true;  // kw is at the very beginning of the file.
-//     } 
-//     
-// 
+//     }
+//
+//
 //     if (valid_kw) {
 //       // OK - the kw is validly terminated with a space/tab/newline; now
 //       // we must verify that it is not in a comment section.
@@ -232,30 +232,30 @@ static bool ecl_kw_grdecl_fseek_kw__(const char * kw , FILE * stream) {
 //         while (true) {
 //           fseek( stream , -2 , SEEK_CUR );
 //           c = fgetc( stream );
-//           if ((c == newline_char) || (ftell(stream) == 0)) 
+//           if ((c == newline_char) || (ftell(stream) == 0))
 //             break;
 //         }
 //         {
 //           // We have gone as far back as necessary.
 //           int line_length = kw_pos - ftell( stream );
 //           char * line = util_malloc(line_length + 1  , __func__);
-//           
+//
 //           fread( stream , sizeof * line , line_length , stream);
 //           line[line_length] = '\0';
-//           
-//           if (strstr( line , ECL_COMMENT_STRING) == NULL) 
-//             // We are not in a commen section.  
+//
+//           if (strstr( line , ECL_COMMENT_STRING) == NULL)
+//             // We are not in a commen section.
 //             valid_kw = true;
 //           else
 //             valid_kw = false;
-//           
+//
 //           free( line );
 //         }
 //       }
 //     } else
 //       valid_kw = false;
-//     
-//     if (valid_kw) 
+//
+//     if (valid_kw)
 //       return true;
 //     else {
 //       fseek( stream , strlen(kw) , SEEK_CUR );  // Skip over the kw so we don't find it again.
@@ -265,8 +265,8 @@ static bool ecl_kw_grdecl_fseek_kw__(const char * kw , FILE * stream) {
 //         fseek( stream , init_pos , SEEK_SET );
 //         return false;
 //       }
-//     } 
-//   } else 
+//     }
+//   } else
 //     return false;
 // }
 
@@ -276,10 +276,10 @@ bool ecl_kw_grdecl_fseek_kw(const char * kw , bool rewind , FILE * stream) {
     return true;       /* OK - we found the kw between current file pos and EOF. */
   else if (rewind) {
     long int init_pos = util_ftell(stream);
-    
+
     util_fseek(stream , 0L , SEEK_SET);
     if (ecl_kw_grdecl_fseek_kw__( kw , stream )) /* Try again from the beginning of the file. */
-      return true;                              
+      return true;
     else
       util_fseek(stream , init_pos , SEEK_SET);       /* Could not find it - reposition to initial position. */
   }
@@ -293,13 +293,13 @@ bool ecl_kw_grdecl_fseek_kw(const char * kw , bool rewind , FILE * stream) {
 
 /**
    Observe that this function does not preserve the '*' structure
-   which (might) have been used in the input.  
+   which (might) have been used in the input.
 */
 
 
 static void iset_range( char * data , int data_offset , int sizeof_ctype , void * value_ptr , int multiplier) {
   int index;
-  for ( index =0; index < multiplier; index++) 
+  for ( index =0; index < multiplier; index++)
     memcpy( &data[ (index + data_offset) * sizeof_ctype ] , value_ptr , sizeof_ctype);
 }
 
@@ -317,11 +317,11 @@ static void iset_range( char * data , int data_offset , int sizeof_ctype , void 
    Whatever that 'F' is - it is discarded when the SPECGRID header is
    written to a GRID/EGRID file. For this reason we have the
    possibility of setting @strict to false; in which case the 'F' or
-   other characters in the numerical input will be ignored.  
+   other characters in the numerical input will be ignored.
 
    If @strict is set to true the function will bomb when meeting a
-   non-numeric character like the 'F' above.  
-   
+   non-numeric character like the 'F' above.
+
    ----------------------------------------------------------------
 
    The function supports multiplier keywords like:
@@ -329,7 +329,7 @@ static void iset_range( char * data , int data_offset , int sizeof_ctype , void 
    PERMX
       10000*0.15  0.16 0.17 0.18 0.19 10000*0.20
    /
-   
+
    Observe that no-spaces-are-allowed-around-the-*
 */
 
@@ -358,7 +358,7 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
             break;
           }
         }
-      } else if (strcmp(buffer , ECL_DATA_TERMINATION) == 0) 
+      } else if (strcmp(buffer , ECL_DATA_TERMINATION) == 0)
         break;
       else {
         // We have read a valid input string; scan numerical input values from it.
@@ -368,27 +368,27 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
         int multiplier;
         void * value_ptr = NULL;
         bool   char_input = false;
-        
+
         if (ecl_type == ECL_INT_TYPE) {
           int value;
 
-          if (sscanf(buffer , "%d*%d" , &multiplier , &value) == 2) 
+          if (sscanf(buffer , "%d*%d" , &multiplier , &value) == 2)
             {}
-          else if (sscanf( buffer , "%d" , &value) == 1) 
+          else if (sscanf( buffer , "%d" , &value) == 1)
             multiplier = 1;
           else {
             char_input = true;
             if (strict)
               util_abort("%s: Malformed content:\"%s\" when reading keyword:%s \n",__func__ , buffer , header);
           }
-          
+
           value_ptr = &value;
         } else if (ecl_type == ECL_FLOAT_TYPE) {
           float value;
 
-          if (sscanf(buffer , "%d*%g" , &multiplier , &value) == 2) 
+          if (sscanf(buffer , "%d*%g" , &multiplier , &value) == 2)
             {}
-          else if (sscanf( buffer , "%g" , &value) == 1) 
+          else if (sscanf( buffer , "%g" , &value) == 1)
             multiplier = 1;
           else {
             char_input = true;
@@ -400,29 +400,31 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
         } else if (ecl_type == ECL_DOUBLE_TYPE) {
           double value;
 
-          if (sscanf(buffer , "%d*%lg" , &multiplier , &value) == 2) 
+          if (sscanf(buffer , "%d*%lg" , &multiplier , &value) == 2)
             {}
-          else if (sscanf( buffer , "%lg" , &value) == 1) 
+          else if (sscanf( buffer , "%lg" , &value) == 1)
             multiplier = 1;
           else {
             char_input = true;
             if (strict)
               util_abort("%s: Malformed content:\"%s\" when reading keyword:%s \n",__func__ , buffer , header);
           }
-          
+
           value_ptr = &value;
-        } else 
+        } else
           util_abort("%s: sorry type:%s not supported \n",__func__ , ecl_util_get_type_name(ecl_type));
-        
-        
-        if (char_input)
+
+        /*
+          Removing this warning on user request:
+          if (char_input)
           fprintf(stderr,"Warning: character string: \'%s\' ignored when reading keyword:%s \n",buffer , header);
-        else {
+        */
+        if (!char_input) {
           if (data_index + multiplier >= data_size) {
             data_size  = 2*(data_index + multiplier);
             data       = util_realloc( data , sizeof_ctype * data_size * sizeof * data);
           }
-          
+
           iset_range( data , data_index , sizeof_ctype , value_ptr , multiplier );
           data_index += multiplier;
         }
@@ -430,7 +432,7 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
       }
       if (atEOF)
         break;
-    } else 
+    } else
       break;
   }
   free( buffer );
@@ -512,7 +514,7 @@ static ecl_kw_type * __ecl_kw_fscanf_alloc_grdecl__(FILE * stream , const char *
     if (fscanf(stream , "%s" , file_header) == 1) {
       int kw_size;
       char * data = fscanf_alloc_grdecl_data( file_header , strict , ecl_type , &kw_size , stream );
-      
+
       // Verify size
       if (size > 0)
         if (size != kw_size) {
@@ -520,20 +522,20 @@ static ecl_kw_type * __ecl_kw_fscanf_alloc_grdecl__(FILE * stream , const char *
           util_abort("%s: size mismatch when loading:%s. File:%d elements. Requested:%d elements \n",
                      __func__ , file_header , kw_size , size);
         }
-      
+
       {
         ecl_kw_type * ecl_kw = ecl_kw_alloc_new( file_header , kw_size , ecl_type , NULL );
         ecl_kw_set_data_ptr( ecl_kw , data );
         return ecl_kw;
       }
 
-    } else 
+    } else
       /** No header read - probably at EOF */
       return NULL;
   }
 }
 /*****************************************************************/
-/* 
+/*
    Here comes the exported functions for loading a grdecl formatted
    keyword. All of these function invoke the fundamental
    ecl_kw_fscanf_alloc_grdecl__() function, but the set of input
@@ -541,7 +543,7 @@ static ecl_kw_type * __ecl_kw_fscanf_alloc_grdecl__(FILE * stream , const char *
    accepts a @strict flag from calling scope; in general you should
    use strict == true.
 */
-   
+
 
 /**
    This function assumes that the file pointer has already been
@@ -564,12 +566,12 @@ ecl_kw_type * ecl_kw_fscanf_alloc_grdecl_data(FILE * stream , int size , ecl_typ
 
 /*****************************************************************/
 
-/* 
+/*
    This function will seek through the file and position the file
    pointer at the beginning of @kw before starting to load (this
    includes rewinding the file pointer). If @kw can not be found the
-   function will return NULL. 
-   
+   function will return NULL.
+
    As size is not supplied the function will keep loading data until
    the whole keyword is loaded, and then return.
 */
@@ -585,12 +587,12 @@ ecl_kw_type * ecl_kw_fscanf_alloc_grdecl_dynamic( FILE * stream , const char * k
 
 /*****************************************************************/
 
-/* 
+/*
    This function will seek through the file and position the file
    pointer at the beginning of @kw before starting to load (this
    includes rewinding the file pointer). If @kw can not be found the
-   function will return NULL. 
-   
+   function will return NULL.
+
    When the data has been loaded the function will compare actual size
    with the supplied size argument and verify equality; if they differ
    it will crash hard. If you are uncertain of the size use the
@@ -610,7 +612,7 @@ ecl_kw_type * ecl_kw_fscanf_alloc_grdecl( FILE * stream , const char * kw , int 
 
 /*****************************************************************/
 
-/* 
+/*
    This function will read and allocate the next keyword in the
    file. This function does not take either kw or the size of the kw
    as input, and has virtually zero possibilities to check what it is
@@ -638,21 +640,21 @@ ecl_kw_type * ecl_kw_fscanf_alloc_current_grdecl( FILE * stream , ecl_type_enum 
 /*
   This method allows to write with a different header,
   i.e. PORO_XXXX. This header is even allowed to break the 8 character
-  length limit; i.e. loading it back naively will fail.  
+  length limit; i.e. loading it back naively will fail.
 */
 
-void ecl_kw_fprintf_grdecl__(const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream) { 
+void ecl_kw_fprintf_grdecl__(const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream) {
   if (special_header)
-    fprintf(stream,"%s\n" , special_header); 
-  else 
+    fprintf(stream,"%s\n" , special_header);
+  else
     fprintf(stream,"%s\n" , ecl_kw_get_header(ecl_kw));
 
   {
-    fortio_type * fortio = fortio_alloc_FILE_wrapper(NULL , false , true , stream);   /* Endian flip should *NOT* be used */
+    fortio_type * fortio = fortio_alloc_FILE_wrapper(NULL , false , true , true , stream);   /* Endian flip should *NOT* be used */
     ecl_kw_fwrite_data(ecl_kw , fortio);
     fortio_free_FILE_wrapper( fortio );
   }
-  fprintf(stream,"/\n"); 
+  fprintf(stream,"/\n");
 }
 
 

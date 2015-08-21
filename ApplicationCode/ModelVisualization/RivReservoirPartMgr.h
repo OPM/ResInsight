@@ -23,6 +23,7 @@
 #include "cvfArray.h"
 #include "cvfCollection.h"
 
+#include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
 
 namespace cvf
@@ -31,11 +32,10 @@ namespace cvf
     class Transform;
 }
 
-class RimResultSlot;
-class RimCellEdgeResultSlot;
-class RivGridPartMgr;
+class RimEclipseCellColors;
+class RimCellEdgeColors;
 class RigCaseData;
-class RimReservoirView;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -47,7 +47,7 @@ class RimReservoirView;
 class RivReservoirPartMgr: public cvf::Object
 {
 public:
-    void   clearAndSetReservoir(const RigCaseData* eclipseCase, RimReservoirView* reservoirView);
+    void   clearAndSetReservoir(const RigCaseData* eclipseCase, RimEclipseView* reservoirView);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
     void   setFaultForceVisibility(bool isGeneratedByFilter);
@@ -57,17 +57,17 @@ public:
            cellVisibility(size_t gridIdx);
 
     void   updateCellColor(cvf::Color4f color);
-    void   updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-    void   updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
-                                     RimCellEdgeResultSlot* cellEdgeResultSlot);
+    void   updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+    void   updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, 
+                                     RimCellEdgeColors* cellEdgeResultColors);
 
     void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIdxes);
     void   appendGridPartsToModel(cvf::ModelBasicList* model);
 
     // Faults
-    void   updateFaultColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot,
-		RimCellEdgeResultSlot* cellEdgeResultSlot);
+    void   updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors,
+		RimCellEdgeColors* cellEdgeResultColors);
 	void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:

@@ -4,12 +4,15 @@ set(PYTHON_SOURCES
     ecl_case.py
     ecl_default.py
     ecl_file.py
+    ecl_3d_file.py
+    ecl_init_file.py
+    ecl_restart_file.py
     ecl_grav.py
     ecl_grav_calc.py
     ecl_grid.py
     ecl_kw.py
+    ecl_3dkw.py
     ecl_npv.py
-    ecl_queue.py
     ecl_region.py
     ecl_rft.py
     ecl_rft_cell.py
@@ -20,7 +23,13 @@ set(PYTHON_SOURCES
     ecl_sum_vector.py
     ecl_util.py
     fortio.py
+    ecl_sum_keyword_vector.py
 )
+
+if (BUILD_ERT)
+   list(APPEND PYTHON_SOURCES ecl_queue.py)
+endif()
+
 
 add_python_package("python.ert.ecl"  ${PYTHON_INSTALL_PREFIX}/ert/ecl "${PYTHON_SOURCES}" True)
 
@@ -38,7 +47,8 @@ if (EXISTS ${ECL_LOCAL_TARGET})
 endif()
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ecl_local.py")
-   add_python_package( "Python ert.ecl.ecl_local"  ${PYTHON_INSTALL_PREFIX}/ert/ecl "ecl_local.py" True)
+   add_python_package( "python.ert.ecl.ecl_local"  ${PYTHON_INSTALL_PREFIX}/ert/ecl "ecl_local.py" True)
 endif()
 
 add_subdirectory(faults)
+add_subdirectory(rft)

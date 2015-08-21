@@ -249,7 +249,7 @@ DEFUN_DLD (riGetWellCells, args, nargout,
 
     // Build a map between the field name and field cell values
 
-    Octave_map m;
+    octave_map m;
 
     m.assign(riOctavePlugin::wellCellInfo_I,            cellIscv      );
     m.assign(riOctavePlugin::wellCellInfo_J,            cellJscv      );

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'queue_driver.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'queue_driver.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
  */
 
 #include <stdlib.h>
@@ -57,7 +57,7 @@
 
 struct queue_driver_struct {
   UTIL_TYPE_ID_DECLARATION;
-  /* 
+  /*
      Function pointers - pointing to low level functions in the implementations of
      e.g. lsf_driver.
    */
@@ -139,9 +139,9 @@ static bool queue_driver_has_generic_option__(queue_driver_type * driver, const 
     return false;
 }
 
-/** 
+/**
    Set option - can also be used to perform actions - not only setting
-   of parameters. There is no limit :-) 
+   of parameters. There is no limit :-)
  */
 bool queue_driver_set_option(queue_driver_type * driver, const char * option_key, const void * value) {
   if (queue_driver_set_generic_option__(driver, option_key, value)) {
@@ -164,7 +164,7 @@ bool queue_driver_set_option(queue_driver_type * driver, const char * option_key
    modified runtime.
 
    The driver returned from the queue_driver_alloc_empty() function is
-   NOT properly initialized and NOT ready for use.  
+   NOT properly initialized and NOT ready for use.
  */
 
 static queue_driver_type * queue_driver_alloc_empty() {
@@ -254,7 +254,7 @@ queue_driver_type * queue_driver_alloc(job_driver_type type) {
     default:
       util_abort("%s: unrecognized driver type:%d \n", __func__, type);
   }
-  
+
   queue_driver_set_generic_option__(driver, MAX_RUNNING, "0");
   return driver;
 }
@@ -289,11 +289,11 @@ const void * queue_driver_get_option(queue_driver_type * driver, const char * op
 void queue_driver_init_option_list(queue_driver_type * driver, stringlist_type * option_list) {
   //Add options common for all driver types
   stringlist_append_ref(option_list, MAX_RUNNING);
-  
+
   //Add options for the specific driver type
-  if (driver->init_options) 
+  if (driver->init_options)
     driver->init_options(option_list);
-  else 
+  else
     util_abort("%s: driver:%s does not support run time reading of options\n", __func__, driver->name);
  }
 

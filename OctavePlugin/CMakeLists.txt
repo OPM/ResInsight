@@ -37,10 +37,40 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set (QT_LIBRARY_POSTFIX 4)
 
     if (CMAKE_CL_64)
-        option(RESINSIGHT_OCTAVE_PLUGIN_32_BIT "Use 32-bit environment for compilation on Windows (mkoctfile and Qt used for Octave must match)" OFF)
+        option(RESINSIGHT_OCTAVE_PLUGIN_32_BIT "Set 32-bit MSVC compiler environment while while running mkoctfile" OFF)
     endif()
 endif()
 
+# recreate the magic that CMake does for MacOS X frameworks in the
+# include list when we call mkoctfile as a custom command
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set (QT_INCLUDES)
+    set (QT_FRAMEWORKS)
+    # QT_INCLUDE_DIR contains two items; the first is the directory
+    # containing header files, the second is the framework. This
+    # setup is specially processed in include_directories (); CMake
+    # will add -F before the frameworks. We will have to replicate
+    # that setup here when we want to pass it directly to a command
+    # see <http://www.cmake.org/Bug/print_bug_page.php?bug_id=10632>
+    foreach (item IN ITEMS ${QT_QTNETWORK_INCLUDE_DIR} ${QT_QTCORE_INCLUDE_DIR} ${QT_INCLUDE_DIR})
+        if ("${item}" MATCHES ".framework$")
+            get_filename_component (frmwrk_path ${item} PATH)
+            get_filename_component (frmwrk_name ${item} NAME_WE)
+            # mkoctfile doesn't support arbitrary compiler command,
+            # so we must wrap in -Wl, to pass to the linker
+            list (APPEND QT_FRAMEWORKS "-Wl,-F${frmwrk_path}")
+            list (APPEND QT_FRAMEWORKS "-Wl,-framework,${frmwrk_name}")
+        else ()
+            list (APPEND QT_INCLUDES "-I${item}")
+        endif ()
+    endforeach (item)
+    if (QT_INCLUDES)
+        list (REMOVE_DUPLICATES QT_INCLUDES)
+    endif ()
+    if (QT_FRAMEWORKS)
+        list (REMOVE_DUPLICATES QT_FRAMEWORKS)
+    endif ()
+endif ()
 
 # Find location of Octave based on mkoctfile
 find_program(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE mkoctfile)
@@ -52,13 +82,13 @@ else()
 endif()
 
 
-set(RESINSIGHT_OCTAVE_PLUGIN_QMAKE "" CACHE FILEPATH "Location of custom qmake to be able to use a different Qt when compiling Octave plugins")
+set(RESINSIGHT_OCTAVE_PLUGIN_QMAKE "" CACHE FILEPATH "Location of Qt to use when compiling Octave plugins. Must be compatible with octave runtime. (Use the Qt embedded in Octave)( The qmake.exe itself is not used, only the path to the directory.)")
 if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
     get_filename_component(OCTAVE_QMAKE_DIR ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE} PATH)
 
     STRING(REPLACE "/bin" "" OCTAVE_QT_ROOT ${OCTAVE_QMAKE_DIR})
 
-    message("Compiling Octave plugins using custom Qt located at ${OCTAVE_QT_ROOT}")
+    message(STATUS "Compiling Octave plugins using custom Qt located at ${OCTAVE_QT_ROOT}")
 
     SET(OCTAVE_QT_INCLUDE_DIR            ${OCTAVE_QT_ROOT}/include)
     SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${OCTAVE_QT_ROOT}/include/QtCore)
@@ -67,7 +97,7 @@ if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
 else()
     set (RESINSIGHT_OCTAVE_PLUGIN_QMAKE ${QT_QMAKE_EXECUTABLE})
 
-    message("Compiling Octave plugins using system Qt - include path located at ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE}")
+    message(STATUS "Compiling Octave plugins using system Qt - include path located at ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE}")
 
     SET(OCTAVE_QT_INCLUDE_DIR            ${QT_INCLUDE_DIR})
     SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${QT_QTCORE_INCLUDE_DIR})
@@ -92,27 +122,36 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
 
         if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             if (CMAKE_CL_64 AND RESINSIGHT_OCTAVE_PLUGIN_32_BIT)
-                # The following line calls the build configuration for x86 VS2010 compiler
-                # call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
-                add_custom_command(
-                    OUTPUT "${octFileName}"
-                    COMMAND call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
-                    COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface ${RPATH_COMMAND}
-                        -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
-                    DEPENDS "${srcFileName}"
-                    COMMENT "===> 32-bit x86 VS2010 : Generating ${octFileName}"
-                )
-            else()
-                add_custom_command(
-                    OUTPUT "${octFileName}"
-                    COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface ${RPATH_COMMAND}
-                        -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
-                    DEPENDS "${srcFileName}"
-                    COMMENT "===> Generating ${octFileName}"
-                )
+                SET(RESINSIGHT_VCVARS_32BIT_CMD call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86)
             endif()
+            add_custom_command(
+                OUTPUT "${octFileName}"
+            	COMMAND ${RESINSIGHT_VCVARS_32BIT_CMD}
+                COMMAND set "OCTAVE_HOME=${OCTAVE_HOME}"
+            	COMMAND set "PATH=%OCTAVE_HOME%\\bin;%PATH%"
+                COMMAND mkoctfile -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
+            				      -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} 
+            				      -I${OCTAVE_QT_INCLUDE_DIR}
+            				      -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface 
+            				      ${RPATH_COMMAND} -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} 
+            					  -o "${octFileName}" "${srcFileName}"
+                DEPENDS "${srcFileName}"
+                COMMENT "===> Generating ${octFileName}"
+            )
+        elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+            add_custom_command(
+                OUTPUT "${octFileName}"
+                COMMAND ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE}
+                    ${QT_INCLUDES}
+                    ${QT_FRAMEWORKS}
+                    -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface
+                    ${RPATH_COMMAND}
+                    -L${QT_LIBRARY_DIR} -Wl,-framework,QtCore -Wl,-framework,QtNetwork
+                    -o "${octFileName}"
+                    "${srcFileName}"
+                DEPENDS "${srcFileName}"
+                COMMENT "===> Generating ${octFileName}"
+            )			
         else()
             add_custom_command(
                 OUTPUT "${octFileName}"
@@ -127,7 +166,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
         list(APPEND OCTAVE_BINARY_OCT_FILES "${octFileName}")
 
     endforeach()
-  
+
     add_custom_target(octave_plugins ALL DEPENDS
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"

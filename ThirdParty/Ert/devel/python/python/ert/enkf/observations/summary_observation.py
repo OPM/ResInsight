@@ -40,23 +40,38 @@ class SummaryObservation(BaseCClass):
         """ @rtype: float """
         return SummaryObservation.cNamespace().get_std(self)
 
+    def getStdScaling(self , index = 0):
+        """ @rtype: float """
+        return SummaryObservation.cNamespace().get_std_scaling(self)
+
+    def __len__(self):
+        return 1
+    
+    
     def getSummaryKey(self):
         """ @rtype: str """
         return SummaryObservation.cNamespace().get_summary_key(self)
+
+
+    def updateStdScaling(self , factor , active_list):
+        SummaryObservation.cNamespace().update_std_scale(self , factor , active_list)
+    
 
     def free(self):
         SummaryObservation.cNamespace().free(self)
 
 
+    
+
 
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("summary_obs", SummaryObservation)
-cwrapper.registerType("summary_obs_obj", SummaryObservation.createPythonObject)
-cwrapper.registerType("summary_obs_ref", SummaryObservation.createCReference)
+cwrapper.registerObjectType("summary_obs", SummaryObservation)
 
 SummaryObservation.cNamespace().alloc = cwrapper.prototype("c_void_p summary_obs_alloc(char*, char*, double, double, char*, double)")
 SummaryObservation.cNamespace().free = cwrapper.prototype("void summary_obs_free(summary_obs)")
 SummaryObservation.cNamespace().get_value = cwrapper.prototype("double summary_obs_get_value(summary_obs)")
 SummaryObservation.cNamespace().get_std = cwrapper.prototype("double summary_obs_get_std(summary_obs)")
+SummaryObservation.cNamespace().get_std_scaling = cwrapper.prototype("double summary_obs_get_std_scaling(summary_obs)")
 SummaryObservation.cNamespace().get_summary_key = cwrapper.prototype("char* summary_obs_get_summary_key(summary_obs)")
+SummaryObservation.cNamespace().update_std_scale = cwrapper.prototype("void summary_obs_update_std_scale(summary_obs , double , active_list)")

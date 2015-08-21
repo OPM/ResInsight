@@ -47,7 +47,7 @@ from .cclass import CClass
 from .cenum import create_enum
 from .cfile import CFILE
 from .clib import load, ert_lib_path, ert_load
-from .cwrap import CWrapper, CWrapperNameSpace
+from .cwrap import CWrapper, CWrapperNameSpace,CWrapError
 
 
 from .basecenum import BaseCEnum

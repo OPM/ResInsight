@@ -22,7 +22,7 @@
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 #include <ert/config/config_root_path.h>
 
 

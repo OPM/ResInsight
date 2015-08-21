@@ -17,8 +17,9 @@
 
         
 import sys
-from ert.geo import Polyline
-
+from ert.util import DoubleVector,stat
+from ert.geo import CPolyline
+from .fault_segments import FaultSegment
 
 
 
@@ -36,6 +37,7 @@ class FaultLine(object):
         self.__k = k
         self.__segment_list = []
         self.__polyline = None
+        self.__ijpolyline = None
         self.__neighborCells = None
 
     def __len__(self):
@@ -79,29 +81,54 @@ class FaultLine(object):
 
         self.__segment_list.append( segment )
         self.__polyline = None
+        self.__ijpolyline = None
         return True
 
 
     def getK(self):
         return self.__k
 
+    
+    def __initIJPolyline(self):
+        pl = []
+        nx = self.__grid.getNX()
+        ny = self.__grid.getNY()
+        for segment in self:
+            corner = segment.getC1( )
+            i = corner % (nx + 1)
+            j = corner / (nx + 1)
+            pl.append( (i,j) )
+        
+        segment = self[-1]
+        corner = segment.getC2( )
+        i = corner % (nx + 1)
+        j = corner / (nx + 1)
+        pl.append( (i,j) )
+
+        self.__ijpolyline = pl
+        
+
 
     def __initPolyline(self):
-        pl = Polyline()
-        for segment in self:
-            (x,y,z) = self.__grid.getLayerXYZ( segment.getC1( ) , self.__k )
-            pl.addPoint( x,y,z )
-
-        segment = self[-1]
-        (x,y,z) = self.__grid.getLayerXYZ( segment.getC2( ) , self.__k )
-        pl.addPoint( x,y,z )
+        pl = CPolyline()
+        for (i,j) in self.getIJPolyline():
+            x,y,z = self.__grid.getNodeXYZ(i,j,self.__k)
+            pl.addPoint( x, y)
         self.__polyline = pl
+
         
 
     def getPolyline(self):
         if self.__polyline is None:
             self.__initPolyline()
         return self.__polyline
+
+
+    def getIJPolyline(self):
+        if self.__ijpolyline is None:
+            self.__initIJPolyline()
+        return self.__ijpolyline
+
 
 
     def __initNeighborCells(self):
@@ -158,6 +185,51 @@ class FaultLine(object):
 
         return self.__neighborCells
 
+        
+    def center(self):
+        xlist = DoubleVector( )
+        ylist = DoubleVector( ) 
+        for segment in self:
+            C1 = segment.getC1()
+            C2 = segment.getC2()
+            (J1 , I1) = divmod(C1 , self.__grid.getNX() + 1)
+            (J2 , I2) = divmod(C2 , self.__grid.getNX() + 1)
+            
+            (x1,y1,z) = self.__grid.getNodePos( I1 , J1 , self.__k )
+            (x2,y2,z) = self.__grid.getNodePos( I2 , J2 , self.__k )
+
+            xlist.append( x1 )
+            xlist.append( x2 )
+
+            ylist.append( y1 )
+            ylist.append( y2 )
+
+            
+        N = len(xlist)
+        return (xlist.elementSum()/N , ylist.elementSum()/N )
+
+
+
+    def reverse(self):
+        reverse_list = reversed( self.__segment_list )
+        self.__segment_list = []
+        for segment in reverse_list:
+            C1 = segment.getC1()
+            C2 = segment.getC2()
+            
+            rseg = FaultSegment(C2 , C1)
+            self.tryAppend( rseg )
+
+
+    def startPoint(self):
+        pl = self.getPolyline()
+        return pl[0]
+        
+
+    def endPoint(self):
+        pl = self.getPolyline()
+        return pl[-1]
+    
 
 
     def dump(self):

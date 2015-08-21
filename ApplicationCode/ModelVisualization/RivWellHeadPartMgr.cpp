@@ -36,19 +36,19 @@
 #include "cvfFixedAtlasFont.h"
 #include "cvfqtUtils.h"
 
-#include "RimReservoirView.h"
-#include "RimWellCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimLegendConfig.h"
 
-#include "RimCase.h"
-#include "RimWell.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseWell.h"
 
 #include "RigCaseData.h"
 #include "RigCell.h"
@@ -61,7 +61,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well)
+RivWellHeadPartMgr::RivWellHeadPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell = well;
@@ -87,7 +87,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     RigCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
 
-    RimWell* well = m_rimWell;
+    RimEclipseWell* well = m_rimWell;
 
     RigSingleWellResultsData* wellResults = well->wellResults();
 
@@ -113,7 +113,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     // Compute well head based on the z position of the top of the K column the well head is part of
     cvf::Vec3d whEndPos = whStartPos;
 
-    if (m_rimReservoirView->wellCollection()->wellHeadPosition() == RimWellCollection::WELLHEAD_POS_TOP_COLUMN)
+    if (m_rimReservoirView->wellCollection()->wellHeadPosition() == RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN)
     {
         // Position well head at top active cell of IJ-column
 
@@ -282,7 +282,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         m_wellHeadParts.push_back(part.p());
     }
 
-    if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel())
+    if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel() && !well->name().isEmpty())
     {
         cvf::Font* standardFont = RiaApplication::instance()->standardFont();
 

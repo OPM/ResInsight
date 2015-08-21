@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'enkf_analysis_config.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'enkf_analysis_config.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -25,8 +25,10 @@
 #include <ert/util/util.h>
 #include <ert/util/rng.h>
 
+#include <ert/config/config_parser.h>
+#include <ert/config/config_content.h>
+
 #include <ert/enkf/analysis_config.h>
-#include <ert/config/config.h>
 #include <ert/enkf/config_keys.h>
 
 
@@ -54,21 +56,25 @@ void test_min_realizations_percent(const char * num_realizations_str, const char
     fprintf(config_file_stream, min_realizations_str);
     fclose(config_file_stream);
 
-    config_type * c = config_alloc();
+    config_parser_type * c = config_alloc();
     config_schema_item_type * item = config_add_schema_item(c , NUM_REALIZATIONS_KEY , true );
     config_schema_item_set_default_type(item, CONFIG_INT);
     config_schema_item_set_argc_minmax( item , 1 , 1);
     item = config_add_schema_item(c , MIN_REALIZATIONS_KEY , false );
     config_schema_item_set_argc_minmax( item , 1 , 2);
-    test_assert_true(config_parse(c , "config_file" , "--" , NULL , NULL , false , true ));
+    {
+      config_content_type * content = config_parse(c , "config_file" , "--" , NULL , NULL , false , true );
+      test_assert_true(config_content_is_valid(content));
 
-    analysis_config_type * ac = create_analysis_config( );
-    analysis_config_init(ac, c);
+      analysis_config_type * ac = create_analysis_config( );
+      analysis_config_init(ac, content);
 
-    test_assert_int_equal( min_realizations , analysis_config_get_min_realisations( ac ) );
+      test_assert_int_equal( min_realizations , analysis_config_get_min_realisations( ac ) );
 
-    analysis_config_free( ac );
-    config_free( c );
+      analysis_config_free( ac );
+      config_content_free( content );
+      config_free( c );
+    }
   }
 
   test_work_area_free(work_area);
@@ -130,7 +136,7 @@ void test_stop_long_running( ) {
   analysis_config_free( ac );
 }
 
-int main(int argc , char ** argv) {  
+int main(int argc , char ** argv) {
   test_create();
   test_min_realisations();
   test_continue();

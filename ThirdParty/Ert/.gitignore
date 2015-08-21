@@ -5,31 +5,21 @@
 *.pyc
 *~
 *.user
-
-#pyCharm project
+*.user.*
 .idea
-
-#to make python tests run in-source
 devel/python/lib64
-
-# /devel/libenkf/src/
 /devel/libenkf/src/.faultlist
-
-# /develbranch/libenkf/src/
 /develbranch/libenkf/src/.faultlist
-
-# Ignore build catalog
 /build
-
-#       Ignore pdf from tex-test
 /devel/libert_util/tests/data/latex_OK.pdf
-#       Ignore Statoil test data
 /devel/test-data/Statoil
-
-# Ignore the ert_local python file which is needed to run some python tests
 /devel/python/python/ert/ecl/ecl_local.py
 /devel/GPATH
 /devel/GRTAGS
 /devel/GTAGS
 /devel/gtags.sh
 /cmake.sh
+scratch.sparsebundle
+*.iml
+*.DS_Store
+

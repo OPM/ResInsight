@@ -37,8 +37,8 @@ namespace cvf
     class Part;
 }
 
-class RimResultSlot;
-class RimCellEdgeResultSlot;
+class RimEclipseCellColors;
+class RimCellEdgeColors;
 class RimFaultCollection;
 
 //==================================================================================================
@@ -55,8 +55,8 @@ public:
 
     void applySingleColorEffect();
     void setOpacityLevel(float opacity) { m_opacityLevel = opacity; }
-    void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
+    void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors);
 
     void appendNativeFaultFacesToModel(cvf::ModelBasicList* model);
     void appendOppositeFaultFacesToModel(cvf::ModelBasicList* model);
@@ -68,7 +68,7 @@ private:
     void generatePartGeometry();
     void updatePartEffect();
 
-    void updateNNCColors(RimResultSlot* cellResultSlot);
+    void updateNNCColors(RimEclipseCellColors* cellResultColors);
 
     caf::FaceCulling faceCullingMode() const;
     

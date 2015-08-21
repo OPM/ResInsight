@@ -28,7 +28,7 @@
 
 void test_create_invalid(const char * config_file) {
   char * cwd0 = util_alloc_cwd();
-  ert_test_context_type * test_context = ert_test_context_alloc("CREATE_CONTEXT" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc("CREATE_CONTEXT" , config_file );
   test_assert_true( ert_test_context_is_instance( test_context ));
   test_assert_NULL( ert_test_context_get_main( test_context ));
   {
@@ -44,7 +44,7 @@ void test_create_invalid(const char * config_file) {
 
 void test_create_valid( const char * config_file ) {
   char * cwd0 = util_alloc_cwd();
-  ert_test_context_type * test_context = ert_test_context_alloc("CREATE_CONTEXT" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc("CREATE_CONTEXT" , config_file );
   test_assert_true( ert_test_context_is_instance( test_context ));
   test_assert_true( enkf_main_is_instance( ert_test_context_get_main( test_context )));
   {
@@ -59,7 +59,7 @@ void test_create_valid( const char * config_file ) {
 
 
 void test_install_job( const char * config_file, const char * job_file_OK , const char * job_file_ERROR) {
-  ert_test_context_type * test_context = ert_test_context_alloc("CREATE_CONTEXT_JOB" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc("CREATE_CONTEXT_JOB" , config_file );
 
   test_assert_false( ert_test_context_install_workflow_job( test_context , "JOB" , "File/does/not/exist"));
   test_assert_false( ert_test_context_install_workflow_job( test_context , "ERROR" , job_file_ERROR));
@@ -71,7 +71,7 @@ void test_install_job( const char * config_file, const char * job_file_OK , cons
 
 
 void test_run_workflow_job( const char * config_file , const char * job_file ) {
-  ert_test_context_type * test_context = ert_test_context_alloc("CREATE_CONTEXT_JOB" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc("CREATE_CONTEXT_JOB" , config_file  );
   stringlist_type * args0 = stringlist_alloc_new( );
   stringlist_type * args1 = stringlist_alloc_new( );
 
@@ -89,7 +89,7 @@ void test_run_workflow_job( const char * config_file , const char * job_file ) {
 
 
 void test_install_workflow( const char * config_file , const char * job_file ) {
-  ert_test_context_type * test_context = ert_test_context_alloc("INSTALL_WORKFLOW" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc("INSTALL_WORKFLOW" , config_file  );
   const char * wf_file = "WFLOW";
 
   ert_test_context_install_workflow_job( test_context , "JOB" , job_file );
@@ -107,7 +107,7 @@ void test_install_workflow( const char * config_file , const char * job_file ) {
 
 
 void test_run_workflow(const char * config_file , const char * job_file) {
-  ert_test_context_type * test_context = ert_test_context_alloc("INSTALL_WORKFLOW" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc("INSTALL_WORKFLOW" , config_file );
   test_assert_false( ert_test_context_run_worklow( test_context , "No-does.not.exist"));
   
   ert_test_context_install_workflow_job( test_context , "JOB" , job_file );

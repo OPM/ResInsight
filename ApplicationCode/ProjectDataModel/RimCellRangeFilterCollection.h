@@ -22,6 +22,8 @@
 
 class RigActiveCellInfo;
 class RigGridBase;
+class RimView;
+class RigFemPartCollection;
 
 //==================================================================================================
 ///  
@@ -39,17 +41,21 @@ public:
     caf::PdmField< std::list< caf::PdmPointer< RimCellRangeFilter > > > rangeFilters;
 
     // Methods
-    RimCellRangeFilter* createAndAppendRangeFilter();
-    void                remove(RimCellRangeFilter* rangeFilter);
+    RimCellRangeFilter*             createAndAppendRangeFilter();
+    void                            remove(RimCellRangeFilter* rangeFilter);
 
-    void                compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, const RigGridBase* grid) const;
-    bool                hasActiveFilters() const;
-    bool                hasActiveIncludeFilters() const;
+    void                            compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex) const;
+    bool                            hasActiveFilters() const;
+    bool                            hasActiveIncludeFilters() const;
 
-    void                setReservoirView(RimReservoirView* reservoirView);
-    RimReservoirView*   reservoirView();
-    RigMainGrid*        mainGrid() const;
-    RigActiveCellInfo*  activeCellInfo() const;
+    void                            setReservoirView(RimView* reservoirView);
+
+    RimView*                        reservoirView();
+    const cvf::StructGridInterface* gridByIndex(int gridIndex) const;
+    int                             gridCount() const;
+    QString                         gridName(int gridIndex) const;
+
+    RigActiveCellInfo*              activeCellInfo() const;
 
     // Overridden methods
     virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
@@ -57,9 +63,13 @@ public:
 
 protected:
     // Overridden methods
-    virtual void initAfterRead();
+    virtual void                    initAfterRead();
 
 
 private:
-    RimReservoirView* m_reservoirView;
+    RimEclipseView*                 eclipseView() const;
+    RigMainGrid*                    mainGrid() const;
+    RigFemPartCollection*           femPartColl() const;
+
+    RimView*                        m_reservoirView;
 };

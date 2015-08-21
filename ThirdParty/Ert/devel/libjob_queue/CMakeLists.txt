@@ -8,6 +8,8 @@ find_path( LSF_HEADER_PATH lsf/lsf.h
 
 find_library( LSF_LIBRARY NAMES lsf PATHS ${ERT_LSF_LIB_PATH}) 
 
+
+
 if (LSF_HEADER_PATH)
    if (LSF_LIBRARY)
       set( HAVE_LSF_LIBRARY ON )

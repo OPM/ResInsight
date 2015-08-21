@@ -42,6 +42,7 @@ public:
 	void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
 	void                            setFaceCulling(caf::FaceCulling faceCulling) { m_faceCulling = faceCulling; }
 	void                            enableDepthWrite(bool enableWrite)      { m_enableDepthWrite = enableWrite; }
+    void                            disableLighting(bool disable)           { m_disableLighting = disable; }
 
 
 public:
@@ -65,5 +66,6 @@ private:
 	cvf::Color3f						m_undefinedColor;
 	caf::FaceCulling                    m_faceCulling;
 	bool								m_enableDepthWrite;
+    bool                                m_disableLighting;
 };
 

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_rstfile.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_rstfile.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 /*****************************************************************/
@@ -24,10 +24,10 @@
 /*
   This file is included from the ecl_file.c file with a #include
   statement, i.e. it is the same compilation unit as ecl_file. The
-  separation is only to increase readability.  
+  separation is only to increase readability.
 */
 
-/* 
+/*
    There is no special datastructure for working with restart files,
    they are 100% stock ecl_file instances with the following limited
    structure:
@@ -61,12 +61,12 @@ keyword, the value in [] corresponds to the relevant part of the
 content of the keyword on the line, the labels A,B,C,D,E are used for
 references in the text below.
 
- 0 | SEQNUM   [0]           \  A     
+ 0 | SEQNUM   [0]           \  A
  1 | INTEHEAD [01.01.2005]  |
- 2 | PRESSURE [... ]        |        
- 3 | SWAT     [...]         |  
+ 2 | PRESSURE [... ]        |
+ 3 | SWAT     [...]         |
    | -----------------------+
- 4 | SEQNUM   [5]           |  B 
+ 4 | SEQNUM   [5]           |  B
  5 | INTEHEAD [01.06.2005]  |
  6 | PRESSURE [... ]        |
  7 | SWAT     [...]         |
@@ -86,7 +86,7 @@ references in the text below.
 13 | INTEHEAD [01.12.2009]  |
 14 | PRESSURE [...]         |
 15 | SWAT     [...]         /
-                          
+
 
 This restart file has the following features:
 
@@ -98,7 +98,7 @@ This restart file has the following features:
    datafile. Observe that the file does not have the block structure
    visualized on this figure, the only thing separating the blocks in
    the file is the occurence of a SEQNUM keyword.
- 
+
  o Only a few of the report steps are present, namely 0, 5, 10, 20 and
    40.
 
@@ -124,7 +124,7 @@ we have introduced the following concepts:
     the DAY, MONTH and YEAR values from an INTEHEAD keyword instance
     and convert to a time_t instance. The functions:
 
-     ecl_file_get_unrstmap_sim_time() and ecl_file_has_has_sim_time() 
+     ecl_file_get_unrstmap_sim_time() and ecl_file_has_has_sim_time()
 
     can be used to query for simulation times and get the
     corresponding block maps.
@@ -160,8 +160,8 @@ static time_t file_map_iget_restart_sim_date(const file_map_type * file_map , in
     ecl_kw_type * intehead_kw = file_map_iget_named_kw( seqnum_map , INTEHEAD_KW , 0);
     sim_time = ecl_rsthead_date( intehead_kw );
     file_map_free( seqnum_map );
-  } 
-  
+  }
+
   return sim_time;
 }
 
@@ -174,8 +174,8 @@ static double file_map_iget_restart_sim_days(const file_map_type * file_map , in
     ecl_kw_type * doubhead_kw = file_map_iget_named_kw( seqnum_map , DOUBHEAD_KW , 0);
     sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX);
     file_map_free( seqnum_map );
-  } 
-  
+  }
+
   return sim_days;
 }
 
@@ -232,13 +232,13 @@ static int file_map_find_sim_time(const file_map_type * file_map , time_t sim_ti
    If the sim_time can not be found the function will return -1, that
    includes the case when the file in question is not a restart file
    at all, and no INTEHEAD headers can be found.
-   
+
    Observe that the function requires on-the-second-equality; which is
    of course quite strict.
 
    Each report step only has one occurence of SEQNUM, but one INTEHEAD
    for each LGR; i.e. one should call iselect_rstblock() prior to
-   calling this function.  
+   calling this function.
 */
 
 
@@ -255,13 +255,13 @@ static bool file_map_has_sim_time( const file_map_type * file_map , time_t sim_t
     int intehead_index = 0;
     while (true) {
       time_t itime = file_map_iget_restart_sim_date( file_map , intehead_index );
-      
+
       if (itime == sim_time) /* Perfect hit. */
         return true;
-      
+
       if (itime > sim_time)  /* We have gone past the target_time - i.e. we do not have it. */
         return false;
-      
+
       intehead_index++;
       if (intehead_index == num_INTEHEAD)  /* We have iterated through the whole thing without finding sim_time. */
         return false;
@@ -274,7 +274,7 @@ static int file_map_seqnum_index_from_sim_time( file_map_type * parent_map , tim
   int num_seqnum = file_map_get_num_named_kw( parent_map , SEQNUM_KW );
   int seqnum_index = 0;
   file_map_type * seqnum_map;
-  
+
   while (true) {
     seqnum_map = file_map_alloc_blockmap( parent_map , SEQNUM_KW , seqnum_index);
 
@@ -287,7 +287,7 @@ static int file_map_seqnum_index_from_sim_time( file_map_type * parent_map , tim
         seqnum_index++;
       }
     }
-    
+
     if (num_seqnum == seqnum_index)
       return -1;
   }
@@ -315,17 +315,17 @@ bool ecl_file_has_sim_time( const ecl_file_type * ecl_file , time_t sim_time) {
   This function will determine the restart block corresponding to the
   world time @sim_time; if @sim_time can not be found the function
   will return 0.
-  
+
   The returned index is the 'occurence number' in the restart file,
   i.e. in the (quite typical case) that not all report steps are
-  present the return value will not agree with report step. 
+  present the return value will not agree with report step.
 
   The return value from this function can then be used to get a
   corresponding solution field directly, or the file map can
   restricted to this block.
 
   Direct access:
-  
+
      int index = ecl_file_get_restart_index( ecl_file , sim_time );
      if (index >= 0) {
         ecl_kw_type * pressure_kw = ecl_file_iget_named_kw( ecl_file , "PRESSURE" , index );
@@ -333,7 +333,7 @@ bool ecl_file_has_sim_time( const ecl_file_type * ecl_file , time_t sim_time) {
      }
 
 
-  Using block restriction:   
+  Using block restriction:
 
      int index = ecl_file_get_restart_index( ecl_file , sim_time );
      if (index >= 0) {
@@ -341,10 +341,10 @@ bool ecl_file_has_sim_time( const ecl_file_type * ecl_file , time_t sim_time) {
         {
            ecl_kw_type * pressure_kw = ecl_file_iget_named_kw( ecl_file , "PRESSURE" , 0 );
            ....
-        } 
+        }
      }
-     
-  Specially in the case of LGRs the block restriction should be used.  
+
+  Specially in the case of LGRs the block restriction should be used.
  */
 
 int ecl_file_get_restart_index( const ecl_file_type * ecl_file , time_t sim_time) {
@@ -381,14 +381,14 @@ double ecl_file_iget_restart_sim_days( const ecl_file_type * restart_file , int 
 
 
 /*****************************************************************/
-/* Select and open functions, observe that these functions should 
+/* Select and open functions, observe that these functions should
    only consider the global map.
 */
 
 
 /*
   Will select restart block nr @seqnum_index - without considering
-  report_steps or simulation time.  
+  report_steps or simulation time.
 */
 bool ecl_file_iselect_rstblock( ecl_file_type * ecl_file , int seqnum_index ) {
   return ecl_file_select_block( ecl_file , SEQNUM_KW , seqnum_index );
@@ -397,10 +397,10 @@ bool ecl_file_iselect_rstblock( ecl_file_type * ecl_file , int seqnum_index ) {
 
 bool ecl_file_select_rstblock_sim_time( ecl_file_type * ecl_file , time_t sim_time) {
   int seqnum_index = file_map_seqnum_index_from_sim_time( ecl_file->global_map , sim_time );
-  
+
   if (seqnum_index >= 0)
     return ecl_file_iselect_rstblock( ecl_file , seqnum_index);
-  else 
+  else
     return false;
 }
 
@@ -410,17 +410,19 @@ bool ecl_file_select_rstblock_report_step( ecl_file_type * ecl_file , int report
   if ( global_index >= 0) {
     int seqnum_index = file_map_iget_occurence( ecl_file->global_map , global_index );
     return ecl_file_iselect_rstblock( ecl_file ,  seqnum_index);
-  } else 
+  } else
     return false;
 }
 
 /******************************************************************/
 
 static ecl_file_type * ecl_file_open_rstblock_report_step__( const char * filename , int report_step , int flags) {
-  ecl_file_type * ecl_file = ecl_file_open__( filename , flags );
-  if (!ecl_file_select_rstblock_report_step( ecl_file , report_step )) {
-    ecl_file_close( ecl_file );
-    ecl_file = NULL;
+  ecl_file_type * ecl_file = ecl_file_open( filename , flags );
+  if (ecl_file) {
+    if (!ecl_file_select_rstblock_report_step( ecl_file , report_step )) {
+      ecl_file_close( ecl_file );
+      ecl_file = NULL;
+    }
   }
   return ecl_file;
 }
@@ -433,10 +435,12 @@ ecl_file_type * ecl_file_open_rstblock_report_step( const char * filename , int 
 /******************************************************************/
 
 static ecl_file_type * ecl_file_open_rstblock_sim_time__( const char * filename , time_t sim_time, int flags ) {
-  ecl_file_type * ecl_file = ecl_file_open__( filename , flags );
-  if (!ecl_file_select_rstblock_sim_time( ecl_file , sim_time)) {
-    ecl_file_close( ecl_file );
-    ecl_file = NULL;
+  ecl_file_type * ecl_file = ecl_file_open( filename , flags );
+  if (ecl_file) {
+    if (!ecl_file_select_rstblock_sim_time( ecl_file , sim_time)) {
+      ecl_file_close( ecl_file );
+      ecl_file = NULL;
+    }
   }
   return ecl_file;
 }
@@ -448,10 +452,12 @@ ecl_file_type * ecl_file_open_rstblock_sim_time( const char * filename , time_t 
 /******************************************************************/
 
 static ecl_file_type * ecl_file_iopen_rstblock__( const char * filename , int seqnum_index, int flags ) {
-  ecl_file_type * ecl_file = ecl_file_open__( filename , flags );
-  if (!ecl_file_iselect_rstblock( ecl_file , seqnum_index )) {
-    ecl_file_close( ecl_file );
-    ecl_file = NULL;
+  ecl_file_type * ecl_file = ecl_file_open( filename , flags );
+  if (ecl_file) {
+    if (!ecl_file_iselect_rstblock( ecl_file , seqnum_index )) {
+      ecl_file_close( ecl_file );
+      ecl_file = NULL;
+    }
   }
   return ecl_file;
 }

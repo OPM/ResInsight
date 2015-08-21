@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'ert_report_list.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'ert_report_list.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -26,7 +26,7 @@
 #include <ert/util/vector.h>
 #include <ert/util/subst_list.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 
 #include <ert/ecl/ecl_sum.h>
 
@@ -37,7 +37,7 @@
 
 #define WELL_LIST_TAG   "$WELL_LIST"
 #define GROUP_LIST_TAG  "$GROUP_LIST"
-#define PLOT_CASE_TAG   "$PLOT_CASE" 
+#define PLOT_CASE_TAG   "$PLOT_CASE"
 #define USER_TAG        "$USER"
 #define CONFIG_FILE_TAG "$CONFIG_FILE"
 
@@ -67,7 +67,7 @@ int ert_report_list_get_latex_timeout( const ert_report_list_type * report_list 
 
 static void ert_report_list_init_large_report( ert_report_list_type * report_list ) {
   if (report_list->init_large_report) {
-    printf("Running script \'fmtutil --all\' to regenerate pdflatex config information ..... ");  
+    printf("Running script \'fmtutil --all\' to regenerate pdflatex config information ..... ");
     fflush(stdout);
     util_fork_exec("fmtutil" , 1 , (const char *[1]) {"--all"} , true , NULL , NULL , NULL , "/dev/null" , "/dev/null");
     printf("\n");
@@ -163,7 +163,7 @@ bool ert_report_list_add_report( ert_report_list_type * report_list , const char
 }
 
 
-void ert_report_list_free( ert_report_list_type * report_list ){ 
+void ert_report_list_free( ert_report_list_type * report_list ){
   stringlist_free( report_list->path_list );
   stringlist_free( report_list->group_list );
   stringlist_free( report_list->well_list );
@@ -234,7 +234,7 @@ void ert_report_list_create( ert_report_list_type * report_list , const char * c
     ert_report_list_init_large_report( report_list );
     for (int ir = 0; ir < vector_get_size( report_list->report_list ); ir++) {
       ert_report_type * ert_report = vector_iget( report_list->report_list , ir);
-      
+
       if (verbose) {
         printf("Creating report: %s/%s.pdf [Work-path:%s] ....... " , target_path , ert_report_get_basename( ert_report ) , ert_report_get_work_path( ert_report ));
         fflush( stdout );
@@ -252,80 +252,80 @@ void ert_report_list_create( ert_report_list_type * report_list , const char * c
 }
 
 
-void ert_report_list_site_init( ert_report_list_type * report_list , config_type * config ) {
+void ert_report_list_site_init( ert_report_list_type * report_list , config_content_type * content ) {
 
   /* Installing the directories to search in. */
-  for (int i=0; i < config_get_occurences( config , REPORT_SEARCH_PATH_KEY ); i++) {
-    const stringlist_type * path_list = config_iget_stringlist_ref( config , REPORT_SEARCH_PATH_KEY , i);
-    for (int j=0; j < stringlist_get_size( path_list ); j++) 
+  for (int i=0; i < config_content_get_occurences( content , REPORT_SEARCH_PATH_KEY ); i++) {
+    const stringlist_type * path_list = config_content_iget_stringlist_ref( content , REPORT_SEARCH_PATH_KEY , i);
+    for (int j=0; j < stringlist_get_size( path_list ); j++)
       ert_report_list_add_path( report_list , stringlist_iget( path_list , j ));
   }
 }
 
 
-void ert_report_list_init( ert_report_list_type * report_list , config_type * config , const ecl_sum_type * refcase) {
+void ert_report_list_init( ert_report_list_type * report_list , config_content_type * config , const ecl_sum_type * refcase) {
   ert_report_list_site_init( report_list , config );
 
-  if (config_item_set( config , REPORT_LARGE_KEY))
-    ert_report_list_set_large_report(report_list , config_get_value_as_bool( config , REPORT_LARGE_KEY ));
-  
-  if (config_item_set( config , REPORT_TIMEOUT_KEY))
-    ert_report_list_set_latex_timeout( report_list , config_get_value_as_int( config , REPORT_TIMEOUT_KEY ));
-  
+  if (config_content_has_item( config , REPORT_LARGE_KEY))
+    ert_report_list_set_large_report(report_list , config_content_get_value_as_bool( config , REPORT_LARGE_KEY ));
+
+  if (config_content_has_item( config , REPORT_TIMEOUT_KEY))
+    ert_report_list_set_latex_timeout( report_list , config_content_get_value_as_int( config , REPORT_TIMEOUT_KEY ));
+
   /* Installing the list of reports. */
-  for (int i=0; i < config_get_occurences( config , REPORT_LIST_KEY ); i++) {
-    const stringlist_type * list = config_iget_stringlist_ref( config , REPORT_LIST_KEY , i);
+  for (int i=0; i < config_content_get_occurences( config , REPORT_LIST_KEY ); i++) {
+    const stringlist_type * list = config_content_iget_stringlist_ref( config , REPORT_LIST_KEY , i);
     for (int j=0; j < stringlist_get_size( list ); j++) {
       if (!ert_report_list_add_report( report_list , stringlist_iget( list , j )))
         fprintf(stderr,"** Warning: Could not find report template:%s - ignored\n", stringlist_iget( list , j ));
     }
   }
-  
-  /* Installing the list of report wells */
-  for (int i=0; i < config_get_occurences( config , REPORT_WELL_LIST_KEY ); i++) {
-    const stringlist_type * well_list = config_iget_stringlist_ref( config , REPORT_WELL_LIST_KEY , i);
-    for (int j=0; j < stringlist_get_size( well_list ); j++) 
-      ert_report_list_add_wells( report_list , refcase , stringlist_iget( well_list , j ));
-  }  
-  
-  /* Installing the list of report groups */
-  for (int i=0; i < config_get_occurences( config , REPORT_GROUP_LIST_KEY ); i++) {
-    const stringlist_type * group_list = config_iget_stringlist_ref( config , REPORT_GROUP_LIST_KEY , i);
-    for (int j=0; j < stringlist_get_size( group_list ); j++) 
-      ert_report_list_add_groups( report_list , refcase , stringlist_iget( group_list , j ));
-  }  
-  
-  /* Installing arbitrary context keys. */
-  for (int i=0; i < config_get_occurences( config , REPORT_CONTEXT_KEY ); i++) {
-    const char * key   = config_iget( config , REPORT_CONTEXT_KEY , i , 0 );
-    const char * value = config_iget( config , REPORT_CONTEXT_KEY , i , 1 );
-    ert_report_list_add_global_context( report_list , key , value );
-  }  
-  
-  /* Installing the target path for reports*/
-  if (config_item_set(config , REPORT_PATH_KEY))
-    ert_report_list_set_target_path( report_list , config_iget( config , REPORT_PATH_KEY , 0 , 0));
 
-  ert_report_list_add_global_context( report_list , CONFIG_FILE_TAG , config_get_config_file( config , true ));
+  /* Installing the list of report wells */
+  for (int i=0; i < config_content_get_occurences( config , REPORT_WELL_LIST_KEY ); i++) {
+    const stringlist_type * well_list = config_content_iget_stringlist_ref( config , REPORT_WELL_LIST_KEY , i);
+    for (int j=0; j < stringlist_get_size( well_list ); j++)
+      ert_report_list_add_wells( report_list , refcase , stringlist_iget( well_list , j ));
+  }
+
+  /* Installing the list of report groups */
+  for (int i=0; i < config_content_get_occurences( config , REPORT_GROUP_LIST_KEY ); i++) {
+    const stringlist_type * group_list = config_content_iget_stringlist_ref( config , REPORT_GROUP_LIST_KEY , i);
+    for (int j=0; j < stringlist_get_size( group_list ); j++)
+      ert_report_list_add_groups( report_list , refcase , stringlist_iget( group_list , j ));
+  }
+
+  /* Installing arbitrary context keys. */
+  for (int i=0; i < config_content_get_occurences( config , REPORT_CONTEXT_KEY ); i++) {
+    const char * key   = config_content_iget( config , REPORT_CONTEXT_KEY , i , 0 );
+    const char * value = config_content_iget( config , REPORT_CONTEXT_KEY , i , 1 );
+    ert_report_list_add_global_context( report_list , key , value );
+  }
+
+  /* Installing the target path for reports*/
+  if (config_content_has_item(config , REPORT_PATH_KEY))
+    ert_report_list_set_target_path( report_list , config_content_iget( config , REPORT_PATH_KEY , 0 , 0));
+
+  ert_report_list_add_global_context( report_list , CONFIG_FILE_TAG , config_content_get_config_file( config , true ));
   ert_report_list_add_global_context( report_list , USER_TAG , getenv("USER"));
 }
 
 
-void ert_report_list_add_config_items( config_type * config ) {
+void ert_report_list_add_config_items( config_parser_type * config ) {
   config_schema_item_type * item;
-  
+
   item = config_add_schema_item(config , REPORT_LIST_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , CONFIG_DEFAULT_ARG_MAX);
 
   item = config_add_schema_item(config , REPORT_CONTEXT_KEY , false  );
   config_schema_item_set_argc_minmax(item , 2 , 2);
-  
+
   item = config_add_schema_item(config , REPORT_PATH_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , 1);
 
   item = config_add_schema_item( config , REPORT_WELL_LIST_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , CONFIG_DEFAULT_ARG_MAX);
-  
+
   item = config_add_schema_item( config , REPORT_GROUP_LIST_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , CONFIG_DEFAULT_ARG_MAX);
 

@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 
   
   typedef void * (workflow_job_ftype) (void * self , const stringlist_type * arg );
@@ -31,14 +31,14 @@ extern "C" {
   
   const char   * workflow_job_get_name( const workflow_job_type * workflow_job );
   bool           workflow_job_internal( const workflow_job_type * workflow_job );
-  config_type  * workflow_job_alloc_config();
+  config_parser_type  * workflow_job_alloc_config();
   workflow_job_type * workflow_job_alloc(const char * name , bool internal);
   void           workflow_job_free( workflow_job_type * workflow_job );
   void           workflow_job_free__( void * arg);
   void           workflow_job_set_executable( workflow_job_type * workflow_job , const char * executable );
-  workflow_job_type * workflow_job_config_alloc( const char * name , config_type * config , const char * config_file);
+  workflow_job_type * workflow_job_config_alloc( const char * name , config_parser_type * config , const char * config_file);
 
-  void           workflow_job_update_config_compiler( const workflow_job_type * workflow_job , config_type * config_compiler );
+  void           workflow_job_update_config_compiler( const workflow_job_type * workflow_job , config_parser_type * config_compiler );
   void           workflow_job_set_executable( workflow_job_type * workflow_job , const char * executable);
   char *         workflow_job_get_executable( workflow_job_type * workflow_job);
 

@@ -53,7 +53,7 @@ public:
     ScalarMapperDiscreteLog();
 
     // Implementing the Scalarmapper interface
-    virtual Vec2f       mapToTextureCoord(double scalarValue) const;
+
     virtual Color3ub    mapToColor(double scalarValue) const;
     virtual double      normalizedValue( double domainValue ) const;
     virtual double      domainValue( double normalizedPosition ) const;

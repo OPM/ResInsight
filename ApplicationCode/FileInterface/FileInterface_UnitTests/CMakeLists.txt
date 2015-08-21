@@ -10,7 +10,8 @@ include (${QT_USE_FILE})
 
 include_directories(
     ${ResInsight_SOURCE_DIR}/ApplicationCode
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ResultStatisticsCache
+	${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel
     ${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ProjectDataModel
     ${ResInsight_SOURCE_DIR}/ThirdParty
@@ -55,12 +56,15 @@ source_group( "Headers"             FILES ${CODE_HEADER_FILES} )
 set( UNIT_TEST_CPP_SOURCES
     main.cpp
     RifReaderEclipseOutput-Test.cpp
+    RifEclipseInputFileTools-Test.cpp
     Ert-Test.cpp
 )
 
 set( LINK_LIBRARIES
     cafProjectDataModel
     CommonCode
+
+	ResultStatisticsCache
 
     LibViewing
     LibRender
@@ -74,6 +78,10 @@ set( LINK_LIBRARIES
 
     ${QT_LIBRARIES}
 )
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(CMAKE_CXX_FLAGS "-DGTEST_USE_OWN_TR1_TUPLE=1")
+endif()
 
 add_executable( ${ProjectName}
     ${CODE_HEADER_FILES}

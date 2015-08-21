@@ -30,6 +30,8 @@ ${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.h
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.h
+
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -56,6 +58,7 @@ ${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.cpp
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.cpp
+
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -66,4 +69,4 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-source_group( "ModelVisualization" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} )
+source_group( "ModelVisualization" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )

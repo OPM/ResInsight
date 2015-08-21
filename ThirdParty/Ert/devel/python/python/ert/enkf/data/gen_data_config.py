@@ -15,17 +15,36 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
+from ert.enkf.enums import GenDataFileType
 
 
 class GenDataConfig(BaseCClass):
-    def __init__(self):
-        raise NotImplementedError("Class can not be instantiated directly!")
+    def __init__(self, key , input_format = GenDataFileType.ASCII):
+        # Can currently only create GEN_DATA instances which should be used
+        # as result variables.
+        c_pointer = GenDataConfig.cNamespace().alloc( key , input_format )
+        super(GenDataConfig, self).__init__(c_pointer)
+
 
     def get_template_file(self):
         return GenDataConfig.cNamespace().get_template_file(self)
 
     def get_template_key(self):
         return GenDataConfig.cNamespace().get_template_key(self)
+
+    def getDataSize(self , report_step):
+        data_size = GenDataConfig.cNamespace().get_data_size(self , report_step)
+        if data_size < 0:
+            raise ValueError("No data has been loaded for %s at report step:%d " % (self.getName() , report_step))
+        else:
+            return data_size
+            
+    def getActiveMask(self):
+         return GenDataConfig.cNamespace().get_active_mask(self)
+
+    def getName(self):
+        return GenDataConfig.cNamespace().get_key(self)
+
 
     def get_initial_size(self):
         return GenDataConfig.cNamespace().get_initial_size(self)
@@ -39,20 +58,26 @@ class GenDataConfig(BaseCClass):
     def free(self):
         GenDataConfig.cNamespace().free(self)
 
+    def hasReportStep(self, report_step):
+        """ @rtype: bool """
+        return GenDataConfig.cNamespace().has_report_step(self, report_step)
+
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerType("gen_data_config", GenDataConfig)
 cwrapper.registerType("gen_data_config_obj", GenDataConfig.createPythonObject)
 cwrapper.registerType("gen_data_config_ref", GenDataConfig.createCReference)
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 
-GenDataConfig.cNamespace().free = cwrapper.prototype("void gen_data_config_free( gen_data_config )")
+GenDataConfig.cNamespace().alloc = cwrapper.prototype("c_void_p gen_data_config_alloc_GEN_DATA_result( char* , gen_data_file_format_type)")
+GenDataConfig.cNamespace().free  = cwrapper.prototype("void gen_data_config_free( gen_data_config )")
 GenDataConfig.cNamespace().get_output_format = cwrapper.prototype("gen_data_file_format_type gen_data_config_get_output_format(gen_data_config)")
 GenDataConfig.cNamespace().get_input_format = cwrapper.prototype("gen_data_file_format_type gen_data_config_get_input_format(gen_data_config)")
 GenDataConfig.cNamespace().get_template_file = cwrapper.prototype("char* gen_data_config_get_template_file(gen_data_config)")
 GenDataConfig.cNamespace().get_template_key = cwrapper.prototype("char* gen_data_config_get_template_key(gen_data_config)")
 GenDataConfig.cNamespace().get_initial_size = cwrapper.prototype("int gen_data_config_get_initial_size(gen_data_config)")
+GenDataConfig.cNamespace().has_report_step = cwrapper.prototype("bool gen_data_config_has_report_step(gen_data_config, int)")
+GenDataConfig.cNamespace().get_data_size    = cwrapper.prototype("int gen_data_config_get_data_size__(gen_data_config , int)")
+GenDataConfig.cNamespace().get_key          = cwrapper.prototype("char* gen_data_config_get_key(gen_data_config)")
+GenDataConfig.cNamespace().get_active_mask  = cwrapper.prototype("bool_vector_ref gen_data_config_get_active_mask(gen_data_config)")
 

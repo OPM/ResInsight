@@ -24,7 +24,7 @@
 
 int main(void) {
   const char * config_file = "config_test_input";
-  config_type * config = config_alloc();
+  config_parser_type * config = config_alloc();
   config_schema_item_type * item;
   
   item = config_add_schema_item(config , "KEY1" , true  , true);

@@ -27,13 +27,13 @@
 #include "RigCaseData.h"
 #include "RigResultAccessorFactory.h"
 
-#include "RimCase.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimEclipseCase.h"
+#include "RimCellEdgeColors.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 #include "RivCellEdgeEffectGenerator.h"
 #include "RivResultToTextureMapper.h"
@@ -120,12 +120,11 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("Grid " + cvf::String(static_cast<int>(m_gridIdx)));
-            part->setId(m_gridIdx);       // !! For now, use grid index as part ID (needed for pick info)
             part->setDrawable(geo.p());
             part->setTransform(m_scaleTransform.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_gridIdx);
             si->m_cellFaceFromTriangleMapper = geoBuilder.triangleToCellFaceMapper();
 
             part->setSourceInfo(si.p());
@@ -222,32 +221,32 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
-    CVF_ASSERT(cellResultSlot);
+    CVF_ASSERT(cellResultColors);
 
-    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
     // Outer surface
 	if (m_surfaceFaces.notNull())
 	{
-		if (cellResultSlot->isTernarySaturationSelected())
+		if (cellResultColors->isTernarySaturationSelected())
 		{
-			RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
+			RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
 				timeStepIndex,
 				m_grid->gridIndex(),
 				m_surfaceGenerator.quadToCellFaceMapper());
 
 			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
-			const RivTernaryScalarMapper* mapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE);
+			const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
+            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
 		}
 		else
 		{
-			RivTextureCoordsCreator texturer(cellResultSlot,
+			RivTextureCoordsCreator texturer(cellResultColors,
 				timeStepIndex,
 				m_grid->gridIndex(),
 				m_surfaceGenerator.quadToCellFaceMapper());
@@ -258,8 +257,8 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 
 			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
-			const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE);
+			const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
+            RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
 		}
 	}
 }
@@ -267,7 +266,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
 	if (m_surfaceFaces.notNull())
 	{
@@ -275,7 +274,7 @@ void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSl
 		if (dg)
 		{
 			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_surfaceGenerator.quadToCellFaceMapper(), m_grid->gridIndex(),
-				timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor, caf::FC_NONE);
+				timeStepIndex, cellResultColors, cellEdgeResultColors, m_opacityLevel, m_defaultColor, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
 
 			m_surfaceFaces->setEffect(eff.p());
 		}

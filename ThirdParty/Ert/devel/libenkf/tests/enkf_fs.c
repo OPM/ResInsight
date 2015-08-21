@@ -16,22 +16,28 @@
    for more details. 
 */
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <assert.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 
 #include <ert/util/test_util.h>
 #include <ert/util/test_work_area.h>
 #include <ert/enkf/enkf_fs.h>
 
 
+typedef struct
+{
+    pthread_mutex_t mutex1;
+    pthread_mutex_t mutex2;
+} shared_data;
 
-
-
-
+static shared_data* data = NULL;
 
 void test_mount() {
   test_work_area_type * work_area = test_work_area_alloc("enkf_fs/mount");
@@ -56,7 +62,6 @@ void test_mount() {
   test_work_area_free( work_area );
 }
 
-
 void test_refcount() {
   test_work_area_type * work_area = test_work_area_alloc("enkf_fs/refcount");
   
@@ -69,36 +74,22 @@ void test_refcount() {
   test_work_area_free( work_area );
 }
 
-
 void createFS() {
-  pid_t pid = fork();
+
+ pthread_mutex_lock(&data->mutex1);
+ pid_t pid = fork();
 
   if (pid == 0) {
     enkf_fs_type * fs_false = enkf_fs_mount( "mnt" );
     test_assert_false(enkf_fs_is_read_only(fs_false));
     test_assert_true( util_file_exists("mnt/mnt.lock"));
-    {
-      int total_sleep = 0;
-      while (true) {
-        if (util_file_exists( "stop")) {
-          unlink("stop");
-          break;
-        }
-        
-        usleep(1000);
-        total_sleep += 1000;
-        if (total_sleep > 1000000 * 5) {
-          fprintf(stderr,"Test failure - never receieved \"stop\" file from parent process \n");
-          break;
-        }
-      }
-    }
+    pthread_mutex_unlock(&data->mutex1);
+    pthread_mutex_lock(&data->mutex2);
     enkf_fs_decref( fs_false );
+    pthread_mutex_unlock(&data->mutex2);
     exit(0);
-  } 
-  usleep(10000);
+  }
 }
-
 
 void test_fwrite_readonly( void * arg ) {
   enkf_fs_type * fs = enkf_fs_safe_cast( arg );
@@ -111,43 +102,50 @@ void test_fwrite_readonly( void * arg ) {
   enkf_fs_fwrite_node( fs , NULL , "KEY" , PARAMETER , 100 , 1 , FORECAST );
 }
 
+void initialise_shared()
+{
+    // place our shared data in shared memory
+    int prot = PROT_READ | PROT_WRITE;
+#ifdef __linux
+    int flags = MAP_SHARED | MAP_ANONYMOUS;
+#elif __APPLE__
+    int flags = MAP_SHARED | MAP_ANON;
+#endif
+
+    data = mmap(NULL, sizeof(shared_data), prot, flags, -1, 0);
+    assert(data);
+
+    // initialise mutex so it works properly in shared memory
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
+    pthread_mutex_init(&data->mutex1, &attr);
+    pthread_mutex_init(&data->mutex2, &attr);
+}
 
 /*
-  This test needs to fork off a seperate process to test the cross-process file locking. 
+  This test needs to fork off a seperate process to test the cross-process file locking.
 */
 void test_read_only2() {
+  initialise_shared();
   test_work_area_type * work_area = test_work_area_alloc("enkf_fs/read_only2");
   enkf_fs_create_fs("mnt" , BLOCK_FS_DRIVER_ID , NULL , false);
+  pthread_mutex_lock(&data->mutex2);
   createFS();
-
-  while (true) {
-    if (util_file_exists("mnt/mnt.lock"))
-      break;
-  }
-  
+  pthread_mutex_lock(&data->mutex1);
   {
     enkf_fs_type * fs_false = enkf_fs_mount( "mnt" );
     test_assert_true(enkf_fs_is_read_only(fs_false));
     test_assert_util_abort( "enkf_fs_fwrite_node" , test_fwrite_readonly , fs_false );
     enkf_fs_decref( fs_false );
   }
-  {
-    FILE * stream = util_fopen("stop" , "w");
-    fclose( stream );
-  }
-  
-  while (util_file_exists( "stop")) {
-    usleep( 1000 );
-  }      
+  pthread_mutex_unlock(&data->mutex2);
+  pthread_mutex_unlock(&data->mutex1);
+  pthread_mutex_lock(&data->mutex2);
   test_work_area_free( work_area );
+  pthread_mutex_unlock(&data->mutex2);
+  munmap(data, sizeof(data));
 }
-
-
-
-
-
-
-
 
 int main(int argc, char ** argv) {
   test_mount();

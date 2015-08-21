@@ -1,20 +1,22 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'enkf_main_jobs.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'enkf_main_jobs.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
+
+#include <unistd.h>
 
 #include <ert/util/stringlist.h>
 #include <ert/util/string_util.h>
@@ -22,7 +24,9 @@
 
 #include <ert/enkf/enkf_main.h>
 #include <ert/enkf/field_config.h>
-#include <unistd.h>    
+#include <ert/enkf/local_obsdata.h>
+#include <ert/enkf/local_obsdata_node.h>
+
 
 
 static bool_vector_type * alloc_iactive_vector_from_range(const stringlist_type * range, int startindex, int endindex, int ens_size) {
@@ -80,9 +84,9 @@ void * enkf_main_analysis_enkf_update_JOB( void * self , const stringlist_type *
   int target_step;
   int_vector_type * step_list;
 
-  
+
   // Argument 0: The number of the step to write to
-  if (stringlist_get_size(args) > 1) 
+  if (stringlist_get_size(args) > 1)
     util_sscanf_int(stringlist_iget( args , 1) , &target_step);
   else
     target_step = 0;
@@ -92,11 +96,11 @@ void * enkf_main_analysis_enkf_update_JOB( void * self , const stringlist_type *
     char * step_args = stringlist_alloc_joined_substring(args , 2 , stringlist_get_size(args) , " ");
     step_list = string_util_alloc_active_list( step_args );
     free( step_args );
-  } else 
+  } else
     step_list = int_vector_alloc(1,target_step);
-  
+
   enkf_main_UPDATE( enkf_main , step_list , target_fs , target_step , SMOOTHER_UPDATE);
-  
+
   int_vector_free( step_list );
   return NULL;
 }
@@ -126,11 +130,11 @@ void * enkf_main_analysis_update_JOB( void * self , const stringlist_type * args
 
 
     // Argument 1: The number of the step to write to
-    if (stringlist_get_size(args) > 1) 
+    if (stringlist_get_size(args) > 1)
       util_sscanf_int(stringlist_iget( args , 1) , &target_step);
     else
       target_step = 0;
-    
+
     // Argument 2 - ??: The timesteps to use in the update
     if (stringlist_get_size( args ) > 2) {
       char * step_args = stringlist_alloc_joined_substring(args , 2 , stringlist_get_size(args) , " ");
@@ -141,9 +145,9 @@ void * enkf_main_analysis_update_JOB( void * self , const stringlist_type * args
       time_map_type * time_map = enkf_fs_get_time_map( enkf_main_get_fs( enkf_main ));
       step_list = enkf_main_update_alloc_step_list( enkf_main , 0 , time_map_get_last_step( time_map ) , stride);
     }
-    
+
     enkf_main_UPDATE( enkf_main , step_list , target_fs , target_step , SMOOTHER_UPDATE);
-    
+
     int_vector_free( step_list );
 
     if (decrease_ref)
@@ -223,7 +227,7 @@ void * enkf_main_iterated_smoother_JOB( void * self , const stringlist_type * ar
   const analysis_config_type * analysis_config = enkf_main_get_analysis_config(enkf_main);
   analysis_iter_config_type * iter_config = analysis_config_get_iter_config(analysis_config);
   int num_iter = analysis_iter_config_get_num_iterations(iter_config);
-  
+
   enkf_main_run_iterated_ES( enkf_main , num_iter);
   return NULL;
 }
@@ -232,9 +236,9 @@ void * enkf_main_iterated_smoother_JOB( void * self , const stringlist_type * ar
 void * enkf_main_select_module_JOB( void * self , const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
   analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
-  
+
   analysis_config_select_module( analysis_config , stringlist_iget( args , 0 ));
-  
+
   return NULL;
 }
 
@@ -243,14 +247,14 @@ void * enkf_main_select_module_JOB( void * self , const stringlist_type * args )
 void * enkf_main_create_reports_JOB(void * self , const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
   ert_report_list_type * report_list = enkf_main_get_report_list( enkf_main );
-  
+
   ert_report_list_create( report_list , enkf_main_get_current_fs( enkf_main ) , true );
   return NULL;
 }
 
 void * enkf_main_scale_obs_std_JOB(void * self, const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
-  
+
   double scale_factor;
   util_sscanf_double(stringlist_iget(args, 0), &scale_factor);
 
@@ -263,8 +267,8 @@ void * enkf_main_scale_obs_std_JOB(void * self, const stringlist_type * args ) {
 
 /*****************************************************************/
 
-/* 
-   Will create the new case if it does not exist. 
+/*
+   Will create the new case if it does not exist.
 */
 void * enkf_main_select_case_JOB( void * self , const stringlist_type * args) {
   enkf_main_type * enkf_main = enkf_main_safe_cast( self );
@@ -301,12 +305,12 @@ void * enkf_main_init_case_from_existing_JOB( void * self , const stringlist_typ
         target_fs = enkf_fs_get_ref( enkf_main_get_fs(enkf_main) );  // Using get_ref so that we can unconditionally call decref() further down.
     } else
       target_fs = enkf_fs_get_ref( enkf_main_get_fs(enkf_main) );    // Using get_ref so that we can unconditionally call decref() further down.
-    
+
     enkf_main_init_case_from_existing(enkf_main, source_fs, 0, ANALYZED, target_fs);
     enkf_fs_decref(target_fs);
   }
   enkf_fs_decref(source_fs);
-  
+
   return NULL;
 }
 
@@ -319,9 +323,9 @@ static void * enkf_main_load_results_JOB__( enkf_main_type * enkf_main , int ite
   stringlist_type ** realizations_msg_list = util_calloc(ens_size, sizeof * realizations_msg_list);
   for (int iens = 0; iens < ens_size; ++iens)
     realizations_msg_list[iens] = stringlist_alloc_new();
-  
+
   enkf_main_load_from_forward_model(enkf_main, iter , iactive, realizations_msg_list);
-  
+
   for (int iens = 0; iens < ens_size; ++iens) {
     stringlist_type * msg = realizations_msg_list[iens];
     if (stringlist_get_size(msg)) {
@@ -331,11 +335,11 @@ static void * enkf_main_load_results_JOB__( enkf_main_type * enkf_main , int ite
     }
     stringlist_free(msg);
   }
-  
+
   free(realizations_msg_list);
   bool_vector_free(iactive);
   return NULL;
-} 
+}
 
 
 void * enkf_main_load_results_JOB( void * self , const stringlist_type * args) {
@@ -354,7 +358,7 @@ void * enkf_main_load_results_iter_JOB( void * self , const stringlist_type * ar
   enkf_main_type * enkf_main = enkf_main_safe_cast( self );
   stringlist_type * iens_args = stringlist_alloc_shallow_copy_with_limits( args , 1 , stringlist_get_size( args ) - 1);
   int iter;
-  
+
   util_sscanf_int( stringlist_iget( args , 0 ) , &iter);
   enkf_main_load_results_JOB__(enkf_main , iter , iens_args );
   stringlist_free( iens_args );
@@ -366,11 +370,11 @@ void * enkf_main_load_results_iter_JOB( void * self , const stringlist_type * ar
 /*****************************************************************/
 
 static void enkf_main_jobs_export_field(const enkf_main_type * enkf_main, const stringlist_type * args, field_file_format_type file_type) {
-  const char *      field            = stringlist_iget(args, 0); 
-  const char *      file_name        = stringlist_iget(args, 1); 
+  const char *      field            = stringlist_iget(args, 0);
+  const char *      file_name        = stringlist_iget(args, 1);
   int               report_step      = 0;
   util_sscanf_int(stringlist_iget(args,2), &report_step);
-  state_enum        state            = enkf_types_get_state_enum(stringlist_iget(args, 3)); 
+  state_enum        state            = enkf_types_get_state_enum(stringlist_iget(args, 3));
 
   if (BOTH == state) {
       fprintf(stderr,"** Field export jobs only supports state_enum ANALYZED or FORECAST, not BOTH.\n");
@@ -385,28 +389,28 @@ static void enkf_main_jobs_export_field(const enkf_main_type * enkf_main, const 
 
 
 void * enkf_main_export_field_JOB(void * self, const stringlist_type * args) {
-  const char * file_name = stringlist_iget(args, 1); 
-  field_file_format_type file_type = field_config_default_export_format(file_name); 
-  
+  const char * file_name = stringlist_iget(args, 1);
+  field_file_format_type file_type = field_config_default_export_format(file_name);
+
   if ((RMS_ROFF_FILE == file_type) || (ECL_GRDECL_FILE == file_type)) {
     enkf_main_type * enkf_main = enkf_main_safe_cast( self );
     enkf_main_jobs_export_field(enkf_main, args, file_type);
   } else
-    printf("EXPORT_FIELD filename argument: File extension must be either .roff or .grdecl\n"); 
-    
-  return NULL; 
+    printf("EXPORT_FIELD filename argument: File extension must be either .roff or .grdecl\n");
+
+  return NULL;
 }
 
 void * enkf_main_export_field_to_RMS_JOB(void * self, const stringlist_type * args) {
   enkf_main_type * enkf_main = enkf_main_safe_cast( self );
   enkf_main_jobs_export_field(enkf_main, args, RMS_ROFF_FILE);
-  return NULL; 
+  return NULL;
 }
 
 void * enkf_main_export_field_to_ECL_JOB(void * self, const stringlist_type * args) {
   enkf_main_type * enkf_main = enkf_main_safe_cast( self );
   enkf_main_jobs_export_field(enkf_main, args, ECL_GRDECL_FILE);
-  return NULL; 
+  return NULL;
 }
 
 
@@ -552,11 +556,11 @@ static void enkf_main_export_runpath_file(enkf_main_type * enkf_main,
       else
         basename = util_alloc_sprintf("--%d", iens_value);
 
-      if (model_config_runpath_requires_iter(model_config)) 
+      if (model_config_runpath_requires_iter(model_config))
         runpath = util_alloc_sprintf(runpath_fmt, iens_value, iter_value);
       else
         runpath = util_alloc_sprintf(runpath_fmt, iens_value);
-      
+
       runpath_list_add(runpath_list, iens_value, iter_value, runpath, basename);
 
       free(basename);
@@ -578,7 +582,7 @@ void * enkf_main_export_runpath_file_JOB(void * self, const stringlist_type * ar
   int num_iterations                      = analysis_iter_config_get_num_iterations(iter_config);
   const model_config_type * model_config  = enkf_main_get_model_config(enkf_main);
   int_vector_type * realizations          = int_vector_alloc(1, 0);
-  int_vector_init_range(realizations, 0, ensemble_size-1, 1);
+  int_vector_init_range(realizations, 0, ensemble_size, 1);
   int_vector_type * iterations            = int_vector_alloc(1, 0);
 
 
@@ -600,7 +604,7 @@ void * enkf_main_export_runpath_file_JOB(void * self, const stringlist_type * ar
 
     if ((offset < stringlist_get_size(args)) && model_config_runpath_requires_iter(model_config)) {
       if (0 == strcmp("*", stringlist_iget(args, (offset+1))))
-        int_vector_init_range(iterations, 0, num_iterations-1, 1);
+        int_vector_init_range(iterations, 0, num_iterations, 1);
       else {
         char * range_str = stringlist_alloc_joined_substring( args, offset+1, stringlist_get_size(args), "");
         string_util_init_value_list(range_str, iterations);
@@ -616,3 +620,41 @@ void * enkf_main_export_runpath_file_JOB(void * self, const stringlist_type * ar
 
   return NULL;
 }
+
+
+
+void * enkf_main_std_scale_correlated_obs_JOB(void * self, const stringlist_type * args)  {
+
+  if (stringlist_get_size(args) > 0) {
+    enkf_main_type * enkf_main              = enkf_main_safe_cast( self );
+    int ensemble_size                       = enkf_main_get_ensemble_size(enkf_main);
+    enkf_fs_type * fs                       = enkf_main_get_fs( enkf_main );
+    enkf_obs_type * obs                     = enkf_main_get_obs( enkf_main );
+    int_vector_type * realizations          = int_vector_alloc(1, 0);
+    local_obsdata_type * obsdata = local_obsdata_alloc( "OBS-JOB" );
+
+    int_vector_init_range(realizations, 0, ensemble_size, 1);
+
+    for (int iarg = 0; iarg < stringlist_get_size(args); iarg++) {
+      const char * arg_key = stringlist_iget( args , iarg );
+      stringlist_type * key_list = enkf_obs_alloc_matching_keylist(obs, arg_key);
+      for (int iobs=0; iobs < stringlist_get_size( key_list ); iobs++) {
+        const char * obs_key = stringlist_iget( key_list , iobs);
+        const obs_vector_type * obs_vector = enkf_obs_get_vector(obs, obs_key);
+        local_obsdata_add_node( obsdata , obs_vector_alloc_local_node(obs_vector) );
+      }
+      stringlist_free( key_list );
+    }
+
+    if (local_obsdata_get_size(obsdata) > 0)
+      enkf_obs_scale_correlated_std(obs, fs, realizations, obsdata );
+
+    local_obsdata_free( obsdata );
+  }
+
+  return NULL;
+}
+
+
+
+

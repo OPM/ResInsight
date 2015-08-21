@@ -424,15 +424,15 @@ time_t_vector_type * sched_file_alloc_time_t_vector( const sched_file_type * sch
 
 static stringlist_type * sched_file_tokenize( const char * filename ) {
   stringlist_type  * token_list;
-  parser_type     * parser    = parser_alloc(" \t"  ,      /* Splitters */
+  basic_parser_type     * parser    = basic_parser_alloc(" \t"  ,      /* Splitters */
                                              "\'\"" ,      /* Quoters   */
                                              "\n"   ,      /* Specials - splitters which will be kept. */  
                                              "\r"   ,      /* Delete set - these are just deleted. */
                                              "--"   ,      /* Comment start */
                                              "\n");        /* Comment end */  
   bool strip_quote_marks = false;
-  token_list             = parser_tokenize_file( parser , filename , strip_quote_marks  );
-  parser_free( parser );
+  token_list             = basic_parser_tokenize_file( parser , filename , strip_quote_marks  );
+  basic_parser_free( parser );
   
   return token_list;
 }

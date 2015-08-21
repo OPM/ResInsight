@@ -57,9 +57,10 @@ summary_obs_type * summary_obs_alloc(
   double auto_corrf_param);
 
 
-double summary_obs_get_value( const summary_obs_type * summary_obs );
-double summary_obs_get_std( const summary_obs_type * summary_obs );
-
+  double summary_obs_get_value( const summary_obs_type * summary_obs );
+  double summary_obs_get_std( const summary_obs_type * summary_obs );
+  double summary_obs_get_std_scaling( const summary_obs_type * summary_obs );
+  
 auto_corrf_ftype * summary_obs_get_auto_corrf( const summary_obs_type * summary_obs );
 double             summary_obs_get_auto_corrf_param( const summary_obs_type * summary_obs );
 
@@ -80,8 +81,7 @@ summary_obs_type * summary_obs_alloc_from_SUMMARY_OBSERVATION(
 
 void summary_obs_set(summary_obs_type * , double , double );
 
-void summary_obs_scale_std(summary_obs_type * summary_obs, double std_multiplier );
-void summary_obs_scale_std__(void * summary_obs, double std_multiplier );
+void summary_obs_update_std_scale(summary_obs_type * summary_obs, double std_multiplier , const active_list_type * active_list);
 
 VOID_FREE_HEADER(summary_obs);
 VOID_GET_OBS_HEADER(summary_obs);
@@ -89,6 +89,7 @@ VOID_MEASURE_HEADER(summary_obs);
 UTIL_IS_INSTANCE_HEADER(summary_obs);
 VOID_USER_GET_OBS_HEADER(summary_obs);
 VOID_CHI2_HEADER(summary_obs);
+VOID_UPDATE_STD_SCALE_HEADER(summary_obs);
 
 #ifdef __cplusplus
 }

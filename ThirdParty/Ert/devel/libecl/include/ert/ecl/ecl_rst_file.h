@@ -20,12 +20,15 @@
 #ifndef __ECL_RST_FILE_H__
 #define __ECL_RST_FILE_H__
 
+#include <ert/ecl/ecl_rsthead.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-  typedef struct ecl_rst_file_struct ecl_rst_file_type; 
+typedef struct ecl_rst_file_struct ecl_rst_file_type;
+
 
   ecl_rst_file_type * ecl_rst_file_open_read( const char * filename );
   ecl_rst_file_type * ecl_rst_file_open_write( const char * filename );
@@ -34,8 +37,9 @@ extern "C" {
   
   void                ecl_rst_file_start_solution( ecl_rst_file_type * rst_file );
   void                ecl_rst_file_end_solution( ecl_rst_file_type * rst_file );
-  void                ecl_rst_file_fwrite_header( ecl_rst_file_type * rst_file , int seqnum , time_t date , double days , int nx , int ny ,int nz , int nactive , int phases);
+  void                ecl_rst_file_fwrite_header( ecl_rst_file_type * rst_file , int seqnum, ecl_rsthead_type * rsthead_data );
   void                ecl_rst_file_add_kw(ecl_rst_file_type * rst_file , const ecl_kw_type * ecl_kw );
+
 
 #ifdef __cplusplus
 }

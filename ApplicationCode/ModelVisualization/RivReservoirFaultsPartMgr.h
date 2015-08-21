@@ -30,9 +30,9 @@ namespace cvf
     class Transform;
 }
 
-class RimResultSlot;
-class RimCellEdgeResultSlot;
-class RimReservoirView;
+class RimEclipseCellColors;
+class RimCellEdgeColors;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -40,7 +40,7 @@ class RimReservoirView;
 class RivReservoirFaultsPartMgr : public cvf::Object
 {
 public:
-    RivReservoirFaultsPartMgr(const RigMainGrid* grid, RimReservoirView* reservoirView);
+    RivReservoirFaultsPartMgr(const RigMainGrid* grid, RimEclipseView* reservoirView);
     ~RivReservoirFaultsPartMgr();
 
     void setTransform(cvf::Transform* scaleTransform);
@@ -49,9 +49,9 @@ public:
 
     void setOpacityLevel(float opacity);
     void applySingleColorEffect();
-    void updateColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
-        RimCellEdgeResultSlot* cellEdgeResultSlot);
+    void updateColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, 
+        RimCellEdgeColors* cellEdgeResultColors);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
@@ -60,7 +60,7 @@ public:
 
 private:
     cvf::ref<cvf::Transform>            m_scaleTransform;
-    caf::PdmPointer<RimReservoirView>   m_reservoirView;
+    caf::PdmPointer<RimEclipseView>   m_reservoirView;
     cvf::Collection<RivFaultPartMgr>    m_faultParts;
     bool                                m_forceVisibility;
 };

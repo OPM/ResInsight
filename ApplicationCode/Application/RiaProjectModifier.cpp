@@ -22,22 +22,22 @@
 #include "RiaProjectModifier.h"
 
 #include "RimProject.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimOilField.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"
-#include "RimResultCase.h"
+#include "RimEclipseResultCase.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimWellPathCollection.h"
 #include "RimScriptCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimCellPropertyFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipsePropertyFilter.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimEclipseCellColors.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 
 
@@ -145,7 +145,7 @@ bool RiaProjectModifier::replaceSourceCases(RimProject* project)
     for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
     {
         RimOilField* oilField = project->oilFields[oilFieldIdx];
-        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
         if (analysisModels)
         {
             const size_t numCaseGroups = analysisModels->caseGroups.size();
@@ -164,7 +164,7 @@ bool RiaProjectModifier::replaceSourceCases(RimProject* project)
                         QString caseName = caseNameFromGridFileName(fileName);
 
                         // Use this slightly hackish method in order to get a new unique ID
-                        RimResultCase* resCase = new RimResultCase;
+                        RimEclipseResultCase* resCase = new RimEclipseResultCase;
                         resCase->setCaseInfo(caseName, fileName);
 
                         caseCollection->reservoirs.push_back(resCase);
@@ -191,30 +191,24 @@ bool RiaProjectModifier::replaceSourceCases(RimProject* project)
 bool RiaProjectModifier::replaceCase(RimProject* project)
 {
     bool didReplacement = false;
+    std::vector<RimCase*> allCases;
+    project->allCases(allCases);
 
-    for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
+    for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)
     {
-        RimOilField* oilField = project->oilFields[oilFieldIdx];
-        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
-        if (analysisModels)
+        RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(allCases[caseIdx]);
+        if (resultCase)
         {
-            for (size_t caseIdx = 0; caseIdx < analysisModels->cases.size(); ++caseIdx)
+            if (m_replaceCase_caseId == FIRST_OCCURENCE ||
+                m_replaceCase_caseId == resultCase->caseId())
             {
-                RimResultCase* resultCase = dynamic_cast<RimResultCase*>(analysisModels->cases[caseIdx]);
-                if (resultCase)
-                {
-                    if (m_replaceCase_caseId == FIRST_OCCURENCE ||
-                        m_replaceCase_caseId == resultCase->caseId())
-                    {
-                        resultCase->setGridFileName(m_replaceCase_gridFileName);
-                        resultCase->caseUserDescription = caseNameFromGridFileName(m_replaceCase_gridFileName);
-                        didReplacement = true;
+                resultCase->setGridFileName(m_replaceCase_gridFileName);
+                resultCase->caseUserDescription = caseNameFromGridFileName(m_replaceCase_gridFileName);
+                didReplacement = true;
 
-                        if (m_replaceCase_caseId == FIRST_OCCURENCE)
-                        {
-                            return true;
-                        }
-                    }
+                if (m_replaceCase_caseId == FIRST_OCCURENCE)
+                {
+                    return true;
                 }
             }
         }

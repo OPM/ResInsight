@@ -1,5 +1,5 @@
 from PyQt4.QtCore import QSettings, Qt
-from PyQt4.QtGui import QMainWindow, qApp, QWidget, QVBoxLayout, QDockWidget, QAction
+from PyQt4.QtGui import QMainWindow, qApp, QWidget, QVBoxLayout, QDockWidget, QAction, QToolButton
 from ert_gui.about_dialog import AboutDialog
 
 
@@ -50,6 +50,10 @@ class GertMainWindow(QMainWindow):
         tool.setParent(self)
         self.tools[tool.getName()] = tool
         self.toolbar.addAction(tool.getAction())
+
+        if tool.isPopupMenu():
+            tool_button = self.toolbar.widgetForAction(tool.getAction())
+            tool_button.setPopupMode(QToolButton.InstantPopup)
 
 
     def __createMenu(self):

@@ -1,7 +1,7 @@
 add_subdirectory( include/ert/util )
 
 add_subdirectory( src )
-if (BUILD_APPLICATONS)
+if (BUILD_APPLICATIONS)
    add_subdirectory( applications )
 endif()
 

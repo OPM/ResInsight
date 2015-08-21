@@ -35,39 +35,44 @@
 
 #include "RimUiTreeView.h"
 #include "RimUiTreeModelPdm.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimCalcScript.h"
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimExportInputPropertySettings.h"
 #include "RiaPreferences.h"
 #include "RifEclipseInputFileTools.h"
-#include "RimInputCase.h"
+#include "RimEclipseInputCase.h"
 #include "RimBinaryExportSettings.h"
 #include "RigCaseCellResultsData.h"
-#include "RimStatisticsCase.h"
-#include "RimResultCase.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimMimeData.h"
 
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimResultSlot.h"
-#include "RimStatisticsCaseCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseStatisticsCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"
 #include "RimScriptCollection.h"
-#include "RimWell.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWell.h"
+#include "RimCellEdgeColors.h"
+#include "RimEclipseWellCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimProject.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
-#include "RimInputProperty.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseInputProperty.h"
 #include "RigSingleWellResultsData.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -114,8 +119,14 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
         {
             QMenu menu;
 
-            // Range filters
-            if (dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
+            if (dynamic_cast<RimGeoMechView*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("New View"), this, SLOT(slotAddView()));
+                menu.addAction(QString("Copy View"), this, SLOT(slotCopyPdmObjectToClipboard()));
+                menu.addAction(m_pasteAction);
+                menu.addAction(QString("Delete"), this, SLOT(slotDeleteView()));
+            }
+            else if (dynamic_cast<RimEclipseView*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Copy View"), this, SLOT(slotCopyPdmObjectToClipboard()));
@@ -138,15 +149,25 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addSeparator();
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteRangeFilter()));
             }
-            else if (dynamic_cast<RimCellPropertyFilterCollection*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New Property Filter"), this, SLOT(slotAddPropertyFilter()));
             }
-            else if (dynamic_cast<RimCellPropertyFilter*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Insert Property Filter"), this, SLOT(slotAddPropertyFilter()));
                 menu.addSeparator();
                 menu.addAction(QString("Delete"), this, SLOT(slotDeletePropertyFilter()));
+            }
+            else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("New Property Filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+            }
+            else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("Insert Property Filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+                menu.addSeparator();
+                menu.addAction(QString("Delete"), this, SLOT(slotDeleteGeoMechPropertyFilter()));
             }
             else if (dynamic_cast<RimCalcScript*>(uiItem->dataObject().p()))
             {
@@ -170,30 +191,36 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                     }
                 }
             }
-            else if (dynamic_cast<RimInputPropertyCollection*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Add Input Property"), this, SLOT(slotAddInputProperty()));
             }
-            else if (dynamic_cast<RimInputProperty*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseInputProperty*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteObjectFromContainer()));
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteInputProperty()));
             }
-            else if (dynamic_cast<RimResultSlot*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseCellColors*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
             }
-            else if (dynamic_cast<RimStatisticsCaseCollection*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseStatisticsCaseCollection*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
             }
-            else if (dynamic_cast<RimStatisticsCase*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
             }
-            else if (dynamic_cast<RimCase*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimGeoMechCase*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("New View"), this, SLOT(slotAddView()));
+                menu.addAction(QString("Close"), this, SLOT(slotCloseGeomechCase()));
+                menu.addAction(m_pasteAction);
+            }
+            else if (dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Copy"), this, SLOT(slotCopyPdmObjectToClipboard()));
                 menu.addAction(m_pasteAction);
@@ -230,7 +257,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
                 ruiMainWindow->appendActionsContextMenuForPdmObject(uiItem->dataObject().p(), &menu);
             }
-            else if (dynamic_cast<RimAnalysisModels*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimEclipseCaseCollection*>(uiItem->dataObject().p()))
             {
                 RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
                 ruiMainWindow->appendActionsContextMenuForPdmObject(uiItem->dataObject().p(), &menu);
@@ -339,7 +366,7 @@ void RimUiTreeView::slotAddPropertyFilter()
     if (myModel)
     {
         QModelIndex insertedIndex;
-        RimCellPropertyFilter* propFilter = myModel->addPropertyFilter(currentIndex(), insertedIndex);
+        RimEclipsePropertyFilter* propFilter = myModel->addPropertyFilter(currentIndex(), insertedIndex);
         setCurrentIndex(insertedIndex);
         if (propFilter)
         {
@@ -347,6 +374,37 @@ void RimUiTreeView::slotAddPropertyFilter()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotAddGeoMechPropertyFilter()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        QModelIndex insertedIndex;
+        RimGeoMechPropertyFilter* propFilter = myModel->addGeoMechPropertyFilter(currentIndex(), insertedIndex);
+        setCurrentIndex(insertedIndex);
+        if (propFilter)
+        {
+            propFilter->parentContainer()->reservoirView()->createDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotDeleteGeoMechPropertyFilter()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        myModel->deleteGeoMechPropertyFilter(currentIndex());
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -382,8 +440,8 @@ void RimUiTreeView::slotAddSliceFilterI()
         rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
         rangeFilter->cellCountI = 1;
 
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
 
@@ -406,8 +464,8 @@ void RimUiTreeView::slotAddSliceFilterJ()
         rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
         rangeFilter->cellCountJ = 1;
 
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
 
@@ -430,8 +488,8 @@ void RimUiTreeView::slotAddSliceFilterK()
         rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
         rangeFilter->cellCountK = 1;
 
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
 
@@ -604,12 +662,12 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
 
                 myModel->populateObjectGroupFromModelIndexList(mil, &group);
 
-                std::vector<caf::PdmPointer<RimCase> > typedObjects;
+                std::vector<caf::PdmPointer<RimEclipseCase> > typedObjects;
                 group.objectsByType(&typedObjects);
 
                 for (size_t i = 0; i < typedObjects.size(); i++)
                 {
-                    RimCase* rimReservoir = typedObjects[i];
+                    RimEclipseCase* rimReservoir = typedObjects[i];
                     caseIdsInSelection.push_back(rimReservoir->caseId);
                 }
             }
@@ -628,13 +686,13 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotAddView()
 {
-    QModelIndex index = currentIndex();
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    
-    QModelIndex insertedIndex;
-    myModel->addReservoirView(index, insertedIndex);
-    
+    std::vector<caf::PdmUiItem*> selection;
+    this->selectedUiItems(selection);
+
+    RimView* newView = myModel->addReservoirView(selection);
+    QModelIndex insertedIndex = myModel->getModelIndexFromPdmObject(newView);
+
     // Expand parent collection and inserted view item
     setExpandedUpToRoot(insertedIndex);
     
@@ -647,13 +705,12 @@ void RimUiTreeView::slotAddView()
 void RimUiTreeView::slotDeleteView()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        myModel->deleteReservoirView(currentIndex());
+    std::vector<caf::PdmUiItem*> selection;
+    this->selectedUiItems(selection);
+    myModel->deleteReservoirViews(selection);
 
-        RiaApplication* app = RiaApplication::instance();
-        app->setActiveReservoirView(NULL);
-    }
+    RiaApplication* app = RiaApplication::instance();
+    app->setActiveReservoirView(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -716,7 +773,7 @@ void RimUiTreeView::slotAddInputProperty()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(uiItem->dataObject().p());
+    RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem->dataObject().p());
     if (inputPropertyCollection)
     {
         myModel->addInputProperty(index, fileNames);
@@ -747,12 +804,12 @@ void RimUiTreeView::slotWriteInputProperty()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimInputProperty* inputProperty = dynamic_cast<RimInputProperty*>(uiItem->dataObject().p());
+    RimEclipseInputProperty* inputProperty = dynamic_cast<RimEclipseInputProperty*>(uiItem->dataObject().p());
     if (!inputProperty) return;
 
     {
         bool isResolved = false;
-        if (inputProperty->resolvedState == RimInputProperty::RESOLVED || inputProperty->resolvedState == RimInputProperty::RESOLVED_NOT_SAVED)
+        if (inputProperty->resolvedState == RimEclipseInputProperty::RESOLVED || inputProperty->resolvedState == RimEclipseInputProperty::RESOLVED_NOT_SAVED)
         {
             isResolved = true;
         }
@@ -769,16 +826,16 @@ void RimUiTreeView::slotWriteInputProperty()
     exportSettings.eclipseKeyword = inputProperty->eclipseKeyword;
 
     // Find input reservoir for this property
-    RimInputCase* inputReservoir = NULL;
+    RimEclipseInputCase* inputReservoir = NULL;
     {
-        std::vector<RimInputPropertyCollection*> parentObjects;
+        std::vector<RimEclipseInputPropertyCollection*> parentObjects;
         inputProperty->parentObjectsOfType(parentObjects);
         CVF_ASSERT(parentObjects.size() == 1);
 
-        RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
+        RimEclipseInputPropertyCollection* inputPropertyCollection = parentObjects[0];
         if (!inputPropertyCollection) return;
 
-        std::vector<RimInputCase*> parentObjects2;
+        std::vector<RimEclipseInputCase*> parentObjects2;
         inputPropertyCollection->parentObjectsOfType(parentObjects2);
         CVF_ASSERT(parentObjects2.size() == 1);
 
@@ -815,7 +872,7 @@ void RimUiTreeView::slotWriteInputProperty()
         {
             inputProperty->fileName = exportSettings.fileName;
             inputProperty->eclipseKeyword = exportSettings.eclipseKeyword;
-            inputProperty->resolvedState = RimInputProperty::RESOLVED;
+            inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
 
             inputProperty->updateConnectedEditors();
         }
@@ -831,14 +888,14 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimResultSlot* resultSlot = dynamic_cast<RimResultSlot*>(uiItem->dataObject().p());
-    if (!resultSlot) return;
-    if (!resultSlot->reservoirView()) return;
-    if (!resultSlot->reservoirView()->eclipseCase()) return;
-    if (!resultSlot->reservoirView()->eclipseCase()->reservoirData()) return;
+    RimEclipseCellColors* resultColors = dynamic_cast<RimEclipseCellColors*>(uiItem->dataObject().p());
+    if (!resultColors) return;
+    if (!resultColors->reservoirView()) return;
+    if (!resultColors->reservoirView()->eclipseCase()) return;
+    if (!resultColors->reservoirView()->eclipseCase()->reservoirData()) return;
 
     RimBinaryExportSettings exportSettings;
-    exportSettings.eclipseKeyword = resultSlot->resultVariable();
+    exportSettings.eclipseKeyword = resultColors->resultVariable();
 
     {
         QString projectFolder;
@@ -852,10 +909,10 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
         }
         else
         {
-            projectFolder = resultSlot->reservoirView()->eclipseCase()->locationOnDisc();
+            projectFolder = resultColors->reservoirView()->eclipseCase()->locationOnDisc();
         }
 
-        QString outputFileName = projectFolder + "/" + resultSlot->resultVariable();
+        QString outputFileName = projectFolder + "/" + resultColors->resultVariable();
 
         exportSettings.fileName = outputFileName;
     }
@@ -863,10 +920,10 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
     caf::PdmUiPropertyDialog propertyDialog(this, &exportSettings, "Export Binary Eclipse Data to Text File");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        size_t timeStep = resultSlot->reservoirView()->currentTimeStep();
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultSlot->porosityModel());
+        size_t timeStep = resultColors->reservoirView()->currentTimeStep();
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
 
-        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, resultSlot->reservoirView()->eclipseCase()->reservoirData(), porosityModel, timeStep, resultSlot->resultVariable(), exportSettings.eclipseKeyword, exportSettings.undefinedValue);
+        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, resultColors->reservoirView()->eclipseCase()->reservoirData(), porosityModel, timeStep, resultColors->resultVariable(), exportSettings.eclipseKeyword, exportSettings.undefinedValue);
         if (!isOk)
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);
@@ -895,12 +952,12 @@ void RimUiTreeView::slotCloseCase()
             QModelIndexList mil = m->selectedRows();
             myModel->populateObjectGroupFromModelIndexList(mil, &group);
 
-            std::vector<caf::PdmPointer<RimCase> > typedObjects;
+            std::vector<caf::PdmPointer<RimEclipseCase> > typedObjects;
             group.objectsByType(&typedObjects);
 
             for (size_t i = 0; i < typedObjects.size(); i++)
             {
-                RimCase* rimReservoir = typedObjects[i];
+                RimEclipseCase* rimReservoir = typedObjects[i];
                 myModel->deleteReservoir(rimReservoir);
             }
         }
@@ -916,7 +973,7 @@ void RimUiTreeView::slotNewStatisticsCase()
     if (myModel)
     {
         QModelIndex insertedIndex;
-        RimStatisticsCase* newObject = myModel->addStatisticalCalculation(currentIndex(), insertedIndex);
+        RimEclipseStatisticsCase* newObject = myModel->addStatisticalCalculation(currentIndex(), insertedIndex);
         setCurrentIndex(insertedIndex);
 
         setExpanded(insertedIndex, true);
@@ -932,7 +989,7 @@ void RimUiTreeView::slotComputeStatistics()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimStatisticsCase* statisticsCase = dynamic_cast<RimStatisticsCase*>(uiItem->dataObject().p());
+    RimEclipseStatisticsCase* statisticsCase = dynamic_cast<RimEclipseStatisticsCase*>(uiItem->dataObject().p());
     if (!statisticsCase) return;
 
     statisticsCase->computeStatistics();
@@ -1050,8 +1107,8 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
     if (uiItem)
     {
-        if (dynamic_cast<RimCase*>(uiItem->dataObject().p())
-            || dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
+        if (dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p())
+            || dynamic_cast<RimEclipseView*>(uiItem->dataObject().p()))
         {
             if (keyEvent->matches(QKeySequence::Copy))
             {
@@ -1064,8 +1121,8 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
 
         if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p())
             || dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p())
-            || dynamic_cast<RimCase*>(uiItem->dataObject().p())
-            || dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
+            || dynamic_cast<RimEclipseCase*>(uiItem->dataObject().p())
+            || dynamic_cast<RimEclipseView*>(uiItem->dataObject().p()))
         {
             if (keyEvent->matches(QKeySequence::Paste))
             {
@@ -1221,7 +1278,7 @@ bool RimUiTreeView::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseG
 
     for (size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++)
     {
-        RimStatisticsCase* rimStaticsCase = dynamic_cast<RimStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
+        RimEclipseStatisticsCase* rimStaticsCase = dynamic_cast<RimEclipseStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
         if (rimStaticsCase)
         {
             if (rimStaticsCase->hasComputedStatistics())
@@ -1587,3 +1644,33 @@ void RimUiTreeView::slotDeleteAllWellPaths()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::selectedUiItems(std::vector<caf::PdmUiItem*>& objects)
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    QModelIndexList idxList = this->selectionModel()->selectedIndexes();
+
+    for (int i = 0; i < idxList.size(); i++)
+    {
+        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(idxList[i]);
+        if (uiItem)
+        {
+            caf::PdmUiItem* item = uiItem->dataObject();
+            objects.push_back(item);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotCloseGeomechCase()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    std::vector<caf::PdmUiItem*> selection;
+    this->selectedUiItems(selection);
+    myModel->deleteGeoMechCases(selection);
+
+}

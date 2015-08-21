@@ -522,3 +522,28 @@ class VectorTemplate(BaseCClass):
     def selectUnique(self):
         self.cNamespace().select_unique(self)
 
+
+    def elementSum(self):
+        return self.cNamespace().element_sum( self )
+
+
+    def getDataPtr(self):
+        "Low level function which returns a pointer to underlying storage"
+        # Observe that the get_data_ptr() function is not implemented
+        # for the TimeVector class.
+        return self.cNamespace().get_data_ptr(self)
+
+    def countEqual(self , value):
+        return self.cNamespace().count_equal( self , value )
+
+
+    def initRange(self , min_value , max_value , delta):
+        """
+        Will fill the vector with the values from min_value to
+        max_value in steps of delta. The upper limit is guaranteed to
+        be inclusive, even if it is not commensurable with the delta.
+        """
+        if delta == 0:
+            raise ValueError("Invalid range")
+        else:
+            self.cNamespace().init_range( self , min_value , max_value , delta )

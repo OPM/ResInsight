@@ -1,5 +1,5 @@
 from math import sqrt
-
+import sys
 
 class GeometryTools(object):
     EPSILON = 0.000001
@@ -23,9 +23,7 @@ class GeometryTools(object):
 
         # coincident?
         if abs(numerator_a) < GeometryTools.EPSILON and abs(numerator_b) < GeometryTools.EPSILON and abs(denominator) < GeometryTools.EPSILON:
-            x = (p1[0] + p2[0]) / 2.0
-            y = (p1[1] + p2[1]) / 2.0
-            return x, y
+            return None
 
         # parallel?
         if abs(denominator) < GeometryTools.EPSILON:
@@ -144,6 +142,28 @@ class GeometryTools(object):
         return inside
 
 
+    @staticmethod
+    def extendToEdge(bounding_polygon, poly_line):
+        """
+        """
+        assert(bounding_polygon.isClosed())
+        for p in poly_line:
+            if not GeometryTools.pointInPolygon( p , bounding_polygon):
+                raise ValueError("The point:%s was not inside bounding polygon")
+        
+        p1 = poly_line[0]
+        ray1 = GeometryTools.lineToRay(poly_line[1], poly_line[0])
+        intersection1 = GeometryTools.rayPolygonIntersections(p1, ray1, bounding_polygon)[0] # assume convex
+        
+        
+        p2 = poly_line[-1]
+        assert(GeometryTools.pointInPolygon(p2 , bounding_polygon))
+                
+        ray2 = GeometryTools.lineToRay(poly_line[-2], poly_line[-1])
+        intersection2 = GeometryTools.rayPolygonIntersections(p2, ray2, bounding_polygon)
+        intersection2 = GeometryTools.rayPolygonIntersections(p2, ray2, bounding_polygon)[0] # assume convex
+
+        return [intersection1[1]] + poly_line + [intersection2[1]]
 
 
     @staticmethod
@@ -161,11 +181,20 @@ class GeometryTools(object):
 
         p1 = poly_line[0]
         ray1 = GeometryTools.lineToRay(poly_line[1], poly_line[0])
+        tmp = GeometryTools.rayPolygonIntersections(p1, ray1, bounding_polygon)
         intersection1 = GeometryTools.rayPolygonIntersections(p1, ray1, bounding_polygon)[0] # assume convex
 
         p2 = poly_line[-1]
         ray2 = GeometryTools.lineToRay(poly_line[-2], poly_line[-1])
         intersection2 = GeometryTools.rayPolygonIntersections(p2, ray2, bounding_polygon)[0] # assume convex
+
+
+        # Check for intersection between the polyline extensions on the inside of the bounadary
+        internal_intersection = GeometryTools.lineIntersection( p1 , intersection1[1] , p2 , intersection2[1])
+        if internal_intersection:
+            start_point = poly_line[0]
+            return poly_line + [ internal_intersection , start_point]
+
 
 
         if intersection2[0] < intersection1[0]:
@@ -188,6 +217,7 @@ class GeometryTools(object):
 
 
 
+
     @staticmethod
     def lineToRay(p0, p1):
         """
@@ -206,7 +236,7 @@ class GeometryTools(object):
 
 
     @staticmethod
-    def rayLineIntersection(point, ray, p1, p2):
+    def rayLineIntersection(point, ray, p1, p2 , flip_ray = False):
         """
         Finds the intersection between the ray starting at point and the line [p1, p2].
         @type point: tuple of (float, float)
@@ -214,33 +244,60 @@ class GeometryTools(object):
         @type p1: tuple of (float, float)
         @type p2: tuple of (float, float)
         @rtype: tuple of (float, float) or None
+
+        stackoverflow: 563198
         """
-        denominator = ray[1] * (p2[0] - p1[0]) - ray[0] * (p2[1] - p1[1])
-        numerator_a = ray[0] * (p1[1] - point[1]) - ray[1] * (p1[0] - point[0])
-        numerator_b = (p2[0] - p1[0]) * (p1[1] - point[1]) - (p2[1] - p1[1]) * (p1[0] - point[0])
+        s = (p2[0] - p1[0] , p2[1] - p1[1])
+        q = p1
+        r = ray
+        p = point
 
-        # coincident?
-        if abs(numerator_a) < GeometryTools.EPSILON and abs(numerator_b) < GeometryTools.EPSILON and abs(denominator) < GeometryTools.EPSILON:
-            x = (p1[0] + p2[0]) / 2.0
-            y = (p1[1] + p2[1]) / 2.0
-            return x, y
+        p_m_q = (p[0] - q[0] , p[1] - q[1])
+        q_m_p = (q[0] - p[0] , q[1] - p[1])
+        r_x_s = r[0] * s[1] - r[1]*s[0]
 
-        # parallel?
-        if abs(denominator) < GeometryTools.EPSILON:
+        q_m_p_x_r = q_m_p[0] * r[1] - q_m_p[1] * r[0]
+        q_m_p_x_s = q_m_p[0] * s[1] - q_m_p[1] * s[0]
+        
+        if abs(r_x_s) < GeometryTools.EPSILON and abs(q_m_p_x_r) < GeometryTools.EPSILON:
+            q_m_p_dot_r = q_m_p[0] * r[0] + q_m_p[1] * r[1]
+            r_dot_r = r[0] * r[0] + r[1] * r[1]
+
+            p_m_q_dot_s = p_m_q[0] * s[0] + p_m_q[1] * s[1]
+            s_dot_s = s[0] * s[0] + s[1] * s[1]
+
+            # Coincident
+            if 0 <= q_m_p_dot_r <= r_dot_r:
+                return ((p1[0] + p2[0]) / 2 , (p1[1] + p2[1]) / 2)
+
+            # Coincident
+            if 0 <= p_m_q_dot_s <= s_dot_s:
+                return ((p1[0] + p2[0]) / 2 , (p1[1] + p2[1]) / 2)
+
+            return None
+            
+            
+        if abs(r_x_s) < GeometryTools.EPSILON:
+            # Parallell
             return None
 
 
-        # intersection along the segments?
-        mua = numerator_a / denominator
-        mub = numerator_b / denominator
+        t = 1.0 * q_m_p_x_s / r_x_s
+        u = 1.0 * q_m_p_x_r / r_x_s
 
-        # for rays mub can be larger than 1.0
-        if mua < 0.0 or mua > 1.0 or mub < 0.0:
+        if t >= 0 and 0 <= u <= 1:
+            x = p[0] + t*r[0]
+            y = p[1] + t*r[1]
+            
+            return x,y
+
+        if flip_ray:
+            return GeometryTools.rayLineIntersection( point , (-ray[0] , -ray[1]) , p1 , p2 , False)
+        else:
             return None
 
-        x = p1[0] + mua * (p2[0] - p1[0])
-        y = p1[1] + mua * (p2[1] - p1[1])
-        return x, y
+
+
 
     @staticmethod
     def rayPolygonIntersections(point, ray, polygon):
@@ -263,3 +320,129 @@ class GeometryTools(object):
                 results.append((index, intersection))
 
         return results
+
+
+    @staticmethod
+    def distance(p1,p2):
+        if len(p1) != len(p2):
+            raise ValueError("Different lenght of objects")
+        
+        sqr_distance = 0
+        for x1,x2 in zip(p1,p2):
+            sqr_distance += (x1 - x2) * (x1 - x2)
+            
+        return sqrt( sqr_distance )
+    
+
+    @staticmethod
+    def joinPolylines(polyline1 , polyline2):
+        """The shortest straight line connecting polyline1 and polyline2.
+
+        The joinPolylines function does not extend the polylines with
+        a ray from the end, only the length of the straight line
+        connecting the various endpoints is considered. If the two
+        polylines already intersect the function returns None.
+        """
+
+
+        if len(polyline1) < 1:
+            raise ValueError("Length of polyline must be >= 1")
+
+        if len(polyline2) < 1:
+            raise ValueError("Length of polyline must be >= 1")
+
+        if GeometryTools.polylinesIntersect( polyline1 , polyline2):
+            return None
+            
+        p0 = polyline1[0]
+        p1 = polyline1[-1]
+        pa = polyline2[0]
+        pb = polyline2[-1]
+
+        d_list = [ (GeometryTools.distance( p0 , pa ), [p0 , pa]),
+                   (GeometryTools.distance( p0 , pb ), [p0 , pb]),
+                   (GeometryTools.distance( p1 , pa ), [p1 , pa]),
+                   (GeometryTools.distance( p1 , pb ), [p1 , pb]) ]
+
+        d_list.sort( key = lambda x: x[0])
+        return d_list[0][1]
+
+
+    @staticmethod
+    def connectPolylines( polyline , target_polyline):
+        if GeometryTools.polylinesIntersect( polyline , target_polyline ):
+            return None
+
+        if len(polyline) < 2:
+            raise ValueError("Polyline must have at least two points")
+
+        d_list = []
+        
+        p0 = polyline[-1]
+        p1 = polyline[-2]
+        ray = GeometryTools.lineToRay( p1 , p0 )
+        for (index , p) in GeometryTools.rayPolygonIntersections( p0 , ray , target_polyline):
+            d_list.append( (GeometryTools.distance( p0 , p) , [p0 , p]) )
+        
+        p0 = polyline[0]
+        p1 = polyline[1]
+        ray = GeometryTools.lineToRay( p1 , p0 )
+        for (index , p) in GeometryTools.rayPolygonIntersections( p0 , ray , target_polyline):
+            d_list.append( (GeometryTools.distance( p0 , p) , [p0 , p]) )
+
+        if len(d_list) == 0:
+            raise ValueError("Polyline %s can not be extended to %s" % (polyline.getName() , target_polyline.getName()))
+
+        d_list.sort( key = lambda x: x[0])
+        return d_list[0][1]
+
+
+
+    @staticmethod
+    def nearestPointOnPolyline( p , polyline ):
+        if len(polyline) > 1:
+            d_list = [ GeometryTools.distance( p  , pi ) for pi in polyline ]
+            index0 = d_list.index( min(d_list) )
+            p0 = polyline[index0]
+            dist0 = d_list[index0]
+
+            dist1 = sys.float_info.max
+            dist2 = sys.float_info.max
+            intercept1 = None
+            intercept2 = None
+
+            index1 = None
+            index2 = None
+            if index0 > 0:
+                index1 = index0 - 1
+
+            if index0 < len(polyline) - 1:
+                index2 = index0 + 1
+
+            if not index1 is None:
+                p1 = polyline[index1] 
+                dy1 = p1[1] - p0[1]
+                dx1 = p1[0] - p0[0]
+                intercept1 = GeometryTools.rayLineIntersection( p , (dy1 , -dx1) , p0 , p1 , True)
+                if intercept1:
+                    dist1 = GeometryTools.distance( intercept1 , p )
+
+
+            if not index2 is None:
+                p2 = polyline[index2]
+                dy2 = p2[1] - p0[1]
+                dx2 = p2[0] - p0[0]
+                intercept2 = GeometryTools.rayLineIntersection( p , (dy2 , -dx2) , p0 , p2 , True)
+                if intercept2:
+                    dist2 = GeometryTools.distance( intercept2 , p )                
+
+
+            point_list = [ p0 , intercept1 , intercept2 ]
+            d_list = [ dist0 , dist1 , dist2 ]
+            index = d_list.index( min(d_list) )
+
+            
+            return point_list[index]
+        else:
+            raise ValueError("Polyline must have len() >= 2")
+

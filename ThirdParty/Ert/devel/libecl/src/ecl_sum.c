@@ -79,7 +79,7 @@
    combined to create a unique key; and the corresponding index is
    used to lookup a numerical value from the PARAMS vector with actual
    data.
-   
+
    These matters are documented further in the ecl_smspec.c and
    ecl_sum_data.c files.
 */
@@ -104,7 +104,7 @@ struct ecl_sum_struct {
   char              * abs_path;   /* Absolute path. */
   char              * base;       /* Only the basename. */
   char              * ecl_case;   /* This is the current case, with optional path component. == path + base*/
-  char              * ext;        /* Only to support selective loading of formatted|unformatted and unified|multiple. (can be NULL) */ 
+  char              * ext;        /* Only to support selective loading of formatted|unformatted and unified|multiple. (can be NULL) */
 };
 
 
@@ -129,7 +129,7 @@ void ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * ecl_case) {
   util_safe_free( ecl_sum->ext );
   {
     char  *path , *base, *ext;
-  
+
     util_alloc_file_components( ecl_case , &path , &base , &ext);
 
     ecl_sum->ecl_case = util_alloc_string_copy( ecl_case );
@@ -140,7 +140,7 @@ void ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * ecl_case) {
       ecl_sum->abs_path = util_alloc_abs_path( path );
     else
       ecl_sum->abs_path = util_alloc_cwd();
-    
+
     util_safe_free( base );
     util_safe_free( path );
     util_safe_free( ext );
@@ -151,7 +151,7 @@ void ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * ecl_case) {
 static ecl_sum_type * ecl_sum_alloc__( const char * input_arg , const char * key_join_string) {
   ecl_sum_type * ecl_sum = util_malloc( sizeof * ecl_sum );
   UTIL_TYPE_ID_INIT( ecl_sum , ECL_SUM_ID );
-  
+
   ecl_sum->ecl_case  = NULL;
   ecl_sum->path      = NULL;
   ecl_sum->base      = NULL;
@@ -159,7 +159,7 @@ static ecl_sum_type * ecl_sum_alloc__( const char * input_arg , const char * key
   ecl_sum->abs_path  = NULL;
   ecl_sum_set_case( ecl_sum , input_arg );
   ecl_sum->key_join_string = util_alloc_string_copy( key_join_string );
-  
+
   ecl_sum->smspec = NULL;
   ecl_sum->data   = NULL;
 
@@ -167,69 +167,72 @@ static ecl_sum_type * ecl_sum_alloc__( const char * input_arg , const char * key
 }
 
 
-static void ecl_sum_fread_data( ecl_sum_type * ecl_sum , const stringlist_type * data_files , bool include_restart) {
+static bool ecl_sum_fread_data( ecl_sum_type * ecl_sum , const stringlist_type * data_files , bool include_restart) {
   if (ecl_sum->data != NULL)
     ecl_sum_free_data( ecl_sum );
-  ecl_sum->data = ecl_sum_data_alloc( ecl_sum->smspec );
-  ecl_sum_data_fread( ecl_sum->data , data_files );
-  
-  if (include_restart) {
-    const char * path                     = ecl_sum->path;
-    const stringlist_type * restart_cases = ecl_smspec_get_restart_list( ecl_sum->smspec );
-    stringlist_type       * restart_files = stringlist_alloc_new();
-    
-    int restart_nr;
-    for (restart_nr = 0; restart_nr < stringlist_get_size( restart_cases ); restart_nr++) {
-      ecl_util_alloc_summary_data_files(path , stringlist_iget( restart_cases , restart_nr ) , ecl_sum->fmt_case , restart_files );
-      ecl_sum_data_fread_restart( ecl_sum->data , restart_files );
-    }
-    stringlist_free( restart_files );
-  }
 
+  ecl_sum->data = ecl_sum_data_alloc( ecl_sum->smspec );
+  if (ecl_sum_data_fread( ecl_sum->data , data_files )) {
+    if (include_restart) {
+      const char * path                     = ecl_sum->path;
+      const stringlist_type * restart_cases = ecl_smspec_get_restart_list( ecl_sum->smspec );
+      stringlist_type       * restart_files = stringlist_alloc_new();
+
+      int restart_nr;
+      for (restart_nr = 0; restart_nr < stringlist_get_size( restart_cases ); restart_nr++) {
+        ecl_util_alloc_summary_data_files(path , stringlist_iget( restart_cases , restart_nr ) , ecl_sum->fmt_case , restart_files );
+        ecl_sum_data_fread_restart( ecl_sum->data , restart_files );
+      }
+      stringlist_free( restart_files );
+    }
+    return true;
+  } else
+    return false;
 }
 
 
 
-static void ecl_sum_fread(ecl_sum_type * ecl_sum , const char *header_file , const stringlist_type *data_files , bool include_restart) {
-  
+static bool ecl_sum_fread(ecl_sum_type * ecl_sum , const char *header_file , const stringlist_type *data_files , bool include_restart) {
   ecl_sum->smspec = ecl_smspec_fread_alloc( header_file , ecl_sum->key_join_string , include_restart);
-  {
+  if (ecl_sum->smspec) {
     bool fmt_file;
     ecl_util_get_file_type( header_file , &fmt_file , NULL);
     ecl_sum_set_fmt_case( ecl_sum , fmt_file );
-  }
-  ecl_sum_fread_data( ecl_sum , data_files , include_restart );
+  } else
+    return false;
 
-  {
+  if (ecl_sum_fread_data( ecl_sum , data_files , include_restart )) {
     ecl_file_enum file_type = ecl_util_get_file_type( stringlist_iget( data_files , 0 ) , NULL , NULL);
-    
+
     if (file_type == ECL_SUMMARY_FILE)
       ecl_sum_set_unified( ecl_sum , false );
     else if (file_type == ECL_UNIFIED_SUMMARY_FILE)
       ecl_sum_set_unified( ecl_sum , true);
     else
       util_abort("%s: what the fuck? \n",__func__);
-  }
+  } else
+    return false;
+
+  return true;
 }
 
 
 static bool ecl_sum_fread_case( ecl_sum_type * ecl_sum , bool include_restart) {
   char * header_file;
   stringlist_type * summary_file_list = stringlist_alloc_new();
-  
+
   bool caseOK = false;
-  
+
   ecl_util_alloc_summary_files( ecl_sum->path , ecl_sum->base , ecl_sum->ext , &header_file , summary_file_list );
   if ((header_file != NULL) && (stringlist_get_size( summary_file_list ) > 0)) {
-    ecl_sum_fread( ecl_sum , header_file , summary_file_list , include_restart );
-    caseOK = true;
+    caseOK = ecl_sum_fread( ecl_sum , header_file , summary_file_list , include_restart );
   }
   util_safe_free( header_file );
   stringlist_free( summary_file_list );
-  
+
   return caseOK;
 }
-  
+
 
 /**
    This will explicitly load the summary specified by @header_file and
@@ -240,8 +243,8 @@ static bool ecl_sum_fread_case( ecl_sum_type * ecl_sum , bool include_restart) {
    initializing the data_files list with files from the restarted
    case.
 */
-  
-  
+
+
 ecl_sum_type * ecl_sum_fread_alloc(const char *header_file , const stringlist_type *data_files , const char * key_join_string) {
   ecl_sum_type * ecl_sum = ecl_sum_alloc__( header_file , key_join_string );
   ecl_sum_fread( ecl_sum , header_file , data_files , false );
@@ -281,19 +284,19 @@ smspec_node_type * ecl_sum_add_blank_var( ecl_sum_type * ecl_sum , float default
 
 
 
-ecl_sum_tstep_type * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step , double sim_days) {
-  return ecl_sum_data_add_new_tstep( ecl_sum->data , report_step , sim_days );
+ecl_sum_tstep_type * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step , double sim_seconds) {
+  return ecl_sum_data_add_new_tstep( ecl_sum->data , report_step , sim_seconds );
 }
 
 
-ecl_sum_type * ecl_sum_alloc_writer( const char * ecl_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , int nx , int ny , int nz) {
+ecl_sum_type * ecl_sum_alloc_writer( const char * ecl_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz) {
   ecl_sum_type * ecl_sum = ecl_sum_alloc__( ecl_case , key_join_string );
   ecl_sum_set_unified( ecl_sum , unified );
   ecl_sum_set_fmt_case( ecl_sum , fmt_output );
 
-  ecl_sum->smspec = ecl_smspec_alloc_writer( key_join_string , sim_start , nx , ny , nz );
+  ecl_sum->smspec = ecl_smspec_alloc_writer( key_join_string , sim_start , time_in_days , nx , ny , nz );
   ecl_sum->data   = ecl_sum_data_alloc_writer( ecl_sum->smspec );
-  
+
   return ecl_sum;
 }
 
@@ -330,14 +333,14 @@ void ecl_sum_free( ecl_sum_type * ecl_sum ) {
 
   if (ecl_sum->smspec != NULL)
     ecl_smspec_free( ecl_sum->smspec );
-  
+
   util_safe_free( ecl_sum->path );
   util_safe_free( ecl_sum->ext );
   util_safe_free( ecl_sum->abs_path );
 
   free( ecl_sum->base );
   free( ecl_sum->ecl_case );
-  
+
   free( ecl_sum->key_join_string );
   free( ecl_sum );
 }
@@ -410,7 +413,7 @@ bool ecl_sum_case_exists( const char * input_file ) {
   util_safe_free( extension );
   util_safe_free( smspec_file );
   stringlist_free( data_files );
-  
+
   return case_exists;
 }
 
@@ -450,8 +453,8 @@ double ecl_sum_time2days( const ecl_sum_type * ecl_sum , time_t sim_time) {
 /*****************************************************************/
 /* Well variables */
 
-bool    ecl_sum_has_well_var(const ecl_sum_type * ecl_sum , const char * well , const char *var) { 
-  return ecl_smspec_has_well_var(ecl_sum->smspec , well , var); 
+bool    ecl_sum_has_well_var(const ecl_sum_type * ecl_sum , const char * well , const char *var) {
+  return ecl_smspec_has_well_var(ecl_sum->smspec , well , var);
 }
 
 double  ecl_sum_get_well_var(const ecl_sum_type * ecl_sum , int time_index , const char * well , const char *var) {
@@ -473,8 +476,8 @@ double ecl_sum_get_well_var_from_sim_days( const ecl_sum_type * ecl_sum , double
 /*****************************************************************/
 /* Group variables */
 
-bool ecl_sum_has_group_var(const ecl_sum_type * ecl_sum , const char * group , const char *var) { 
-  return ecl_smspec_has_group_var( ecl_sum->smspec , group , var); 
+bool ecl_sum_has_group_var(const ecl_sum_type * ecl_sum , const char * group , const char *var) {
+  return ecl_smspec_has_group_var( ecl_sum->smspec , group , var);
 }
 
 double  ecl_sum_get_group_var(const ecl_sum_type * ecl_sum , int time_index , const char * group , const char *var) {
@@ -496,8 +499,8 @@ double ecl_sum_get_group_var_from_sim_days( const ecl_sum_type * ecl_sum , doubl
 
 /*****************************************************************/
 /* Field variables */
-bool ecl_sum_has_field_var(const ecl_sum_type * ecl_sum , const char *var) { 
-  return ecl_smspec_has_field_var( ecl_sum->smspec , var); 
+bool ecl_sum_has_field_var(const ecl_sum_type * ecl_sum , const char *var) {
+  return ecl_smspec_has_field_var( ecl_sum->smspec , var);
 }
 
 double ecl_sum_get_field_var(const ecl_sum_type * ecl_sum , int time_index , const char * var) {
@@ -519,8 +522,8 @@ double ecl_sum_get_field_var_from_sim_days( const ecl_sum_type * ecl_sum , doubl
 /*****************************************************************/
 /* Block variables */
 
-bool ecl_sum_has_block_var(const ecl_sum_type * ecl_sum , const char * block_var , int block_nr) { 
-  return ecl_smspec_has_block_var( ecl_sum->smspec , block_var , block_nr ); 
+bool ecl_sum_has_block_var(const ecl_sum_type * ecl_sum , const char * block_var , int block_nr) {
+  return ecl_smspec_has_block_var( ecl_sum->smspec , block_var , block_nr );
 }
 
 double ecl_sum_get_block_var(const ecl_sum_type * ecl_sum , int time_index , const char * block_var , int block_nr) {
@@ -559,8 +562,8 @@ double ecl_sum_get_block_var_ijk_from_sim_days( const ecl_sum_type * ecl_sum , d
    region_nr: [1...num_regions] (NOT C-based indexing)
 */
 
-bool ecl_sum_has_region_var(const ecl_sum_type * ecl_sum , const char *var , int region_nr ) { 
-  return ecl_smspec_has_region_var( ecl_sum->smspec , var , region_nr); 
+bool ecl_sum_has_region_var(const ecl_sum_type * ecl_sum , const char *var , int region_nr ) {
+  return ecl_smspec_has_region_var( ecl_sum->smspec , var , region_nr);
 }
 
 double ecl_sum_get_region_var(const ecl_sum_type * ecl_sum , int time_index , const char *var , int region_nr) {
@@ -583,12 +586,12 @@ double ecl_sum_get_region_var_from_sim_days( const ecl_sum_type * ecl_sum , doub
 /*****************************************************************/
 /* Misc variables */
 
-int ecl_sum_get_misc_var_index(const ecl_sum_type * ecl_sum , const char *var) { 
-  return ecl_smspec_get_misc_var_params_index( ecl_sum->smspec , var ); 
+int ecl_sum_get_misc_var_index(const ecl_sum_type * ecl_sum , const char *var) {
+  return ecl_smspec_get_misc_var_params_index( ecl_sum->smspec , var );
 }
 
-bool ecl_sum_has_misc_var(const ecl_sum_type * ecl_sum , const char *var) { 
-  return ecl_smspec_has_misc_var( ecl_sum->smspec , var ); 
+bool ecl_sum_has_misc_var(const ecl_sum_type * ecl_sum , const char *var) {
+  return ecl_smspec_has_misc_var( ecl_sum->smspec , var );
 }
 
 double  ecl_sum_get_misc_var(const ecl_sum_type * ecl_sum , int time_index , const char *var) {
@@ -631,11 +634,11 @@ int ecl_sum_get_general_var_params_index(const ecl_sum_type * ecl_sum , const ch
 }
 
 
-bool ecl_sum_has_general_var(const ecl_sum_type * ecl_sum , const char * lookup_kw) { 
-  return ecl_smspec_has_general_var( ecl_sum->smspec , lookup_kw); 
+bool ecl_sum_has_general_var(const ecl_sum_type * ecl_sum , const char * lookup_kw) {
+  return ecl_smspec_has_general_var( ecl_sum->smspec , lookup_kw);
 }
 
-bool ecl_sum_has_key(const ecl_sum_type * ecl_sum , const char * lookup_kw) { 
+bool ecl_sum_has_key(const ecl_sum_type * ecl_sum , const char * lookup_kw) {
   return ecl_sum_has_general_var( ecl_sum , lookup_kw );
 }
 
@@ -643,6 +646,11 @@ bool ecl_sum_has_key(const ecl_sum_type * ecl_sum , const char * lookup_kw) {
 double ecl_sum_get_general_var(const ecl_sum_type * ecl_sum , int time_index , const char * lookup_kw) {
   int params_index = ecl_sum_get_general_var_params_index(ecl_sum , lookup_kw);
   return ecl_sum_data_iget( ecl_sum->data , time_index  , params_index);
+}
+
+
+void ecl_sum_dump_line_to_csv_file(const ecl_sum_type * ecl_sum, time_t sim_time, const ecl_sum_vector_type * key_words, FILE *fp){
+    ecl_sum_data_write_csv_file(ecl_sum->data, sim_time, key_words, fp);
 }
 
 
@@ -836,7 +844,7 @@ time_t ecl_sum_iget_sim_time( const ecl_sum_type * ecl_sum , int index ) {
   return ecl_sum_data_iget_sim_time( ecl_sum->data , index );
 }
 
-const time_interval_type * ecl_sum_get_sim_time( const ecl_sum_type * ecl_sum) { 
+const time_interval_type * ecl_sum_get_sim_time( const ecl_sum_type * ecl_sum) {
   return ecl_sum_data_get_sim_time( ecl_sum->data );
 }
 
@@ -876,12 +884,17 @@ void ecl_sum_fmt_init_csv( ecl_sum_fmt_type * fmt ) {
 
 
 
-void ecl_sum_fmt_init_summary_x( ecl_sum_fmt_type * fmt ) {
+void ecl_sum_fmt_init_summary_x( const ecl_sum_type * ecl_sum , ecl_sum_fmt_type * fmt ) {
   fmt->locale     = NULL;
   fmt->sep        = "";
   fmt->date_fmt   = "%d/%m/%Y   ";
   fmt->value_fmt  = " %15.6g ";
-  fmt->days_fmt   = "%7.2f   ";
+
+  if (util_string_equal( ecl_sum_get_unit( ecl_sum , "TIME") , "DAYS"))
+    fmt->days_fmt   = "%7.2f   ";
+  else
+    fmt->days_fmt   = "%7.4f   ";
+
   fmt->header_fmt = " %15s ";
 
   fmt->newline = "\n";
@@ -905,52 +918,52 @@ void ecl_sum_fmt_init_summary_x( ecl_sum_fmt_type * fmt ) {
 
 static void __ecl_sum_fprintf_line( const ecl_sum_type * ecl_sum , FILE * stream , int internal_index , const bool_vector_type * has_var , const int_vector_type * var_index , char * date_string , const ecl_sum_fmt_type * fmt) {
   fprintf(stream , fmt->days_fmt , ecl_sum_iget_sim_days(ecl_sum , internal_index));
-  fprintf(stream , fmt->sep );
+  fprintf(stream , "%s", fmt->sep );
 
-  {  
+  {
     struct tm ts;
     time_t sim_time = ecl_sum_iget_sim_time(ecl_sum , internal_index );
     util_localtime( &sim_time , &ts);
     strftime( date_string , DATE_STRING_LENGTH - 1 , fmt->date_fmt , &ts);
-    fprintf(stream , date_string );
-  }   
+    fprintf(stream , "%s", date_string );
+  }
 
   {
     int ivar;
-    for (ivar = 0; ivar < int_vector_size( var_index ); ivar++) {  
+    for (ivar = 0; ivar < int_vector_size( var_index ); ivar++) {
       if (bool_vector_iget( has_var , ivar )) {
-        fprintf(stream , fmt->sep);
+        fprintf(stream , "%s", fmt->sep);
         fprintf(stream , fmt->value_fmt , ecl_sum_iget(ecl_sum , internal_index, int_vector_iget( var_index , ivar )));
-      }   
-    }   
+      }
+    }
   }
-  
-  fprintf(stream , fmt->newline);
+
+  fprintf(stream , "%s", fmt->newline);
 }
 
 
 static void ecl_sum_fprintf_header( const ecl_sum_type * ecl_sum , const stringlist_type * key_list , const bool_vector_type * has_var , FILE * stream, const ecl_sum_fmt_type * fmt) {
-  fprintf(stream , fmt->date_header);
-  { 
+  fprintf(stream , "%s", fmt->date_header);
+  {
     int i;
     for (i=0; i < stringlist_get_size( key_list ); i++)
-      if (bool_vector_iget( has_var , i )) { 
-        fprintf(stream , fmt->sep);
+      if (bool_vector_iget( has_var , i )) {
+        fprintf(stream , "%s", fmt->sep);
         fprintf(stream , fmt->header_fmt , stringlist_iget( key_list , i ));
       }
   }
 
-  fprintf( stream , fmt->newline);
+  fprintf( stream , "%s", fmt->newline);
   if (fmt->print_dash)   {
-    fprintf(stream , fmt->date_dash);
-    
+    fprintf(stream , "%s", fmt->date_dash);
+
     {
       int i;
       for (i=0; i < stringlist_get_size( key_list ); i++)
         if (bool_vector_iget( has_var , i ))
-          fprintf(stream , fmt->value_dash);
+          fprintf(stream , "%s", fmt->value_dash);
     }
-    fprintf( stream , fmt->newline);
+    fprintf( stream , "%s", fmt->newline);
   }
 }
 
@@ -964,7 +977,7 @@ void ecl_sum_fprintf(const ecl_sum_type * ecl_sum , FILE * stream , const string
   char * current_locale = NULL;
   if (fmt->locale != NULL)
     current_locale = setlocale(LC_NUMERIC , fmt->locale);
-  
+
   {
     int ivar;
     for (ivar = 0; ivar < stringlist_get_size( var_list ); ivar++) {
@@ -977,7 +990,7 @@ void ecl_sum_fprintf(const ecl_sum_type * ecl_sum , FILE * stream , const string
       }
     }
   }
-  
+
   if (fmt->print_header)
     ecl_sum_fprintf_header( ecl_sum , var_list , has_var , stream , fmt);
 
@@ -1175,10 +1188,10 @@ void ecl_sum_update_wgname( ecl_sum_type * ecl_sum , smspec_node_type * node , c
 
 /*****************************************************************/
 
-/* 
+/*
    The functions below are extremly simple functions which only serve
    as an easy access to the smspec_alloc_xxx_key() functions which
-   know how to create the various composite keys.  
+   know how to create the various composite keys.
 */
 
 char * ecl_sum_alloc_well_key( const ecl_sum_type * ecl_sum , const char * keyword , const char * wgname) {
@@ -1198,7 +1211,7 @@ bool ecl_sum_is_oil_producer( const ecl_sum_type * ecl_sum , const char * well) 
     if (wopt > 0)
       oil_producer = true;
   }
-  
+
   return oil_producer;
 }
 
@@ -1206,7 +1219,7 @@ bool ecl_sum_is_oil_producer( const ecl_sum_type * ecl_sum , const char * well) 
 
 bool ecl_sum_report_step_equal( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2) {
   if (ecl_sum1 == ecl_sum2)
-    return true; 
+    return true;
   else
     return ecl_sum_data_report_step_equal( ecl_sum1->data , ecl_sum2->data );
 }
@@ -1214,7 +1227,7 @@ bool ecl_sum_report_step_equal( const ecl_sum_type * ecl_sum1 , const ecl_sum_ty
 
 bool ecl_sum_report_step_compatible( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2) {
   if (ecl_sum1 == ecl_sum2)
-    return true; 
+    return true;
   else
     return ecl_sum_data_report_step_compatible( ecl_sum1->data , ecl_sum2->data );
 }

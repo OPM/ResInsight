@@ -34,18 +34,16 @@
 #include "RiuProcessMonitor.h"
 #include "RiaPreferences.h"
 //
-#include "RimResultCase.h"
-#include "RimInputCase.h"
-#include "RimReservoirView.h"
+#include "RimEclipseResultCase.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimFaultCollection.h"
-#include "RimFaultResultSlot.h"
+#include "RimEclipseFaultColors.h"
 
-#include "cafCeetronNavigation.h"
-#include "cafCadNavigation.h"
 #include "RiaSocketServer.h"
 #include "cafUiProcess.h"
 //
@@ -58,10 +56,10 @@
 
 #include "RimProject.h"
 
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputPropertyCollection.h"
 
 #include "RimDefines.h"
 #include "RimScriptCollection.h"
@@ -72,17 +70,21 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
-#include "RimStatisticsCase.h"
+#include "RimEclipseWellCollection.h"
+#include "RimEclipseStatisticsCase.h"
 #include "cafCeetronPlusNavigation.h"
 
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 #include "RimCommandObject.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechModels.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCellColors.h"
 
 
 namespace caf
@@ -92,10 +94,11 @@ void AppEnum< RiaApplication::RINavigationPolicy >::setUp()
 {
     addItem(RiaApplication::NAVIGATION_POLICY_CEETRON,  "NAVIGATION_POLICY_CEETRON",    "Ceetron");
     addItem(RiaApplication::NAVIGATION_POLICY_CAD,      "NAVIGATION_POLICY_CAD",        "CAD");
-    setDefault(RiaApplication::NAVIGATION_POLICY_CAD);
+    addItem(RiaApplication::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST",   "GEOQUEST");
+    addItem(RiaApplication::NAVIGATION_POLICY_RMS,      "NAVIGATION_POLICY_RMS",        "RMS");
+    setDefault(RiaApplication::NAVIGATION_POLICY_RMS);
 }
 }
-
 
 namespace RegTestNames
 {
@@ -170,6 +173,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // instead of using the application font
     m_standardFont = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
     m_resViewUpdateTimer = NULL;
+
+    m_runningRegressionTests = false;
 }
 
 
@@ -314,7 +319,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
         RimOilField* oilField = m_project->oilFields[oilFieldIdx];
-        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
         if (analysisModels == NULL) continue;
 
         for (size_t cgIdx = 0; cgIdx < analysisModels->caseGroups.size(); ++cgIdx)
@@ -348,7 +353,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
         {
             RimOilField* oilField = m_project->oilFields[oilFieldIdx];
-            RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+            RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
             if (analysisModels)
             {
                 analysisModels->recomputeStatisticsForAllCaseGroups();
@@ -366,17 +371,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
-        RimCase* ri = casesToLoad[cIdx];
-        CVF_ASSERT(ri);
+        RimCase* cas = casesToLoad[cIdx];
+        CVF_ASSERT(cas);
 
-        caseProgress.setProgressDescription(ri->caseUserDescription());
-
-        caf::ProgressInfo viewProgress(ri->reservoirViews().size() , "Creating Views");
+        caseProgress.setProgressDescription(cas->caseUserDescription());
+        std::vector<RimView*> views = cas->views();
+        caf::ProgressInfo viewProgress(views.size() , "Creating Views");
 
         size_t j;
-        for (j = 0; j < ri->reservoirViews().size(); j++)
+        for (j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews[j];
+            RimView* riv = views[j];
             CVF_ASSERT(riv);
 
             viewProgress.setProgressDescription(riv->name());
@@ -630,15 +635,15 @@ bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openEclipseCase(const QString& caseName, const QString& caseFileName)
 {
-    RimResultCase* rimResultReservoir = new RimResultCase();
+    RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
     rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
-    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
 
     analysisModels->cases.push_back(rimResultReservoir);
 
-    RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
+    RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
 
     // Select SOIL as default result variable
     riv->cellResult()->setResultType(RimDefines::DYNAMIC_NATIVE);
@@ -647,7 +652,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     {
         riv->cellResult()->setResultVariable("SOIL");
     }
-    riv->animationMode = true;
+    riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
 
@@ -671,20 +676,20 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
 {
-    RimInputCase* rimInputReservoir = new RimInputCase();
+    RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
     m_project->assignCaseIdToCase(rimInputReservoir);
 
     rimInputReservoir->openDataFileSet(fileNames);
 
-    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
 
     analysisModels->cases.push_back(rimInputReservoir);
 
-    RimReservoirView* riv = rimInputReservoir->createAndAddReservoirView();
+    RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
 
     riv->cellResult()->setResultType(RimDefines::INPUT_PROPERTY);
-    riv->animationMode = true;
+    riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
 
@@ -698,6 +703,53 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
+    return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
+{
+   if (!QFile::exists(fileName)) return false;
+
+    QFileInfo gridFileName(fileName);
+    QString caseName = gridFileName.completeBaseName();
+
+    RimGeoMechCase* geoMechCase = new RimGeoMechCase();
+    geoMechCase->setFileName(fileName);
+    geoMechCase->caseUserDescription = caseName;
+
+    RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels() : NULL;
+
+    // Create the geoMech model container if it is not there already
+    if (geoMechModelCollection == NULL)
+    {
+        geoMechModelCollection = new RimGeoMechModels();
+        m_project->activeOilField()->geoMechModels = geoMechModelCollection;
+    }
+
+    geoMechModelCollection->cases.push_back(geoMechCase);
+
+    RimGeoMechView* riv = geoMechCase->createAndAddReservoirView();
+    caf::ProgressInfo progress(11, "Loading Case");
+    progress.setNextProgressIncrement(10);
+
+    riv->loadDataAndUpdate();
+
+    //if (!riv->cellResult()->hasResult())
+    //{
+    //    riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+    //}
+    progress.incrementProgress();
+    progress.setProgressDescription("Loading results information");
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+
+    uiModel->updateUiSubTree(m_project);
+
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+    
     return true;
 }
 
@@ -748,7 +800,7 @@ void RiaApplication::createInputMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimReservoirView* RiaApplication::activeReservoirView() const
+const RimView* RiaApplication::activeReservoirView() const
 {
     return m_activeReservoirView;
 }
@@ -756,7 +808,7 @@ const RimReservoirView* RiaApplication::activeReservoirView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RiaApplication::activeReservoirView()
+RimView* RiaApplication::activeReservoirView()
 {
    return m_activeReservoirView;
 }
@@ -764,7 +816,7 @@ RimReservoirView* RiaApplication::activeReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveReservoirView(RimReservoirView* rv)
+void RiaApplication::setActiveReservoirView(RimView* rv)
 {
     m_activeReservoirView = rv;
 }
@@ -1325,15 +1377,7 @@ void RiaApplication::applyPreferences()
 {
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {
-        if (m_preferences->navigationPolicy() == NAVIGATION_POLICY_CAD)
-        {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CadNavigation);
-        }
-        else
-        {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CeetronPlusNavigation);
-        }
-
+        m_activeReservoirView->viewer()->updateNavigationPolicy();
         m_activeReservoirView->viewer()->enablePerfInfoHud(m_preferences->showHud());
     }
 
@@ -1483,12 +1527,14 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
     for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimCase* ri = projectCases[i];
-        if (!ri) continue;
+        RimCase* cas = projectCases[i];
+        if (!cas) continue;
 
-        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        std::vector<RimView*> views = cas->views();
+
+        for (size_t j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews()[j];
+            RimView* riv = views[j];
 
             if (riv && riv->viewer())
             {
@@ -1500,7 +1546,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 // Process all events to avoid a black image when grabbing frame buffer
                 QCoreApplication::processEvents();
 
-                QString fileName = ri->caseUserDescription() + "-" + riv->name();
+                QString fileName = cas->caseUserDescription() + "-" + riv->name();
                 fileName.replace(" ", "_");
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
@@ -1556,6 +1602,8 @@ void removeDirectoryWithContent(QDir dirToDelete )
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::runRegressionTest(const QString& testRootPath)
 {
+    m_runningRegressionTests = true;
+
     QString generatedFolderName = RegTestNames::generatedFolderName;
     QString diffFolderName      = RegTestNames::diffFolderName;    
     QString baseFolderName      = RegTestNames::baseFolderName;    
@@ -1677,6 +1725,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
             }
         }
     }
+
+    m_runningRegressionTests = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1724,7 +1774,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
     // First file is read completely including grid.
     // The main grid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
-    RimResultCase* mainResultCase = NULL;
+    RimEclipseResultCase* mainResultCase = NULL;
     std::vector< std::vector<int> > mainCaseGridDimensions;
     RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
 
@@ -1734,7 +1784,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
         QString caseName = gridFileName.completeBaseName();
 
-        RimResultCase* rimResultReservoir = new RimResultCase();
+        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
         rimResultReservoir->setCaseInfo(caseName, firstFileName);
         if (!rimResultReservoir->openEclipseGridFile())
         {
@@ -1762,7 +1812,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
         QString caseName = gridFileName.completeBaseName();
 
-        RimResultCase* rimResultReservoir = new RimResultCase();
+        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
         rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
         std::vector< std::vector<int> > caseGridDimensions;
@@ -1921,7 +1971,7 @@ QString RiaApplication::commandLineParameterHelp() const
 /// Schedule a creation of the Display model and redraw of the reservoir view
 /// The redraw will happen as soon as the event loop is entered
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimReservoirView* resViewToUpdate)
+void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate)
 {
     m_resViewsToUpdate.push_back(resViewToUpdate);
 
@@ -1944,13 +1994,13 @@ void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimReservoirView* resVi
 void RiaApplication::slotUpdateScheduledDisplayModels()
 {
     // Compress to remove duplicates
-    std::set<RimReservoirView*> resViewsToUpdate;
+    std::set<RimView*> resViewsToUpdate;
     for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
     {
         resViewsToUpdate.insert(m_resViewsToUpdate[i]);
     }
 
-    for (std::set<RimReservoirView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it )
+    for (std::set<RimView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it )
     {
         if (*it)
         {
@@ -2031,6 +2081,14 @@ void RiaApplication::executeCommandObjects()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RiaApplication::isRunningRegressionTests() const
+{
+    return m_runningRegressionTests;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
@@ -2059,14 +2117,17 @@ void RiaApplication::regressionTestConfigureProject()
     std::vector<RimCase*> projectCases;
     m_project->allCases(projectCases);
 
+
     for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimCase* ri = projectCases[i];
-        if (!ri) continue;
+        RimCase* cas = projectCases[i];
+        if (!cas) continue;
 
-        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        std::vector<RimView*> views = cas->views();
+
+        for (size_t j = 0; j < views.size(); j++)
         {
-            RimReservoirView* riv = ri->reservoirViews()[j];
+            RimView* riv = views[j];
 
             if (riv && riv->viewer())
             {
@@ -2074,9 +2135,13 @@ void RiaApplication::regressionTestConfigureProject()
                 riv->viewer()->setFixedSize(1000, 745);
             }
 
-            riv->faultCollection->setShowFaultsOutsideFilters(false);
-            riv->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+            RimEclipseView* resvView = dynamic_cast<RimEclipseView*>(riv);
+
+            if (resvView)
+            {
+                resvView->faultCollection->setShowFaultsOutsideFilters(false);
+                resvView->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+            }
         }
     }
 }
-

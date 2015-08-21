@@ -375,16 +375,16 @@ ref<Color3ubArray> ScalarMapper::interpolateColorArray(const Color3ubArray& colo
     ref<Color3ubArray> colors = new Color3ubArray;
     colors->reserve(targetColorCount);
 
-    const uint inputLevelCount = inputColorCount - 1;
-    const uint outputLevelCount = targetColorCount - 1;
+    const uint inputColorsMaxIdx = inputColorCount - 1;
+    const uint outputColorsMaxIdx = targetColorCount - 1;
 
     uint outputLevelIdx;
-    for (outputLevelIdx = 0; outputLevelIdx < outputLevelCount; outputLevelIdx++)
+    for (outputLevelIdx = 0; outputLevelIdx < outputColorsMaxIdx; outputLevelIdx++)
     {
-        double dblInputLevelIndex = inputLevelCount * (outputLevelIdx / static_cast<double>(outputLevelCount));
+        double dblInputLevelIndex = inputColorsMaxIdx * (outputLevelIdx / static_cast<double>(outputColorsMaxIdx));
 
         const uint inputLevelIndex = static_cast<uint>(dblInputLevelIndex);
-        CVF_ASSERT(inputLevelIndex < inputLevelCount);
+        CVF_ASSERT(inputLevelIndex < inputColorsMaxIdx);
 
         double t = dblInputLevelIndex - inputLevelIndex;
         CVF_ASSERT(t >= 0 && t <= 1.0);

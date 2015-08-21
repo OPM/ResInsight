@@ -30,15 +30,15 @@
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RimProject.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimEclipseCellColors.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
@@ -52,7 +52,7 @@
 #include "cafFactory.h"
 #include "RigGridBase.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ void RiaSocketServer::slotNewClientConnection()
 //--------------------------------------------------------------------------------------------------
 /// Find the requested reservoir by caseId
 //--------------------------------------------------------------------------------------------------
-RimCase* RiaSocketServer::findReservoir(int caseId)
+RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
 {
     int currCaseId = caseId;
     if (caseId < 0)
@@ -152,9 +152,10 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
 
     if (currCaseId < 0)
     {
-        if (RiaApplication::instance()->activeReservoirView())
+        RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        if (riv)
         {
-            return RiaApplication::instance()->activeReservoirView()->eclipseCase();
+            return riv->eclipseCase();
         }
     }
     else
@@ -169,7 +170,7 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
         {
             if (cases[i]->caseId == currCaseId)
             {
-                return cases[i];
+                return dynamic_cast<RimEclipseCase*>(cases[i]);
             }
         }
     }

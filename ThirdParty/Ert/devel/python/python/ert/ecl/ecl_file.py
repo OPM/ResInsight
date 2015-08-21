@@ -230,10 +230,15 @@ class EclFile(CClass):
     def __len__(self):
         return self.size
     
-        
+
     def close(self):
-        cfunc.close( self )
+        if not self.c_ptr is None:
+            cfunc.close( self )
         self.c_ptr = None
+
+
+    def free(self):
+        self.close()
         
 
     def select_block( self, kw , kw_index):
@@ -702,7 +707,7 @@ class EclFile(CClass):
         Fortran IO must be used when reading and writing these files.
         This method will write the current EclFile instance to a
         FortIO stream already opened for writing:
-
+        
            import ert.ecl.ecl as ecl
            ...
            fortio = ecl.FortIO( "FILE.XX" )
@@ -712,7 +717,26 @@ class EclFile(CClass):
         """
         cfunc.fwrite( self , fortio , 0 )
 
+
+class EclFileContextManager(object):
+
+    def __init__(self , ecl_file):
+        self.__ecl_file = ecl_file
+    
+    def __enter__(self):
+        return self.__ecl_file
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__ecl_file.close()
+        return False          
+
+
+def openEclFile( file_name , flags = 0):
+    return EclFileContextManager( EclFile( file_name , flags ))
+    
         
+
+
 
 # 2. Creating a wrapper object around the libecl library, 
 cwrapper = CWrapper(ECL_LIB)
@@ -724,7 +748,7 @@ cwrapper.registerType( "ecl_file" , EclFile )
 #    used outside this scope.
 cfunc = CWrapperNameSpace("ecl_file")
 
-cfunc.open                        = cwrapper.prototype("c_void_p    ecl_file_try_open( char* , int )")
+cfunc.open                        = cwrapper.prototype("c_void_p    ecl_file_open( char* , int )")
 cfunc.writable                    = cwrapper.prototype("bool        ecl_file_writable( ecl_file )")
 cfunc.new                         = cwrapper.prototype("c_void_p    ecl_file_alloc_empty(  )")
 cfunc.save_kw                     = cwrapper.prototype("void        ecl_file_save_kw( ecl_file , ecl_kw )")

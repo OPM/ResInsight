@@ -22,10 +22,10 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RigCaseData.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimNoCommonAreaNNC.h"
 #include "RimNoCommonAreaNncCollection.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RiuMainWindow.h"
 #include "RivColorTableArray.h"
 
@@ -132,7 +132,7 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultCollection::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimFaultCollection::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 }

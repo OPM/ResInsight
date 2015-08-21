@@ -39,6 +39,7 @@ the libecl library.
 """
 import ctypes
 import types
+import warnings
 
 import  numpy
 from ert.cwrap import CClass, CFILE, CWrapper, CWrapperNameSpace
@@ -102,6 +103,9 @@ class EclKW(CClass):
            soil_kw = EclKW.new( "SOIL" , 10000 , ECL_FLOAT_TYPE )
            
         """
+        if len(name) > 8:
+            raise ValueError("Sorry - maximum eight characters in keyword name")
+
         obj   = cls()
         c_ptr = cfunc.alloc_new( name , size , data_type )
         obj.init_cobj( c_ptr , cfunc.free )
@@ -157,9 +161,9 @@ class EclKW(CClass):
 
     
     @classmethod
-    def read_grdecl( cls , filename , kw , strict = True , ecl_type = None):
+    def read_grdecl( cls , fileH , kw , strict = True , ecl_type = None):
         """
-        Function to load an EclKW instance from a grdecl file.
+        Function to load an EclKW instance from a grdecl formatted filehandle.
 
         This constructor can be used to load an EclKW instance from a
         grdecl formatted file; the input files for petrophysical
@@ -226,7 +230,7 @@ class EclKW(CClass):
         it finds in the file.
         """
         
-        cfile  = CFILE( filename )
+        cfile  = CFILE( fileH )
         if kw:
             if len(kw) > 8:
                 raise TypeError("Sorry keyword:%s is too long, must be eight characters or less." % kw)
@@ -250,7 +254,7 @@ class EclKW(CClass):
             return None
 
     @classmethod
-    def fseek_grdecl( cls , filename , kw , rewind = False):
+    def fseek_grdecl( cls , fileH , kw , rewind = False):
         """
         Will search through the open file and look for string @kw.
 
@@ -274,7 +278,7 @@ class EclKW(CClass):
         true the function rewind to the beginning of the file and
         search from there after the initial search.
         """
-        cfile = CFILE( filename )
+        cfile = CFILE( fileH )
         return cfunc.fseek_grdecl( kw , rewind , cfile)
         
 
@@ -427,6 +431,12 @@ class EclKW(CClass):
                         return cfunc.iset_char_ptr( self , index , value)
                     else:
                         raise SystemError("Internal implementation error ...")
+        elif isinstance( index , slice):
+            (start , stop , step) = index.indices( len(self) )
+            index = start
+            while index < stop:
+                self[index] = value
+                index += step
         else:
             raise TypeError("Index should be integer type")
 
@@ -768,14 +778,37 @@ class EclKW(CClass):
         cfunc.set_header( self , name )
 
     def get_name( self ):
-        return cfunc.get_header( self )
+        return self.getName()
         
 
     name = property( get_name , set_name )
 
+    def getName(self):
+        return cfunc.get_header( self )
+
 
     @property    
     def min_max( self ):
+        warnings.warn("The min_max property has been renamed to method getMinMax()" , DeprecationWarning)
+        return self.getMinMax()
+
+
+    @property
+    def max( self ):
+        warnings.warn("The max property has been renamed to method getMax()" , DeprecationWarning)
+        mm = self.getMinMax()
+        return mm[1]
+    
+    
+    @property
+    def min( self ):
+        warnings.warn("The min property has been renamed to method getMin()" , DeprecationWarning)
+        mm = self.getMinMax()
+        return mm[0]
+
+       
+    
+    def getMinMax(self):
         """
         Will return a touple (min,max) for numerical types.
 
@@ -799,16 +832,17 @@ class EclKW(CClass):
         return (min.value , max.value)
 
 
-    @property
-    def max( self ):
-        return self.min_max[1]
+    def getMax( self ):
+        mm = self.getMinMax()
+        return mm[1]
     
     
-    @property
-    def min( self ):
-        return self.min_max[0]
-        
-    
+    def getMin( self ):
+        mm = self.getMinMax()
+        return mm[0]
+
+
+
     @property
     def numeric(self):
         if self.ecl_type == EclTypeEnum.ECL_FLOAT_TYPE:
@@ -833,6 +867,8 @@ class EclKW(CClass):
 
     def getEclType(self):
         return self.ecl_type
+
+        
 
     
     @property
@@ -971,6 +1007,15 @@ class EclKW(CClass):
         cfunc.fprintf_data( self , fmt , cfile )
 
 
+    def fixUninitialized(self , grid):
+        """
+        Special case function for region code.
+        """
+        dims = grid.getDims( )
+        actnum = grid.exportACTNUM( )
+        cfunc.fix_uninitialized( self , dims[0] , dims[1], dims[2] , actnum.getDataPtr() )
+
+
 
 #################################################################
 
@@ -1034,6 +1079,7 @@ cfunc.set_float                  = cwrapper.prototype("void     ecl_kw_scalar_se
 cfunc.max_min_int                = cwrapper.prototype("void     ecl_kw_max_min_int( ecl_kw , int* , int*)")
 cfunc.max_min_float              = cwrapper.prototype("void     ecl_kw_max_min_float( ecl_kw , float* , float*)")
 cfunc.max_min_double             = cwrapper.prototype("void     ecl_kw_max_min_double( ecl_kw , double* , double*)")
+cfunc.fix_uninitialized          = cwrapper.prototype("void     ecl_kw_fix_uninitialized( ecl_kw ,int , int , int, int*)")
 
 
 

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'util.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'util.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 /**
@@ -21,7 +21,7 @@
   handling, string handling and file handling. Observe that all these
   functions are just that - functions - there is no associated state
   with any of these functions.
-  
+
   The file util_path.c is included in this, and contains path
   manipulation functions which explicitly use the PATH_SEP variable.
 */
@@ -49,7 +49,7 @@
 
 #ifdef HAVE_UTIL_ABORT
 #define __USE_GNU       // Must be defined to get access to the dladdr() function; Man page says the symbol should be: _GNU_SOURCE but that does not seem to work?
-#define _GNU_SOURCE     // Must be defined _before_ #include <errno.h> to get the symbol 'program_invocation_name'. 
+#define _GNU_SOURCE     // Must be defined _before_ #include <errno.h> to get the symbol 'program_invocation_name'.
 #include <dlfcn.h>
 #endif
 #include <errno.h>
@@ -112,12 +112,12 @@
 
 /*
    Macros for endian flipping. The macros create a new endian-flipped
-   value, and should be used as: 
+   value, and should be used as:
 
      flipped_value = FLIP32( value )
- 
+
    The macros are not exported and only available through the function
-   util_endian_flip_vector().  
+   util_endian_flip_vector().
 */
 
 
@@ -148,7 +148,7 @@ static uint16_t util_endian_convert16( uint16_t u ) {
 static uint32_t util_endian_convert32( uint32_t u ) {
   const uint32_t m8  = (uint32_t) 0x00FF00FFUL;
   const uint32_t m16 = (uint32_t) 0x0000FFFFUL;
-  
+
   u = (( u >> 8U ) & m8)   | ((u & m8) << 8U);
   u = (( u >> 16U ) & m16) | ((u & m16) << 16U);
   return u;
@@ -160,7 +160,7 @@ static uint64_t util_endian_convert64( uint64_t u ) {
   const uint64_t m16 = (uint64_t) 0x0000FFFF0000FFFFULL;
   const uint64_t m32 = (uint64_t) 0x00000000FFFFFFFFULL;
 
-  
+
   u = (( u >> 8U ) & m8)   | ((u & m8) << 8U);
   u = (( u >> 16U ) & m16) | ((u & m16) << 16U);
   u = (( u >> 32U ) & m32) | ((u & m32) << 32U);
@@ -172,7 +172,7 @@ static uint64_t util_endian_convert32_64( uint64_t u ) {
   const uint64_t m8  = (uint64_t) 0x00FF00FF00FF00FFULL;
   const uint64_t m16 = (uint64_t) 0x0000FFFF0000FFFFULL;
 
-  
+
   u = (( u >> 8U ) & m8)   | ((u & m8) << 8U);
   u = (( u >> 16U ) & m16) | ((u & m16) << 16U);
   return u;
@@ -185,7 +185,7 @@ void util_endian_flip_vector(void *data, int element_size , int elements) {
   switch (element_size) {
   case(1):
     break;
-  case(2): 
+  case(2):
     {
       uint16_t *tmp16 = (uint16_t *) data;
 
@@ -201,7 +201,7 @@ void util_endian_flip_vector(void *data, int element_size , int elements) {
         variables will be by swapping two elements in one operation;
         this is provided by the util_endian_convert32_64() function. In the case
         of binary ECLIPSE files this case is quite common, and
-        therefor worth supporting as a special case. 
+        therefor worth supporting as a special case.
       */
       uint64_t *tmp64 = (uint64_t *) data;
 
@@ -216,10 +216,10 @@ void util_endian_flip_vector(void *data, int element_size , int elements) {
       break;
 #else
       uint32_t *tmp32 = (uint32_t *) data;
-      
+
       for (i = 0; i <elements; i++)
         tmp32[i] = util_endian_convert32(tmp32[i]);
-      
+
       break;
 #endif
     }
@@ -242,7 +242,7 @@ void util_endian_flip_vector_old(void *data, int element_size , int elements) {
   switch (element_size) {
   case(1):
     break;
-  case(2): 
+  case(2):
     {
       uint16_t *tmp_int = (uint16_t *) data;
 
@@ -256,7 +256,7 @@ void util_endian_flip_vector_old(void *data, int element_size , int elements) {
 
       for (i = 0; i <elements; i++)
         tmp_int[i] = FLIP32(tmp_int[i]);
-      
+
       break;
     }
   case(8):
@@ -305,7 +305,7 @@ void util_fread_dev_random(int buffer_size , char * buffer) {
   FILE * stream = util_fopen("/dev/random" , "r");
   if (fread(buffer , 1 , buffer_size , stream) != buffer_size)
     util_abort("%s: failed to read:%d bytes from /dev/random \n",__func__ , buffer_size);
-  
+
   fclose(stream);
 }
 
@@ -314,7 +314,7 @@ void util_fread_dev_urandom(int buffer_size , char * buffer) {
   FILE * stream = util_fopen("/dev/urandom" , "r");
   if (fread(buffer , 1 , buffer_size , stream) != buffer_size)
     util_abort("%s: failed to read:%d bytes from /dev/random \n",__func__ , buffer_size);
-  
+
   fclose(stream);
 }
 
@@ -323,8 +323,8 @@ unsigned int util_clock_seed( ) {
   int sec,min,hour;
   int mday,year,month;
   time_t now = time( NULL );
-  
-  
+
+
   util_set_datetime_values(now , &sec , &min , &hour , &mday , &month , &year);
   {
     unsigned int seed = clock( );
@@ -344,7 +344,7 @@ unsigned int util_clock_seed( ) {
 /**
    Kahan summation is a technique to retain numerical precision when
    summing a long vector of values. See:
-   http://en.wikipedia.org/wiki/Kahan_summation_algorithm 
+   http://en.wikipedia.org/wiki/Kahan_summation_algorithm
 */
 
 double util_kahan_sum(const double *data, size_t N) {
@@ -352,7 +352,7 @@ double util_kahan_sum(const double *data, size_t N) {
   double C = 0;
   double Y,T;
   size_t i;
-  
+
   for (i=1; i < N; i++) {
     Y = data[i] - C;
     T = S + Y;
@@ -369,7 +369,7 @@ bool util_float_approx_equal__( float d1 , float d2, float epsilon) {
   else {
     float diff = fabs(d1 - d2);
     float sum  = fabs(d1) + fabs(d2);
-    
+
     if ((diff / sum) < epsilon)
       return true;
     else
@@ -384,7 +384,7 @@ bool util_double_approx_equal__( double d1 , double d2, double epsilon) {
   else {
     double diff = fabs(d1 - d2);
     double sum  = fabs(d1) + fabs(d2);
-    
+
     if ((diff / sum) < epsilon)
       return true;
     else
@@ -405,7 +405,7 @@ char * util_alloc_substring_copy(const char *src , int offset , int N) {
     copy = util_calloc(N + 1 , sizeof * copy );
     strncpy(copy , &src[offset] , N);
     copy[N] = '\0';
-  } else 
+  } else
     copy = util_alloc_string_copy(&src[offset]);
   return copy;
 }
@@ -416,17 +416,17 @@ char * util_alloc_dequoted_copy(const char *s) {
   char last_char  = s[strlen(s) - 1];
   char *new;
   int offset , len;
-  
+
   if ((first_char == '\'') || (first_char == '\"'))
     offset = 1;
-  else 
+  else
     offset = 0;
-  
+
   if ((last_char == '\'') || (last_char == '\"'))
     len = strlen(s) - offset - 1;
-  else 
+  else
     len = strlen(s) - offset;
-  
+
   new = util_alloc_substring_copy(s , offset , len);
   return new;
 }
@@ -435,7 +435,7 @@ char * util_alloc_dequoted_copy(const char *s) {
 
 /**
    The input string is freed, and a new storage
-   without quotes is returned. 
+   without quotes is returned.
 */
 char * util_realloc_dequoted_string(char *s) {
   char first_char = s[0];
@@ -445,14 +445,14 @@ char * util_realloc_dequoted_string(char *s) {
 
   if ((first_char == '\'') || (first_char == '\"'))
     offset = 1;
-  else 
+  else
     offset = 0;
-  
+
   if ((last_char == '\'') || (last_char == '\"'))
     len = strlen(s) - offset - 1;
-  else 
+  else
     len = strlen(s) - offset;
-  
+
   new = util_alloc_substring_copy(s , offset , len);
   free(s);
   return new;
@@ -472,7 +472,7 @@ char * util_alloc_strupr_copy(const char * s) {
 }
 
 
-/** 
+/**
     Replaces all occurences of c1 in s with c2.
 */
 void util_string_tr(char * s, char c1, char c2) {
@@ -529,7 +529,7 @@ bool util_fseek_string(FILE * stream , const char * __string , bool skip_string 
       int c = fgetc( stream );
       if (!case_sensitive)
         c = toupper( c );
-      
+
       if (c == string[0]) {  /* OK - we got the first character right - lets try in more detail: */
         long int current_pos  = util_ftell(stream);
         bool     equal        = true;
@@ -538,25 +538,25 @@ bool util_fseek_string(FILE * stream , const char * __string , bool skip_string 
           c = fgetc( stream );
           if (!case_sensitive)
             c = toupper( c );
-          
+
           if (c != string[string_index]) {
             equal = false;
             break;
           }
         }
-        
+
         if (equal) {
           string_found = true;
           cont = false;
         } else /* Go back to current pos and continue searching. */
           util_fseek(stream , current_pos , SEEK_SET);
-        
+
       }
-      if (c == EOF) 
+      if (c == EOF)
         cont = false;
     } while (cont);
-    
-    
+
+
     if (string_found) {
       if (!skip_string) {
         offset_type offset = (offset_type) strlen(string);
@@ -564,7 +564,7 @@ bool util_fseek_string(FILE * stream , const char * __string , bool skip_string 
       }
     } else
       util_fseek(stream , initial_pos , SEEK_SET);       /* Could not find the string reposition at initial position. */
-    
+
   }
   free( string );
   return string_found;
@@ -596,7 +596,7 @@ char * util_fscanf_alloc_upto(FILE * stream , const char * stop_string, bool inc
     util_fseek(stream , start_pos , SEEK_SET);
     util_fread( buffer , 1 , len , stream , __func__);
     buffer[len] = '\0';
-    
+
     return buffer;
   } else
     return NULL;   /* stop_string not found */
@@ -611,14 +611,14 @@ static char * util_fscanf_alloc_line__(FILE *stream , bool *at_eof , char * line
   char end_char;
   bool cont;
   bool dos_newline;
-  
+
   len  = 0;
   cont = true;
   {
     char c;
     do {
       c = fgetc(stream);
-      if (c == EOF) 
+      if (c == EOF)
         cont = false;
       else {
         if (EOL_CHAR(c))
@@ -633,14 +633,14 @@ static char * util_fscanf_alloc_line__(FILE *stream , bool *at_eof , char * line
       dos_newline = false;
     end_char = c;
   }
-  
-  if (util_fseek(stream , init_pos , SEEK_SET) != 0) 
+
+  if (util_fseek(stream , init_pos , SEEK_SET) != 0)
     util_abort("%s: fseek failed: %d/%s \n",__func__ , errno , strerror(errno));
 
   new_line = util_realloc(line , len + 1 );
   util_fread(new_line , sizeof * new_line , len , stream , __func__);
   new_line[len] = '\0';
-  
+
 
   /*
     Skipping the end of line marker(s).
@@ -648,19 +648,19 @@ static char * util_fscanf_alloc_line__(FILE *stream , bool *at_eof , char * line
 
   fgetc(stream);
   if (dos_newline)
-    fgetc(stream); 
- 
+    fgetc(stream);
+
   if (at_eof != NULL) {
     if (end_char == EOF)
       *at_eof = true;
     else
       *at_eof = false;
   }
-  
+
   if (new_line != NULL) {
     char * strip_line = util_alloc_strip_copy(new_line);
     free(new_line);
-    
+
     return strip_line;
   } else
     return NULL;
@@ -709,14 +709,14 @@ char * util_alloc_stdin_line(void) {
       }
     } else end = true;
   } while (!end);
-  if (index == 0) { 
+  if (index == 0) {
     free(input);
     input = NULL;
   } else {
-    input[index] = '\0';  
+    input[index] = '\0';
     input = util_realloc(input , strlen(input) + 1 );
   }
-  
+
   return input;
 }
 
@@ -738,7 +738,7 @@ char * util_realloc_stdin_line(char * p) {
 void util_usleep( unsigned long micro_seconds ) {
 #ifdef HAVE__USLEEP
   usleep( micro_seconds );
-#else 
+#else
   #ifdef ERT_WINDOWS
   {
     int milli_seconds = micro_seconds / 1000;
@@ -748,6 +748,17 @@ void util_usleep( unsigned long micro_seconds ) {
 #endif
 }
 
+void util_yield() {
+#if defined(WITH_PTHREAD) && (defined(HAVE_YIELD_NP) || defined(HAVE_YIELD))
+  #ifdef HAVE_YIELD_NP
+    pthread_yield_np();
+  #elif HAVE_YIELD
+    pthread_yield();
+  #endif
+#else
+  util_usleep(1000);
+#endif
+}
 
 /**
    This function will allocate and read a line from stdin. If there is
@@ -760,7 +771,7 @@ char * util_blocking_alloc_stdin_line(unsigned long usec) {
   char * line;
   do {
     line = util_alloc_stdin_line();
-    if (line == NULL) 
+    if (line == NULL)
       util_usleep(usec);
   } while (line == NULL);
   return line;
@@ -815,9 +826,9 @@ bool util_is_cwd( const char * path ) {
 
 
 
-/* 
+/*
    Homemade realpath() for not existing path or platforms without
-   realpath().  
+   realpath().
 */
 
 
@@ -849,7 +860,7 @@ char * util_alloc_realpath__(const char * input_path) {
   char * abs_path  = util_alloc_cwd_abs_path( input_path );
   char * real_path = util_malloc( strlen(abs_path) + 1 );
   real_path[0] = '\0';
-  
+
   {
     bool  * mask;
     char ** path_list;
@@ -862,7 +873,7 @@ char * util_alloc_realpath__(const char * input_path) {
       for (i=0; i < path_len; i++)
         mask[i] = true;
     }
-        
+
     {
       int path_index = 1;  // Path can not start with ..
       int prev_index = 0;
@@ -896,24 +907,24 @@ char * util_alloc_realpath__(const char * input_path) {
           }
         }
       }
-    }             
+    }
     free(mask);
     util_free_stringlist( path_list , path_len );
   }
 
-  free(abs_path); 
+  free(abs_path);
   return real_path;
 }
 
-#undef BACKREF 
-#undef CURRENT 
+#undef BACKREF
+#undef CURRENT
 
 
 
 /**
    The util_alloc_realpath() will fail hard if the @input_path does
    not exist. If the path might-not-exist you should use
-   util_alloc_abs_path() instead.  
+   util_alloc_abs_path() instead.
 */
 
 
@@ -921,13 +932,13 @@ char * util_alloc_realpath(const char * input_path) {
 #ifdef HAVE_REALPATH
   char * buffer   = util_calloc(PATH_MAX + 1 , sizeof * buffer );
   char * new_path = NULL;
-  
+
   new_path = realpath( input_path , buffer);
-  if (new_path == NULL) 
+  if (new_path == NULL)
     util_abort("%s: input_path:%s - failed: %s(%d) \n",__func__ , input_path , strerror(errno) , errno);
-  else 
+  else
     new_path = util_realloc(new_path , strlen(new_path) + 1);
-  
+
   return new_path;
 #else
   /* We do not have the realpath() implementation. Must first check if
@@ -936,11 +947,11 @@ char * util_alloc_realpath(const char * input_path) {
 #ifdef HAVE_SYMLINK
   ERROR - What the fuck; have symlinks and not realpath()?!
 #endif
-  if (!util_entry_exists( input_path )) 
+  if (!util_entry_exists( input_path ))
     util_abort("%s: input_path:%s does not exist - failed.\n",__func__ , input_path);
-  
+
   return util_alloc_realpath__( input_path );
-#endif 
+#endif
 }
 
 
@@ -953,7 +964,7 @@ char * util_alloc_realpath(const char * input_path) {
 
     1. If @path starts with '/' the path is assumed to be absolute, and
        just returned.
-  
+
     2. Else cwd is prepended to the path.
 
    In the manual realpath() neither "/../" nor symlinks are resolved. If path == NULL the function will return cwd().
@@ -963,7 +974,7 @@ char * util_alloc_abs_path( const char * path ) {
   if (path == NULL)
     return util_alloc_cwd();
   else {
-    if (util_entry_exists( path )) 
+    if (util_entry_exists( path ))
       return util_alloc_realpath( path );
     else
       return util_alloc_cwd_abs_path( path );
@@ -997,7 +1008,7 @@ char * util_alloc_rel_path( const char * __root_path , const char * path) {
     /* 1. Split both input paths into list of path elements. */
     util_path_split( root_path, &root_path_length  , &root_path_list );
     util_path_split( path     , &path_length       , &path_list      );
-    
+
     {
       /* 2: Determine the number of common leading path elements. */
       int common_length = 0;
@@ -1006,19 +1017,19 @@ char * util_alloc_rel_path( const char * __root_path , const char * path) {
           common_length++;
         else
           break;
-        
+
         if (common_length == util_int_min( root_path_length , path_length))
           break;
       }
-      
+
       /* 3: Start building up the relative path with leading ../ elements. */
       back_length = root_path_length - common_length;
       if (back_length > 0) {
-        int i; 
+        int i;
         for (i=0; i < back_length; i++) {
           rel_path = util_strcat_realloc( rel_path , back_path );
           rel_path = util_strcat_realloc( rel_path , UTIL_PATH_SEP_STRING );
-        }        
+        }
       }
 
       /* 4: Add the remaining elements from the input path. */
@@ -1031,7 +1042,7 @@ char * util_alloc_rel_path( const char * __root_path , const char * path) {
         }
       }
     }
-    
+
     util_free_stringlist( root_path_list , root_path_length );
     util_free_stringlist( path_list , path_length );
     free( root_path );
@@ -1041,7 +1052,7 @@ char * util_alloc_rel_path( const char * __root_path , const char * path) {
       rel_path = NULL;
     } return rel_path;
   } else {
-    /* 
+    /*
        One or both the input arguments do not correspond to an
        absolute path; just return a copy of the input back.
     */
@@ -1056,7 +1067,7 @@ char * util_alloc_rel_path( const char * __root_path , const char * path) {
 /**
    This function will allocate a string copy of the env_index'th
    occurence of an embedded environment variable from the input
-   string. 
+   string.
 
    An environment variable is defined as follows:
 
@@ -1065,14 +1076,14 @@ char * util_alloc_rel_path( const char * __root_path , const char * path) {
 
    The function will return environment variable number 'env_index'. If
    no such environment variable can be found in the string the
-   function will return NULL. 
+   function will return NULL.
 
    Observe that the returned string will start with '$'. This is to
    simplify subsequent calls to util_string_replace_XXX() functions,
    however &ret_value[1] must be used in the subsequent getenv() call:
 
-   { 
-      char * env_var = util_isscanf_alloc_envvar( s , 0 ); 
+   {
+      char * env_var = util_isscanf_alloc_envvar( s , 0 );
       if (env_var != NULL) {
          const char * env_value = getenv( &env_var[1] );   // Skip the leading '$'.
          if (env_value != NULL)
@@ -1097,14 +1108,14 @@ char * util_isscanf_alloc_envvar( const char * string , int env_index ) {
   } while ((env_count <= env_index) && (env_ptr != NULL));
 
   if (env_ptr != NULL) {
-    /* 
+    /*
        We found an environment variable we are interested in. Find the
        end of this variable and return a copy.
-    */  
+    */
     int length = 1;
     bool cont  = true;
     do {
-      
+
       if ( !( isalnum(env_ptr[length]) || env_ptr[length] == '_' ))
         cont = false;
       else
@@ -1112,7 +1123,7 @@ char * util_isscanf_alloc_envvar( const char * string , int env_index ) {
       if (length == strlen( env_ptr ))
         cont = false;
     } while (cont);
-    
+
     return util_alloc_substring_copy( env_ptr , 0 , length );
   } else
     return NULL; /* Could not find any env variable occurences. */
@@ -1136,7 +1147,7 @@ void util_fskip_lines(FILE * stream , int lines) {
         at_eof = true;
     } while (c != '\r' && c != '\n' && !at_eof);
 
-    /* 
+    /*
        If we have read a \r this is quite probably a DOS formatted
        file, and we read another character in the anticipation that it
        is a \n character.
@@ -1150,12 +1161,12 @@ void util_fskip_lines(FILE * stream , int lines) {
           util_fseek( stream , -1 , SEEK_CUR );
       }
     }
-    
+
     line_nr++;
     if (line_nr == lines || at_eof) cont = false;
   } while (cont);
 }
-            
+
 
 /*
   The last line(s) without content are not counted, i.e.
@@ -1172,12 +1183,12 @@ void util_fskip_lines(FILE * stream , int lines) {
 
   will return a value of four.
 */
-  
+
 int util_forward_line(FILE * stream , bool * at_eof) {
   bool at_eol = false;
   int col = 0;
   *at_eof     = false;
-  
+
   do {
     char c = fgetc(stream);
     if (c == EOF) {
@@ -1187,10 +1198,10 @@ int util_forward_line(FILE * stream , bool * at_eof) {
       if (EOL_CHAR(c)) {
         at_eol = true;
         c = fgetc(stream);
-        if (c == EOF) 
+        if (c == EOF)
           *at_eof = true;
         else {
-          if (!EOL_CHAR(c)) 
+          if (!EOL_CHAR(c))
             util_fseek(stream , -1 , SEEK_CUR);
         }
       } else
@@ -1208,12 +1219,12 @@ bool util_char_in(char c , int set_size , const char * set) {
   for (i=0; i < set_size; i++)
     if (set[i] == c)
       in = true;
-  
+
   return in;
 }
 
 
-/** 
+/**
     Returns true if ALL the characters in 's' return true from
     isspace().
 */
@@ -1300,7 +1311,7 @@ void util_fskip_space(FILE * stream ,  bool *at_eof) {
 
 
 
-/** 
+/**
     This functions reads a token[1] from stream, allocates storage for
     the it, and returns the newly allocated storage. Observe that the
     function does *NOT* read past end of line. If no token can be the
@@ -1323,7 +1334,7 @@ void util_fskip_space(FILE * stream ,  bool *at_eof) {
    while (!at_eof) {
       token = util_fscanf_alloc_token(stream);
       if (token != NULL) {
-         printf("Have read token:%s \n",token);  
+         printf("Have read token:%s \n",token);
          free(token);
       } else {
          printf("Have reached EOL/EOF \n");
@@ -1334,7 +1345,7 @@ void util_fskip_space(FILE * stream ,  bool *at_eof) {
    This will produce the output:
    Have read token: This
    Have read token: is
-   Have read token: a 
+   Have read token: a
    Have read token: file
    Have reached EOL/EOF
    Have read token: Line2
@@ -1346,7 +1357,7 @@ void util_fskip_space(FILE * stream ,  bool *at_eof) {
    [1]: A token is defined as a sequence of characters separated by
     white-space or tab.
 */
-    
+
 
 
 
@@ -1356,7 +1367,7 @@ char * util_fscanf_alloc_token(FILE * stream) {
   char * token = NULL;
   char c;
 
-  
+
   cont = true;
 
   /* Skipping initial whitespace */
@@ -1367,7 +1378,7 @@ char * util_fscanf_alloc_token(FILE * stream) {
       /* Going back to position at newline */
       util_fseek(stream , pos , SEEK_SET);
       cont = false;
-    } else if (c == EOF) 
+    } else if (c == EOF)
       cont = false;
     else if (!util_char_in(c , 2 , space_set)) {
       util_fseek(stream , pos , SEEK_SET);
@@ -1377,7 +1388,7 @@ char * util_fscanf_alloc_token(FILE * stream) {
   if (EOL_CHAR(c)) return NULL;
   if (c == EOF)    return NULL;
 
-  
+
 
   /* At this point we are guranteed to return something != NULL */
   cont = true;
@@ -1397,10 +1408,10 @@ char * util_fscanf_alloc_token(FILE * stream) {
         length++;
     } while (cont);
     if (EOL_CHAR(c)) util_fseek(stream , -1 , SEEK_CUR);
-  
+
     token = util_calloc(length + 1 , sizeof * token );
     util_fseek(stream , token_start , SEEK_SET);
-    { 
+    {
       int i;
       for (i = 0; i < length; i++)
         token[i] = fgetc(stream);
@@ -1423,16 +1434,16 @@ char * util_fscanf_alloc_token(FILE * stream) {
   --------
   const char * s = "78.92"
   double value;
-  
-  if (util_sscanf_double(s , &value)) 
+
+  if (util_sscanf_double(s , &value))
     printf("%s is a valid double\n");
   else
     printf("%s is NOT a valid double\n");
 
 */
- 
-bool util_sscanf_double(const char * buffer , double * value) { 
-  bool value_OK = false; 
+
+bool util_sscanf_double(const char * buffer , double * value) {
+  bool value_OK = false;
   char * error_ptr;
 
   double tmp_value = strtod(buffer , &error_ptr);
@@ -1441,12 +1452,12 @@ bool util_sscanf_double(const char * buffer , double * value) {
   */
   while (error_ptr[0] != '\0' && isspace(error_ptr[0]))
     error_ptr++;
-  
+
   if (error_ptr[0] == '\0') {
-    value_OK = true; 
+    value_OK = true;
     if (value != NULL)
       *value = tmp_value;
-  } 
+  }
   return value_OK;
 }
 
@@ -1460,7 +1471,7 @@ bool util_sscanf_octal_int(const char * buffer , unsigned int * value) {
   char * error_ptr;
 
   int tmp_value = strtol(buffer , &error_ptr , 8);
-  
+
   /*
     Skip trailing white-space
   */
@@ -1469,10 +1480,10 @@ bool util_sscanf_octal_int(const char * buffer , unsigned int * value) {
     error_ptr++;
 
   if (error_ptr[0] == '\0') {
-    value_OK = true; 
+    value_OK = true;
     if (value != NULL)
       *value = tmp_value;
-  } 
+  }
   return value_OK;
 }
 
@@ -1498,10 +1509,10 @@ bool util_sscanf_int(const char * buffer , int * value) {
     error_ptr++;
 
   if (error_ptr[0] == '\0') {
-    value_OK = true; 
+    value_OK = true;
     if (value != NULL)
       *value = tmp_value;
-  } 
+  }
   return value_OK;
 }
 
@@ -1511,9 +1522,9 @@ bool util_sscanf_int(const char * buffer , int * value) {
 */
 
 bool util_string_equal(const char * s1 , const char * s2 ) {
-  if (s1 == NULL || s2 == NULL) 
+  if (s1 == NULL || s2 == NULL)
     return false;
-  
+
   /* Now we know that BOTH s1 and s2 are != NULL */
   if (strcmp(s1,s2) == 0)
     return true;
@@ -1542,12 +1553,12 @@ bool util_string_equal(const char * s1 , const char * s2 ) {
    s = "1, 10, 78, 67";
          |   |   |   NULL
          1   2   3   3
-         
-   The vertical bars indicate the return values.         
+
+   The vertical bars indicate the return values.
 
 */
 
-  
+
 const char * util_parse_int(const char * s , int * value, bool *OK) {
   if (*OK) {
     char * error_ptr;
@@ -1578,12 +1589,12 @@ const char * util_parse_int(const char * s , int * value, bool *OK) {
    while (OK) {
       int value;
       current_ptr = util_parse_int(current_ptr , &value , &OK);
-      if (OK) 
+      if (OK)
          printf("Found:%d \n",value);
       current_ptr = util_skip_sep(current_ptr , " ," , &OK);
    }
 
-   
+
 */
 
 const char * util_skip_sep(const char * s, const char * sep_set, bool *OK) {
@@ -1592,7 +1603,7 @@ const char * util_skip_sep(const char * s, const char * sep_set, bool *OK) {
     if (sep_length == 0)
       *OK = false;
     return &s[sep_length];
-  } else 
+  } else
     return NULL;
 }
 
@@ -1605,7 +1616,7 @@ const char * util_skip_sep(const char * s, const char * sep_set, bool *OK) {
    optional suffix. The valid suffizes are KB,MB and GB (any case is
    allowed); if no suffix is appended the buffer is assumed to contain
    a memory size already specified in bytes.
-   
+
 
    Observe that __this_function__ allows an arbitrary number of spaces
    between between the integer literal and the suffix string; however
@@ -1619,7 +1630,7 @@ const char * util_skip_sep(const char * s, const char * sep_set, bool *OK) {
       KB => *= 1024
       MB => *= 1024 * 1024;
       GB => *= 1024 * 1024 * 1024;
-      
+
    Observe that if the functions fails to parse/interpret the string
    it will return false, and set the reference value to 0. However it
    will not fail with an abort. Overflows are *NOT* checked for.
@@ -1637,7 +1648,7 @@ bool util_sscanf_bytesize(const char * buffer, size_t *size) {
 
   value = strtol(buffer , &suffix_ptr , 10);
   if (suffix_ptr[0] != '\0') {
-    while (isspace(suffix_ptr[0])) 
+    while (isspace(suffix_ptr[0]))
       suffix_ptr++;
     {
       char * upper = util_alloc_string_copy(suffix_ptr);
@@ -1652,7 +1663,7 @@ bool util_sscanf_bytesize(const char * buffer, size_t *size) {
       /* else - failed to parse - returning false. */
       free(upper);
     }
-  } 
+  }
 
   if (size != NULL) {
     if (parse_OK)
@@ -1660,7 +1671,7 @@ bool util_sscanf_bytesize(const char * buffer, size_t *size) {
     else
       *size = 0;
   }
-  
+
   return parse_OK;
 }
 
@@ -1699,29 +1710,29 @@ static int isnumeric( int c , bool float_mode) {
        function.
    }
 
-   Caveats: 
-   
+   Caveats:
+
      o Algorithm will not interpret "-" as a minus sign, only as a
        character. This might lead to unexpected results if you want to
        compare strings with embedded signed numeric literals, see
        example three below.
-   
+
    Examples:
-   
+
    S1           S2            util_strcmp_numeric()    strcmp()
    ------------------------------------------------------------
    "001"        "1"           0                        -1
-   "String-10"  "String-3"    1                        -1                
+   "String-10"  "String-3"    1                        -1
    "String-8"   "String1"     -1                       -1
    ------------------------------------------------------------
 */
-   
+
 
 static int util_strcmp_numeric__( const char * s1 , const char * s2, bool float_mode) {
-  /* 
+  /*
      Special case to handle e.g.
 
-         util_strcmp_numeric("100.00000" , "100") 
+         util_strcmp_numeric("100.00000" , "100")
 
      which should compare as equal. The normal algorithm will compare
      equal characterwise all the way until one string ends, and the
@@ -1732,7 +1743,7 @@ static int util_strcmp_numeric__( const char * s1 , const char * s2, bool float_
     double num1 , num2;
     char * end1;
     char * end2;
-    
+
     if (float_mode) {
       num1 = strtod( s1 , &end1 );
       num2 = strtod( s2 , &end2 );
@@ -1740,38 +1751,38 @@ static int util_strcmp_numeric__( const char * s1 , const char * s2, bool float_
       num1 = 1.0 * strtol( s1 , &end1  , 10);
       num2 = 1.0 * strtol( s2 , &end2  , 10);
     }
-    
-    if ( (*end2 == '\0') && (*end1 == '\0')) {  
+
+    if ( (*end2 == '\0') && (*end1 == '\0')) {
       /* The whole string has been read and converted to a number - for both strings. */
       if (num1 < num2)
         return -1;
-      else if (num1 > num2) 
+      else if (num1 > num2)
         return 1;
       else
         return 0;
-    } 
-  } 
-  
-  
-  /* 
+    }
+  }
+
+
+  /*
      At least one of the strings is not a pure numerical literal and
-     we start on a normal comparison. 
+     we start on a normal comparison.
   */
   {
     int cmp       = 0;
-    bool complete = false;  
+    bool complete = false;
     int  len1     = strlen( s1 );
     int  len2     = strlen( s2 );
     int  offset1  = 0;
     int  offset2  = 0;
-    
-    
+
+
     while (!complete) {
       while( true ) {
         if ((offset1 == len1) || (offset2 == len2)) {
           /* OK - at least one of the strings is at the end;
              we set the cmp value and return. */
-          
+
           if ((offset1 == len1) && (offset2 == len2))
             /* We are the the end of both strings - they compare as equal. */
             cmp = 0;
@@ -1782,38 +1793,38 @@ static int util_strcmp_numeric__( const char * s1 , const char * s2, bool float_
           complete = true;
           break;
         }
-        
+
         if (s1[offset1] != s2[offset2])
           /* We have reached a point of difference, jump out of this
              loop and continue with more detailed comparison further
              down. */
           break;
-        
+
         // Strings are still equal - proceed one character further.
         offset1++;
         offset2++;
       }
-      
+
       if (!complete) {
-        /* 
+        /*
            Both offset values point to a valid character value, but the
            two character values are different:
-           
+
            1. Both characters are numeric - we use strtol() to read the
               two integers and perform a numeric comparison.
-           
+
            2. One or none of the characters are numeric, we just use
               ordinary strcmp() on the substrings starting at the current
               offset.
         */
-        
+
         if (isnumeric( s1[ offset1 ] , float_mode) && isnumeric( s2[ offset2 ] , float_mode)) {
           char * end1;
           char * end2;
           double num1,num2;
-          /* 
+          /*
              The numerical comparison is based on double variables
-             irrespective of the value of @float_mode. 
+             irrespective of the value of @float_mode.
           */
           if (float_mode) {
             num1 = strtod( &s1[ offset1 ] , &end1 );
@@ -1822,7 +1833,7 @@ static int util_strcmp_numeric__( const char * s1 , const char * s2, bool float_
             num1 = 1.0 * strtol( &s1[ offset1 ] , &end1  , 10);
             num2 = 1.0 * strtol( &s2[ offset2 ] , &end2  , 10);
           }
-        
+
           if (num1 != num2) {
             if (num1 < num2)
               cmp = -1;
@@ -1847,13 +1858,13 @@ static int util_strcmp_numeric__( const char * s1 , const char * s2, bool float_
               offset2 = end2 - s2;
           }
         } else {
-          /* 
+          /*
              We have arrived at a point of difference in the string, and
              perform 100% standard strcmp().
           */
           cmp = strcmp( &s1[offset1] , &s2[offset2] );
           complete = true;
-        } 
+        }
       }
     }
     return cmp;
@@ -1878,12 +1889,12 @@ int util_strcmp_int( const char * s1 , const char * s2) {
 
 
 
-/** 
+/**
     Succesfully parses:
 
       1 , T (not 't') , True (with any case) => true
       0 , F (not 'f') , False(with any case) => false
-      
+
     Else the parsing fails.
 */
 
@@ -1907,14 +1918,14 @@ bool util_sscanf_bool(const char * buffer , bool * _value) {
   } else {
     char * local_buffer = util_alloc_string_copy(buffer);
     util_strupr(local_buffer);
-    
+
     if (strcmp(local_buffer , "TRUE") == 0) {
       parse_OK = true;
       value = true;
     } else if (strcmp(local_buffer , "FALSE") == 0) {
       parse_OK = true;
       value = false;
-    } 
+    }
 
     free(local_buffer);
   }
@@ -1941,12 +1952,12 @@ bool util_fscanf_bool(FILE * stream , bool * value) {
    If the parsing fails the stream is repositioned at the location it
    had on entry to the function.
 */
-   
+
 
 bool util_fscanf_int(FILE * stream , int * value) {
   long int start_pos = util_ftell(stream);
   char * token       = util_fscanf_alloc_token(stream);
-  
+
   bool   value_OK = false;
   if (token != NULL) {
     value_OK = util_sscanf_int(token , value);
@@ -1955,12 +1966,12 @@ bool util_fscanf_int(FILE * stream , int * value) {
     free(token);
   }
   return value_OK;
-}   
+}
 
 
 /**
    Prompt .........====>
-   <-------1------><-2-> 
+   <-------1------><-2->
 
    The section marked with 1 above is the prompt length, i.e. the
    input prompt is padded wth one blank, and then padded with
@@ -1980,8 +1991,8 @@ bool util_fscanf_int(FILE * stream , int * value) {
 
 void util_printf_prompt(const char * prompt , int prompt_len, char fill_char , const char * termination) {
   int current_len = strlen(prompt) + 1;
-  printf("%s ",prompt);  /* Observe that one ' ' is forced in here. */ 
-  
+  printf("%s ",prompt);  /* Observe that one ' ' is forced in here. */
+
   while (current_len < prompt_len) {
     fputc(fill_char , stdout);
     current_len++;
@@ -2059,7 +2070,7 @@ double util_scanf_double(const char * prompt , int prompt_len) {
 
 
 
-/** 
+/**
     The limits are inclusive.
 */
 int util_scanf_int_with_limits(const char * prompt , int prompt_len , int min_value , int max_value) {
@@ -2072,7 +2083,7 @@ int util_scanf_int_with_limits(const char * prompt , int prompt_len , int min_va
   return value;
 }
 
-/** 
+/**
     The limits are inclusive, yet the function returns the input char and stops on empty string.
 */
 char * util_scanf_int_with_limits_return_char(const char * prompt , int prompt_len , int min_value , int max_value) {
@@ -2126,7 +2137,7 @@ int util_count_content_file_lines(FILE * stream) {
   int empty_lines = 0;
   int col         = 0;
   char    c;
-  
+
   do {
     c = fgetc(stream);
     if (EOL_CHAR(c)) {
@@ -2145,7 +2156,7 @@ int util_count_content_file_lines(FILE * stream) {
       }else if (c == EOF){
         lines++;
       }
-      
+
     } else if (c == EOF){
       lines++;
     }
@@ -2154,7 +2165,7 @@ int util_count_content_file_lines(FILE * stream) {
         col++;
     }
   } while (! feof(stream) );
-  if (col == 0) 
+  if (col == 0)
     /*
       Not counting empty last line.
     */
@@ -2166,7 +2177,7 @@ int util_count_content_file_lines(FILE * stream) {
 /******************************************************************/
 
 
-/** 
+/**
     buffer_size is _only_ for a return (by reference) of the size of
     the allocation. Can pass in NULL if that size is not interesting.
 */
@@ -2180,7 +2191,7 @@ char * util_fread_alloc_file_content(const char * filename , int * buffer_size) 
     fclose(stream);
   }
   if (buffer_size != NULL) *buffer_size = file_size;
-  
+
   buffer[file_size] = '\0';
   return buffer;
 }
@@ -2193,14 +2204,14 @@ char * util_fread_alloc_file_content(const char * filename , int * buffer_size) 
    write fails, in this case the calling scope must do the right
    thing.
 */
-  
+
 
 bool util_copy_stream(FILE *src_stream , FILE *target_stream , size_t buffer_size , void * buffer , bool abort_on_error) {
   while ( ! feof(src_stream)) {
     int bytes_read;
     int bytes_written;
     bytes_read = fread (buffer , 1 , buffer_size , src_stream);
-    
+
     if (bytes_read < buffer_size && !feof(src_stream)) {
       if (abort_on_error)
         util_abort("%s: error when reading from src_stream - aborting \n",__func__);
@@ -2212,11 +2223,11 @@ bool util_copy_stream(FILE *src_stream , FILE *target_stream , size_t buffer_siz
       util_fwrite( buffer , 1 , bytes_read , target_stream , __func__);
     else {
       bytes_written = fwrite(buffer , 1 , bytes_read , target_stream);
-      if (bytes_written < bytes_read) 
+      if (bytes_written < bytes_read)
         return false;
     }
   }
-  
+
   return true;
 }
 
@@ -2230,7 +2241,7 @@ static bool util_copy_file__(const char * src_file , const char * target_file, s
       FILE * src_stream      = util_fopen(src_file     , "r");
       FILE * target_stream   = util_fopen(target_file  , "w");
       bool result = util_copy_stream(src_stream , target_stream , buffer_size , buffer , abort_on_error);
-        
+
       fclose(src_stream);
       fclose(target_stream);
 
@@ -2260,10 +2271,10 @@ bool util_copy_file(const char * src_file , const char * target_file) {
     buffer = malloc(buffer_size);
     if (buffer == NULL) buffer_size /= 2;
   } while ((buffer == NULL) && (buffer_size > 0));
-  
+
   if (buffer_size == 0)
     util_abort("%s: failed to allocate any memory ?? \n",__func__);
-  
+
   {
     bool result = util_copy_file__(src_file , target_file , buffer_size , buffer , abort_on_error);
     free(buffer);
@@ -2293,7 +2304,7 @@ void util_move_file4( const char * src_name , const char * target_name , const c
 
   if (target_path == NULL)
     target_path = src_path;
-  
+
   if (target_path != NULL)
     target = util_alloc_filename( target_path , target_name , NULL);
   else
@@ -2301,7 +2312,7 @@ void util_move_file4( const char * src_name , const char * target_name , const c
 
 
   util_move_file( src , target );
-  
+
   free( target );
   free( src );
 }
@@ -2317,7 +2328,7 @@ bool util_files_equal( const char * file1 , const char * file2 ) {
   const int buffer_size = 4096;
   char * buffer1 = util_calloc( buffer_size , sizeof * buffer1 );
   char * buffer2 = util_calloc( buffer_size , sizeof * buffer2 );
-  
+
   FILE * stream1 = util_fopen( file1 , "r" );
   FILE * stream2 = util_fopen( file2 , "r" );
 
@@ -2325,7 +2336,7 @@ bool util_files_equal( const char * file1 , const char * file2 ) {
     int count1 = fread( buffer1 , 1 , buffer_size , stream1 );
     int count2 = fread( buffer2 , 1 , buffer_size , stream2 );
 
-    if (count1 != count2) 
+    if (count1 != count2)
       equal = false;
     else {
       if (memcmp( buffer1 , buffer2 , count1 ) != 0)
@@ -2350,7 +2361,7 @@ bool util_files_equal( const char * file1 , const char * file2 ) {
 
 static void util_fclear_region( FILE * stream , long offset , long region_size) {
   util_fseek( stream , offset , SEEK_SET );
-  { 
+  {
      int i;
      for ( i=0; i < region_size; i++)
         fputc( 0 , stream );
@@ -2375,7 +2386,7 @@ static void util_fmove_block(FILE * stream , long offset , long shift , char * b
    negative a part of the file will be overwritten:
 
      Original        : "ABCDEFGHIJKILMNOPQ"
-     fmove( 10 , 5 ) : "ABCDEFGHIJ     KILMNOPQ"   
+     fmove( 10 , 5 ) : "ABCDEFGHIJ     KILMNOPQ"
      fmove( 10 , -5) : "ABCDEKILMNOPQ"
 
   If offset is positioned at the end of the file a section initialized
@@ -2383,7 +2394,7 @@ static void util_fmove_block(FILE * stream , long offset , long shift , char * b
   of the file the function will return EINVAL.
 
   For this function to work the file must be opened in read-write mode
-  (i.e. r+).  
+  (i.e. r+).
 */
 
 int util_fmove( FILE * stream , long offset , long shift) {
@@ -2395,44 +2406,44 @@ int util_fmove( FILE * stream , long offset , long shift) {
     file_size = util_ftell( stream );
     util_fseek( stream , init_pos , SEEK_SET );
   }
-    
+
   // Validate offset and shift input values.
   if ((offset > file_size) || (offset < 0))
     return EINVAL;
-  
+
   if (offset + shift < 0)
     return EINVAL;
-  
+
   if (shift != 0) {
     int buffer_size = 1024 * 1024 * 4;  /* 4MB buffer size. */
     char * buffer = util_calloc( buffer_size , sizeof * buffer );
-    
+
     /* Shift > 0: We are opening up a hole in the file. */
     if (shift > 0) {
       long pos = offset;
       while (( pos + buffer_size ) < file_size)
         pos += buffer_size;
-      
+
       while (pos >= offset) {
         util_fmove_block( stream , pos , shift , buffer , buffer_size );
         pos -= buffer_size;
       }
       util_fclear_region( stream , offset , shift );
     } else {
-      /* Shift < 0: We are overwriting a part of the file internally. */  
+      /* Shift < 0: We are overwriting a part of the file internally. */
       long pos = offset;
       while (pos <= file_size) {
         util_fmove_block( stream , pos , shift , buffer , buffer_size );
         pos += buffer_size;
       }
-      
+
       // Make sure the file actually shrinks.
       util_ftruncate( stream  , file_size + shift );
     }
     free( buffer );
   }
-  return 0; 
-}  
+  return 0;
+}
 
 
 
@@ -2459,7 +2470,7 @@ bool util_file_exists(const char *filename) {
 bool util_entry_exists( const char * entry ) {
   stat_type stat_buffer;
   int stat_return = util_stat(entry, &stat_buffer);
-  if (stat_return == 0) 
+  if (stat_return == 0)
     return true;
   else {
     if (errno == ENOENT)
@@ -2483,8 +2494,8 @@ bool util_entry_exists( const char * entry ) {
 
    2. If stat() has succeeded check the type of the entry, and return
       true|false if it is of the wanted type.
-      
-   3. If stat() fails with error != ENOENT => util_abort().   
+
+   3. If stat() fails with error != ENOENT => util_abort().
 
 */
 
@@ -2538,11 +2549,11 @@ bool util_is_executable(const char * path) {
     else
       return false; /* It is not a file. */
   } else  /* Entry does not exist - return false. */
-    return false; 
+    return false;
 }
 
 
-/* 
+/*
    Will not differtiate between files and directories.
 */
 bool util_entry_readable( const char * entry ) {
@@ -2580,7 +2591,7 @@ bool util_is_executable(const char * path) {
   if (ext != NULL)
     if (strcmp(ext , "exe") == 0)
       return true;
-  
+
   return false;
 }
 
@@ -2604,18 +2615,18 @@ bool util_entry_writable( const char * entry ) {
 
 
 
-#endif 
+#endif
 
 
 
 static int util_get_path_length(const char * file) {
-  if (util_is_directory(file)) 
+  if (util_is_directory(file))
     return strlen(file);
   else {
     const char * last_slash = strrchr(file , UTIL_PATH_SEP_CHAR);
     if (last_slash == NULL)
       return 0;
-    else 
+    else
       return last_slash - file;
   }
 }
@@ -2631,9 +2642,9 @@ static int util_get_base_length(const char * file) {
     return 0;
   else if (path_length == 0)
     base_start = file;
-  else 
+  else
     base_start = &file[path_length + 1];
-  
+
   last_point  = strrchr(base_start , '.');
   if (last_point == NULL)
     return strlen(base_start);
@@ -2662,7 +2673,7 @@ static int util_get_base_length(const char * file) {
    char * ext;
 
    util_alloc_file_components("/path/to/some/file.txt" , &path , &base , &ext);
-   util_alloc_file_components("/path/to/some/file.txt" , &path , &base , NULL); 
+   util_alloc_file_components("/path/to/some/file.txt" , &path , &base , NULL);
 
    In the second example we were not interested in the extension, and
    just passed in NULL. Before use in the calling scope it is
@@ -2675,9 +2686,9 @@ static int util_get_base_length(const char * file) {
       printf("File does *not* have an extension \n");
 
    The memory allocated in util_alloc_file_components must be freed by
-   the calling unit. 
+   the calling unit.
 
-   Observe the following: 
+   Observe the following:
 
     * It is easy to be fooled by the optional existence of an extension
       (badly desgined API).
@@ -2695,30 +2706,30 @@ static int util_get_base_length(const char * file) {
         path -> "/some/existing/path"
         base -> NULL
         ext  -> NULL
-        
-        
+
+
 
       Ex2: input is NOT an existing directory:
       ------------------------------------
       util_alloc_file_components("/some/random/not_existing/path" , &path , &base , &ext)
-      
+
       path -> "/some/random/not_existing"
         base -> "path"
         ext  -> NULL
-        
+
 */
 
 void util_alloc_file_components(const char * file, char **_path , char **_basename , char **_extension) {
   char *path      = NULL;
   char *basename  = NULL;
   char *extension = NULL;
-  
+
   int path_length = util_get_path_length(file);
   int base_length = util_get_base_length(file);
   int ext_length ;
   int slash_length = 1;
-  
-  if (path_length > 0) 
+
+  if (path_length > 0)
     path = util_alloc_substring_copy(file , 0 , path_length);
   else
     slash_length = 0;
@@ -2727,28 +2738,28 @@ void util_alloc_file_components(const char * file, char **_path , char **_basena
   if (base_length > 0)
     basename = util_alloc_substring_copy(file , path_length + slash_length , base_length);
 
-  
+
   ext_length = strlen(file) - (path_length + base_length + 1);
   if (ext_length > 0)
     extension = util_alloc_substring_copy(file , (path_length + slash_length + base_length + 1) , ext_length);
 
-  if (_extension != NULL) 
+  if (_extension != NULL)
     *_extension = extension;
-  else 
+  else
     if (extension != NULL) free(extension);
-  
 
-  if (_basename != NULL) 
+
+  if (_basename != NULL)
     *_basename = basename;
-  else 
+  else
     if (basename != NULL) free(basename);
-  
-  
-  if (_path != NULL) 
+
+
+  if (_path != NULL)
     *_path = path;
-  else 
+  else
     if (path != NULL) free(path);
-  
+
 
 }
 
@@ -2758,16 +2769,27 @@ void util_alloc_file_components(const char * file, char **_path , char **_basena
 
 
 size_t util_file_size(const char *file) {
+  size_t file_size;
+
+  {
+    int fildes = open(file , O_RDONLY);
+    if (fildes == -1)
+      util_abort("%s: failed to open:%s - %s \n",__func__ , file , strerror(errno));
+
+    file_size = util_fd_size( fildes );
+    close(fildes);
+  }
+
+  return file_size;
+}
+
+
+
+size_t util_fd_size(int fd) {
   stat_type buffer;
-  int fildes;
-  
-  fildes = open(file , O_RDONLY);
-  if (fildes == -1) 
-    util_abort("%s: failed to open:%s - %s \n",__func__ , file , strerror(errno));
-  
-  util_fstat(fildes, &buffer);
-  close(fildes);
-  
+
+  util_fstat(fd, &buffer);
+
   return buffer.st_size;
 }
 
@@ -2796,10 +2818,10 @@ void util_ftruncate(FILE * stream , long size) {
   The windows stat structure has the inode element, but it is not
   set. Actually - this is a property of the filesystem, and not the
   operating system - this check is probably broken on two levels:
-  
+
    1. One should really check the filesystem involved - whether it
       supports inodes.
-      
+
    2. The code below will compile on windows, but for a windows
       filesystem it will yield rubbish.
 */
@@ -2810,9 +2832,9 @@ bool util_same_file(const char * file1 , const char * file2) {
 
   stat1 = util_stat(file1, &buffer1);   // In the case of symlinks the stat call will stat the target file and not the link.
   stat2 = util_stat(file2, &buffer2);
-  
+
   if ((stat1 == 0) && (stat1 == stat2)) {
-    if (buffer1.st_ino == buffer2.st_ino) 
+    if (buffer1.st_ino == buffer2.st_ino)
       return true;
     else
       return false;
@@ -2845,24 +2867,24 @@ bool util_fmt_bit8_stream(FILE * stream ) {
     char *buffer = util_calloc(buffer_size , sizeof * buffer );
 
     elm_read = fread(buffer , 1 , buffer_size , stream);
-    if (elm_read < min_read) 
+    if (elm_read < min_read)
       util_abort("%s: file is too small to automatically determine formatted/unformatted status \n",__func__);
-    
+
     for (i=0; i < elm_read; i++)
       N_bit8set += (buffer[i] & (1 << 7)) >> 7;
-    
-    
+
+
     free(buffer);
-  
+
     bit8set_fraction = 1.0 * N_bit8set / elm_read;
-    if (bit8set_fraction < bit8set_limit) 
+    if (bit8set_fraction < bit8set_limit)
       fmt_file =  true;
-    else 
+    else
       fmt_file = false;
   }
   util_fseek(stream , start_pos , SEEK_SET);
   return fmt_file;
-}  
+}
 
 
 
@@ -2874,7 +2896,7 @@ bool util_fmt_bit8(const char *filename ) {
     stream   = fopen(filename , "r");
     fmt_file = util_fmt_bit8_stream(stream);
     fclose(stream);
-  } else 
+  } else
     util_abort("%s: could not find file: %s - aborting \n",__func__ , filename);
 
   return fmt_file;
@@ -2883,15 +2905,15 @@ bool util_fmt_bit8(const char *filename ) {
 
 
 /*
-  time_t        st_atime;    time of last access 
-  time_t        st_mtime;    time of last modification 
-  time_t        st_ctime;    time of last status change 
+  time_t        st_atime;    time of last access
+  time_t        st_mtime;    time of last modification
+  time_t        st_ctime;    time of last status change
 */
 
 /*
   The returned value is the difference in file mtime from the file2 to
   file1 (what a mess). I.e. if file1 is newer than file2 the returned
-  value will be positive.  
+  value will be positive.
 */
 
 
@@ -2924,7 +2946,7 @@ time_t util_file_mtime(const char * file) {
     util_fstat(fd , &f_stat );
     mtime = f_stat.st_mtime;
     close( fd );
-  } 
+  }
   return mtime;
 }
 
@@ -2933,7 +2955,7 @@ time_t util_file_mtime(const char * file) {
 
 /**
    Will check if the st_mtime (i.e. last modification) of the file is
-   after the time given by @t0.  
+   after the time given by @t0.
 */
 
 bool util_file_newer( const char * file , time_t t0) {
@@ -2946,7 +2968,7 @@ bool util_file_newer( const char * file , time_t t0) {
 
 /**
    Will check if the st_mtime (i.e. last modification) of the file is
-   before the time given by @t0.  
+   before the time given by @t0.
 */
 
 
@@ -2976,7 +2998,7 @@ bool util_after( time_t t , time_t limit) {
 
 
 
-/** 
+/**
     This function will return a pointer to the newest of the two
     files. If one of the files does not exist - the other is
     returned. If none of the files exist - NULL is returned.
@@ -3025,7 +3047,7 @@ static void __util_set_timevalues(time_t t , int * sec , int * min , int * hour 
 
 
 /*
-  This function takes a time_t instance as input, and 
+  This function takes a time_t instance as input, and
   returns the the time broken down in sec:min:hour  mday:month:year.
 
   The return values are by pointers - you can pass in NULL to any of
@@ -3057,9 +3079,9 @@ bool util_is_first_day_in_month( time_t t) {
 bool util_sscanf_date(const char * date_token , time_t * t) {
   int day   , month , year;
   char sep1 , sep2;
-  
+
   if (sscanf(date_token , "%d%c%d%c%d" , &day , &sep1 , &month , &sep2 , &year) == 5) {
-    *t = util_make_date(day , month , year );  
+    *t = util_make_date(day , month , year );
     return true;
   } else {
     *t = -1;
@@ -3090,7 +3112,7 @@ bool util_fscanf_date(FILE *stream , time_t *t)  {
   return return_value;
 }
 
-/* 
+/*
    The date format is HARD assumed to be
 
    dd/mm/yyyy
@@ -3104,7 +3126,7 @@ bool util_fscanf_date(FILE *stream , time_t *t)  {
 void util_fprintf_datetime(time_t t , FILE * stream) {
   int sec,min,hour;
   int mday,year,month;
-  
+
   util_set_datetime_values(t , &sec , &min , &hour , &mday , &month , &year);
   fprintf(stream , "%02d/%02d/%4d  %02d:%02d:%02d", mday,month,year,hour,min,sec);
 }
@@ -3112,7 +3134,7 @@ void util_fprintf_datetime(time_t t , FILE * stream) {
 
 void util_fprintf_date(time_t t , FILE * stream) {
   int mday,year,month;
-  
+
   util_set_datetime_values(t , NULL , NULL , NULL , &mday , &month , &year);
   fprintf(stream , "%02d/%02d/%4d", mday,month,year);
 }
@@ -3120,7 +3142,7 @@ void util_fprintf_date(time_t t , FILE * stream) {
 
 char * util_alloc_date_string( time_t t ) {
   int mday,year,month;
-  
+
   util_set_datetime_values(t , NULL , NULL , NULL , &mday , &month , &year);
   return util_alloc_sprintf("%02d/%02d/%4d", mday,month,year);
 }
@@ -3131,7 +3153,17 @@ char * util_alloc_date_stamp( ) {
 }
 
 
-/* 
+void util_inplace_forward_seconds(time_t * t , double seconds) {
+  struct tm ts;
+  int isdst;
+
+  util_localtime(t , &ts);
+  isdst = ts.tm_isdst;
+  (*t) += ( time_t ) (seconds);
+  util_localtime(t , &ts);
+  (*t) += 3600 * (isdst - ts.tm_isdst);  /* Extra adjustment of +/- one hour if we have crossed exactly one daylight savings border. */
+}
+/*
    This function takes a pointer to a time_t instance, and shifts the
    value days forward. Observe the calls to localtime_r() which give
    rise to +/- one extra hour of adjustment if we have crossed exactly
@@ -3143,14 +3175,7 @@ char * util_alloc_date_stamp( ) {
 */
 
 void util_inplace_forward_days(time_t * t , double days) {
-  struct tm ts;
-  int isdst;
-  
-  util_localtime(t , &ts);
-  isdst = ts.tm_isdst;
-  (*t) += ( time_t ) (days * 3600 * 24);
-  util_localtime(t , &ts);
-  (*t) += 3600 * (isdst - ts.tm_isdst);  /* Extra adjustment of +/- one hour if we have crossed exactly one daylight savings border. */
+  util_inplace_forward_seconds( t , days * 3600 * 24 );
 }
 
 
@@ -3160,12 +3185,12 @@ void util_inplace_forward_days(time_t * t , double days) {
    seconds (straight difftime output). Observe that the ordering of
    time_t arguments is switched with respect to the difftime
    arguments.
-   
+
    In addition the difference can be broken down in days, hours,
    minutes and seconds if the appropriate pointers are passed in.
 */
 
-   
+
 double util_difftime(time_t start_time , time_t end_time , int * _days , int * _hours , int * _minutes , int *_seconds) {
   int sec_min  = 60;
   int sec_hour = 3600;
@@ -3176,10 +3201,10 @@ double util_difftime(time_t start_time , time_t end_time , int * _days , int * _
 
   days = (int) floor(dt / sec_day );
   dt  -= days * sec_day;
-  
+
   hours = (int) floor(dt / sec_hour);
   dt   -= hours * sec_hour;
-  
+
   minutes = (int) floor(dt / sec_min);
   dt     -= minutes * sec_min;
 
@@ -3189,7 +3214,7 @@ double util_difftime(time_t start_time , time_t end_time , int * _days , int * _
   if (_minutes != NULL) *_minutes = minutes;
   if (_hours   != NULL) *_hours   = hours;
   if (_days    != NULL) *_days    = days;
-  
+
   return dt0;
 }
 
@@ -3229,9 +3254,9 @@ time_t util_make_datetime(int sec, int min, int hour , int mday , int month , in
   ts.tm_isdst  = -1;    /* Negative value means mktime tries to determine automagically whether Daylight Saving Time is in effect. */
   {
     time_t t = mktime( &ts );
-    if (t == -1) 
+    if (t == -1)
       util_abort("%s: failed to make a time_t instance of %02d/%02d/%4d  %02d:%02d:%02d - aborting \n",__func__ , mday,month,year,hour,min,sec);
-    
+
     return t;
   }
 }
@@ -3298,7 +3323,7 @@ char * util_alloc_strip_copy(const char *src) {
     strip_length = end_index - start_index + 1;
     target = util_calloc(strip_length + 1 , sizeof * target );
     memcpy(target , &src[start_index] , strip_length);
-  } else 
+  } else
     /* A blank string */
     target = util_calloc(strip_length + 1 , sizeof * target );
 
@@ -3326,7 +3351,7 @@ char ** util_alloc_stringlist_copy(const char **src, int len) {
     for (i=0; i < len; i++)
       copy[i] = util_alloc_string_copy(src[i]);
     return copy;
-  } else 
+  } else
     return NULL;
 }
 
@@ -3341,7 +3366,7 @@ char ** util_alloc_stringlist_copy(const char **src, int len) {
    --------
    char ** stringlist  = (char *[2]) {"One" , "Two"};
    char  * three_string = "Three";
-   
+
    stringlist = util_stringlist_append_copy(stringlist , 2 , three_string);
 
    This function does allocate memory - but does not have *alloc* in
@@ -3377,7 +3402,7 @@ char * util_alloc_string_copy(const char *src ) {
     char * copy   = util_calloc( byte_size , sizeof * copy );
     memcpy( copy , src , byte_size );
     return copy;
-  } else 
+  } else
     return NULL;
 }
 
@@ -3410,19 +3435,19 @@ char * util_realloc_substring_copy(char * old_string , const char *src , int len
     copy[str_len] = '\0';
 
     return copy;
-  } else 
+  } else
     return NULL;
 }
 
 
 /**
    This function check that a pointer is different from NULL, and
-   frees the memory if that is the case. 
+   frees the memory if that is the case.
 */
- 
 
-void util_safe_free(void *ptr) { 
-   if (ptr != NULL) free(ptr); 
+
+void util_safe_free(void *ptr) {
+   if (ptr != NULL) free(ptr);
 }
 
 
@@ -3433,18 +3458,18 @@ void util_safe_free(void *ptr) {
    wildcard(s). The pattern can consist of plain string parts (which
    must match verbatim), and an arbitrary number of '*' which will
    match an arbitrary number (including zero) of arbitrary characters.
-   
+
    Examples:
    ---------
 
    util_string_match("Bjarne" , "Bjarne")    ==> True
 
-   util_string_match("Bjarne" , "jarn")      ==> False   
+   util_string_match("Bjarne" , "jarn")      ==> False
 
    util_string_match("Bjarne" , "*jarn*")    ==> True
 
    util_string_match("Bjarne" , "B*e")       ==> True
-   
+
    util_string_match("Bjarne" , "B*n")       ==> False
 
    util_string_match("Bjarne" , "*")         ==> True
@@ -3461,7 +3486,7 @@ bool util_string_match(const char * string , const char * pattern) {
   const   char    wildcard    = '*';
   const   char   *wildcard_st = "*";
 
-  if (strcmp(wildcard_st , pattern) == 0) 
+  if (strcmp(wildcard_st , pattern) == 0)
     return true;
   else {
     bool    match = true;
@@ -3469,33 +3494,33 @@ bool util_string_match(const char * string , const char * pattern) {
     int     num_patterns;
     char *  string_ptr;
     util_split_string( pattern , wildcard_st , &num_patterns , &sub_pattern );
-    
+
     if (pattern[0] == '*')
       string_ptr = strstr(string , sub_pattern[0]);
     else
       string_ptr = (strncmp(string , sub_pattern[0] , strlen(sub_pattern[0])) == 0) ? (char * ) string : NULL;
-    
+
     if (string_ptr != NULL) {
       /* Inital part matched */
       int i;
           string_ptr += strlen( sub_pattern[0] );
       for (i=1; i < num_patterns; i++) {
         char * match_ptr = strstr(string_ptr , sub_pattern[i]);
-        if (match_ptr != NULL) 
+        if (match_ptr != NULL)
           string_ptr = match_ptr + strlen( sub_pattern[i] );
         else {
           match = false;
           break;
         }
       }
-      
-      /* 
+
+      /*
          We have exhausted the complete pattern - matching all the way.
          Does it match at the end?
       */
       if (match) {
         if (strlen(string_ptr) > 0) {
-          /* 
+          /*
              There is more left at the end of the string; if the pattern
              ends with '*' that is OK, otherwise the match result is
              FALSE.
@@ -3504,10 +3529,10 @@ bool util_string_match(const char * string , const char * pattern) {
             match = false;
         }
       }
-      
-    } else 
+
+    } else
       match = false;
-    
+
     util_free_stringlist( sub_pattern , num_patterns);
     return match;
   }
@@ -3551,7 +3576,7 @@ char * util_strstr_int_format(const char * string ) {
     else {
       if (percent_ptr[0] == '0') {
 
-        while (isdigit(percent_ptr[0])) 
+        while (isdigit(percent_ptr[0]))
           percent_ptr++;
 
         if (percent_ptr[0] == 'd')
@@ -3559,7 +3584,7 @@ char * util_strstr_int_format(const char * string ) {
         else
           return NULL;
 
-      } 
+      }
       return NULL;
     }
   }
@@ -3603,7 +3628,7 @@ void util_free_NULL_terminated_stringlist(char ** string_list) {
 
 /**
    This function will reallocate the string s1 to become the sum of s1
-   and s2. If s1 == NULL it will just return a copy of s2. 
+   and s2. If s1 == NULL it will just return a copy of s2.
 
    Observe that due to the use realloc() the s1 input argument MUST BE
    the return value from a malloc() call; this is not intuitive and
@@ -3611,14 +3636,14 @@ void util_free_NULL_terminated_stringlist(char ** string_list) {
 */
 
 char * util_strcat_realloc(char *s1 , const char * s2) {
-  if (s1 == NULL) 
+  if (s1 == NULL)
     s1 = util_alloc_string_copy(s2);
   else {
     if (s2 != NULL) {
       int new_length = strlen(s1) + strlen(s2) + 1;
       s1 = util_realloc( s1 , new_length );
       strcat(s1 , s2);
-    } 
+    }
   }
   return s1;
 }
@@ -3661,7 +3686,7 @@ char * util_alloc_joined_string(const char ** item_list , int len , const char *
     int total_length = 0;
     int eff_len = 0;
     int i;
-    for (i=0; i < len; i++) 
+    for (i=0; i < len; i++)
       if (item_list[i] != NULL) {
         total_length += strlen(item_list[i]);
         eff_len++;
@@ -3707,7 +3732,7 @@ void util_split_string(const char *line , const char *sep_set, int *_tokens, cha
   int tokens , token , token_length;
   char **token_list;
 
-  offset = strspn(line , sep_set); 
+  offset = strspn(line , sep_set);
   tokens = 0;
   do {
     /*
@@ -3718,7 +3743,7 @@ void util_split_string(const char *line , const char *sep_set, int *_tokens, cha
     token_length = strcspn(&line[offset] , sep_set);
     if (token_length > 0)
       tokens++;
-    
+
     offset += token_length;
     offset += strspn(&line[offset] , sep_set);
   } while (line[offset] != '\0');
@@ -3734,13 +3759,13 @@ void util_split_string(const char *line , const char *sep_set, int *_tokens, cha
         token++;
       } else
         token_list[token] = NULL;
-      
+
       offset += token_length;
       offset += strspn(&line[offset] , sep_set);
     } while (line[offset] != '\0');
   } else
     token_list = NULL;
-  
+
   *_tokens     = tokens;
   *_token_list = token_list;
 }
@@ -3749,7 +3774,7 @@ void util_split_string(const char *line , const char *sep_set, int *_tokens, cha
 /**
    This function will split the input string in two parts, it will
    split on occurence of one or several of the characters in
-   sep_set. 
+   sep_set.
 
 
    o If split_on_first is true it will split on the first occurence of
@@ -3772,7 +3797,7 @@ void util_split_string(const char *line , const char *sep_set, int *_tokens, cha
      characters are removed before the splitting starts:
 
         util_binary_split_string(":ABCD" , ":" , true , )   => "ABCD" & NULL
-        
+
 */
 
 
@@ -3791,15 +3816,15 @@ void util_binary_split_string(const char * __src , const char * sep_set, bool sp
     if (len > 0) {
       int tail_pos = strlen( __src ) - 1;
       /* 2: Remove trailing split characters. */
-      while (strchr(sep_set , __src[tail_pos]) != NULL) 
+      while (strchr(sep_set , __src[tail_pos]) != NULL)
         tail_pos--;
       len = 1 + tail_pos - offset;
-      
+
       src = util_alloc_substring_copy(__src , offset , len);
     } else
       src = NULL;
 
-    /* 
+    /*
        OK - we have removed all leading (or trailing) separators, and we have
        a valid string which we can continue with.
     */
@@ -3817,11 +3842,11 @@ void util_binary_split_string(const char * __src , const char * sep_set, bool sp
       }
 
       pos = start_pos;
-      while ((pos != end_pos) && (strchr(sep_set , src[pos]) == NULL)) 
+      while ((pos != end_pos) && (strchr(sep_set , src[pos]) == NULL))
         pos += delta;
-      /* 
+      /*
          OK - now we have either iterated through the whole string - or
-         we hav found a character in the sep_set. 
+         we hav found a character in the sep_set.
       */
       if (pos == end_pos) {
         /* There was no split. */
@@ -3841,7 +3866,7 @@ void util_binary_split_string(const char * __src , const char * sep_set, bool sp
         if (split_on_first) {
           sep_end = pos;
           first_part = util_alloc_substring_copy(src , 0 , sep_start);
-          
+
           if (sep_end == end_pos)
             second_part = NULL;
           else
@@ -3880,7 +3905,7 @@ void util_binary_split_string_from_max_length(const char * __src , const char * 
       src = NULL;
     else
       src = util_alloc_string_copy(&__src[pos]);
-    
+
     /*Remove trailing separators. */
     pos = strlen(__src) - 1;
     while ((pos >= 0) && (strchr(sep_set , __src[pos]) != NULL))
@@ -3889,9 +3914,9 @@ void util_binary_split_string_from_max_length(const char * __src , const char * 
       src = NULL;
     else
       src = util_alloc_substring_copy(__src , 0 , pos + 1);
-    
-    
-    /* 
+
+
+    /*
        OK - we have removed all leading (or trailing) separators, and we have
        a valid string which we can continue with.
     */
@@ -3902,11 +3927,11 @@ void util_binary_split_string_from_max_length(const char * __src , const char * 
       delta     = -1;
       end_pos   = -1;
       pos = start_pos;
-      while ((pos != end_pos) && (strchr(sep_set , src[pos]) == NULL)) 
+      while ((pos != end_pos) && (strchr(sep_set , src[pos]) == NULL))
         pos += delta;
-      /* 
+      /*
          OK - now we have either iterated through the whole string - or
-         we hav found a character in the sep_set. 
+         we hav found a character in the sep_set.
       */
       if (pos == end_pos) {
         /* There was no split. */
@@ -3919,8 +3944,8 @@ void util_binary_split_string_from_max_length(const char * __src , const char * 
         /* Iterate through the separation string - can be e.g. many " " */
         while ((pos != end_pos) && (strchr(sep_set , src[pos]) != NULL))
           pos += delta;
-        
-        
+
+
         sep_start = pos;
         if (sep_start == end_pos) {
           // ":String" => (NULL , "String")
@@ -3953,15 +3978,15 @@ int static util_string_replace_inplace__(char ** _buffer , const char * expr , c
   int len_expr             = strlen( expr );
   int len_subs             = strlen( subs );
   int    size              = strlen(buffer);
-  int    offset            = 0;     
+  int    offset            = 0;
   int    match_count       = 0;
 
   char  * match = NULL;
   do {
     match = strstr(&buffer[offset] ,  expr);
-    
+
     if (match != NULL) {
-      /* 
+      /*
          Can not use pointer arithmetic here - because the underlying
          buffer pointer might be realloced.
       */
@@ -3979,7 +4004,7 @@ int static util_string_replace_inplace__(char ** _buffer , const char * expr , c
           char * match_end = &buffer[end_offset];
           memmove(target , match_end , 1 + size - end_offset);
         }
-      
+
         memcpy(&buffer[start_offset] , subs , len_subs);
         offset = start_offset + len_subs;
         size   = new_size;
@@ -3987,8 +4012,8 @@ int static util_string_replace_inplace__(char ** _buffer , const char * expr , c
       }
     }
   } while (match != NULL && offset < strlen(buffer));
-    
-    
+
+
   *_buffer      = buffer;
   return match_count;
 }
@@ -4011,7 +4036,7 @@ char * util_string_replace_alloc(const char * buff_org, const char * expr, const
   char * new_buffer = util_calloc(buffer_size ,  sizeof * new_buffer );
   memcpy(new_buffer , buff_org , strlen(buff_org) + 1);
   util_string_replace_inplace__( &new_buffer , expr , subs);
-  
+
   {
     int size = strlen(new_buffer);
     new_buffer = util_realloc(new_buffer, (size + 1) * sizeof * new_buffer);
@@ -4035,12 +4060,12 @@ char * util_string_replacen_alloc(const char * buff_org, int num_expr, const cha
   for( i=0; i<num_expr; i++)
     util_string_replace_inplace__( &new_buffer , expr[i] , subs[i]);
   }
-  
+
   {
           int size = strlen(new_buffer);
           new_buffer = util_realloc(new_buffer, (size + 1) * sizeof * new_buffer);
   }
-  
+
   return new_buffer;
 }
 
@@ -4062,7 +4087,7 @@ char * util_string_strip_chars_alloc(const char * buff_org, const char * chars)
     int pos_off = strcspn(buff_org + pos_org, chars);
     if(pos_off > 0)
     {
-      memmove(buff_new + pos_new, buff_org + pos_org, pos_off * sizeof * buff_new);  
+      memmove(buff_new + pos_new, buff_org + pos_org, pos_off * sizeof * buff_new);
       pos_org += pos_off;
       pos_new += pos_off;
     }
@@ -4087,7 +4112,7 @@ char * util_string_strip_chars_alloc(const char * buff_org, const char * chars)
 
 void util_float_to_double(double *double_ptr , const float *float_ptr , int size) {
   int i;
-  for (i=0; i < size; i++) 
+  for (i=0; i < size; i++)
     double_ptr[i] = float_ptr[i];
 }
 
@@ -4101,7 +4126,7 @@ void util_double_to_float(float *float_ptr , const double *double_ptr , int size
 
 /*****************************************************************/
 
-/*  
+/*
    The util_fwrite_string / util_fread_string are BROKEN when it comes
    to NULL / versus an empty string "":
 
@@ -4115,7 +4140,7 @@ void util_double_to_float(float *float_ptr , const double *double_ptr , int size
    as follows:
 
     1. Nothing is changed when writing NULL => '0' to disk.
-    
+
     2. When writing "" => '-1\0' to disk. The -1 is the magic length
        signifying that the following string is "".
 */
@@ -4126,7 +4151,7 @@ void util_fwrite_string(const char * s, FILE *stream) {
   int len = 0;
   if (s != NULL) {
     len = strlen(s);
-    if (len == 0) 
+    if (len == 0)
       util_fwrite_int(-1 , stream);  /* Writing magic string for "" */
     else
       util_fwrite(&len , sizeof len , 1       , stream , __func__);
@@ -4162,7 +4187,7 @@ char * util_fread_realloc_string(char * old_s , FILE *stream) {
   } else if (len == -1) /* Magic length for "" */ {
     s = util_realloc(s , 1 );
     util_fread(s , 1 , 1 , stream , __func__);
-  } 
+  }
   return s;
 }
 
@@ -4170,9 +4195,9 @@ char * util_fread_realloc_string(char * old_s , FILE *stream) {
 void util_fskip_string(FILE *stream) {
   int len;
   util_fread(&len , sizeof len , 1 , stream , __func__);
-  if (len == 0)        
-    return;                                  /* The user has written NULL with util_fwrite_string(). */ 
-  else if (len == -1)  
+  if (len == 0)
+    return;                                  /* The user has written NULL with util_fwrite_string(). */
+  else if (len == -1)
     util_fseek( stream , 1 , SEEK_CUR);           /* Magic length for "" - skip the '\0' */
   else
     util_fseek(stream , len + 1 , SEEK_CUR);      /* Skip the data in a normal string. */
@@ -4301,11 +4326,11 @@ void util_update_double_max_min(double value , double * max , double * min) {
   *min = util_double_min(value , *min);
   *max = util_double_max(value , *max);
 }
-  
+
 void util_clamp_double(double * value , double limit1 , double limit2) {
   double min = util_double_min( limit1 , limit2 );
   double max = util_double_max( limit1 , limit2 );
-  
+
   *value = util_double_max( *value , min );
   *value = util_double_min( *value , max );
 }
@@ -4316,7 +4341,7 @@ void util_clamp_double(double * value , double limit1 , double limit2) {
    Scans through a vector of doubles, and finds min and max
    values. They are returned by reference.
 */
-  
+
 void util_double_vector_max_min(int N , const double *vector, double *_max , double *_min) {
   double min =  1e100; /* How should this be done ??? */
   double max = -1e100;
@@ -4326,7 +4351,7 @@ void util_double_vector_max_min(int N , const double *vector, double *_max , dou
       max = vector[i];
 
     /* Can not have else here - because same item might succed on both tests. */
-    
+
     if (vector[i] < min)
       min = vector[i];
   }
@@ -4354,7 +4379,7 @@ double util_double_vector_stddev(int N, const double * vector) {
           double   stddev         = 0.0;
           double   mean           = util_double_vector_mean(N, vector);
           double * vector_shifted = util_calloc(N , sizeof *vector_shifted);
-  
+
           {
           int i;
           for(i=0; i<N; i++)
@@ -4376,7 +4401,7 @@ double util_double_vector_stddev(int N, const double * vector) {
 
 
 
-   
+
 /**
    This function will update *value so that on return ALL bits which
    are set in bitmask, are also set in value. No other bits in *value
@@ -4396,9 +4421,9 @@ FILE * util_fopen__(const char * filename , const char * mode) {
 
 FILE * util_fopen(const char * filename , const char * mode) {
   FILE * stream = util_fopen__(filename , mode);
-  if (stream == NULL) 
+  if (stream == NULL)
     util_abort("%s: failed to open:%s with mode:\'%s\' - error:%s(%d) \n",__func__ , filename , mode , strerror(errno) , errno);
-  
+
   return stream;
 }
 
@@ -4425,7 +4450,7 @@ void util_fclose( FILE * stream ) {
    should be possible to safely call:
 
      util_mkdir_fopen("/some/path/to/file.txt" , "w");
-     
+
    without first enusring that /some/path/to exists.
 */
 
@@ -4452,14 +4477,14 @@ FILE * util_mkdir_fopen( const char * filename , const char * mode ) {
 
 void util_fwrite(const void *ptr , size_t element_size , size_t items, FILE * stream , const char * caller) {
   int items_written = fwrite(ptr , element_size , items , stream);
-  if (items_written != items) 
+  if (items_written != items)
     util_abort("%s/%s: only wrote %d/%d items to disk - aborting: %s(%d) .\n",caller , __func__ , items_written , items , strerror(errno) , errno);
 }
 
 
 void util_fread(void *ptr , size_t element_size , size_t items, FILE * stream , const char * caller) {
   int items_read = fread(ptr , element_size , items , stream);
-  if (items_read != items) 
+  if (items_read != items)
     util_abort("%s/%s: only read %d/%d items from disk - aborting.\n %s(%d) \n",caller , __func__ , items_read , items , strerror(errno) , errno);
 }
 
@@ -4481,7 +4506,7 @@ void util_fread_from_buffer(void * ptr , size_t element_size , size_t items , ch
 
 void * util_realloc(void * old_ptr , size_t new_size ) {
   /* The realloc documentation as ambigous regarding realloc() with size 0 - WE return NULL. */
-  if (new_size == 0) { 
+  if (new_size == 0) {
     if (old_ptr != NULL)
       free(old_ptr);
     return NULL;
@@ -4507,18 +4532,18 @@ void * util_realloc(void * old_ptr , size_t new_size ) {
 
 static void * util_malloc__(size_t size) {
   void * data;
-  if (size == 0) 
-    /* 
+  if (size == 0)
+    /*
        Not entirely clear from documentation what you get when you
        call malloc( 0 ); this code will return NULL in that case.
     */
     data = NULL;
   else {
     data = malloc( size );
-    if (data == NULL) 
+    if (data == NULL)
       util_abort("%s: failed to allocate %zu bytes - aborting \n",__func__ , size);
 
-    /* 
+    /*
        Initializing with something different from zero - hopefully
        errors will pop up more easily this way?
     */
@@ -4555,7 +4580,7 @@ void * util_alloc_copy(const void * src , size_t byte_size ) {
 
 
 void * util_realloc_copy(void * org_ptr , const void * src , size_t byte_size ) {
-  if (byte_size == 0 && src == NULL) 
+  if (byte_size == 0 && src == NULL)
     return util_realloc( org_ptr , 0 );
   {
     void * new = util_realloc(org_ptr , byte_size );
@@ -4592,14 +4617,14 @@ void util_read_path(const char * prompt , int prompt_len , bool must_exist , cha
       ok = util_is_directory(path);
     else
       ok = true;
-    if (!ok) 
+    if (!ok)
       fprintf(stderr,"Path: %s does not exist - try again.\n",path);
   }
 }
 
 /*
   exist_status == 0: Just read a string; do not check if it exist or not.
-  exist_status == 1: Must be existing file. 
+  exist_status == 1: Must be existing file.
   exist_status == 2: Must NOT exist as entry.
 */
 
@@ -4615,7 +4640,7 @@ char * util_fscanf_alloc_filename(const char * prompt , int prompt_len , int exi
             fprintf(stderr,"Sorry: %s does not exist. \n",filename);
             free( filename );
             filename = NULL;
-          } 
+          }
         } else if (exist_status == 2) {
           if (util_entry_exists( filename )) {
             fprintf(stderr,"Sorry: entry %s already exists. \n",filename);
@@ -4660,10 +4685,10 @@ void util_fprintf_string(const char * s , int width , string_alignement_type ali
   if (alignement == left_pad) {
     i = 0;
     if (width > strlen(s)) {
-      for (i=0; i < (width - strlen(s)); i++) 
+      for (i=0; i < (width - strlen(s)); i++)
         fputc(' ' , stream);
     }
-    fprintf(stream , s);
+    fprintf(stream , "%s", s);
   } else if (alignement == right_pad) {
     sprintf(fmt , "%%-%ds" , width);
     fprintf(stream , fmt , s);
@@ -4687,13 +4712,13 @@ void util_fprintf_string(const char * s , int width , string_alignement_type ali
    specification, and arguments. The arguments (except the format) are
    entered as a variable length argument list, and the function is
    basically a thin wrapper around vsnprintf().
-   
+
    Example of usage:
-   
+
    char * s = util_alloc_sprintf("/%s/File:%04d/%s" , "prefix" , 67 , "Suffix");
-   
+
    => s = /prefix/File:0067/Suffix
-   
+
    Observe that when it is based in vsnprintf() essentially no
    error-checking is performed.
 */
@@ -4723,10 +4748,10 @@ char * util_alloc_sprintf(const char * fmt , ...) {
 char * util_alloc_sprintf_escape(const char * src , int max_escape) {
   if (src == NULL)
     return NULL;
-  
+
   if (max_escape == 0)
     max_escape = strlen( src );
-  
+
   {
     const int src_len = strlen( src );
     char * target = util_calloc( max_escape + strlen(src) + 1 , sizeof * target);
@@ -4734,7 +4759,7 @@ char * util_alloc_sprintf_escape(const char * src , int max_escape) {
     int escape_count = 0;
     int src_offset = 0;
     int target_offset = 0;
-    
+
     while (true) {
       if (src[src_offset] == '%') {
         if (escape_count < max_escape) {
@@ -4746,7 +4771,7 @@ char * util_alloc_sprintf_escape(const char * src , int max_escape) {
       target[target_offset] = src[src_offset];
       target_offset++;
       src_offset++;
-      if (src_offset == src_len) 
+      if (src_offset == src_len)
         break;
     }
     target[target_offset] = '\0';
@@ -4779,10 +4804,10 @@ char * util_realloc_sprintf(char * s , const char * fmt , ...) {
   char * new_s;
   va_list ap;
   va_start(ap , fmt);
-  
+
   new_s = util_alloc_sprintf_va( fmt , ap );
   util_safe_free(s);
-  
+
   va_end(ap);
   return new_s;
 }
@@ -4796,7 +4821,7 @@ char * util_realloc_sprintf(char * s , const char * fmt , ...) {
 /**
   This function is intended to be installed as a signal
   handler, so we can get a traceback from signals like SIGSEGV.
-  
+
   To install the signal handler:
 
   #include <signal.h>
@@ -4807,7 +4832,7 @@ char * util_realloc_sprintf(char * s , const char * fmt , ...) {
 
   The various signals can be found in: /usr/include/bits/signum.h
 */
-  
+
 
 void util_abort_signal(int signal) {
   util_abort("Program received signal:%d\n" , signal);
@@ -4815,10 +4840,14 @@ void util_abort_signal(int signal) {
 
 
 void util_install_signals(void) {
+#ifdef HAVE_SIGBUS
+  signal(SIGBUS  , util_abort_signal);
+#endif
+
   signal(SIGSEGV , util_abort_signal);    /* Segmentation violation, i.e. overwriting memory ... */
-  signal(SIGTERM , util_abort_signal);    /* If killing the enkf program with SIGTERM (the default kill signal) you will get a backtrace. 
+  signal(SIGTERM , util_abort_signal);    /* If killing the enkf program with SIGTERM (the default kill signal) you will get a backtrace.
                                              Killing with SIGKILL (-9) will not give a backtrace.*/
-  signal(SIGABRT , util_abort_signal);    /* Signal abort. */ 
+  signal(SIGABRT , util_abort_signal);    /* Signal abort. */
   signal(SIGILL  , util_abort_signal);    /* Signal illegal instruction. */
 }
 
@@ -4835,12 +4864,12 @@ void util_exit(const char * fmt , ...) {
 
 
 
-    
-  
+
+
 /**
    This function is quite dangerous - it will always return something;
    it is the responsability of the calling scope to check that it
-   makes sense. Will return 0 on input NULL.  
+   makes sense. Will return 0 on input NULL.
 */
 
 int util_get_type( void * data ) {
@@ -4901,7 +4930,7 @@ const char * util_enum_iget( int index , int size , const util_enum_element_type
 }
 
 
-static char * __abort_program_message = NULL;                      /* Can use util_abort_append_version_info() to fill this with 
+static char * __abort_program_message = NULL;                      /* Can use util_abort_append_version_info() to fill this with
                                                                       version info+++ wich will be printed when util_abort() is called. */
 static char * __current_executable    = NULL;
 
@@ -4921,11 +4950,11 @@ void util_abort_free_version_info() {
 
 
 void util_abort_set_executable( const char * argv0 ) {
-  if (util_is_abs_path(argv0)) 
+  if (util_is_abs_path(argv0))
     __current_executable = util_realloc_string_copy( __current_executable , argv0 );
   else {
     char * executable;
-    if (util_is_executable( argv0 )) 
+    if (util_is_executable( argv0 ))
       executable = util_alloc_realpath(argv0);
     else
       executable = util_alloc_PATH_executable( argv0 );
@@ -4974,12 +5003,12 @@ void util_abort_set_executable( const char * argv0 ) {
         }                                               \
      }                                                  \
   }                                                     \
-}                                            
+}
 
 CONTAINS(int)
 CONTAINS(time_t)
 CONTAINS(size_t)
-#undef CONTAINS    
+#undef CONTAINS
 
 /*****************************************************************/
 
@@ -4996,7 +5025,7 @@ int util_fnmatch( const char * pattern , const char * string ) {
     return 0;
   else
     return 1;
-    
+
 #endif
 }
 
@@ -5078,7 +5107,7 @@ int util_round( double x ) { return (int) (x + 0.5); }
 int util_type_get_id( const void * data ) {
   int type_id = ((const int*) data)[0];
   return type_id;
-}  
+}
 
 #include "util_chdir.c"
 

@@ -1,0 +1,6 @@
+INTERNAL    True
+SCRIPT      ../scripts/export_misfit_data.py
+MIN_ARG     0
+MAX_ARG     1
+ARG_TYPE    0  STRING
+

@@ -1,0 +1,6 @@
+INTERNAL    True
+SCRIPT      ../scripts/update_runpath_list.py
+MIN_ARG     0
+MAX_ARG     1
+ARG_TYPE    0  STRING
+

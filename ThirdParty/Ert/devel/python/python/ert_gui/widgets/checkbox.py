@@ -26,15 +26,15 @@ from ert_gui.widgets.helped_widget import HelpedWidget
 class CheckBox(HelpedWidget):
     """A checbox widget for booleans. The data structure expected and sent to the getter and setter is a boolean."""
 
-    def __init__(self, model, check_label="Do this", help_link="", show_label = True, alt_label=None, default_check_state=True):
+    def __init__(self, model, label="Checkbox", help_link="", show_label=True, alt_label=None, default_check_state=True):
         """Construct a checkbox widget for booleans"""
-        HelpedWidget.__init__(self, check_label, help_link)
+        HelpedWidget.__init__(self, label, help_link)
 
         if show_label:
-            if alt_label != None:
+            if alt_label is not None:
                 self.check = QCheckBox(alt_label, self)
             else:
-                self.check = QCheckBox(check_label,self)
+                self.check = QCheckBox(label,self)
         else:
             self.check = QCheckBox(self)
             
@@ -59,7 +59,7 @@ class CheckBox(HelpedWidget):
 
     def contentsChanged(self):
         """Called whenever the contents of the checbox changes."""
-        self.model.setTrue(self.check.isChecked())
+        self.model.setState(self.check.isChecked())
 
 
     def modelChanged(self):

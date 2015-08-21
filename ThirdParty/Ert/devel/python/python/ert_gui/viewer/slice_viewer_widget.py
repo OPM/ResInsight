@@ -74,7 +74,7 @@ class SliceViewer(QGLWidget):
 
         self.__hide_inactive_cells = False
         self.__lighting = False
-        self.__region_scaling = False
+        self.__region_scaling = True
         self.__flat_polylines = False
 
 
@@ -236,7 +236,8 @@ class SliceViewer(QGLWidget):
                 diff_x = q_mouse_event.x() - self.__mouse["x"]
                 diff_y = q_mouse_event.y() - self.__mouse["y"]
 
-                self.__camera.rotate(0.0, 0.0, diff_y / 2.0)
+                #self.__camera.rotate(0.0, 0.0, diff_y / 2.0)
+                self.__camera.translate(diff_x / 1000.0 , diff_y / 1000.0 )
 
             self.__mouse["x"] = q_mouse_event.x()
             self.__mouse["y"] = q_mouse_event.y()

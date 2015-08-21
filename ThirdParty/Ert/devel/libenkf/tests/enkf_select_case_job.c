@@ -38,7 +38,7 @@ int main(int argc , const char ** argv) {
   const char * config_file  = argv[1];
   const char * select_case_job = argv[2];
 
-  ert_test_context_type * test_context = ert_test_context_alloc("SELECT_CASE" , config_file , NULL);
+  ert_test_context_type * test_context = ert_test_context_alloc("SELECT_CASE" , config_file );
   
   test_assert_true( ert_test_context_install_workflow_job( test_context , "SELECT_CASE" , select_case_job));
   {

@@ -27,7 +27,10 @@
 
 #include "cvfVector2.h"
 
-class RimReservoirView;
+class RimEclipseView;
+class RimGeoMechView;
+class RimView;
+
 //==================================================================================================
 ///  
 ///  
@@ -41,7 +44,7 @@ public:
 
     void update3DInfo();
 
-    void setReservoirView(RimReservoirView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
+    void setReservoirView(RimView* ownerView);
 
     void                                        setPosition(cvf::Vec2ui position);
     caf::PdmField<bool>                         active;
@@ -53,7 +56,13 @@ protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*                objectToggleField();
 private:
-    caf::PdmPointer<RimReservoirView>           m_reservoirView;
+
+    void updateReservoir3DInfo(RimEclipseView * reservoirView);
+    void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
+
+
+
+    caf::PdmPointer<RimView>                    m_viewDef;
 
     cvf::Vec2ui                                 m_position;
 };

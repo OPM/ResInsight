@@ -194,7 +194,7 @@ DEFUN_DLD (riGetWellStatus, args, nargout,
 
         // Build a map between the field name and field cell values
 
-        Octave_map m;
+        octave_map m;
 
         m.assign(riOctavePlugin::wellStatus_WellType,    cellValuesB);
         m.assign(riOctavePlugin::wellStatus_WellStatus,  cellValuesC);

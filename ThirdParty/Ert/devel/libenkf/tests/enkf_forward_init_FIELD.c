@@ -57,7 +57,7 @@ int main(int argc , char ** argv) {
     test_assert_true( util_sscanf_bool( forward_init_string , &forward_init));
 
     util_clear_directory( "Storage" , true , true );
-    enkf_main = enkf_main_bootstrap( NULL , config_file , strict , true );
+    enkf_main = enkf_main_bootstrap( config_file , strict , true );
     {
       enkf_state_type * state   = enkf_main_iget_state( enkf_main , 0 );
       enkf_node_type * field_node = enkf_state_get_node( state , "PORO" );

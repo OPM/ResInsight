@@ -14,18 +14,41 @@ class SubstitutionList(BaseCClass):
         SubstitutionList.cNamespace().append_copy(self, key, value, doc_string)
 
 
-    def __getitem__(self, index):
-        if not isinstance(index, int):
+    def __getitem__(self, index_or_key):
+        if not isinstance(index_or_key, int):
             raise IndexError("Index must be a number!")
 
-        if index < 0 or index >= len(self):
+        if index_or_key < 0 or index_or_key >= len(self):
             raise IndexError("Index must be in the range: [%i, %i]" % (0, len(self) - 1))
 
-        key =  SubstitutionList.cNamespace().get_key(self, index)
-        value =  SubstitutionList.cNamespace().get_value(self, index)
-        doc_string = SubstitutionList.cNamespace().get_doc_string(self, index)
+        key =  SubstitutionList.cNamespace().get_key(self, index_or_key)
+        value =  SubstitutionList.cNamespace().get_value(self, index_or_key)
+        doc_string = SubstitutionList.cNamespace().get_doc_string(self, index_or_key)
 
         return key, value, doc_string
+
+    def __iter__(self):
+        index = 0
+        while index < len(self):
+            yield self[index]
+            index += 1
+
+    def __contains__(self, key):
+        for kw, value, doc in self:
+            if key == kw:
+                return True
+        return False
+
+    def indexForKey(self, key):
+        if not key in self:
+            raise KeyError("Key '%s' not in substitution list!" % key)
+
+        for index, key_val_doc in enumerate(self):
+            if key == key_val_doc[0]:
+                return index
+
+        return None # Should never happen!
+
 
     def free(self):
         SubstitutionList.cNamespace().free(self)

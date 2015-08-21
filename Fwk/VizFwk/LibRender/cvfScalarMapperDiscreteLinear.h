@@ -55,13 +55,12 @@ public:
 
     // Scalarmapper interface implementation
 
-    virtual Vec2f       mapToTextureCoord(double scalarValue) const;
     virtual Color3ub    mapToColor(double scalarValue) const;
     virtual double      normalizedValue( double domainValue ) const;
     virtual double      domainValue( double normalizedPosition ) const;
 
 private:
-    static double       discretize(double scalarValue, const std::set<double>& sortedLevels);
+    static double       discretizeToLevelBelow(double scalarValue, const std::set<double>& sortedLevels);
     friend class ScalarMapperDiscreteLog;
 };
 

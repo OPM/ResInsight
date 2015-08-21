@@ -37,6 +37,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -70,7 +71,7 @@ public:
 
 
 public:
-    StructGridInterface();;
+    StructGridInterface();
 
     virtual size_t   gridPointCountI() const = 0;
     virtual size_t   gridPointCountJ() const = 0;

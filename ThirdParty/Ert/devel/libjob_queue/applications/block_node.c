@@ -207,14 +207,14 @@ int main( int argc, char ** argv) {
     util_exit("block_node  node1  node2  node3:2  \n");
   
   /* Initialize lsf environment */
-  util_setenv( "LSF_BINDIR"    , "/prog/LSF/8.0/linux2.6-glibc2.3-x86_64/bin" );
-  util_setenv( "LSF_LINDIR"    , "/prog/LSF/8.0/linux2.6-glibc2.3-x86_64/lib" );
-  util_setenv( "XLSF_UIDDIR"   , "/prog/LSF/8.0/linux2.6-glibc2.3-x86_64/lib/uid" );
-  util_setenv( "LSF_SERVERDIR" , "/prog/LSF/8.0/linux2.6-glibc2.3-x86_64/etc");
+  util_setenv( "LSF_BINDIR"    , "/prog/LSF/9.1/linux2.6-glibc2.3-x86_64/bin" );
+  util_setenv( "LSF_LINDIR"    , "/prog/LSF/9.1/linux2.6-glibc2.3-x86_64/lib" );
+  util_setenv( "XLSF_UIDDIR"   , "/prog/LSF/9.1/linux2.6-glibc2.3-x86_64/lib/uid" );
+  util_setenv( "LSF_SERVERDIR" , "/prog/LSF/9.1/linux2.6-glibc2.3-x86_64/etc");
   util_setenv( "LSF_ENVDIR"    , "/prog/LSF/conf");
   
-  util_update_path_var( "PATH"               , "/prog/LSF/8.0/linux2.6-glibc2.3-x86_64/bin" , false);
-  util_update_path_var( "LD_LIBRARY_PATH"    , "/prog/LSF/8.0/linux2.6-glibc2.3-x86_64/lib" , false);
+  util_update_path_var( "PATH"               , "/prog/LSF/9.1/linux2.6-glibc2.3-x86_64/bin" , false);
+  util_update_path_var( "LD_LIBRARY_PATH"    , "/prog/LSF/9.1/linux2.6-glibc2.3-x86_64/lib" , false);
 
   
   lsf_driver = lsf_driver_alloc();

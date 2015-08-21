@@ -16,9 +16,11 @@
 
 
 import ert.cwrap.clib as clib
+import ert.util
+
 ANALYSIS_LIB = clib.ert_load("libanalysis")
 
 from .enums import AnalysisModuleOptionsEnum, AnalysisModuleLoadStatusEnum
 
 from .analysis_module import AnalysisModule
-
+from .linalg import Linalg

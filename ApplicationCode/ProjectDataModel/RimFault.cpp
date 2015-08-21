@@ -21,7 +21,7 @@
 
 #include "RigFault.h"
 
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 
 CAF_PDM_SOURCE_INIT(RimFault, "Fault");
 
@@ -68,7 +68,7 @@ void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const Q
 
     if (&faultColor == changedField || &showFault == changedField)
     {
-        RimReservoirView* reservoirView = NULL;
+        RimEclipseView* reservoirView = NULL;
         this->firstAncestorOfType(reservoirView);
 
         if (reservoirView) 

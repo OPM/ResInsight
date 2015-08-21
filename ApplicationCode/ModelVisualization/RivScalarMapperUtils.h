@@ -34,8 +34,8 @@ namespace cvf
 }
 
 class RivTernaryScalarMapper;
-class RimResultSlot;
-class RimCellEdgeResultSlot;
+class RimEclipseCellColors;
+class RimCellEdgeColors;
 
 //==================================================================================================
 ///
@@ -43,21 +43,22 @@ class RimCellEdgeResultSlot;
 class RivScalarMapperUtils
 {
 public:
-    static void applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling);
-    static void applyTernaryTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling);
+    static void applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
+    static void applyTernaryTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
 
 	static cvf::ref<cvf::Effect> createCellEdgeEffect(cvf::DrawableGeo* dg,
 		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
 		size_t gridIndex,
 		size_t timeStepIndex,
-		RimResultSlot* cellResultSlot,
-		RimCellEdgeResultSlot* cellEdgeResultSlot,
+		RimEclipseCellColors* cellResultColors,
+		RimCellEdgeColors* cellEdgeResultColors,
 		float opacityLevel,
         cvf::Color3f defaultColor, 
-        caf::FaceCulling faceCulling);
+        caf::FaceCulling faceCulling,
+        bool disableLighting);
 
 private:
-    static cvf::ref<cvf::Effect> createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling);
-    static cvf::ref<cvf::Effect> createTernaryScalarMapperEffect(const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling);
+    static cvf::ref<cvf::Effect> createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
+    static cvf::ref<cvf::Effect> createTernaryScalarMapperEffect(const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
 };
 

@@ -58,7 +58,6 @@ set( source_files
      enkf_analysis.c 
      enkf_main.c 
      local_dataset.c 
-     local_obsset.c 
      surface.c 
      surface_config.c 
      enkf_plot_data.c
@@ -76,16 +75,21 @@ set( source_files
      ecl_refcase_list.c 
      local_obsdata_node.c 
      local_obsdata.c 
-     obs_tstep_list.c 
      pca_plot_data.c 
      pca_plot_vector.c 
      state_map.c 
      cases_config.c 
-     state_map.c    
+     state_map.c
+     summary_key_set.c
+     summary_key_matcher.c
      ert_test_context.c
      ert_log.c
      run_arg.c
-     ert_run_context.c)
+     ert_run_context.c
+     custom_kw.c
+     custom_kw_config.c
+     custom_kw_config_set.c
+     )
 
 set( header_files 
      ert_report.h 
@@ -155,7 +159,6 @@ set( header_files
      enkf_defaults.h 
      container_config.h 
      local_dataset.h 
-     local_obsset.h 
      surface.h 
      surface_config.h 
      local_context.h 
@@ -173,22 +176,28 @@ set( header_files
      ecl_refcase_list.h 
      local_obsdata_node.h 
      local_obsdata.h 
-     obs_tstep_list.h 
      pca_plot_data.h 
      pca_plot_vector.h 
-     state_map.h 
-     cases_config.h 
+     state_map.h
+     summary_key_set.h
+     summary_key_matcher.h
+     cases_config.h
      state_map.h
      ert_test_context.h
      ert_log.h
      run_arg.h
-     ert_run_context.h)
+     ert_run_context.h
+     custom_kw.h
+     custom_kw_config.h
+     custom_kw_config_set.h
+     )
 
 
 add_library( enkf  ${LIBRARY_TYPE} ${source_files} )
 set_target_properties( enkf PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 
-
+set( SITE_CONFIG_FILE /project/res/etc/ERT/site-config CACHE FILEPATH "Path to global ERT Configuration file")
+set_source_files_properties( site_config.c PROPERTIES COMPILE_DEFINITIONS "SITE_CONFIG_FILE=\"${SITE_CONFIG_FILE}\"")
 
 #configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/CMake/config/ert_build_info.h.in
 #                ${CMAKE_CURRENT_BINARY_DIR}/ert_build_info.h )

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'workflow_job.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'workflow_job.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
@@ -27,7 +27,7 @@
 #include <ert/util/util.h>
 #include <ert/util/type_macros.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 
 #include <ert/job_queue/workflow_job.h>
 
@@ -40,7 +40,7 @@
 #define MAX_ARG_KEY    "MAX_ARG"
 #define ARG_TYPE_KEY   "ARG_TYPE"
 #define INTERNAL_KEY   "INTERNAL"
-#define MODULE_KEY     "MODULE" 
+#define MODULE_KEY     "MODULE"
 #define FUNCTION_KEY   "FUNCTION"
 #define SCRIPT_KEY     "SCRIPT"
 #define EXECUTABLE_KEY "EXECUTABLE"
@@ -58,7 +58,7 @@ struct workflow_job_struct {
   UTIL_TYPE_ID_DECLARATION;
   bool                 internal;
   int                  min_arg;
-  int                  max_arg;   
+  int                  max_arg;
   int_vector_type    * arg_types;     // Should contain values from the config_item_types enum in config.h.
   char               * executable;
   char               * internal_script_path;
@@ -80,11 +80,11 @@ const char * workflow_job_get_name( const workflow_job_type * workflow_job ) {
 }
 
 
-config_type * workflow_job_alloc_config() {
-  config_type * config = config_alloc();
+config_parser_type * workflow_job_alloc_config() {
+  config_parser_type * config = config_alloc();
   {
     config_schema_item_type * item;
-  
+
     item = config_add_schema_item( config , MIN_ARG_KEY , false );
     config_schema_item_set_argc_minmax( item , 1 , 1 );
     config_schema_item_iset_type( item , 0 , CONFIG_INT );
@@ -109,7 +109,7 @@ config_type * workflow_job_alloc_config() {
     config_schema_item_iset_type( item , 0 , CONFIG_PATH );
 
     /*---------------------------------------------------------------*/
-    
+
     item = config_add_schema_item( config , FUNCTION_KEY , false );
     config_schema_item_set_argc_minmax( item , 1 , 1);
 
@@ -128,9 +128,9 @@ config_type * workflow_job_alloc_config() {
 
 static UTIL_SAFE_CAST_FUNCTION(workflow_job , WORKFLOW_JOB_TYPE_ID );
 
-void workflow_job_update_config_compiler( const workflow_job_type * workflow_job , config_type * config_compiler ) {
+void workflow_job_update_config_compiler( const workflow_job_type * workflow_job , config_parser_type * config_compiler ) {
   config_schema_item_type * item = config_add_schema_item( config_compiler , workflow_job->name , false );
-  /* 
+  /*
      Ensure that the arg_types mapping is at least as large as the
      max_arg value. The arg_type vector will be left padded with
      CONFIG_STRING values.
@@ -223,7 +223,7 @@ void workflow_job_set_max_arg( workflow_job_type * workflow_job , int max_arg) {
 int workflow_job_get_min_arg( const workflow_job_type * workflow_job ) {
   return workflow_job->min_arg;
 }
- 
+
 int workflow_job_get_max_arg( const workflow_job_type * workflow_job ) {
   return workflow_job->max_arg;
 }
@@ -248,7 +248,7 @@ static void workflow_job_iset_argtype_string( workflow_job_type * workflow_job ,
 
   if (type != CONFIG_INVALID)
     workflow_job_iset_argtype( workflow_job , iarg , type );
-  
+
 }
 
 
@@ -279,8 +279,8 @@ static void workflow_job_validate_internal( workflow_job_type * workflow_job ) {
 
 static void workflow_job_validate_external( workflow_job_type * workflow_job ) {
   if (workflow_job->executable != NULL) {
-    if (util_is_executable( workflow_job->executable ) && 
-        (workflow_job->module == workflow_job->function) && 
+    if (util_is_executable( workflow_job->executable ) &&
+        (workflow_job->module == workflow_job->function) &&
         (workflow_job->module == NULL))
       workflow_job->valid = true;
   }
@@ -289,65 +289,65 @@ static void workflow_job_validate_external( workflow_job_type * workflow_job ) {
 
 
 static void workflow_job_validate( workflow_job_type * workflow_job ) {
-  if (workflow_job->internal) 
+  if (workflow_job->internal)
     workflow_job_validate_internal( workflow_job );
-  else 
+  else
     workflow_job_validate_external( workflow_job );
 }
 
 
 
 
-workflow_job_type * workflow_job_config_alloc( const char * name , config_type * config , const char * config_file) {
-  config_clear( config );
-  if (config_parse( config , config_file , "--", NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true)) {
+workflow_job_type * workflow_job_config_alloc( const char * name , config_parser_type * config , const char * config_file) {
+  workflow_job_type * workflow_job = NULL;
+  config_content_type * content = config_parse( config , config_file , "--", NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true);
+  if (config_content_is_valid( content )) {
     bool internal = DEFAULT_INTERNAL;
-    if (config_item_set( config , INTERNAL_KEY))
-      internal = config_iget_as_bool( config , INTERNAL_KEY , 0 , 0 );
-    
+    if (config_content_has_item( content , INTERNAL_KEY))
+      internal = config_content_iget_as_bool( content , INTERNAL_KEY , 0 , 0 );
+
     {
-      workflow_job_type * workflow_job = workflow_job_alloc( name , internal );
-      
-      if (config_item_set( config , MIN_ARG_KEY))
-        workflow_job_set_min_arg( workflow_job , config_iget_as_int( config , MIN_ARG_KEY , 0 , 0 ));
-      
-      if (config_item_set( config , MAX_ARG_KEY))
-        workflow_job_set_max_arg( workflow_job , config_iget_as_int( config , MAX_ARG_KEY , 0 , 0 ));
-      
+      workflow_job = workflow_job_alloc( name , internal );
+
+      if (config_content_has_item( content , MIN_ARG_KEY))
+        workflow_job_set_min_arg( workflow_job , config_content_iget_as_int( content , MIN_ARG_KEY , 0 , 0 ));
+
+      if (config_content_has_item( content , MAX_ARG_KEY))
+        workflow_job_set_max_arg( workflow_job , config_content_iget_as_int( content , MAX_ARG_KEY , 0 , 0 ));
+
       {
         int i;
-        for (i=0; i < config_get_occurences( config , ARG_TYPE_KEY); i++) {
-          int iarg = config_iget_as_int( config , ARG_TYPE_KEY , i , 0 );
-          const char * arg_type = config_iget( config , ARG_TYPE_KEY , i , 1 );
-          
+        for (i=0; i < config_content_get_occurences( content , ARG_TYPE_KEY); i++) {
+          int iarg = config_content_iget_as_int( content , ARG_TYPE_KEY , i , 0 );
+          const char * arg_type = config_content_iget( content , ARG_TYPE_KEY , i , 1 );
+
           workflow_job_iset_argtype_string( workflow_job , iarg , arg_type );
         }
       }
-      
-      if (config_item_set( config , MODULE_KEY))
-        workflow_job_set_module( workflow_job , config_get_value( config , MODULE_KEY));  // Could be a pure so name; or a full path ..... Like executable
-      
-      if (config_item_set( config , FUNCTION_KEY))
-        workflow_job_set_function( workflow_job , config_get_value( config , FUNCTION_KEY));
-      
-      if (config_item_set( config , EXECUTABLE_KEY)) 
-        workflow_job_set_executable( workflow_job , config_get_value_as_abspath( config , EXECUTABLE_KEY));
 
-      if (config_item_set( config , SCRIPT_KEY)) {
-        workflow_job_set_internal_script( workflow_job , config_get_value_as_abspath( config , SCRIPT_KEY));
+      if (config_content_has_item( content , MODULE_KEY))
+        workflow_job_set_module( workflow_job , config_content_get_value( content , MODULE_KEY));  // Could be a pure so name; or a full path ..... Like executable
+
+      if (config_content_has_item( content , FUNCTION_KEY))
+        workflow_job_set_function( workflow_job , config_content_get_value( content , FUNCTION_KEY));
+
+      if (config_content_has_item( content , EXECUTABLE_KEY))
+        workflow_job_set_executable( workflow_job , config_content_get_value_as_abspath( content , EXECUTABLE_KEY));
+
+      if (config_content_has_item( content , SCRIPT_KEY)) {
+        workflow_job_set_internal_script( workflow_job , config_content_get_value_as_abspath( content , SCRIPT_KEY));
       }
 
       workflow_job_validate( workflow_job );
-      
+
       if (!workflow_job->valid) {
         workflow_job_free( workflow_job );
         workflow_job = NULL;
       }
-      
-      return workflow_job;
     }
-  } else 
-    return NULL;
+  }
+  config_content_free( content );
+  return workflow_job;
 }
 
 
@@ -372,7 +372,7 @@ void workflow_job_free__( void * arg) {
   The workflow job can return an arbitrary (void *) pointer. It is the
   calling scopes responsability to interpret this object correctly. If
   the the workflow job allocates storage the calling scope must
-  discard it.  
+  discard it.
 */
 
 static void * workflow_job_run_internal( const workflow_job_type * job, void * self , bool verbose , const stringlist_type * arg) {
@@ -385,12 +385,12 @@ static void * workflow_job_run_external( const workflow_job_type * job, bool ver
 
   util_fork_exec( job->executable ,
                   stringlist_get_size( arg ),
-                  (const char **) argv , 
+                  (const char **) argv ,
                   true ,
-                  NULL , 
-                  NULL , 
-                  NULL , 
-                  NULL , 
+                  NULL ,
+                  NULL ,
+                  NULL ,
+                  NULL ,
                   NULL );
 
   if (argv != NULL) {

@@ -1206,12 +1206,12 @@ int ecl_util_get_month_nr(const char * month_name) {
 
 
 time_t ecl_util_get_start_date(const char * data_file) { 
-  parser_type * parser = parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
+  basic_parser_type * parser = basic_parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
   time_t start_date  = -1;
   FILE * stream      = util_fopen(data_file , "r");
   char * buffer;
   
-  if (!parser_fseek_string( parser , stream , "START" , true , true))   /* Seeks case insensitive. */
+  if (!basic_parser_fseek_string( parser , stream , "START" , true , true))   /* Seeks case insensitive. */
     util_abort("%s: sorry - could not find START in DATA file %s \n",__func__ , data_file);
   
   {
@@ -1219,7 +1219,7 @@ time_t ecl_util_get_start_date(const char * data_file) {
     int buffer_size;
 
     /* Look for terminating '/' */
-    if (!parser_fseek_string( parser , stream , "/" , false , true))
+    if (!basic_parser_fseek_string( parser , stream , "/" , false , true))
       util_abort("%s: sorry - could not find \"/\" termination of START keyword in data_file: \n",__func__ , data_file);
     
     buffer_size = (util_ftell(stream) - start_pos)  ;
@@ -1231,7 +1231,7 @@ time_t ecl_util_get_start_date(const char * data_file) {
   
   
   {
-    stringlist_type * tokens = parser_tokenize_buffer( parser , buffer , true );
+    stringlist_type * tokens = basic_parser_tokenize_buffer( parser , buffer , true );
     int day, year, month_nr;
     if ( util_sscanf_int( stringlist_iget( tokens , 0 ) , &day)   &&   util_sscanf_int( stringlist_iget(tokens , 2) , &year)) {
       month_nr   = ecl_util_get_month_nr(stringlist_iget( tokens , 1));
@@ -1242,21 +1242,21 @@ time_t ecl_util_get_start_date(const char * data_file) {
   }
   
   free( buffer );
-  parser_free( parser );
+  basic_parser_free( parser );
   fclose(stream);
   
   return start_date;
 }
 
 
-static int ecl_util_get_num_parallel_cpu__(parser_type* parser, FILE* stream, const char * data_file) {
+static int ecl_util_get_num_parallel_cpu__(basic_parser_type* parser, FILE* stream, const char * data_file) {
   int num_cpu = 1;
   char * buffer;  
   long int start_pos = util_ftell( stream );
   int buffer_size;
 
   /* Look for terminating '/' */
-  if (!parser_fseek_string( parser , stream , "/" , false , true))
+  if (!basic_parser_fseek_string( parser , stream , "/" , false , true))
     util_abort("%s: sorry - could not find \"/\" termination of PARALLEL keyword in data_file: \n",__func__ , data_file);
 
   buffer_size = (util_ftell(stream) - start_pos)  ;
@@ -1266,7 +1266,7 @@ static int ecl_util_get_num_parallel_cpu__(parser_type* parser, FILE* stream, co
   buffer[buffer_size] = '\0';
 
   {
-    stringlist_type * tokens = parser_tokenize_buffer( parser , buffer , true );
+    stringlist_type * tokens = basic_parser_tokenize_buffer( parser , buffer , true );
     
     if (stringlist_get_size( tokens ) > 0) {
       const char * num_cpu_string = stringlist_iget( tokens , 0 );
@@ -1283,11 +1283,11 @@ static int ecl_util_get_num_parallel_cpu__(parser_type* parser, FILE* stream, co
 
 
 
-static int ecl_util_get_num_slave_cpu__(parser_type* parser, FILE* stream, const char * data_file) {
+static int ecl_util_get_num_slave_cpu__(basic_parser_type* parser, FILE* stream, const char * data_file) {
   int num_cpu = 0;
   int linecount = 0; 
 
-  parser_fseek_string( parser , stream , "\n" , true , true);  /* Go to next line after the SLAVES keyword*/
+  basic_parser_fseek_string( parser , stream , "\n" , true , true);  /* Go to next line after the SLAVES keyword*/
 
   while (true) {
     char * buffer = util_fscanf_alloc_line( stream , NULL);
@@ -1296,7 +1296,7 @@ static int ecl_util_get_num_slave_cpu__(parser_type* parser, FILE* stream, const
       util_abort("%s: Did not find ending \"/\" character after SLAVES keyword, aborting \n", __func__);
 
     {
-      stringlist_type * tokens = parser_tokenize_buffer( parser , buffer , true );
+      stringlist_type * tokens = basic_parser_tokenize_buffer( parser , buffer , true );
       if (stringlist_get_size(tokens) > 0 ) {
         
         const char * first_item = stringlist_iget(tokens, 0);
@@ -1322,34 +1322,34 @@ static int ecl_util_get_num_slave_cpu__(parser_type* parser, FILE* stream, const
 
 int ecl_util_get_num_cpu(const char * data_file) { 
   int num_cpu = 1; 
-  parser_type * parser = parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
+  basic_parser_type * parser = basic_parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
   FILE * stream = util_fopen(data_file , "r");
   
-  if (parser_fseek_string( parser , stream , "PARALLEL" , true , true)) {  /* Seeks case insensitive. */
+  if (basic_parser_fseek_string( parser , stream , "PARALLEL" , true , true)) {  /* Seeks case insensitive. */
     num_cpu = ecl_util_get_num_parallel_cpu__(parser, stream, data_file); 
-  } else if (parser_fseek_string( parser , stream , "SLAVES" , true , true)) {  /* Seeks case insensitive. */
+  } else if (basic_parser_fseek_string( parser , stream , "SLAVES" , true , true)) {  /* Seeks case insensitive. */
     num_cpu = ecl_util_get_num_slave_cpu__(parser, stream, data_file) + 1; 
     fprintf(stderr, "Information: \"SLAVES\" option found, returning %d number of CPUs", num_cpu); 
   }
 
-  parser_free( parser );
+  basic_parser_free( parser );
   fclose(stream);
   return num_cpu;
 }
 
 
-ecl_unit_enum ecl_util_get_unit_set(const char * data_file) {
-  ecl_unit_enum units = ECL_METRIC_UNITS;
-  parser_type * parser = parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
+ert_ecl_unit_enum ecl_util_get_unit_set(const char * data_file) {
+  ert_ecl_unit_enum units = ERT_ECL_METRIC_UNITS;
+  basic_parser_type * parser = basic_parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
   FILE * stream = util_fopen(data_file , "r");
 
-  if (parser_fseek_string( parser , stream , "FIELD" , true , true)) {  /* Seeks case insensitive. */
-    units = ECL_FIELD_UNITS;
-  } else if (parser_fseek_string( parser , stream , "LAB" , true , true)) {  /* Seeks case insensitive. */
-    units = ECL_LAB_UNITS;
+  if (basic_parser_fseek_string( parser , stream , "FIELD" , true , true)) {  /* Seeks case insensitive. */
+    units = ERT_ECL_FIELD_UNITS;
+  } else if (basic_parser_fseek_string( parser , stream , "LAB" , true , true)) {  /* Seeks case insensitive. */
+    units = ERT_ECL_LAB_UNITS;
   }
 
-  parser_free( parser );
+  basic_parser_free( parser );
   fclose(stream);
   return units;
 }
@@ -1534,4 +1534,10 @@ const char * ecl_util_type_enum_iget( int index, int * value) {
   return util_enum_iget( index , ECL_TYPE_ENUM_SIZE , (const util_enum_element_type []) { ECL_TYPE_ENUM_DEFS }, value);
 }
 
+void ecl_util_set_date_values(time_t t , int * mday , int * month , int * year) {
+    return util_set_date_values(t,mday,month,year);
+}
+
 #endif
+
+

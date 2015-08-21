@@ -44,6 +44,9 @@ public:
 
     virtual void setModel(QAbstractItemModel* model);
 
+    void selectedUiItems(std::vector<caf::PdmUiItem*>& objects);
+
+
     void applyTreeViewStateFromString(const QString& treeViewState);
     void storeTreeViewStateToString(QString& treeViewState);
 
@@ -65,6 +68,8 @@ private slots:
 
     void slotAddPropertyFilter();
     void slotDeletePropertyFilter();
+    void slotAddGeoMechPropertyFilter();
+    void slotDeleteGeoMechPropertyFilter();
 
     void slotEditScript();
     void slotNewScript();
@@ -80,6 +85,7 @@ private slots:
     void slotWriteBinaryResultAsInputProperty();
 
     void slotCloseCase();
+    void slotCloseGeomechCase();
 
     void slotNewStatisticsCase();
     void slotComputeStatistics();

@@ -1,6 +1,8 @@
 add_executable( segment_info segment_info.c )
 add_executable( CF_dump well_CF_dump.c )
-set(program_list segment_info CF_dump)
+add_executable( ri_well_test ri_well_test.c )
+
+set(program_list segment_info CF_dump ri_well_test)
 foreach(prog ${program_list})
    target_link_libraries( ${prog} ecl_well ecl)
    if (USE_RUNPATH)

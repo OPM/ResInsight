@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RimCalcScript.h"
 #include "RimProject.h"
-#include "RimStatisticsCase.h"
+#include "RimEclipseStatisticsCase.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -178,9 +178,9 @@ void RimCommandFactory::createCommandObjects(const caf::PdmObjectGroup& selected
                 commandObjects->push_back(command);
             }
         }
-        else if (dynamic_cast<RimStatisticsCase*>(pdmObject))
+        else if (dynamic_cast<RimEclipseStatisticsCase*>(pdmObject))
         {
-            RimStatisticsCase* statisticsCase = dynamic_cast<RimStatisticsCase*>(pdmObject);
+            RimEclipseStatisticsCase* statisticsCase = dynamic_cast<RimEclipseStatisticsCase*>(pdmObject);
 
             RimCommandIssueFieldChanged* command = new RimCommandIssueFieldChanged;
             command->objectName = statisticsCase->uiName();

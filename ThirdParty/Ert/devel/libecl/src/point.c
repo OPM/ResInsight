@@ -53,9 +53,9 @@ void point_mapaxes_invtransform( point_type * p , const double origo[2], const d
 void point_compare( const point_type *p1 , const point_type * p2, bool * equal) {
   const double tolerance = 0.001;
   
-  double diff_x = (abs(p1->x - p2->x) / abs(p1->x + p2->x + 1));
-  double diff_y = (abs(p1->y - p2->y) / abs(p1->y + p2->y + 1));
-  double diff_z = (abs(p1->z - p2->z) / abs(p1->z + p2->z + 1));
+  double diff_x = (fabs(p1->x - p2->x) / fabs(p1->x + p2->x + 1));
+  double diff_y = (fabs(p1->y - p2->y) / fabs(p1->y + p2->y + 1));
+  double diff_z = (fabs(p1->z - p2->z) / fabs(p1->z + p2->z + 1));
   
   if (diff_x + diff_y + diff_z > tolerance)
     *equal = false;

@@ -140,6 +140,15 @@ bool CellRangeFilter::isCellExcluded(size_t i, size_t j, size_t k, bool isInSubG
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool CellRangeFilter::hasIncludeRanges() const
+{
+    if (m_includeRanges.size() > 0) return true;
+    else return false;
+}
+
 
 
 

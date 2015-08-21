@@ -110,6 +110,7 @@ public:
     void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
     void                            setFaceCulling(caf::FaceCulling faceCulling) { m_cullBackfaces = faceCulling; }
     void                            setDefaultCellColor(cvf::Color3f color) { m_defaultCellColor = color; }
+    void                            disableLighting(bool disable)           { m_disableLighting = disable; }
 
 protected:
     virtual bool                    isEqual( const EffectGenerator* other ) const;
@@ -130,5 +131,6 @@ private:
     caf::FaceCulling                m_cullBackfaces;
     cvf::Color3f                    m_undefinedColor;
     cvf::Color3f                    m_defaultCellColor;
+    bool                            m_disableLighting;
 };
 

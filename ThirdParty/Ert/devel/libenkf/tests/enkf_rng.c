@@ -102,14 +102,14 @@ int main(int argc , char ** argv) {
     test_work_area_type * work_area = test_work_area_alloc("enkf-rng-2" );
     test_work_area_copy_directory_content( work_area , config_path );
     {
-      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , true , true );
+      enkf_main_type * enkf_main = enkf_main_bootstrap( config_file , true , true );
       enkf_state_type * state = enkf_main_iget_state( enkf_main , 9 );
       rand1 = enkf_state_get_random( state );
       enkf_main_free( enkf_main );
     }
 
     {
-      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , true , true );
+      enkf_main_type * enkf_main = enkf_main_bootstrap( config_file , true , true );
       enkf_state_type * state = enkf_main_iget_state( enkf_main , 9 );
       rand2 = enkf_state_get_random( state );
       enkf_main_free( enkf_main );
@@ -117,7 +117,7 @@ int main(int argc , char ** argv) {
     test_assert_uint_equal( rand1 , rand2 );
     
     {
-      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , true , true );
+      enkf_main_type * enkf_main = enkf_main_bootstrap( config_file , true , true );
       enkf_state_type * state = enkf_main_iget_state( enkf_main , 9 );
       rand2 = enkf_state_get_random( state );
       enkf_main_free( enkf_main );

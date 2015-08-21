@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway. 
-    
-   The file 'enkf_ert_workflow_list.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2014  Statoil ASA, Norway.
+
+   The file 'enkf_ert_workflow_list.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -65,14 +65,14 @@ void test_add_alias( const char * job) {
   test_assert_true( ert_workflow_list_has_workflow( wf_list , "alias"));
   test_assert_true( workflow_is_instance( ert_workflow_list_get_workflow( wf_list , "WF")));
   test_assert_true( workflow_is_instance( ert_workflow_list_get_workflow( wf_list , "alias")));
-  
+
   test_assert_true( workflow_is_instance( ert_workflow_list_add_workflow( wf_list , "WF2" , "WF")));
   test_assert_int_equal( 2 , ert_workflow_list_get_size( wf_list ));
   test_assert_true( ert_workflow_list_has_workflow( wf_list , "WF"));
   test_assert_true( ert_workflow_list_has_workflow( wf_list , "alias"));
   test_assert_true( workflow_is_instance( ert_workflow_list_get_workflow( wf_list , "WF")));
   test_assert_true( workflow_is_instance( ert_workflow_list_get_workflow( wf_list , "alias")));
-  
+
   test_work_area_free( work_area );
 }
 

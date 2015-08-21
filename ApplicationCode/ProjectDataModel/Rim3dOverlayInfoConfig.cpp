@@ -22,16 +22,24 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RimCase.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimCellEdgeColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimFaultCollection.h"
-#include "RimFaultResultSlot.h"
+#include "RimEclipseFaultColors.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimWellCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseWellCollection.h"
 #include "RiuViewer.h"
+#include "RimGeoMechView.h"
+#include "RimView.h"
+#include "RimGeoMechCase.h"
+#include "RigGeoMechCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RimGeoMechCellColors.h"
+#include "RigFemResultAddress.h"
+#include "RigFemPartResultsCollection.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 
@@ -65,9 +73,9 @@ void Rim3dOverlayInfoConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
 {
     this->update3DInfo();
 
-    if (m_reservoirView && m_reservoirView->viewer())
+    if (m_viewDef && m_viewDef->viewer())
     {
-        m_reservoirView->viewer()->update();
+        m_viewDef->viewer()->update();
     }
 }
 
@@ -86,22 +94,49 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 {
     this->updateUiIconFromToggleField();
 
-    if (!m_reservoirView) return;
-    if (!m_reservoirView->viewer()) return;
+    if (!m_viewDef) return;
+    if (!m_viewDef->viewer()) return;
     
     if (!this->active())
     {
-        m_reservoirView->viewer()->showInfoText(false);
-        m_reservoirView->viewer()->showHistogram(false);
-        m_reservoirView->viewer()->showAnimationProgress(false);
+        m_viewDef->viewer()->showInfoText(false);
+        m_viewDef->viewer()->showHistogram(false);
+        m_viewDef->viewer()->showAnimationProgress(false);
         
         return;
     }
 
-    m_reservoirView->viewer()->showInfoText(showInfoText());
-    m_reservoirView->viewer()->showHistogram(false);
-    m_reservoirView->viewer()->showAnimationProgress(showAnimProgress());
+    m_viewDef->viewer()->showInfoText(showInfoText());
+    m_viewDef->viewer()->showHistogram(false);
+    m_viewDef->viewer()->showAnimationProgress(showAnimProgress());
 
+    RimEclipseView * reservoirView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+    if (reservoirView) updateReservoir3DInfo(reservoirView);
+    RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    if (geoMechView) updateGeoMech3DInfo(geoMechView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dOverlayInfoConfig::objectToggleField()
+{
+    return &active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dOverlayInfoConfig::setReservoirView(RimView* ownerReservoirView)
+{
+    m_viewDef = ownerReservoirView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirView)
+{
     if (showInfoText())
     {
         QString caseName;
@@ -115,64 +150,64 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         QString faultCellResultMapping;
 
 
-        if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid())
+        if (reservoirView->eclipseCase() && reservoirView->eclipseCase()->reservoirData() && reservoirView->eclipseCase()->reservoirData()->mainGrid())
         {
-            caseName = m_reservoirView->eclipseCase()->caseUserDescription();
-            totCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
-            size_t mxActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount();
-            size_t frActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount();
+            caseName = reservoirView->eclipseCase()->caseUserDescription();
+            totCellCount = QString::number(reservoirView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
+            size_t mxActCellCount = reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount();
+            size_t frActCellCount = reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount();
             if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
             activeCellCountText += QString::number(mxActCellCount);
             if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);
 
-            iSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountI());
-            jSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountJ());
-            kSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountK());
+            iSize = QString::number(reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountI());
+            jSize = QString::number(reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountJ());
+            kSize = QString::number(reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountK());
 
-            zScale = QString::number(m_reservoirView->scaleZ());
+            zScale = QString::number(reservoirView->scaleZ());
 
-            propName = m_reservoirView->cellResult()->resultVariable();
-            cellEdgeName = m_reservoirView->cellEdgeResult()->resultVariable();
+            propName = reservoirView->cellResult()->resultVariable();
+            cellEdgeName = reservoirView->cellEdgeResult()->resultVariable();
         }
 
         QString infoText = QString(
             "<p><b><center>-- %1 --</center></b><p>  "
-            "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>" 
+            "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>"
             "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
 
-        if (m_reservoirView->cellResult()->isTernarySaturationSelected())
+        if (reservoirView->cellResult()->isTernarySaturationSelected())
         {
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
         }
 
-        if (m_reservoirView->animationMode() && m_reservoirView->cellResult()->hasResult())
+        if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult())
         {
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
 
             double min, max;
             double p10, p90;
             double mean;
-            size_t scalarIndex = m_reservoirView->cellResult()->scalarResultIndex();
-            m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-            m_reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-            m_reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
+            size_t scalarIndex = reservoirView->cellResult()->scalarResultIndex();
+            reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+            reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+            reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
 
             //infoText += QString("<blockquote><b>Min:</b> %1   <b>P10:</b> %2   <b>Mean:</b> %3   <b>P90:</b> %4   <b>Max:</b> %5 </blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
             //infoText += QString("<blockquote><pre>Min: %1   P10: %2   Mean: %3 \n  P90: %4   Max: %5 </pre></blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
-            infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>" 
-                                       "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
+            infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
+                                "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
 
-            if (m_reservoirView->faultResultSettings()->hasValidCustomResult())
+            if (reservoirView->faultResultSettings()->hasValidCustomResult())
             {
                 QString faultMapping;
-                bool isShowingGrid = m_reservoirView->faultCollection()->isGridVisualizationMode();
+                bool isShowingGrid = reservoirView->faultCollection()->isGridVisualizationMode();
                 if (!isShowingGrid)
                 {
-                    if (m_reservoirView->faultCollection()->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+                    if (reservoirView->faultCollection()->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
                     {
                         faultMapping = "Cells behind fault";
                     }
-                    else if (m_reservoirView->faultCollection()->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+                    else if (reservoirView->faultCollection()->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
                     {
                         faultMapping = "Cells in front of fault";
                     }
@@ -188,7 +223,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
 
-                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(m_reservoirView->faultResultSettings()->customFaultResult()->resultVariable());
+                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(reservoirView->faultResultSettings()->customFaultResult()->resultVariable());
             }
         }
         else
@@ -197,43 +232,43 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         }
 
 
-        if (m_reservoirView->animationMode() && m_reservoirView->cellEdgeResult()->hasResult())
+        if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellEdgeResult()->hasResult())
         {
             double min, max;
-            m_reservoirView->cellEdgeResult()->minMaxCellEdgeValues(min, max);
+            reservoirView->cellEdgeResult()->minMaxCellEdgeValues(min, max);
             infoText += QString("<b>Cell Edge Property:</b> %1 <blockquote>Min: %2 Max: %3 </blockquote>").arg(cellEdgeName).arg(min).arg(max);
 
         }
 
-        if (   m_reservoirView->cellResult()->hasDynamicResult() 
-            || m_reservoirView->propertyFilterCollection()->hasActiveDynamicFilters() 
-            || m_reservoirView->wellCollection()->hasVisibleWellPipes()
-            || m_reservoirView->cellResult()->isTernarySaturationSelected())
+        if (reservoirView->cellResult()->hasDynamicResult()
+            || reservoirView->propertyFilterCollection()->hasActiveDynamicFilters()
+            || reservoirView->wellCollection()->hasVisibleWellPipes()
+            || reservoirView->cellResult()->isTernarySaturationSelected())
         {
-            int currentTimeStep = m_reservoirView->currentTimeStep();
-            QDateTime date = m_reservoirView->currentGridCellResults()->cellResults()->timeStepDate(0, currentTimeStep);
+            int currentTimeStep = reservoirView->currentTimeStep();
+            QDateTime date = reservoirView->currentGridCellResults()->cellResults()->timeStepDate(0, currentTimeStep);
             infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(date.toString("dd.MMM yyyy"));
         }
 
-        m_reservoirView->viewer()->setInfoText(infoText);
+        reservoirView->viewer()->setInfoText(infoText);
     }
 
     if (showHistogram())
     {
-        if (m_reservoirView->animationMode() && m_reservoirView->cellResult()->hasResult())
+        if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult())
         {
             double min, max;
             double p10, p90;
             double mean;
 
-            size_t scalarIndex = m_reservoirView->cellResult()->scalarResultIndex();
-            m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-            m_reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-            m_reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
+            size_t scalarIndex = reservoirView->cellResult()->scalarResultIndex();
+            reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+            reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+            reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
 
-            m_reservoirView->viewer()->showHistogram(true);
-            m_reservoirView->viewer()->setHistogram(min, max, m_reservoirView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex));
-            m_reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
+            reservoirView->viewer()->showHistogram(true);
+            reservoirView->viewer()->setHistogram(min, max, reservoirView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex));
+            reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
         }
     }
 }
@@ -241,7 +276,108 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* Rim3dOverlayInfoConfig::objectToggleField()
+void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 {
-    return &active;
+    if (showInfoText())
+    {
+        QString infoText;
+
+        RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+        RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
+        RigFemPartCollection* femParts = caseData ? caseData->femParts() : NULL;
+
+        if (femParts)
+        {
+            QString caseName = geoMechCase->caseUserDescription();
+            QString cellCount = QString("%1").arg(femParts->totalElementCount());
+            QString zScale = QString::number(geoMechView->scaleZ());
+            
+            infoText = QString(
+            "<p><b><center>-- %1 --</center></b><p>"
+            "<b>Cell count:</b> %2 <b>Z-Scale:</b> %3<br>").arg(caseName, cellCount, zScale);
+
+            if (geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult())
+            {
+                QString resultPos;
+                QString fieldName = geoMechView->cellResult()->resultFieldUiName();
+                QString compName = geoMechView->cellResult()->resultComponentUiName();
+
+                if (!fieldName.isEmpty())
+                {
+                    switch (geoMechView->cellResult()->resultPositionType())
+                    {
+                        case RIG_NODAL:
+                            resultPos = "Nodal";
+                            break;
+
+                        case RIG_ELEMENT_NODAL:
+                            resultPos = "Element nodal";
+                            break;
+
+                        case RIG_INTEGRATION_POINT:
+                            resultPos = "Integration point";
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    infoText += QString(
+                    "<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
+
+                    double min = 0, max = 0;
+                    double p10 = 0, p90 = 0;
+                    double mean = 0;
+                    
+                    RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+                    caseData->femPartResults()->meanScalarValue(resAddress, &mean);
+                    caseData->femPartResults()->minMaxScalarValues(resAddress,&min, &max);
+
+                    // ToDo: Implement statistics for geomech data
+                    
+                    caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
+
+                    infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
+                                        "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
+                }
+                else
+                {
+                    infoText += QString("<br>");
+                }
+
+                int currentTimeStep = geoMechView->currentTimeStep();
+                QString stepName = QString::fromStdString(caseData->femPartResults()->stepNames()[currentTimeStep]);
+                infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(stepName);
+            }
+        }
+
+        geoMechView->viewer()->setInfoText(infoText);
+    }
+
+    if (showHistogram())
+    {
+        if (geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult())
+        {
+            geoMechView->viewer()->showHistogram(true);
+
+            // ToDo: Implement statistics for geomech data
+
+            RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+            RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
+
+            if (caseData)
+            {
+                double min = 0, max = 0;
+                double p10 = 0, p90 = 0;
+                double mean = 0;
+
+                RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+                caseData->femPartResults()->meanScalarValue(resAddress, &mean);
+                caseData->femPartResults()->minMaxScalarValues(resAddress, &min, &max);
+                caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
+                geoMechView->viewer()->setHistogram(min, max, caseData->femPartResults()->scalarValuesHistogram(resAddress));
+                geoMechView->viewer()->setHistogramPercentiles(p10, p90, mean);
+            }
+        }
+    }
 }

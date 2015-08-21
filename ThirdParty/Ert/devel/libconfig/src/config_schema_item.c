@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'config_schema_item.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'config_schema_item.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -36,7 +36,7 @@
 
 typedef struct validate_struct validate_type;
 
-/** 
+/**
    This is a 'support-struct' holding various pieces of information
    needed during the validation process. Observe the following about
    validation:
@@ -51,10 +51,10 @@ typedef struct validate_struct validate_type;
     2. Validation is a two-step process, the first step is run when an
        item is parsed. This includes checking:
 
-        o The number of argument.  
+        o The number of argument.
         o That the arguments have the right type.
         o That the values match the selection set.
-      
+
        The second validation step is done when the pasing is complete,
        in this pass we check dependencies - i.e. required_children and
        required_children_on_value.
@@ -69,11 +69,11 @@ typedef struct validate_struct validate_type;
        argc_max first.
 */
 
-    
+
 struct validate_struct {
   int                  argc_min;                /* The minimum number of arguments: -1 means no lower limit. */
-  int                  argc_max;                /* The maximum number of arguments: -1 means no upper limit. */ 
-  set_type          *  common_selection_set;    /* A selection set which will apply uniformly to all the arguments. */ 
+  int                  argc_max;                /* The maximum number of arguments: -1 means no upper limit. */
+  set_type          *  common_selection_set;    /* A selection set which will apply uniformly to all the arguments. */
   set_type          ** indexed_selection_set;   /* A selection set which will apply for specifi (indexed) arguments. */
   int_vector_type   *  type_map;                /* A list of types for the items. Set along with argc_minmax(); */
   stringlist_type   *  required_children;       /* A list of item's which must also be set (if this item is set). (can be NULL) */
@@ -88,13 +88,13 @@ struct validate_struct {
 struct config_schema_item_struct {
   UTIL_TYPE_ID_DECLARATION;
   char                        * kw;                      /* The kw which identifies this item· */
-  
 
-  bool                          required_set;            
+
+  bool                          required_set;
   stringlist_type             * required_children;       /* A list of item's which must also be set (if this item is set). (can be NULL) */
   hash_type                   * required_children_value; /* A list of item's which must also be set - depending on the value of this item. (can be NULL) */
-  validate_type               * validate;                /* Information need during validation. */ 
-  bool                          expand_envvar;           /* Should environment variables like $HOME be expanded?*/ 
+  validate_type               * validate;                /* Information need during validation. */
+  bool                          expand_envvar;           /* Should environment variables like $HOME be expanded?*/
 };
 
 
@@ -114,7 +114,7 @@ static validate_type * validate_alloc() {
   validate->indexed_selection_set   = NULL;
   validate->required_children       = NULL;
   validate->required_children_value = NULL;
-  validate->type_map                = int_vector_alloc(0 , 0);  
+  validate->type_map                = int_vector_alloc(0 , 0);
   validate_set_default_type( validate , CONFIG_STRING );
   return validate;
 }
@@ -128,7 +128,7 @@ static void validate_free(validate_type * validate) {
         set_free(validate->indexed_selection_set[i]);
     free(validate->indexed_selection_set);
   }
-  
+
   int_vector_free( validate->type_map );
   if (validate->required_children != NULL) stringlist_free(validate->required_children);
   if (validate->required_children_value != NULL) hash_free(validate->required_children_value);
@@ -142,27 +142,27 @@ static void validate_iset_type( validate_type * validate , int index , config_it
 
 
 static config_item_types validate_iget_type( const validate_type * validate , int index) {
-  return int_vector_safe_iget( validate->type_map , index ); 
+  return int_vector_safe_iget( validate->type_map , index );
 }
 
 
 static void validate_set_argc_minmax(validate_type * validate , int argc_min , int argc_max) {
   if (validate->argc_min != CONFIG_DEFAULT_ARG_MIN)
     util_abort("%s: sorry - current implementation does not allow repeated calls to: %s \n",__func__ , __func__);
-  
+
   if (argc_min == CONFIG_DEFAULT_ARG_MIN)
     argc_min = 0;
 
   validate->argc_min = argc_min;
   validate->argc_max = argc_max;
-  
+
   if ((argc_max != CONFIG_DEFAULT_ARG_MAX) && (argc_max < argc_min))
     util_abort("%s invalid arg min/max values. argc_min:%d  argc_max:%d \n",__func__ , argc_min , argc_max);
-  
+
   {
     int internal_type_size = 0;  /* Should end up in the range [argc_min,argc_max] */
 
-    if (argc_max > 0) 
+    if (argc_max > 0)
       internal_type_size = argc_max;
     else
       internal_type_size = argc_min;
@@ -185,16 +185,16 @@ static void validate_set_common_selection_set(validate_type * validate , int arg
 
 
 static void validate_set_indexed_selection_set(validate_type * validate , int index , int argc , const char ** argv) {
-  
+
   if (validate->indexed_selection_set == NULL)
     util_abort("%s: must call xxx_set_argc_minmax() first - aborting \n",__func__);
-  
+
   if (index >= validate->argc_min)
     util_abort("%s: When not not setting argc_max selection set can only be applied to indices up to argc_min\n",__func__);
-  
+
   if (validate->indexed_selection_set[index] != NULL)
     set_free(validate->indexed_selection_set[index]);
-  
+
   validate->indexed_selection_set[index] = set_alloc(argc , argv);
 }
 
@@ -206,10 +206,10 @@ static UTIL_SAFE_CAST_FUNCTION( config_schema_item , CONFIG_SCHEMA_ITEM_ID)
 
 void config_schema_item_assure_type(const config_schema_item_type * item , int index , int type_mask) {
   bool OK = false;
-  
+
   if (int_vector_safe_iget( item->validate->type_map , index) & type_mask)
     OK = true;
-  
+
   if (!OK)
     util_abort("%s: failed - wrong installed type \n" , __func__);
 }
@@ -233,7 +233,7 @@ config_schema_item_type * config_schema_item_alloc(const char * kw , bool requir
 
 static char * __alloc_relocated__(const config_path_elm_type * path_elm , const char * value) {
   char * file;
-  
+
   if (util_is_abs_path(value))
     file = util_alloc_string_copy( value );
   else
@@ -251,11 +251,11 @@ bool config_schema_item_validate_set(const config_schema_item_type * item , stri
       OK = false;
       {
         char * error_message;
-        if (config_file != NULL) 
+        if (config_file != NULL)
           error_message = util_alloc_sprintf("Error when parsing config_file:\"%s\" Keyword:%s must have at least %d arguments.",config_file , item->kw , item->validate->argc_min);
         else
           error_message = util_alloc_sprintf("Error:: Keyword:%s must have at least %d arguments.",item->kw , item->validate->argc_min);
-        
+
         config_error_add( error_list , error_message );
       }
     }
@@ -266,22 +266,22 @@ bool config_schema_item_validate_set(const config_schema_item_type * item , stri
       OK = false;
       {
         char * error_message;
-        
+
         if (config_file != NULL)
           error_message = util_alloc_sprintf("Error when parsing config_file:\"%s\" Keyword:%s must have maximum %d arguments.",config_file , item->kw , item->validate->argc_max);
         else
           error_message = util_alloc_sprintf("Error:: Keyword:%s must have maximum %d arguments.",item->kw , item->validate->argc_max);
-        
+
         config_error_add( error_list , error_message );
       }
     }
   }
 
-  /* 
+  /*
      OK - now we have verified that the number of arguments is correct. Then
-     we start actually looking at the values. 
+     we start actually looking at the values.
   */
-  if (OK) { 
+  if (OK) {
     /* Validating selection set - first common, then indexed */
     if (item->validate->common_selection_set) {
       for (int iarg = 0; iarg < argc; iarg++) {
@@ -344,14 +344,14 @@ bool config_schema_item_validate_set(const config_schema_item_type * item , stri
             /*
               1. If the supplied value is an abolute path - do nothing.
               2. If the supplied is _not_ an absolute path:
-              
+
                  a. Try if the relocated exists - then use that.
                  b. Else - try if the util_alloc_PATH_executable() exists.
             */
             if (!util_is_abs_path( value )) {
               char * relocated  = __alloc_relocated__(path_elm , value);
               char * path_exe   = util_alloc_PATH_executable( value );
-              
+
               if (util_file_exists(relocated)) {
                 if (util_is_executable(relocated))
                   stringlist_iset_copy( token_list , iarg , relocated);
@@ -359,7 +359,7 @@ bool config_schema_item_validate_set(const config_schema_item_type * item , stri
                 stringlist_iset_copy( token_list , iarg , path_exe);
               else
                 config_error_add( error_list , util_alloc_sprintf("Could not locate executable:%s ", value));
-              
+
               free(relocated);
               util_safe_free(path_exe);
             } else {
@@ -384,7 +384,7 @@ bool config_schema_item_validate_set(const config_schema_item_type * item , stri
           util_abort("%s: config_item_type:%d not recognized \n",__func__ , validate_iget_type(item->validate , iarg));
         }
       }
-    } 
+    }
   }
   return OK;
 }
@@ -393,7 +393,7 @@ bool config_schema_item_validate_set(const config_schema_item_type * item , stri
 void config_schema_item_free( config_schema_item_type * item) {
   free(item->kw);
   if (item->required_children       != NULL) stringlist_free(item->required_children);
-  if (item->required_children_value != NULL) hash_free(item->required_children_value); 
+  if (item->required_children_value != NULL) hash_free(item->required_children_value);
   validate_free(item->validate);
   free(item);
 }
@@ -423,10 +423,10 @@ void config_schema_item_set_required_children_on_value(config_schema_item_type *
 */
 
 
-void config_schema_item_set_argc_minmax(config_schema_item_type * item , 
-                                        int argc_min , 
+void config_schema_item_set_argc_minmax(config_schema_item_type * item ,
+                                        int argc_min ,
                                         int argc_max) {
-  
+
   validate_set_argc_minmax(item->validate , argc_min , argc_max);
 
 }
@@ -444,7 +444,7 @@ config_item_types config_schema_item_iget_type(const config_schema_item_type * i
   return validate_iget_type( item->validate , index );
 }
 
-  
+
 
 
 void config_schema_item_set_envvar_expansion( config_schema_item_type * item , bool expand_envvar ) {
@@ -469,7 +469,7 @@ void config_schema_item_set_required_children(config_schema_item_type * item , s
 void config_schema_item_add_required_children(config_schema_item_type * item , const char * child_key) {
   if (item->required_children == NULL)
     item->required_children = stringlist_alloc_new();
-  
+
   stringlist_append_copy( item->required_children , child_key );
 }
 

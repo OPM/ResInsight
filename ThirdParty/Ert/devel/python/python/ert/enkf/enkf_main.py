@@ -15,18 +15,35 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 
-from ert.enkf import AnalysisConfig, EclConfig, EnkfObs, EnKFState, LocalConfig, ModelConfig, EnsConfig, PlotConfig, SiteConfig, ENKF_LIB, EnkfSimulationRunner, EnkfFsManager, ErtWorkflowList, PostSimulationHook
+from ert.enkf import AnalysisConfig, EclConfig, EnkfObs, EnKFState, LocalConfig, ModelConfig, EnsembleConfig, PlotConfig, SiteConfig, ENKF_LIB, EnkfSimulationRunner, EnkfFsManager, ErtWorkflowList, PostSimulationHook
 from ert.enkf.enums import EnkfInitModeEnum
 from ert.util import SubstitutionList, Log
 
 
 class EnKFMain(BaseCClass):
-    def __init__(self, model_config, site_config, strict=True):
-        c_ptr = EnKFMain.cNamespace().bootstrap(site_config, model_config, strict, False)
+    def __init__(self, model_config, strict=True):
+        c_ptr = EnKFMain.cNamespace().bootstrap(model_config, strict, False)
         super(EnKFMain, self).__init__(c_ptr)
 
-        self.__simulation_runner = EnkfSimulationRunner(self)
-        self.__fs_manager = EnkfFsManager(self)
+        # The model_config argument can be None; the only reason to
+        # allow that possibility is to be able to test that the
+        # site-config loads correctly.
+        if model_config is None:
+            self.__simulation_runner = None
+            self.__fs_manager = None
+        else:
+            self.__simulation_runner = EnkfSimulationRunner(self)
+            self.__fs_manager = EnkfFsManager(self)
+            
+
+
+    @staticmethod
+    def loadSiteConfig():
+        """
+        This method will load the site config file; the sole purpose
+        of this method is testing.
+        """
+        EnKFMain( None )
 
 
     @classmethod
@@ -43,7 +60,7 @@ class EnKFMain(BaseCClass):
 
     def getRealisation(self , iens):
         """ @rtype: EnKFState """
-        if 0 <= iens < len(self):
+        if 0 <= iens < self.getEnsembleSize():
             return EnKFMain.cNamespace().iget_state(self, iens).setParent(self)
         else:
             raise IndexError("iens value:%d invalid Valid range: [0,%d)" % (iens , len(self)))
@@ -53,7 +70,8 @@ class EnKFMain(BaseCClass):
         EnKFMain.cNamespace().set_eclbase(self, eclbase)
 
     def umount(self):
-        self.__fs_manager.umount()
+        if not self.__fs_manager is None:
+            self.__fs_manager.umount()
 
     def free(self):
         self.umount()
@@ -67,7 +85,7 @@ class EnKFMain(BaseCClass):
         EnKFMain.cNamespace().resize_ensemble(self, value)
 
     def ensembleConfig(self):
-        """ @rtype: EnsConfig """
+        """ @rtype: EnsembleConfig """
         return EnKFMain.cNamespace().get_ens_config(self).setParent(self)
 
     def analysisConfig(self):
@@ -130,12 +148,9 @@ class EnKFMain(BaseCClass):
         """ @rtype: EnkfObs """
         return EnKFMain.cNamespace().get_obs(self).setParent(self)
 
-    def load_obs(self, obs_config_file):
-        EnKFMain.cNamespace().load_obs(self, obs_config_file)
-
-    def reload_obs(self):
-        EnKFMain.cNamespace().reload_obs(self)
-
+    def loadObservations(self , obs_config_file , clear = True):
+        EnKFMain.cNamespace().load_obs(self, obs_config_file , clear)
+        
 
     def get_pre_clear_runpath(self):
         pre_clear = EnKFMain.cNamespace().get_pre_clear_runpath(self)
@@ -224,11 +239,11 @@ class EnKFMain(BaseCClass):
 ##################################################################
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("enkf_main", EnKFMain)
-cwrapper.registerType("enkf_main_ref", EnKFMain.createCReference)
+cwrapper.registerObjectType("enkf_main", EnKFMain)
 
 
-EnKFMain.cNamespace().bootstrap = cwrapper.prototype("c_void_p enkf_main_bootstrap(char*, char*, bool, bool)")
+
+EnKFMain.cNamespace().bootstrap = cwrapper.prototype("c_void_p enkf_main_bootstrap(char*, bool, bool)")
 EnKFMain.cNamespace().free = cwrapper.prototype("void enkf_main_free(enkf_main)")
 
 EnKFMain.cNamespace().get_ensemble_size = cwrapper.prototype("int enkf_main_get_ensemble_size( enkf_main )")
@@ -251,8 +266,7 @@ EnKFMain.cNamespace().add_data_kw = cwrapper.prototype("void enkf_main_add_data_
 EnKFMain.cNamespace().resize_ensemble = cwrapper.prototype("void enkf_main_resize_ensemble(enkf_main, int)")
 EnKFMain.cNamespace().del_node = cwrapper.prototype("void enkf_main_del_node(enkf_main, char*)")
 EnKFMain.cNamespace().get_obs = cwrapper.prototype("enkf_obs_ref enkf_main_get_obs(enkf_main)")
-EnKFMain.cNamespace().load_obs = cwrapper.prototype("void enkf_main_load_obs(enkf_main, char*)")
-EnKFMain.cNamespace().reload_obs = cwrapper.prototype("void enkf_main_reload_obs(enkf_main)")
+EnKFMain.cNamespace().load_obs = cwrapper.prototype("void enkf_main_load_obs(enkf_main, char* , bool)")
 
 EnKFMain.cNamespace().get_pre_clear_runpath = cwrapper.prototype("bool enkf_main_get_pre_clear_runpath(enkf_main)")
 EnKFMain.cNamespace().set_pre_clear_runpath = cwrapper.prototype("void enkf_main_set_pre_clear_runpath(enkf_main, bool)")

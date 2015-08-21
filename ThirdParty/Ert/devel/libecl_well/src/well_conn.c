@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-   
-   The file 'well_conn.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'well_conn.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
@@ -35,7 +35,7 @@
 /*
   Observe that when the (ijk) values are initialized they are
   shifted to zero offset values, to be aligned with the rest of the
-  ert libraries. 
+  ert libraries.
 */
 
 #define WELL_CONN_TYPE_ID 702052013
@@ -46,12 +46,12 @@ struct  well_conn_struct {
   int                j;
   int                k;
   well_conn_dir_enum dir;
-  bool               open;         
+  bool               open;
   int                segment_id;             // -1: Ordinary well
   bool               matrix_connection;   // k >= nz => fracture (and k -= nz )
   double             connection_factor;
 };
-  
+
 
 
 bool well_conn_equal( const well_conn_type *conn1  , const well_conn_type * conn2) {
@@ -95,7 +95,7 @@ static well_conn_type * well_conn_alloc__( int i , int j , int k , double connec
     conn->open = open;
     conn->dir = dir;
     conn->connection_factor = connection_factor;
-    
+
     conn->matrix_connection = matrix_connection;
     if (segment_id == CONN_NORMAL_WELL_SEGMENT_VALUE)
       conn->segment_id = WELL_CONN_NORMAL_WELL_SEGMENT_ID;
@@ -137,14 +137,14 @@ well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , double co
 
 /*
   Observe that the (ijk) and branch values are shifted to zero offset to be
-  aligned with the rest of the ert libraries.  
+  aligned with the rest of the ert libraries.
 */
-well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw , 
-                                          const ecl_kw_type * scon_kw , 
-                                          const ecl_rsthead_type * header , 
-                                          int well_nr , 
+well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
+                                          const ecl_kw_type * scon_kw ,
+                                          const ecl_rsthead_type * header ,
+                                          int well_nr ,
                                           int conn_nr ) {
-  
+
   const int icon_offset = header->niconz * ( header->ncwmax * well_nr + conn_nr );
   int IC = ecl_kw_iget_int( icon_kw , icon_offset + ICON_IC_ITEM );
   if (IC > 0) {
@@ -153,11 +153,10 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
     int j       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_J_ITEM ) - 1;
     int k       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_K_ITEM ) - 1;
     double connection_factor = -1;
-    int segment_id = ecl_kw_iget_int( icon_kw , icon_offset + ICON_SEGMENT_ITEM ) - ECLIPSE_WELL_SEGMENT_OFFSET + WELL_SEGMENT_OFFSET;
     bool matrix_connection = true;
     bool open;
     well_conn_dir_enum dir = well_conn_fracX;
-    
+
     /* Set the status */
     {
       int int_status = ecl_kw_iget_int( icon_kw , icon_offset + ICON_STATUS_ITEM );
@@ -166,8 +165,8 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
       else
         open = false;
     }
-    
-    
+
+
     /* Set the K value and fracture flag. */
     {
       if (header->dualp) {
@@ -178,14 +177,14 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
         }
       }
     }
-    
-    
+
+
     /* Set the direction flag */
     {
       int int_direction = ecl_kw_iget_int( icon_kw , icon_offset + ICON_DIRECTION_ITEM );
       if (int_direction == ICON_DEFAULT_DIR_VALUE)
         int_direction = ICON_DEFAULT_DIR_TARGET;
-      
+
       switch (int_direction) {
       case(ICON_DIRX):
         dir = well_conn_dirX;
@@ -206,21 +205,24 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
         util_abort("%s: icon direction value:%d not recognized\n",__func__ , int_direction);
       }
     }
-    
+
     if (scon_kw) {
       const int scon_offset = header->nsconz * ( header->ncwmax * well_nr + conn_nr );
       connection_factor = ecl_kw_iget_as_double(scon_kw , scon_offset + SCON_CF_ITEM);
     }
-    
-    conn = well_conn_alloc__(i,j,k,connection_factor,dir,open,segment_id,matrix_connection);
-    
+
+    {
+      int segment_id = ecl_kw_iget_int( icon_kw , icon_offset + ICON_SEGMENT_ITEM ) - ECLIPSE_WELL_SEGMENT_OFFSET + WELL_SEGMENT_OFFSET;
+      conn = well_conn_alloc__(i,j,k,connection_factor,dir,open,segment_id,matrix_connection);
+    }
+
     /**
        For multisegmented wells ONLY the global part of the restart
        file has segment information, i.e. the ?SEG
        keywords. Consequently iseg_kw will be NULL for the part of a
        MSW + LGR well.
     */
-    
+
     return conn;
   } else
     return NULL;  /* IC < 0: Connection not in current LGR. */
@@ -241,7 +243,7 @@ void well_conn_free__( void * arg ) {
 well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const ecl_rsthead_type * header , int well_nr)  {
   const int iwel_offset = header->niwelz * well_nr;
   int conn_i = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_HEADI_ITEM ) - 1;
-  
+
   if (conn_i >= 0) {
     //well_conn_type * conn = util_malloc( sizeof * conn );
     int conn_j = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_HEADJ_ITEM ) - 1;
@@ -257,7 +259,7 @@ well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const e
         matrix_connection = false;
       }
     }
-    
+
     if (matrix_connection)
       return well_conn_alloc( conn_i , conn_j , conn_k , connection_factor , open , well_conn_dirZ );
     else

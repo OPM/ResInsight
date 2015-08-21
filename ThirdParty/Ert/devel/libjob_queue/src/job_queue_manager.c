@@ -27,6 +27,7 @@
 #include <ert/util/type_macros.h>
 
 #include <ert/job_queue/job_queue.h>
+#include <ert/job_queue/queue_driver.h>
 #include <ert/job_queue/job_queue_manager.h>
 
 #define JOB_QUEUE_MANAGER_TYPE_ID 81626006
@@ -66,3 +67,26 @@ void job_queue_manager_wait( job_queue_manager_type * manager) {
   pthread_join( manager->queue_thread , NULL );   
 }
 
+
+
+bool job_queue_manager_is_running( const job_queue_manager_type * manager) {
+  return job_queue_is_running( manager->job_queue );
+}
+
+int job_queue_manager_get_num_running( const job_queue_manager_type * manager) {
+  return job_queue_get_num_running( manager->job_queue );
+}
+
+
+int job_queue_manager_get_num_complete( const job_queue_manager_type * manager) {
+  return job_queue_get_num_complete( manager->job_queue );
+}
+
+
+bool job_queue_manager_job_complete( const job_queue_manager_type * manager , int job_index) {
+  job_status_type status = job_queue_iget_job_status( manager->job_queue , job_index );
+  if (status & JOB_QUEUE_COMPLETE_STATUS)
+    return true;
+  else
+    return false;
+}

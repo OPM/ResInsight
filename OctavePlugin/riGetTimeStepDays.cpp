@@ -110,7 +110,7 @@ DEFUN_DLD (riGetTimeStepDays, args, nargout,
 
         getTimeStepDates(decimalDays, caseId, "127.0.0.1", 40001);
 
-        dim_vector dv(2);
+        dim_vector dv(2, 1);
         dv(0) = decimalDays.size();
         dv(1) = 1;
         NDArray oct_decimalDays(dv);

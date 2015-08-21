@@ -37,7 +37,9 @@ extern "C" {
 #include <ert/enkf/cases_config.h>
 #include <ert/enkf/state_map.h>
 #include <ert/enkf/misfit_ensemble_typedef.h>
-  
+#include <ert/enkf/summary_key_set.h>
+#include <ert/enkf/custom_kw_config_set.h>
+
   const      char * enkf_fs_get_mount_point( const enkf_fs_type * fs );
   const      char * enkf_fs_get_root_path( const enkf_fs_type * fs );
   const      char * enkf_fs_get_case_name( const enkf_fs_type * fs );
@@ -98,12 +100,20 @@ extern "C" {
   FILE             * enkf_fs_open_excase_tstep_file( const enkf_fs_type * fs , const char * input_name , int tstep );
   FILE             * enkf_fs_open_excase_member_file( const enkf_fs_type * fs , const char * input_name , int iens );
 
-  time_map_type        * enkf_fs_alloc_readonly_time_map( const char * mount_point );
-  state_map_type       * enkf_fs_alloc_readonly_state_map( const char * mount_point );
-  state_map_type       * enkf_fs_get_state_map( const enkf_fs_type * fs );
-  time_map_type        * enkf_fs_get_time_map( const enkf_fs_type * fs );
-  cases_config_type    * enkf_fs_get_cases_config( const enkf_fs_type * fs);
-  misfit_ensemble_type * enkf_fs_get_misfit_ensemble( const enkf_fs_type * fs );
+  time_map_type             * enkf_fs_alloc_readonly_time_map( const char * mount_point );
+  state_map_type            * enkf_fs_alloc_readonly_state_map( const char * mount_point );
+  summary_key_set_type      * enkf_fs_alloc_readonly_summary_key_set( const char * mount_point );
+  state_map_type            * enkf_fs_get_state_map( const enkf_fs_type * fs );
+  time_map_type             * enkf_fs_get_time_map( const enkf_fs_type * fs );
+  cases_config_type         * enkf_fs_get_cases_config( const enkf_fs_type * fs);
+  misfit_ensemble_type      * enkf_fs_get_misfit_ensemble( const enkf_fs_type * fs );
+  summary_key_set_type      * enkf_fs_get_summary_key_set( const enkf_fs_type * fs );
+  custom_kw_config_set_type * enkf_fs_get_custom_kw_config_set( const enkf_fs_type * fs );
+
+  void             enkf_fs_increase_write_count(enkf_fs_type * fs);
+  void             enkf_fs_decrease_write_count(enkf_fs_type * fs);
+  int              enkf_fs_get_write_count(const enkf_fs_type * fs);
+
 
   UTIL_SAFE_CAST_HEADER( enkf_fs );
   UTIL_IS_INSTANCE_HEADER( enkf_fs );

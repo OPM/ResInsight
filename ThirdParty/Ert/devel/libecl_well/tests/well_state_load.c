@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'well_state_load.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'well_state_load.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -43,7 +43,7 @@ int main(int argc , char ** argv) {
     int report_nr = 100;
     time_t valid_from = -1;
     bool open = false;
-    well_type_enum type = GAS_INJECTOR;
+    well_type_enum type = ERT_GAS_INJECTOR;
     int global_well_nr = 0;
     bool load_segment_information = true;
 
@@ -51,16 +51,16 @@ int main(int argc , char ** argv) {
       well_state_type * well_state = well_state_alloc(well_name , global_well_nr , open , type , report_nr , valid_from);
       test_assert_true( well_state_is_instance( well_state) );
       well_state_add_connections( well_state , grid , rst_file , 0 );
-      
+
       test_assert_true( well_state_has_grid_connections( well_state , ECL_GRID_GLOBAL_GRID ));
       test_assert_false( well_state_has_grid_connections( well_state , "???" ));
       test_assert_true( well_state_has_global_connections( well_state ));
-      
+
       well_state_add_MSW( well_state , rst_file , global_well_nr , load_segment_information );
       {
         const well_segment_collection_type * segments = well_state_get_segments( well_state );
         const well_branch_collection_type * branches = well_state_get_branches( well_state );
-        
+
         if (well_state_is_MSW( well_state )) {
           test_assert_true( ecl_file_has_kw( rst_file , ISEG_KW ));
           test_assert_int_not_equal( well_segment_collection_get_size( segments ) , 0);

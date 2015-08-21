@@ -70,7 +70,7 @@ FILE * util_fopen_lockf(const char * filename, const char * mode) {
   if (strcmp(mode , "w") == 0)
     flags += O_CREAT;
   
-  fd = open(filename , flags);
+  fd = open(filename , flags, S_IRUSR|S_IWUSR);
   if (fd == -1) 
     util_abort("%s: failed to open:%s with flags:%d \n",__func__ , filename , flags);
   

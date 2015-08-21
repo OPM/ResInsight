@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'block_obs.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'block_obs.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 /**
@@ -41,7 +41,7 @@
 #include <ert/enkf/meas_data.h>
 #include <ert/enkf/field_config.h>
 #include <ert/enkf/active_list.h>
-#include <ert/enkf/block_obs.h> 
+#include <ert/enkf/block_obs.h>
 #include <ert/enkf/enkf_defaults.h>
 
 #define BLOCK_OBS_TYPE_ID 661098
@@ -57,8 +57,9 @@ typedef struct  {
   int                     active_index;
   double                  value;
   double                  std;
-  char                  * sum_key;     
-} point_obs_type; 
+  double                  std_scaling;
+  char                  * sum_key;
+} point_obs_type;
 
 static UTIL_SAFE_CAST_FUNCTION(point_obs , POINT_OBS_TYPE_ID);
 
@@ -69,7 +70,7 @@ struct block_obs_struct {
   vector_type             * point_list;
   const ecl_grid_type     * grid;
   const void              * data_config;
-  block_obs_source_type     source_type;  
+  block_obs_source_type     source_type;
 };
 
 
@@ -91,13 +92,13 @@ static point_obs_type * point_obs_alloc( block_obs_source_type   source_type , i
   point_obs->source_type  = source_type;
   point_obs->i            = i;
   point_obs->j            = j;
-  point_obs->k            = k;       
+  point_obs->k            = k;
   point_obs->active_index = active_index;
   point_obs->value        = value;
   point_obs->std          = std;
   point_obs->sum_key      = util_alloc_string_copy( sum_key );
-  
-  
+  point_obs->std_scaling  = 1.0;
+
   return point_obs;
 }
 
@@ -125,7 +126,7 @@ static double point_obs_iget_data( const point_obs_type * point_obs , const void
   } else if (point_obs->source_type == SOURCE_SUMMARY) {
     const container_type * container = container_safe_cast_const( state );
     const summary_type * summary = summary_safe_cast_const( container_iget_node( container , iobs ));
-    return summary_get( summary , node_id.report_step , node_id.state );    
+    return summary_get( summary , node_id.report_step , node_id.state );
   } else {
     util_abort("%s: unknown source type: %d \n",__func__, point_obs->source_type );
     return -1;
@@ -151,9 +152,9 @@ static void block_obs_validate_ijk( const ecl_grid_type * grid , int size, const
   for (l = 0; l < size; l++) {
     if (ecl_grid_ijk_valid(grid , i[l] , j[l] , k[l])) {
       int active_index = ecl_grid_get_active_index3( grid , i[l] , j[l] , k[l]);
-      if (active_index < 0) 
+      if (active_index < 0)
         util_abort("%s: sorry: cell:(%d,%d,%d) is not active - can not observe it. \n",__func__ , i[l]+1 , j[l]+1 , k[l]+1);
-      
+
     } else
       util_abort("%s: sorry: cell (%d,%d,%d) is outside valid range:  \n",__func__ , i[l]+1 , j[l]+1 , k[l]+1);
   }
@@ -183,15 +184,16 @@ void block_obs_append_summary_obs( block_obs_type * block_obs , int i , int j , 
 
 
 block_obs_type * block_obs_alloc(const char * obs_key,
-                                 const void * data_config , 
+                                 const void * data_config ,
                                  const ecl_grid_type * grid) {
-  if (!(field_config_is_instance( data_config ) || container_config_is_instance( data_config ))) 
+
+  if (!(field_config_is_instance( data_config ) || container_config_is_instance( data_config )))
     return NULL;
 
   {
     block_obs_type * block_obs = util_malloc(sizeof * block_obs);
     UTIL_TYPE_ID_INIT( block_obs , BLOCK_OBS_TYPE_ID );
-    
+
     block_obs->obs_key         = util_alloc_string_copy(obs_key);
     block_obs->data_config     = data_config;
     block_obs->point_list      = vector_alloc_new();
@@ -201,7 +203,7 @@ block_obs_type * block_obs_alloc(const char * obs_key,
       block_obs->source_type = SOURCE_FIELD;
     else
       block_obs->source_type = SOURCE_SUMMARY;
-    
+
     return block_obs;
   }
 }
@@ -212,9 +214,9 @@ block_obs_type * block_obs_alloc(const char * obs_key,
    The input vectors i,j,k should contain offset zero values.
 */
 block_obs_type * block_obs_alloc_complete(const char   * obs_key,
-                                          block_obs_source_type source_type , 
-                                          const stringlist_type * summary_keys , 
-                                          const void * data_config , 
+                                          block_obs_source_type source_type ,
+                                          const stringlist_type * summary_keys ,
+                                          const void * data_config ,
                                           const ecl_grid_type * grid ,
                                           int            size,
                                           const int    * i,
@@ -264,18 +266,18 @@ void block_obs_get_observations(const block_obs_type * block_obs,  obs_data_type
   int active_size              = active_list_get_active_size( __active_list , obs_size);
   active_mode_type active_mode = active_list_get_mode( __active_list );
   obs_block_type * obs_block   = obs_data_add_block( obs_data , block_obs->obs_key , obs_size , NULL , false );
-  
+
   if (active_mode == ALL_ACTIVE) {
     for (i=0; i < obs_size; i++) {
       const point_obs_type * point_obs = block_obs_iget_point_const( block_obs , i );
-      obs_block_iset(obs_block , i , point_obs->value , point_obs->std );
+      obs_block_iset(obs_block , i , point_obs->value , point_obs->std * point_obs->std_scaling );
     }
   } else if (active_mode == PARTLY_ACTIVE) {
-    const int   * active_list    = active_list_get_active( __active_list ); 
+    const int   * active_list    = active_list_get_active( __active_list );
     for (i =0 ; i < active_size; i++) {
       int iobs = active_list[i];
       const point_obs_type * point_obs = block_obs_iget_point_const( block_obs , i );
-      obs_block_iset(obs_block , iobs , point_obs->value , point_obs->std );
+      obs_block_iset(obs_block , iobs , point_obs->value , point_obs->std * point_obs->std_scaling );
     }
   }
 }
@@ -306,7 +308,7 @@ void block_obs_measure(const block_obs_type * block_obs, const void * state , no
     int active_size = active_list_get_active_size( __active_list , obs_size );
     meas_block_type * meas_block = meas_data_add_block( meas_data , block_obs->obs_key , node_id.report_step , obs_size );
     int iobs;
-    
+
     active_mode_type active_mode = active_list_get_mode( __active_list );
     if (active_mode == ALL_ACTIVE) {
       for (iobs=0; iobs < obs_size; iobs++) {
@@ -314,7 +316,7 @@ void block_obs_measure(const block_obs_type * block_obs, const void * state , no
         meas_block_iset( meas_block , node_id.iens , iobs , value );
       }
     } else if (active_mode == PARTLY_ACTIVE) {
-      const int   * active_list    = active_list_get_active( __active_list ); 
+      const int   * active_list    = active_list_get_active( __active_list );
       for (int i =0 ; i < active_size; i++) {
         iobs = active_list[i];
         {
@@ -328,12 +330,14 @@ void block_obs_measure(const block_obs_type * block_obs, const void * state , no
 
 
 
-double block_obs_chi2(const block_obs_type * block_obs,  const field_type * field_state, node_id_type node_id) {
+double block_obs_chi2(const block_obs_type * block_obs, const void * state, node_id_type node_id) {
   double sum_chi2 = 0;
   int obs_size = block_obs_get_size( block_obs );
+  block_obs_assert_data(block_obs, state);
+
   for (int i=0; i < obs_size; i++) {
     const point_obs_type * point_obs = block_obs_iget_point_const( block_obs , i );
-    double sim_value = point_obs_iget_data( point_obs , field_state , i, node_id );
+    double sim_value = point_obs_iget_data( point_obs , state , i, node_id );
     double x = (sim_value - point_obs->value) / point_obs->std;
     sum_chi2 += x*x;
   }
@@ -361,6 +365,12 @@ double block_obs_iget_std(const block_obs_type * block_obs, int index ){
     const point_obs_type * point_obs = block_obs_iget_point_const( block_obs , index );
     return point_obs->std;
 }
+
+double block_obs_iget_std_scaling(const block_obs_type * block_obs, int index ){
+    const point_obs_type * point_obs = block_obs_iget_point_const( block_obs , index );
+    return point_obs->std_scaling;
+}
+
 
 void block_obs_user_get(const block_obs_type * block_obs , const char * index_key , double *value , double * std, bool * valid) {
   int      i,j,k;
@@ -423,18 +433,24 @@ int block_obs_get_size(const block_obs_type * block_obs) {
   return vector_get_size( block_obs->point_list );
 }
 
-void block_obs_scale_std(block_obs_type * block_obs, double scale_factor) {
+void block_obs_update_std_scale(block_obs_type * block_obs, double scale_factor, const active_list_type * active_list) {
   int obs_size = block_obs_get_size( block_obs );
-  for (int i = 0; i < obs_size; i++) {
-    point_obs_type * point_observation = block_obs_iget_point( block_obs , i );
-    point_observation->std = point_observation->std * scale_factor;
+  if (active_list_get_mode( active_list ) == ALL_ACTIVE) {
+    for (int i = 0; i < obs_size; i++) {
+      point_obs_type * point_observation = block_obs_iget_point( block_obs , i );
+      point_observation->std_scaling = scale_factor;
+    }
+  } else {
+    const int * active_index = active_list_get_active( active_list );
+    int size = active_list_get_active_size( active_list , obs_size );
+    for (int i=0; i < size; i++) {
+      int obs_index = active_index[i];
+      point_obs_type * point_observation = block_obs_iget_point( block_obs , obs_index );
+      point_observation->std_scaling = scale_factor;
+    }
   }
 }
 
-void block_obs_scale_std__(void * block_obs, double scale_factor) {
-  block_obs_type * observation = block_obs_safe_cast(block_obs);
-  block_obs_scale_std(observation, scale_factor); 
-}
 
 
 
@@ -447,3 +463,4 @@ VOID_GET_OBS(block_obs)
 VOID_MEASURE_UNSAFE(block_obs , data)  // The cast of data field is not checked - that is done in block_obs_measure().
 VOID_USER_GET_OBS(block_obs)
 VOID_CHI2(block_obs , field)
+VOID_UPDATE_STD_SCALE(block_obs)

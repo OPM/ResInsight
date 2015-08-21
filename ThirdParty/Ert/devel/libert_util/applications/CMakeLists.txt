@@ -5,3 +5,7 @@ target_link_libraries( matrix_test ert_util )
 if (USE_RUNPATH)
    add_runpath( matrix_test )
 endif()   
+
+if (ERT_BUILD_BLOCK_FS)
+   add_subdirectory( block_fs )
+endif()

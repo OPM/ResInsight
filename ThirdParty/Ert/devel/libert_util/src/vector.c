@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'vector.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'vector.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -36,7 +36,7 @@ struct vector_struct {
   node_data_type **data;         /* node_data instances - which again contain user data. */
 };
 
- 
+
 
 /* Small datastructure PURELY used for sorting the vector. */
 
@@ -45,7 +45,7 @@ typedef struct {
   node_data_type   * data;
   int                index;
 } vector_sort_node_type;
-  
+
 
 UTIL_SAFE_CAST_FUNCTION(vector , VECTOR_TYPE_ID)
 UTIL_IS_INSTANCE_FUNCTION(vector , VECTOR_TYPE_ID)
@@ -57,9 +57,9 @@ static void vector_resize__(vector_type * vector, int new_alloc_size) {
     /* The vector is shrinking. */
     for (i=new_alloc_size; i < vector->alloc_size; i++)
       node_data_free( vector->data[i] );
-  } 
-  
-  vector->data = util_realloc( vector->data , new_alloc_size * sizeof * vector->data );  
+  }
+
+  vector->data = util_realloc( vector->data , new_alloc_size * sizeof * vector->data );
   for (i = vector->alloc_size; i < new_alloc_size; i++)
     vector->data[i] = NULL; /* Initialising new nodes to NULL */
 
@@ -90,7 +90,7 @@ void vector_grow_NULL( vector_type * vector , int new_size ) {
    elements is initialized with NULL pointers.
 */
 
-vector_type * vector_alloc_NULL_initialized( int size ) { 
+vector_type * vector_alloc_NULL_initialized( int size ) {
   vector_type * vector = vector_alloc_new();
   vector_grow_NULL( vector , size );
   return vector;
@@ -100,21 +100,21 @@ vector_type * vector_alloc_NULL_initialized( int size ) {
 static int vector_append_node(vector_type * vector , node_data_type * node);
 
 
-/** 
+/**
     If the index is beyond the length of the vector the hole in the
-    vector will be filled with NULL nodes.  
+    vector will be filled with NULL nodes.
 */
 
 static void vector_iset__(vector_type * vector , int index , node_data_type * node) {
   if (index > vector->size)
     vector_grow_NULL( vector , index );
 
-  if (index == vector->size) 
+  if (index == vector->size)
     vector_append_node( vector , node );
   else {
-    if (vector->data[index] != NULL) 
+    if (vector->data[index] != NULL)
       node_data_free( vector->data[index] );
-    
+
     vector->data[index] = node;
   }
 }
@@ -148,7 +148,7 @@ static void vector_insert__(vector_type * vector , int index , node_data_type * 
 static int vector_append_node(vector_type * vector , node_data_type * node) {
   if (vector->size == vector->alloc_size)
     vector_resize__(vector , 2*(vector->alloc_size + 1));
-  
+
   vector->size++;
   vector_iset__(vector , vector->size - 1 , node);
   return vector->size - 1;
@@ -180,11 +180,11 @@ static void vector_push_node(vector_type * vector , node_data_type * node) {
 
 /**
    Will append NULL pointers until the vectors length is equal to
-   @min_size.  
+   @min_size.
 */
 
 static void vector_assert_size( vector_type * vector , int min_size) {
-  while (vector->size < min_size) 
+  while (vector->size < min_size)
     vector_append_ref( vector , NULL );
 }
 
@@ -305,7 +305,7 @@ void vector_insert_copy(vector_type * vector , int index , const void * data , c
    with free, and copied with malloc + memcpy. The vector takes a copy
    of the buffer which is inserted (and freed on vector destruction).
 */
-   
+
 
 void vector_append_buffer(vector_type * vector , const void * buffer, int buffer_size) {
   node_data_type * node = node_data_alloc_buffer( buffer , buffer_size );
@@ -357,14 +357,14 @@ void * vector_iget(const vector_type * vector, int index) {
 
 /**
    The safe_iget() functions will return NULL if index is greater than
-   the length of the vector.  
+   the length of the vector.
 */
 
 const void * vector_safe_iget_const(const vector_type * vector, int index) {
   if ((index >= 0) && (index < vector->size)) {
     const node_data_type * node = vector->data[index];
     return node_data_get_ptr( node );
-  } else 
+  } else
     return NULL;
 }
 
@@ -373,17 +373,17 @@ void * vector_safe_iget(const vector_type * vector, int index) {
   if ((index >= 0) && (index < vector->size)) {
     const node_data_type * node = vector->data[index];
     return node_data_get_ptr( node );
-  } else 
+  } else
     return NULL;
 }
 
 
 
-/* 
+/*
    Removes element nr index from the vector, if a destructor is
    associated with element 'index' it is called, and the memory
    freed. Afterwards all elements at positions (index +1) and onwards
-   are shifted one element to the left. 
+   are shifted one element to the left.
 */
 
 void vector_idel(vector_type * vector , int index) {
@@ -396,7 +396,7 @@ void vector_idel(vector_type * vector , int index) {
       vector->data[vector->size - 1] = NULL;  /* Clear the last element  - which is no longer valid. */
       vector->size--;
     }
-  } else 
+  } else
     util_abort("%s: Invalid index:%d  Valid range: [0,%d> \n",__func__ , index , vector->size);
 }
 
@@ -420,8 +420,8 @@ void vector_shrink( vector_type * vector , int new_size ) {
 
 
 
-/** 
-    Will abort if the vector is empty. 
+/**
+    Will abort if the vector is empty.
 */
 void * vector_get_last(const vector_type * vector) {
   if (vector->size == 0)
@@ -433,8 +433,8 @@ void * vector_get_last(const vector_type * vector) {
 }
 
 
-/** 
-    Will abort if the vector is empty. 
+/**
+    Will abort if the vector is empty.
 */
 const void * vector_get_last_const(const vector_type * vector) {
   if (vector->size == 0)
@@ -461,16 +461,16 @@ void * vector_pop_back(vector_type * vector) {
   {
     node_data_type * node = vector->data[vector->size - 1];
     void * data = node_data_get_ptr( node );
-    
+
     node_data_free_container( node );        /* Free the container holding data. */
-    vector->data[ vector->size -1 ] = NULL;  
+    vector->data[ vector->size -1 ] = NULL;
     vector->size--;                          /* Shrink the vector */
     return data;
   }
 }
 
 
-/* 
+/*
    Removes the first element from the vector and returns it - similar
    to vector_pop():
 */
@@ -481,7 +481,7 @@ void * vector_pop_front(vector_type * vector ) {
   {
     node_data_type * node = vector->data[0];
     void * data = node_data_get_ptr( node );
-    
+
     node_data_free_container( node );  /* Free the container holding data. */
     {
       int bytes = (vector->size - 1) * sizeof * vector->data;  /* Move the storage one element to  the left (could als be implemented with an offset??). */
@@ -529,7 +529,7 @@ void vector_free__( void * arg ) {
 static int vector_cmp(const void * s1 , const void * s2) {
   const vector_sort_node_type * node1 = (const vector_sort_node_type *) s1;
   const vector_sort_node_type * node2 = (const vector_sort_node_type *) s2;
-    
+
   return node1->user_cmp(node_data_get_ptr(node1->data) , node_data_get_ptr(node2->data));
 }
 
@@ -559,17 +559,17 @@ static int vector_cmp(const void * s1 , const void * s2) {
 static vector_sort_node_type * vector_alloc_sort_data( const vector_type * vector , vector_cmp_ftype * cmp) {
   vector_sort_node_type * sort_data = util_calloc( vector->size , sizeof * sort_data );
   int i;
-    
+
   /* Fill up the temporary storage used for sorting */
   for (i = 0; i < vector->size; i++) {
     sort_data[i].data     = vector->data[i];
     sort_data[i].user_cmp = cmp;
     sort_data[i].index    = i;
   }
-    
+
   /* Sort the temporary vector */
   qsort(sort_data , vector->size , sizeof * sort_data ,  vector_cmp);
-    
+
   return sort_data;
 }
 
@@ -578,7 +578,7 @@ void vector_sort(vector_type * vector , vector_cmp_ftype * cmp) {
   vector_sort_node_type * sort_data = vector_alloc_sort_data( vector , cmp );
   int i;
   /* Recover the sorted vector */
-  for (i = 0; i < vector->size; i++) 
+  for (i = 0; i < vector->size; i++)
     vector->data[i] = sort_data[i].data;
 
   free( sort_data );
@@ -589,7 +589,7 @@ int_vector_type * vector_alloc_sort_perm(const vector_type * vector , vector_cmp
   vector_sort_node_type * sort_data = vector_alloc_sort_data( vector , cmp );
   int_vector_type * sort_perm = int_vector_alloc(0,0);
   int i;
-  for (i = 0; i < vector->size; i++) 
+  for (i = 0; i < vector->size; i++)
     int_vector_iset( sort_perm , i , sort_data[i].index);
 
   free( sort_data );
@@ -613,6 +613,25 @@ void vector_inplace_reverse(vector_type * vector) {
   }
 }
 
+
+int vector_find( const vector_type * vector , const void * ptr) {
+  int location_index = -1;
+  int index = 0;
+
+  while (true) {
+    if (index < vector_get_size( vector )) {
+      const void * element = vector_iget( vector , index );
+      if (element == ptr) {
+        location_index = index;
+        break;
+      } else
+        index++;
+    } else
+      break;
+  }
+
+  return location_index;
+}
 
 
 /*****************************************************************/

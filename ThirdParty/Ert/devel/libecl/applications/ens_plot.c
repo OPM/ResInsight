@@ -1886,8 +1886,7 @@ int main(int argc , char ** argv) {
   install_SIGNALS();
   
   //setvbuf(stdout, NULL, _IOFBF, 0);
-  
-
+  setenv( "PLPLOT_LIB" , "/project/res/x86_64_RH_5/plplot/plplot-5.10.0/share/plplot5.10.0" , 1);
 
   if(argc > 1){
     if(strcmp(argv[1], "-b") == 0 || strcmp(argv[1], "-s") == 0) {

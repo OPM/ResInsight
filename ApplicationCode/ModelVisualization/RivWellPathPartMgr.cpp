@@ -22,20 +22,20 @@
 #include "cvfLibCore.h"
 
 #include "RiaApplication.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimEclipseCellColors.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 #include "RigCaseData.h"
 #include "RigCell.h"
 #include "RivWellPathPartMgr.h"
@@ -51,7 +51,7 @@
 #include "cafEffectGenerator.h"
 #include "cvfqtUtils.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
+#include "RimEclipseCaseCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -93,9 +93,10 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// The pipe geometry needs to be rebuilt on scale change to keep the pipes round
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox boundingBox)
+void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, 
+                                            cvf::BoundingBox wellPathClipBoundingBox)
 {
     if (m_wellPathCollection.isNull()) return;
 
@@ -107,13 +108,9 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     m_wellBranches.clear();
     double wellPathRadius = m_wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
 
-//     cvf::Vec3d firstPoint = wellPathGeometry->m_wellPathPoints[0];
-//     firstPoint -= displayModelOffset;
-//     firstPoint.transformPoint(m_scaleTransform->worldTransform());
-//     printf("Well path start pos = (%f, %f, %f)\n", firstPoint.x(), firstPoint.y(), firstPoint.z());
     cvf::Vec3d textPosition = wellPathGeometry->m_wellPathPoints[0];
 
-    // Generate well path as pipe structure
+    // Generate the well path geometry as a line and pipe structure
     {
         m_wellBranches.push_back(RivPipeBranchData());
         RivPipeBranchData& pbd = m_wellBranches.back();
@@ -131,7 +128,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
             for (size_t idx = 0; idx < wellPathGeometry->m_wellPathPoints.size(); idx++)
             {
                 cvf::Vec3d point = wellPathGeometry->m_wellPathPoints[idx];
-                if (point.z() < (boundingBox.max().z() + m_wellPathCollection->wellPathClipZDistance))
+                if (point.z() < (wellPathClipBoundingBox.max().z() + m_wellPathCollection->wellPathClipZDistance))
                     clippedPoints.push_back(point);
             }
             if (clippedPoints.size() < 2) return;
@@ -161,7 +158,6 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         {
             pbd.m_surfacePart = new cvf::Part;
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
-            //printf("Well Path triangleCount = %i (%i points in well path)\n", pbd.m_surfaceDrawable->triangleCount(), wellPathGeometry->m_wellPathPoints.size());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
@@ -173,7 +169,6 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         {
             pbd.m_centerLinePart = new cvf::Part;
             pbd.m_centerLinePart->setDrawable(pbd.m_centerLineDrawable.p());
-            //printf("Well Path vertexCount = %i\n", pbd.m_centerLineDrawable->vertexCount());
 
             caf::MeshEffectGenerator gen(m_rimWellPath->wellPathColor());
             cvf::ref<cvf::Effect> eff = gen.generateEffect();
@@ -182,14 +177,15 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         }
     }
 
-    // Generate label with well path name
+    // Generate label with well-path name
+
     textPosition -= displayModelOffset;
     textPosition.transformPoint(m_scaleTransform->worldTransform());
     textPosition.z() += characteristicCellSize; // * m_rimReservoirView->wellCollection()->wellHeadScaleFactor();
     textPosition.z() += 1.2 * characteristicCellSize;
 
     m_wellLabelPart = NULL;
-    if (m_wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel())
+    if (m_wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
     {
         cvf::Font* standardFont = RiaApplication::instance()->standardFont();
 
@@ -225,7 +221,8 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox boundingBox)
+void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
+                                                          double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
 {
     if (m_wellPathCollection.isNull()) return;
     if (m_rimWellPath.isNull()) return;
@@ -238,25 +235,15 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 
     if (m_needsTransformUpdate) 
     {
-        //printf("G");
-        buildWellPathParts(displayModelOffset, characteristicCellSize, boundingBox);
+        // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
+        buildWellPathParts(displayModelOffset, characteristicCellSize, wellPathClipBoundingBox);
     }
-    else
-    {
-        //printf("s");
-    }
-
-    if (m_wellBranches.size() < 1)
-    {
-        //printf("RivWellPathPartMgr::appendStaticGeometryPartsToModel: There are no well branches in well \"%s\"!!!\n", (const char*) m_rimWellPath->name().toLocal8Bit());
-    }
-
+ 
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); it++)
     {
         if (it->m_surfacePart.notNull())
         {
-            //printf("a");
             model->addPart(it->m_surfacePart.p());
         }
         if (it->m_centerLinePart.notNull())

@@ -35,7 +35,7 @@
 #include <ert/enkf/local_updatestep.h>
 #include <ert/enkf/local_config.h>
 #include <ert/enkf/local_dataset.h>
-#include <ert/enkf/local_obsset.h>
+#include <ert/enkf/local_obsdata.h>
 #include <ert/enkf/local_context.h>
 #include <ert/enkf/ensemble_config.h>
 #include <ert/enkf/enkf_obs.h>
@@ -64,8 +64,8 @@ CREATE_MINISTEP [NAME_OF_MINISTEP  OBSSET_NAME]
 -----------------------------------------------
 This function will create a new ministep with the name
 'NAME_OF_MINISTEP'. The ministep will be based on the observation
-set given by OBSSET_NAME (which must be created first).The ministep 
-is then ready for adding data. Before the ministep can be used you 
+set given by OBSSET_NAME (which must be created first).The ministep
+is then ready for adding data. Before the ministep can be used you
 must attach it to an updatestep with the ATTACH_MINISTEP command
 
 CREATE_DATASET [NAME_OF_DATASET]
@@ -268,24 +268,24 @@ of the cells" in one direction.
 
 ECLREGION_SELECT_PLANE  [ECLREGION_NAME nx ny nz px py pz sign SELECT]
 ---------------------------------------------------------
-Will select all points which have positive (sign > 0) distance to 
-the plane defined by normal vector n = (nx,ny,nz) and point 
-p = (px,py,pz). If sign < 0 all cells with negative distance to 
+Will select all points which have positive (sign > 0) distance to
+the plane defined by normal vector n = (nx,ny,nz) and point
+p = (px,py,pz). If sign < 0 all cells with negative distance to
 plane will be selected.
 
 
 ECLREGION_SELECT_IN_POLYGON [ECLREGION_NAME POLYGON_NAME SELECT]
 ---------------------------------------------------
 Well select all the points which are inside the polygon with name
-'POLYGON_NAME'. The polygon should have been created with command 
+'POLYGON_NAME'. The polygon should have been created with command
 CREATE_POLYGON or loaded with command 'LOAD_POLYGON' first.
 
 
 CREATE_POLYGON  [POLYGON_NAME  num_points x1 y1 x2 y2 x3 y3 ....]
 ---------------------------------------------------------------
-Will create a geo_polygon instance based on the coordinate list: 
-(x1,y1), (x2,y2), (x3,y3), ... The polygon should not be explicitly 
-closed - i.e. you should in general have (x1,y1) != (xn,yn). The 
+Will create a geo_polygon instance based on the coordinate list:
+(x1,y1), (x2,y2), (x3,y3), ... The polygon should not be explicitly
+closed - i.e. you should in general have (x1,y1) != (xn,yn). The
 polygon will be stored under the name 'POLYGON_NAME' - which should
 later be used when referring to the polygon in region select operations.
 
@@ -307,15 +307,15 @@ have a base surface available for the CREATE_SURFACE_REGION command.
 CREATE_SURFACE_REGION  [REGION_NAME BASE_SURFACE  PRESELECT]
 ----------------------------------------------------------------
 Will create a new surface region object which can be used to select
-and deselect parts of a surface. The region will be called 'REGION_NAME' 
-and it will be based on the surface given by 'BASE_SURFACE'. 'PRESELECT' 
+and deselect parts of a surface. The region will be called 'REGION_NAME'
+and it will be based on the surface given by 'BASE_SURFACE'. 'PRESELECT'
 is a boolean 'TRUE' or 'FALSE' which determines whether the region is
 created with all points selected, or no points selected.
 
 
 SURFACE_REGION_SELECT_IN_POLYGON  [REGION_NAME  POLYGON_NAME SELECT]
 --------------------------------------------------------------------
-Well select|deselect all the points in the surface which are inside the 
+Well select|deselect all the points in the surface which are inside the
 polygon.
 
 
@@ -323,15 +323,15 @@ SURFACE_REGION_SELECT_LINE [ REGION_NAME  X1 Y1 X2 Y2 SIGN SELECT]
 ------------------------------------------------------------------
 Well select|deselect all the points which are above|below the line: (x1,y1) -> (x2,y2)
 
-If SIGN is positive the select will apply to all points with a 
-positive (right hand system) distance to the line; if SIGN is negative 
+If SIGN is positive the select will apply to all points with a
+positive (right hand system) distance to the line; if SIGN is negative
 the selector will apply to all points with a negative distance to the line.
 
 
 ADD_DATA_SURFACE  [ DATASET_NAME  SURFACE_NAME   REGION NAME]
 -------------------------------------------------------------------
 Will add the node 'SURFACE_NAME' (not one of the loaded surfaces, but
-an enkf_node object) to the dataset 'DATASET_NAME'. Only the elements 
+an enkf_node object) to the dataset 'DATASET_NAME'. Only the elements
 in the region 'REGION_NAME' will be added. Typically SURFACE_REGION_SELECT_xxxx
 has been used first to build a suitable region selection.
 
@@ -376,26 +376,26 @@ Second example:
 CREATE_DATASET SURFACE_DATA
 
 -- We load a surface from file which will be used as a base-surface when
--- selecting active elements in surfaces. We give the surface the name 
+-- selecting active elements in surfaces. We give the surface the name
 -- 'BASE_SURFACE' - the surface should be in irap format.
 LOAD_SURFACE                         BASE_SURFACE Surface/base.irap
 
 
 -- We load two polygons in irap format; the polygons ire called 'North'
--- and 'South'. Alternatively we can create a polygon with CREATE_POLYGON 
+-- and 'South'. Alternatively we can create a polygon with CREATE_POLYGON
 -- command:
 LOAD_POLYGON                         North       Polygon/north.irap
 LOAD_POLYGON                         South       Polygon/south.irap
 
 
--- We create a new surface region - a surface region is a set of 
+-- We create a new surface region - a surface region is a set of
 -- points in a surface; the region need not be mathematically connected.
 -- The surface region is called myRegion - it is based on 'BASE_SURFACE'
 -- surface, and we start out with no elements selected.
 CREATE_SURFACE_REGION                myRegion  BASE_SURFACE  False
 
 
--- We update the region selection in 'myRegion' be selecting all the 
+-- We update the region selection in 'myRegion' be selecting all the
 -- points which are inside the two polygons 'North' and 'South':
 SURFACE_REGION_SELECT_IN_POLYGON     myRegion   North   True
 SURFACE_REGION_SELECT_IN_POLYGON     myRegion   South   True
@@ -449,7 +449,7 @@ ADD_DATA_SURFACE               ALL_DATA    BOTTOM      myRegion
   |    |                                                                            |      |
   |    +----------------------------------------------------------------------------+      |
   |                                                                                        |
-  |                                                                                        |  
+  |                                                                                        |
   |    +----------------- local_ministep_type --------------------------------------+      |
   |    |                                                                            |      |
   |    |                                       /    +--- local_dataset_type ---+    |      |
@@ -488,7 +488,7 @@ local_obsset_type: This is a collection of observation data; there is
    exactly one local_obsset for each local_ministep.
 
 local_dataset_type: This is a collection of data/parameters which
-   should be updated together in the EnKF updating. 
+   should be updated together in the EnKF updating.
 
 
 How the local_dataset_type is configured is quite important for the
@@ -510,7 +510,7 @@ core EnKF updating:
     UPDATE_RESULTS and SINGLE_NODE_UPDATE settings in the config file:
 
       UPDATE_RESULTS: Determines whether variables with enkf_type ==
-         DYNAMIC_RESULT should be updated. 
+         DYNAMIC_RESULT should be updated.
 
       SINGLE_NODE_UPDATE: If SINGLE_NODE_UPDATE is set to true the
          ALL_ACTIVE configuration will consist of maaany
@@ -527,7 +527,7 @@ struct local_config_struct {
   hash_type             * updatestep_storage;    /* These three hash tables are the 'holding area' for the local_updatestep, */
   hash_type             * ministep_storage;      /* local_ministep instances. */
   hash_type             * dataset_storage;
-  hash_type             * obsset_storage;
+  hash_type             * obsdata_storage;
   stringlist_type       * config_files;
 };
 
@@ -537,7 +537,7 @@ static void local_config_clear( local_config_type * local_config ) {
   hash_clear( local_config->updatestep_storage );
   hash_clear( local_config->ministep_storage );
   hash_clear( local_config->dataset_storage );
-  hash_clear( local_config->obsset_storage );
+  hash_clear( local_config->obsdata_storage );
   vector_clear( local_config->updatestep );
 }
 
@@ -551,7 +551,7 @@ local_config_type * local_config_alloc( ) {
   local_config->updatestep_storage  = hash_alloc();
   local_config->ministep_storage    = hash_alloc();
   local_config->dataset_storage     = hash_alloc();
-  local_config->obsset_storage      = hash_alloc();
+  local_config->obsdata_storage      = hash_alloc();
   local_config->updatestep          = vector_alloc_new();
   local_config->config_files = stringlist_alloc_new();
 
@@ -595,15 +595,15 @@ local_updatestep_type * local_config_alloc_updatestep( local_config_type * local
 
 
 local_ministep_type * local_config_alloc_ministep( local_config_type * local_config , const char * key , const char * obsset_name) {
-  local_obsset_type * obsset = hash_get( local_config->obsset_storage , obsset_name );
-  local_ministep_type * ministep = local_ministep_alloc( key , obsset);
+  local_obsdata_type * obsdata = hash_get( local_config->obsdata_storage , obsset_name );
+  local_ministep_type * ministep = local_ministep_alloc( key , obsdata );
   hash_insert_hash_owned_ref( local_config->ministep_storage , key , ministep , local_ministep_free__);
   return ministep;
 }
 
-local_obsset_type * local_config_alloc_obsset( local_config_type * local_config , const char * obsset_name ) {
-  local_obsset_type * obsset = local_obsset_alloc( obsset_name );
-  hash_insert_hash_owned_ref( local_config->obsset_storage , obsset_name , obsset , local_obsset_free__);
+local_obsdata_type * local_config_alloc_obsset( local_config_type * local_config , const char * obsset_name ) {
+  local_obsdata_type * obsset = local_obsdata_alloc( obsset_name );
+  hash_insert_hash_owned_ref( local_config->obsdata_storage , obsset_name , obsset , local_obsdata_free__);
   return obsset;
 }
 
@@ -619,18 +619,18 @@ local_dataset_type * local_config_alloc_dataset( local_config_type * local_confi
 local_dataset_type * local_config_alloc_dataset_copy( local_config_type * local_config , const char * src_key , const char * target_key) {
   local_dataset_type * src_dataset = hash_get( local_config->dataset_storage , src_key );
   local_dataset_type * copy_dataset = local_dataset_alloc_copy( src_dataset , target_key );
-  
+
   hash_insert_hash_owned_ref( local_config->dataset_storage , target_key , copy_dataset , local_dataset_free__);
   return copy_dataset;
 }
 
 
-local_obsset_type * local_config_alloc_obsset_copy( local_config_type * local_config , const char * src_key , const char * target_key) {
-  local_obsset_type * src_obsset = hash_get( local_config->obsset_storage , src_key );
-  local_obsset_type * copy_obsset = local_obsset_alloc_copy( src_obsset , target_key );
-  
-  hash_insert_hash_owned_ref( local_config->obsset_storage , target_key , copy_obsset , local_obsset_free__);
-  return copy_obsset;
+local_obsdata_type * local_config_alloc_obsdata_copy( local_config_type * local_config , const char * src_key , const char * target_key) {
+  local_obsdata_type * src_obsdata  = hash_get( local_config->obsdata_storage , src_key );
+  local_obsdata_type * copy_obsdata = local_obsdata_alloc_copy( src_obsdata , target_key );
+
+  hash_insert_hash_owned_ref( local_config->obsdata_storage , target_key , copy_obsdata , local_obsdata_free__);
+  return copy_obsdata;
 }
 
 
@@ -640,10 +640,12 @@ local_ministep_type * local_config_get_ministep( const local_config_type * local
 }
 
 
-local_obsset_type * local_config_get_obsset( const local_config_type * local_config , const char * key) {
-  local_obsset_type * obsset = hash_get( local_config->obsset_storage , key );
-  return obsset;
+local_obsdata_type * local_config_get_obsdata( const local_config_type * local_config , const char * key) {
+  local_obsdata_type * obsdata = hash_get( local_config->obsdata_storage , key );
+  return obsdata;
 }
+
+
 
 
 local_dataset_type * local_config_get_dataset( const local_config_type * local_config , const char * key) {
@@ -670,7 +672,7 @@ const local_updatestep_type * local_config_iget_updatestep( const local_config_t
       time-index, revert to the default.
     */
     updatestep = local_config->default_updatestep;
-  
+
   if (updatestep == NULL)
     util_exit("%s: fatal error. No report step information for step:%d - and no default \n",__func__ , index);
 
@@ -693,7 +695,7 @@ local_updatestep_type * local_config_get_updatestep( const local_config_type * l
 void local_config_set_updatestep(local_config_type * local_config, int step1 , int step2 , const char * key) {
   local_updatestep_type * updatestep = hash_get( local_config->updatestep_storage , key );
   int step;
-  
+
   for ( step = step1; step < step2 + 1; step++)
     vector_safe_iset_ref(local_config->updatestep , step , updatestep );
 
@@ -970,8 +972,8 @@ static void local_config_init_cmd_table( hash_type * cmd_table ) {
   hash_insert_int(cmd_table , ECLREGION_SELECT_IN_POLYGON_STRING     , ECLREGION_SELECT_IN_POLYGON);
   hash_insert_int(cmd_table , CREATE_POLYGON_STRING                  , CREATE_POLYGON );
   hash_insert_int(cmd_table , LOAD_POLYGON_STRING                    , LOAD_POLYGON );
-  hash_insert_int(cmd_table , LOAD_SURFACE_STRING                    , LOAD_SURFACE );   
-  hash_insert_int(cmd_table , CREATE_SURFACE_REGION_STRING           , CREATE_SURFACE_REGION );   
+  hash_insert_int(cmd_table , LOAD_SURFACE_STRING                    , LOAD_SURFACE );
+  hash_insert_int(cmd_table , CREATE_SURFACE_REGION_STRING           , CREATE_SURFACE_REGION );
   hash_insert_int(cmd_table , SURFACE_REGION_SELECT_IN_POLYGON_STRING, SURFACE_REGION_SELECT_IN_POLYGON);
   hash_insert_int(cmd_table , SURFACE_REGION_SELECT_LINE_STRING     , SURFACE_REGION_SELECT_LINE);
   hash_insert_int(cmd_table , ADD_DATA_SURFACE_STRING                , ADD_DATA_SURFACE);
@@ -1034,7 +1036,7 @@ static void local_config_COPY_DATASET( local_config_type * config , local_contex
 static void local_config_COPY_OBSSET( local_config_type * config , local_context_type * context , FILE * stream , bool binary) {
   char * src_name     = read_alloc_string( stream , binary );
   char * target_name = read_alloc_string( stream , binary );
-  local_config_alloc_obsset_copy( config , src_name , target_name );
+  local_config_alloc_obsdata_copy( config , src_name , target_name );
   free( target_name );
   free( src_name );
 }
@@ -1067,8 +1069,25 @@ static void local_config_ADD_OBS( local_config_type * config , local_context_typ
   char * obs_name = read_alloc_string( stream , binary );
   char * obs_key  = read_alloc_string( stream , binary );
   {
-    local_obsset_type * obsset = local_config_get_obsset( config , obs_name );
-    local_obsset_add_obs( obsset , obs_key );
+    local_obsdata_type * obsdata = local_config_get_obsdata( config , obs_name );
+    local_obsdata_node_type * obsdata_node = local_obsdata_node_alloc( obs_key );
+
+    /*
+      The local_obsdata_node should hold it's own active time-step
+      information. The problem is that currenty the active timesteps
+      for observations is configured/maintained/used in two different
+      locations:
+
+       1: The local_obsdata_node type contains a list of active time
+          steps for this particular node.
+
+       2: The time steps to use are arguments to the various update
+          algorithms; this is very much EnKF heritage.
+
+          The second alternative should be eradicted.
+    */
+
+    local_obsdata_add_node( obsdata , obsdata_node);
   }
   free( obs_name );
   free( obs_key );
@@ -1079,8 +1098,9 @@ static void local_config_ACTIVE_LIST_ADD_OBS_INDEX( local_config_type * config ,
   char * obs_key  = read_alloc_string( stream , binary );
   int index = read_int( stream , binary );
   {
-    local_obsset_type * obsset  = local_config_get_obsset( config , obs_name );
-    active_list_type  * active_list = local_obsset_get_obs_active_list( obsset , obs_key );
+    local_obsdata_type * obsdata  = local_config_get_obsdata( config , obs_name );
+    local_obsdata_node_type * obsdata_node = local_obsdata_get( obsdata , obs_key );
+    active_list_type  * active_list = local_obsdata_node_get_active_list( obsdata_node );
     active_list_add_index( active_list , index );
   }
   free( obs_name );
@@ -1106,11 +1126,12 @@ static void local_config_ACTIVE_LIST_ADD_MANY_OBS_INDEX( local_config_type * con
   int_vector_type * int_vector = int_vector_alloc(0,0);
   char * obs_name = read_alloc_string( stream , binary );
   char * obs_key  = read_alloc_string( stream , binary );
-    
+
   read_int_vector( stream , binary , int_vector);
   {
-    local_obsset_type * obsset  = local_config_get_obsset( config , obs_name );
-    active_list_type  * active_list = local_obsset_get_obs_active_list( obsset , obs_key );
+    local_obsdata_type * obsdata  = local_config_get_obsdata( config , obs_name );
+    local_obsdata_node_type * obsdata_node = local_obsdata_get( obsdata , obs_key );
+    active_list_type  * active_list = local_obsdata_node_get_active_list( obsdata_node );
     for (int i = 0; i < int_vector_size( int_vector ); i++)
       active_list_add_index( active_list , int_vector_iget(int_vector , i));
   }
@@ -1141,7 +1162,7 @@ static void local_config_INSTALL_UPDATESTEP( local_config_type * config , local_
   char * update_name = read_alloc_string( stream , binary );
   {
     int step1,step2;
-    
+
     step1 = read_int( stream , binary );
     step2 = read_int( stream , binary );
     local_config_set_updatestep( config , step1 , step2 , update_name );
@@ -1171,8 +1192,8 @@ static void local_config_DEL_OBS( local_config_type * config , local_context_typ
   char * obs_name = read_alloc_string( stream , binary );
   char * obs_key  = read_alloc_string( stream , binary );
   {
-    local_obsset_type * obsset = local_config_get_obsset( config , obs_name );
-    local_obsset_del_obs( obsset , obs_key );
+    local_obsdata_type * obsdata = local_config_get_obsdata( config , obs_name );
+    local_obsdata_del_node( obsdata , obs_key );
   }
   free( obs_name );
   free( obs_key );
@@ -1190,8 +1211,8 @@ static void local_config_DATASET_DEL_ALL_DATA( local_config_type * config , loca
 static void local_config_OBSSET_DEL_ALL_OBS( local_config_type * config , local_context_type * context , FILE * stream , bool binary) {
   char * obs_name = read_alloc_string( stream , binary );
   {
-    local_obsset_type   * obsset = local_config_get_obsset( config , obs_name );
-    local_obsset_clear( obsset );
+    local_obsdata_type   * obsdata = local_config_get_obsdata( config , obs_name );
+    local_obsdata_clear( obsdata );
   }
   free( obs_name );
 }
@@ -1208,7 +1229,7 @@ static void local_config_ADD_FIELD( local_config_type * config , local_context_t
     {
       active_list_type * active_list        = local_dataset_get_node_active_list( dataset , field_name );
       const int_vector_type * region_active = ecl_region_get_active_list( region );
-      
+
       for (int i=0; i < int_vector_size( region_active ); i++)
         active_list_add_index( active_list , int_vector_iget( region_active , i ) );
     }
@@ -1230,7 +1251,7 @@ static void local_config_LOAD_FILE( local_config_type * config , local_context_t
   char * file_name = read_alloc_string( stream , binary );
 
   local_context_load_file( context , file_name , file_key ); /*  */
-  
+
   free( file_key );
   free( file_name );
 }
@@ -1245,14 +1266,14 @@ static void local_config_ECLREGION_SELECT_BOX( local_config_type * config , loca
   int k1          = read_int( stream , binary ) - 1;
   int k2          = read_int( stream , binary ) - 1;
   bool select     = read_bool( stream , binary );
-  
+
   ecl_region_type * region = local_context_get_ecl_region( context , region_name );
-  
+
   if (select)
     ecl_region_select_from_ijkbox( region , i1 , i2 , j1 , j2 , k1 , k2);
   else
     ecl_region_deselect_from_ijkbox( region , i1 , i2 , j1 , j2 , k1 , k2);
-  
+
   free( region_name );
 }
 
@@ -1265,9 +1286,9 @@ static void local_config_ECLREGION_SELECT_SLICE( local_config_type * config , lo
   bool     select    = read_bool( stream , binary );
 
   ecl_region_type * region = local_context_get_ecl_region( context , region_name );
-  
+
   util_strupr( dir );
-  
+
   if (strcmp( dir , "X") == 0) {
     if (select)
       ecl_region_select_i1i2( region , n1 , n2 );
@@ -1285,7 +1306,7 @@ static void local_config_ECLREGION_SELECT_SLICE( local_config_type * config , lo
       ecl_region_deselect_k1k2( region , n1 , n2 );
   } else
     util_abort("%s: slice direction:%s not recognized \n",__func__ , dir );
-  
+
   free(dir );
   free( region_name );
 }
@@ -1314,20 +1335,20 @@ static void local_config_ECLREGION_SELECT_VALUE( local_config_type * config , lo
     ecl_kw_type * ecl_kw;
     ecl_region_type * region;
 
-    { 
+    {
       stringlist_type * key_list = stringlist_alloc_from_split( master_key , ":");
       ecl_file_type * ecl_file   = local_context_get_file( context , stringlist_iget(key_list , 0 ) );
       int key_nr = 0;
 
       if (stringlist_get_size( key_list ) == 3)
         util_sscanf_int( stringlist_iget( key_list , 2 ) , &key_nr );
-    
+
       ecl_kw = ecl_file_iget_named_kw( ecl_file , stringlist_iget( key_list , 1 ) , key_nr);
       stringlist_free( key_list );
     }
 
     region = local_context_get_ecl_region( context , region_name );
-    
+
     if (cmd == ECLREGION_SELECT_VALUE_EQUAL) {
       int value;
       util_sscanf_int( value_string , &value );
@@ -1338,7 +1359,7 @@ static void local_config_ECLREGION_SELECT_VALUE( local_config_type * config , lo
     } else {
       double value;
       util_sscanf_double( value_string , &value );
-      
+
       if (cmd == ECLREGION_SELECT_VALUE_LESS) {
         if (select)
           ecl_region_select_smaller( region , ecl_kw , value );
@@ -1350,7 +1371,7 @@ static void local_config_ECLREGION_SELECT_VALUE( local_config_type * config , lo
         else
           ecl_region_deselect_larger( region , ecl_kw , value);
       }
-      
+
     }
   }
   free( master_key );
@@ -1366,18 +1387,18 @@ static void local_config_ECLREGION_SELECT_PLANE( local_config_type * config , lo
   bool   select;
   ecl_region_type * region;
   char * region_name  = read_alloc_string( stream , binary );
-  
+
   normal_vec[0] = read_double( stream , binary );
   normal_vec[1] = read_double( stream , binary );
   normal_vec[2] = read_double( stream , binary );
-  
+
   p0[0]         = read_double( stream , binary );
   p0[1]         = read_double( stream , binary );
   p0[2]         = read_double( stream , binary );
-  
+
   sign          = read_double( stream , binary);
   select        = read_bool( stream , binary );
-  
+
   region = local_context_get_ecl_region( context , region_name );
   if (select) {
     if (sign > 0)
@@ -1401,14 +1422,14 @@ static void local_config_CREATE_POLYGON( local_config_type * config , local_cont
   {
     geo_polygon_type * polygon = local_context_get_polygon( context , polygon_name );
     int num_points   = read_int( stream , binary );
-    
+
     if (num_points < 2)
       util_abort("%s: error when parsing CREATE_POLYGON - need at least 3 points in polygon\n",__func__);
-    
+
     for (int i=0; i < num_points; i++) {
       double x = read_double( stream , binary );
       double y = read_double( stream , binary );
-      
+
       geo_polygon_add_point( polygon , x , y );
     }
   }
@@ -1427,7 +1448,7 @@ static void local_config_LOAD_POLYGON( local_config_type * config , local_contex
 
 
 static void local_config_ECLREGION_SELECT_IN_POLYGON( local_config_type * config , local_context_type * context , FILE * stream , bool binary) {
-  
+
   char * region_name  = read_alloc_string( stream , binary );
   char * polygon_name = read_alloc_string( stream , binary );
   bool select       = read_bool( stream , binary );
@@ -1437,7 +1458,7 @@ static void local_config_ECLREGION_SELECT_IN_POLYGON( local_config_type * config
 
     polygon = local_context_get_polygon( context , polygon_name );
     region  = local_context_get_ecl_region( context , region_name );
-    if (select) 
+    if (select)
       ecl_region_select_inside_polygon( region , polygon );
     else
       ecl_region_select_inside_polygon( region , polygon );
@@ -1450,21 +1471,21 @@ static void local_config_ECLREGION_SELECT_IN_POLYGON( local_config_type * config
 static void local_config_LOAD_SURFACE( local_config_type * config , local_context_type * context , FILE * stream , bool binary) {
   char * surface_name = read_alloc_string( stream , binary );
   char * surface_file = read_alloc_string( stream , binary );
-  
+
   local_context_load_surface( context , surface_name , surface_file );
-  
+
   free( surface_file );
   free( surface_name );
 }
 
 
 static void local_config_CREATE_SURFACE_REGION( local_config_type * config , local_context_type * context , FILE * stream , bool binary) {
-  char * region_name       = read_alloc_string( stream , binary );  
-  char * base_surface      = read_alloc_string( stream , binary );  
-  bool preselect           = read_bool( stream , binary );                
-  
+  char * region_name       = read_alloc_string( stream , binary );
+  char * base_surface      = read_alloc_string( stream , binary );
+  bool preselect           = read_bool( stream , binary );
+
   local_context_create_surface_region( context , base_surface , region_name ,  preselect);
-  
+
   free( region_name );
   free( base_surface);
 }
@@ -1473,7 +1494,7 @@ static void local_config_CREATE_SURFACE_REGION( local_config_type * config , loc
 static void local_config_SURFACE_REGION_SELECT_IN_POLYGON( local_config_type * config , local_context_type * context , FILE * stream , bool binary) {
   char * region_name       = read_alloc_string( stream , binary );
   char * polygon_name      = read_alloc_string( stream , binary );
-  bool select              = read_bool( stream , binary );        
+  bool select              = read_bool( stream , binary );
 
   geo_region_type * region   = local_context_get_surface_region( context , region_name );
   geo_polygon_type * polygon = local_context_get_polygon( context , polygon_name );
@@ -1491,13 +1512,13 @@ static void local_config_SURFACE_REGION_SELECT_LINE( local_config_type * config 
   double xcoords[2];
   double ycoords[2];
   char * region_name        = read_alloc_string( stream , binary );
-  xcoords[0]                = read_double( stream  , binary );       
-  ycoords[0]                = read_double( stream  , binary );       
-  xcoords[1]                = read_double( stream  , binary );       
-  ycoords[1]                = read_double( stream  , binary );       
+  xcoords[0]                = read_double( stream  , binary );
+  ycoords[0]                = read_double( stream  , binary );
+  xcoords[1]                = read_double( stream  , binary );
+  ycoords[1]                = read_double( stream  , binary );
   sign                      = read_double( stream , binary );
-  select                    = read_bool( stream , binary );        
-  
+  select                    = read_bool( stream , binary );
+
   geo_region_type * region   = local_context_get_surface_region( context , region_name );
 
   if (select) {
@@ -1528,8 +1549,8 @@ static void local_config_ADD_DATA_SURFACE( local_config_type * config , local_co
     {
       active_list_type * active_list        = local_dataset_get_node_active_list( dataset , surface_name );
       const int_vector_type * region_active = geo_region_get_index_list( region );
-      
-      for (int i=0; i < int_vector_size( region_active ); i++) 
+
+      for (int i=0; i < int_vector_size( region_active ); i++)
         active_list_add_index( active_list , int_vector_iget( region_active , i ) );
 
     }

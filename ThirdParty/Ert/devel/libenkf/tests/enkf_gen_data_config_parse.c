@@ -26,7 +26,8 @@
 #include <ert/util/test_work_area.h>
 #include <ert/util/test_util.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
+#include <ert/config/config_content.h>
 
 #include <ert/enkf/gen_data_config.h>
 #include <ert/enkf/enkf_config_node.h>
@@ -34,24 +35,29 @@
 
 
 enkf_config_node_type * parse_alloc_GEN_PARAM( const char * config_string , bool parse_valid) {
-  config_type * config = config_alloc();
+  config_parser_type * config = config_alloc();
   enkf_config_node_type * enkf_config_node = NULL;
-  
+
   enkf_config_node_add_GEN_PARAM_config_schema( config );
   {
     FILE * stream = util_fopen("config.txt" , "w");
     fprintf(stream , config_string);
     fclose( stream );
   }
-  
-  test_assert_bool_equal( parse_valid , config_parse( config , "config.txt" , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true));
-  if (parse_valid) {
-    const config_content_item_type * config_item = config_get_content_item( config , GEN_PARAM_KEY );
-    const config_content_node_type * config_node = config_content_item_iget_node( config_item , 0 );
 
-    enkf_config_node = enkf_config_node_alloc_GEN_PARAM_from_config( config_node );
+  {
+    config_content_type * content = config_parse( config , "config.txt" , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true);
+
+    test_assert_bool_equal( parse_valid , config_content_is_valid( content ));
+    if (parse_valid) {
+      const config_content_item_type * config_item = config_content_get_item( content , GEN_PARAM_KEY );
+      const config_content_node_type * config_node = config_content_item_iget_node( config_item , 0 );
+
+      enkf_config_node = enkf_config_node_alloc_GEN_PARAM_from_config( config_node );
+    }
+    config_content_free( content );
+    config_free( config );
   }
-  config_free( config );
   return enkf_config_node;
 }
 
@@ -118,23 +124,28 @@ void test_parse_gen_param() {
 
 
 enkf_config_node_type * parse_alloc_GEN_DATA_result( const char * config_string , bool parse_valid) {
-  config_type * config = config_alloc();
+  config_parser_type * config = config_alloc();
   enkf_config_node_type * enkf_config_node = NULL;
-  
+
   enkf_config_node_add_GEN_DATA_config_schema( config );
   {
     FILE * stream = util_fopen("config.txt" , "w");
     fprintf(stream , config_string);
     fclose( stream );
   }
-  test_assert_bool_equal( parse_valid , config_parse( config , "config.txt" , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true));
-  if (parse_valid) {
-    const config_content_item_type * config_item = config_get_content_item( config , GEN_DATA_KEY );
-    const config_content_node_type * config_node = config_content_item_iget_node( config_item , 0 );
-    
-    enkf_config_node = enkf_config_node_alloc_GEN_DATA_from_config( config_node );
+  {
+    config_content_type * content = config_parse( config , "config.txt" , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true);
+    test_assert_bool_equal( parse_valid ,config_content_is_valid( content ) );
+    if (parse_valid) {
+      const config_content_item_type * config_item = config_content_get_item( content , GEN_DATA_KEY );
+      const config_content_node_type * config_node = config_content_item_iget_node( config_item , 0 );
+
+      enkf_config_node = enkf_config_node_alloc_GEN_DATA_from_config( config_node );
+    }
+
+    config_content_free( content );
+    config_free( config );
   }
-  config_free( config );
   return enkf_config_node;
 }
 

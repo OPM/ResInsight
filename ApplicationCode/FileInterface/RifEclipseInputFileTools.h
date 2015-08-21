@@ -76,6 +76,8 @@ public:
 
     static bool     readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults, bool* isEditKeywordDetected);
 
+    static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
+
 private:
     static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);
     static void     findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos);
@@ -83,6 +85,4 @@ private:
     static size_t   findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
 
     static qint64   findKeyword(const QString& keyword, QFile& file, qint64 startPos);
-
-    static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
 };

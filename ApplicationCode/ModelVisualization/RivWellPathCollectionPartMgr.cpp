@@ -66,7 +66,8 @@ void RivWellPathCollectionPartMgr::setScaleTransform(cvf::Transform * scaleTrans
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, cvf::Transform* scaleTransform, double characteristicCellSize, cvf::BoundingBox boundingBox)
+void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
+                                                                    cvf::Transform* scaleTransform, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
 {
     setScaleTransform(scaleTransform);
 
@@ -77,7 +78,7 @@ void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBa
     {
         RivWellPathPartMgr* partMgr = m_wellPathCollection->wellPaths[wIdx]->partMgr();
         partMgr->setScaleTransform(scaleTransform);
-        partMgr->appendStaticGeometryPartsToModel(model, displayModelOffset, characteristicCellSize, boundingBox);
+        partMgr->appendStaticGeometryPartsToModel(model, displayModelOffset, characteristicCellSize, wellPathClipBoundingBox);
     }
 }
 

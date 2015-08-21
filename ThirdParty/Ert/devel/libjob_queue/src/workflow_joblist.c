@@ -1,20 +1,20 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
+   Copyright (C) 2012  Statoil ASA, Norway.
+
    The file 'workflow_joblist.c' is part of ERT - Ensemble based
    Reservoir Tool.
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
@@ -26,15 +26,15 @@
 #include <ert/util/util.h>
 #include <ert/util/type_macros.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 
 #include <ert/job_queue/workflow_job.h>
 #include <ert/job_queue/workflow_joblist.h>
 
 
 struct workflow_joblist_struct {
-  config_type * workflow_compiler;
-  config_type * job_config;
+  config_parser_type * workflow_compiler;
+  config_parser_type * job_config;
 
   hash_type   * joblist;
 };
@@ -80,16 +80,20 @@ bool workflow_joblist_add_job_from_file( workflow_joblist_type * joblist , const
   if (job) {
     workflow_joblist_add_job( joblist , job );
     return true;
-  } else 
+  } else
     return false;
 }
 
 
-config_type * workflow_joblist_get_compiler( const workflow_joblist_type * joblist ) {
+config_parser_type * workflow_joblist_get_compiler( const workflow_joblist_type * joblist ) {
   return joblist->workflow_compiler;
 }
 
 
-config_type * workflow_joblist_get_job_config( const workflow_joblist_type * joblist ) {
+config_parser_type * workflow_joblist_get_job_config( const workflow_joblist_type * joblist ) {
   return joblist->job_config;
+}
+
+stringlist_type * workflow_joblist_get_job_names(const workflow_joblist_type * joblist) {
+    return hash_alloc_stringlist(joblist->joblist);
 }

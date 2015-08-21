@@ -24,3 +24,8 @@ IF (BUILD_ERT)
    add_subdirectory(sched)
    add_subdirectory(server)
 ENDIF()
+
+
+configure_file(ert_lib_path_build.py.in   ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX}/ert/__ert_lib_path.py )
+configure_file(ert_lib_path_install.py.in ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX}/ert_lib_path_install.py )
+install(FILES ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX}/ert_lib_path_install.py DESTINATION ${PYTHON_INSTALL_PREFIX}/ert RENAME __ert_lib_path.py)

@@ -13,7 +13,6 @@ class RunWorkflowWidget(QWidget):
     workflowSucceeded = pyqtSignal()
     workflowFailed = pyqtSignal()
     workflowKilled = pyqtSignal()
-    reloadErtTriggered = pyqtSignal()
 
     def __init__(self):
         QWidget.__init__(self)
@@ -79,8 +78,7 @@ class RunWorkflowWidget(QWidget):
 
     def cancelWorkflow(self):
         if self.__workflow_runner.isRunning():
-
-            cancel = QMessageBox.question(self, "Confirm stop", "ERT might need to shut down when a workflow is stopped - do you want to proceed?", QMessageBox.Yes | QMessageBox.No)
+            cancel = QMessageBox.question(self, "Confirm Cancel", "Are you sure you want to cancel the running workflow?", QMessageBox.Yes | QMessageBox.No)
 
             if cancel == QMessageBox.Yes:
                 self.__workflow_runner.cancel()
@@ -89,7 +87,6 @@ class RunWorkflowWidget(QWidget):
 
     def startWorkflow(self):
         self.__running_workflow_dialog = WorkflowDialog("Running Workflow", self.createSpinWidget(), self)
-        #self.__running_workflow_dialog.disableCloseButton()
         self.__running_workflow_dialog.closeButtonPressed.connect(self.cancelWorkflow)
 
         workflow_thread = Thread(name="ert_gui_workflow_thread")

@@ -38,6 +38,17 @@ class Matrix(BaseCClass):
         self.setAll(value)
 
 
+    def __str__(self):
+        s = ""
+        for i in range(self.rows()):
+            s += "["
+            for j in range(self.columns()):
+                d = Matrix.cNamespace().iget(self, i,j)
+                s += "%6.3g " % d
+            s += "]\n"
+        return s
+
+
     def __getitem__(self, index_tuple):
         if not 0 <= index_tuple[0] < self.rows():
             raise IndexError("Expected 0 <= %d < %d" % (index_tuple[0], self.rows()))
@@ -56,6 +67,10 @@ class Matrix(BaseCClass):
             raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.columns()))
 
         return Matrix.cNamespace().iset(self, index_tuple[0], index_tuple[1], value)
+
+
+    def dims(self):
+        return (Matrix.cNamespace().rows(self) , Matrix.cNamespace().columns(self))
 
 
     def rows(self):
@@ -86,9 +101,26 @@ class Matrix(BaseCClass):
     def setAll(self , value):
         Matrix.cNamespace().set_all(self, value)
 
+    def copyColumn(self , target_column , src_column):
+        columns = self.columns()
+        if not 0 <= src_column < columns:
+            raise ValueError("src column:%d invalid" % src_column)
+
+        if not 0 <= target_column < columns:
+            raise ValueError("target column:%d invalid" % target_column)
+
+        if src_column != target_column:
+            # The underlying C function accepts column copy between matrices.
+            Matrix.cNamespace().copy_column(self, self , target_column , src_column)
+
+
 
     def prettyPrint(self, name, fmt="%6.3g"):
         Matrix.cNamespace().pretty_print(self, name, fmt)
+
+
+    def randomInit(self , rng):
+        Matrix.cNamespace().random_init(self, rng)
 
 
     def free(self):
@@ -109,11 +141,13 @@ Matrix.cNamespace().iset = cwrapper.prototype("void   matrix_iset( matrix , int 
 Matrix.cNamespace().set_all = cwrapper.prototype("void   matrix_scalar_set( matrix , double)")
 Matrix.cNamespace().scale_column = cwrapper.prototype("void matrix_scale_column(matrix , int , double)")
 Matrix.cNamespace().scale_row    = cwrapper.prototype("void matrix_scale_row(matrix , int , double)")
+Matrix.cNamespace().copy_column = cwrapper.prototype("void matrix_copy_column(matrix , matrix , int , int)")
 
 Matrix.cNamespace().rows = cwrapper.prototype("int matrix_get_rows(matrix)")
 Matrix.cNamespace().columns = cwrapper.prototype("int matrix_get_columns(matrix)")
 Matrix.cNamespace().equal = cwrapper.prototype("bool matrix_equal(matrix, matrix)")
 
 Matrix.cNamespace().pretty_print = cwrapper.prototype("void matrix_pretty_print(matrix, char*, char*)")
+Matrix.cNamespace().random_init = cwrapper.prototype("void matrix_random_init(matrix, rng)")
 
     

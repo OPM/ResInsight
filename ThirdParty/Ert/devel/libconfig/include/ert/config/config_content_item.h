@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'config_content_item.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'config_content_item.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -26,6 +26,7 @@ extern "C" {
 
 #include <ert/util/hash.h>
 #include <ert/util/stringlist.h>
+#include <ert/util/type_macros.h>
 
 #include <ert/config/config_error.h>
 #include <ert/config/config_schema_item.h>
@@ -58,6 +59,8 @@ typedef struct config_content_item_struct config_content_item_type;
   config_content_node_type       * config_content_item_alloc_node( const config_content_item_type * item , const config_path_elm_type * path_elm);
   const config_schema_item_type  * config_content_item_get_schema( const config_content_item_type * item );
   const config_path_elm_type     * config_content_item_get_path_elm( const config_content_item_type * item );
+
+  UTIL_IS_INSTANCE_HEADER( config_content_item );
 
 #ifdef __cplusplus
 }

@@ -474,26 +474,29 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
     // Get the data from ERT
 
     int numNNC = ecl_nnc_export_get_size( mainEclGrid );
-    ecl_nnc_type * eclNNCData= new ecl_nnc_type[numNNC];
-
-    ecl_nnc_export( mainEclGrid , init_file , eclNNCData);
-
-    // Transform to our own datastructures
-    //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
-
-    mainGrid->nncData()->connections().resize(numNNC);
-    std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
-    for (int nIdx = 0; nIdx < numNNC; ++nIdx)
+    if (numNNC > 0)
     {
-        RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
-        mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(eclNNCData[nIdx].global_index1);
-        RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
-        mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(eclNNCData[nIdx].global_index2);
-        transmissibilityValues[nIdx] = eclNNCData[nIdx].trans;
+        ecl_nnc_type * eclNNCData= new ecl_nnc_type[numNNC];
+
+        ecl_nnc_export(mainEclGrid, init_file, eclNNCData);
+
+        // Transform to our own datastructures
+        //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
+
+        mainGrid->nncData()->connections().resize(numNNC);
+        std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
+        for (int nIdx = 0; nIdx < numNNC; ++nIdx)
+        {
+            RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
+            mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(eclNNCData[nIdx].global_index1);
+            RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
+            mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(eclNNCData[nIdx].global_index2);
+            transmissibilityValues[nIdx] = eclNNCData[nIdx].trans;
+        }
+
+
+        delete[] eclNNCData;
     }
-
-
-    delete[] eclNNCData;
 }
 
 
@@ -1132,19 +1135,19 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
             // Production type
             well_type_enum ert_well_type = well_state_get_type(ert_well_state);
-            if (ert_well_type == PRODUCER)
+            if (ert_well_type == ERT_PRODUCER)
             {
                 wellResFrame.m_productionType = RigWellResultFrame::PRODUCER;
             }
-            else if (ert_well_type == WATER_INJECTOR)
+            else if (ert_well_type == ERT_WATER_INJECTOR)
             {
                 wellResFrame.m_productionType = RigWellResultFrame::WATER_INJECTOR;
             }
-            else if (ert_well_type == GAS_INJECTOR)
+            else if (ert_well_type == ERT_GAS_INJECTOR)
             {
                 wellResFrame.m_productionType = RigWellResultFrame::GAS_INJECTOR;
             }
-            else if (ert_well_type == OIL_INJECTOR)
+            else if (ert_well_type == ERT_OIL_INJECTOR)
             {
                 wellResFrame.m_productionType = RigWellResultFrame::OIL_INJECTOR;
             }

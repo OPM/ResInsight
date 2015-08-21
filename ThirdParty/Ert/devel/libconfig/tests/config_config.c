@@ -23,12 +23,12 @@
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 #include <ert/config/config_schema_item.h>
 
 
 int main(int argc , char ** argv) {
-  config_type * config = config_alloc();
+  config_parser_type * config = config_alloc();
   config_add_schema_item( config , "KEYWORD" , false );
   config_free( config );
   exit(0);

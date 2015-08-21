@@ -136,7 +136,7 @@ void test_compare() {
       for (int i = 0; i < nx*ny; i++) {
         int g2 = k*nx*ny + i;
         int g1 = (k- 1)*nx*ny + i;
-        TOPS[g2] = TOPS[g1];
+        TOPS[g2] = TOPS[g1] + DZ[g2];
       }
     }
 

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_region.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_region.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -55,7 +55,7 @@
    the indices. You can also get the results in term of global
    indices. (Refer to ecl_grid for the difference between active and
    global indices).
-   
+
    For the functions which take ecl_kw input, the ecl_kw instance must
    have either nx*ny*nz elements, or nactive(from the grid)
    elements. This is checked, and the program will fail hard if it is
@@ -63,7 +63,7 @@
 
    Example:
    --------
-   
+
    ecl_grid_type   * ecl_grid;
    ecl_kw_type     * soil;
    ecl_kw_type     * regions;
@@ -71,18 +71,18 @@
 
    // Load grid, soil and regions somehow.
 
-   ecl_region = ecl_region_alloc( ecl_grid , false );                       // Start with nothing selected 
+   ecl_region = ecl_region_alloc( ecl_grid , false );                       // Start with nothing selected
    ecl_region_select_in_interval( ecl_region , soil , 0.50, 1.00);          // Select all cells with soil > 0.50
    ecl_region_select_equal( ecl_region , regions , 3 );                     // Only consider ECLIPSE region 3.
    ecl_region_select_k1k2( ecl_region , 5 , 8);                             // Select layers 5,6,7,8
    {
-      int num_cells         = ecl_region_get_global_size( ecl_region );     // How many cells are active 
+      int num_cells         = ecl_region_get_global_size( ecl_region );     // How many cells are active
       const int * cell_list = ecl_region_get_global_list( ecl_region );     // Get a list of indices
       int i;
       printf("%d cells satisfy your selection. The cells are: \n");
 
-      for (i=0; i < num_cells; i++) 
-         printf("Cell: %d \n",cell_list[i]); 
+      for (i=0; i < num_cells; i++)
+         printf("Cell: %d \n",cell_list[i]);
    }
 
    ecl_region_free( ecl_region );
@@ -117,8 +117,8 @@ UTIL_SAFE_CAST_FUNCTION( ecl_region , ECL_REGION_TYPE_ID)
 
 
 static void ecl_region_invalidate_index_list( ecl_region_type * region ) {
-  region->global_index_list_valid  = false; 
-  region->active_index_list_valid  = false; 
+  region->global_index_list_valid  = false;
+  region->active_index_list_valid  = false;
 }
 
 
@@ -151,7 +151,7 @@ ecl_region_type * ecl_region_alloc( const ecl_grid_type * ecl_grid , bool presel
   ecl_region_reset( region );  /* This MUST be called to ensure that xxx_valid is correctly initialized. */
   return region;
 }
-  
+
 
 
 
@@ -183,17 +183,17 @@ void ecl_region_free__( void * __region ) {
 
 
 /*****************************************************************/
- 
+
 
 static void ecl_region_assert_global_index_list( ecl_region_type * region ) {
   if (!region->global_index_list_valid) {
     int global_index;
 
     int_vector_reset( region->global_index_list  );
-    for (global_index = 0; global_index < region->grid_vol; global_index++) 
-      if (region->active_mask[ global_index ]) 
+    for (global_index = 0; global_index < region->grid_vol; global_index++)
+      if (region->active_mask[ global_index ])
         int_vector_append( region->global_index_list , global_index );
-    
+
     region->global_index_list_valid = true;
   }
 }
@@ -269,15 +269,15 @@ static void ecl_region_assert_kw( const ecl_region_type * region , const ecl_kw_
     *global_kw = true;
   else
     *global_kw = false;
-  
+
 }
 
 
-/*****************************************************************/ 
+/*****************************************************************/
 
 void ecl_region_reset( ecl_region_type * ecl_region ) {
   int i;
-  for (i=0; i < ecl_region->grid_vol; i++) 
+  for (i=0; i < ecl_region->grid_vol; i++)
     ecl_region->active_mask[i] = ecl_region->preselect;
   ecl_region_invalidate_index_list( ecl_region );
 }
@@ -306,7 +306,7 @@ void ecl_region_deselect_cell( ecl_region_type * region , int i , int j , int k)
 static void ecl_region_select_equal__( ecl_region_type * region , const ecl_kw_type * ecl_kw, int value , bool select) {
   bool global_kw;
   ecl_region_assert_kw( region , ecl_kw , &global_kw);
-  if (ecl_kw_get_type( ecl_kw ) != ECL_INT_TYPE) 
+  if (ecl_kw_get_type( ecl_kw ) != ECL_INT_TYPE)
     util_abort("%s: sorry - select by equality is only supported for integer keywords \n",__func__);
   {
     const int * kw_data = ecl_kw_get_int_ptr( ecl_kw );
@@ -339,13 +339,60 @@ void ecl_region_deselect_equal( ecl_region_type * region , const ecl_kw_type * e
   ecl_region_select_equal__( region , ecl_kw , value , false );
 }
 
+/*****************************************************************/
+
+static void ecl_region_select_bool_equal__( ecl_region_type * region , const ecl_kw_type * ecl_kw, bool value , bool select) {
+  bool global_kw;
+  ecl_region_assert_kw( region , ecl_kw , &global_kw);
+  if (ecl_kw_get_type( ecl_kw ) != ECL_BOOL_TYPE)
+    util_abort("%s: sorry - select by equality is only supported for boolean keywords \n",__func__);
+  {
+    if (global_kw) {
+      int global_index;
+      for (global_index = 0; global_index < region->grid_vol; global_index++) {
+        if (ecl_kw_iget_bool(ecl_kw , global_index) == value)
+          region->active_mask[ global_index ] = select;
+      }
+    } else {
+      int active_index;
+      for (active_index = 0; active_index < region->grid_active; active_index++) {
+        if (ecl_kw_iget_bool(ecl_kw , active_index) == value) {
+          int global_index = ecl_grid_get_global_index1A( region->parent_grid , active_index );
+          region->active_mask[ global_index ] = select;
+        }
+      }
+    }
+  }
+  ecl_region_invalidate_index_list( region );
+}
+
+
+void ecl_region_select_true( ecl_region_type * region , const ecl_kw_type * ecl_kw) {
+  ecl_region_select_bool_equal__( region , ecl_kw , true , true );
+}
+
+
+void ecl_region_deselect_true( ecl_region_type * region , const ecl_kw_type * ecl_kw) {
+  ecl_region_select_bool_equal__( region , ecl_kw , true , false );
+}
+
+
+void ecl_region_select_false( ecl_region_type * region , const ecl_kw_type * ecl_kw) {
+  ecl_region_select_bool_equal__( region , ecl_kw , false , true );
+}
+
+
+void ecl_region_deselect_false( ecl_region_type * region , const ecl_kw_type * ecl_kw) {
+  ecl_region_select_bool_equal__( region , ecl_kw , false , false );
+}
+
 
 /*****************************************************************/
 
 static void ecl_region_select_in_interval__( ecl_region_type * region , const ecl_kw_type * ecl_kw, float min_value , float max_value , bool select) {
   bool global_kw;
   ecl_region_assert_kw( region , ecl_kw , &global_kw);
-  if (ecl_kw_get_type( ecl_kw ) != ECL_FLOAT_TYPE) 
+  if (ecl_kw_get_type( ecl_kw ) != ECL_FLOAT_TYPE)
     util_abort("%s: sorry - select by in_interval is only supported for float keywords \n",__func__);
   {
     const float * kw_data = ecl_kw_get_float_ptr( ecl_kw );
@@ -368,7 +415,7 @@ static void ecl_region_select_in_interval__( ecl_region_type * region , const ec
   ecl_region_invalidate_index_list( region );
 }
 
- 
+
 void ecl_region_select_in_interval( ecl_region_type * region , const ecl_kw_type * ecl_kw, float min_value , float max_value) {
   ecl_region_select_in_interval__( region , ecl_kw , min_value , max_value , true );
 }
@@ -396,7 +443,7 @@ static void ecl_region_select_with_limit__( ecl_region_type * region , const ecl
   ecl_region_assert_kw( region , ecl_kw , &global_kw);
   if (!((ecl_type == ECL_FLOAT_TYPE) || (ecl_type == ECL_INT_TYPE) || (ecl_type == ECL_DOUBLE_TYPE)))
     util_abort("%s: sorry - select by in_interval is only supported for float and integer keywords \n",__func__);
-  
+
   {
     if (ecl_type == ECL_FLOAT_TYPE) {
       const float * kw_data = ecl_kw_get_float_ptr( ecl_kw );
@@ -512,22 +559,22 @@ void ecl_region_deselect_larger( ecl_region_type * ecl_region , const ecl_kw_typ
 
 /*****************************************************************/
 
-/** 
-    Selection based on comparing two keywords. 
+/**
+    Selection based on comparing two keywords.
 */
 
 static void ecl_region_cmp_select__( ecl_region_type * region , const ecl_kw_type * kw1 , const ecl_kw_type * kw2 , bool select_less , bool select) {
   bool global_kw;
   ecl_region_assert_kw( region , kw1 , &global_kw);
-  if (ecl_kw_get_type( kw1 ) != ECL_FLOAT_TYPE) 
+  if (ecl_kw_get_type( kw1 ) != ECL_FLOAT_TYPE)
     util_abort("%s: sorry - select by cmp() is only supported for float keywords \n",__func__);
   {
-    if ((ecl_kw_get_size( kw1 ) == ecl_kw_get_size( kw2 )) && 
+    if ((ecl_kw_get_size( kw1 ) == ecl_kw_get_size( kw2 )) &&
         (ecl_kw_get_type( kw1 ) == ecl_kw_get_type( kw2 ))) {
-      
+
       const float * kw1_data = ecl_kw_get_float_ptr( kw1 );
       const float * kw2_data = ecl_kw_get_float_ptr( kw2 );
-      
+
       if (global_kw) {
         int global_index;
         for (global_index = 0; global_index < region->grid_vol; global_index++) {
@@ -555,7 +602,7 @@ static void ecl_region_cmp_select__( ecl_region_type * region , const ecl_kw_typ
           }
         }
       }
-    } else 
+    } else
       util_abort("%s: type/size mismatch between keywords. \n",__func__);
   }
   ecl_region_invalidate_index_list( region );
@@ -592,9 +639,9 @@ static void ecl_region_select_from_box__( ecl_region_type * region , const ecl_b
   const int * active_list = ecl_box_get_global_list( ecl_box );
   int box_index;
 
-  for (box_index = 0; box_index < box_size; box_index++) 
+  for (box_index = 0; box_index < box_size; box_index++)
     region->active_mask[ active_list[box_index] ] = select;
-      
+
   ecl_region_invalidate_index_list( region );
 }
 
@@ -611,11 +658,11 @@ void ecl_region_deselect_from_box( ecl_region_type * region , const ecl_box_type
 
 /**
    Observe that:
-   
+
      1. All the indices are inclusive.
      2. All the indices have zero offset.
 
-   Only a thin wrapper around the ecl_region_select_from_box() function.  
+   Only a thin wrapper around the ecl_region_select_from_box() function.
 */
 
 static void ecl_region_select_from_ijkbox__( ecl_region_type * region , int i1 , int i2 , int j1 , int j2 , int k1 , int k2 , bool select) {
@@ -640,15 +687,15 @@ void ecl_region_deselect_from_ijkbox( ecl_region_type * region , int i1 , int i2
 
 /**
    Observe that i1 and i2 are:
-   
+
      * ZERO offset.
      * An inclusive interval : [i1,i2]
-     
-   Input values below zero or above the upper limit are truncated.  
+
+   Input values below zero or above the upper limit are truncated.
 */
 
 static void ecl_region_select_i1i2__( ecl_region_type * region , int i1 , int i2 , bool select) {
-  if (i1 > i2) 
+  if (i1 > i2)
     util_abort("%s: i1 > i2 - this is illogical ... \n",__func__);
   i1 = util_int_max(0 , i1);
   i2 = util_int_min(region->grid_nx - 1 , i2);
@@ -679,15 +726,15 @@ void ecl_region_deselect_i1i2( ecl_region_type * region , int i1 , int i2) {
 
 /**
    Observe that j1 and j2 are:
-   
+
      * ZERO offset.
      * An inclusive interval : [i1,i2]
-     
-   Input values below zero or above the upper limit are truncated.  
+
+   Input values below zero or above the upper limit are truncated.
 */
 
 static void ecl_region_select_j1j2__( ecl_region_type * region , int j1 , int j2 , bool select) {
-  if (j1 > j2) 
+  if (j1 > j2)
     util_abort("%s: i1 > i2 - this is illogical ... \n",__func__);
 
   j1 = util_int_max(0 , j1);
@@ -719,15 +766,15 @@ void ecl_region_deselect_j1j2( ecl_region_type * region , int j1 , int j2) {
 
 /**
    Observe that k1 and k2 are:
-   
+
      * ZERO offset.
      * An inclusive interval : [i1,i2]
-     
-   Input values below zero or above the upper limit are truncated.  
+
+   Input values below zero or above the upper limit are truncated.
 */
 
 static void ecl_region_select_k1k2__( ecl_region_type * region , int k1 , int k2 , bool select) {
-  if (k1 > k2) 
+  if (k1 > k2)
     util_abort("%s: i1 > i2 - this is illogical ... \n",__func__);
   k1 = util_int_max(0 , k1);
   k2 = util_int_min(region->grid_nz - 1 , k2);
@@ -933,7 +980,7 @@ void ecl_region_deselect_global_index( ecl_region_type * region , int global_ind
    cylinder piercing the complete reservoir.
 
    Currently all user-exported functions call the
-   ecl_region_clyinder_select__() with select_inside == true.  
+   ecl_region_clyinder_select__() with select_inside == true.
 */
 
 static void ecl_region_cylinder_select__( ecl_region_type * region , double x0 , double y0, double R , double z1 , double z2 , bool select_inside , bool select) {
@@ -946,7 +993,7 @@ static void ecl_region_cylinder_select__( ecl_region_type * region , double x0 ,
       ecl_grid_get_xyz1( region->parent_grid , global_index , &x , &y , &z);
       if ((z >= z1) && (z <= z2)) {
         double pointR2 = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-        if ((pointR2 < R2) && (select_inside)) 
+        if ((pointR2 < R2) && (select_inside))
           region->active_mask[ global_index ] = select;
         else if ((pointR2 > R2) && (!select_inside))
           region->active_mask[ global_index ] = select;
@@ -962,22 +1009,22 @@ static void ecl_region_cylinder_select__( ecl_region_type * region , double x0 ,
         double x,y,z;
         ecl_grid_get_xyz3( region->parent_grid , i,j,0 , &x , &y , &z);
         {
-                        double pointR2 = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-        bool select_column = false;
+          double pointR2 = (x - x0) * (x - x0) + (y - y0) * (y - y0);
+          bool select_column = false;
 
-        if ((pointR2 < R2) && (select_inside))
-          select_column = true;
-        else if ((pointR2 > R2) && (!select_inside))
-          select_column = true;
-        
-        if (select_column) {
-          int k;
-          for (k=0; k < nz; k++) {
-            int global_index = ecl_grid_get_global_index3( region->parent_grid , i,j,k);
-            region->active_mask[ global_index ] = select;
+          if ((pointR2 < R2) && (select_inside))
+            select_column = true;
+          else if ((pointR2 > R2) && (!select_inside))
+            select_column = true;
+
+          if (select_column) {
+            int k;
+            for (k=0; k < nz; k++) {
+              int global_index = ecl_grid_get_global_index3( region->parent_grid , i,j,k);
+              region->active_mask[ global_index ] = select;
+            }
           }
         }
-                }
       }
     }
   }
@@ -1009,10 +1056,10 @@ void ecl_region_deselect_in_zcylinder( ecl_region_type * region , double x0 , do
 
 /**
    Select or deselect points based on their distance to the plane
-   specified by normal vector @n and point @p.  
+   specified by normal vector @n and point @p.
 */
 
-static void ecl_region_plane_select__( ecl_region_type * region, const double n[3] , const double p[3], bool select_above , bool select){ 
+static void ecl_region_plane_select__( ecl_region_type * region, const double n[3] , const double p[3], bool select_above , bool select){
   const double a = n[0];
   const double b = n[1];
   const double c = -n[2];
@@ -1062,7 +1109,7 @@ void ecl_region_deselect_below_plane( ecl_region_type * region, const double n[3
    follows:
 
      1. The defining polygon is layed out at the top of the reservoir.
-     
+
      2. The set {(i,j,0)} of cells in the top layer inside the polygon
         is selected by checking the polygon perimeter.
 
@@ -1077,13 +1124,13 @@ void ecl_region_deselect_below_plane( ecl_region_type * region, const double n[3
 */
 
 
-static void ecl_region_polygon_select__( ecl_region_type * region , 
-                                         const geo_polygon_type * polygon , 
+static void ecl_region_polygon_select__( ecl_region_type * region ,
+                                         const geo_polygon_type * polygon ,
                                          bool select_inside , bool select) {
 
   const int define_k = 0;                  // The k-level where the polygon is checked.
   const int k1       = 0;                  // Selection range in k
-  const int k2       = region->grid_nz;    
+  const int k2       = region->grid_nz;
 
   {
     int i,j;
@@ -1092,10 +1139,10 @@ static void ecl_region_polygon_select__( ecl_region_type * region ,
         double x,y,z;
         bool inside;
         int global_index = ecl_grid_get_global_index3( region->parent_grid , i , j , define_k);
-        
+
         ecl_grid_get_xyz1( region->parent_grid , global_index , &x , &y , &z);
         inside = geo_polygon_contains_point( polygon , x , y );
-        
+
         if (select_inside == inside) {
           int k;
           for (k=k1; k < k2; k++) {
@@ -1146,13 +1193,45 @@ void ecl_region_select_active_index( ecl_region_type * region , int active_index
 void ecl_region_deselect_active_index( ecl_region_type * region , int active_index) {
   ecl_region_select_active_index__( region , active_index , false );
 }
+/*****************************************************************/
 
+static void ecl_region_select_from_layer__( ecl_region_type * region , const layer_type * layer , int k , int layer_value, bool select) {
+  int_vector_type * i_list = int_vector_alloc(0,0);
+  int_vector_type * j_list = int_vector_alloc(0,0);
+
+  layer_cells_equal(layer, layer_value, i_list , j_list);
+  {
+    const int * i = int_vector_get_ptr( i_list );
+    const int * j = int_vector_get_ptr( j_list );
+
+    int index;
+    for (index = 0; index < int_vector_size( i_list ); index++) {
+      int global_index = ecl_grid_get_global_index3( region->parent_grid , i[index] , j[index] , k);
+      region->active_mask[ global_index ] = select;
+    }
+
+  }
+  if (int_vector_size( i_list ) > 0)
+    ecl_region_invalidate_index_list( region );
+
+  int_vector_free( i_list );
+  int_vector_free( j_list );
+}
+
+
+void ecl_region_select_from_layer( ecl_region_type * region , const layer_type * layer , int k , int layer_value) {
+  ecl_region_select_from_layer__( region , layer , k , layer_value , true );
+}
+
+void ecl_region_deselect_from_layer( ecl_region_type * region , const layer_type * layer , int k , int layer_value) {
+  ecl_region_select_from_layer__( region , layer , k , layer_value , false );
+}
 
 /*****************************************************************/
 
 static void ecl_region_select_all__( ecl_region_type * region , bool select) {
   int global_index;
-  for (global_index = 0; global_index < region->grid_vol; global_index++) 
+  for (global_index = 0; global_index < region->grid_vol; global_index++)
     region->active_mask[ global_index ] = select;
   ecl_region_invalidate_index_list( region );
 }
@@ -1171,7 +1250,7 @@ void ecl_region_deselect_all( ecl_region_type * region ) {
 
 void ecl_region_invert_selection( ecl_region_type * region ) {
   int global_index;
-  for (global_index = 0; global_index < region->grid_vol; global_index++) 
+  for (global_index = 0; global_index < region->grid_vol; global_index++)
     region->active_mask[ global_index ] = !region->active_mask[ global_index ];
   ecl_region_invalidate_index_list( region );
 }
@@ -1209,7 +1288,7 @@ bool ecl_region_contains_active( const ecl_region_type * ecl_region , int active
    Will update the selection in @region to ONLY contain the elements
    which are also present in @new_region. Will FAIL hard if the two
    regions do not share the same grid instance (checked by pointer
-   equality).  
+   equality).
 
    A &= B
 */
@@ -1217,9 +1296,9 @@ bool ecl_region_contains_active( const ecl_region_type * ecl_region , int active
 void ecl_region_intersection( ecl_region_type * region , const ecl_region_type * new_region ) {
   if (region->parent_grid == new_region->parent_grid) {
     int global_index;
-    for (global_index = 0; global_index < region->grid_vol; global_index++) 
+    for (global_index = 0; global_index < region->grid_vol; global_index++)
       region->active_mask[global_index] = (region->active_mask[global_index] && new_region->active_mask[global_index]);
-    
+
     ecl_region_invalidate_index_list( region );
   } else
     util_abort("%s: The two regions do not share grid - aborting \n",__func__);
@@ -1237,9 +1316,9 @@ void ecl_region_union( ecl_region_type * region , const ecl_region_type * new_re
     int global_index;
     for (global_index = 0; global_index < region->grid_vol; global_index++)
       region->active_mask[global_index] = (region->active_mask[global_index] || new_region->active_mask[global_index]);
-    
+
     ecl_region_invalidate_index_list( region );
-  } else 
+  } else
     util_abort("%s: The two regions do not share grid - aborting \n",__func__);
 }
 
@@ -1255,9 +1334,9 @@ void ecl_region_subtract( ecl_region_type * region , const ecl_region_type * new
     int global_index;
     for (global_index = 0; global_index < region->grid_vol; global_index++)
       region->active_mask[global_index] &= !new_region->active_mask[global_index];
-    
+
     ecl_region_invalidate_index_list( region );
-  } else 
+  } else
     util_abort("%s: The two regions do not share grid - aborting \n",__func__);
 }
 
@@ -1266,16 +1345,16 @@ void ecl_region_subtract( ecl_region_type * region , const ecl_region_type * new
    Will update the selection in @region to seselect the elements which
    are either in region or new_region:
 
-   A ^= B 
+   A ^= B
 */
 void ecl_region_xor( ecl_region_type * region , const ecl_region_type * new_region) {
   if (region->parent_grid == new_region->parent_grid) {
     int global_index;
     for (global_index = 0; global_index < region->grid_vol; global_index++)
       region->active_mask[global_index] ^= !new_region->active_mask[global_index];
-    
+
     ecl_region_invalidate_index_list( region );
-  } else 
+  } else
     util_abort("%s: The two regions do not share grid - aborting \n",__func__);
 }
 
@@ -1289,16 +1368,16 @@ const int_vector_type * ecl_region_get_kw_index_list( ecl_region_type * ecl_regi
   int grid_active = ecl_grid_get_active_size( ecl_region->parent_grid );
   int grid_global = ecl_grid_get_global_size( ecl_region->parent_grid );
 
-  if (kw_size == grid_active) 
+  if (kw_size == grid_active)
     index_set = ecl_region_get_active_list( ecl_region );
   else if (kw_size == grid_global) {
     if (force_active)
       index_set = ecl_region_get_global_active_list( ecl_region );
     else
       index_set = ecl_region_get_global_list( ecl_region );
-  } else 
-    util_abort("%s: size mismatch: grid_active:%d   grid_global:%d  kw_size:%d \n",__func__ , grid_active , grid_global , kw_size); 
-  
+  } else
+    util_abort("%s: size mismatch: grid_active:%d   grid_global:%d  kw_size:%d \n",__func__ , grid_active , grid_global , kw_size);
+
   return index_set;
 }
 

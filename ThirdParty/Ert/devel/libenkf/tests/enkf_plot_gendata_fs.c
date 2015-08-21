@@ -86,7 +86,7 @@ void test_gendata( enkf_main_type * enkf_main , const char * obs_key , int repor
 int main( int argc , char ** argv) {
   const char * config_file = argv[1];
   util_install_signals();
-  ert_test_context_type * test_context = ert_test_context_alloc("GENDATA" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc("GENDATA" , config_file );
   enkf_main_type * enkf_main = ert_test_context_get_main( test_context );
   
   test_gendata( enkf_main , "GEN_TIMESHIFT" , 60);

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-   
-   The file 'ecl_file.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_file.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdio.h>
@@ -49,12 +49,12 @@
    with a collection of ecl_kw instances and has various query
    functions, however it does not utilize knowledge of the
    structure/content of the files in the way e.g. ecl_grid.c does[1].
-   
+
    The main datatype here is the ecl_file type, but in addition each
    ecl_kw instance is wrapped in an ecl_file_kw (implemented in
    ecl_file_kw.c) structure and all the indexing is implemented with
    the file_map type. The file_map type is not used outside this file.
-   
+
    When the file is opened an index of all the keywords is created and
    stored in the field global_map, and the field active_map is set to
    point to global_map, i.e. all query/get operations on the ecl_file
@@ -67,9 +67,9 @@
    a keyword from name and occurence number, and then including all
    keywords up to the next occurence of the same keyword:
 
-      SEQHDR            ---\ 
-      MINISTEP  0          |   
-      PARAMS    .....      | 
+      SEQHDR            ---\
+      MINISTEP  0          |
+      PARAMS    .....      |
       MINISTEP  1          |   Block 0
       PARAMS    .....      |
       MINISTEP  2          |
@@ -83,14 +83,14 @@
       SEQHDR            ---+
       MINISTEP  6          |   Block 2
       PARAMS    ....       |
-      SEQHDR            ---+ 
-      MINISTEP  7          |   
+      SEQHDR            ---+
+      MINISTEP  7          |
       PARAMS    ....       |   Block 3
       MINISTEP  8          |
       PARAMS    ....       |
-   
+
    For the unified summary file depicted here e.g. the call
-   
+
       ecl_file_get_blockmap( ecl_file , "SEQHDR" , 2 )
 
    Will create a sub-index consisting of the (three) keywords in what
@@ -99,7 +99,7 @@
    of functionality is required to get from natural time coordinates
    (i.e. simulation time or report step) to the occurence number (see
    ecl_rstfile for more details).
-   
+
    To select a subindex as the active index you use the
    ecl_file_select_block() function, or alternatively you can use
    ecl_file_open_block() to directly select the relevant block
@@ -109,8 +109,8 @@
    calls to create a new sub index will also use the global_map index
    - i.e. the indexing is not recursive, a sub index is always created
    based on the global_map, and not on the currently active map.
-   
-   
+
+
    [1]: This is not entirely true - in the file ecl_rstfile.c; which
         is included from this file are several specialized function
         for working with restart files. However the restart files are
@@ -128,7 +128,7 @@ typedef struct file_map_struct file_map_type;
 struct file_map_struct {
   vector_type       * kw_list;      /* This is a vector of ecl_file_kw instances corresponding to the content of the file. */
   hash_type         * kw_index;     /* A hash table with integer vectors of indices - see comment below. */
-  stringlist_type   * distinct_kw;  /* A stringlist of the keywords occuring in the file - each string occurs ONLY ONCE. */         
+  stringlist_type   * distinct_kw;  /* A stringlist of the keywords occuring in the file - each string occurs ONLY ONCE. */
   fortio_type       * fortio;       /* The same fortio instance pointer as in the ecl_file styructure. */
   bool                owner;        /* Is this map the owner of the ecl_file_kw instances; only true for the global_map. */
   inv_map_type     *  inv_map;       /* Shared reference owned by the ecl_file structure. */
@@ -158,10 +158,10 @@ struct ecl_file_struct {
   with entries 'SEQHDR', 'MINISTEP' and 'PARAMS'. Each entry in the
   hash table is an integer vector which again contains the internal
   index of the various occurences:
-  
+
    ------------------
    SEQHDR            \
-   MINISTEP  0        |     
+   MINISTEP  0        |
    PARAMS    .....    |
    MINISTEP  1        |
    PARAMS    .....    |
@@ -172,7 +172,7 @@ struct ecl_file_struct {
    kw_index    = {"SEQHDR": [0], "MINISTEP": [1,3,5], "PARAMS": [2,4,6]}    <== This is hash table.
    kw_list     = [SEQHDR , MINISTEP , PARAMS , MINISTEP , PARAMS , MINISTEP , PARAMS]
    distinct_kw = [SEQHDR , MINISTEP , PARAMS]
-   
+
 */
 
 
@@ -208,7 +208,7 @@ static int file_map_get_global_index( const file_map_type * file_map , const cha
   int global_index = int_vector_iget( index_vector , ith);
   return global_index;
 }
-  
+
 
 
 /**
@@ -216,7 +216,7 @@ static int file_map_get_global_index( const file_map_type * file_map , const cha
    internal index fields 'kw_index' and 'distinct_kw'. This function
    must be called every time the content of the kw_list vector is
    modified (otherwise the ecl_file instance will be in an
-   inconsistent state).  
+   inconsistent state).
 */
 
 
@@ -233,7 +233,7 @@ static void file_map_make_index( file_map_type * file_map ) {
         hash_insert_hash_owned_ref( file_map->kw_index , header , index_vector , int_vector_free__);
         stringlist_append_copy( file_map->distinct_kw , header);
       }
-      
+
       {
         int_vector_type * index_vector = hash_get( file_map->kw_index , header);
         int_vector_append( index_vector , i);
@@ -244,7 +244,7 @@ static void file_map_make_index( file_map_type * file_map ) {
 
 static bool file_map_has_kw( const file_map_type * file_map, const char * kw) {
   return hash_has_key( file_map->kw_index , kw );
-} 
+}
 
 
 static ecl_file_kw_type * file_map_iget_file_kw( const file_map_type * file_map , int global_index) {
@@ -265,7 +265,7 @@ static ecl_kw_type * file_map_iget_kw( const file_map_type * file_map , int inde
   ecl_kw_type * ecl_kw = ecl_file_kw_get_kw_ptr( file_kw , file_map->fortio , file_map->inv_map);
   if (!ecl_kw) {
     if (fortio_assert_stream_open( file_map->fortio )) {
-      
+
       ecl_kw = ecl_file_kw_get_kw( file_kw , file_map->fortio , file_map->inv_map);
 
       if (FILE_FLAGS_SET( file_map->flags[0] , ECL_FILE_CLOSE_STREAM))
@@ -283,7 +283,7 @@ static void file_map_index_fload_kw(const file_map_type * file_map, const char* 
         ecl_type_enum ecl_type = ecl_file_kw_get_type(file_kw);
         int element_count = ecl_file_kw_get_size(file_kw);
 
-        ecl_kw_fread_indexed_data(file_map->fortio, offset + ECL_KW_FORTIO_HEADER_SIZE, ecl_type, element_count, index_map, buffer);
+        ecl_kw_fread_indexed_data(file_map->fortio, offset + ECL_KW_HEADER_FORTIO_SIZE, ecl_type, element_count, index_map, buffer);
     }
 }
 
@@ -339,9 +339,9 @@ static ecl_kw_type * file_map_iget_named_kw( const file_map_type * file_map , co
   ecl_kw_type * ecl_kw = ecl_file_kw_get_kw_ptr( file_kw , file_map->fortio , file_map->inv_map );
   if (!ecl_kw) {
     if (fortio_assert_stream_open( file_map->fortio )) {
-      
+
       ecl_kw = ecl_file_kw_get_kw( file_kw , file_map->fortio , file_map->inv_map);
-      
+
       if (FILE_FLAGS_SET( file_map->flags[0] , ECL_FILE_CLOSE_STREAM))
         fortio_fclose_stream( file_map->fortio );
     }
@@ -365,16 +365,16 @@ static void file_map_replace_kw( file_map_type * file_map , ecl_kw_type * old_kw
   while (index < vector_get_size( file_map->kw_list )) {
     ecl_file_kw_type * ikw = vector_iget( file_map->kw_list , index );
     if (ecl_file_kw_ptr_eq( ikw , old_kw)) {
-      /* 
+      /*
          Found it; observe that the vector_iset() function will
-         automatically invoke the destructor on the old_kw. 
+         automatically invoke the destructor on the old_kw.
       */
       ecl_kw_type * insert_kw = new_kw;
-      
+
       if (insert_copy)
         insert_kw = ecl_kw_alloc_copy( new_kw );
       ecl_file_kw_replace_kw( ikw , file_map->fortio , insert_kw );
-      
+
       file_map_make_index( file_map );
       return;
     }
@@ -386,7 +386,7 @@ static void file_map_replace_kw( file_map_type * file_map , ecl_kw_type * old_kw
 
 static bool file_map_load_all( file_map_type * file_map ) {
   bool loadOK = false;
-  
+
   if (fortio_assert_stream_open( file_map->fortio )) {
     int index;
     for (index = 0; index < vector_get_size( file_map->kw_list); index++) {
@@ -409,9 +409,9 @@ static bool file_map_load_all( file_map_type * file_map ) {
 
 static void file_map_add_kw( file_map_type * file_map , ecl_file_kw_type * file_kw) {
   if (file_map->owner)
-    vector_append_owned_ref( file_map->kw_list , file_kw , ecl_file_kw_free__ ); 
+    vector_append_owned_ref( file_map->kw_list , file_kw , ecl_file_kw_free__ );
   else
-    vector_append_ref( file_map->kw_list , file_kw); 
+    vector_append_ref( file_map->kw_list , file_kw);
 }
 
 static void file_map_free( file_map_type * file_map ) {
@@ -451,7 +451,7 @@ static int file_map_iget_occurence( const file_map_type * file_map , int global_
   const char * header              = ecl_file_kw_get_header( file_kw );
   const int_vector_type * index_vector = hash_get( file_map->kw_index , header );
   const int * index_data = int_vector_get_const_ptr( index_vector );
-  
+
   int occurence = -1;
   {
     /* Manual reverse lookup. */
@@ -471,8 +471,8 @@ static void file_map_fprintf_kw_list(const file_map_type * file_map , FILE * str
   for (i=0; i < vector_get_size( file_map->kw_list ); i++) {
     const ecl_file_kw_type * file_kw = vector_iget_const( file_map->kw_list , i );
     fprintf(stream , "%-8s %7d:%s\n",
-            ecl_file_kw_get_header( file_kw ) , 
-            ecl_file_kw_get_size( file_kw ) , 
+            ecl_file_kw_get_header( file_kw ) ,
+            ecl_file_kw_get_size( file_kw ) ,
             ecl_util_get_type_name( ecl_file_kw_get_type( file_kw )));
   }
 }
@@ -486,20 +486,20 @@ static file_map_type * file_map_alloc_blockmap(const file_map_type * file_map , 
     if (file_map_has_kw( file_map , header )) {
       int kw_index = file_map_get_global_index( file_map , header , occurence );
       ecl_file_kw_type * file_kw = vector_iget( file_map->kw_list , kw_index );
-      
+
       while (true) {
         file_map_add_kw( block_map , file_kw );
-        
+
         kw_index++;
         if (kw_index == vector_get_size( file_map->kw_list ))
-          break;              
+          break;
         else {
           file_kw = vector_iget(file_map->kw_list , kw_index);
           if (strcmp( header , ecl_file_kw_get_header( file_kw )) == 0)
             break;
         }
       }
-    } 
+    }
     file_map_make_index( block_map );
     return block_map;
   } else
@@ -536,7 +536,7 @@ void ecl_file_fwrite_fortio(const ecl_file_type * ecl_file , fortio_type * targe
 
 
 
-/* 
+/*
    Observe : if the filename is a standard filename which can be used
    to infer formatted/unformatted automagically the fmt_file variable
    is NOT consulted.
@@ -545,11 +545,11 @@ void ecl_file_fwrite_fortio(const ecl_file_type * ecl_file , fortio_type * targe
 void ecl_file_fwrite(const ecl_file_type * ecl_file , const char * filename, bool fmt_file) {
   bool __fmt_file;
   ecl_file_enum file_type;
-  
+
   file_type = ecl_util_get_file_type( filename , &__fmt_file , NULL);
   if (file_type == ECL_OTHER_FILE)
     __fmt_file = fmt_file;
-  
+
   {
     fortio_type * target = fortio_open_writer( filename , __fmt_file , ECL_ENDIAN_FLIP);
     ecl_file_fwrite_fortio( ecl_file , target , 0);
@@ -591,7 +591,7 @@ void ecl_file_fwrite(const ecl_file_type * ecl_file , const char * filename, boo
    ....
    for (ikw = 0; ikw < ecl_file_get_num_distinct_kw(ecl_file); ikw++) {
    const char * kw = ecl_file_iget_distinct_kw(ecl_file , ikw);
-     
+
    printf("The file contains: %d occurences of \'%s\' \n",ecl_file_get_num_named_kw( ecl_file , kw) , kw);
    }
    ....
@@ -601,7 +601,7 @@ void ecl_file_fwrite(const ecl_file_type * ecl_file , const char * filename, boo
    The file contains 1 occurences of 'SEQHDR'
    The file contains 3 occurences of 'MINISTEP'
    The file contains 3 occurences of 'PARAMS'
-  
+
 */
 
 
@@ -623,7 +623,7 @@ void ecl_file_fwrite(const ecl_file_type * ecl_file , const char * filename, boo
    @old_kw can not be found the function will fail hard - to verify
    that @new_kw is indeed in the ecl_file instance you should use
    ecl_file_has_kw_ptr() first.
-   
+
    The ecl_file function typically gives out references to the
    internal ecl_kw instances via the ecl_file_iget_kw() function. Use
    of ecl_file_replace_kw() might lead to invalidating ecl_kw
@@ -634,22 +634,22 @@ void ecl_file_fwrite(const ecl_file_type * ecl_file , const char * filename, boo
    ecl_file_type * restart_file   = ecl_file_fread_alloc( "ECLIPSE.UNRST" );
    ecl_kw_type * initial_pressure = ecl_file_iget_named_kw( ecl_file , "PRESSURE" , 0);
    ecl_kw_type * faked_pressure   = ecl_kw_alloc_copy( initial_pressure );
-   
+
    ecl_kw_scale( faked_pressure , 1.25 );
    ecl_file_replace_kw( restart_file , initial_pressure , faked_pressure , false );  <--- This call will invalidate the inital_pressure reference
    ....
    ....
-   // This will fail horribly: 
+   // This will fail horribly:
    printf("The initial pressure in cell(0) was:%g \n",ecl_kw_iget_double( initial_pressure , 0 ));
    /|\
    |
-   +---------> Using initial_pressure => Crash and burn! 
-                                                           
+   +---------> Using initial_pressure => Crash and burn!
+
    The ecl_file structure takes ownership of all the keywords, and
    will also take ownership of the newly instered @new_kw instance; if
    the boolean @insert_copy is set to true the function will insert a
-   copy of @new_kw, leaving the original reference untouched. 
-*/                
+   copy of @new_kw, leaving the original reference untouched.
+*/
 
 
 
@@ -665,7 +665,7 @@ ecl_kw_type * ecl_file_icopy_named_kw( const ecl_file_type * ecl_file , const ch
   return ecl_kw_alloc_copy( ecl_file_iget_named_kw( ecl_file , kw , ith ));
 }
 
-  
+
 /*
   Will return the number of times a particular keyword occurs in a
   ecl_file instance. Will return 0 if the keyword can not be found.
@@ -692,7 +692,7 @@ int ecl_file_get_num_named_kw(const ecl_file_type * ecl_file , const char * kw) 
 
    ecl_file_iget_occurence(ecl_file , 2) -> 0; Global index 2 will
    look up the first occurence of PARAMS.
-  
+
    ecl_file_iget_occurence(ecl_file , 5) -> 2; Global index 5 will
    look up th third occurence of MINISTEP.
 
@@ -705,7 +705,7 @@ int ecl_file_iget_occurence( const ecl_file_type * ecl_file , int index) {
 }
 
 
-/** 
+/**
     Returns the total number of ecl_kw instances in the ecl_file
     instance.
 */
@@ -778,10 +778,10 @@ const char * ecl_file_iget_header( const ecl_file_type * file , int global_index
 
 /* ---------- */
 
-/* 
+/*
    This function will return the ith occurence of 'kw' in
    ecl_file. Will abort hard if the request can not be satisifed - use
-   query functions if you can not take that.  
+   query functions if you can not take that.
 */
 
 ecl_kw_type * ecl_file_iget_named_kw( const ecl_file_type * file , const char * kw, int ith) {
@@ -815,7 +815,7 @@ static file_map_type * ecl_file_get_blockmap( ecl_file_type * ecl_file , const c
     blockmap = file_map_alloc_blockmap( ecl_file->global_map , kw , occurence );
   else
     blockmap = file_map_alloc_blockmap( ecl_file->active_map , kw , occurence );
-  
+
   if (blockmap != NULL)
     ecl_file_add_map( ecl_file , blockmap );
   return blockmap;
@@ -824,7 +824,7 @@ static file_map_type * ecl_file_get_blockmap( ecl_file_type * ecl_file , const c
 
 /*****************************************************************/
 /*
-  Different functions to open and close a file. 
+  Different functions to open and close a file.
 */
 
 /**
@@ -835,23 +835,37 @@ static file_map_type * ecl_file_get_blockmap( ecl_file_type * ecl_file , const c
    map.
 */
 
-static void ecl_file_scan( ecl_file_type * ecl_file ) {
+static bool ecl_file_scan( ecl_file_type * ecl_file ) {
+  bool scan_ok = false;
   fortio_fseek( ecl_file->fortio , 0 , SEEK_SET );
   {
     ecl_kw_type * work_kw = ecl_kw_alloc_new("WORK-KW" , 0 , ECL_INT_TYPE , NULL);
-    offset_type current_offset;
+
     while (true) {
-      current_offset = fortio_ftell( ecl_file->fortio );
-      if (ecl_kw_fread_header( work_kw , ecl_file->fortio )) {
-        ecl_file_kw_type * file_kw = ecl_file_kw_alloc( work_kw , current_offset);
-        file_map_add_kw( ecl_file->global_map , file_kw );
-        ecl_file_kw_fskip_data( file_kw , ecl_file->fortio );
-      } else 
+      if (fortio_read_at_eof(ecl_file->fortio)) {
+        scan_ok = true;
         break;
+      }
+
+      {
+        offset_type current_offset = fortio_ftell( ecl_file->fortio );
+        if (ecl_kw_fread_header( work_kw , ecl_file->fortio)) {
+          ecl_file_kw_type * file_kw = ecl_file_kw_alloc( work_kw , current_offset);
+          if (ecl_file_kw_fskip_data( file_kw , ecl_file->fortio ))
+            file_map_add_kw( ecl_file->global_map , file_kw );
+          else
+            break;
+        } else
+          break;
+      }
     }
+
     ecl_kw_free( work_kw );
   }
-  file_map_make_index( ecl_file->global_map );
+  if (scan_ok)
+    file_map_make_index( ecl_file->global_map );
+
+  return scan_ok;
 }
 
 
@@ -868,54 +882,44 @@ void ecl_file_select_global( ecl_file_type * ecl_file ) {
    structure. No keyword data will be loaded from the file.
 
    The ecl_file instance will retain an open fortio reference to the
-   file until ecl_file_close() is called. 
+   file until ecl_file_close() is called.
 */
 
 
-static ecl_file_type * ecl_file_open__( const char * filename , int flags) {
+ecl_file_type * ecl_file_open( const char * filename , int flags) {
   fortio_type * fortio;
   bool          fmt_file;
 
   ecl_util_fmt_file( filename , &fmt_file);
   //flags |= ECL_FILE_CLOSE_STREAM;   // DEBUG DEBUG DEBUG
-  
+
   if (FILE_FLAGS_SET(flags , ECL_FILE_WRITABLE))
     fortio = fortio_open_readwrite( filename , fmt_file , ECL_ENDIAN_FLIP);
-  else 
-    fortio = fortio_open_reader( filename , fmt_file , ECL_ENDIAN_FLIP);      
+  else
+    fortio = fortio_open_reader( filename , fmt_file , ECL_ENDIAN_FLIP);
 
   if (fortio) {
     ecl_file_type * ecl_file = ecl_file_alloc_empty( flags );
     ecl_file->fortio = fortio;
     ecl_file->global_map = file_map_alloc( ecl_file->fortio , &ecl_file->flags , ecl_file->inv_map , true );
-    
+
     ecl_file_add_map( ecl_file , ecl_file->global_map );
-    ecl_file_scan( ecl_file );
-    ecl_file_select_global( ecl_file );
+    if (ecl_file_scan( ecl_file )) {
+      ecl_file_select_global( ecl_file );
 
-    if (FILE_FLAGS_SET( ecl_file->flags , ECL_FILE_CLOSE_STREAM))
-      fortio_fclose_stream( ecl_file->fortio );
-    
-    return ecl_file;
-  } else 
+      if (FILE_FLAGS_SET( ecl_file->flags , ECL_FILE_CLOSE_STREAM))
+        fortio_fclose_stream( ecl_file->fortio );
+
+      return ecl_file;
+    } else {
+      ecl_file_close( ecl_file );
+      return NULL;
+    }
+  } else
     return NULL;
 }
 
 
-ecl_file_type * ecl_file_open( const char * filename , int flags) {
-  ecl_file_type * ecl_file = ecl_file_open__(filename , flags );
-  if (ecl_file)
-    return ecl_file;
-  else {
-    util_abort("%s: failed to open ECLIPSE file:%s \n",__func__ , filename);
-    return NULL;
-  }
-}
-
-
-ecl_file_type * ecl_file_try_open( const char * filename, int flags) {
-  return ecl_file_open__(filename , flags );
-}
 
 
 
@@ -974,7 +978,7 @@ bool ecl_file_select_block( ecl_file_type * ecl_file , const char * kw , int occ
 void ecl_file_close(ecl_file_type * ecl_file) {
   if (ecl_file->fortio != NULL)
     fortio_fclose( ecl_file->fortio  );
-  
+
   inv_map_free( ecl_file->inv_map );
   vector_free( ecl_file->map_list  );
   vector_free( ecl_file->map_stack );
@@ -1019,7 +1023,7 @@ void ecl_file_free__(void * arg) {
 /* Here we include two files with functions specialized to work with
    restart and summary files. Observe that the files ecl_rstfile.c and
    ecl_smryfile are compiled as part of the same compilation unit as
-   ecl_file.c  
+   ecl_file.c
 */
 
 #include "ecl_rstfile.c"
@@ -1033,10 +1037,10 @@ void ecl_file_free__(void * arg) {
   The input @file must be either an INIT file or a restart file. Will
   fail hard if an INTEHEAD kw can not be found - or if the INTEHEAD
   keyword is not sufficiently large.
-  
+
   The eclipse files can distinguish between ECLIPSE300 ( value == 300)
   and ECLIPSE300-Thermal option (value == 500). This function will
-  return ECLIPSE300 in both those cases.  
+  return ECLIPSE300 in both those cases.
 */
 
 ecl_version_enum ecl_file_get_ecl_version( const ecl_file_type * file ) {
@@ -1079,14 +1083,14 @@ bool ecl_file_writable( const ecl_file_type * ecl_file ) {
 /**
    Checks if the ecl_file contains ecl_kw; this check is based on
    pointer equality - i.e. we check if the ecl_file contains exactly
-   this keyword - not an arbitrary equivalent keyword. 
+   this keyword - not an arbitrary equivalent keyword.
 
    This function can be called as a safeguard before calling
-   ecl_file_save_kw().  
+   ecl_file_save_kw().
 */
 
 bool ecl_file_has_kw_ptr( const ecl_file_type * ecl_file , const ecl_kw_type * ecl_kw) {
-  ecl_file_kw_type * file_kw = inv_map_get_file_kw( ecl_file->inv_map , ecl_kw );  
+  ecl_file_kw_type * file_kw = inv_map_get_file_kw( ecl_file->inv_map , ecl_kw );
   if (file_kw == NULL)
     return false;
   else
@@ -1108,19 +1112,19 @@ bool ecl_file_has_kw_ptr( const ecl_file_type * ecl_file , const ecl_kw_type * e
      will ensue if this is not satisfied.
 
   3. The ecl_file must have been opened with one of the _writable()
-     open functions.  
+     open functions.
 */
 
 bool ecl_file_save_kw( const ecl_file_type * ecl_file , const ecl_kw_type * ecl_kw) {
-  ecl_file_kw_type * file_kw = inv_map_get_file_kw( ecl_file->inv_map , ecl_kw );  // We just verify that the input ecl_kw points to an ecl_kw 
+  ecl_file_kw_type * file_kw = inv_map_get_file_kw( ecl_file->inv_map , ecl_kw );  // We just verify that the input ecl_kw points to an ecl_kw
   if (file_kw != NULL) {                                                           // we manage; from then on we use the reference contained in
-    if (fortio_assert_stream_open( ecl_file->fortio )) {                           // the corresponding ecl_file_kw instance. 
-    
-      ecl_file_kw_inplace_fwrite( file_kw , ecl_file->fortio );                      
-      
+    if (fortio_assert_stream_open( ecl_file->fortio )) {                           // the corresponding ecl_file_kw instance.
+
+      ecl_file_kw_inplace_fwrite( file_kw , ecl_file->fortio );
+
       if (FILE_FLAGS_SET( ecl_file->flags , ECL_FILE_CLOSE_STREAM))
         fortio_fclose_stream( ecl_file->fortio );
-      
+
       return true;
     } else
       return false;

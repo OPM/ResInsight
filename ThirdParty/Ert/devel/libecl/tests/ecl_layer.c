@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway. 
-    
-   The file 'ecl_layer.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2014  Statoil ASA, Norway.
+
+   The file 'ecl_layer.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -143,7 +143,7 @@ void test_edge() {
   test_assert_int_equal( layer_iget_edge_value(layer , 3 , 2 , BOTTOM_EDGE) , 100);
   test_assert_int_equal( layer_iget_edge_value(layer , 3 , 2 , RIGHT_EDGE) , 100);
   test_assert_int_equal( layer_iget_edge_value(layer , 3 , 2 , TOP_EDGE) , -100);
-  
+
   layer_iset_cell_value( layer , 1 , 2 , 100);
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 2 , LEFT_EDGE) ,  0);
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 2 , BOTTOM_EDGE) , 100);
@@ -154,7 +154,7 @@ void test_edge() {
   test_assert_int_equal( layer_iget_edge_value(layer , 1 , 2 , BOTTOM_EDGE) , 100);
   test_assert_int_equal( layer_iget_edge_value(layer , 1 , 2 , RIGHT_EDGE) , 0);
   test_assert_int_equal( layer_iget_edge_value(layer , 1 , 2 , TOP_EDGE) , -100);
-  
+
   layer_iset_cell_value( layer , 2 , 3 , 100);
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 2 , LEFT_EDGE) ,  0);
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 2 , BOTTOM_EDGE) , 100);
@@ -177,7 +177,7 @@ void test_edge() {
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 1 , BOTTOM_EDGE) , 100);
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 1 , RIGHT_EDGE) , 100);
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 1 , TOP_EDGE) , 0);
-  
+
   layer_iset_cell_value(layer , 2,2,100);
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 2 , LEFT_EDGE) , 0);
   test_assert_int_equal( layer_iget_edge_value(layer , 2 , 2 , BOTTOM_EDGE) , 0);
@@ -211,37 +211,37 @@ void test_walk() {
   test_assert_int_equal( int_vector_size( cell_list ) , 1 );
   {
     int_point2d_type point;
-    
-    struct_vector_iget( corner_list , 0 , &point); 
+
+    struct_vector_iget( corner_list , 0 , &point);
     test_assert_int_equal( 4 , point.i );
     test_assert_int_equal( 4 , point.j );
 
-    struct_vector_iget( corner_list , 1 , &point); 
+    struct_vector_iget( corner_list , 1 , &point);
     test_assert_int_equal( 5 , point.i );
     test_assert_int_equal( 4 , point.j );
 
-    struct_vector_iget( corner_list , 2 , &point); 
+    struct_vector_iget( corner_list , 2 , &point);
     test_assert_int_equal( 5 , point.i );
     test_assert_int_equal( 5 , point.j );
 
-    struct_vector_iget( corner_list , 3 , &point); 
+    struct_vector_iget( corner_list , 3 , &point);
     test_assert_int_equal( 4 , point.i );
     test_assert_int_equal( 5 , point.j );
   }
-  
+
   {
     int i,j;
     int_vector_type * true_cell_list = int_vector_alloc(0,0);
     for (j= 3; j < 7; j++) {
       for (i = 3; i < 7; i++) {
-        layer_iset_cell_value( layer , i , j , 100 ); 
+        layer_iset_cell_value( layer , i , j , 100 );
 
         if (i == 3 || j == 3)
           int_vector_append( true_cell_list , i + j*layer_get_nx( layer ));
 
         if (i == 6 || j == 6)
           int_vector_append( true_cell_list , i + j*layer_get_nx( layer ));
-        
+
       }
     }
     int_vector_select_unique( true_cell_list );
@@ -256,7 +256,7 @@ void test_walk() {
     test_assert_true( int_vector_equal( cell_list , true_cell_list ));
     int_vector_free( true_cell_list );
   }
-  
+
   int_vector_free( cell_list );
   struct_vector_free( corner_list );
   layer_free( layer );
@@ -270,12 +270,12 @@ void test_content1() {
   for (j=4; j < 8; j++)
     for (i=4; i < 8; i++)
       layer_iset_cell_value( layer , i , j , 1 );
-  
+
   test_assert_int_equal( 16 , layer_get_cell_sum( layer ));
   {
     int_vector_type * i_list = int_vector_alloc(0,0);
     int_vector_type * j_list = int_vector_alloc(0,0);
-    
+
     test_assert_false( layer_trace_block_content( layer , false , 4,4, 10 , i_list , j_list));
     test_assert_true( layer_trace_block_content( layer , false , 4,4, 1  , i_list , j_list ));
     test_assert_int_equal( 16 , int_vector_size( i_list ));
@@ -288,11 +288,11 @@ void test_content1() {
         test_assert_int_equal( int_vector_iget(i_list , i + j*4) , j + 4);
         test_assert_int_equal( int_vector_iget(j_list , i + j*4) , j + 4);
       }
-    
-    
+
+
     test_assert_true( layer_trace_block_content( layer , false , 4,4, 0  , i_list , j_list ));
     test_assert_int_equal( 16 , int_vector_size( i_list ));
-    
+
     test_assert_true( layer_trace_block_content( layer ,true ,  4,4, 0  , i_list , j_list ));
     test_assert_int_equal( 16 , int_vector_size( i_list ));
     test_assert_int_equal( 0 , layer_get_cell_sum( layer ));
@@ -300,7 +300,7 @@ void test_content1() {
     int_vector_free( i_list );
     int_vector_free( j_list );
   }
-  
+
   layer_free( layer );
 }
 
@@ -311,7 +311,7 @@ void test_content2() {
   int i,j;
   for (j=0; j < 5; j++)
     layer_iset_cell_value( layer , 2 , j , 1 );
-  
+
   for (i=0; i < 5; i++)
     layer_iset_cell_value( layer , i , 2 , 1 );
 
@@ -321,7 +321,7 @@ void test_content2() {
     int_vector_type * j_list = int_vector_alloc(0,0);
     int_vector_type * cell_list = int_vector_alloc(0,0);
     struct_vector_type * corner_list = struct_vector_alloc( sizeof(int_point2d_type) );
-    
+
 
     for (j=0; j < 5; j++) {
       for (i=0; i < 5; i++) {
@@ -333,7 +333,7 @@ void test_content2() {
         }
 
       }
-    } 
+    }
 
     struct_vector_free( corner_list );
     int_vector_free( i_list );
@@ -342,7 +342,7 @@ void test_content2() {
   }
   test_assert_int_equal( 0 , layer_get_cell_sum( layer ));
 
-  
+
   layer_free( layer );
 }
 
@@ -365,6 +365,33 @@ void test_replace() {
 
 
 
+void test_interp_barrier() {
+  layer_type * layer = layer_alloc(10,10);
+
+  layer_add_interp_barrier( layer , 0 , 22 );
+
+  layer_free( layer );
+}
+
+
+
+void test_copy( ) {
+  layer_type * layer1 = layer_alloc(10,10);
+  layer_type * layer2 = layer_alloc(10,10);
+
+  layer_iset_cell_value( layer1 , 5,5,10 );
+  layer_memcpy( layer2 , layer1 );
+
+  test_assert_int_equal( 10 , layer_iget_edge_value( layer2 , 5,5,BOTTOM_EDGE));
+  test_assert_int_equal( 10 , layer_iget_edge_value( layer2 , 5,5,RIGHT_EDGE));
+  test_assert_int_equal( -10 , layer_iget_edge_value( layer2 , 5,5,TOP_EDGE));
+  test_assert_int_equal( -10 , layer_iget_edge_value( layer2 , 5,5,LEFT_EDGE));
+
+  layer_free( layer2 );
+  layer_free( layer1 );
+}
+
+
 int main(int argc , char ** argv) {
   test_create();
   test_get_invalid_cell();
@@ -375,4 +402,6 @@ int main(int argc , char ** argv) {
   test_content1();
   test_content2();
   test_replace();
+  test_interp_barrier();
+  test_copy();
 }

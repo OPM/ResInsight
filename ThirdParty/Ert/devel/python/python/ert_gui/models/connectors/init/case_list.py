@@ -18,9 +18,9 @@ class CaseList(ErtConnector, ListModelMixin):
         self.observable().notify(ListModelMixin.LIST_CHANGED_EVENT)
 
 
-    def getAllCasesWithData(self):
+    def getAllCasesWithDataAndNotRunning(self):
         cases = self.getList()
-        cases_with_data = []
+        cases_with_data_and_not_running = []
         for case in cases:
             case_has_data = False
             state_map = self.ert().getEnkfFsManager().getStateMapForCase(case)
@@ -29,10 +29,10 @@ class CaseList(ErtConnector, ListModelMixin):
                 if state == RealizationStateEnum.STATE_HAS_DATA:
                     case_has_data = True
 
-            if case_has_data:
-                cases_with_data.append(case)
+            if case_has_data and not self.ert().getEnkfFsManager().isCaseRunning(case):
+                cases_with_data_and_not_running.append(case)
 
-        return cases_with_data
+        return cases_with_data_and_not_running
 
 
     def getCaseRealizationStates(self, case_name):

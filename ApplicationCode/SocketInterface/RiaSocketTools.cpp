@@ -25,21 +25,21 @@
 
 #include "RiaSocketTools.h"
 #include "RiaSocketServer.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimInputCase.h"
+#include "RimEclipseInputCase.h"
 
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputPropertyCollection.h"
 
 #include "RiaSocketDataTransfer.h"
 
@@ -48,9 +48,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args)
+RimEclipseCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args)
 {
-    RimCase* rimCase = NULL;
+    RimEclipseCase* rimCase = NULL;
     int caseId = -1;
 
     if (args.size() > 1)
@@ -79,7 +79,13 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
     caseId = rimCase->caseId;
     caseName = rimCase->caseUserDescription;
 
-    RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
+    RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*> (rimCase);
+    RimCaseCollection* caseCollection = NULL;
+    if (eclCase)
+    {
+        caseCollection = eclCase->parentCaseCollection();
+    }
+
     if (caseCollection)
     {
         caseGroupId = caseCollection->parentCaseGroup()->groupId;
@@ -97,13 +103,17 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
     {
         caseGroupId = -1;
 
-        if (dynamic_cast<RimInputCase*>(rimCase))
+        if (dynamic_cast<RimEclipseInputCase*>(rimCase))
         {
             caseType = "InputCase";
         }
-        else
+        else if (eclCase)
         {
             caseType = "ResultCase";
+        }
+        else
+        {
+            caseType = "GeoMechCase";
         }
     }
 }

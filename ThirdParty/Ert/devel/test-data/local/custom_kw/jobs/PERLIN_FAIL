@@ -1,0 +1,3 @@
+EXECUTABLE       perlin_fail.py
+TARGET_FILE      perlin_fail.status
+ARGLIST          <IENS>

@@ -84,7 +84,6 @@ IntVector.cNamespace().memcpy              = cwrapper.prototype("void   int_vect
 IntVector.cNamespace().set_default         = cwrapper.prototype("void   int_vector_set_default( int_vector , int)")
 IntVector.cNamespace().get_default         = cwrapper.prototype("int    int_vector_get_default( int_vector )")
 IntVector.cNamespace().element_size        = cwrapper.prototype("int    int_vector_element_size( int_vector )")
-IntVector.cNamespace().count_equal         = cwrapper.prototype("int    int_vector_count_equal( int_vector, int)")
 IntVector.cNamespace().create_active_list  = cwrapper.prototype("int_vector_obj string_util_alloc_active_list( char* )")
 
 IntVector.cNamespace().permute          = cwrapper.prototype("void int_vector_permute(int_vector, permutation_vector)")
@@ -92,5 +91,9 @@ IntVector.cNamespace().sort_perm        = cwrapper.prototype("permutation_vector
 IntVector.cNamespace().rsort_perm       = cwrapper.prototype("permutation_vector_obj int_vector_alloc_rsort_perm(int_vector)")
 IntVector.cNamespace().contains       = cwrapper.prototype("bool int_vector_contains(int_vector, int)")
 IntVector.cNamespace().select_unique       = cwrapper.prototype("void int_vector_select_unique(int_vector)")
+IntVector.cNamespace().element_sum       = cwrapper.prototype("int int_vector_sum(int_vector)")
+IntVector.cNamespace().get_data_ptr      = cwrapper.prototype("int* int_vector_get_ptr(int_vector)")
+IntVector.cNamespace().count_equal       = cwrapper.prototype("int int_vector_count_equal(int_vector, int)")
+IntVector.cNamespace().init_range        = cwrapper.prototype("void int_vector_init_range(int_vector, int , int , int)")
 
 

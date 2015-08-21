@@ -36,16 +36,16 @@
 #include "RigCell.h"
 #include "RivPipeGeometryGenerator.h"
 
-#include "RimCase.h"
-#include "RimReservoirView.h"
-#include "RimWell.h"
-#include "RimWellCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimEclipseCellColors.h"
+#include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 
 
@@ -53,7 +53,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPipesPartMgr::RivWellPipesPartMgr(RimReservoirView* reservoirView, RimWell* well)
+RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;

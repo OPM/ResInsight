@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'gen_obs.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'gen_obs.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 /**
@@ -44,26 +44,36 @@
    general observation is just a vector of numbers - where EnKF has no
    understanding whatsover of the type of these data. The actual data
    is supposed to be found in a file.
-   
+
    Currently it can only observe gen_data instances - but that should
    be generalized.
 */
 
+/*
+  The std_scaling field of the xxx_obs structure can be used to scale
+  the standard deviation used for the observations, either to support
+  workflows with multiple data assimilation or to reduce the effect of
+  observation correlations.
 
+  When querying for the observation standard deviation using
+  gen_obs_iget_std() the user input value of standard deviation will
+  be returned, whereas when the function gen_obs_measure() is used the
+  std_scaling will be incorporated in the result.
+*/
 
 #define GEN_OBS_TYPE_ID 77619
 
 struct gen_obs_struct {
   UTIL_TYPE_ID_DECLARATION;
-  int                          obs_size;         /* This is the total size of the observation vector. */ 
+  int                          obs_size;         /* This is the total size of the observation vector. */
   int                        * data_index_list;  /* The indexes which are observed in the corresponding gen_data instance - of length obs_size. */
   bool                         observe_all_data; /* Flag which indiactes whether all data in the gen_data instance should be observed - in that case we must do a size comparizon-check at use time. */
 
   double                     * obs_data;         /* The observed data. */
-  double                     * obs_std;          /* The observed standard deviation. */ 
+  double                     * obs_std;          /* The observed standard deviation. */
+  double                     * std_scaling;      /* Scaling factor for the standard deviation */
 
-  char                       * obs_key;          /* The key this observation is held by - in the enkf_obs structur (only for debug messages). */  
-  char                       * obs_file;         /* The file holding the observation. */ 
+  char                       * obs_key;          /* The key this observation is held by - in the enkf_obs structur (only for debug messages). */
   gen_data_file_format_type    obs_format;       /* The format, i.e. ASCII, binary_double or binary_float, of the observation file. */
   matrix_type                * error_covar;
   gen_data_config_type       * data_config;
@@ -78,15 +88,19 @@ static UTIL_SAFE_CAST_FUNCTION(gen_obs , GEN_OBS_TYPE_ID)
 void gen_obs_free(gen_obs_type * gen_obs) {
   util_safe_free(gen_obs->obs_data);
   util_safe_free(gen_obs->obs_std);
-  util_safe_free(gen_obs->obs_file);
   util_safe_free(gen_obs->data_index_list);
   util_safe_free(gen_obs->obs_key);
+  util_safe_free(gen_obs->std_scaling);
   if (gen_obs->error_covar != NULL)
     matrix_free( gen_obs->error_covar );
-  
+
   free(gen_obs);
 }
 
+
+static double IGET_SCALED_STD(const gen_obs_type * gen_obs, int index) {
+  return gen_obs->obs_std[index] * gen_obs->std_scaling[index];
+}
 
 
 /**
@@ -98,54 +112,97 @@ void gen_obs_free(gen_obs_type * gen_obs) {
    The file with observations should be a long vector of 2N elements,
    where the first N elements are data values, and the last N values
    are the corresponding standard deviations.
-   
+
    The file is loaded with the gen_common_fload_alloc() function, and
    can be in formatted ASCII or binary_float / binary_double. Observe
    that there is *NO* header information in this file.
 */
 
 
-static void gen_obs_load_observation(gen_obs_type * gen_obs, double scalar_value , double scalar_error) {
-  ecl_type_enum load_type;
-  void * buffer;
-  
-  gen_obs->obs_size = 0;
-  if (gen_obs->obs_file != NULL)
-    buffer = gen_common_fload_alloc(gen_obs->obs_file , gen_obs->obs_format , ECL_DOUBLE_TYPE , &load_type , &gen_obs->obs_size);
-  else {
-    double * double_buffer = util_calloc(2 , sizeof * double_buffer );
-    buffer = double_buffer;
-    double_buffer[0] = scalar_value;
-    double_buffer[1] = scalar_error;
-    load_type         = ECL_DOUBLE_TYPE;
-    gen_obs->obs_size = 2;
-  }
-  
-  /** Ensure that the data is of type double. */
-  if (load_type == ECL_FLOAT_TYPE) {
-    double * double_data = util_calloc(gen_obs->obs_size , sizeof * double_data );
-    util_float_to_double(double_data , (const float *) buffer , gen_obs->obs_size);
-    free(buffer);
-    buffer = double_data;
-  }
-  
-  gen_obs->obs_size /= 2; /* Originally contains BOTH data and std. */
-  gen_obs->obs_data = util_realloc(gen_obs->obs_data , gen_obs->obs_size * sizeof * gen_obs->obs_data );
-  gen_obs->obs_std  = util_realloc(gen_obs->obs_std  , gen_obs->obs_size * sizeof * gen_obs->obs_std  );
+static void gen_obs_set_data(gen_obs_type * gen_obs, int buffer_size , const double * buffer) {
+  gen_obs->obs_size    	   = buffer_size / 2;
+  gen_obs->obs_data    	   = util_realloc(gen_obs->obs_data , gen_obs->obs_size * sizeof * gen_obs->obs_data );
+  gen_obs->obs_std     	   = util_realloc(gen_obs->obs_std  , gen_obs->obs_size * sizeof * gen_obs->obs_std  );
+  gen_obs->std_scaling 	   = util_realloc(gen_obs->std_scaling  , gen_obs->obs_size * sizeof * gen_obs->std_scaling  );
+  gen_obs->data_index_list = util_realloc(gen_obs->data_index_list , gen_obs->obs_size * sizeof * gen_obs->data_index_list );
   {
     int iobs;
     double * double_buffer = (double * ) buffer;
     for (iobs = 0; iobs < gen_obs->obs_size; iobs++) {
       gen_obs->obs_data[iobs] =  double_buffer[2*iobs];
       gen_obs->obs_std[iobs]  =  double_buffer[2*iobs + 1];
+      gen_obs->std_scaling[iobs] = 1.0;
+      gen_obs->data_index_list[iobs] = iobs;
+
     }
-     
-  } 
+  }
+}
+
+
+void gen_obs_load_observation(gen_obs_type * gen_obs, const char * obs_file) {
+  ecl_type_enum load_type;
+  void * buffer;
+  int buffer_size = 0;
+  buffer = gen_common_fload_alloc(obs_file , gen_obs->obs_format , ECL_DOUBLE_TYPE , &load_type , &buffer_size);
+  
+  /** Ensure that the data is of type double. */
+  if (load_type == ECL_FLOAT_TYPE) {
+    double * double_data = util_calloc(gen_obs->obs_size , sizeof * double_data );
+    util_float_to_double(double_data , (const float *) buffer , buffer_size);
+    free(buffer);
+    buffer = double_data;
+  }
+  
+  gen_obs_set_data( gen_obs , buffer_size , buffer );
   free(buffer);
 }
 
 
 
+void gen_obs_set_scalar( gen_obs_type * gen_obs , double scalar_value , double scalar_std) {
+  double buffer[2] = { scalar_value , scalar_std };
+  gen_obs_set_data( gen_obs , 2 , buffer );
+}
+
+void gen_obs_attach_data_index( gen_obs_type * obs , const int_vector_type * data_index ) {
+  util_safe_free( obs->data_index_list );
+  obs->data_index_list = int_vector_alloc_data_copy( data_index );
+  obs->observe_all_data = false;
+}
+
+
+void gen_obs_load_data_index( gen_obs_type * obs , const char * data_index_file) {
+  /* Parsing an a file with integers. */
+  util_safe_free( obs->data_index_list );
+  obs->data_index_list = gen_common_fscanf_alloc( data_index_file , ECL_INT_TYPE , &obs->obs_size);
+  obs->observe_all_data = false;
+}  
+
+
+void gen_obs_parse_data_index( gen_obs_type * obs , const char * data_index_string) {
+  /* Parsing a string of the type "1,3,5,9-100,200,202,300-1000" */
+  int_vector_type * index_list = string_util_alloc_active_list( data_index_string );
+  int_vector_shrink( index_list );
+  gen_obs_attach_data_index( obs , index_list );
+  int_vector_free( index_list );
+}
+
+
+
+gen_obs_type * gen_obs_alloc__(gen_data_config_type * data_config , const char * obs_key) {
+  gen_obs_type * obs = util_malloc(sizeof * obs);
+  UTIL_TYPE_ID_INIT( obs , GEN_OBS_TYPE_ID );
+  obs->obs_data         = NULL;
+  obs->obs_std          = NULL;
+  obs->std_scaling      = NULL;
+  obs->data_index_list  = NULL;
+  obs->obs_format       = ASCII;  /* Hardcoded for now. */
+  obs->obs_key          = util_alloc_string_copy( obs_key );
+  obs->data_config      = data_config;
+  obs->observe_all_data = true;
+  obs->error_covar = NULL;
+  return obs;
+}
 
 
 /**
@@ -167,50 +224,22 @@ static void gen_obs_load_observation(gen_obs_type * gen_obs, double scalar_value
 
 
 gen_obs_type * gen_obs_alloc(gen_data_config_type * data_config , const char * obs_key , const char * obs_file , double scalar_value , double scalar_error , const char * data_index_file , const char * data_index_string , const char * error_covar_file) {
-  gen_obs_type * obs = util_malloc(sizeof * obs);
-  
-  UTIL_TYPE_ID_INIT( obs , GEN_OBS_TYPE_ID );
-  obs->obs_data         = NULL;
-  obs->obs_std          = NULL;
-  obs->obs_file         = util_alloc_string_copy( obs_file );
-  obs->obs_format       = ASCII;  /* Hardcoded for now. */
-  obs->obs_key          = util_alloc_string_copy( obs_key );   
-  obs->data_config      = data_config;
+  gen_obs_type * obs = gen_obs_alloc__( data_config , obs_key );
+  if (obs_file)
+    gen_obs_load_observation(obs , obs_file ); /* The observation data is loaded - and internalized at boot time - even though it might not be needed for a long time. */
+  else 
+    gen_obs_set_scalar( obs , scalar_value , scalar_error );
 
-  gen_obs_load_observation(obs , scalar_value , scalar_error); /* The observation data is loaded - and internalized at boot time - even though it might not be needed for a long time. */
-  if ((data_index_file == NULL) && (data_index_string == NULL)) {
-    /* 
-       We observe all the elements in the remote (gen_data) instance,
-       and the data_index_list just becomes a identity mapping. 
-       
-       At use time we must verify that the size of the observation
-       corresponds to the size of the gen_data_instance; that this
-       check is needed is indicated by the boolean flag
-       observe_all_data.
-    */
-    obs->data_index_list = util_calloc( obs->obs_size , sizeof * obs->data_index_list );
-    for (int i =0; i < obs->obs_size; i++)
-      obs->data_index_list[i] = i;
-    obs->observe_all_data = true;
-  } else {
-    obs->observe_all_data = false;
-    if (data_index_file != NULL) 
-      /* Parsing an a file with integers. */
-      obs->data_index_list = gen_common_fscanf_alloc( data_index_file , ECL_INT_TYPE , &obs->obs_size);
-    else   
-      /* Parsing a string of the type "1,3,5,9-100,200,202,300-1000" */
-      {
-        int_vector_type * index_list = string_util_alloc_active_list( data_index_string );
-        int_vector_shrink( index_list );
-        obs->data_index_list = int_vector_get_ptr( index_list );
-        obs->obs_size = int_vector_size( index_list );
-        int_vector_free_container( index_list );
-      }
-  }
+  
+  if (data_index_file) 
+    gen_obs_load_data_index( obs , data_index_file );
+  else if (data_index_string) 
+    gen_obs_parse_data_index( obs , data_index_string );
+
   
   if (error_covar_file != NULL) {
     FILE * stream = util_fopen( error_covar_file , "r");
-    
+
     obs->error_covar = matrix_alloc( obs->obs_size , obs->obs_size );
     matrix_fscanf_data( obs->error_covar , false , stream );
 
@@ -226,14 +255,14 @@ gen_obs_type * gen_obs_alloc(gen_data_config_type * data_config , const char * o
 static void gen_obs_assert_data_size(const gen_obs_type * gen_obs, const gen_data_type * gen_data) {
   if (gen_obs->observe_all_data) {
     int data_size = gen_data_get_size( gen_data );
-    if (gen_obs->obs_size != data_size) 
+    if (gen_obs->obs_size != data_size)
       util_abort("%s: size mismatch: Observation: %s:%d      Data: %s:%d \n" , __func__ , gen_obs->obs_key , gen_obs->obs_size , gen_data_get_key( gen_data ) , data_size);
-    
-  } 
+
+  }
   /*
     Else the user has explicitly entered indices to observe in the
     gen_data instances, and we just have to trust them (however the
-    gen_data_iget() does a range check. 
+    gen_data_iget() does a range check.
   */
 }
 
@@ -243,7 +272,8 @@ double gen_obs_chi2(const gen_obs_type * gen_obs , const gen_data_type * gen_dat
   {
     double sum_chi2 = 0;
     for (int iobs = 0; iobs < gen_obs->obs_size; iobs++) {
-      double x  = (gen_data_iget_double( gen_data , gen_obs->data_index_list[iobs]) - gen_obs->obs_data[iobs]) / gen_obs->obs_std[iobs];
+      double d = gen_data_iget_double( gen_data , gen_obs->data_index_list[iobs]);
+      double x = (d - gen_obs->obs_data[iobs]) / gen_obs->obs_std[iobs];
       sum_chi2 += x*x;
     }
     return sum_chi2;
@@ -259,7 +289,7 @@ void gen_obs_measure(const gen_obs_type * gen_obs , const gen_data_type * gen_da
     meas_block_type * meas_block                  = meas_data_add_block( meas_data , gen_obs->obs_key , node_id.report_step , active_size );
     active_mode_type active_mode                  = active_list_get_mode( __active_list );
     const bool_vector_type * forward_model_active = gen_data_config_get_active_mask( gen_obs->data_config );
-    
+
     int iobs;
     if (active_mode == ALL_ACTIVE) {
       for (iobs = 0; iobs < gen_obs->obs_size; iobs++) {
@@ -273,9 +303,9 @@ void gen_obs_measure(const gen_obs_type * gen_obs , const gen_data_type * gen_da
         meas_block_iset( meas_block , node_id.iens , iobs , gen_data_iget_double( gen_data , data_index ));
       }
     } else if ( active_mode == PARTLY_ACTIVE) {
-      const int   * active_list    = active_list_get_active( __active_list ); 
+      const int   * active_list    = active_list_get_active( __active_list );
       int index;
-      
+
       for (index = 0; index < active_size; index++) {
         iobs = active_list[ index ];
         int data_index = gen_obs->data_index_list[iobs] ;
@@ -297,18 +327,18 @@ void gen_obs_get_observations(gen_obs_type * gen_obs , obs_data_type * obs_data,
     gen_data_config_load_active( gen_obs->data_config , fs, report_step , true);
     forward_model_active = gen_data_config_get_active_mask( gen_obs->data_config );
   }
-  
+
   {
     int iobs;
     active_mode_type active_mode                  = active_list_get_mode( __active_list );
     obs_block_type * obs_block                    = obs_data_add_block( obs_data , gen_obs->obs_key , gen_obs->obs_size , NULL , false);
-    
+
     if (active_mode == ALL_ACTIVE) {
-      for (iobs = 0; iobs < gen_obs->obs_size; iobs++) 
-        obs_block_iset( obs_block , iobs , gen_obs->obs_data[iobs] , gen_obs->obs_std[iobs]);
-      
+      for (iobs = 0; iobs < gen_obs->obs_size; iobs++)
+        obs_block_iset( obs_block , iobs , gen_obs->obs_data[iobs] , IGET_SCALED_STD( gen_obs , iobs ));
+
       /* Setting some of the elements as missing, i.e. deactivated by the forward model. */
-      if (forward_model_active != NULL) { 
+      if (forward_model_active != NULL) {
         for (iobs = 0; iobs < gen_obs->obs_size; iobs++) {
           int data_index = gen_obs->data_index_list[ iobs ];
           if (!bool_vector_iget( forward_model_active , data_index ))
@@ -316,16 +346,16 @@ void gen_obs_get_observations(gen_obs_type * gen_obs , obs_data_type * obs_data,
         }
       }
     } else if (active_mode == PARTLY_ACTIVE) {
-      const int   * active_list    = active_list_get_active( __active_list ); 
+      const int   * active_list    = active_list_get_active( __active_list );
       int active_size              = active_list_get_active_size( __active_list , gen_obs->obs_size);
       int index;
-      
+
       for (index = 0; index < active_size; index++) {
         iobs = active_list[index];
-        obs_block_iset( obs_block , iobs , gen_obs->obs_data[iobs] , gen_obs->obs_std[iobs] );
+	obs_block_iset( obs_block , iobs , gen_obs->obs_data[iobs] , IGET_SCALED_STD( gen_obs , iobs ));
         {
           int data_index = gen_obs->data_index_list[ iobs ];
-          if ((forward_model_active != NULL) && (!bool_vector_iget( forward_model_active , data_index ))) 
+          if ((forward_model_active != NULL) && (!bool_vector_iget( forward_model_active , data_index )))
             obs_block_iset_missing( obs_block , iobs );
         }
       }
@@ -344,8 +374,8 @@ void gen_obs_get_observations(gen_obs_type * gen_obs , obs_data_type * obs_data,
            ----               ---
 
           [ 6.0 ] ----\
-          [ 2.0 ]      \---> [ 6.3 ]    
-          [ 3.0 ] ---------> [ 2.8 ]   
+          [ 2.0 ]      \---> [ 6.3 ]
+          [ 3.0 ] ---------> [ 2.8 ]
           [ 2.0 ]      /---> [ 4.3 ]
           [ 4.5 ] ----/
 
@@ -367,18 +397,18 @@ void gen_obs_get_observations(gen_obs_type * gen_obs , obs_data_type * obs_data,
 
    The function gen_obs_user_get_with_data_index() will do the
    translation from data based indexing to observation based indexing, i.e.
-   
-      gen_obs_user_get_with_data_index("4") 
+
+      gen_obs_user_get_with_data_index("4")
 
    will do an inverse lookup of the '4' and further call
 
       gen_obs_user_get("2")
 
 */
-          
 
-void gen_obs_user_get(const gen_obs_type * gen_obs , const char * index_key , double * value , double * std , bool * valid) { 
-  int index; 
+
+void gen_obs_user_get(const gen_obs_type * gen_obs , const char * index_key , double * value , double * std , bool * valid) {
+  int index;
   *valid = false;
 
   if (util_sscanf_int( index_key , &index)) {
@@ -391,7 +421,8 @@ void gen_obs_user_get(const gen_obs_type * gen_obs , const char * index_key , do
 }
 
 
-void gen_obs_user_get_with_data_index(const gen_obs_type * gen_obs , const char * index_key , double * value , double * std , bool * valid) { 
+
+void gen_obs_user_get_with_data_index(const gen_obs_type * gen_obs , const char * index_key , double * value , double * std , bool * valid) {
   if (gen_obs->observe_all_data)
     /* The observation and data vectors are equally long - no reverse lookup necessary. */
     gen_obs_user_get(gen_obs , index_key , value , std , valid);
@@ -399,12 +430,12 @@ void gen_obs_user_get_with_data_index(const gen_obs_type * gen_obs , const char 
     *valid = false;
     int data_index;
     if (util_sscanf_int( index_key , &data_index )) {
-      int obs_index      =  0; 
+      int obs_index      =  0;
       do {
-        if (gen_obs->data_index_list[ obs_index ] == data_index) 
+        if (gen_obs->data_index_list[ obs_index ] == data_index)
           /* Found it - will use the 'obs_index' value. */
           break;
-        
+
         obs_index++;
       } while (obs_index < gen_obs->obs_size);
       if (obs_index < gen_obs->obs_size) { /* The reverse lookup succeeded. */
@@ -416,42 +447,53 @@ void gen_obs_user_get_with_data_index(const gen_obs_type * gen_obs , const char 
   }
 }
 
-void gen_obs_scale_std(gen_obs_type * gen_obs, double std_multiplier) {
-  for (int i = 0; i < gen_obs->obs_size; i++) {
-    gen_obs->obs_std[i] *= std_multiplier;
+void gen_obs_update_std_scale(gen_obs_type * gen_obs, double std_multiplier, const active_list_type * active_list) {
+  if (active_list_get_mode( active_list ) == ALL_ACTIVE) {
+    for (int i = 0; i < gen_obs->obs_size; i++)
+      gen_obs->std_scaling[i] = std_multiplier;
+  } else {
+    const int * active_index = active_list_get_active( active_list );
+    int size = active_list_get_active_size( active_list , gen_obs->obs_size );
+    for (int i=0; i < size; i++) {
+      int obs_index = active_index[i];
+      gen_obs->std_scaling[ obs_index ] = std_multiplier;
+    }
   }
 }
 
-void gen_obs_scale_std__(void * gen_obs, double std_multiplier) {
-  gen_obs_type * observation = gen_obs_safe_cast(gen_obs);
-  gen_obs_scale_std(observation, std_multiplier);
-}
+
 
 int gen_obs_get_size(const gen_obs_type * gen_obs){
     return gen_obs->obs_size;
 }
 
 double gen_obs_iget_std(const gen_obs_type * gen_obs, int index){
-    return gen_obs->obs_std[index];
+  return gen_obs->obs_std[index];
 }
 
-double gen_obs_iget_data(const gen_obs_type * gen_obs, int index){
-    return gen_obs->obs_data[index];
+double gen_obs_iget_std_scaling(const gen_obs_type * gen_obs, int index) {
+  return gen_obs->std_scaling[index];
+}
+
+
+double gen_obs_iget_value(const gen_obs_type * gen_obs, int index){
+  return gen_obs->obs_data[index];
 }
 
 int gen_obs_get_obs_index(const gen_obs_type * gen_obs, int index){
-    if(index < 0 || index >= gen_obs->obs_size){
-        util_abort("[Gen_Obs] Index out of bounds %d [0, %d]", index, gen_obs->obs_size - 1);
-    }
-    if (gen_obs->observe_all_data){
-        return index;
-    } else {
-        return gen_obs->data_index_list[index];
-    }
+  if(index < 0 || index >= gen_obs->obs_size){
+    util_abort("[Gen_Obs] Index out of bounds %d [0, %d]", index, gen_obs->obs_size - 1);
+  }
+
+  if (gen_obs->observe_all_data){
+    return index;
+  } else {
+    return gen_obs->data_index_list[index];
+  }
 }
 
 
-  
+
 /*****************************************************************/
 UTIL_IS_INSTANCE_FUNCTION(gen_obs , GEN_OBS_TYPE_ID)
 VOID_FREE(gen_obs)
@@ -459,3 +501,4 @@ VOID_GET_OBS(gen_obs)
 VOID_MEASURE(gen_obs , gen_data)
 VOID_USER_GET_OBS(gen_obs)
 VOID_CHI2(gen_obs , gen_data)
+VOID_UPDATE_STD_SCALE(gen_obs)

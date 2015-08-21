@@ -23,7 +23,7 @@
 #include "cvfObject.h"
 #include "cvfArray.h"
 
-class RimResultSlot;
+class RimEclipseCellColors;
 class RigResultAccessor;
 class RivResultToTextureMapper;
 
@@ -36,7 +36,7 @@ namespace cvf
 class RivTextureCoordsCreator
 {
 public:
-    RivTextureCoordsCreator(RimResultSlot* cellResultSlot, 
+    RivTextureCoordsCreator(RimEclipseCellColors* cellResultColors, 
                             size_t timeStepIndex,  
                             size_t gridIndex, 
                             const cvf::StructGridQuadToCellFaceMapper* quadMapper);

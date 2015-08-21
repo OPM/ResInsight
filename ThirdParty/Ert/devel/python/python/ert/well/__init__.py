@@ -1,4 +1,7 @@
 import ert.cwrap.clib as clib
+import ert.util
+import ert.geo
+import ert.ecl
 
 ECL_WELL_LIB = clib.ert_load("libecl_well")
 

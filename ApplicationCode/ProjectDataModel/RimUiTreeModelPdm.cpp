@@ -22,30 +22,35 @@
 
 #include "RiaApplication.h"
 #include "RigGridManager.h"
-#include "RimAnalysisModels.h"
-#include "RimCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechPropertyFilter.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimInputCase.h"
-#include "RimInputProperty.h"
-#include "RimInputPropertyCollection.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimMimeData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimReservoirView.h"
-#include "RimResultCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseResultCase.h"
 #include "RimScriptCollection.h"
-#include "RimStatisticsCase.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RimUiTreeView.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimGeoMechView.h"
 
 #include "cvfAssert.h"
 
 #include <QClipboard>
 #include <QFileSystemWatcher>
+#include "RimGeoMechCase.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -60,60 +65,6 @@ RimUiTreeModelPdm::RimUiTreeModelPdm(QObject* parent)
     connect(m_scriptChangeDetector, SIGNAL(fileChanged(QString)), this, SLOT(slotRefreshScriptTree(QString)));
 }
 
-//--------------------------------------------------------------------------------------------------
-/// TO BE DELETED
-//--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::insertRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
-{
-    caf::PdmUiTreeItem* parentItem = getTreeItemFromIndex(parent);
-    
-    bool canCreateChildren = false;
-    QModelIndex parentIndex = parent;
-
-    if (dynamic_cast<RimCellRangeFilterCollection*>(parentItem->dataObject().p()) ||
-        dynamic_cast<RimCellPropertyFilterCollection*>(parentItem->dataObject().p()))
-    {
-        canCreateChildren = true;
-    }
-    else if (dynamic_cast<RimCellFilter*>(parentItem->dataObject().p()))
-    {
-        parentItem = parentItem->parent();
-        parentIndex = parent.parent();
-
-        canCreateChildren = true;
-    }
-
-    if (canCreateChildren)
-    {
-        beginInsertRows(parent, position, position + rows - 1);
-        
-        int i;
-        for (i = 0; i < rows; i++)
-        {
-            if (dynamic_cast<RimCellRangeFilterCollection*>(parentItem->dataObject().p()))
-            {
-                RimCellRangeFilterCollection* rangeFilterCollection = dynamic_cast<RimCellRangeFilterCollection*>(parentItem->dataObject().p());
-                
-                RimCellRangeFilter* rangeFilter = rangeFilterCollection->createAndAppendRangeFilter();
-
-                caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentItem, position + i, rangeFilter);
-            }
-            else if (dynamic_cast<RimCellPropertyFilterCollection*>(parentItem->dataObject().p()))
-            {
-                RimCellPropertyFilterCollection* propertyFilterCollection = dynamic_cast<RimCellPropertyFilterCollection*>(parentItem->dataObject().p());
-
-                RimCellPropertyFilter* propertyFilter = propertyFilterCollection->createAndAppendPropertyFilter();
-
-                caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentItem, position + i, propertyFilter);
-            }
-
-        }
-        endInsertRows();
-    }
-
-    return canCreateChildren;
-}
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -126,10 +77,10 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
     CVF_ASSERT(uiItem);
 
-    RimCellPropertyFilter* propertyFilter = dynamic_cast<RimCellPropertyFilter*>(uiItem->dataObject().p());
+    RimEclipsePropertyFilter* propertyFilter = dynamic_cast<RimEclipsePropertyFilter*>(uiItem->dataObject().p());
     CVF_ASSERT(propertyFilter);
 
-    RimCellPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
+    RimEclipsePropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
     CVF_ASSERT(propertyFilterCollection);
 
     bool wasFilterActive = propertyFilter->isActive();
@@ -145,7 +96,49 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
 
     if (wasFilterActive)
     {
-        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
+    }
+
+    if (wasSomeFilterActive)
+    {
+        propertyFilterCollection->reservoirView()->createDisplayModelAndRedraw();
+    }
+
+    clearClipboard();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeModelPdm::deleteGeoMechPropertyFilter(const QModelIndex& itemIndex)
+{
+    CVF_ASSERT(itemIndex.isValid());
+
+    caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
+    CVF_ASSERT(uiItem);
+
+    RimGeoMechPropertyFilter* propertyFilter = dynamic_cast<RimGeoMechPropertyFilter*>(uiItem->dataObject().p());
+    CVF_ASSERT(propertyFilter);
+
+    RimGeoMechPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
+    CVF_ASSERT(propertyFilterCollection);
+
+    bool wasFilterActive = propertyFilter->isActive();
+    bool wasSomeFilterActive = propertyFilterCollection->hasActiveFilters();
+
+    // Remove Ui items pointing at the pdm object to delete
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
+
+    propertyFilterCollection->remove(propertyFilter);
+    delete propertyFilter;
+
+    // updateUiSubTree(propertyFilterCollection); // To be enabled
+
+    if (wasFilterActive)
+    {
+        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
     }
 
     if (wasSomeFilterActive)
@@ -187,7 +180,7 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
 
     if (wasFilterActive)
     {
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
     }
 
     if (wasSomeFilterActive)
@@ -203,32 +196,63 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
+void RimUiTreeModelPdm::deleteReservoirViews(const std::vector<caf::PdmUiItem*>& treeSelection)
 {
-    CVF_ASSERT(itemIndex.isValid());
+    std::set<RimCase*> ownerCases;
 
-    caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
-    CVF_ASSERT(uiItem);
+    for (size_t sIdx = 0; sIdx < treeSelection.size(); ++sIdx)
+    {
+        RimView* reservoirView = dynamic_cast<RimView*>(treeSelection[sIdx]);
+        ownerCases.insert(reservoirView->ownerCase());
 
-    RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(uiItem->dataObject().p());
-    CVF_ASSERT(reservoirView);
+        reservoirView->removeFromParentFields();
+        delete reservoirView;
+        
+    }
 
-    // Remove Ui items pointing at the pdm object to delete
-    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
+    for (std::set<RimCase*>::iterator it = ownerCases.begin(); it != ownerCases.end(); ++it)
+    {
+        updateUiSubTree(*it); 
+    }
 
-    reservoirView->eclipseCase()->removeReservoirView(reservoirView);
-    delete reservoirView;
-
-    // updateUiSubTree(reservoirView->eclipseCase()); // To be enabled
     clearClipboard();
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
+void RimUiTreeModelPdm::deleteGeoMechCases(const std::vector<caf::PdmUiItem*>& treeSelection)
+{
+    std::set<caf::PdmObject*> allParents;
+    
+    for (size_t sIdx = 0; sIdx < treeSelection.size(); ++sIdx)
+    {
+        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(treeSelection[sIdx]);
+        if (!geomCase) continue;
+
+        std::vector<caf::PdmObject*> parents;
+        geomCase->parentObjects(parents);
+        for (size_t pIdx = 0; pIdx < treeSelection.size(); ++pIdx)
+        {
+            allParents.insert(parents[pIdx]);
+        }
+
+        geomCase->removeFromParentFields();
+        delete geomCase;
+    }
+
+    for (std::set<caf::PdmObject*>::iterator it = allParents.begin(); it != allParents.end(); ++it)
+    {
+        updateUiSubTree(*it); 
+    }
+
+    clearClipboard();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::deleteReservoir(RimEclipseCase* reservoir)
 {
     if (reservoir->parentCaseCollection())
     {
@@ -257,7 +281,7 @@ void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
         {
             RimProject* proj = RiaApplication::instance()->project();
             RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-            RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+            RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
             if (analysisModels) analysisModels->removeCaseFromAllGroups(reservoir);
         }
     }
@@ -275,7 +299,7 @@ void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
         }
 
         RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-        RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
         if (analysisModels) analysisModels->removeCaseFromAllGroups(reservoir);
     }
 
@@ -284,29 +308,30 @@ void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
     clearClipboard();
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+RimEclipsePropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
     QModelIndex collectionIndex;
-    RimCellPropertyFilterCollection* propertyFilterCollection = NULL;
+    RimEclipsePropertyFilterCollection* propertyFilterCollection = NULL;
     caf::PdmUiTreeItem* propertyFilterCollectionItem = NULL;
     int position = 0;
 
-    if (dynamic_cast<RimCellPropertyFilter*>(currentItem->dataObject().p()))
+    if (dynamic_cast<RimEclipsePropertyFilter*>(currentItem->dataObject().p()))
     {
-        RimCellPropertyFilter* propertyFilter = dynamic_cast<RimCellPropertyFilter*>(currentItem->dataObject().p());
+        RimEclipsePropertyFilter* propertyFilter = dynamic_cast<RimEclipsePropertyFilter*>(currentItem->dataObject().p());
         propertyFilterCollection = propertyFilter->parentContainer();
         propertyFilterCollectionItem = currentItem->parent();
         position = itemIndex.row();
         collectionIndex = itemIndex.parent();
     }
-    else if (dynamic_cast<RimCellPropertyFilterCollection*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(currentItem->dataObject().p()))
     {
-        propertyFilterCollection = dynamic_cast<RimCellPropertyFilterCollection*>(currentItem->dataObject().p());
+        propertyFilterCollection = dynamic_cast<RimEclipsePropertyFilterCollection*>(currentItem->dataObject().p());
         propertyFilterCollectionItem = currentItem;
         position = propertyFilterCollectionItem->childCount();
         collectionIndex = itemIndex;
@@ -314,7 +339,7 @@ RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& i
 
     beginInsertRows(collectionIndex, position, position);
     
-    RimCellPropertyFilter* propertyFilter = propertyFilterCollection->createAndAppendPropertyFilter();
+    RimEclipsePropertyFilter* propertyFilter = propertyFilterCollection->createAndAppendPropertyFilter();
     caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(propertyFilterCollectionItem, position, propertyFilter);
 
     endInsertRows();
@@ -323,11 +348,57 @@ RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& i
 
     if (propertyFilterCollection)
     {
-        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
     }
 
     return propertyFilter;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGeoMechPropertyFilter* RimUiTreeModelPdm::addGeoMechPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+{
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+
+    QModelIndex collectionIndex;
+    RimGeoMechPropertyFilterCollection* propertyFilterCollection = NULL;
+    caf::PdmUiTreeItem* propertyFilterCollectionItem = NULL;
+    int position = 0;
+
+    if (dynamic_cast<RimGeoMechPropertyFilter*>(currentItem->dataObject().p()))
+    {
+        RimGeoMechPropertyFilter* propertyFilter = dynamic_cast<RimGeoMechPropertyFilter*>(currentItem->dataObject().p());
+        propertyFilterCollection = propertyFilter->parentContainer();
+        propertyFilterCollectionItem = currentItem->parent();
+        position = itemIndex.row();
+        collectionIndex = itemIndex.parent();
+    }
+    else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(currentItem->dataObject().p()))
+    {
+        propertyFilterCollection = dynamic_cast<RimGeoMechPropertyFilterCollection*>(currentItem->dataObject().p());
+        propertyFilterCollectionItem = currentItem;
+        position = propertyFilterCollectionItem->childCount();
+        collectionIndex = itemIndex;
+    }
+
+    beginInsertRows(collectionIndex, position, position);
+
+    RimGeoMechPropertyFilter* propertyFilter = propertyFilterCollection->createAndAppendPropertyFilter();
+    caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(propertyFilterCollectionItem, position, propertyFilter);
+
+    endInsertRows();
+
+    insertedModelIndex = index(position, 0, collectionIndex);
+
+    if (propertyFilterCollection)
+    {
+        static_cast<RimView*>(propertyFilterCollection->reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
+    }
+
+    return propertyFilter;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -367,8 +438,8 @@ RimCellRangeFilter* RimUiTreeModelPdm::addRangeFilter(const QModelIndex& itemInd
     insertedModelIndex = index(position, 0, collectionIndex);
     if (rangeFilterCollection)
     {
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
     }
     return rangeFilter;
@@ -378,51 +449,43 @@ RimCellRangeFilter* RimUiTreeModelPdm::addRangeFilter(const QModelIndex& itemInd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+RimView* RimUiTreeModelPdm::addReservoirView(const std::vector<caf::PdmUiItem*>& treeSelection)
 {
-    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
-    if (!currentItem) return NULL;
+    if (!treeSelection.size() || treeSelection[0] == NULL) return NULL;
 
-    caf::PdmUiTreeItem* collectionItem = NULL;
+    caf::PdmUiItem* currentItem = treeSelection[0];
 
-    bool itemIndexIsCollection = false;
-    QModelIndex collectionIndex;
-    int position = 0;
-    if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
+    // Establish type of selected object
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(currentItem);
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(currentItem);
+    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(currentItem);
+    RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>(currentItem);
+
+    // Find case to insert into
+
+    if (geoMechView) geomCase = geoMechView->geoMechCase();   
+    if (reservoirView) eclipseCase = reservoirView->eclipseCase();
+
+    RimView* insertedView = NULL;
+
+    if (eclipseCase)
     {
-        collectionItem = currentItem->parent();
-        collectionIndex = itemIndex.parent();
-        position = itemIndex.row();
+        insertedView = eclipseCase->createAndAddReservoirView();
     }
-    else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    else if (geomCase)
     {
-        collectionItem = currentItem;
-        collectionIndex = itemIndex;
-        position = collectionItem->childCount();
-    }
-
-    if (collectionItem)
-    {
-        RimCase* rimReservoir = dynamic_cast<RimCase*>(collectionItem->dataObject().p());
-        RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
-
-        // Must be run before buildViewItems, as wells are created in this function
-        insertedView->loadDataAndUpdate(); 
-
-        beginInsertRows(collectionIndex, position, position);
-
-        // NOTE: -1 as second argument indicates append
-        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, position, insertedView);
-        
-        endInsertRows();
-
-        insertedModelIndex = index(position, 0, collectionIndex);
-
-        return insertedView;
+        insertedView = geomCase->createAndAddReservoirView();
     }
 
-    return NULL;
-}
+    // Must be run before buildViewItems, as wells are created in this function
+    
+    insertedView->loadDataAndUpdate();
+
+    if (eclipseCase ) this->updateUiSubTree(eclipseCase);
+    if (geomCase )    this->updateUiSubTree(geomCase);
+   
+    return insertedView;
+}    
 
 
 //--------------------------------------------------------------------------------------------------
@@ -469,14 +532,14 @@ void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QSt
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
-    RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(currentItem->dataObject().p());
+    RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(currentItem->dataObject().p());
     CVF_ASSERT(inputPropertyCollection);
     
-    std::vector<RimInputCase*> parentObjects;
+    std::vector<RimEclipseInputCase*> parentObjects;
     inputPropertyCollection->parentObjectsOfType(parentObjects);
     CVF_ASSERT(parentObjects.size() == 1);
 
-    RimInputCase* inputReservoir = parentObjects[0];
+    RimEclipseInputCase* inputReservoir = parentObjects[0];
     CVF_ASSERT(inputReservoir);
     if (inputReservoir)
     {
@@ -497,24 +560,24 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     if (!uiItem) return;
 
     caf::PdmObject* object = uiItem->dataObject().p();
-    RimInputProperty* inputProperty = dynamic_cast<RimInputProperty*>(object);
+    RimEclipseInputProperty* inputProperty = dynamic_cast<RimEclipseInputProperty*>(object);
     if (!inputProperty) return;
 
     // Remove item from UI tree model before delete of project data structure
     removeRows_special(itemIndex.row(), 1, itemIndex.parent());
 
-    std::vector<RimInputPropertyCollection*> parentObjects;
+    std::vector<RimEclipseInputPropertyCollection*> parentObjects;
     object->parentObjectsOfType(parentObjects);
     CVF_ASSERT(parentObjects.size() == 1);
 
-    RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
+    RimEclipseInputPropertyCollection* inputPropertyCollection = parentObjects[0];
     if (!inputPropertyCollection) return;
 
-    std::vector<RimInputCase*> parentObjects2;
+    std::vector<RimEclipseInputCase*> parentObjects2;
     inputPropertyCollection->parentObjectsOfType(parentObjects2);
     CVF_ASSERT(parentObjects2.size() == 1);
 
-    RimInputCase* inputReservoir = parentObjects2[0];
+    RimEclipseInputCase* inputReservoir = parentObjects2[0];
     if (!inputReservoir) return;
 
     inputReservoir->removeProperty(inputProperty);
@@ -527,7 +590,7 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+RimEclipseStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
@@ -536,9 +599,9 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
     caf::PdmUiTreeItem* parentCollectionItem = NULL;
     int position = 0;
 
-    if (dynamic_cast<RimStatisticsCase*>(currentItem->dataObject().p()))
+    if (dynamic_cast<RimEclipseStatisticsCase*>(currentItem->dataObject().p()))
     {
-        RimStatisticsCase* currentObject = dynamic_cast<RimStatisticsCase*>(currentItem->dataObject().p());
+        RimEclipseStatisticsCase* currentObject = dynamic_cast<RimEclipseStatisticsCase*>(currentItem->dataObject().p());
         caseGroup = currentObject->parentStatisticsCaseCollection()->parentCaseGroup();
         parentCollectionItem = currentItem->parent();
         position = itemIndex.row();
@@ -558,7 +621,7 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
         beginInsertRows(collectionIndex, position, position);
 
         RimProject* proj = RiaApplication::instance()->project();
-        RimStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
+        RimEclipseStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
         proj->assignCaseIdToCase(createdObject);
 
         caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentCollectionItem, position, createdObject);
@@ -583,14 +646,14 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    RimAnalysisModels* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : NULL;
+    RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : NULL;
 
     if (analysisModels)
     {
         RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
         proj->assignIdToCaseGroup(createdObject);
 
-        RimCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
+        RimEclipseCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
         proj->assignCaseIdToCase(createdReservoir);
         createdObject->name = QString("Grid Case Group %1").arg(analysisModels->caseGroups().size() + 1);
 
@@ -618,7 +681,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
     RimIdenticalGridCaseGroup* gridCaseGroup = gridCaseGroupFromItemIndex(itemIndex);
     if (gridCaseGroup)
     {
-        std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
+        std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
         pdmObjects.createCopyByType(&typedObjects);
 
         if (typedObjects.size() == 0)
@@ -626,24 +689,24 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
             return;
         }
 
-        RimResultCase* mainResultCase = NULL;
+        RimEclipseResultCase* mainResultCase = NULL;
         std::vector< std::vector<int> > mainCaseGridDimensions;
 
         // Read out main grid and main grid dimensions if present in case group
         if (gridCaseGroup->mainCase())
         {
-            mainResultCase = dynamic_cast<RimResultCase*>(gridCaseGroup->mainCase());
+            mainResultCase = dynamic_cast<RimEclipseResultCase*>(gridCaseGroup->mainCase());
             CVF_ASSERT(mainResultCase);
 
             mainResultCase->readGridDimensions(mainCaseGridDimensions);
         }
 
-        std::vector<RimResultCase*> insertedCases;
+        std::vector<RimEclipseResultCase*> insertedCases;
 
         // Add cases to case group
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
-            RimResultCase* rimResultReservoir = typedObjects[i];
+            RimEclipseResultCase* rimResultReservoir = typedObjects[i];
 
             proj->assignCaseIdToCase(rimResultReservoir);
 
@@ -658,14 +721,14 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
         // Initialize the new objects
         for (size_t i = 0; i < insertedCases.size(); i++)
         {
-            RimResultCase* rimResultReservoir = insertedCases[i];
+            RimEclipseResultCase* rimResultReservoir = insertedCases[i];
             caf::PdmDocument::initAfterReadTraversal(rimResultReservoir);
         }
 
         // Load stuff 
         for (size_t i = 0; i < insertedCases.size(); i++)
         {
-            RimResultCase* rimResultReservoir = insertedCases[i];
+            RimEclipseResultCase* rimResultReservoir = insertedCases[i];
 
  
             if (!mainResultCase)
@@ -693,7 +756,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
             }
 
             RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-            RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+            RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
             if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
 
             caf::PdmDocument::updateUiIconStateRecursively(rimResultReservoir);
@@ -710,33 +773,30 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
 
             for (size_t rvIdx = 0; rvIdx < rimResultReservoir->reservoirViews.size(); rvIdx++)
             {
-                RimReservoirView* riv = rimResultReservoir->reservoirViews()[rvIdx];
+                RimEclipseView* riv = rimResultReservoir->reservoirViews()[rvIdx];
                 riv->loadDataAndUpdate();
             }
         }
     }
     else if (caseFromItemIndex(itemIndex))
     {
-        std::vector<caf::PdmPointer<RimReservoirView> > typedObjects;
-        pdmObjects.createCopyByType(&typedObjects);
+        std::vector<caf::PdmPointer<RimEclipseView> > eclipseViews;
+        pdmObjects.createCopyByType(&eclipseViews);
 
-        if (typedObjects.size() == 0)
+        if (eclipseViews.size() != 0)
         {
-            return;
-        }
-
-        RimCase* rimCase = caseFromItemIndex(itemIndex);
+        RimEclipseCase* rimCase = caseFromItemIndex(itemIndex);
         QModelIndex collectionIndex = getModelIndexFromPdmObject(rimCase);
         caf::PdmUiTreeItem* collectionItem = getTreeItemFromIndex(collectionIndex);
 
         // Add cases to case group
-        for (size_t i = 0; i < typedObjects.size(); i++)
+        for (size_t i = 0; i < eclipseViews.size(); i++)
         {
-            RimReservoirView* rimReservoirView = typedObjects[i];
+            RimEclipseView* rimReservoirView = eclipseViews[i];
             QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
             rimReservoirView->name = nameOfCopy;
             rimCase->reservoirViews().push_back(rimReservoirView);
- 
+
             // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
             rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
 
@@ -745,7 +805,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
 
             caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
 
-            rimReservoirView->loadDataAndUpdate(); 
+            rimReservoirView->loadDataAndUpdate();
 
             int position = static_cast<int>(rimCase->reservoirViews().size());
             beginInsertRows(collectionIndex, position, position);
@@ -753,6 +813,42 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmO
             caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, position, rimReservoirView);
 
             endInsertRows();
+        }
+        }
+    }
+
+    caf::PdmObject* selectedObject = getTreeItemFromIndex(itemIndex)->dataObject().p();
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(selectedObject);
+    if (!geomCase && selectedObject)
+    {
+        RimGeoMechView* geomView =  dynamic_cast<RimGeoMechView*>(selectedObject);
+        if (geomView) geomCase = geomView->geoMechCase();
+    }
+
+    if (geomCase)
+    {
+        std::vector<caf::PdmPointer<RimGeoMechView> > geomViews;
+        pdmObjects.createCopyByType(&geomViews);
+
+        if (geomViews.size() != 0)
+        {
+            // Add cases to case group
+            for (size_t i = 0; i < geomViews.size(); i++)
+            {
+                RimGeoMechView* rimReservoirView = geomViews[i];
+                QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
+                rimReservoirView->name = nameOfCopy;
+                geomCase->geoMechViews().push_back(rimReservoirView);
+
+                caf::PdmDocument::initAfterReadTraversal(rimReservoirView);
+                rimReservoirView->setGeoMechCase(geomCase);
+
+                caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
+
+                rimReservoirView->loadDataAndUpdate();
+
+                this->updateUiSubTree(geomCase);
+            }
         }
     }
 }
@@ -765,12 +861,12 @@ void RimUiTreeModelPdm::moveObjects(const QModelIndex& itemIndex, caf::PdmObject
     addObjects(itemIndex, pdmObjects);
 
     // Delete objects from original container
-    std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
+    std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
     pdmObjects.objectsByType(&typedObjects);
 
     for (size_t i = 0; i < typedObjects.size(); i++)
     {
-        RimCase* rimReservoir = typedObjects[i];
+        RimEclipseCase* rimReservoir = typedObjects[i];
         deleteReservoir(rimReservoir);
     }
 }
@@ -859,7 +955,7 @@ Qt::ItemFlags RimUiTreeModelPdm::flags(const QModelIndex &index) const
         {
             return Qt::ItemIsDropEnabled | defaultFlags;
         }
-        else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+        else if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
         {
             // TODO: Remember to handle reservoir holding the main grid
             return Qt::ItemIsDragEnabled | defaultFlags;
@@ -943,9 +1039,9 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::gridCaseGroupFromItemIndex(const Q
 
         gridCaseGroup = caseCollection->parentCaseGroup();
     }
-    else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
     {
-        RimCase* rimReservoir = dynamic_cast<RimCase*>(currentItem->dataObject().p());
+        RimEclipseCase* rimReservoir = dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p());
         CVF_ASSERT(rimReservoir);
 
         RimCaseCollection* caseCollection = rimReservoir->parentCaseCollection();
@@ -980,19 +1076,19 @@ void RimUiTreeModelPdm::addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTre
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemIndex)
+RimEclipseCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemIndex)
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
-    RimCase* rimCase = NULL;
+    RimEclipseCase* rimCase = NULL;
 
-    if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    if (dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p()))
     {
-        rimCase = dynamic_cast<RimCase*>(currentItem->dataObject().p());
+        rimCase = dynamic_cast<RimEclipseCase*>(currentItem->dataObject().p());
     }
-    else if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimEclipseView*>(currentItem->dataObject().p()))
     {
-        RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(currentItem->dataObject().p());
+        RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>(currentItem->dataObject().p());
         CVF_ASSERT(reservoirView);
 
         rimCase = reservoirView->eclipseCase();
@@ -1008,7 +1104,7 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
 {
     bool toggleOn = (state == Qt::Checked);
 
-    std::set<RimReservoirView*> resViewsToUpdate;
+    std::set<RimEclipseView*> resViewsToUpdate;
 
     foreach (QModelIndex index, selectedIndexes)
     {

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway. 
-    
-   The file 'ert_test_context.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2014  Statoil ASA, Norway.
+
+   The file 'ert_test_context.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -42,13 +42,13 @@ struct ert_test_context_struct {
 UTIL_IS_INSTANCE_FUNCTION( ert_test_context , ERT_TEST_CONTEXT_TYPE_ID )
 
 
-static ert_test_context_type * ert_test_context_alloc__( const char * test_name , const char * model_config , const char * site_config, bool python_mode) {
+static ert_test_context_type * ert_test_context_alloc__( const char * test_name , const char * model_config , bool python_mode) {
   ert_test_context_type * test_context = util_malloc( sizeof * test_context );
   UTIL_TYPE_ID_INIT( test_context , ERT_TEST_CONTEXT_TYPE_ID );
 
   /*
     This environment variable is set to ensure that test context will
-    parse the correct files when loading site config. 
+    parse the correct files when loading site config.
   */
   if (python_mode)
     setenv("ERT_UI_MODE" , "gui" , 1);
@@ -62,7 +62,7 @@ static ert_test_context_type * ert_test_context_alloc__( const char * test_name 
     test_work_area_copy_parent_content(test_context->work_area , model_config );
     {
       char * config_file = util_split_alloc_filename( model_config );
-      test_context->enkf_main = enkf_main_bootstrap( site_config , config_file , true , false );
+      test_context->enkf_main = enkf_main_bootstrap(config_file , true , false );
       free( config_file );
     }
     test_context->rng = rng_alloc( MZRAN , INIT_DEV_URANDOM );
@@ -74,13 +74,13 @@ static ert_test_context_type * ert_test_context_alloc__( const char * test_name 
   return test_context;
 }
 
-ert_test_context_type * ert_test_context_alloc( const char * test_name , const char * model_config , const char * site_config) {
-  return ert_test_context_alloc__( test_name , model_config , site_config , false );
+ert_test_context_type * ert_test_context_alloc( const char * test_name , const char * model_config) {
+  return ert_test_context_alloc__( test_name , model_config , false );
 }
 
 
-ert_test_context_type * ert_test_context_alloc_python( const char * test_name , const char * model_config , const char * site_config) {
-  return ert_test_context_alloc__( test_name , model_config , site_config , true );
+ert_test_context_type * ert_test_context_alloc_python( const char * test_name , const char * model_config) {
+  return ert_test_context_alloc__( test_name , model_config , true );
 }
 
 
@@ -100,10 +100,10 @@ void ert_test_context_free( ert_test_context_type * test_context ) {
 
   if (test_context->enkf_main)
     enkf_main_free( test_context->enkf_main );
-  
+
   if (test_context->work_area)
     test_work_area_free( test_context->work_area );
-  
+
   if (test_context->rng)
     rng_free( test_context->rng );
 
@@ -152,7 +152,7 @@ bool ert_test_context_run_worklow( ert_test_context_type * test_context , const 
     return false;
   }
 }
-                                     
+
 
 
 bool ert_test_context_run_worklow_job( ert_test_context_type * test_context , const char * job_name, const stringlist_type * args) {

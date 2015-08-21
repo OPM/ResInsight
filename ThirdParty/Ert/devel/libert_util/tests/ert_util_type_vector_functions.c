@@ -98,9 +98,44 @@ void test_active_index_list() {
 }
 
 
+void test_approx_equal() {
+  double_vector_type * d1 = double_vector_alloc(0,0);
+  double_vector_type * d2 = double_vector_alloc(0,0);
+  double_vector_type * d3 = double_vector_alloc(0,0);
+
+  double_vector_append( d1 , 1.0 );
+  double_vector_append( d1 , 2.0 );
+  double_vector_append( d1 , 3.0 );
+
+
+  double_vector_append( d2 , 1.0 );
+  double_vector_append( d2 , 2.0 );
+
+  test_assert_false( double_vector_approx_equal( d1 , d2 ,1e-6));
+
+  double_vector_append( d2 , 3.0 );
+  test_assert_true( double_vector_approx_equal( d1 , d2 ,1e-6));
+  
+  double_vector_append( d3 , 1.0 );
+  double_vector_append( d3 , 2.0 );
+  double_vector_append( d3 , 3.0 );
+
+  double_vector_scale( d3 , 1 + 1e-6 );
+  test_assert_true( double_vector_approx_equal( d1 , d3 ,1e-4));
+  test_assert_false( double_vector_approx_equal( d1 , d3 ,1e-8));
+
+
+  double_vector_free(d1);
+  double_vector_free(d2);
+  double_vector_free(d3);
+}
+
+
+
 int main( int argc , char ** argv) {
   test_index_list();
   test_mask();
   test_active_index_list();
+  test_approx_equal();
   exit(0);
 }

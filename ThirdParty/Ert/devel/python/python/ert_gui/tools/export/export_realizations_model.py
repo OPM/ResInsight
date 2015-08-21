@@ -45,7 +45,7 @@ class ExportRealizationsModel(BasicModelMixin):
         return "0-%d" % (self.__realization_count - 1)
 
     def getActiveRealizationsMask(self):
-        mask = BoolVector.active_mask(self.getValue())
+        mask = BoolVector.createActiveMask(self.getValue())
 
         if mask is None:
             raise ValueError("Error while parsing range string!")

@@ -1,8 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,90 +18,35 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
-#include "cvfBase.h"
-#include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "RifReaderInterface.h"
 
-class QString;
+#include <vector>
 
-class RigCaseData;
-class RigGridBase;
-class RimReservoirView;
-class RimCaseCollection;
-class RimIdenticalGridCaseGroup;
-class RimReservoirCellResultsStorage;
+class RimView;
 
-//==================================================================================================
-// 
-// Interface for reservoirs. 
-// 
-//==================================================================================================
 class RimCase : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
     RimCase();
     virtual ~RimCase();
-
-
-    // Fields:                                        
-    caf::PdmField<QString>                      caseUserDescription;
-    caf::PdmField<int>                          caseId;
-    caf::PdmField<bool>                         releaseResultMemory;
-    caf::PdmPointersField<RimReservoirView*>    reservoirViews;
-    caf::PdmField<bool>                         flipXAxis;
-    caf::PdmField<bool>                         flipYAxis;
     
-    caf::PdmField<std::vector<QString> >        filesContainingFaults;
+    caf::PdmField<QString>                      caseUserDescription;
 
+    caf::PdmField<int>                          caseId;
+    virtual std::vector<RimView*>               views() = 0;
 
-    bool                                        openReserviorCase();
-    virtual bool                                openEclipseGridFile() { return false; }; // Should be pure virtual but PDM does not allow that.
-                                                      
-    RigCaseData*                                reservoirData();
-    const RigCaseData*                          reservoirData() const;
+    virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
 
-    RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
-                                                      
-    RimReservoirView*                           createAndAddReservoirView();
-    void                                        removeReservoirView(RimReservoirView* reservoirView);
-
-    void                                        removeResult(const QString& resultName);
-
-    virtual QString                             locationOnDisc() const      { return QString(); }
-    virtual QString                             gridFileName() const      { return QString(); }
-
-    virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) { };
-
-    RimCaseCollection*                          parentCaseCollection();
-    RimIdenticalGridCaseGroup*                  parentGridCaseGroup();
-                                                     
-                                                     
-    // Overridden methods from PdmObject
-public:
     virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseUserDescription; }
 protected:
-    virtual void                                initAfterRead();
-    virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-
-    // Internal methods
-protected:
-    void                                        computeCachedData();
-    void                                        setReservoirData(RigCaseData* eclipseCase);
     static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 
                                                              bool* foundFile, std::vector<QString>* searchedPaths);
 
 private:
-    cvf::ref<RigCaseData>                       m_rigEclipseCase;
-
-private:
-    caf::PdmField<RimReservoirCellResultsStorage*> m_matrixModelResults;
-    caf::PdmField<RimReservoirCellResultsStorage*> m_fractureModelResults;
-
-    // Obsolete fields
-protected:
-    caf::PdmField<QString>                      caseName;
+    
 };
+
+
+

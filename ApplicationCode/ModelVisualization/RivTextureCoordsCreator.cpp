@@ -19,38 +19,38 @@
 
 #include "RivTextureCoordsCreator.h"
 
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RigCaseData.h"
-#include "RimReservoirView.h"
-#include "RimCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCase.h"
 #include "RigCaseCellResultsData.h"
 #include "RigResultAccessorFactory.h"
 #include "RigPipeInCellEvaluator.h"
 #include "RivResultToTextureMapper.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivTextureCoordsCreator::RivTextureCoordsCreator(RimResultSlot* cellResultSlot, size_t timeStepIndex, size_t gridIndex, const cvf::StructGridQuadToCellFaceMapper* quadMapper)
+RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResultColors, size_t timeStepIndex, size_t gridIndex, const cvf::StructGridQuadToCellFaceMapper* quadMapper)
 {
-    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     m_quadMapper = quadMapper;
     CVF_ASSERT(quadMapper && eclipseCase );
 
     size_t resTimeStepIdx = timeStepIndex;
 
-    if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
+    if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
 
-    m_resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, cellResultSlot->resultVariable());
+    m_resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, cellResultColors->resultVariable());
 
-    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator(cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
+    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
         eclipseCase->gridCellToWellIndex(gridIndex));
 
-    const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+    const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
     m_texMapper = new RivResultToTextureMapper(mapper, pipeInCellEval.p());
     CVF_ASSERT(m_texMapper.notNull());

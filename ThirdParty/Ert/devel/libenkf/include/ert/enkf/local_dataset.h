@@ -38,7 +38,10 @@ void                 local_dataset_fprintf( const local_dataset_type * dataset ,
 active_list_type   * local_dataset_get_node_active_list(const local_dataset_type * dataset , const char * node_key );
 stringlist_type    * local_dataset_alloc_keys( const local_dataset_type * dataset );
 int                  local_dataset_get_size( const local_dataset_type * dataset );
+void local_dataset_del_node( local_dataset_type * dataset , const char * node_key);
+void local_dataset_clear( local_dataset_type * dataset);
 
+  
 #ifdef __cplusplus
 }
 #endif

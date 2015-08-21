@@ -1127,10 +1127,8 @@ static void block_fs_unlink_free_node( block_fs_type * block_fs , free_node_type
 static file_node_type * block_fs_get_new_node( block_fs_type * block_fs , const char * filename , size_t min_size) {
   
   free_node_type * current = block_fs->free_nodes;
-  free_node_type * prev    = NULL;
   
   while (current != NULL && (current->file_node->node_size < min_size)) {
-    prev = current;
     current = current->next;
   }
   if (current != NULL) {
@@ -1264,11 +1262,10 @@ bool block_fs_rotate( block_fs_type * block_fs , double fragmentation_limit) {
 
 void block_fs_fsync( block_fs_type * block_fs ) {
   if (block_fs->data_owner) {
-    long pos;
     //fdatasync( block_fs->data_fd );
     fsync( block_fs->data_fd );
     block_fs_fseek( block_fs , block_fs->data_file_size );
-    pos = ftell( block_fs->data_stream ); 
+    ftell( block_fs->data_stream );
   }
 }
 

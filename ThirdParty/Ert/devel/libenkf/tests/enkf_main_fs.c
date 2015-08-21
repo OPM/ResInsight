@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'enkf_main_fs.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'enkf_main_fs.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -40,8 +40,7 @@ int main(int argc, char ** argv) {
   util_alloc_file_components( config_file , NULL , &model_config , NULL);
   test_work_area_copy_parent_content( work_area , config_file );
   {
-    const char * site_config = "/project/res/etc/ERT/site-config";
-    enkf_main_type * enkf_main = enkf_main_bootstrap( site_config , model_config , false , false );
+    enkf_main_type * enkf_main = enkf_main_bootstrap( model_config , false , false );
 
     enkf_main_select_fs( enkf_main , "enkf");
     test_assert_true( enkf_main_case_is_current( enkf_main , "enkf"));
@@ -65,7 +64,7 @@ int main(int argc, char ** argv) {
     {
       enkf_fs_type * fs1 = enkf_main_mount_alt_fs( enkf_main , "default" , false );
       enkf_fs_type * fs2 = enkf_main_mount_alt_fs( enkf_main , "enkf" , false );
-      
+
       test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
       test_assert_int_equal( 2 , enkf_fs_get_refcount( fs2 ));
       test_assert_int_equal( 1 , enkf_fs_get_refcount( fs1 ));
@@ -76,7 +75,7 @@ int main(int argc, char ** argv) {
 
     {
       enkf_fs_type * enkf_fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , false  );
-      
+
       enkf_main_select_fs( enkf_main , "default");
       test_assert_int_equal( 1 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
       enkf_fs_decref( enkf_fs );
@@ -84,7 +83,7 @@ int main(int argc, char ** argv) {
 
     {
       enkf_fs_type * default_fs = enkf_main_mount_alt_fs( enkf_main , "default" , false );
-      
+
       test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
       enkf_main_select_fs( enkf_main , "default");
       test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
@@ -95,7 +94,7 @@ int main(int argc, char ** argv) {
     {
       enkf_fs_type * fs = enkf_main_mount_alt_fs( enkf_main , "default" , false  );
       test_assert_int_equal( 2 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
-      
+
       enkf_main_set_fs( enkf_main , fs , NULL );
       enkf_fs_decref( fs );
       test_assert_int_equal( 1 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
@@ -103,7 +102,7 @@ int main(int argc, char ** argv) {
     {
       enkf_fs_type * fs = enkf_main_mount_alt_fs( enkf_main , "enkf" , false );
       enkf_fs_type * current = enkf_main_mount_alt_fs( enkf_main , "default" , false );
-      
+
       test_assert_int_equal( 2 , enkf_fs_get_refcount( current ));
       test_assert_int_equal( 1 , enkf_fs_get_refcount( fs));
       enkf_main_set_fs( enkf_main , fs , NULL);
@@ -114,8 +113,8 @@ int main(int argc, char ** argv) {
       enkf_fs_decref( fs);
     }
 
-    
-    
+
+
 
     test_assert_int_equal( 1 , enkf_fs_get_refcount( enkf_main_get_fs( enkf_main )));
     enkf_main_free( enkf_main );

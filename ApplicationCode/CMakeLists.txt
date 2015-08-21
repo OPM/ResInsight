@@ -18,12 +18,20 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
+	${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
+
     ${CMAKE_BINARY_DIR}/Generated
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+#############################################################################
+# Defining all the source (and header) files
+#############################################################################
 
 # Use all h files in the subdirectories to make them available in the project
 file( GLOB_RECURSE HEADER_FILES *.h )
@@ -43,12 +51,17 @@ set( APPLICATION_FILES
 set( USER_INTERFACE_FILES
     UserInterface/RiuCursors.cpp
     UserInterface/RiuResultTextBuilder.cpp
+	UserInterface/RiuFemResultTextBuilder.cpp
     UserInterface/RiuMainWindow.cpp
     UserInterface/RiuResultInfoPanel.cpp
     UserInterface/RiuViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
     UserInterface/RiuMultiCaseImportDialog.cpp
     UserInterface/RiuProcessMonitor.cpp
+    UserInterface/RiuViewerCommands.cpp
+    UserInterface/RiuCadNavigation.cpp
+    UserInterface/RiuRmsNavigation.cpp
+	UserInterface/RiuGeoQuestNavigation.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -76,6 +89,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     FileInterface/CMakeLists_files.cmake
     ProjectDataModel/CMakeLists_files.cmake
     ModelVisualization/CMakeLists_files.cmake
+	GeoMech/GeoMechVisualization/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
@@ -87,10 +101,30 @@ list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
 
+#############################################################################
+# Sub-directory projects
+#############################################################################
+
 add_subdirectory(WellPathImportSsihub)
+add_subdirectory(ResultStatisticsCache)
 
+#
+# Odb api
+#
+set(RESINSIGHT_ODB_API_DIR "" CACHE PATH "Path to the ODB api from Simulia")
+if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "") 
+	add_definitions(-DUSE_ODB_API)
+	add_subdirectory(GeoMech/OdbReader)
+	SET(RESINSIGHT_USE_ODB_API 1)
+	MESSAGE( STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}" )
+endif()
 
-# Define files for MOC-ing
+add_subdirectory(GeoMech/GeoMechDataModel)
+
+#############################################################################
+# Qt specifics: Moc, ui, resources
+#############################################################################
+
 set ( QT_MOC_HEADERS
     Application/RiaApplication.h
     
@@ -104,6 +138,8 @@ set ( QT_MOC_HEADERS
     UserInterface/RiuProcessMonitor.h
     SocketInterface/RiaSocketServer.h
     UserInterface/RiuMultiCaseImportDialog.h
+    UserInterface/RiuViewerCommands.h
+	
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
@@ -139,55 +175,55 @@ endif()
 # creating PCH's for MSVC and GCC on Linux
 #############################################################################
 
-set( RAW_SOURCES ${CPP_SOURCES} )
-
-list( REMOVE_ITEM RAW_SOURCES 
-    RiaStdInclude.cpp
-
-    ${CODE_SOURCE_FILES}
-
-    ModelVisualization/RivCellEdgeEffectGenerator.cpp
-    ModelVisualization/RivPipeGeometryGenerator.cpp
-    ModelVisualization/RivWellPipesPartMgr.cpp
-    ModelVisualization/RivWellHeadPartMgr.cpp
-
-    Application/RiaImageFileCompare.cpp
-    Application/RiaImageCompareReporter.cpp
-    Application/RiaRegressionTest.cpp
-
-    SocketInterface/RiaSocketDataTransfer.cpp
-
-    FileInterface/RifEclipseInputFileTools.cpp
-    FileInterface/RifEclipseOutputFileTools.cpp
-    FileInterface/RifEclipseRestartFilesetAccess.cpp
-    FileInterface/RifEclipseRestartDataAccess.cpp
-    FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
-    FileInterface/RifReaderEclipseInput.cpp
-    FileInterface/RifReaderEclipseOutput.cpp
-
-    UserInterface/RiuSimpleHistogramWidget.cpp
-    UserInterface/RiuMultiCaseImportDialog.cpp
-    UserInterface/RiuResultTextBuilder.cpp
-)
-
-include( CustomPCH.cmake )
-set( ALL_INCLUDES 
-    ${LibCore_SOURCE_DIR}
-    ${LibGeometry_SOURCE_DIR}
-    ${LibGuiQt_SOURCE_DIR}
-    ${LibRender_SOURCE_DIR}
-    ${LibViewing_SOURCE_DIR}
-    ${QT_INCLUDES}
-)
-
-set( PCH_NAME RiaStdInclude )
-set( GCC_PCH_TARGET gccPCH )
-set( PCH_COMPILER_DEFINE EMPTY )
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set( PCH_COMPILER_DEFINE CVF_LINUX)
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH_COMPILER_DEFINE} )
+#set( RAW_SOURCES ${CPP_SOURCES} )
+#
+#list( REMOVE_ITEM RAW_SOURCES 
+#    RiaStdInclude.cpp
+#
+#    ${CODE_SOURCE_FILES}
+#
+#    ModelVisualization/RivCellEdgeEffectGenerator.cpp
+#    ModelVisualization/RivPipeGeometryGenerator.cpp
+#    ModelVisualization/RivWellPipesPartMgr.cpp
+#    ModelVisualization/RivWellHeadPartMgr.cpp
+#
+#    Application/RiaImageFileCompare.cpp
+#    Application/RiaImageCompareReporter.cpp
+#    Application/RiaRegressionTest.cpp
+#
+#    SocketInterface/RiaSocketDataTransfer.cpp
+#
+#    FileInterface/RifEclipseInputFileTools.cpp
+#    FileInterface/RifEclipseOutputFileTools.cpp
+#    FileInterface/RifEclipseRestartFilesetAccess.cpp
+#    FileInterface/RifEclipseRestartDataAccess.cpp
+#    FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
+#    FileInterface/RifReaderEclipseInput.cpp
+#    FileInterface/RifReaderEclipseOutput.cpp
+#
+#    UserInterface/RiuSimpleHistogramWidget.cpp
+#    UserInterface/RiuMultiCaseImportDialog.cpp
+#    UserInterface/RiuResultTextBuilder.cpp
+#)
+#
+#include( CustomPCH.cmake )
+#set( ALL_INCLUDES 
+#    ${LibCore_SOURCE_DIR}
+#    ${LibGeometry_SOURCE_DIR}
+#    ${LibGuiQt_SOURCE_DIR}
+#    ${LibRender_SOURCE_DIR}
+#    ${LibViewing_SOURCE_DIR}
+#    ${QT_INCLUDES}
+#)
+#
+#set( PCH_NAME RiaStdInclude )
+#set( GCC_PCH_TARGET gccPCH )
+#set( PCH_COMPILER_DEFINE EMPTY )
+#IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+#    set( PCH_COMPILER_DEFINE CVF_LINUX)
+#ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+#
+#precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH_COMPILER_DEFINE} )
 
 
 ################################################################################
@@ -199,6 +235,10 @@ source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 
 
+#############################################################################
+# Set up the main executable with its source files
+#############################################################################
+
 # Default behaviour for a Qt application is a console application, resulting in a console window always being launced at startup
 # The following statement is used to control this behaviour
 #   set_target_properties( MY_TARGET PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS")
@@ -209,6 +249,8 @@ source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 
 if (MSVC)
     set( EXE_FILES WIN32)
+elseif (APPLE)
+    set( EXE_FILES MACOSX_BUNDLE)
 endif()
 set( EXE_FILES
     ${EXE_FILES}
@@ -218,12 +260,32 @@ set( EXE_FILES
     ${QRC_FILES_CPP}
     ${WIN_RESOURCE}
     ${HEADER_FILES}
-    ${REFERENCED_CMAKE_FILES}
+	${REFERENCED_CMAKE_FILES}
     ../ResInsightVersion.cmake
 )
 
 add_executable( ResInsight ${EXE_FILES} )
 
+
+#############################################################################
+# Application icon for MacOS X bundle
+#############################################################################
+
+if (APPLE)
+    add_custom_command (OUTPUT Resources/ResInsight.icns
+        COMMAND sips -s format icns ${CMAKE_CURRENT_SOURCE_DIR}/Resources/AppLogo48x48.png --out ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns
+        COMMENT Converting application icon
+    )
+    add_custom_target (ResInsight-icns
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
+    add_dependencies (ResInsight ResInsight-icns)
+    set_target_properties (ResInsight PROPERTIES
+        MACOSX_BUNDLE_ICON_FILE ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
+endif ()
+
+#############################################################################
+# Set up libraries and dependent projects to link with
+#############################################################################
 
 set( LINK_LIBRARIES
     WellPathImportSsihub
@@ -233,12 +295,16 @@ set( LINK_LIBRARIES
     cafProjectDataModel
     cafViewer
     cafAnimControl
+	cafTensor
     CommonCode
     LibGuiQt
     LibViewing
     LibRender
     LibGeometry
     LibCore
+
+	ResultStatisticsCache
+	RigGeoMechDataModel
 
     ecl
     ert_util
@@ -258,18 +324,49 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 endif()
 
+# Add the odb reader if we are compiling with odb support
+IF (${RESINSIGHT_USE_ODB_API})
+	set ( LINK_LIBRARIES ${LINK_LIBRARIES} RifOdbReader)
+ENDIF()
+
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
-# Copy Dlls
-if (MSVC)
+#############################################################################
+# Copy Dlls on MSVC
+#############################################################################
+
+# Copy Odb Dlls
+
+if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
+	# Find all the dlls
+	file (GLOB  RI_ALL_ODB_DLLS  ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
+	
+	# Strip off the path
+	foreach (aDLL  ${RI_ALL_ODB_DLLS})
+		 get_filename_component(filenameWithExt ${aDLL} NAME)
+		 list(APPEND RI_ODB_DLLS ${filenameWithExt} )
+	endforeach(aDLL)
+
+	# Copy to target directory
+	foreach (aDLL ${RI_ODB_DLLS})
+        add_custom_command(TARGET ResInsight POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+						   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
+						   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+    endforeach()
+
+endif()
 
     # Qt DLLs
+
+if (MSVC)
+
     set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
     foreach (qtlib ${QTLIBLIST})
         add_custom_command(TARGET ResInsight POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${QT_BINARY_DIR}/${qtlib}4.dll"
-                ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
+                "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
     endforeach( qtlib )
 
 endif(MSVC)
@@ -288,7 +385,15 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       # tell binary to first attempt to load libraries from its own directory
-      set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
+
+	  if (${RESINSIGHT_USE_ODB_API})
+		# This is a "hack" to make ResInsight runtime find the ODB so files used when compiling.
+		# statoil wanted it this way, but we should probbly make a different installoptions that does things this way,
+		# and really do copy them when doing PRIVATE_INSTALL
+		set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN;${RESINSIGHT_ODB_API_DIR}/lib")
+	  else()
+		set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
+      endif()
 
         # Find Qt libraries and sym links
         file (GLOB RESINSIGHT_FILES
@@ -314,6 +419,11 @@ if (RESINSIGHT_PRIVATE_INSTALL)
                 ${QT_BINARY_DIR}/QtScript4.dll
                 ${QT_BINARY_DIR}/QtScriptTools4.dll
             )
+
+		if (${RESINSIGHT_USE_ODB_API})
+			set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RI_ALL_ODB_DLLS})
+		endif()
+
     endif()
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})

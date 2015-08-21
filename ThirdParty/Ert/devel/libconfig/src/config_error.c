@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'config_error.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'config_error.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdio.h>
 
@@ -54,7 +54,7 @@ void config_error_free( config_error_type * error ) {
 
 
 void config_error_add( config_error_type * error , char * new_error) {
-  stringlist_append_owned_ref( error->error_list , new_error );
+  stringlist_append_copy( error->error_list , new_error );
 }
 
 
@@ -78,9 +78,9 @@ void config_error_fprintf( const config_error_type * error , bool add_count , FI
   int error_nr;
 
   for (error_nr = 0; error_nr < stringlist_get_size( error->error_list ); error_nr++) {
-    if (add_count) 
+    if (add_count)
       fprintf(stream , "  %02d: " , error_nr);
-    
+
     fprintf( stream , "%s\n" , stringlist_iget( error->error_list , error_nr));
   }
 }

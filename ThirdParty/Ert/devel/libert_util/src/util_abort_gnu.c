@@ -227,7 +227,8 @@ void util_abort__(const char * file , const char * function , int line , const c
 
     va_start(ap , fmt);
     fprintf(abort_dump , "\n\n");
-    fprintf(abort_dump , "Abort called from: %s (%s:%d) \n",function , file , line);
+    fprintf(abort_dump , "Abort called from: %s (%s:%d) \n\n",function , file , line);
+    fprintf(abort_dump , "Error message: ");
     vfprintf(abort_dump , fmt , ap);
     fprintf(abort_dump , "\n\n");
     va_end(ap);
@@ -262,7 +263,14 @@ void util_abort__(const char * file , const char * function , int line , const c
 
     if (abort_dump != stderr) {
       util_fclose(abort_dump);
-      fprintf(stderr, "\n\nA fatal error occured, see file: %s for details.\nSetting the environment variable \"ERT_SHOW_BACKTRACE\" will show the backtrace on stderr.\n", filename);
+      fprintf(stderr, "\nError message: ");
+      {
+        va_list args;
+        va_start(args , fmt);
+        vfprintf(stderr , fmt , args);
+        va_end(args);
+      }
+      fprintf(stderr, "\nSee file: %s for more details of the crash.\nSetting the environment variable \"ERT_SHOW_BACKTRACE\" will show the backtrace on stderr.\n", filename);
     }
 
     free(filename);

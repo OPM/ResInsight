@@ -1,0 +1,160 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimEclipseFaultColors.h"
+
+#include "RigCaseData.h"
+#include "RigMainGrid.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
+#include "RimUiTreeModelPdm.h"
+#include "RiuMainWindow.h"
+
+
+
+CAF_PDM_SOURCE_INIT(RimEclipseFaultColors, "RimFaultResultSlot");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseFaultColors::RimEclipseFaultColors()
+{
+    CAF_PDM_InitObject("Fault Result Slot", ":/draw_style_faults_24x24.png", "", "");
+
+    CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
+    showCustomFaultResult.setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
+    m_customFaultResultColors = new RimEclipseCellColors();
+    m_customFaultResultColors.setOwnerObject(this);
+    m_customFaultResultColors.setUiHidden(true);
+
+    // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
+    m_customFaultResultColors->m_resultTypeUiField.setOwnerObject(this);
+    m_customFaultResultColors->m_porosityModelUiField.setOwnerObject(this);
+    m_customFaultResultColors->m_resultVariableUiField.setOwnerObject(this);
+
+
+    updateFieldVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseFaultColors::~RimEclipseFaultColors()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::setReservoirView(RimEclipseView* ownerReservoirView)
+{
+    m_reservoirView = ownerReservoirView;
+    m_customFaultResultColors->setReservoirView(ownerReservoirView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    this->updateUiIconFromToggleField();
+
+    m_customFaultResultColors->fieldChangedByUi(changedField, oldValue, newValue);
+
+    if (changedField == &m_customFaultResultColors->m_resultVariableUiField)
+    {
+        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
+    }
+
+    if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::initAfterRead()
+{
+    m_customFaultResultColors->initAfterRead();
+    updateFieldVisibility();
+
+    this->updateUiIconFromToggleField();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::updateFieldVisibility()
+{
+    m_customFaultResultColors->updateFieldVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseCellColors* RimEclipseFaultColors::customFaultResult()
+{
+    return this->m_customFaultResultColors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimEclipseFaultColors::objectToggleField()
+{
+    return &showCustomFaultResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
+    group1->add(&(m_customFaultResultColors->m_resultTypeUiField));
+    group1->add(&(m_customFaultResultColors->m_porosityModelUiField));
+    group1->add(&(m_customFaultResultColors->m_resultVariableUiField));
+}   
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseFaultColors::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    return m_customFaultResultColors->calculateValueOptionsForSpecifiedDerivedListPosition(true, fieldNeedingOptions, useOptionsOnly);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseFaultColors::hasValidCustomResult()
+{
+    if (this->showCustomFaultResult())
+    {
+        if (m_customFaultResultColors->hasResult() || m_customFaultResultColors->isTernarySaturationSelected())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}

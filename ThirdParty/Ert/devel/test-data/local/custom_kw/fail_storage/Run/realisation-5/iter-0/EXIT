@@ -1,0 +1,8 @@
+<error>
+  <time>11:38:15</time>
+  <job>REALIZATION_FAIL</job>
+  <reason>Could not find target_file:realization.ok</reason>
+  <stderr>
+<stderr: Not redirected>
+</stderr>
+</error>

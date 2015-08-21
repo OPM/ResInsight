@@ -23,6 +23,7 @@
 #include "cafPdmDocument.h"
 
 class RimOilField;
+class RimEclipseCase;
 class RimCase;
 class RigGridManager;
 class RimScriptCollection;
@@ -50,10 +51,6 @@ public:
     caf::PdmPointersField<RimCommandObject*>            commandObjects;
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
-    caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
-    caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
-    caf::PdmPointersField<RimCase*>                     casesObsolete; // obsolete
-    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
 
     void            setScriptDirectories(const QString& scriptDirectories);
     QString         projectFileVersionString() const;
@@ -64,8 +61,8 @@ public:
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
-    void            allCases(std::vector<RimCase*>& cases); // VL endre impl
-    void            createDisplayModelAndRedrawAllViews(); // VL endre impl
+    void            allCases(std::vector<RimCase*>& cases); 
+    void            createDisplayModelAndRedrawAllViews(); 
 
     void            computeUtmAreaOfInterest();
 
@@ -79,4 +76,11 @@ protected:
 
 private:
     caf::PdmField<QString>      m_projectFileVersionString;
+
+    caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
+    caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
+
+    caf::PdmPointersField<RimEclipseCase*>                     casesObsolete; // obsolete
+    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
+
 };

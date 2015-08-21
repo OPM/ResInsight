@@ -126,7 +126,7 @@ DEFUN_DLD (riGetCaseGroups, args, nargout,
 
             // Build a map between the field name and field cell values
 
-            Octave_map m;
+            octave_map m;
 
             m.assign(riOctavePlugin::caseGroupInfo_CaseGroupId,   cellValuesA);
             m.assign(riOctavePlugin::caseGroupInfo_CaseGroupName, cellValuesB);

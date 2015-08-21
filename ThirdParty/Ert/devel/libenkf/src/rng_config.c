@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'rng_config.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'rng_config.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -23,7 +23,7 @@
 #include <ert/util/rng.h>
 #include <ert/util/test_util.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 #include <ert/config/config_schema_item.h>
 
 #include <ert/enkf/rng_config.h>
@@ -130,25 +130,25 @@ void rng_config_init_rng( const rng_config_type * rng_config, rng_type * rng ) {
 
 /*****************************************************************/
 
-void rng_config_add_config_items( config_type * config ) {
+void rng_config_add_config_items( config_parser_type * config ) {
   config_schema_item_type * item;
 
   item= config_add_schema_item( config , STORE_SEED_KEY , false);
   config_schema_item_set_argc_minmax(item , 1 , 1 );
   config_schema_item_iset_type( item , 0 , CONFIG_PATH );
-  
+
   item = config_add_schema_item( config , LOAD_SEED_KEY , false );
   config_schema_item_set_argc_minmax(item , 1 , 1 );
   config_schema_item_iset_type( item , 0 , CONFIG_PATH );
 }
 
 
-void rng_config_init( rng_config_type * rng_config , config_type * config ) {
-  if (config_item_set( config , STORE_SEED_KEY ))
-    rng_config_set_seed_store_file( rng_config , config_iget(config , STORE_SEED_KEY ,0,0));
-  
-  if (config_item_set( config , LOAD_SEED_KEY ))
-    rng_config_set_seed_load_file( rng_config , config_iget(config , LOAD_SEED_KEY ,0,0));
+void rng_config_init( rng_config_type * rng_config , config_content_type * config ) {
+  if (config_content_has_item( config , STORE_SEED_KEY ))
+    rng_config_set_seed_store_file( rng_config , config_content_iget(config , STORE_SEED_KEY ,0,0));
+
+  if (config_content_has_item( config , LOAD_SEED_KEY ))
+    rng_config_set_seed_load_file( rng_config , config_content_iget(config , LOAD_SEED_KEY ,0,0));
 }
 
 

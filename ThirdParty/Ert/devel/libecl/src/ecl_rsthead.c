@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-   
-   The file 'ecl_rsthead.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_rsthead.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 
@@ -31,55 +31,67 @@ static time_t rsthead_date( int day , int month , int year) {
 
 
 time_t ecl_rsthead_date( const ecl_kw_type * intehead_kw ) {
-  return rsthead_date(  ecl_kw_iget_int( intehead_kw , INTEHEAD_DAY_INDEX)   , 
-                        ecl_kw_iget_int( intehead_kw , INTEHEAD_MONTH_INDEX) , 
+  return rsthead_date(  ecl_kw_iget_int( intehead_kw , INTEHEAD_DAY_INDEX)   ,
+                        ecl_kw_iget_int( intehead_kw , INTEHEAD_MONTH_INDEX) ,
                         ecl_kw_iget_int( intehead_kw , INTEHEAD_YEAR_INDEX)  );
 }
 
+
+double ecl_rsthead_get_sim_days( const ecl_rsthead_type * header ) {
+  return header->sim_days;
+}
 
 
 
 ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occurence) {
   if (ecl_file_get_num_named_kw( rst_file , INTEHEAD_KW) > occurence) {
     const ecl_kw_type * intehead_kw = ecl_file_iget_named_kw( rst_file , INTEHEAD_KW , occurence);
-    const ecl_kw_type * logihead_kw = ecl_file_iget_named_kw( rst_file , LOGIHEAD_KW , occurence);
-    const ecl_kw_type * doubhead_kw = ecl_file_iget_named_kw( rst_file , DOUBHEAD_KW , occurence);
-    
+
     ecl_rsthead_type * rsthead = util_malloc( sizeof * rsthead );
-    
+
     {
       const int * data = (const int *) ecl_kw_get_void_ptr( intehead_kw );
-      
+
       rsthead->day       = data[INTEHEAD_DAY_INDEX];
       rsthead->month     = data[INTEHEAD_MONTH_INDEX];
       rsthead->year      = data[INTEHEAD_YEAR_INDEX];
       rsthead->version   = data[INTEHEAD_IPROG_INDEX];
       rsthead->phase_sum = data[INTEHEAD_PHASE_INDEX];
-      
+
       rsthead->nx        = data[INTEHEAD_NX_INDEX];
       rsthead->ny        = data[INTEHEAD_NY_INDEX];
       rsthead->nz        = data[INTEHEAD_NZ_INDEX];
       rsthead->nactive   = data[INTEHEAD_NACTIVE_INDEX];
-      
+
       rsthead->nwells    = data[INTEHEAD_NWELLS_INDEX];
       rsthead->niwelz    = data[INTEHEAD_NIWELZ_INDEX];
       rsthead->nzwelz    = data[INTEHEAD_NZWELZ_INDEX];
-      
+
       rsthead->nsconz    = data[INTEHEAD_NSCONZ_INDEX];
       rsthead->niconz    = data[INTEHEAD_NICONZ_INDEX];
       rsthead->ncwmax    = data[INTEHEAD_NCWMAX_INDEX];
-      
+
       rsthead->nisegz    = data[INTEHEAD_NISEGZ_INDEX];
       rsthead->nsegmx    = data[INTEHEAD_NSEGMX_INDEX];
       rsthead->nswlmx    = data[INTEHEAD_NSWLMX_INDEX];
       rsthead->nrsegz    = data[INTEHEAD_NRSEGZ_INDEX];
-      
+
       // The only derived quantity
       rsthead->sim_time  = rsthead_date( rsthead->day , rsthead->month , rsthead->year );
     }
-    rsthead->dualp    = ecl_kw_iget_bool( logihead_kw , LOGIHEAD_DUALP_INDEX);
-    rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX );
-    
+
+    if (ecl_file_get_num_named_kw(rst_file, DOUBHEAD_KW) > occurence) {
+        const ecl_kw_type * doubhead_kw = ecl_file_iget_named_kw( rst_file , DOUBHEAD_KW , occurence);
+        rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX );
+    }
+
+    if (ecl_file_get_num_named_kw(rst_file, LOGIHEAD_KW) > occurence) {
+      const ecl_kw_type * logihead_kw = ecl_file_iget_named_kw( rst_file , LOGIHEAD_KW , occurence);
+      rsthead->dualp    = ecl_kw_iget_bool( logihead_kw , LOGIHEAD_DUALP_INDEX);
+    } else
+      rsthead->dualp    = false;
+
+
     return rsthead;
   } else
     return NULL;
@@ -88,6 +100,42 @@ ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occu
 
 ecl_rsthead_type * ecl_rsthead_alloc( const ecl_file_type * rst_file) {
   return ecl_rsthead_ialloc( rst_file , 0 );
+}
+
+
+ecl_rsthead_type * ecl_rsthead_alloc_empty() {
+  ecl_rsthead_type * rsthead = util_malloc( sizeof * rsthead );
+
+  rsthead->day       = 0;
+  rsthead->month     = 0;
+  rsthead->year      = 0;
+  rsthead->version   = 0;
+  rsthead->phase_sum = 0;
+
+  rsthead->nx        = 0;
+  rsthead->ny        = 0;
+  rsthead->nz        = 0;
+  rsthead->nactive   = 0;
+
+  rsthead->nwells    = 0;
+  rsthead->niwelz    = 0;
+  rsthead->nzwelz    = 0;
+
+  rsthead->nsconz    = 0;
+  rsthead->niconz    = 0;
+  rsthead->ncwmax    = 0;
+
+  rsthead->nisegz    = 0;
+  rsthead->nsegmx    = 0;
+  rsthead->nswlmx    = 0;
+  rsthead->nrsegz    = 0;
+
+  rsthead->sim_time  = 0;
+
+  rsthead->dualp    = false;
+  rsthead->sim_days = 0.0;
+
+  return rsthead;
 }
 
 
@@ -138,9 +186,9 @@ void ecl_rsthead_fprintf_struct( const ecl_rsthead_type * header , FILE * stream
   fprintf(stream , ".nz = %d,\n",header->nz);
   fprintf(stream , ".nactive = %d,\n",header->nactive);
   fprintf(stream , ".nwells = %d,\n",header->nwells);
-  fprintf(stream , ".niwelz = %d,\n",header->niwelz);  
+  fprintf(stream , ".niwelz = %d,\n",header->niwelz);
   fprintf(stream , ".nzwelz = %d,\n",header->nzwelz);
-  fprintf(stream , ".niconz = %d,\n",header->niconz);  
+  fprintf(stream , ".niconz = %d,\n",header->niconz);
   fprintf(stream , ".ncwmax = %d,\n",header->ncwmax);
   fprintf(stream , ".nisegz = %d,\n",header->nisegz);
   fprintf(stream , ".nsegmx = %d,\n",header->nsegmx);

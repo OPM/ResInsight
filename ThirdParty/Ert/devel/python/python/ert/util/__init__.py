@@ -53,7 +53,7 @@ UTIL_LIB = clib.ert_load("libert_util")
 
 from .version import Version
 
-from .enums import RngAlgTypeEnum, RngInitModeEnum
+from .enums import RngAlgTypeEnum, RngInitModeEnum, LLSQResultEnum
 
 from .ctime import CTime
 
@@ -62,18 +62,19 @@ from .double_vector import DoubleVector
 from .int_vector import IntVector
 from .bool_vector import BoolVector
 from .time_vector import TimeVector
-
 from .stringlist import StringList
-from .stat import quantile, quantile_sorted
+from .rng import RandomNumberGenerator
 from .matrix import Matrix
+from .stat import quantile, quantile_sorted, polyfit
 from .log import Log
 from .lookup_table import LookupTable
 from .buffer import Buffer
 from .hash import Hash, StringHash, DoubleHash, IntegerHash
 from .substitution_list import SubstitutionList
 from .ui_return import UIReturn
-from .rng import RandomNumberGenerator
 from .thread_pool import ThreadPool
+from .install_abort_signals import installAbortSignals
+from .profiler import Profiler
 
 # Check if latex functionality exists in libert_util
 if hasattr(UTIL_LIB, "latex_alloc"):

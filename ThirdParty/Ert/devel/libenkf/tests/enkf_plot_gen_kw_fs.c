@@ -29,7 +29,7 @@
 
 
 void test_load(const char * config_file) {
-  ert_test_context_type * test_context = ert_test_context_alloc( "GEN_KW" , config_file , NULL );
+  ert_test_context_type * test_context = ert_test_context_alloc( "GEN_KW" , config_file );
   enkf_main_type * enkf_main = ert_test_context_get_main( test_context );
   int ens_size = enkf_main_get_ensemble_size( enkf_main );
   stringlist_type * param_list = stringlist_alloc_new();

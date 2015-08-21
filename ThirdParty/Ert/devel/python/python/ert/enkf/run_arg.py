@@ -31,9 +31,11 @@ class RunArg(BaseCClass):
         c_ptr = RunArg.cNamespace().alloc_ENSEMBLE_EXPERIMENT(fs , iens , iter , runpath)
         return RunArg( c_ptr )
 
-
     def free(self):
         RunArg.cNamespace().free(self)
+
+    def getQueueIndex(self):
+        return RunArg.cNamespace().get_queue_index( self )
 
 
 
@@ -45,3 +47,4 @@ cwrapper.registerObjectType("run_arg", RunArg)
 
 RunArg.cNamespace().alloc_ENSEMBLE_EXPERIMENT = cwrapper.prototype("c_void_p run_arg_alloc_ENSEMBLE_EXPERIMENT(enkf_fs , int, int, char*)")
 RunArg.cNamespace().free  = cwrapper.prototype("void run_arg_free(run_arg)")
+RunArg.cNamespace().get_queue_index  = cwrapper.prototype("int run_arg_get_queue_index(run_arg)")

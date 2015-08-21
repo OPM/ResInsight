@@ -54,6 +54,7 @@ RivTernaryScalarMapperEffectGenerator::RivTernaryScalarMapperEffectGenerator(con
 	m_opacityLevel = 1.0f;
 	m_faceCulling = caf::FC_NONE;
 	m_enableDepthWrite = true;
+    m_disableLighting = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,8 +67,16 @@ void RivTernaryScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::E
 	cvf::ShaderProgramGenerator gen("ScalarMapperMeshEffectGenerator", cvf::ShaderSourceProvider::instance());
 	gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
 	gen.addFragmentCode(cvf::ShaderSourceRepository::src_Texture);
-	gen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
-	gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+
+    if (m_disableLighting)
+    {
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Unlit);
+    }
+    else
+    {
+        gen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+    }
 
 	cvf::ref<cvf::ShaderProgram> prog = gen.generate();
 	eff->setShaderProgram(prog.p());
@@ -104,6 +113,7 @@ void RivTernaryScalarMapperEffectGenerator::updateForFixedFunctionRendering(cvf:
 
 	cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
 	lighting->enableTwoSided(true);
+    lighting->enable(!m_disableLighting);
 	eff->setRenderState(lighting.p());
 
 	// Result mapping texture
@@ -189,7 +199,8 @@ bool RivTernaryScalarMapperEffectGenerator::isEqual(const EffectGenerator* other
 			&& m_opacityLevel == otherTextureResultEffect->m_opacityLevel
 			&& m_undefinedColor == otherTextureResultEffect->m_undefinedColor
 			&& m_faceCulling == otherTextureResultEffect->m_faceCulling
-			&& m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite)
+			&& m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite
+            && m_disableLighting == otherTextureResultEffect->m_disableLighting)
 		{
 			cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
 			otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p(), m_opacityLevel);
@@ -212,6 +223,7 @@ caf::EffectGenerator* RivTernaryScalarMapperEffectGenerator::copy() const
 	scEffGen->m_undefinedColor = m_undefinedColor;
 	scEffGen->m_faceCulling = m_faceCulling;
 	scEffGen->m_enableDepthWrite = m_enableDepthWrite;
+    scEffGen->m_disableLighting = m_disableLighting;
 
 	return scEffGen;
 }

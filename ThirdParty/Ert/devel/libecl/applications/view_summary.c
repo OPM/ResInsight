@@ -1,18 +1,18 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-   The file 'view_summary.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+   The file 'view_summary.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -34,7 +34,7 @@
 void install_SIGNALS(void) {
   signal(SIGSEGV , util_abort_signal);    /* Segmentation violation, i.e. overwriting memory ... */
   signal(SIGINT  , util_abort_signal);    /* Control C */
-  signal(SIGTERM , util_abort_signal);    /* If killing the program with SIGTERM (the default kill signal) you will get a backtrace. 
+  signal(SIGTERM , util_abort_signal);    /* If killing the program with SIGTERM (the default kill signal) you will get a backtrace.
                                              Killing with SIGKILL (-9) will not give a backtrace.*/
 }
 
@@ -144,23 +144,22 @@ int main(int argc , char ** argv) {
     bool           report_only     = false;
     bool           list_mode       = false;
     bool           include_restart = true;
-    ecl_sum_fmt_type fmt;
-    int            arg_offset      = 1;  
+    bool           print_header    = true;
+    int            arg_offset      = 1;
 
-    ecl_sum_fmt_init_summary_x( &fmt );
 #ifdef HAVE_GETOPT
     if (argc == 1)
       print_help_and_exit();
     else {
-      
+
       static struct option long_options[] = {
         {"no-restart"  , 0 , 0 , 'n'} ,
         {"list"        , 0 , 0 , 'l'} ,
         {"report-only" , 0 , 0 , 'r'} ,
-        {"no-header"   , 0 , 0 , 'x'} , 
+        {"no-header"   , 0 , 0 , 'x'} ,
         {"help"        , 0 , 0 , 'h'} ,
         { 0            , 0 , 0 ,   0} };
-      
+
       while (1) {
         int c;
         int option_index = 0;
@@ -180,7 +179,7 @@ int main(int argc , char ** argv) {
           list_mode = true;
           break;
         case 'x':
-          fmt.print_header = false;
+          print_header = false;
           break;
         case 'h':
           print_help_and_exit();
@@ -193,38 +192,38 @@ int main(int argc , char ** argv) {
       arg_offset = optind;  /* External static variable in the getopt scope*/
     }
 #endif
-    
+
     if (arg_offset >= argc)
       print_help_and_exit();
 
     {
       char         * data_file = argv[arg_offset];
       ecl_sum_type * ecl_sum;
-      int            num_keys  = argc - arg_offset - 1;  
+      int            num_keys  = argc - arg_offset - 1;
       const char  ** arg_list  = (const char **) &argv[arg_offset + 1];
-      
-      
+
+
       ecl_sum = ecl_sum_fread_alloc_case__( data_file , ":" , include_restart);
       /** If no keys have been presented the function will list available keys. */
       if (num_keys == 0)
         list_mode = true;
-      
+
       if (ecl_sum != NULL) {
         if (list_mode) {
-          /* 
+          /*
              The program is called in list mode, we only print the
              (matching) keys in a table on stdout. If no arguments
              have been given on the commandline, all internalized keys
-             will be printed. 
+             will be printed.
           */
-             
+
           stringlist_type * keys = stringlist_alloc_new();
           if (num_keys == 0) {
             ecl_sum_select_matching_general_var_list( ecl_sum , "*" , keys);
             stringlist_sort(keys , NULL );
-          } else 
+          } else
             build_key_list( ecl_sum , keys , num_keys , arg_list);
-          
+
           {
             int columns = 5;
             int i;
@@ -238,14 +237,21 @@ int main(int argc , char ** argv) {
           stringlist_free( keys );
         } else {
           /* Normal operation print results for the various keys on stdout. */
+          ecl_sum_fmt_type fmt;
           stringlist_type * key_list = stringlist_alloc_new( );
           build_key_list( ecl_sum , key_list , num_keys , arg_list);
+
+          if (print_header)
+            ecl_sum_fmt_init_summary_x(ecl_sum , &fmt );
+          else
+            fmt.print_header = false;
+
           ecl_sum_fprintf(ecl_sum , stdout , key_list , report_only , &fmt);
 
           stringlist_free( key_list );
         }
         ecl_sum_free(ecl_sum);
-      } else 
+      } else
         fprintf(stderr,"summary.x: No summary data found for case:%s\n", data_file );
     }
   }

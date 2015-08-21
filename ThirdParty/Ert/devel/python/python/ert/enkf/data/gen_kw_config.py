@@ -54,12 +54,26 @@ class GenKwConfig(BaseCClass):
     def free(self):
         GenKwConfig.cNamespace().free(self)
 
-##################################################################
+    def getKey(self):
+        """ @rtype: str """
+        return GenKwConfig.cNamespace().get_key(self)
+
+    def __len__(self):
+        return GenKwConfig.cNamespace().size(self)
+
+    def __getitem__(self, index):
+        """ @rtype: str """
+        return GenKwConfig.cNamespace().iget_name(self, index)
+
+    def __iter__(self):
+        index = 0
+        while index < len(self):
+            yield self[index]
+            index += 1
+
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("gen_kw_config", GenKwConfig)
-cwrapper.registerType("gen_kw_config_obj", GenKwConfig.createPythonObject)
-cwrapper.registerType("gen_kw_config_ref", GenKwConfig.createCReference)
+cwrapper.registerObjectType("gen_kw_config", GenKwConfig)
 
 GenKwConfig.cNamespace().free = cwrapper.prototype("void gen_kw_config_free( gen_kw_config )")
 GenKwConfig.cNamespace().alloc_empty = cwrapper.prototype("c_void_p gen_kw_config_alloc_empty( char*, char* )")
@@ -68,4 +82,8 @@ GenKwConfig.cNamespace().set_template_file = cwrapper.prototype("void gen_kw_con
 GenKwConfig.cNamespace().get_parameter_file = cwrapper.prototype("char* gen_kw_config_get_parameter_file(gen_kw_config)")
 GenKwConfig.cNamespace().set_parameter_file = cwrapper.prototype("void gen_kw_config_set_parameter_file( gen_kw_config, char* )")
 GenKwConfig.cNamespace().alloc_name_list = cwrapper.prototype("stringlist_obj gen_kw_config_alloc_name_list(gen_kw_config)")
+
 GenKwConfig.cNamespace().should_use_log_scale = cwrapper.prototype("bool gen_kw_config_should_use_log_scale(gen_kw_config, int)")
+GenKwConfig.cNamespace().get_key = cwrapper.prototype("char* gen_kw_config_get_key(gen_kw_config)")
+GenKwConfig.cNamespace().size = cwrapper.prototype("int gen_kw_config_get_data_size(gen_kw_config)")
+GenKwConfig.cNamespace().iget_name = cwrapper.prototype("char* gen_kw_config_iget_name(gen_kw_config, int)")

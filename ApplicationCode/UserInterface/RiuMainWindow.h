@@ -42,6 +42,7 @@ class RiuResultInfoPanel;
 class RiuProcessMonitor;
 class RimUiTreeModelPdm;
 class RimUiTreeView;
+class RimEclipseCase;
 class RimCase;
 
 namespace caf
@@ -83,6 +84,7 @@ public:
 
     void            refreshAnimationActions();
     void            updateScaleValue();
+    void            forceProjectTreeRepaint();
 
     RimUiTreeModelPdm* uiPdmModel() { return m_treeModelPdm;}
 
@@ -132,6 +134,7 @@ private:
     // File actions
     QAction*		    m_importEclipseCaseAction;
     QAction*		    m_importInputEclipseFileAction;
+    QAction*            m_importGeoMechCaseAction;
     QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
@@ -206,6 +209,7 @@ private slots:
     // File slots
     void    slotImportEclipseCase();
     void    slotImportInputEclipseFiles();
+    void    slotImportGeoMechModel();
     void    slotOpenMultipleCases();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
@@ -238,6 +242,7 @@ private slots:
     void slotDrawStyleChanged(QAction* activatedAction);
     void slotToggleFaultsAction(bool);
     void slotToggleFaultLabelsAction(bool);
+    void slotDisableLightingAction(bool);
 
     void slotAddWellCellsToRangeFilterAction(bool doAdd);
 
@@ -279,7 +284,6 @@ private slots:
     // Pdm System :
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
-
 private:
     RimUiTreeView*              m_treeView;
     RimUiTreeModelPdm*          m_treeModelPdm;
@@ -289,6 +293,7 @@ private:
     QSpinBox*                   m_scaleFactor;
 
     QActionGroup*               m_dsActionGroup;
+    QAction*                    m_disableLightingAction;
     QAction*                    m_drawStyleToggleFaultsAction;
     QAction*                    m_toggleFaultsLabelAction;
     QAction*                    m_drawStyleLinesAction;

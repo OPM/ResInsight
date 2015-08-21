@@ -134,7 +134,7 @@ DEFUN_DLD (riGetSelectedCases, args, nargout,
 
             // Build a map between the field name and field cell values
             
-            Octave_map m;
+            octave_map m;
 
             m.assign(riOctavePlugin::caseInfo_CaseId,      cellValuesA);
             m.assign(riOctavePlugin::caseInfo_CaseName,    cellValuesB);

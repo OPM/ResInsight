@@ -27,6 +27,7 @@
 #include <ert/util/stringlist.h>
 
 #include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/site_config.h>
 #include <ert/enkf/enkf_main.h>
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/enkf_sched.h>
@@ -136,7 +137,7 @@ int main (int argc , char ** argv) {
   printf("Documentation : %s \n","http://ert.nr.no");
   printf("git commit    : %s \n",GIT_COMMIT);
   printf("compile time  : %s \n",COMPILE_TIME_STAMP);
-  printf("site config   : %s \n",SITE_CONFIG_FILE);
+  printf("site config   : %s \n", site_config_get_location());
   
   enkf_main_install_SIGNALS();                     /* Signals common to both tui and gui. */
   signal(SIGINT , util_abort_signal);              /* Control C - tui only.               */
@@ -144,8 +145,7 @@ int main (int argc , char ** argv) {
     enkf_usage();
     exit(1);
   } else {
-    const char * site_config_file  = SITE_CONFIG_FILE;  /* The variable SITE_CONFIG_FILE should be defined on compilation ... */
-    const char * model_config_file = argv[1]; 
+    const char * model_config_file = argv[1];
     stringlist_type * workflow_list = stringlist_alloc_new();
     
     parse_workflows( argc , argv , workflow_list ); 
@@ -158,7 +158,7 @@ int main (int argc , char ** argv) {
     }
     enkf_welcome( model_config_file );
     {
-      enkf_main_type * enkf_main = enkf_main_bootstrap(site_config_file , model_config_file , true , true);
+      enkf_main_type * enkf_main = enkf_main_bootstrap(model_config_file , true , true);
       enkf_main_run_workflows( enkf_main , workflow_list );
       enkf_tui_main_menu(enkf_main); 
       enkf_main_free(enkf_main);

@@ -23,6 +23,7 @@
 #include "RifReaderInterface.h"
 
 #include "RimDefines.h"
+#include "RigStatisticsDataCache.h"
 
 #include <QDateTime>
 
@@ -31,7 +32,6 @@
 
 class RifReaderInterface;
 class RigMainGrid;
-class RigStatisticsDataCache;
 class RigActiveCellInfo;
 
 //==================================================================================================

@@ -24,7 +24,7 @@
 #include <ert/util/util.h>
 #include <ert/util/test_work_area.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 #include <ert/config/config_path_elm.h>
 #include <ert/config/config_root_path.h>
 

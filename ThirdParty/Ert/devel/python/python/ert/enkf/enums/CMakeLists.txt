@@ -12,6 +12,7 @@ set(PYTHON_SOURCES
     load_fail_type_enum.py
     realization_state_enum.py
     gen_data_file_type_enum.py
+    active_mode_enum.py
 )
 
 add_python_package("python.ert.enkf.enums"  ${PYTHON_INSTALL_PREFIX}/ert/enkf/enums "${PYTHON_SOURCES}" True)

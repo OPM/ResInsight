@@ -96,7 +96,7 @@ void test_invalidate_cache(ert_test_context_type * test_context) {
 int main(int argc, char ** argv) {
   const char * config_file = argv[1];
   test_assert_not_NULL(config_file);
-  ert_test_context_type * test_context = ert_test_context_alloc("test_context_enkf_fs_test" , config_file , NULL);
+  ert_test_context_type * test_context = ert_test_context_alloc("test_context_enkf_fs_test" , config_file);
   test_assert_not_NULL(test_context);
 
   test_invalidate_cache(test_context);

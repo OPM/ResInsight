@@ -41,7 +41,7 @@ class ActiveRealizationsModel(ErtConnector, BasicModelMixin):
     def getActiveRealizationsMask(self):
         count = EnsembleSizeModel().getValue()
 
-        mask = BoolVector.active_mask(self.getValue())
+        mask = BoolVector.createActiveMask(self.getValue())
 
         if mask is None:
             raise ValueError("Error while parsing range string!")

@@ -25,11 +25,11 @@
 #include "RigResultAccessorFactory.h"
 #include "RigTernaryResultAccessor2d.h"
 
-#include "RimCase.h"
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimWellCollection.h"
+#include "RimEclipseWellCollection.h"
 
 #include "RivTernaryResultToTextureMapper.h"
 #include "RivTernaryScalarMapper.h"
@@ -38,22 +38,22 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
-	RimResultSlot* cellResultSlot, 
+	RimEclipseCellColors* cellResultColors, 
 	RimTernaryLegendConfig* ternaryLegendConfig,
 	size_t timeStepIndex, 
 	size_t gridIndex, 
 	const cvf::StructGridQuadToCellFaceMapper* quadMapper)
 {
-    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     m_quadMapper = quadMapper;
     CVF_ASSERT(quadMapper && eclipseCase );
 
     size_t resTimeStepIdx = timeStepIndex;
 
-    if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
+    if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
 
 	cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SOIL");
 	cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SGAS");
@@ -62,7 +62,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
 	m_resultAccessor = new RigTernaryResultAccessor();
 	m_resultAccessor->setTernaryResultAccessors(soil.p(), sgas.p(), swat.p());
 
-    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator( cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
+    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator( cellResultColors->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
         eclipseCase->gridCellToWellIndex(gridIndex));
 
     const RivTernaryScalarMapper* mapper = ternaryLegendConfig->scalarMapper();

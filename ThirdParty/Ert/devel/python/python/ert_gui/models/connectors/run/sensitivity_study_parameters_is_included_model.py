@@ -25,5 +25,5 @@ class SensivityStudyParametersIsIncludedModel(ErtConnector, BooleanModelMixin):
         return self.__model.getIsIncluded(self.__parameter_name)
 
 
-    def setTrue(self, is_included):
+    def setState(self, is_included):
         self.__model.setIsIncluded(self.__parameter_name, is_included)

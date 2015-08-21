@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'enkf_time_map.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'enkf_time_map.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -26,6 +26,7 @@
 #include <ert/util/thread_pool.h>
 #include <ert/util/arg_pack.h>
 #include <ert/util/vector.h>
+#include <ert/util/test_work_area.h>
 
 #include <ert/ecl/ecl_sum.h>
 
@@ -39,10 +40,10 @@ void ecl_test( const char * ecl_case ) {
   time_t start_time = ecl_sum_get_start_time( ecl_sum );
   time_t end_time   = ecl_sum_get_end_time( ecl_sum );
   time_map_type * ecl_map = time_map_alloc(  );
-  
+
   test_assert_true( time_map_summary_update( ecl_map , ecl_sum ) );
   test_assert_true( time_map_summary_update( ecl_map , ecl_sum ) );
-  
+
   test_assert_time_t_equal( time_map_get_start_time( ecl_map ) , start_time );
   test_assert_time_t_equal( time_map_get_end_time( ecl_map ) , end_time );
   test_assert_double_equal( time_map_get_end_days( ecl_map ) , ecl_sum_get_sim_length( ecl_sum ));
@@ -51,7 +52,7 @@ void ecl_test( const char * ecl_case ) {
   time_map_update( ecl_map , 1 , 256 );
   time_map_set_strict( ecl_map , false );
   test_assert_false( time_map_summary_update( ecl_map , ecl_sum ));
-  
+
   time_map_free( ecl_map );
   ecl_sum_free( ecl_sum );
 }
@@ -61,7 +62,7 @@ static void map_update( void * arg ) {
   vector_type * arg_vector = vector_safe_cast( arg );
   time_map_type * tmap = vector_iget( arg_vector , 0 );
   ecl_sum_type * sum = vector_iget( arg_vector , 1 );
-  
+
   time_map_summary_update( tmap , sum );
 }
 
@@ -81,7 +82,7 @@ void test_inconsistent_summary( const char * case1, const char * case2) {
     test_assert_util_abort("time_map_summary_update_abort" , map_update , arg);
     vector_free( arg );
   }
-  
+
   time_map_free( ecl_map );
   ecl_sum_free( ecl_sum1 );
   ecl_sum_free( ecl_sum2 );
@@ -118,26 +119,47 @@ void test_refcase( const char * refcase_name , const char * case1, const char * 
     time_map_attach_refcase( ecl_map , refcase );
     test_assert_true( time_map_summary_update( ecl_map , ecl_sum1 ) );
   }
-  
+
   {
     time_map_type * ecl_map = time_map_alloc(  );
-    
+
     time_map_set_strict( ecl_map , false );
     time_map_attach_refcase( ecl_map , refcase );
-    
+
     test_assert_false( time_map_summary_update( ecl_map , ecl_sum2 ) );
     test_assert_int_equal( 25 , time_map_get_size( ecl_map ));
     test_assert_true( time_map_summary_update( ecl_map , ecl_sum1 ) );
     test_assert_int_equal( 63 , time_map_get_size( ecl_map ));
   }
-  
+
   {
     time_map_type * ecl_map = time_map_alloc(  );
     test_assert_true( time_map_summary_update( ecl_map , ecl_sum2 ) );
     test_assert_false( time_map_attach_refcase( ecl_map , refcase ));
   }
-  
-  
+
+
+  {
+    test_work_area_type * work_area = test_work_area_alloc( "time_map/attach_short_refcase");
+    {
+      time_map_type * ecl_map = time_map_alloc(  );
+      test_assert_true( time_map_summary_update( ecl_map , refcase ) );
+      test_assert_true( time_map_update( ecl_map ,  ecl_sum_get_last_report_step( refcase ) + 1 , ecl_sum_get_end_time( refcase ) + 100 ));
+      test_assert_true( time_map_update( ecl_map ,  ecl_sum_get_last_report_step( refcase ) + 2 , ecl_sum_get_end_time( refcase ) + 200 ));
+      test_assert_true( time_map_update( ecl_map ,  ecl_sum_get_last_report_step( refcase ) + 3 , ecl_sum_get_end_time( refcase ) + 300 ));
+      time_map_fwrite( ecl_map , "time_map");
+      time_map_free( ecl_map );
+    }
+    {
+      time_map_type * ecl_map = time_map_alloc(  );
+      time_map_fread(ecl_map , "time_map");
+      test_assert_true( time_map_attach_refcase( ecl_map , refcase ) );
+      time_map_free( ecl_map );
+    }
+    test_work_area_free( work_area );
+  }
+
+
 
   ecl_sum_free( refcase );
   ecl_sum_free( ecl_sum1 );
@@ -152,7 +174,7 @@ void test_index_map( const char * case1, const char * case2 , const char * case3
   ecl_sum_type * ecl_sum2  = ecl_sum_fread_alloc_case( case2 , ":");
   ecl_sum_type * ecl_sum3  = ecl_sum_fread_alloc_case( case3 , ":");
   ecl_sum_type * ecl_sum4  = ecl_sum_fread_alloc_case( case4 , ":");
-  
+
   time_map_type * ecl_map = time_map_alloc(  );
 
   {
@@ -167,7 +189,7 @@ void test_index_map( const char * case1, const char * case2 , const char * case3
     int i;
     for (i=0; i < int_vector_size( index_map ); i++)
       test_assert_int_equal( i , int_vector_iget( index_map , i ));
-    
+
     test_assert_int_equal( int_vector_size( index_map ) , ecl_sum_get_last_report_step( ecl_sum1) + 1);
     int_vector_free( index_map );
   }
@@ -183,7 +205,7 @@ void test_index_map( const char * case1, const char * case2 , const char * case3
     int_vector_free( index_map );
   }
 
-  
+
   /* case3 has an extra tstep in the middle, and ends prematurely */
   test_assert_false( time_map_summary_update( ecl_map , ecl_sum3 ) );
   {
@@ -203,8 +225,8 @@ void test_index_map( const char * case1, const char * case2 , const char * case3
     test_assert_util_abort( "time_map_alloc_index_map" , alloc_index_map , arg);
     arg_pack_free( arg );
   }
-  
-  
+
+
 
   time_map_free( ecl_map );
   ecl_sum_free( ecl_sum1 );
@@ -218,7 +240,7 @@ void simple_test() {
   time_map_type * time_map = time_map_alloc(  );
   test_work_area_type * work_area = test_work_area_alloc("enkf_time_map" );
   const char * mapfile = "map";
-  
+
   time_map_set_strict( time_map , false );
   test_assert_true( time_map_update( time_map , 0 , 100 )   );
   test_assert_true( time_map_update( time_map , 1 , 200 )   );
@@ -239,7 +261,7 @@ void simple_test() {
     time_t mtime1 = util_file_mtime( mapfile );
     sleep(2);
     time_map_fwrite( time_map , mapfile);
-    
+
     test_assert_time_t_equal( mtime1 , util_file_mtime( mapfile ) );
     time_map_update( time_map , 2 , 300 );
     time_map_fwrite( time_map , mapfile);
@@ -251,7 +273,7 @@ void simple_test() {
 
 static void simple_update(void * arg) {
   time_map_type * tmap = time_map_safe_cast( arg );
-  
+
   time_map_update( tmap , 0 , 101 );
 }
 
@@ -259,7 +281,7 @@ static void simple_update(void * arg) {
 
 void simple_test_inconsistent() {
   time_map_type * time_map = time_map_alloc(  );
-  
+
   test_assert_true( time_map_update( time_map , 0 , 100 )   );
   time_map_set_strict( time_map , false );
   test_assert_false( time_map_update( time_map , 0 , 101 )   );
@@ -291,15 +313,15 @@ void thread_test() {
   {
     int pool_size = 1000;
     thread_pool_type * tp = thread_pool_alloc( pool_size/2 , true );
-    
+
     thread_pool_add_job( tp , update_time_map , time_map );
-  
+
     thread_pool_join(tp);
     thread_pool_free(tp);
   }
   {
     int i;
-    for (i=0; i < MAP_SIZE; i++) 
+    for (i=0; i < MAP_SIZE; i++)
       test_assert_true( time_map_iget( time_map , i ) == i );
   }
   time_map_free( time_map );
@@ -315,11 +337,11 @@ void test_read_only() {
     test_assert_true( time_map_is_instance( tm ));
     test_assert_true( time_map_is_strict( tm ));
     test_assert_false( time_map_is_readonly( tm ));
-    
+
     time_map_update( tm , 0 , 0 );
     time_map_update( tm , 1 , 10 );
     time_map_update( tm , 2 , 20 );
-    
+
     time_map_fwrite( tm , "case/files/time-map" );
     time_map_free( tm );
   }
@@ -352,7 +374,7 @@ void test_read_only() {
 
 int main(int argc , char ** argv) {
 
-  enkf_main_install_SIGNALS();                    
+  enkf_main_install_SIGNALS();
   ert_log_init_log(0 , NULL , false ); // Make sure there will be no logging.
 
   if (argc == 1) {
@@ -365,9 +387,9 @@ int main(int argc , char ** argv) {
     test_index_map(argv[1] , argv[2] , argv[3] , argv[4]);
     test_refcase( argv[1] , argv[1] , argv[2] , argv[3] , argv[4]);
   }
-  
-  test_read_only();  
-  
+
+  test_read_only();
+
   exit(0);
 }
 

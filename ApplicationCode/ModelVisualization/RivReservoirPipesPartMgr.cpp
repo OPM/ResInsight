@@ -21,24 +21,24 @@
 #include "RiaStdInclude.h"
 
 #include "RivReservoirPipesPartMgr.h"
-#include "RimReservoirView.h"
-#include "RimWell.h"
-#include "RimWellCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RivWellPipesPartMgr.h"
 #include "RivWellHeadPartMgr.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
+#include "RimEclipseCellColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimReservoirView* reservoirView)
+RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimEclipseView* reservoirView)
 {
     m_reservoirView = reservoirView;
 
@@ -103,7 +103,7 @@ void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
 {
     if (!m_reservoirView->wellCollection()->isActive()) return;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_OFF) return;
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF) return;
 
     if (m_reservoirView->wellCollection()->wells.size() != m_wellPipesPartMgrs.size())
     {

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'site_config.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'site_config.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
  */
 
 #include <stdlib.h>
@@ -34,7 +34,7 @@
 #include <ert/job_queue/local_driver.h>
 #include <ert/job_queue/queue_driver.h>
 
-#include <ert/config/config.h>
+#include <ert/config/config_parser.h>
 #include <ert/config/config_content_item.h>
 #include <ert/config/config_content_node.h>
 #include <ert/config/config_schema_item.h>
@@ -49,7 +49,7 @@
    where this enkf instance is running. Pointers to the fields in this
    structure are passed on to e.g. the enkf_state->shared_info object,
    but this struct is the *OWNER* of this information, and hence
-   responsible for booting and deleting these objects. 
+   responsible for booting and deleting these objects.
 
    The settings held by the site_config object are by default set in
    the site-wide configuration file, but they can also be overridden
@@ -61,9 +61,9 @@
    --------
    When parsing the user configuration file all settings are optional,
    that means that the required validation of the config system, can
-   not be used, instead every get must be preceeded by: 
+   not be used, instead every get must be preceeded by:
 
-      if (config_item_set(config , KEY)) ...
+      if (config_content_has_item(config , KEY)) ...
 
    Furthermore everything is done twice; first with config as a
    site-config instance, and later as user-config instance.
@@ -87,7 +87,7 @@
 #define TORQUE_DRIVER_NAME "TORQUE"
 
 struct site_config_struct {
-  ext_joblist_type * joblist; /* The list of external jobs which have been installed. 
+  ext_joblist_type * joblist; /* The list of external jobs which have been installed.
                                                      These jobs will be the parts of the forward model. */
   hash_type * env_variables_user; /* The environment variables set in the user config file. */
   hash_type * env_variables_site; /* The environment variables set in site_config file - not exported. */
@@ -128,6 +128,7 @@ struct site_config_struct {
 
   job_queue_type * job_queue; /* The queue instance which will run the external jobs. */
   bool user_mode;
+  bool search_path;
 };
 
 void site_config_set_umask(site_config_type * site_config, mode_t new_mask) {
@@ -207,6 +208,7 @@ site_config_type * site_config_alloc_empty() {
   site_config_set_manual_url(site_config, DEFAULT_MANUAL_URL);
   site_config_set_default_browser(site_config, DEFAULT_BROWSER);
   site_config_set_max_submit(site_config, DEFAULT_MAX_SUBMIT);
+  site_config->search_path = false;
   return site_config;
 }
 
@@ -230,7 +232,7 @@ void site_config_set_license_root_path(site_config_type * site_config, const cha
       /**
          Appending /user/pid to the license root path. Everything
          including the pid is removed when exiting (gracefully ...).
-         
+
          Dangling license directories after a crash can just be removed.
        */
       site_config->license_root_path = util_realloc_string_copy(site_config->license_root_path, full_license_root_path);
@@ -249,11 +251,11 @@ void site_config_init_user_mode(site_config_type * site_config) {
 
 /**
    Will return 0 if the job is added correctly, and a non-zero (not
-   documented ...) error code if the job is not added. 
+   documented ...) error code if the job is not added.
  */
 
 int site_config_install_job(site_config_type * site_config, const char * job_name, const char * install_file) {
-  ext_job_type * new_job = ext_job_fscanf_alloc(job_name, site_config->__license_root_path, site_config->user_mode, install_file);
+  ext_job_type * new_job = ext_job_fscanf_alloc(job_name, site_config->__license_root_path, site_config->user_mode, install_file, site_config->search_path);
   if (new_job != NULL) {
     ext_joblist_add_job(site_config->joblist, job_name, new_job);
     return 0;
@@ -268,9 +270,9 @@ bool site_config_del_job(site_config_type * site_config, const char * job_name) 
   return ext_joblist_del_job(site_config->joblist, job_name);
 }
 
-static void site_config_add_jobs(site_config_type * site_config, const config_type * config) {
-  if (config_item_set(config, INSTALL_JOB_KEY)) {
-    const config_content_item_type * content_item = config_get_content_item(config, INSTALL_JOB_KEY);
+static void site_config_add_jobs(site_config_type * site_config, const config_content_type * config) {
+  if (config_content_has_item(config, INSTALL_JOB_KEY)) {
+    const config_content_item_type * content_item = config_content_get_item(config, INSTALL_JOB_KEY);
     int num_jobs = config_content_item_get_size(content_item);
     for (int job_nr = 0; job_nr < num_jobs; job_nr++) {
       config_content_node_type * node = config_content_item_iget_node(content_item, job_nr);
@@ -280,13 +282,15 @@ static void site_config_add_jobs(site_config_type * site_config, const config_ty
       site_config_install_job(site_config, job_key, description_file);
     }
   }
-  if (config_item_set(config, INSTALL_JOB_DIRECTORY_KEY)) {
-    const config_content_item_type * content_item = config_get_content_item(config, INSTALL_JOB_DIRECTORY_KEY);
+  if (config_content_has_item(config, INSTALL_JOB_DIRECTORY_KEY)) {
+    const config_content_item_type * content_item = config_content_get_item(config, INSTALL_JOB_DIRECTORY_KEY);
     int num_dirs = config_content_item_get_size(content_item);
+    printf("num_dirs = %d \n",num_dirs);
     for (int dir_nr = 0; dir_nr < num_dirs; dir_nr++) {
       config_content_node_type * node = config_content_item_iget_node(content_item, dir_nr);
       const char * directory = config_content_node_iget_as_abspath(node, 0);
-      ext_joblist_add_jobs_in_directory(site_config->joblist  , directory, site_config->__license_root_path, site_config->user_mode );
+
+      ext_joblist_add_jobs_in_directory(site_config->joblist  , directory, site_config->__license_root_path, site_config->user_mode, site_config->search_path );
     }
   }
 
@@ -331,13 +335,13 @@ void site_config_setenv(site_config_type * site_config, const char * variable, c
 /**
    Clears all the environment variables set by the user. This is done
    is follows:
-     
+
      1. Iterate through the table config->env_variables_user and call
         unsetenv() on all of them
-   
+
      2. Iterate through the table config->env_variables_site and call
         setenv() on all of them.
-        
+
    This way the environment should be identical to what it is after
    the site parsing is completed.
  */
@@ -407,7 +411,7 @@ static void site_config_select_job_driver(site_config_type * site_config, const 
 
 /**
    These functions can be called repeatedly if you should want to
-   change driver characteristics run-time. 
+   change driver characteristics run-time.
  */
 static void site_config_select_LOCAL_job_queue(site_config_type * site_config) {
   site_config_select_job_driver(site_config, LOCAL_DRIVER_NAME);
@@ -646,7 +650,7 @@ int site_config_get_max_submit(const site_config_type * site_config) {
 }
 
 static void site_config_install_job_queue(site_config_type * site_config) {
-  /* 
+  /*
      All the various driver options are set, unconditionally of which
      driver is actually selected in the end.
    */
@@ -654,10 +658,10 @@ static void site_config_install_job_queue(site_config_type * site_config) {
     site_config_set_job_queue__(site_config, site_config->driver_type);
 }
 
-void site_config_init_env(site_config_type * site_config, const config_type * config) {
+void site_config_init_env(site_config_type * site_config, const config_content_type * config) {
   {
-    config_content_item_type * setenv_item = config_get_content_item(config, SETENV_KEY);
-    if (setenv_item != NULL) {
+    if (config_content_has_item( config , SETENV_KEY)) {
+      config_content_item_type * setenv_item = config_content_get_item(config, SETENV_KEY);
       int i;
       for (i = 0; i < config_content_item_get_size(setenv_item); i++) {
         const config_content_node_type * setenv_node = config_content_item_iget_node(setenv_item, i);
@@ -670,8 +674,8 @@ void site_config_init_env(site_config_type * site_config, const config_type * co
   }
 
   {
-    config_content_item_type * path_item = config_get_content_item(config, UPDATE_PATH_KEY);
-    if (path_item != NULL) {
+    if (config_content_has_item( config , UPDATE_PATH_KEY)) {
+      config_content_item_type * path_item = config_content_get_item(config, UPDATE_PATH_KEY);
       int i;
       for (i = 0; i < config_content_item_get_size(path_item); i++) {
         const config_content_node_type * path_node = config_content_item_iget_node(path_item, i);
@@ -693,29 +697,29 @@ void site_config_init_env(site_config_type * site_config, const config_type * co
  */
 
 
-bool site_config_init(site_config_type * site_config, const config_type * config) {
+bool site_config_init(site_config_type * site_config, const config_content_type * config) {
   site_config_add_jobs(site_config, config);
   site_config_init_env(site_config, config);
 
-  /* 
+  /*
      When LSF is used several enviroment variables must be set (by the
      site wide file) - i.e.  the calls to SETENV must come first.
    */
   if (!site_config->user_mode)
     site_config_create_queue_drivers(site_config);
 
-  /* 
+  /*
      Set the umask for all file creation. A value of '0' will ensure
      that all files and directories are created with 'equal rights'
      for everyone - might be handy if you are helping someone... The
      default statoil value is 0022, i.e. write access is removed from
-     group and others.  
+     group and others.
 
      The string is supposed to be in OCTAL representation (without any
      prefix characters).
    */
-  if (config_item_set(config, UMASK_KEY)) {
-    const char * string_mask = config_get_value(config, UMASK_KEY);
+  if (config_content_has_item(config, UMASK_KEY)) {
+    const char * string_mask = config_content_get_value(config, UMASK_KEY);
     mode_t umask_value;
     if (util_sscanf_octal_int(string_mask, &umask_value))
       site_config_set_umask(site_config, umask_value);
@@ -723,56 +727,53 @@ bool site_config_init(site_config_type * site_config, const config_type * config
       util_abort("%s: failed to parse:\"%s\" as a valid octal literal \n", __func__, string_mask);
   }
 
-  if (config_item_set(config, MAX_SUBMIT_KEY))
-    site_config_set_max_submit(site_config, config_get_value_as_int(config, MAX_SUBMIT_KEY));
+  if (config_content_has_item(config, MAX_SUBMIT_KEY))
+    site_config_set_max_submit(site_config, config_content_get_value_as_int(config, MAX_SUBMIT_KEY));
 
 
   /* LSF options */
   {
-    if (config_item_set(config, LSF_QUEUE_KEY))
-      site_config_set_lsf_queue(site_config, config_get_value(config, LSF_QUEUE_KEY));
+    if (config_content_has_item(config, LSF_QUEUE_KEY))
+      site_config_set_lsf_queue(site_config, config_content_get_value(config, LSF_QUEUE_KEY));
 
-    if (config_item_set(config, LSF_RESOURCES_KEY)) {
-      char * lsf_resource_request = config_alloc_joined_string(config, LSF_RESOURCES_KEY, " ");
+    if (config_content_has_item(config, LSF_RESOURCES_KEY)) {
+      char * lsf_resource_request = config_content_alloc_joined_string(config, LSF_RESOURCES_KEY, " ");
       site_config_set_lsf_request(site_config, lsf_resource_request);
       free(lsf_resource_request);
     }
 
-    if (config_item_set(config, MAX_RUNNING_LSF_KEY))
-      site_config_set_max_running_lsf(site_config, config_get_value_as_int(config, MAX_RUNNING_LSF_KEY));
+    if (config_content_has_item(config, MAX_RUNNING_LSF_KEY))
+      site_config_set_max_running_lsf(site_config, config_content_get_value_as_int(config, MAX_RUNNING_LSF_KEY));
 
-    if (config_item_set(config, LSF_SERVER_KEY))
-      site_config_set_lsf_server(site_config, config_get_value(config, LSF_SERVER_KEY));
+    if (config_content_has_item(config, LSF_SERVER_KEY))
+      site_config_set_lsf_server(site_config, config_content_get_value(config, LSF_SERVER_KEY));
   }
 
 
   /* RSH options */
   {
-    if (config_item_set(config, RSH_COMMAND_KEY))
-      site_config_set_rsh_command(site_config, config_get_value(config, RSH_COMMAND_KEY));
+    if (config_content_has_item(config, RSH_COMMAND_KEY))
+      site_config_set_rsh_command(site_config, config_content_get_value(config, RSH_COMMAND_KEY));
 
-    if (config_item_set(config, MAX_RUNNING_RSH_KEY))
-      site_config_set_max_running_rsh(site_config, config_get_value_as_int(config, MAX_RUNNING_RSH_KEY));
+    if (config_content_has_item(config, MAX_RUNNING_RSH_KEY))
+      site_config_set_max_running_rsh(site_config, config_content_get_value_as_int(config, MAX_RUNNING_RSH_KEY));
 
     /* Parsing the "host1:4" strings. */
-    {
-      const config_content_item_type * rsh_host_item = config_get_content_item(config, RSH_HOST_KEY);
-      if (rsh_host_item != NULL) {
-        stringlist_type * rsh_host_list = config_alloc_complete_stringlist(config, RSH_HOST_KEY);
-        int i;
-        for (i = 0; i < stringlist_get_size(rsh_host_list); i++)
-          site_config_add_rsh_host_from_string(site_config, stringlist_iget(rsh_host_list, i));
+    if (config_content_has_item( config , RSH_HOST_KEY)) {
+      stringlist_type * rsh_host_list = config_content_alloc_complete_stringlist(config, RSH_HOST_KEY);
+      int i;
+      for (i = 0; i < stringlist_get_size(rsh_host_list); i++)
+        site_config_add_rsh_host_from_string(site_config, stringlist_iget(rsh_host_list, i));
 
-        stringlist_free(rsh_host_list);
-      }
+      stringlist_free(rsh_host_list);
     }
   }
 
 
-  if (config_item_set(config, QUEUE_SYSTEM_KEY)) {
+  if (config_content_has_item(config, QUEUE_SYSTEM_KEY)) {
     job_driver_type driver_type;
     {
-      const char * queue_system = config_get_value(config, QUEUE_SYSTEM_KEY);
+      const char * queue_system = config_content_get_value(config, QUEUE_SYSTEM_KEY);
       if (strcmp(queue_system, LSF_DRIVER_NAME) == 0) {
         driver_type = LSF_DRIVER;
       } else if (strcmp(queue_system, RSH_DRIVER_NAME) == 0)
@@ -790,26 +791,31 @@ bool site_config_init(site_config_type * site_config, const config_type * config
   }
 
   /* Parsing local options */
-  if (config_item_set(config, MAX_RUNNING_LOCAL_KEY))
-    site_config_set_max_running_local(site_config, config_iget_as_int(config, MAX_RUNNING_LOCAL_KEY, 0, 0));
+  if (config_content_has_item(config, MAX_RUNNING_LOCAL_KEY))
+    site_config_set_max_running_local(site_config, config_content_iget_as_int(config, MAX_RUNNING_LOCAL_KEY, 0, 0));
 
-  if (config_item_set(config, JOB_SCRIPT_KEY))
-    site_config_set_job_script(site_config, config_get_value_as_abspath(config, JOB_SCRIPT_KEY));
+  if (config_content_has_item(config, JOB_SCRIPT_KEY))
+    site_config_set_job_script(site_config, config_content_get_value_as_abspath(config, JOB_SCRIPT_KEY));
 
-  if (config_item_set(config, LICENSE_PATH_KEY))
-    site_config_set_license_root_path(site_config, config_get_value_as_abspath(config, LICENSE_PATH_KEY));
+  if (config_content_has_item(config, LICENSE_PATH_KEY))
+    site_config_set_license_root_path(site_config, config_content_get_value_as_abspath(config, LICENSE_PATH_KEY));
 
   site_config_install_job_queue(site_config);
+
+  if (config_content_has_item(config, EXT_JOB_SEARCH_PATH_KEY)){
+      site_config_set_ext_job_search_path(site_config, config_content_get_value_as_bool(config, EXT_JOB_SEARCH_PATH_KEY));
+  }
+
 
   /* Setting QUEUE_OPTIONS */
   {
     int i;
-    for (i = 0; i < config_get_occurences(config, QUEUE_OPTION_KEY); i++) {
-      const stringlist_type * tokens = config_iget_stringlist_ref(config, QUEUE_OPTION_KEY, i);
+    for (i = 0; i < config_content_get_occurences(config, QUEUE_OPTION_KEY); i++) {
+      const stringlist_type * tokens = config_content_iget_stringlist_ref(config, QUEUE_OPTION_KEY, i);
       const char * driver_name = stringlist_iget(tokens, 0);
       const char * option_key = stringlist_iget(tokens, 1);
       const char * option_value = stringlist_alloc_joined_substring(tokens, 2, stringlist_get_size(tokens), " ");
-      /* 
+      /*
          If it is desirable to keep the exact number of spaces in the
          option_value it should be quoted with "" in the configuration
          file.
@@ -819,6 +825,11 @@ bool site_config_init(site_config_type * site_config, const config_type * config
   }
   return true;
 }
+
+void site_config_set_ext_job_search_path(site_config_type * site_config, bool search_path){
+    site_config->search_path = search_path;
+}
+
 
 void site_config_free(site_config_type * site_config) {
   ext_joblist_free(site_config->joblist);
@@ -991,7 +1002,7 @@ void site_config_fprintf_config(const site_config_type * site_config, FILE * str
 /*****************************************************************/
 
 
-void site_config_add_queue_config_items(config_type * config, bool site_mode) {
+void site_config_add_queue_config_items(config_parser_type * config, bool site_mode) {
   config_schema_item_type * item = config_add_schema_item(config, QUEUE_SYSTEM_KEY, site_mode);
   config_schema_item_set_argc_minmax(item, 1, 1);
   {
@@ -1028,7 +1039,7 @@ void site_config_add_queue_config_items(config_type * config, bool site_mode) {
   config_schema_item_iset_type(item, 0, CONFIG_INT);
 }
 
-void site_config_add_config_items(config_type * config, bool site_mode) {
+void site_config_add_config_items(config_parser_type * config, bool site_mode) {
   config_schema_item_type * item;
   ert_workflow_list_add_config_items(config);
   site_config_add_queue_config_items(config, site_mode);
@@ -1118,4 +1129,28 @@ void site_config_add_config_items(config_type * config, bool site_mode) {
 
   item = config_add_schema_item( config , ANALYSIS_LOAD_KEY , false  );
   config_schema_item_set_argc_minmax( item , 2 , 2);
+}
+
+const char * site_config_get_location() {
+    const char * site_config = NULL;
+
+    #ifdef SITE_CONFIG_FILE
+        site_config = SITE_CONFIG_FILE;
+    #endif
+
+    const char * env_site_config  = getenv("ERT_SITE_CONFIG");
+
+    if(env_site_config != NULL) {
+        if (util_file_exists(env_site_config)) {
+            site_config = env_site_config;
+        } else {
+            fprintf(stderr, "The environment variable ERT_SITE_CONFIG points to non-existing file: %s - ignored\n", env_site_config);
+        }
+    }
+
+    if (site_config == NULL) {
+        fprintf(stderr, "**WARNING** main enkf_config file is not set. Use environment variable \"ERT_SITE_CONFIG\" - or recompile.\n");
+    }
+
+    return site_config;
 }

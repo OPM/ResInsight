@@ -149,7 +149,7 @@ int main(int argc , char ** argv) {
   const char * key         = "PORO";
   int iens                 = 0;
 
-  ert_test_context_type * test_context         = ert_test_context_alloc("ExportInactiveCellsTest" , config_file , NULL);
+  ert_test_context_type * test_context         = ert_test_context_alloc("ExportInactiveCellsTest" , config_file);
   enkf_main_type * enkf_main                   = ert_test_context_get_main(test_context);
   enkf_fs_type * fs                            = enkf_main_get_fs(enkf_main);
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);

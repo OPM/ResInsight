@@ -25,7 +25,8 @@
 #include "cafPdmPointer.h"
 
 class RimWellPathCollection;
-class RimAnalysisModels;
+class RimEclipseCaseCollection;
+class RimGeoMechModels;
 
 //==================================================================================================
 ///  
@@ -39,6 +40,7 @@ public:
     RimOilField(void);
     virtual ~RimOilField(void);
 
-    caf::PdmField<RimAnalysisModels*>       analysisModels;
+    caf::PdmField<RimEclipseCaseCollection*>       analysisModels;
+    caf::PdmField<RimGeoMechModels*>        geoMechModels;
 	caf::PdmField<RimWellPathCollection*>   wellPathCollection;
 };

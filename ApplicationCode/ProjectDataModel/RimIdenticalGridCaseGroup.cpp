@@ -24,17 +24,20 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigGridManager.h"
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimCaseCollection.h"
-#include "RimCellEdgeResultSlot.h"
+#include "RimCellEdgeColors.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
-#include "RimResultCase.h"
-#include "RimResultSlot.h"
-#include "RimStatisticsCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseResultCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RigCaseCellResultsData.h"
 
 #include "cafProgressInfo.h"
+#include "RiuMainWindow.h"
+#include <QMessageBox>
+#include <QDir>
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
 
@@ -79,7 +82,7 @@ RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIdenticalGridCaseGroup::addCase(RimCase* reservoir)
+void RimIdenticalGridCaseGroup::addCase(RimEclipseCase* reservoir)
 {
     CVF_ASSERT(reservoir);
 
@@ -104,7 +107,7 @@ void RimIdenticalGridCaseGroup::addCase(RimCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIdenticalGridCaseGroup::removeCase(RimCase* reservoir)
+void RimIdenticalGridCaseGroup::removeCase(RimEclipseCase* reservoir)
 {
     if (caseCollection()->reservoirs().count(reservoir) == 0)
     {
@@ -155,22 +158,19 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // The mainGrid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
 
-    RimCase* mainCase = caseCollection()->reservoirs[0];
-    mainCase->openEclipseGridFile();
-    RigCaseData* rigCaseData = mainCase->reservoirData();
-    if (rigCaseData)
+    RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
+    if (!mainCase->openReserviorCase())
     {
-        RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
-        RimReservoirCellResultsStorage* cellResultsStorage = mainCase->results(poroModel);
-
-        cellResultsStorage->cellResults()->createPlaceholderResultEntries();
-    }
-    else
-    {
-        // Error message
+        QMessageBox::warning(RiuMainWindow::instance(),
+                             "Error when opening project file",
+                             "Could not open the Eclipse Grid file: \n"+ mainCase->gridFileName() + "\n"+ 
+                             "Current working directory is: \n" +
+                             QDir::currentPath());
         return;
     }
 
+    RigCaseData* rigCaseData = mainCase->reservoirData();
+    CVF_ASSERT(rigCaseData);
 
     // Action A : Read active cell info
     // Read active cell info from all source cases. The file access is optimized for this purpose, and result meta data
@@ -179,7 +179,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     caf::ProgressInfo info(caseCollection()->reservoirs.size(), "Case group - Reading Active Cell data");
     for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
     {
-        RimResultCase* rimReservoir = dynamic_cast<RimResultCase*>(caseCollection()->reservoirs[i]);
+        RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
         if(!rimReservoir) continue; // Input reservoir
 
         if (!rimReservoir->openAndReadActiveCellData(rigCaseData))
@@ -198,7 +198,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     bool foundResultsInCache = false;
     for (size_t i = 0; i < statisticsCaseCollection()->reservoirs.size(); i++)
     {
-        RimCase* rimReservoir = statisticsCaseCollection()->reservoirs[i];
+        RimEclipseCase* rimReservoir = statisticsCaseCollection()->reservoirs[i];
 
         // Check if any results are stored in cache
         if (rimReservoir->results(RifReaderInterface::MATRIX_RESULTS)->storedResultsCount() > 0 ||
@@ -227,7 +227,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
         {
-            RimResultCase* rimReservoir = dynamic_cast<RimResultCase*>(caseCollection()->reservoirs[i]);
+            RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
             if (!rimReservoir) continue; // Input reservoir
 
             RimReservoirCellResultsStorage* cellResultsStorage = rimReservoir->results(poroModel);
@@ -257,7 +257,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
     for (size_t i = 0; i < statisticsCaseCollection()->reservoirs.size(); i++)
     {
-        RimCase* rimReservoir = statisticsCaseCollection()->reservoirs[i];
+        RimEclipseCase* rimReservoir = statisticsCaseCollection()->reservoirs[i];
 
         rimReservoir->openEclipseGridFile();
 
@@ -356,9 +356,9 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
+RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
 {
-    RimStatisticsCase* newStatisticsCase = new RimStatisticsCase;
+    RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
 
     newStatisticsCase->caseUserDescription = QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size()+1);
     statisticsCaseCollection()->reservoirs.push_back(newStatisticsCase);
@@ -375,7 +375,7 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 {
     for (size_t i = 0; i < statisticsCaseCollection->reservoirs().size(); i++)
     {
-        RimCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
+        RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
 
         rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
 
@@ -393,7 +393,7 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
 {
     for (size_t i = 0; i < statisticsCaseCollection->reservoirs().size(); i++)
     {
-        RimCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
+        RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
         if (!rimStaticsCase) continue;
 
         rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
@@ -401,7 +401,7 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
 
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)
         {
-            RimReservoirView* rimReservoirView = rimStaticsCase->reservoirViews[j];
+            RimEclipseView* rimReservoirView = rimStaticsCase->reservoirViews[j];
             rimReservoirView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
             rimReservoirView->cellEdgeResult()->resultVariable = RimDefines::undefinedResultName();
             rimReservoirView->loadDataAndUpdate();
@@ -421,13 +421,13 @@ void RimIdenticalGridCaseGroup::clearActiveCellUnions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimIdenticalGridCaseGroup::contains(RimCase* reservoir) const
+bool RimIdenticalGridCaseGroup::contains(RimEclipseCase* reservoir) const
 {
     CVF_ASSERT(reservoir);
 
     for (size_t i = 0; i < caseCollection()->reservoirs().size(); i++)
     {
-        RimCase* rimReservoir = caseCollection()->reservoirs()[i];
+        RimEclipseCase* rimReservoir = caseCollection()->reservoirs()[i];
         if (reservoir->gridFileName() == rimReservoir->gridFileName())
         {
             return true;
@@ -473,7 +473,7 @@ bool RimIdenticalGridCaseGroup::isStatisticsCaseCollection(RimCaseCollection* ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimIdenticalGridCaseGroup::mainCase()
+RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
 {
     if(caseCollection()->reservoirs().size())
     {
@@ -488,7 +488,7 @@ RimCase* RimIdenticalGridCaseGroup::mainCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimCase* reservoir) const
+bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimEclipseCase* reservoir) const
 {
     CVF_ASSERT(reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid());
 

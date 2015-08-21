@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'vector_template.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'vector_template.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 /**
@@ -30,7 +30,7 @@
 
     o The implementation is in terms of a @TYPE@, the following sed
       one-liners will then produce proper source and header files:
-  
+
         sed -e's/@TYPE@/int/g' vector_template.c > int_vector.c
         sed -e's/@TYPE@/int/g' vector_template.h > int_vector.h
 
@@ -47,39 +47,39 @@
 
    ------------------------------------
 
-    ·-----·-----·      
+    ·-----·-----·
 1.  | 77  | 77  |                                                                                     size = 0, alloc_size = 2
     ·-----·-----·
 
-    ·-----·-----·                                                                                       
+    ·-----·-----·
 2.  |  1  | 77  |                                                                                     size = 1, alloc_size = 2
     ·-----·-----·
 
-    ·-----·-----·                                                                                       
+    ·-----·-----·
 3.  |  1  |  0  |                                                                                     size = 2, alloc_size = 2
     ·-----·-----·
 
-    ·-----·-----·-----·-----·                                                                           
-4.  |  1  |  0  |  12 | 77  |                                                                         size = 3, alloc_size = 4                                             
+    ·-----·-----·-----·-----·
+4.  |  1  |  0  |  12 | 77  |                                                                         size = 3, alloc_size = 4
     ·-----·-----·-----·-----·
 
-    ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·      
+    ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·
 5.  |  1  |  0  |  12 |  77 |  77 | 77  |  78 | 77  | 77  |  77 | 77  | 77  | 77  | 77  | 77  | 77  | size = 7, alloc_size = 12, default = 77
     ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·
 
-    ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·      
+    ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·
 6.  |  1  |  0  |  12 |  77 |  77 | 77  |  78 | 99  | 99  |  99 | 99  | 99  | 99  | 99  | 99  | 99  | size = 7, alloc_size = 12, default = 99
     ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·
-    
+
        0     1      2    3     4     5     6     7     8     9    10    11    12    13    14   15
 
 
     1. In point 4. above - if you ask the vector for it's size you
        will get 3, and int_vector_iget(vector, 3) will fail because
-       that is beyound the end of the vector. 
+       that is beyound the end of the vector.
 
     2. The size of the vector is the index (+1) of the last validly
-       set element in the vector. 
+       set element in the vector.
 
     3. In point 5 above we have grown the vector quite a lot to be
        able to write in index 6, as a results there are now many slots
@@ -114,9 +114,9 @@ struct @TYPE@_vector_struct {
   int      size;          /* The index of the last valid - i.e. actively set - element in the vector. */
   @TYPE@   default_value; /* The data vector is initialized with this value. */
   @TYPE@ * data;          /* The actual data. */
-  bool     data_owner;    /* Is the vector owner of the the actual storage data? 
+  bool     data_owner;    /* Is the vector owner of the the actual storage data?
                              If this is false the vector can not be resized. */
-  bool     read_only;     
+  bool     read_only;
 };
 
 
@@ -160,16 +160,16 @@ static void @TYPE@_vector_realloc_data__(@TYPE@_vector_type * vector , int new_a
 static void @TYPE@_vector_memmove(@TYPE@_vector_type * vector , int offset , int shift) {
   if ((shift + offset) < 0)
     util_abort("%s: offset:%d  left_shift:%d - invalid \n",__func__ , offset , -shift);
-  
+
   if ((shift + vector->size > vector->alloc_size))
     @TYPE@_vector_realloc_data__( vector , util_int_min( 2*vector->alloc_size , shift + vector->size ));
-  
+
   {
     size_t move_size   = (vector->size - offset) * sizeof(@TYPE@);
     @TYPE@ * target    = &vector->data[offset + shift];
     const @TYPE@ * src = &vector->data[offset];
     memmove( target , src , move_size );
-    
+
     vector->size += shift;
   }
 }
@@ -177,7 +177,7 @@ static void @TYPE@_vector_memmove(@TYPE@_vector_type * vector , int offset , int
 
 
 static void @TYPE@_vector_assert_index(const @TYPE@_vector_type * vector , int index) {
-  if ((index < 0) || (index >= vector->size)) 
+  if ((index < 0) || (index >= vector->size))
     util_abort("%s: index:%d invalid. Valid interval: [0,%d>.\n",__func__ , index , vector->size);
 }
 
@@ -200,8 +200,8 @@ static @TYPE@_vector_type * @TYPE@_vector_alloc__(int init_size , @TYPE@ default
           data_owner == true
 
 
-     2. Creating a shared wrapper from the @TYPE@_vector_alloc_shared_wrapper():     
-     
+     2. Creating a shared wrapper from the @TYPE@_vector_alloc_shared_wrapper():
+
           data       != NULL
           data_size   > 0
           data_owner == false
@@ -213,24 +213,24 @@ static @TYPE@_vector_type * @TYPE@_vector_alloc__(int init_size , @TYPE@ default
           data       != NULL
           data_size   > 0
           data_owner == true
-          
+
   */
-  
+
   if (data == NULL) {  /* Case 1: */
     vector->data              = NULL;
     vector->data_owner        = true;     /* The input values alloc_size and */
     vector->alloc_size        = 0;        /* data_owner are not even consulted. */
-  } else {             /* Case 2 & 3 */                
+  } else {             /* Case 2 & 3 */
     vector->data              = data;
     vector->data_owner        = data_owner;
     vector->alloc_size        = alloc_size;
   }
-  vector->size                = 0;  
-  
+  vector->size                = 0;
+
   @TYPE@_vector_set_read_only( vector , false );
   if (init_size > 0)
     @TYPE@_vector_iset( vector , init_size - 1 , default_value );  /* Filling up the init size elements with the default value */
-  
+
   return vector;
 }
 
@@ -239,7 +239,7 @@ static @TYPE@_vector_type * @TYPE@_vector_alloc__(int init_size , @TYPE@ default
    The alloc_size argument is just a hint - the vector will grow as
    needed.
 */
-   
+
 @TYPE@_vector_type * @TYPE@_vector_alloc(int init_size , @TYPE@ default_value) {
   @TYPE@_vector_type * vector = @TYPE@_vector_alloc__( init_size , default_value , NULL , 0 , true );
   return vector;
@@ -255,7 +255,7 @@ static @TYPE@_vector_type * @TYPE@_vector_alloc__(int init_size , @TYPE@ default
 void @TYPE@_vector_resize( @TYPE@_vector_type * vector , int new_size ) {
   if (new_size <= vector->size)
     vector->size = new_size;
-  else 
+  else
     @TYPE@_vector_iset( vector , new_size - 1 , vector->default_value);
 }
 
@@ -270,7 +270,7 @@ bool @TYPE@_vector_get_read_only( const @TYPE@_vector_type * vector ) {
 
 
 static void @TYPE@_vector_assert_writable( const @TYPE@_vector_type * vector ) {
-  if (vector->read_only) 
+  if (vector->read_only)
     util_abort("%s: Sorry - tried to modify a read_only vector instance.\n",__func__);
 }
 
@@ -316,7 +316,7 @@ static void @TYPE@_vector_assert_writable( const @TYPE@_vector_type * vector ) {
    the src vector to a block starting at @target_offset in the target
    vector. The target vector will be resized and initialized with
    default values as required.
-   
+
    If len goes beyond the length of the src vector the function will
    fail hard.
 */
@@ -327,10 +327,10 @@ void @TYPE@_vector_memcpy_data_block( @TYPE@_vector_type * target , const @TYPE@
   /* Force a resize + default initialisation of the target. */
   if (target->alloc_size < (target_offset + len))
     @TYPE@_vector_iset( target , target_offset + len - 1 , target->default_value) ;
-  
+
   /* Copy the content. */
   memcpy( &target->data[target_offset] , &src->data[src_offset] , len * sizeof * src->data );
-  
+
   /* Update size of target. */
   if (target->size < (target_offset + len))
     target->size = target_offset + len;
@@ -379,10 +379,10 @@ void @TYPE@_vector_memcpy( @TYPE@_vector_type * target, const @TYPE@_vector_type
   @TYPE@_vector_type * copy = @TYPE@_vector_alloc( 0 , src->default_value );
   if (start < 0)
     start = src->size - start;
-  
+
   if (stop < 0)
     stop = src->size - stop;
-  
+
   {
     int src_index = start;
     while (src_index < stop) {
@@ -421,7 +421,7 @@ bool @TYPE@_vector_growable( const @TYPE@_vector_type * vector) {
 
 
 void @TYPE@_vector_set_default(@TYPE@_vector_type * vector, @TYPE@ default_value) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   {
     int i;
     vector->default_value = default_value;
@@ -435,22 +435,22 @@ void @TYPE@_vector_set_default(@TYPE@_vector_type * vector, @TYPE@ default_value
    and then subsequently set this value as the new default.
 */
 
-void @TYPE@_vector_append_default(@TYPE@_vector_type * vector , @TYPE@ default_value) { 
+void @TYPE@_vector_append_default(@TYPE@_vector_type * vector , @TYPE@ default_value) {
   @TYPE@_vector_append( vector , default_value );
-  @TYPE@_vector_set_default( vector , default_value ); 
+  @TYPE@_vector_set_default( vector , default_value );
 }
 
 
 /**
    This function will iset the value @default_value into the vector,
-   and then subsequently set this value as the new default. 
+   and then subsequently set this value as the new default.
 
    1.    V = [1 , 2 , 3 , 4 ], default = 77
 
 
    2.  _iset_default(v , 10 , 66)
 
-         V = [1 ,2 , 3 ,  4 , 77, 77, 77, 77, 77, 77, 66] 
+         V = [1 ,2 , 3 ,  4 , 77, 77, 77, 77, 77, 77, 66]
 
        I.e. before setting the 66 value all values up to @index are
        filled with the current default.
@@ -458,15 +458,15 @@ void @TYPE@_vector_append_default(@TYPE@_vector_type * vector , @TYPE@ default_v
    3. If @index is inside the current data region, there will be no
       effect of the current default, i.e. _iset_default(v , 2 , 66)
       will just give:
- 
+
          V = [1 ,2 , 66 ,  4 ]
 
       and 66 as the new default value.
 */
 
-void @TYPE@_vector_iset_default(@TYPE@_vector_type * vector , int index , @TYPE@ default_value) { 
+void @TYPE@_vector_iset_default(@TYPE@_vector_type * vector , int index , @TYPE@ default_value) {
   @TYPE@_vector_iset( vector , index , default_value );
-  @TYPE@_vector_set_default( vector , default_value ); 
+  @TYPE@_vector_set_default( vector , default_value );
 }
 
 
@@ -478,7 +478,7 @@ void @TYPE@_vector_iset_default(@TYPE@_vector_type * vector , int index , @TYPE@
 }
 
 /* Will start counting from the reverse end, as negative indexing in python:
-   
+
    vector_reverse_iget( v , -1 ) => The last element
    vector_reverse_iget( v , -2 ) => The second to last element
 
@@ -490,7 +490,7 @@ void @TYPE@_vector_iset_default(@TYPE@_vector_type * vector , int index , @TYPE@
 
 
 /**
-   This might very well operate on a default value. 
+   This might very well operate on a default value.
 */
 void @TYPE@_vector_imul(@TYPE@_vector_type * vector, int index, @TYPE@ factor) {
   @TYPE@_vector_assert_index(vector , index);
@@ -526,22 +526,22 @@ void @TYPE@_vector_shift(@TYPE@_vector_type * vector, @TYPE@ delta) {
 
 /* vector + vector */
 void @TYPE@_vector_inplace_add( @TYPE@_vector_type * vector , const @TYPE@_vector_type * delta) {
-  if (vector->size != delta->size) 
+  if (vector->size != delta->size)
     util_abort("%s: combining vectors with different size: %d and %d \n",__func__ , vector->size , delta->size);
   {
     int i;
-    for (i=0; i < vector->size; i++) 
+    for (i=0; i < vector->size; i++)
       vector->data[i] += delta->data[i];
   }
 }
 
 /* vector - vector */
 void @TYPE@_vector_inplace_sub( @TYPE@_vector_type * vector , const @TYPE@_vector_type * delta) {
-  if (vector->size != delta->size) 
+  if (vector->size != delta->size)
     util_abort("%s: combining vectors with different size: %d and %d \n",__func__ , vector->size , delta->size);
   {
     int i;
-    for (i=0; i < vector->size; i++) 
+    for (i=0; i < vector->size; i++)
       vector->data[i] -= delta->data[i];
   }
 }
@@ -549,11 +549,11 @@ void @TYPE@_vector_inplace_sub( @TYPE@_vector_type * vector , const @TYPE@_vecto
 
 /* vector * vector (elementwise) */
 void @TYPE@_vector_inplace_mul( @TYPE@_vector_type * vector , const @TYPE@_vector_type * factor) {
-  if (vector->size != factor->size) 
+  if (vector->size != factor->size)
     util_abort("%s: combining vectors with different size: %d and %d \n",__func__ , vector->size , factor->size);
   {
     int i;
-    for (i=0; i < vector->size; i++) 
+    for (i=0; i < vector->size; i++)
       vector->data[i] *= factor->data[i];
   }
 }
@@ -561,11 +561,11 @@ void @TYPE@_vector_inplace_mul( @TYPE@_vector_type * vector , const @TYPE@_vecto
 
 /* vector / vector (elementwise) */
 void @TYPE@_vector_inplace_div( @TYPE@_vector_type * vector , const @TYPE@_vector_type * inv_factor) {
-  if (vector->size != inv_factor->size) 
+  if (vector->size != inv_factor->size)
     util_abort("%s: combining vectors with different size: %d and %d \n",__func__ , vector->size , inv_factor->size);
   {
     int i;
-    for (i=0; i < vector->size; i++) 
+    for (i=0; i < vector->size; i++)
       vector->data[i] /= inv_factor->data[i];
   }
 }
@@ -609,9 +609,9 @@ void @TYPE@_vector_inplace_div( @TYPE@_vector_type * vector , const @TYPE@_vecto
 */
 
 void @TYPE@_vector_iset(@TYPE@_vector_type * vector , int index , @TYPE@ value) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   {
-    if (index < 0) 
+    if (index < 0)
       util_abort("%s: Sorry - can NOT set negative indices. called with index:%d \n",__func__ , index);
     {
       if (vector->alloc_size <= index)
@@ -635,7 +635,7 @@ void @TYPE@_vector_iset(@TYPE@_vector_type * vector , int index , @TYPE@ value) 
 void @TYPE@_vector_iset_block(@TYPE@_vector_type * vector , int index , int block_size , @TYPE@ value) {
   int sign = (block_size > 0) ? 1 : -1 ;
   int c;
-  for (c=0; c < abs(block_size); c++) 
+  for (c=0; c < abs(block_size); c++)
     @TYPE@_vector_iset( vector , index + c * sign , value);
 }
 
@@ -654,24 +654,24 @@ void @TYPE@_vector_iset_block(@TYPE@_vector_type * vector , int index , int bloc
 /**
    Will remove a block of length @block_size elements, starting at
    @index from the vector. The @block_size might very well extend beyond
-   the length of the vector.  
+   the length of the vector.
 
    V = [ 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9]
 
    vector_idel_block( vector , 4 , 2 ) =>  V = [ 0 , 1 , 2 , 3 , 6 , 7 , 8 , 9]
 
    The function is based on memmove() and probably not a high
-   performance player....  
+   performance player....
 */
 
 
 void @TYPE@_vector_idel_block( @TYPE@_vector_type * vector , int index , int block_size) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   {
     if ((index >= 0) && (index < vector->size) && (block_size >= 0)) {
       if (index + block_size > vector->size)
         block_size = vector->size - index;
-      
+
       index += block_size;
       @TYPE@_vector_memmove( vector , index , -block_size );
     } else
@@ -682,7 +682,7 @@ void @TYPE@_vector_idel_block( @TYPE@_vector_type * vector , int index , int blo
 /**
    Removes element @index from the vector, shifting all elements to
    the right of @index one element to the left and shrinking the total
-   vector. The return value is the value which is removed.  
+   vector. The return value is the value which is removed.
 */
 
 
@@ -733,7 +733,7 @@ void @TYPE@_vector_append(@TYPE@_vector_type * vector , @TYPE@ value) {
 
 
 void @TYPE@_vector_reset(@TYPE@_vector_type * vector) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   vector->size = 0;
 }
 
@@ -779,7 +779,7 @@ int @TYPE@_vector_size(const @TYPE@_vector_type * vector) {
 */
 
 @TYPE@ @TYPE@_vector_pop(@TYPE@_vector_type * vector) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   {
     if (vector->size > 0) {
       @TYPE@ value = vector->data[vector->size - 1];
@@ -794,7 +794,7 @@ int @TYPE@_vector_size(const @TYPE@_vector_type * vector) {
 
 
 void @TYPE@_vector_rshift(@TYPE@_vector_type * vector , int shift) {
-  if (shift < 0) 
+  if (shift < 0)
     @TYPE@_vector_memmove( vector , -shift , shift);
   else {
     int i;
@@ -810,7 +810,7 @@ void @TYPE@_vector_lshift(@TYPE@_vector_type * vector , int shift) {
 
 
 @TYPE@ * @TYPE@_vector_get_ptr(const @TYPE@_vector_type * vector) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   return vector->data;
 }
 
@@ -831,7 +831,7 @@ const @TYPE@ * @TYPE@_vector_get_const_ptr(const @TYPE@_vector_type * vector) {
 */
 
 @TYPE@ * @TYPE@_vector_alloc_data_copy( const @TYPE@_vector_type * vector ) {
-  int      size = vector->size * sizeof ( @TYPE@ ); 
+  int      size = vector->size * sizeof ( @TYPE@ );
   @TYPE@ * copy = util_calloc(vector->size , sizeof * copy );
   if (copy != NULL)
     memcpy( copy , vector->data , size);
@@ -843,7 +843,7 @@ int @TYPE@_vector_element_size( const @TYPE@_vector_type * vector ) {
 }
 
 void @TYPE@_vector_set_many(@TYPE@_vector_type * vector , int index , const @TYPE@ * data , int length) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   {
     int min_size = index + length;
     if (min_size > vector->alloc_size)
@@ -855,7 +855,7 @@ void @TYPE@_vector_set_many(@TYPE@_vector_type * vector , int index , const @TYP
 }
 
 void @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   {
     int i;
     for (i=0; i< vector->size; i++)
@@ -863,18 +863,25 @@ void @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value) {
   }
 }
 
-bool @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ min_value , @TYPE@ max_value , @TYPE@ delta) {
-  if (max_value >= min_value) {
-    @TYPE@ current_value = min_value;
-    @TYPE@_vector_reset( vector );
-    while (current_value < max_value) {
-      @TYPE@_vector_append( vector , current_value );
-      current_value += delta;
+
+/**
+   The bahviour of this function should closely follow the semantics
+   of the Python range() function.
+*/
+void @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ value1 , @TYPE@ value2 , @TYPE@ delta) {
+  @TYPE@_vector_reset( vector );
+  if (delta != 0) {
+    if (((delta > 0) && (value2 > value1)) || ((delta < 0) && (value2 < value1))) {
+      @TYPE@ current_value = value1;
+      while (true) {
+	@TYPE@_vector_append( vector , current_value );
+	current_value += delta;
+
+	if (((delta > 0) && (current_value >= value2)) || ((delta < 0) && (current_value <= value2)))
+	  break;
+      }
     }
-    @TYPE@_vector_append( vector , max_value );
-    return true;
-  } else
-    return false;
+  }
 }
 
 
@@ -913,7 +920,7 @@ int @TYPE@_vector_get_max_index(const @TYPE@_vector_type * vector, bool reverse)
           max_value = vector->data[i];
           max_index = i;
         }
-      } 
+      }
     } else {
       @TYPE@ max_value;
       max_index = 0;
@@ -933,7 +940,7 @@ int @TYPE@_vector_get_max_index(const @TYPE@_vector_type * vector, bool reverse)
 
 @TYPE@ @TYPE@_vector_get_max(const @TYPE@_vector_type * vector) {
   int max_index = @TYPE@_vector_get_max_index( vector , false );
-  return vector->data[ max_index ]; 
+  return vector->data[ max_index ];
 }
 
 
@@ -953,7 +960,7 @@ int @TYPE@_vector_get_min_index(const @TYPE@_vector_type * vector, bool reverse)
           min_value = vector->data[i];
           min_index = i;
         }
-      } 
+      }
     } else {
       @TYPE@ min_value;
       min_index = 0;
@@ -975,7 +982,7 @@ int @TYPE@_vector_get_min_index(const @TYPE@_vector_type * vector, bool reverse)
 
 @TYPE@ @TYPE@_vector_get_min(const @TYPE@_vector_type * vector) {
   int min_index = @TYPE@_vector_get_min_index( vector , false );
-  return vector->data[ min_index ]; 
+  return vector->data[ min_index ];
 }
 
 
@@ -1007,14 +1014,14 @@ int @TYPE@_vector_index(const @TYPE@_vector_type * vector , @TYPE@ value) {
     while (true) {
       if (vector->data[index] == value)
         break;
-      
+
       index++;
       if (index == vector->size) {
         index = -1;  /* Not found */
         break;
       }
     }
-    
+
     return index;
   } else
     return -1;
@@ -1042,12 +1049,12 @@ bool @TYPE@_vector_contains_sorted(const @TYPE@_vector_type * vector , @TYPE@ va
 
 int @TYPE@_vector_index_sorted(const @TYPE@_vector_type * vector , @TYPE@ value) {
   if (vector->size) {
-    
+
     if (value < vector->data[0])
       return -1;
     if (value == vector->data[ 0 ])
       return 0;
-    
+
     {
       int last_index = vector->size - 1;
       if (value > vector->data[ last_index ])
@@ -1055,21 +1062,21 @@ int @TYPE@_vector_index_sorted(const @TYPE@_vector_type * vector , @TYPE@ value)
       if (value == vector->data[ last_index])
         return last_index;
     }
-    
-    
+
+
     {
       int lower_index = 0;
       int upper_index = vector->size - 1;
-      
+
       while (true) {
         if ((upper_index - lower_index) <= 1)
           /* Not found */
           return -1;
-        
+
         {
           int center_index = (lower_index + upper_index) / 2;
           @TYPE@ center_value = vector->data[ center_index ];
-          
+
           if (center_value == value)
             /* Found it */
             return center_index;
@@ -1095,7 +1102,7 @@ static int @TYPE@_vector_cmp(const void *_a, const void *_b) {
 
   if (a > b)
     return 1;
-  
+
   if (a < b)
     return -1;
 
@@ -1118,8 +1125,8 @@ static int @TYPE@_vector_rcmp(const void *a, const void *b) {
 */
 
 void @TYPE@_vector_select_unique(@TYPE@_vector_type * vector) {
-  @TYPE@_vector_assert_writable( vector ); 
-  {
+  @TYPE@_vector_assert_writable( vector );
+  if (vector->size > 0) {
     @TYPE@_vector_type * copy = @TYPE@_vector_alloc_copy( vector );
     @TYPE@_vector_sort( copy );
     @TYPE@_vector_reset( vector );
@@ -1127,7 +1134,7 @@ void @TYPE@_vector_select_unique(@TYPE@_vector_type * vector) {
       int i;
       @TYPE@ previous_value = @TYPE@_vector_iget( copy , 0);
       @TYPE@_vector_append( vector , previous_value);
-      
+
       for (i=1; i <  copy->size; i++) {
         @TYPE@ value = @TYPE@_vector_iget( copy , i );
         if (value != previous_value)
@@ -1143,13 +1150,13 @@ void @TYPE@_vector_select_unique(@TYPE@_vector_type * vector) {
    Inplace numerical sort of the vector; sorted in increasing order.
 */
 void @TYPE@_vector_sort(@TYPE@_vector_type * vector) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   qsort(vector->data , vector->size , sizeof * vector->data ,  @TYPE@_vector_cmp);
 }
 
 
 void @TYPE@_vector_rsort(@TYPE@_vector_type * vector) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   qsort(vector->data , vector->size , sizeof * vector->data ,  @TYPE@_vector_rcmp);
 }
 
@@ -1161,10 +1168,10 @@ static int @TYPE@_vector_cmp_node(const void *_a, const void *_b) {
 
   if (a.value < b.value)
     return -1;
-  
+
   if (a.value > b.value)
     return 1;
-  
+
   return 0;
 }
 
@@ -1192,12 +1199,12 @@ static int @TYPE@_vector_rcmp_node(const void *a, const void *b) {
       double_vector_permute( v3 , sort_perm );
       free(sort_perm);
    }
-   
+
 */
 
 
 
-   
+
 static int * @TYPE@_vector_alloc_sort_perm__(const @TYPE@_vector_type * vector, bool reverse) {
   int * sort_perm             = util_calloc( vector->size , sizeof * sort_perm );
   sort_node_type * sort_nodes = util_calloc( vector->size , sizeof * sort_nodes );
@@ -1210,10 +1217,10 @@ static int * @TYPE@_vector_alloc_sort_perm__(const @TYPE@_vector_type * vector, 
     qsort(sort_nodes , vector->size , sizeof * sort_nodes ,  @TYPE@_vector_rcmp_node);
   else
     qsort(sort_nodes , vector->size , sizeof * sort_nodes ,  @TYPE@_vector_cmp_node);
-    
-  for (i=0; i < vector->size; i++) 
+
+  for (i=0; i < vector->size; i++)
     sort_perm[i] = sort_nodes[i].index;
-  
+
   free( sort_nodes );
   return sort_perm;
 }
@@ -1230,11 +1237,11 @@ int * @TYPE@_vector_alloc_rsort_perm(const @TYPE@_vector_type * vector) {
 
 
 void @TYPE@_vector_permute(@TYPE@_vector_type * vector , const int * perm) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   {
     int i;
     @TYPE@ * tmp = util_alloc_copy( vector->data , sizeof * tmp * vector->size );
-    for (i=0; i < vector->size; i++) 
+    for (i=0; i < vector->size; i++)
       vector->data[i] = tmp[perm[i]];
     free( tmp );
   }
@@ -1249,7 +1256,7 @@ void @TYPE@_vector_permute(@TYPE@_vector_type * vector , const int * perm) {
 bool @TYPE@_vector_is_sorted( const @TYPE@_vector_type * vector , bool reverse) {
   bool sorted = true;
   int start_index, delta,stop_index;
-  
+
   if (reverse) {
     start_index = vector->size - 1;
     stop_index = 0;
@@ -1271,7 +1278,7 @@ bool @TYPE@_vector_is_sorted( const @TYPE@_vector_type * vector , bool reverse) 
       if (index == stop_index)
         break;
     }
-    
+
     return sorted;
   }
 }
@@ -1290,7 +1297,7 @@ bool @TYPE@_vector_is_sorted( const @TYPE@_vector_type * vector , bool reverse) 
    in which bin @value fits and return the bin index. If the test
 
          limit[i] <= value < limit[i+1]
- 
+
    succeeds the function will return i. If value is less than
    limits[0] the function will return -1, if value is greater than
    max( limit ) the function will return -1 * limit->size.
@@ -1299,16 +1306,16 @@ bool @TYPE@_vector_is_sorted( const @TYPE@_vector_type * vector , bool reverse) 
    of @guess < 0 is interpreted as "no guess". When all input has been
    validated the final search will be binary search.
 */
-   
+
 
 
 int @TYPE@_vector_lookup_bin( const @TYPE@_vector_type * limits , @TYPE@ value , int guess) {
-  if (value < limits->data[0]) 
+  if (value < limits->data[0])
     return -1;
 
   if (value > limits->data[ limits->size - 1])
     return -1 * limits->size;
-  
+
   if (guess >= limits->size)
     guess = -1;  /* No guess */
 
@@ -1320,7 +1327,7 @@ int @TYPE@_vector_lookup_bin( const @TYPE@_vector_type * limits , @TYPE@ value ,
 /*
   This is the fast path and assumes that @value is within the limits,
   and that guess < limits->size. See @TYPE@_vector_lookup_bin() for
-  further documentation.x 
+  further documentation.x
 */
 
 int @TYPE@_vector_lookup_bin__( const @TYPE@_vector_type * limits , @TYPE@ value , int guess) {
@@ -1344,8 +1351,8 @@ int @TYPE@_vector_lookup_bin__( const @TYPE@_vector_type * limits , @TYPE@ value
       {
         int central_index = (lower_index + upper_index) / 2;
         @TYPE@ central_value = limits->data[ central_index ];
-        
-        if (central_value > value) 
+
+        if (central_value > value)
           upper_index = central_index;
         else
           lower_index = central_index;
@@ -1397,7 +1404,7 @@ void @TYPE@_vector_fwrite_data( const @TYPE@_vector_type * vector , FILE * strea
 
 /**
    Writing:
-   1. Size 
+   1. Size
    2. default value
    3. Values
 */
@@ -1411,7 +1418,7 @@ void @TYPE@_vector_fwrite(const @TYPE@_vector_type * vector , FILE * stream) {
 
 
 /*
-  Observe that this function will reset the default value. 
+  Observe that this function will reset the default value.
 */
 void @TYPE@_vector_fread( @TYPE@_vector_type * vector , FILE * stream ) {
   @TYPE@     default_value;
@@ -1444,7 +1451,7 @@ void @TYPE@_vector_buffer_fread(@TYPE@_vector_type * vector , buffer_type * buff
   @TYPE@     default_value;
   int size = buffer_fread_int( buffer );
   buffer_fread( buffer , &default_value , sizeof default_value , 1 );
-  
+
   @TYPE@_vector_set_default( vector , default_value );
   @TYPE@_vector_realloc_data__( vector , size );
   buffer_fread( buffer , vector->data , sizeof * vector->data , size );
@@ -1465,7 +1472,7 @@ bool @TYPE@_vector_equal(const @TYPE@_vector_type * vector1 , const @TYPE@_vecto
   if (vector1->size == vector2->size) {
     if (memcmp(vector1->data , vector2->data , sizeof * vector1->data * vector1->size) == 0)
       return true;
-    else 
+    else
       return false;
   } else
     return false;
@@ -1474,14 +1481,14 @@ bool @TYPE@_vector_equal(const @TYPE@_vector_type * vector1 , const @TYPE@_vecto
 
 
 void  @TYPE@_vector_apply(@TYPE@_vector_type * vector , @TYPE@_ftype * func) {
-  @TYPE@_vector_assert_writable( vector ); 
+  @TYPE@_vector_assert_writable( vector );
   {
     int i;
     for (i=0; i < vector->size; i++)
       vector->data[i] = func( vector->data[i] );
   }
 }
- 
+
 int @TYPE@_vector_count_equal( const @TYPE@_vector_type * vector , @TYPE@ cmp_value) {
   int count = 0;
   int i;
@@ -1492,7 +1499,7 @@ int @TYPE@_vector_count_equal( const @TYPE@_vector_type * vector , @TYPE@ cmp_va
   return count;
 
 }
- 
+
 /*
   The upper limit is inclusive - if it is commensurable with the
   delta.
@@ -1503,19 +1510,19 @@ void @TYPE@_vector_range_fill(@TYPE@_vector_type * vector , @TYPE@ limit1 , @TYP
 
   if (delta == 0)
     util_abort("%s: sorry can not have delta == 0 \n",__func__);
-  
+
   @TYPE@_vector_reset( vector );
   while (true) {
     @TYPE@_vector_append( vector , current_value );
     current_value += delta;
     if (delta > 0 && current_value > limit2)
       break;
-    
+
     if (delta < 0 && current_value < limit2)
       break;
   }
 }
-  
+
 #ifdef __cplusplus
 }
 #endif

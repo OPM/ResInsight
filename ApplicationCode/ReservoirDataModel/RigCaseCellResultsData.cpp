@@ -23,7 +23,8 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
-#include "RigStatisticsCalculator.h"
+#include "RigMultipleDatasetStatCalc.h"
+#include "RigNativeStatCalc.h"
 
 #include <QDateTime>
 #include <math.h>
@@ -553,9 +554,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // riTRANSXYZ and X,Y,Z
     {
-        size_t ntgResIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "NTG");
-        if (   findScalarResultIndex(RimDefines::STATIC_NATIVE, "NTG") != cvf::UNDEFINED_SIZE_T
-            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMX") != cvf::UNDEFINED_SIZE_T
+        if (   findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMX") != cvf::UNDEFINED_SIZE_T
             && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMY") != cvf::UNDEFINED_SIZE_T
             && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMZ") != cvf::UNDEFINED_SIZE_T)
         {

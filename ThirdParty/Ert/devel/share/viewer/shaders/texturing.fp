@@ -8,6 +8,9 @@ uniform bool lighting;
 uniform bool region_scaling;
 uniform float data_range;
 
+// From python code: self.__shader.setUniformi("grid_size", texture.getWidth(), texture.getHeight(), texture.getDepth())
+
+
 varying vec3 normal;
 
 
@@ -20,9 +23,13 @@ void main() {
 
     float color_pos = texture3D(grid_data, gl_TexCoord[0].xyz).a;
 
+    if (color_pos < 0.001) {
+        discard;
+    }
+
     if(region_scaling) {
         // data_range + 1 because [0-9] count = 10
-        color_pos = color_pos * (data_range + 1) / 12.0;
+        color_pos = color_pos * (data_range + 1) / 16.0;
     }
 
     vec3 color = texture1D(color_scale, color_pos).rgb;

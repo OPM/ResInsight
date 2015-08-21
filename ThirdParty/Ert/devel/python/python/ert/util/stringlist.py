@@ -156,13 +156,14 @@ class StringList(BaseCClass):
 
     def append(self, s):
         """
-        Appends a new string @s to list.
+        Appends a new string @s to list. If the input argument is not a
+        string the string representation will be appended.
         """
         if isinstance(s, StringType):
             StringList.cNamespace().append(self, s)
         else:
-            sys.exit("Type mismatch")
-
+            StringList.cNamespace().append(self, str(s))
+            
 
     @property
     def strings(self):

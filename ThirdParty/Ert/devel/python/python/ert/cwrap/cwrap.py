@@ -29,6 +29,10 @@ import inspect
 
 prototype_pattern = "(?P<return>[a-zA-Z][a-zA-Z0-9_*]*) +(?P<function>[a-zA-Z]\w*) *[(](?P<arguments>[a-zA-Z0-9_*, ]*)[)]"
 
+
+class CWrapError(Exception):
+    pass
+
 class CWrapper:
     # Observe that registered_types is a class attribute, shared
     # between all CWrapper instances.
@@ -121,21 +125,26 @@ class CWrapper:
             char* -> c_char_p
             ...
 
-        In addition, user register types are recognized and any type registered as a reference
-        to BaseCClass createCReference and createPythonObject are treated as pointers and converted automatically.
+        In addition, user register types are recognized and any type
+        registered as a reference to BaseCClass createCReference and
+        createPythonObject are treated as pointers and converted
+        automatically.
+
         """
 
         match = re.match(CWrapper.pattern, prototype)
         if not match:
-            sys.stderr.write("Illegal prototype definition: %s\n" % prototype)
-            return None
+            raise CWrapError("Illegal prototype definition: %s\n" % prototype)
         else:
             restype = match.groupdict()["return"]
             function_name = match.groupdict()["function"]
             arguments = match.groupdict()["arguments"].split(",")
-
-            func = getattr(self.__lib, function_name)
-
+            
+            try:
+                func = getattr(self.__lib, function_name)
+            except AttributeError:
+                raise CWrapError("Can not find function:%s in library:%s" % (function_name , self.__lib))
+                
             return_type = self.__parseType(restype)
 
             if inspect.isclass(return_type) and issubclass(return_type, BaseCClass):

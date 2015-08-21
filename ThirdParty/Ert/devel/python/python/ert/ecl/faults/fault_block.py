@@ -16,7 +16,7 @@
 
 import ctypes
 from ert.cwrap import BaseCClass, CWrapper
-from ert.geo import Polyline, GeometryTools
+from ert.geo import Polyline, GeometryTools , CPolylineCollection
 from ert.util import DoubleVector , IntVector
 from ert.ecl import ECL_LIB
 
@@ -115,7 +115,9 @@ class FaultBlock(BaseCClass):
     def getEdgePolygon(self):
         x_list = DoubleVector()
         y_list = DoubleVector()
-        self.cNamespace().trace_edge( self , x_list , y_list )
+        cell_list = IntVector()
+        
+        self.cNamespace().trace_edge( self , x_list , y_list , cell_list )
         p = Polyline()
         for (x,y) in zip(x_list , y_list):
             p.addPoint(x,y)
@@ -130,16 +132,21 @@ class FaultBlock(BaseCClass):
         for p in polyline:
             if GeometryTools.pointInPolygon( p , edge_polyline ):
                 return True
-        return False
+        else:
+            edge_polyline.assertClosed()
+            return GeometryTools.polylinesIntersect( edge_polyline , polyline )
 
         
-    def getNeighbours(self):
+    def getNeighbours(self, polylines = None , connected_only = True):
         """
         Will return a list of FaultBlock instances which are in direct
         contact with this block.
         """
         neighbour_id_list = IntVector()
-        self.cNamespace().get_neighbours( self , neighbour_id_list )
+        if polylines is None:
+            polylines = CPolylineCollection()
+            
+        self.cNamespace().get_neighbours( self , connected_only , polylines , neighbour_id_list )
 
         parent_layer = self.getParentLayer()
         neighbour_list = []
@@ -165,6 +172,6 @@ FaultBlock.cNamespace().assign_to_region      = cwrapper.prototype("void        
 FaultBlock.cNamespace().get_region_list       = cwrapper.prototype("int_vector_ref        fault_block_get_region_list(fault_block)")
 FaultBlock.cNamespace().add_cell              = cwrapper.prototype("void                  fault_block_add_cell(fault_block,  int , int)")
 FaultBlock.cNamespace().get_global_index_list = cwrapper.prototype("int_vector_ref        fault_block_get_global_index_list(fault_block)")
-FaultBlock.cNamespace().trace_edge            = cwrapper.prototype("void                  fault_block_trace_edge( fault_block, double_vector , double_vector)")  
-FaultBlock.cNamespace().get_neighbours        = cwrapper.prototype("void                  fault_block_list_neighbours( fault_block , int_vector)")  
+FaultBlock.cNamespace().trace_edge            = cwrapper.prototype("void                  fault_block_trace_edge( fault_block, double_vector , double_vector , int_vector)")  
+FaultBlock.cNamespace().get_neighbours        = cwrapper.prototype("void                  fault_block_list_neighbours( fault_block , bool , geo_polygon_collection , int_vector)")  
 

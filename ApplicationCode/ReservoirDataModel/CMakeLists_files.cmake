@@ -24,7 +24,6 @@ ${CEE_CURRENT_LIST_DIR}RigMainGrid.h
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.h
 ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.h
 ${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.h
-${CEE_CURRENT_LIST_DIR}RigStatisticsMath.h
 ${CEE_CURRENT_LIST_DIR}RigWellPath.h
 ${CEE_CURRENT_LIST_DIR}RigFault.h
 ${CEE_CURRENT_LIST_DIR}RigNNCData.h
@@ -33,8 +32,8 @@ ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.inl
 ${CEE_CURRENT_LIST_DIR}RigPipeInCellEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RigResultAccessor2d.h
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.h
-${CEE_CURRENT_LIST_DIR}RigStatisticsDataCache.h
-${CEE_CURRENT_LIST_DIR}RigStatisticsCalculator.h
+${CEE_CURRENT_LIST_DIR}RigNativeStatCalc.h
+${CEE_CURRENT_LIST_DIR}RigMultipleDatasetStatCalc.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -56,14 +55,13 @@ ${CEE_CURRENT_LIST_DIR}RigMainGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.cpp
 ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.cpp
 ${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.cpp
-${CEE_CURRENT_LIST_DIR}RigStatisticsMath.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RigFault.cpp
 ${CEE_CURRENT_LIST_DIR}RigNNCData.cpp
 ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.cpp
-${CEE_CURRENT_LIST_DIR}RigStatisticsDataCache.cpp
-${CEE_CURRENT_LIST_DIR}RigStatisticsCalculator.cpp
+${CEE_CURRENT_LIST_DIR}RigNativeStatCalc.cpp
+${CEE_CURRENT_LIST_DIR}RigMultipleDatasetStatCalc.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -74,4 +72,4 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-source_group( "ReservoirDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} )
+source_group( "ReservoirDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )

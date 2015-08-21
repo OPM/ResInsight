@@ -480,7 +480,7 @@ static bool subst_list_replace_strings__(const subst_list_type * subst_list , bu
 
 */
 
-static bool subst_list_eval_funcs____(const subst_list_type * subst_list , const parser_type * parser , buffer_type * buffer) {
+static bool subst_list_eval_funcs____(const subst_list_type * subst_list , const basic_parser_type * parser , buffer_type * buffer) {
   bool global_match = false;
   int index;
   for (index = 0; index < vector_get_size( subst_list->func_data); index++) {
@@ -504,7 +504,7 @@ static bool subst_list_eval_funcs____(const subst_list_type * subst_list , const
           if (arg_end != NULL) {
             /* OK - we found an enclosing () pair. */
             char            * arg_content = util_alloc_substring_copy( arg_start, 1 , arg_end - arg_start - 1);
-            stringlist_type * arg_list    = parser_tokenize_buffer( parser , arg_content , true);
+            stringlist_type * arg_list    = basic_parser_tokenize_buffer( parser , arg_content , true);
             char            * func_eval   = subst_list_func_eval( subst_func , arg_list );
             int               old_len     = strlen(func_name) + strlen( arg_content) + 2;       
             
@@ -532,10 +532,10 @@ static bool subst_list_eval_funcs____(const subst_list_type * subst_list , const
 
 
 static bool subst_list_eval_funcs__(const subst_list_type * subst_list , buffer_type * buffer) {
-  parser_type     * parser     = parser_alloc( "," , "\"\'" , NULL , " \t" , NULL , NULL );
+  basic_parser_type     * parser     = basic_parser_alloc( "," , "\"\'" , NULL , " \t" , NULL , NULL );
   bool match = subst_list_eval_funcs____( subst_list , parser , buffer );
 
-  parser_free( parser );
+  basic_parser_free( parser );
   return match;
 }
 

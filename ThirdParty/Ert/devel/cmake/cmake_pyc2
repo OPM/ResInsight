@@ -18,6 +18,7 @@ if not os.path.exists( target_path ):
       pass
 
 shutil.copyfile( src_file , target_file )
+shutil.copystat( src_file , target_file )
 try:
     py_compile.compile( target_file , doraise = True)
 except Exception,error:

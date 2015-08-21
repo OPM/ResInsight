@@ -23,7 +23,7 @@
 #include "cafPdmUiTextEditor.h"
 
 #include "RiaApplication.h"
-#include "RimReservoirView.h"
+#include "RimEclipseView.h"
 
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivTernaryScalarMapper.h"

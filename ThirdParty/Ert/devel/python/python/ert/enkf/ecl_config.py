@@ -32,6 +32,7 @@ class EclConfig(BaseCClass):
     #-----------------------------------------------------------------
 
     def getEclBase(self):
+        """ @rtype: str """
         return EclConfig.cNamespace().get_eclbase(self)
 
     def validateEclBase(self , eclbase_fmt):

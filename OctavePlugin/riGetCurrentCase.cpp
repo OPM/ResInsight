@@ -95,12 +95,12 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
 
         getCurrentCase(caseId, caseName, caseType, caseGroupId, "127.0.0.1", 40001);
 
-        Octave_map fieldMap;
+        octave_map fieldMap;
 
-        fieldMap.assign(riOctavePlugin::caseInfo_CaseId,      caseId);
-        fieldMap.assign(riOctavePlugin::caseInfo_CaseName,    caseName.toLatin1().data());
-        fieldMap.assign(riOctavePlugin::caseInfo_CaseType,    caseType.toLatin1().data());
-        fieldMap.assign(riOctavePlugin::caseInfo_CaseGroupId, caseGroupId);
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseId,      Cell(caseId));
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseName,    Cell(std::string(caseName.toLatin1().data()), true));
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseType,    Cell(std::string(caseType.toLatin1().data()), true));
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseGroupId, Cell(caseGroupId));
 
         retval = octave_value(fieldMap);
     }
