@@ -992,6 +992,7 @@ void RimUiTreeView::slotNewStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicComputeStatisticsFeature
 void RimUiTreeView::slotComputeStatistics()
 {
     QModelIndex index = currentIndex();

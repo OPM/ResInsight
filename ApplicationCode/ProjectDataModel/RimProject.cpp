@@ -598,7 +598,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             //menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
             //menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
             commandIds << "RicNewViewFeature";
-           // commandIds << "RicComputestatistics....";
+            commandIds << "RicComputeStatisticsFeature";
             commandIds << "RicCloseCaseFeature";
             commandIds << "RicExecuteScriptForCasesFeature";
         }
