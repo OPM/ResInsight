@@ -589,7 +589,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
-            // Todo: "Paste"
+            commandIds << "RicPasteEclipseCasesFeature";
             commandIds << "RicNewStatisticsCaseFeature";
         }
         else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
