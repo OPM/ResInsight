@@ -7,8 +7,11 @@ permalink: /docs/derivedresults/
 published: true
 ---
 
+ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
 
-ResInsight is able to compute derived results listed at the bottom **Static** properties.
+## Derived results for Eclipse cases
+
+The derived results are listed at the bottom of the **Static** result properties, as shown below.
 
 ![]({{ site.baseurl }}/images/DerivedStaticResults.png)
 
@@ -39,3 +42,43 @@ The directional combined parameters available are:
 - **riTRANXYZ** (inluding NNCs)
 - **riMULTXYZ** (inluding NNCs)
 - **riTRANXYZbyArea** (inluding NNCs)
+
+## Derived Geomechanical results
+
+ResInsight calculates several of the geomechanical results presented. Here we will present a brief overview.
+
+The calculated result fields including their components are:
+
+SE, E, ST and Gamma
+
+In this text the label Sa and Ea will be used to denote the unchanged stress and strain tensor respectivly from the odb file. 
+
+### SE - Effective Stress
+
+SE<sub>ij</sub> = -Sa<sub>ij</sub> (Where POR is defined) 
+
+SE<sub>ij</sub> = *undefined* (Were POR is not defined)
+
+SE<sub>i</sub> = Principal value i of SE
+
+### E - Strain
+
+E<sub>ij</sub> = -Ea<sub>ij</sub>
+
+### ST - Total stress
+
+ST<sub>ii</sub> = -Sa<sub>ii</sub> + POR (i= 1,2,3)
+
+ST<sub>ij</sub> = -Sa<sub>ij</sub> (i,j = 1,2,3 and i not equal j)
+
+We use a value of POR=0.0 where it is not defined.
+
+ST<sub>i</sub> = Principal value i of ST
+
+### Gamma - Stress path
+
+Gamma<sub>ii</sub> = ST<sub>ii</sub>/POR (i= 1,2,3) 
+
+Gamma<sub>i</sub> = ST<sub>i</sub>/POR 
+
+In these calcualtioins we set Gamma to *undefined* if abs(POR) > 0.01 MPa. 

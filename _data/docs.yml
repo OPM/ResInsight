@@ -1,8 +1,10 @@
 - title: Getting Started
   docs:
   - home
+  - odbsupport
   - gettingstarted
   - installation
+  - installationlinux
 
 - title: Application
   docs:

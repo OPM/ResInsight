@@ -1,6 +1,6 @@
 ---
 layout: docs
-prev_section: home
+prev_section: odbsupport
 next_section: installation
 title: Getting Started
 permalink: /docs/gettingstarted/
@@ -56,8 +56,10 @@ How to interact and manipulate the 3D model is described in [Model Navigation]({
 
 ### Cases and their types
 
-A *Case* in ResInsight means a Grid model with a particular set of results or property data. There are  
-three different Case types: 
+A *Case* in ResInsight means a Grid model with a particular set of results or property data. There are three different types of Eclipse cases and one type of Geomechanical cases.
+
+#### Eclipse Cases
+There are three different Eclipse Case types: 
 
 ##### Result case ![]({{ site.baseurl }}/images/Case24x24.png) 
 This is a Case based on the results of an Eclipse simulation, read from a grid file together with static and restart data. Multiple Cases can be selected and read from a folder.
@@ -69,9 +71,14 @@ Each of the Eclipse properties is listed as separate entities in the **Project T
 #####  Statistics case ![]({{ site.baseurl }}/images/Histogram24x24.png)
 This is a Case type that belongs to a *Grid Case Group* and makes statistical calculations based on the source cases in the Grid Case Group. 
 
+#### Geomechanical cases ![]({{ site.baseurl }}/images/GeoMechCase24x24.png)
+There are only one type of geomechanical cases, namely the ABAQUS-odb case type. 
+
+The geomechanical cases will is sorted into its own folder in the project tree named **Geomechanical Models** ![]({{ site.baseurl }}/images/GeoMechCases24x24.png) as opposed to the **Grid Models** folder where the Eclipse cases and **Grid Case Groups** resides.
+
 #### Grid Case Groups ![]({{ site.baseurl }}/images/GridCaseGroup24x24.png) 
 
-A **Grid Case Group** is a group of **Result Cases** with identical grids, but generally different active cells, initial values and results. These cases are called *Source Cases*. 
+A **Grid Case Group** is a group of Eclipse **Result Cases** with identical grids, but generally different active cells, initial values and results. These cases are called *Source Cases*. 
 
 The purpose of a Grid Case group is to make it easy to calculate statistics across the source cases both for static and dynamic Eclipse Properties. 
 
@@ -85,7 +92,9 @@ This file only contains references to the real data files, and even references t
 
 Statistics calculations, property sets you generate by using Octave, and well paths are saved to a folder in the same directory as you save the project file, and is named ProjectFileName_cache. So if you need to move your project, make sure you move this folder as well.
 
-*TIP:* The `.rsp`-file is an XML file, and can be edited by any text editor.  
+<div class="note">
+The `.rsp`-file is an XML file, and can be edited by any text editor.  
+</div>
 
 ### Export options
 
