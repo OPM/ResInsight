@@ -66,25 +66,44 @@ RimCellRangeFilter* RicRangeFilterExecImpl::createRangeFilter()
 
     if (m_iSlice)
     {
-        rangeFilter->cellCountI = 1;
         rangeFilter->name = QString("Slice I (%1)").arg(flterIndex);
     }
 
     if (m_jSlice)
     {
-        rangeFilter->cellCountJ = 1;
         rangeFilter->name = QString("Slice J (%1)").arg(flterIndex);
     }
 
     if (m_kSlice)
     {
-        rangeFilter->cellCountK = 1;
         rangeFilter->name = QString("Slice K (%1)").arg(flterIndex);
+    }
+
+    return rangeFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicRangeFilterExecImpl::applyCommandDataOnFilter(RimCellRangeFilter* rangeFilter)
+{
+    if (m_iSlice)
+    {
+        rangeFilter->cellCountI = 1;
+    }
+
+    if (m_jSlice)
+    {
+        rangeFilter->cellCountJ = 1;
+    }
+
+    if (m_kSlice)
+    {
+        rangeFilter->cellCountK = 1;
     }
 
     if (m_iSliceStart > -1) rangeFilter->startIndexI = m_iSliceStart;
     if (m_jSliceStart > -1) rangeFilter->startIndexJ = m_jSliceStart;
     if (m_kSliceStart > -1) rangeFilter->startIndexK = m_kSliceStart;
-
-    return rangeFilter;
 }
+

@@ -49,6 +49,7 @@ public:
 
 protected:
     RimCellRangeFilter* createRangeFilter();
+    void                applyCommandDataOnFilter(RimCellRangeFilter* filter);
 
 protected:
     caf::PdmPointer<RimCellRangeFilterCollection>   m_cellRangeFilterCollection;

@@ -63,6 +63,7 @@ void RicRangeFilterInsertExec::redo()
         m_cellRangeFilterCollection->rangeFilters.insertAt(index, rangeFilter);
 
         rangeFilter->setDefaultValues();
+        applyCommandDataOnFilter(rangeFilter);
 
         m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
         m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
