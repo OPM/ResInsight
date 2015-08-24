@@ -208,13 +208,7 @@ void RiuMainWindow::createActions()
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
 
-    m_importEclipseCaseAction     = new QAction(QIcon(":/Case48x48.png"), "Import &Eclipse Case", this);
-    m_importInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "Import &Input Eclipse Case", this);
     m_importGeoMechCaseAction     = new QAction(QIcon(":/GeoMechCase48x48.png"), "Import &Geo Mechanical Model", this);
-    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
-    
-    m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "Import &Well Paths from File", this);
-    m_importWellPathsFromSSIHubAction     = new QAction(QIcon(":/WellCollection.png"),"Import Well Paths from &SSI-hub", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
@@ -246,13 +240,8 @@ void RiuMainWindow::createActions()
 
     connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
-    connect(m_importEclipseCaseAction,	        SIGNAL(triggered()), SLOT(slotImportEclipseCase()));
-    connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
 
-    connect(m_importInputEclipseFileAction,     SIGNAL(triggered()), SLOT(slotImportInputEclipseFiles()));
-    connect(m_openMultipleEclipseCasesAction,   SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
-    connect(m_importWellPathsFromFileAction,	SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
-    connect(m_importWellPathsFromSSIHubAction,  SIGNAL(triggered()), SLOT(slotImportWellPathsFromSSIHub()));
+    connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
     
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
@@ -400,6 +389,9 @@ public:
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createMenus()
 {
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(cmdFeatureMgr);
+
     // File menu
     QMenu* fileMenu = new ToolTipableMenu(menuBar());
     fileMenu->setTitle("&File");
@@ -411,16 +403,16 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
-    importMenu->addAction(m_importEclipseCaseAction);
-    importMenu->addAction(m_importInputEclipseFileAction);
-    importMenu->addAction(m_openMultipleEclipseCasesAction);
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
     #ifdef USE_ODB_API
     importMenu->addAction(m_importGeoMechCaseAction);
     importMenu->addSeparator();
     #endif
-    importMenu->addAction(m_importWellPathsFromFileAction);
-    importMenu->addAction(m_importWellPathsFromSSIHubAction);
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(m_snapshotToFile);
@@ -498,12 +490,14 @@ void RiuMainWindow::createMenus()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createToolBars()
 {
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(cmdFeatureMgr);
 
     m_standardToolBar = addToolBar(tr("Standard"));
     m_standardToolBar->setObjectName(m_standardToolBar->windowTitle());
 
-    m_standardToolBar->addAction(m_importEclipseCaseAction);
-    m_standardToolBar->addAction(m_importInputEclipseFileAction);
+    m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
     m_standardToolBar->addAction(m_openProjectAction);
     //m_standardToolBar->addAction(m_openLastUsedProjectAction);
     m_standardToolBar->addAction(m_saveProjectAction);
@@ -737,7 +731,10 @@ void RiuMainWindow::slotRefreshFileActions()
     
     bool projectFileExists = QFile::exists(app->project()->fileName());
 
-    m_importWellPathsFromSSIHubAction->setEnabled(projectFileExists);
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(cmdFeatureMgr);
+
+    cmdFeatureMgr->action("RicWellPathsImportSsihubFeature")->setEnabled(projectFileExists);
 }
 
 
@@ -893,36 +890,6 @@ void RiuMainWindow::slotAbout()
 }
 
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportEclipseCase()
-{
-    if (checkForDocumentModifications())
-    {
-        QAction* action = caf::CmdFeatureManager::instance()->action("RicImportEclipseCaseFeature");
-        CVF_ASSERT(action);
-
-        action->trigger();
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportInputEclipseFiles()
-{
-    if (checkForDocumentModifications())
-    {
-        QAction* action = caf::CmdFeatureManager::instance()->action("RicImportInputEclipseCaseFeature");
-        CVF_ASSERT(action);
-
-        action->trigger();
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -992,15 +959,6 @@ void RiuMainWindow::slotOpenLastUsedProject()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportWellPathsFromFile()
-{
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-
-    commandManager->action("RicWellPathsImportFileFeature")->trigger();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1762,7 +1720,7 @@ void RiuMainWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenMultipleCases()
+/*void RiuMainWindow::slotOpenMultipleCases()
 {
 #if 1
     QAction* action = caf::CmdFeatureManager::instance()->action("RicCreateGridCaseGroupFeature");
@@ -1793,7 +1751,7 @@ void RiuMainWindow::slotOpenMultipleCases()
 #endif
 
 }
-
+*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -2026,16 +1984,6 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportWellPathsFromSSIHub()
-{
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-
-    commandManager->action("RicWellPathsImportSsihubFeature")->trigger();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotShowCommandLineHelp()
 {
     RiaApplication* app = RiaApplication::instance();
@@ -2181,16 +2129,19 @@ void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObjectHandle* p
         return;
     }
 
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(cmdFeatureMgr);
+
     if (dynamic_cast<RimWellPathCollection*>(pdmObject))
     {
-        menu->addAction(m_importWellPathsFromFileAction);
-        menu->addAction(m_importWellPathsFromSSIHubAction);
+        menu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
+        menu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
     }
     else if (dynamic_cast<RimEclipseCaseCollection*>(pdmObject))
     {
-        menu->addAction(m_importEclipseCaseAction);
-        menu->addAction(m_importInputEclipseFileAction);
-        menu->addAction(m_openMultipleEclipseCasesAction);
+        menu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+        menu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+        menu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     }
     else if (dynamic_cast<RimGeoMechModels*>(pdmObject))
     {

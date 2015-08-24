@@ -137,14 +137,9 @@ private:
 
 private:
     // File actions
-    QAction*		    m_importEclipseCaseAction;
-    QAction*		    m_importInputEclipseFileAction;
     QAction*            m_importGeoMechCaseAction;
-    QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
-    QAction*		    m_importWellPathsFromFileAction;
-    QAction*		    m_importWellPathsFromSSIHubAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeProjectAction;
@@ -212,14 +207,9 @@ private:
 private slots:
 
     // File slots
-    void    slotImportEclipseCase();
-    void    slotImportInputEclipseFiles();
     void    slotImportGeoMechModel();
-    void    slotOpenMultipleCases();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
-    void    slotImportWellPathsFromFile();
-    void    slotImportWellPathsFromSSIHub();
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();
