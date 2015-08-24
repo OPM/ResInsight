@@ -52,7 +52,7 @@
 #include "RicExecuteScriptForCasesFeature.h"
 #include "RimEclipseStatisticsCaseCollection.h"
 #include "RimEclipseStatisticsCase.h"
-
+#include "RimEclipseInputProperty.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -628,15 +628,17 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicPasteEclipseCasesFeature";
             commandIds << "RicDeleteItemFeature";
         }
-
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
             commandIds << "RicPasteEclipseCasesFeature";
         }
-       
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
             commandIds << "RicSaveEclipseResultAsInputPropertyFeature";
+        }
+        else if (dynamic_cast<RimEclipseInputProperty*>(uiItem))
+        {
+            commandIds << "RicSaveEclipseInputPropertyFeature";
         }
         else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
         {

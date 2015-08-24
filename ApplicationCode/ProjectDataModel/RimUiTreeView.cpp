@@ -812,6 +812,7 @@ void RimUiTreeView::slotDeleteObjectFromContainer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicSaveEclipseInputPropertyFeature
 void RimUiTreeView::slotWriteInputProperty()
 {
     QModelIndex index = currentIndex();
