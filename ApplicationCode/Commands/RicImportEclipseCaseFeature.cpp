@@ -35,10 +35,7 @@ CAF_CMD_SOURCE_INIT(RicImportEclipseCaseFeature, "RicImportEclipseCaseFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicImportEclipseCaseFeature::isCommandEnabled()
 {
-    std::vector<RimEclipseCaseCollection*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    return selection.size() > 0;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
