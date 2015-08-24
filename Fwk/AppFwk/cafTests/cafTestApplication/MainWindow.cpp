@@ -419,7 +419,7 @@ void MainWindow::createDockPanels()
 
         m_pdmUiTreeView2 = new caf::PdmUiTreeView(dockWidget);
         m_pdmUiTreeView2->enableDefaultContextMenu(true);
-        m_pdmUiTreeView2->setCurrentSelectionToCurrentEditorSelection(true);
+        m_pdmUiTreeView2->enableSelectionManagerUpdating(true);
         dockWidget->setWidget(m_pdmUiTreeView2);
 
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
@@ -588,7 +588,7 @@ void MainWindow::createActions()
 void MainWindow::slotInsert()
 {
     std::vector<caf::PdmUiItem*> selection;
-    m_pdmUiTreeView->selectedObjects(selection);
+    m_pdmUiTreeView->selectedUiItems(selection);
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
@@ -624,7 +624,7 @@ void MainWindow::slotInsert()
 void MainWindow::slotRemove()
 {
     std::vector<caf::PdmUiItem*> selection;
-    m_pdmUiTreeView->selectedObjects(selection);
+    m_pdmUiTreeView->selectedUiItems(selection);
 
     for (size_t i = 0; i < selection.size(); ++i)
     {
@@ -641,7 +641,7 @@ void MainWindow::slotRemove()
             delete obj;
 
             // Update editors
-            caf::PdmUiFieldHandle::updateConnectedUiEditors(field);
+            field->uiCapability()->updateConnectedEditors();
 
             break;
         }
@@ -662,14 +662,14 @@ void MainWindow::slotRemoveAll()
 void MainWindow::slotSimpleSelectionChanged()
 {
     std::vector<caf::PdmUiItem*> selection;
-    m_pdmUiTreeView->selectedObjects(selection);
+    m_pdmUiTreeView->selectedUiItems(selection);
     caf::PdmObjectHandle* obj = NULL;
     caf::PdmChildArrayFieldHandle* listField = NULL;
 
     if (selection.size())
     {
         caf::PdmUiObjectHandle* pdmUiObj = dynamic_cast<caf::PdmUiObjectHandle*>( selection[0] );
-        if (pdmUiObj) obj = pdmUiObj->owner();
+        if (pdmUiObj) obj = pdmUiObj->objectHandle();
     }
 
     m_pdmUiPropertyView->showProperties(obj);
@@ -681,7 +681,7 @@ void MainWindow::slotSimpleSelectionChanged()
 void MainWindow::slotShowTableView()
 {
     std::vector<caf::PdmUiItem*> selection;
-    m_pdmUiTreeView2->selectedObjects(selection);
+    m_pdmUiTreeView2->selectedUiItems(selection);
     caf::PdmObjectHandle* obj = NULL;
     caf::PdmChildArrayFieldHandle* listField = NULL;
 
@@ -704,5 +704,8 @@ void MainWindow::slotShowTableView()
 
     m_pdmUiTableView->setListField(listField);
 
-    caf::PdmUiFieldHandle::updateConnectedUiEditors(listField);
+    if (listField)
+    {
+        listField->uiCapability()->updateConnectedEditors();
+    }
 }
