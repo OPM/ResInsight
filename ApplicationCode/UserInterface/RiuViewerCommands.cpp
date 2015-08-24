@@ -237,48 +237,6 @@ void RiuViewerCommands::createSliceRangeFilter(int ijOrk)
 
     caf::CmdExecCommandManager::instance()->processExecuteCommand(filterExec);
 
-    #if 0 // OBSOLETE
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel_OBSOLETE();
-    if (myModel)
-    {
-        RimCellRangeFilterCollection* rangeFilterCollection = eclipseView->rangeFilterCollection();
-
-        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
-
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
-
-        if (ijOrk == 0){
-            rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
-            rangeFilter->cellCountI = 1;
-            int startIndex = CVF_MAX(static_cast<int>(i + 1), 1);
-            rangeFilter->startIndexI = startIndex;
-
-        }
-        else if (ijOrk == 1){
-            rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
-            rangeFilter->cellCountJ = 1;
-            int startIndex = CVF_MAX(static_cast<int>(j + 1), 1);
-            rangeFilter->startIndexJ = startIndex;
-
-        }
-        else if (ijOrk == 2){
-            rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
-            rangeFilter->cellCountK = 1;
-            int startIndex = CVF_MAX(static_cast<int>(k + 1), 1);
-            rangeFilter->startIndexK = startIndex;
-        }
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        mainWindow->setCurrentObjectInTreeView(rangeFilter);
-    }
-    #endif
-
     eclipseView->setSurfaceDrawstyle();
 }
 
@@ -321,21 +279,6 @@ void RiuViewerCommands::slotAddEclipsePropertyFilter()
         RimEclipsePropertyFilterCollection* filterCollection = eclipseView->propertyFilterCollection();
         RicEclipsePropertyFilterNewExec* propCmdExe = new RicEclipsePropertyFilterNewExec(filterCollection);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
-        #if 0 // OBSOLETE
-        RiuMainWindow* mainWindow = RiuMainWindow::instance();
-        RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel_OBSOLETE();
-        if (myModel)
-        {
-            RimEclipsePropertyFilterCollection* filterCollection = eclipseView->propertyFilterCollection();
-
-            QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(filterCollection);
-
-            QModelIndex insertedIndex;
-            RimEclipsePropertyFilter* propertyFilter = myModel->addPropertyFilter(collectionModelIndex, insertedIndex);
-
-            mainWindow->setCurrentObjectInTreeView(propertyFilter);
-        }
-        #endif
     }
 }
 
@@ -350,22 +293,6 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
         RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->propertyFilterCollection();
         RicGeoMechPropertyFilterNewExec* propCmdExe = new RicGeoMechPropertyFilterNewExec(filterCollection);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
-
-        #if 0 // OBSOLETE
-        RiuMainWindow* mainWindow = RiuMainWindow::instance();
-        RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel_OBSOLETE();
-        if (myModel)
-        {
-            RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->propertyFilterCollection();
-
-            QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(filterCollection);
-
-            QModelIndex insertedIndex;
-            RimGeoMechPropertyFilter* propertyFilter = myModel->addGeoMechPropertyFilter(collectionModelIndex, insertedIndex);
-
-            mainWindow->setCurrentObjectInTreeView(propertyFilter);
-        }
-        #endif
     }
 }
 
