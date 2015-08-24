@@ -110,6 +110,7 @@ list( APPEND REFERENCED_CMAKE_FILES
 	Commands/CMakeLists_files.cmake
 	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
+    Commands/OctaveScriptCommands/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
