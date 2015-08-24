@@ -41,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceIFeature.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJFeature.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceKFeature.h
+${CEE_CURRENT_LIST_DIR}RicAddEclipseInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
@@ -96,6 +97,7 @@ ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceIFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceJFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterNewSliceKFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicAddEclipseInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
