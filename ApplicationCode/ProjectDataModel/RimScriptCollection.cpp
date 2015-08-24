@@ -178,9 +178,6 @@ void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle *changedFie
         QFileInfo fi(directory);
         this->setUiName(fi.baseName());
         this->readContentFromDisc();
-
-        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
-        if (treeModel) treeModel->updateUiSubTree(this);
     }
 }
 

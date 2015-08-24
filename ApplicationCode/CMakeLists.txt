@@ -149,8 +149,6 @@ set ( QT_MOC_HEADERS
     ${QT_MOC_HEADERS}
     Application/RiaApplication.h
     
-    ProjectDataModel/RimUiTreeModelPdm.h
-    ProjectDataModel/RimUiTreeView.h
     ProjectDataModel/RimMimeData.h
     
     UserInterface/RiuMainWindow.h

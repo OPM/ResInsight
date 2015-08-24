@@ -90,11 +90,6 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         if (faultColors)
         {
             faultColors->updateConnectedEditors();
-            RiuMainWindow::instance()->uiPdmModel_OBSOLETE()->updateUiSubTree(faultColors);
-        }
-        else
-        {
-            RiuMainWindow::instance()->uiPdmModel_OBSOLETE()->updateUiSubTree(this);
         }
     }
 

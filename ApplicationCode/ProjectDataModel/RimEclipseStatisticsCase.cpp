@@ -477,8 +477,6 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
 {
-    RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
-
     this->reservoirData()->setWellResults(sourceCaseWellResults);
     
     caf::ProgressInfo progInfo(reservoirViews().size() + 1, "Updating Well Data for Views");
@@ -491,8 +489,6 @@ void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collectio
 
         reservoirView->wellCollection()->wells.deleteAllChildObjects();
         reservoirView->updateDisplayModelForWellResults();
-
-        treeModel->updateUiSubTree(reservoirView->wellCollection());
         reservoirView->wellCollection()->updateConnectedEditors();
 
         progInfo.incrementProgress();

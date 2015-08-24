@@ -642,8 +642,6 @@ public:
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
                         inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
-                        treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
                         inputRes->m_inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
@@ -1008,8 +1006,6 @@ public:
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
                         inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel_OBSOLETE();
-                        treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
                         inputRes->m_inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;

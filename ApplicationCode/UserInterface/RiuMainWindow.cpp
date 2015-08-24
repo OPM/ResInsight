@@ -49,8 +49,6 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
-#include "RimUiTreeModelPdm.h"
-#include "RimUiTreeView.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
@@ -94,8 +92,7 @@ RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = NULL;
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow::RiuMainWindow()
-    : m_OBSOLETE_treeView(NULL),
-    m_pdmRoot(NULL),
+    : m_pdmRoot(NULL),
     m_mainViewer(NULL),
     m_windowMenu(NULL)
 {
@@ -112,9 +109,6 @@ RiuMainWindow::RiuMainWindow()
 #endif
 
     //m_mainViewer = createViewer();
-
-
-    m_OBSOLETE_treeModelPdm = new RimUiTreeModelPdm(this);
 
     createActions();
     createMenus();
@@ -602,26 +596,6 @@ void RiuMainWindow::createDockPanels()
         //m_windowsMenu->addAction(dockWidget->toggleViewAction());
     }
 
-	{
-        QDockWidget* dockWidget = new QDockWidget("OBSOLETE Project Tree", this);
-        dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-
-        m_OBSOLETE_treeView = new RimUiTreeView(dockWidget);
-        m_OBSOLETE_treeView->setModel(m_OBSOLETE_treeModelPdm);
-        m_OBSOLETE_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-        // Drag and drop configuration
-        m_OBSOLETE_treeView->setDragEnabled(true);
-        m_OBSOLETE_treeView->viewport()->setAcceptDrops(true);
-        m_OBSOLETE_treeView->setDropIndicatorShown(true);
-        m_OBSOLETE_treeView->setDragDropMode(QAbstractItemView::DragDrop);
-
-        dockWidget->setWidget(m_OBSOLETE_treeView);
-
-        addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
-    }
-
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
         dockWidget->setObjectName("dockWidget");
@@ -631,7 +605,6 @@ void RiuMainWindow::createDockPanels()
         dockWidget->setWidget(m_pdmUiPropertyView);
 
         m_pdmUiPropertyView->layout()->setContentsMargins(5,0,0,0);
-        connect(m_OBSOLETE_treeView, SIGNAL(selectedObjectChanged( caf::PdmObjectHandle* )), m_pdmUiPropertyView, SLOT(showProperties( caf::PdmObjectHandle* )));
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
@@ -1231,15 +1204,7 @@ void RiuMainWindow::slotSaveProjectAs()
 void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 {
     m_pdmRoot = pdmRoot;
-#if 1 // OBSOLETE
-    caf::PdmUiTreeItem* OBSOLETE_treeItemRoot = caf::UiTreeItemBuilderPdm::buildViewItems(NULL, -1, m_pdmRoot);
-    m_OBSOLETE_treeModelPdm->setTreeItemRoot(OBSOLETE_treeItemRoot);
 
-    if (OBSOLETE_treeItemRoot && m_OBSOLETE_treeView->selectionModel())
-    {
-        connect(m_OBSOLETE_treeView->selectionModel(), SIGNAL(currentChanged ( const QModelIndex & , const QModelIndex & )), SLOT(OBSOLETE_slotCurrentChanged( const QModelIndex & , const QModelIndex & )));
-    }
-#endif
 	m_projectTreeView->setPdmItem(pdmRoot);
     // For debug only : m_projectTreeView->treeView()->expandAll();
     m_projectTreeView->setDragDropHandle(m_dragDrop);
@@ -1505,55 +1470,6 @@ void RiuMainWindow::slotBuildWindowActions()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// This method is replaced by selectedObjectsChanged() below
-//--------------------------------------------------------------------------------------------------
-#if 1 // OBSOLETE
-void RiuMainWindow::OBSOLETE_slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
-{
-    RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
-    QModelIndex activeViewModelIndex = m_OBSOLETE_treeModelPdm->getModelIndexFromPdmObject(activeReservoirView);
-
-    QModelIndex tmp = current;
-
-    // Traverse parents until a reservoir view is found
-    while (tmp.isValid())
-    {
-        caf::PdmUiTreeItem* treeItem = m_OBSOLETE_treeModelPdm->getTreeItemFromIndex(tmp);
-        caf::PdmObjectHandle* pdmObject = treeItem->dataObject();
-
-        RimView* rimReservoirView = dynamic_cast<RimView*>(pdmObject);
-        if (rimReservoirView)
-        {
-            // If current selection is an item within a different reservoir view than active, 
-            // show new reservoir view and set this as activate view
-            if (rimReservoirView != activeReservoirView)
-            {
-                RiaApplication::instance()->setActiveReservoirView(rimReservoirView);
-                // Set focus in MDI area to this window if it exists
-                if (rimReservoirView->viewer())
-                {
-                    setActiveViewer(rimReservoirView->viewer());
-                }
-                m_OBSOLETE_treeView->setCurrentIndex(current);
-                refreshDrawStyleActions();
-                refreshAnimationActions();
-                slotRefreshFileActions();
-                slotRefreshEditActions();
-                slotRefreshViewActions();
-
-                // The only way to get to this code is by selection change initiated from the project tree view
-                // As we are activating an MDI-window, the focus is given to this MDI-window
-                // Set focus back to the tree view to be able to continue keyboard tree view navigation
-                m_OBSOLETE_treeView->setFocus();
-            }
-        }
-
-        // Traverse parents until a reservoir view is found
-        tmp = tmp.parent();
-    }
-}
-#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1910,17 +1826,6 @@ void RiuMainWindow::restoreTreeViewState()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
 {
-#if 1 // OBSOLETE
-    if (m_OBSOLETE_treeView && m_OBSOLETE_treeModelPdm)
-    {
-        QModelIndex mi = m_OBSOLETE_treeModelPdm->getModelIndexFromPdmObject(object);
-
-        if (mi.isValid())
-        {
-            m_OBSOLETE_treeView->setCurrentIndex(mi);
-        }
-    }
-#endif
     m_projectTreeView->selectAsCurrentItem(object);
 }
 
@@ -1962,23 +1867,6 @@ void RiuMainWindow::updateScaleValue()
 void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 {
     caf::SelectionManager::instance()->objectsByType(&cases);
-#if 0 // OBSOLETE
-    if (m_OBSOLETE_treeView && m_OBSOLETE_treeView->selectionModel())
-    {
-        QModelIndexList selectedModelIndexes = m_OBSOLETE_treeView->selectionModel()->selectedIndexes();
-
-        caf::PdmObjectGroup group;
-        m_OBSOLETE_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndexes, &group);
-
-        std::vector<caf::PdmPointer<RimCase> > typedObjects;
-        group.objectsByType(&typedObjects);
-
-        for (size_t i = 0; i < typedObjects.size(); i++)
-        {
-            cases.push_back(typedObjects[i]);
-        }
-    }
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2167,9 +2055,6 @@ void RiuMainWindow::forceProjectTreeRepaint()
 {
     // This is a hack to force the treeview redraw. 
     // Needed for some reason when changing names and icons in the model
-    m_OBSOLETE_treeView->scroll(0,1);
-    m_OBSOLETE_treeView->scroll(0,-1);
-
     m_projectTreeView->scroll(0,1);
     m_projectTreeView->scroll(0,-1);
 }

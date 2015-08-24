@@ -40,8 +40,6 @@ class QUndoView;
 
 class RimCase;
 class RimEclipseCase;
-class RimUiTreeModelPdm;
-class RimUiTreeView;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuViewer;
@@ -90,7 +88,6 @@ public:
     void            updateScaleValue();
     void            forceProjectTreeRepaint();
 
-    RimUiTreeModelPdm* uiPdmModel_OBSOLETE() { return m_OBSOLETE_treeModelPdm;}
     caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     RiuProcessMonitor* processMonitor();
 
@@ -270,7 +267,6 @@ private slots:
     void    slotOpenUsersGuideInBrowserAction();
 
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
-    void    OBSOLETE_slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
 
 	void	selectedObjectsChanged();
     void    customMenuRequested(const QPoint& pos);
@@ -284,10 +280,6 @@ private slots:
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 private:
-    RimUiTreeView*              m_OBSOLETE_treeView;
-    RimUiTreeModelPdm*          m_OBSOLETE_treeModelPdm;
-
-
 	caf::PdmUiTreeView*			m_projectTreeView;
     
     caf::PdmUiDragDropHandle*   m_dragDrop;
