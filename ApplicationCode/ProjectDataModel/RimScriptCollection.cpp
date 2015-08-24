@@ -21,7 +21,6 @@
 #include "RimScriptCollection.h"
 
 #include "RimCalcScript.h"
-#include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiFilePathEditor.h"
