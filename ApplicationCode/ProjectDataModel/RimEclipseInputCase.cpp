@@ -52,6 +52,7 @@ RimEclipseInputCase::RimEclipseInputCase()
 
     CAF_PDM_InitFieldNoDefault(&m_inputPropertyCollection, "InputPropertyCollection", "",  "", "", "");
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
+    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden(true);
 }
 
 
