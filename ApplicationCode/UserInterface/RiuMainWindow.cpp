@@ -578,6 +578,7 @@ void RiuMainWindow::createDockPanels()
         connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
 	}
 	
+/*
     {
         QDockWidget* dockWidget = new QDockWidget("Undo stack", this);
         dockWidget->setObjectName("dockWidget");
@@ -595,6 +596,7 @@ void RiuMainWindow::createDockPanels()
 
         //m_windowsMenu->addAction(dockWidget->toggleViewAction());
     }
+*/
 
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
