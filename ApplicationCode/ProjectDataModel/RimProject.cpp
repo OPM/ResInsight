@@ -49,7 +49,7 @@
 #include <QDir>
 #include "cafCmdFeature.h"
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
-#include "RicExecuteScriptForCasesFeature.h"
+#include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
 #include "RimEclipseStatisticsCaseCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseInputProperty.h"
