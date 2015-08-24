@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilterCollection, "GeoMechPropertyFilters"
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilterCollection::RimGeoMechPropertyFilterCollection()
 {
-    CAF_PDM_InitObject("GeoMech Property Filters", ":/CellFilter_Values.png", "", "");
+    CAF_PDM_InitObject("Property Filters", ":/CellFilter_Values.png", "", "");
     
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilters.uiCapability()->setUiHidden(true);
