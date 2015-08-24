@@ -549,7 +549,7 @@ void RiuMainWindow::createToolBars()
 void RiuMainWindow::createDockPanels()
 {
 	{
-		QDockWidget* dockWidget = new QDockWidget("NEW Project Tree", this);
+		QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
 		dockWidget->setObjectName("dockWidget");
 		dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
