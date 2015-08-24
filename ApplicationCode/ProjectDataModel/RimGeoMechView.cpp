@@ -446,7 +446,7 @@ void RimGeoMechView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible()
 {
-    return this->hasUserRequestedAnimation() && this->cellResult()->hasResult();
+    return this->hasUserRequestedAnimation() && (this->cellResult()->hasResult() || this->propertyFilterCollection()->hasActiveFilters());
 }
 
 //--------------------------------------------------------------------------------------------------
