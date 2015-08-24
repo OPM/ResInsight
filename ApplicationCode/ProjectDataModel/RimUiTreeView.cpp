@@ -770,6 +770,7 @@ void RimUiTreeView::setModel(QAbstractItemModel* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+// OBSOLETE - see RicAddEclipseInputPropertyFeature
 void RimUiTreeView::slotAddInputProperty()
 {
     RiaApplication* app = RiaApplication::instance();
