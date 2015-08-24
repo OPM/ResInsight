@@ -22,7 +22,6 @@
 
 #include "RimEclipseView.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
 #include "RimEclipseFaultColors.h"
 

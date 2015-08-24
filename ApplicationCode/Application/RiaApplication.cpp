@@ -48,7 +48,6 @@
 #include "RiaSocketServer.h"
 #include "cafUiProcess.h"
 //
-#include "RimUiTreeModelPdm.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "RiaProjectModifier.h"

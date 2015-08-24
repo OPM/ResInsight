@@ -19,7 +19,6 @@
 
 #include "RiuViewerCommands.h"
 #include "RiuViewer.h"
-#include "RimUiTreeModelPdm.h"
 #include "RimCellRangeFilter.h"
 #include "RimView.h"
 #include "RimCellRangeFilterCollection.h"

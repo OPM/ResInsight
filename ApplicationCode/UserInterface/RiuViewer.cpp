@@ -42,8 +42,6 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseWellCollection.h"
 
-#include "RimUiTreeModelPdm.h"
-
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RigCaseData.h"

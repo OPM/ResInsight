@@ -25,7 +25,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
-#include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiTreeOrdering.h"

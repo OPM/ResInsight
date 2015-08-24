@@ -28,7 +28,6 @@
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseEvaluator.h"
-#include "RimUiTreeModelPdm.h"
 #include "RimEclipseWellCollection.h"
 #include "RiuMainWindow.h"
 
