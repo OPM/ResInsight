@@ -684,10 +684,9 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {
-            commandIds << "RicWellPathsImportSsihubFeature";
-            commandIds << "RicWellPathsImportFileFeature";
-            commandIds << "Separator";
             commandIds << "RicWellPathsDeleteAllFeature";
+            commandIds << "RicWellPathsImportFileFeature";
+            commandIds << "RicWellPathsImportSsihubFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
