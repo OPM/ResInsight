@@ -643,6 +643,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimEclipseInputProperty*>(uiItem))
         {
+            commandIds << "RicDeleteItemFeature";
             commandIds << "RicSaveEclipseInputPropertyFeature";
         }
         else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
