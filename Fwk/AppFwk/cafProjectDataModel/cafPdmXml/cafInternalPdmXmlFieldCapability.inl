@@ -67,9 +67,9 @@ template<typename FieldType >
      //
      // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
 
-     PdmObjectHandle* objHandle = PdmReferenceHelper::objectFromFieldReference(m_field, dataString);
-     m_field->setRawPtr(objHandle);
- }
+     m_field->m_isResolved = false;
+     m_field->m_referenceString = dataString;
+}
 
  //--------------------------------------------------------------------------------------------------
  /// 

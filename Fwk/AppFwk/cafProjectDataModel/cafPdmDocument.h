@@ -63,6 +63,7 @@ class PdmDocument: public PdmObject
 
     static void         updateUiIconStateRecursively(PdmObjectHandle* root);
     static void         initAfterReadTraversal(PdmObjectHandle* root);
+    static void         resolveReferencesTraversal(PdmObjectHandle* root);
 
 private:
     static void         setupBeforeSaveTraversal(PdmObjectHandle * root);

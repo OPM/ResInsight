@@ -91,6 +91,7 @@ void PdmDocument::readFile(QIODevice* xmlFile)
     // Ask all objects to initialize and set up internal datastructure and pointers 
     // after everything is read from file
 
+    PdmDocument::resolveReferencesTraversal(this);
     PdmDocument::initAfterReadTraversal(this);
 }
 
@@ -212,6 +213,36 @@ void PdmDocument::updateUiIconStateRecursively(PdmObjectHandle* object)
     if (uiObjectHandle)
     {
         uiObjectHandle->updateUiIconFromToggleField();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmDocument::resolveReferencesTraversal(PdmObjectHandle* object)
+{
+    if (object == NULL) return;
+
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    std::vector<PdmObjectHandle*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        PdmFieldHandle* field = fields[fIdx];
+        if (field)
+        {
+            field->childObjects(&children);
+
+            field->resolveReferences();
+        }
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        PdmDocument::resolveReferencesTraversal(children[cIdx]);
     }
 }
 

@@ -100,5 +100,19 @@ void PdmPtrField<DataType*>::ptrReferencedObjects(std::vector<PdmObjectHandle*>*
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+void PdmPtrField<DataType*>::resolveReferences()
+{
+    if (m_isResolved) return;
+    if (m_referenceString.isEmpty()) return;
+
+    PdmObjectHandle* objHandle = PdmReferenceHelper::objectFromFieldReference(this, m_referenceString);
+    this->setRawPtr(objHandle);
+    m_isResolved = true;
+}
+
 } // End of namespace caf
 

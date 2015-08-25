@@ -37,7 +37,7 @@ class PdmPtrField <DataType*> : public PdmFieldHandle
 public:
     typedef PdmPointer<DataType> FieldDataType;
 
-    PdmPtrField()                                                          { }
+    PdmPtrField()                                                          { m_referenceString = ""; m_isResolved = false; }
     explicit PdmPtrField(const DataTypePtr& fieldValue);                
     virtual ~PdmPtrField();
 
@@ -68,6 +68,7 @@ public:
     // Ptr referenced objects
 
     virtual void ptrReferencedObjects(std::vector<PdmObjectHandle*>* objectsToFill);
+    virtual void resolveReferences();
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN(PdmPtrField);
@@ -76,6 +77,10 @@ private:
     void setRawPtr(PdmObjectHandle* obj);
 
 	PdmPointer<DataType>        m_fieldValue;
+
+    // Resolving
+    QString                     m_referenceString;
+    bool                        m_isResolved;
 };
 
 } // End of namespace caf
