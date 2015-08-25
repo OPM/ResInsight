@@ -20,6 +20,7 @@
 #pragma once
 
 #include <vector>
+#include <cstddef>
 
 class RimGeoMechPropertyFilter;
 class RimGeoMechPropertyFilterCollection;
