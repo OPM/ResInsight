@@ -76,7 +76,7 @@ void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter(RimGeoMechPropert
     RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter(propertyFilterCollection);
     CVF_ASSERT(propertyFilter);
 
-    propertyFilterCollection->propertyFilters.insertAt(index, propertyFilter);
+    propertyFilterCollection->propertyFilters.insertAt(static_cast<int>(index), propertyFilter);
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();

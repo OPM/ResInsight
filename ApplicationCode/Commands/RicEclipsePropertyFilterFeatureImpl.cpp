@@ -74,7 +74,7 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(RimEclipsePropertyFi
 void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index)
 {
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-    propertyFilterCollection->propertyFilters.insertAt(index, propertyFilter);
+    propertyFilterCollection->propertyFilters.insertAt(static_cast<int>(index), propertyFilter);
     setDefaults(propertyFilter);
 
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);

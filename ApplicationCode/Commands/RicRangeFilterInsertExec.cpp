@@ -60,7 +60,7 @@ void RicRangeFilterInsertExec::redo()
         size_t index = m_cellRangeFilterCollection->rangeFilters.index(m_cellRangeFilter);
         CVF_ASSERT(index < m_cellRangeFilterCollection->rangeFilters.size());
 
-        m_cellRangeFilterCollection->rangeFilters.insertAt(index, rangeFilter);
+        m_cellRangeFilterCollection->rangeFilters.insertAt(static_cast<int>(index), rangeFilter);
 
         rangeFilter->setDefaultValues();
         applyCommandDataOnFilter(rangeFilter);
