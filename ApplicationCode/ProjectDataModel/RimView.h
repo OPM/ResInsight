@@ -20,6 +20,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
@@ -30,16 +31,17 @@
 
 #include <QPointer>
 
-class RiuViewer;
 class Rim3dOverlayInfoConfig;
 class RimCase;
 class RimCellRangeFilterCollection;
+class RimManagedViewCollection;
+class RiuViewer;
 
 namespace cvf
 {
     class BoundingBox;
-    class Scene;
     class ModelBasicList;
+    class Scene;
     class Transform;
 }
 
@@ -67,7 +69,9 @@ public:
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
 
-    caf::PdmChildField<RimCellRangeFilterCollection*>    rangeFilterCollection;
+    caf::PdmChildField<RimCellRangeFilterCollection*>   rangeFilterCollection;
+    
+    caf::PdmChildField<RimManagedViewCollection*>  managedViewCollection;
 
     // Draw style 
 

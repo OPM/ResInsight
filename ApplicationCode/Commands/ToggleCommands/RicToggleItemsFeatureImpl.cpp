@@ -38,6 +38,7 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
         caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>(selectedItems[0]);
         QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(selectedItems[0]);
         caf::PdmUiTreeOrdering* treeItem = static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer()); 
+        if (!treeItem) return false;
 
         for (int cIdx = 0; cIdx < treeItem->childCount(); ++ cIdx)
         {

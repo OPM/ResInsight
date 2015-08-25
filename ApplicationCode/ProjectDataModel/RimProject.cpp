@@ -26,34 +26,37 @@
 
 #include "RigCaseData.h"
 
+#include "RiaApplication.h"
+#include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseStatisticsCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimManagedViewCollection.h"
+#include "RimManagedViewConfig.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
-#include "RimCalcScript.h"
 
 #include "RiuMainWindow.h"
-#include "RiaApplication.h"
 
+#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
+#include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
+
+#include "cafCmdFeature.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QDir>
-#include "cafCmdFeature.h"
-#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
-#include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
-#include "RimEclipseStatisticsCaseCollection.h"
-#include "RimEclipseStatisticsCase.h"
-#include "RimEclipseInputProperty.h"
-#include "RimEclipseInputPropertyCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -703,6 +706,22 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicAddScriptPathFeature";
             commandIds << "RicDeleteScriptPathFeature";
+        }
+        else if (dynamic_cast<RimManagedViewConfig*>(uiItem))
+        {
+            commandIds << "RicDeleteItemFeature";
+        }
+        
+        if (dynamic_cast<RimManagedViewCollection*>(uiItem))
+        {
+            RimManagedViewCollection* viewCollection = dynamic_cast<RimManagedViewCollection*>(uiItem);
+            caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&viewCollection->managedViews);
+            
+            commandIds << "PdmListField_AddItem";
+        }
+        else
+        {
+            caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(NULL);
         }
     }
     

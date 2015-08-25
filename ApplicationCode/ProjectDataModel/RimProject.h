@@ -65,6 +65,7 @@ public:
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
 
+
     void            setScriptDirectories(const QString& scriptDirectories);
     QString         projectFileVersionString() const;
     void            close();

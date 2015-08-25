@@ -1,24 +1,29 @@
 #include "RimView.h"
-#include "cafPdmObjectFactory.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "Rim3dOverlayInfoConfig.h"
-#include "RiuViewer.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimManagedViewCollection.h"
+#include "RimWellPathCollection.h"
+
 #include "RiuMainWindow.h"
+#include "RiuViewer.h"
+
+#include "RivWellPathCollectionPartMgr.h"
+
+#include "cafFrameAnimationControl.h"
+#include "cafPdmObjectFactory.h"
 #include "cvfCamera.h"
 #include "cvfModel.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
 #include "cvfViewport.h"
-#include "cafFrameAnimationControl.h"
 
 #include <limits.h>
-#include "RimOilField.h"
-#include "RimWellPathCollection.h"
-#include "RimProject.h"
-#include "RivWellPathCollectionPartMgr.h"
 
 
 namespace caf {
@@ -79,6 +84,10 @@ RimView::RimView(void)
 
     CAF_PDM_InitField(&m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "");
     m_currentTimeStep.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&managedViewCollection, "ManagedViewCollection", "Managed View Collection", "", "", "");
+    managedViewCollection = new RimManagedViewCollection;
+    managedViewCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
@@ -443,6 +452,8 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         if (m_viewer)
         {
             m_viewer->update();
+
+            managedViewCollection->updateTimeStep(m_currentTimeStep);
         }
     }
     else if (changedField == &backgroundColor)

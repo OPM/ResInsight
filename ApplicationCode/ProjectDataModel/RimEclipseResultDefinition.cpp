@@ -22,13 +22,17 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+
 #include "RimEclipseCase.h"
-#include "RimReservoirCellResultsStorage.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"
+#include "RimManagedViewCollection.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimView.h"
 
 #include "cafPdmUiListEditor.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimEclipseFaultColors.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 
@@ -137,6 +141,16 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             propFilter->updateFilterName();
             m_reservoirView->scheduleGeometryRegen(PROPERTY_FILTERED);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+
+        if (dynamic_cast<RimEclipseCellColors*>(this))
+        {
+            RimView* view = NULL;
+            this->firstAnchestorOrThisOfType(view);
+            if (view)
+            {
+                view->managedViewCollection->updateResult(this);
+            }
         }
 
     }

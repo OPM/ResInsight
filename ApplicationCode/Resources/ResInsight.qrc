@@ -46,7 +46,8 @@
 		<file>draw_style_surface_w_fault_mesh_24x24.png</file>
 		<file>InfoBox16x16.png</file>
 		<file>GeoMechCase48x48.png</file>
-		<file>GeoMechCases48x48.png</file>
+        <file>GeoMechCases48x48.png</file>
+        <file>chain.png</file>
 	</qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

@@ -83,6 +83,8 @@ private:
     void            mouseReleaseEvent(QMouseEvent* event);
     void            mousePressEvent(QMouseEvent* event);
 
+    virtual void    paintEvent(QPaintEvent* event);
+
     QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;
     bool            m_showInfoText;; 

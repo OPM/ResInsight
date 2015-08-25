@@ -1,0 +1,117 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimManagedViewConfig.h"
+
+#include "RiaApplication.h"
+
+#include "RimCase.h"
+#include "RimProject.h"
+#include "RimView.h"
+
+#include "cafPdmUiTreeOrdering.h"
+
+
+CAF_PDM_SOURCE_INIT(RimManagedViewConfig, "RimManagedViewConfig");
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimManagedViewConfig::RimManagedViewConfig(void)
+{
+    CAF_PDM_InitObject("View Config", ":/chain.png", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&managedView, "ManagedView", "Managed View", "", "", "");
+    managedView.uiCapability()->setUiChildrenHidden(true);
+
+    CAF_PDM_InitField(&syncCamera,      "SyncCamera", true,     "Sync Camera", "", "", "");
+    CAF_PDM_InitField(&syncCellResult,  "SyncCellResult", true, "Sync Cell Result", "", "", "");
+    CAF_PDM_InitField(&syncTimeStep,    "SyncTimeStep", true,   "Sync Time Step", "", "", "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimManagedViewConfig::~RimManagedViewConfig(void)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> optionList;
+
+    if (fieldNeedingOptions == &managedView)
+    {
+        std::vector<RimView*> views;
+        allVisibleViews(views);
+
+        for (size_t i = 0; i< views.size(); i++)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(views[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
+        }
+
+        if (optionList.size() > 0)
+        {
+            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+        }
+    }
+
+    return optionList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::allVisibleViews(std::vector<RimView*>& views)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    RimView* masterView = NULL;
+    firstAnchestorOrThisOfType(masterView);
+
+    if (proj)
+    {
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
+        for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
+        {
+            RimCase* rimCase = cases[caseIdx];
+
+            std::vector<RimView*> caseViews = rimCase->views();
+            for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
+            {
+                if (caseViews[viewIdx]->viewer() && caseViews[viewIdx] != masterView)
+                {
+                    views.push_back(caseViews[viewIdx]);
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.setForgetRemainingFields(true);
+}
+

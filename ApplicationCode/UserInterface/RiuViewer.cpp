@@ -64,6 +64,8 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPart.h"
 #include "RigFemPartGrid.h"
+#include "RimProject.h"
+#include "RimManagedViewCollection.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -278,6 +280,12 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
     if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
 
     caf::Viewer::slotSetCurrentFrame(frameIndex);
+
+    if (m_reservoirView)
+    {
+        m_reservoirView->managedViewCollection()->updateTimeStep(frameIndex);
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -487,5 +495,18 @@ void RiuViewer::updateNavigationPolicy()
         default:
             CVF_ASSERT(0);
             break;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::paintEvent(QPaintEvent* event)
+{
+    caf::Viewer::paintEvent(event);
+
+    if (m_reservoirView)
+    {
+        m_reservoirView->managedViewCollection()->updateViewers(this);
     }
 }
