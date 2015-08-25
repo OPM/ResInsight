@@ -37,21 +37,20 @@
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
-#include "cafPdmObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmField.h"
-#include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiLineEditor.h"
+#include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiOrdering.h"
 
-
-#include <QWidget>
 #include <QGridLayout>
+#include <QWidget>
 
 #include <assert.h>
-#include <typeinfo>
 
 
 
@@ -66,14 +65,10 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, int);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, double);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, float);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, quint64);
-
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<QString>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<unsigned int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<float>);
-
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -88,7 +83,9 @@ PdmUiDefaultObjectEditor::PdmUiDefaultObjectEditor()
 //--------------------------------------------------------------------------------------------------
 PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor()
 {
-
+    // If there are field editor present, the usage of this editor has not cleared correctly
+    // The intended usage is to call the method setPdmObject(NULL) before closing the dialog
+    assert(m_fieldViews.size() == 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +109,11 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
     PdmUiOrdering config;
     if (pdmObject())
     {
-        pdmObject()->uiOrdering(uiConfigName, config);
+        caf::PdmUiObjectHandle* uiObject = uiObj(pdmObject());
+        if (uiObject)
+        {
+            uiObject->uiOrdering(uiConfigName, config);
+        }
     }
 
     // Set all fieldViews to be unvisited
@@ -215,12 +216,12 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
         }
         else
         {
-            PdmFieldHandle* field = dynamic_cast<PdmFieldHandle*>(uiItems[i]);
+            PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(uiItems[i]);
             PdmUiFieldEditorHandle* fieldEditor = NULL;
 
             // Find or create FieldEditor
             std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
-            it = m_fieldViews.find(field->keyword());
+            it = m_fieldViews.find(field->fieldHandle()->keyword());
 
             if (it == m_fieldViews.end())
             {
@@ -233,7 +234,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                 { 
                     // Find the default field editor
 
-                    QString editorTypeName = qStringTypeName(*field);
+                    QString editorTypeName = qStringTypeName(*(field->fieldHandle()));
 
                     // Handle a single value field with valueOptions: Make a combobox
 
@@ -253,8 +254,21 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
                 if (fieldEditor)
                 {
-                    m_fieldViews[field->keyword()] = fieldEditor;
+                    m_fieldViews[field->fieldHandle()->keyword()] = fieldEditor;
                     fieldEditor->createWidgets(parent);
+                }
+                else
+                {
+                    // This assert happens if no editor is available for a given field
+                    // If the macro for registering the editor is put as the single statement
+                    // in a cpp file, a dummy static class must be used to make sure the compile unit
+                    // is included
+                    //
+                    // See cafPdmUiCoreColor3f and cafPdmUiCoreVec3d
+
+                    // This assert will trigger for PdmChildArrayField and PdmChildField
+                    // Consider to exclude assert or add editors for these types if the assert is reintroduced
+                    //assert(false);
                 }
             }
             else

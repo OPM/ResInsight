@@ -22,6 +22,8 @@
 
 #include "RimCellFilter.h"
 
+#include "cafPdmChildField.h"
+
 class RimEclipseView;
 class RimEclipsePropertyFilterCollection;
 class RimEclipseResultDefinition;
@@ -42,26 +44,26 @@ public:
     RimEclipsePropertyFilter();
     virtual ~RimEclipsePropertyFilter();
 
-    caf::PdmField<RimEclipseResultDefinition*>     resultDefinition;
+    caf::PdmChildField<RimEclipseResultDefinition*>     resultDefinition;
 
     caf::PdmField<double>                   lowerBound;
     caf::PdmField<double>                   upperBound;
 
-    void                                    setParentContainer(RimEclipsePropertyFilterCollection* parentContainer);
-    RimEclipsePropertyFilterCollection*        parentContainer();
+    RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
     void                                    updateFilterName();
     void                                    computeResultValueRange();
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                            initAfterRead();
+
+    void                                    removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
+
 protected:
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
-
-    RimEclipsePropertyFilterCollection*        m_parentContainer;
     double                                  m_minimumResultValue; 
     double                                  m_maximumResultValue;
 

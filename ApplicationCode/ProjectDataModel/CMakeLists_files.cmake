@@ -37,8 +37,6 @@ ${CEE_CURRENT_LIST_DIR}RimCalcScript.h
 ${CEE_CURRENT_LIST_DIR}RimExportInputPropertySettings.h
 ${CEE_CURRENT_LIST_DIR}RimBinaryExportSettings.h
 ${CEE_CURRENT_LIST_DIR}Rim3dOverlayInfoConfig.h
-${CEE_CURRENT_LIST_DIR}RimUiTreeModelPdm.h
-${CEE_CURRENT_LIST_DIR}RimUiTreeView.h
 ${CEE_CURRENT_LIST_DIR}RimReservoirCellResultsStorage.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RimMimeData.h
@@ -60,6 +58,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
+${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -95,8 +94,6 @@ ${CEE_CURRENT_LIST_DIR}RimCalcScript.cpp
 ${CEE_CURRENT_LIST_DIR}RimExportInputPropertySettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimBinaryExportSettings.cpp
 ${CEE_CURRENT_LIST_DIR}Rim3dOverlayInfoConfig.cpp
-${CEE_CURRENT_LIST_DIR}RimUiTreeModelPdm.cpp
-${CEE_CURRENT_LIST_DIR}RimUiTreeView.cpp
 ${CEE_CURRENT_LIST_DIR}RimReservoirCellResultsStorage.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseEvaluator.cpp
 ${CEE_CURRENT_LIST_DIR}RimMimeData.cpp
@@ -118,6 +115,8 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
+${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.cpp
+
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -42,9 +42,12 @@
 #include "cafPdmPointer.h"
 #include "cafPdmDocument.h"
 
+#include "cafPdmChildField.h"
 #include "cafAppEnum.h"
 #include <memory>
 #include <QFile>
+#include "cafPdmReferenceHelper.h"
+#include "cafPdmProxyValueField.h"
 
 
 /// Demo objects to show the usage of the Pdm system
@@ -54,25 +57,33 @@ class SimpleObj: public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    SimpleObj()
+    SimpleObj() : PdmObject()
     {
-        CAF_PDM_InitObject("Simple Object", "", "", "");
+        CAF_PDM_InitObject("SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj");
 
-        CAF_PDM_InitField(&m_position,  "Position", 8765.2, "Position",     "", "", "");
-        CAF_PDM_InitField(&m_dir,       "Dir",      123.56, "Direction",    "", "", "");
-        CAF_PDM_InitField(&m_up,        "Up",       0.0,    "Up value",     "", "", "" );
-        CAF_PDM_InitFieldNoDefault(&m_numbers, "Numbers", "Important Numbers", "", "", "");
-    }
+        CAF_PDM_InitField(&m_position,  "Position", 8765.2, "Position",     "", "Tooltip", "WhatsThis");
+        CAF_PDM_InitField(&m_dir,       "Dir",      123.56, "Direction",    "", "Tooltip", "WhatsThis");
+        CAF_PDM_InitField(&m_up,        "Up",       0.0,    "Up value",     "", "Tooltip", "WhatsThis" );
+        CAF_PDM_InitFieldNoDefault(&m_numbers, "Numbers", "Important Numbers", "", "Tooltip", "WhatsThis");
+#if 1
+        m_proxyDouble.registerSetMethod(this, &SimpleObj::setDoubleMember);
+        m_proxyDouble.registerGetMethod(this, &SimpleObj::doubleMember);
+        AddUiCapabilityToField(&m_proxyDouble);
+        AddXmlCapabilityToField(&m_proxyDouble);
+        CAF_PDM_InitFieldNoDefault(&m_proxyDouble, "ProxyDouble", "ProxyDouble", "", "", "");
+#endif
+   }
 
     /// Assignment and copying of PDM objects is not focus for the features. This is only a
     /// "would it work" test
     SimpleObj(const SimpleObj& other)
         : PdmObject()
     {
-        CAF_PDM_InitField(&m_position,  "Position", 8765.2, "Position",     "", "", "");
-        CAF_PDM_InitField(&m_dir,       "Dir",      123.56, "Direction",    "", "", "");
-        CAF_PDM_InitField(&m_up,        "Up",       0.0,    "Up value",     "", "", "" );
-        CAF_PDM_InitFieldNoDefault(&m_numbers, "Numbers", "Important Numbers", "", "", "");
+        CAF_PDM_InitField(&m_position,  "Position", 8765.2, "Position",     "", "", "WhatsThis");
+        CAF_PDM_InitField(&m_dir,       "Dir",      123.56, "Direction",    "", "", "WhatsThis");
+        CAF_PDM_InitField(&m_up,        "Up",       0.0,    "Up value",     "", "", "WhatsThis" );
+
+        CAF_PDM_InitFieldNoDefault(&m_numbers, "Numbers", "Important Numbers", "", "", "WhatsThis");
 
         m_position = other.m_position;
         m_dir = other.m_dir;
@@ -87,6 +98,14 @@ public:
     caf::PdmField<double>               m_dir;
     caf::PdmField<double>               m_up;
     caf::PdmField<std::vector<double> > m_numbers;
+    caf::PdmProxyValueField<double>          m_proxyDouble;
+
+    void setDoubleMember(const double& d) { m_doubleMember = d; std::cout << "setDoubleMember" << std::endl; }
+    double doubleMember() const { std::cout << "doubleMember" << std::endl; return m_doubleMember; }
+
+    double m_doubleMember;
+
+
 };
 CAF_PDM_SOURCE_INIT(SimpleObj, "SimpleObj");
 
@@ -99,19 +118,19 @@ public:
 
     DemoPdmObject() 
     {   
-        CAF_PDM_InitObject("Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
+        CAF_PDM_InitObject("DemoPdmObject", "", "Tooltip DemoPdmObject", "WhatsThis DemoPdmObject");
 
-        CAF_PDM_InitField(&m_doubleField, "BigNumber", 0.0, "Big Number", "", 
+        CAF_PDM_InitField(&m_doubleField, "BigNumber", 0.0, "", "", 
             "Enter a big number here", 
             "This is a place you can enter a big real value if you want" );
 
-        CAF_PDM_InitField(&m_intField, "IntNumber", 0,  "Small Number","",
+        CAF_PDM_InitField(&m_intField, "IntNumber", 0,  "","",
             "Enter some small number here",
             "This is a place you can enter a small integer value if you want");
 
-        CAF_PDM_InitField(&m_textField, "TextField", QString("ÆØÅ Test text   end"),  "", "", "", "");
-        CAF_PDM_InitFieldNoDefault(&m_simpleObjPtrField, "SimpleObjPtrField", "", "", "", "");
-        CAF_PDM_InitFieldNoDefault(&m_simpleObjPtrField2, "SimpleObjPtrField2", "", "", "", "");
+        CAF_PDM_InitField(&m_textField, "TextField", QString("ÆØÅ Test text   end"),  "TextField", "", "Tooltip", "WhatsThis");
+        CAF_PDM_InitFieldNoDefault(&m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis");
+        CAF_PDM_InitFieldNoDefault(&m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis");
         m_simpleObjPtrField2 = new SimpleObj;
     }
 
@@ -125,8 +144,8 @@ public:
     caf::PdmField<int>     m_intField;
     caf::PdmField<QString> m_textField;
 
-    caf::PdmField<SimpleObj*> m_simpleObjPtrField;
-    caf::PdmField<SimpleObj*> m_simpleObjPtrField2;
+    caf::PdmChildField<SimpleObj*> m_simpleObjPtrField;
+    caf::PdmChildField<SimpleObj*> m_simpleObjPtrField2;
 };
 
 CAF_PDM_SOURCE_INIT(DemoPdmObject, "DemoPdmObject");
@@ -143,15 +162,17 @@ public:
     
     InheritedDemoObj()
     {
+        CAF_PDM_InitObject("InheritedDemoObj", "", "ToolTip InheritedDemoObj", "Whatsthis InheritedDemoObj");
+
         CAF_PDM_InitFieldNoDefault(&m_texts, "Texts", "Some words", "", "", "");
         CAF_PDM_InitFieldNoDefault(&m_testEnumField, "TestEnumValue",  "An Enum", "", "", "");
-        CAF_PDM_InitFieldNoDefault(&m_simpleObjectsField, "SimpleObjects",  "A child object", "", "", "");
+        CAF_PDM_InitFieldNoDefault(&m_simpleObjectsField, "SimpleObjects",  "SimpleObjectsField", "", "ToolTip SimpleObjectsField", "Whatsthis SimpleObjectsField");
 
     }
 
     caf::PdmField<std::vector<QString> >        m_texts;
     caf::PdmField< caf::AppEnum<TestEnumType> > m_testEnumField;
-    caf::PdmPointersField<SimpleObj*>           m_simpleObjectsField;
+    caf::PdmChildArrayField<SimpleObj*>           m_simpleObjectsField;
 
 };
 CAF_PDM_SOURCE_INIT(InheritedDemoObj, "InheritedDemoObj");
@@ -171,6 +192,13 @@ void AppEnum<InheritedDemoObj::TestEnumType>::setUp()
 
 }
 
+TEST(BaseTest, Delete)
+{
+     SimpleObj* s2 = new SimpleObj;
+     delete s2;
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// This is a testbed to try out different aspects, instead of having a main in a prototype program
 /// To be disabled when everything gets more mature.
@@ -179,7 +207,7 @@ TEST(BaseTest, Start)
 {
   DemoPdmObject* a = new DemoPdmObject;
 
-  caf::PdmObject* demo = caf::PdmObjectFactory::instance()->create("DemoPdmObject");
+  caf::PdmObjectHandle* demo = caf::PdmDefaultObjectFactory::instance()->create("DemoPdmObject");
   EXPECT_TRUE(demo != NULL);
 
   QString xml;
@@ -196,7 +224,7 @@ TEST(BaseTest, Start)
       s.m_dir = 10000;
       sp = &s;
       a->m_textField = "Hei og hå";
-      *s2 = s;
+      //*s2 = s;
       a->m_simpleObjPtrField = s2;
 
       s.writeFields(xmlStream);
@@ -204,7 +232,7 @@ TEST(BaseTest, Start)
   a->writeFields(xmlStream);
   caf::PdmObjectGroup og;
   og.objects.push_back(a);
-  og.objects.push_back(s2);
+  og.objects.push_back(new SimpleObj);
   og.writeFields(xmlStream);
   std::cout << sp.p() << std::endl,
 
@@ -246,6 +274,7 @@ TEST(BaseTest, NormalPdmField)
     EXPECT_TRUE(field1 == field3);
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------------
 /// Test of PdmField of pointer operations
 //--------------------------------------------------------------------------------------------------
@@ -284,12 +313,13 @@ TEST(BaseTest, PointerPdmField)
     EXPECT_EQ((SimpleObj*)0, field2);
     EXPECT_EQ((SimpleObj*)0, field3);
 }
+#endif
 
 //--------------------------------------------------------------------------------------------------
 /// Test of PdmPointersField operations
 //--------------------------------------------------------------------------------------------------
-
-TEST(BaseTest, PdmPointersField)
+#if 0
+TEST(BaseTest, PdmChildArrayField)
 {
     std::vector<caf::PdmFieldHandle*> parentFields;
 
@@ -308,7 +338,7 @@ TEST(BaseTest, PdmPointersField)
     ihd1->m_simpleObjectsField.push_back(s2);
     ihd1->m_simpleObjectsField.push_back(s3);
 
-    s1->parentFields(parentFields);
+    s1->parentField(parentFields);
     EXPECT_EQ(size_t(1),  parentFields.size());
     parentFields.clear();
 
@@ -321,7 +351,7 @@ TEST(BaseTest, PdmPointersField)
     EXPECT_EQ(s3, ihd1->m_simpleObjectsField[2]);
 
     // childObjects
-    std::vector<caf::PdmObject*> objects;
+    std::vector<caf::PdmObjectHandle*> objects;
     ihd1->m_simpleObjectsField.childObjects(&objects);
     EXPECT_EQ(size_t(3), objects.size());
 
@@ -378,6 +408,8 @@ TEST(BaseTest, PdmPointersField)
 
  
 }
+#endif
+
 template <>
 inline void GTestStreamToHelper<QString>(std::ostream* os, const QString& val) {
     *os << val.toLatin1().data();
@@ -417,16 +449,23 @@ TEST(BaseTest, ReadWrite)
         d2->m_simpleObjPtrField = &s2;
         d2->m_simpleObjPtrField2 = s1;
 
-        id1->m_simpleObjectsField.push_back(s1);
-        id1->m_simpleObjectsField.push_back(&s2);
-        id1->m_simpleObjectsField.push_back(&s2);
-        id1->m_simpleObjectsField.push_back(&s2);
+        id1->m_simpleObjectsField.push_back(new SimpleObj);
+        id1->m_simpleObjectsField[0]->m_numbers.v().push_back(3.0);
+        id1->m_simpleObjectsField.push_back(new SimpleObj);
+        id1->m_simpleObjectsField[1]->m_numbers.v().push_back(3.1);
+        id1->m_simpleObjectsField[1]->m_numbers.v().push_back(3.11);
+        id1->m_simpleObjectsField[1]->m_numbers.v().push_back(3.12);
+        id1->m_simpleObjectsField[1]->m_numbers.v().push_back(3.13);
+        id1->m_simpleObjectsField.push_back(new SimpleObj);
+        id1->m_simpleObjectsField[2]->m_numbers.v().push_back(3.2);
+        id1->m_simpleObjectsField.push_back(new SimpleObj);
+        id1->m_simpleObjectsField[3]->m_numbers.v().push_back(3.3);
 
         // Add to document
 
         xmlDoc.addObject(d1);
         xmlDoc.addObject(d2);
-        xmlDoc.addObject(s1);
+        xmlDoc.addObject(new SimpleObj);
         xmlDoc.addObject(id1);
         xmlDoc.addObject(id2);
         
@@ -470,7 +509,7 @@ TEST(BaseTest, ReadWrite)
         EXPECT_EQ(size_t(2),ihDObjs.size() );
         ASSERT_EQ(size_t(4), ihDObjs[0]->m_simpleObjectsField.size());
         ASSERT_EQ(size_t(4), ihDObjs[0]->m_simpleObjectsField[1]->m_numbers().size());
-        EXPECT_EQ(2.7, ihDObjs[0]->m_simpleObjectsField[1]->m_numbers()[3]);
+        EXPECT_EQ(3.13, ihDObjs[0]->m_simpleObjectsField[1]->m_numbers()[3]);
 
         EXPECT_EQ(QString("ÆØÅ Test text   end"), ihDObjs[0]->m_textField());
 
@@ -619,8 +658,6 @@ TEST(BaseTest, PdmPointer)
 
         EXPECT_TRUE(p == d && p2 == d);
         EXPECT_TRUE(p.p() == d);
-        EXPECT_TRUE((*p).uiName() == (*d).uiName());
-        EXPECT_TRUE(p->uiName() == "File");
         p = 0;
         EXPECT_TRUE(p == NULL);
         EXPECT_TRUE(p.isNull());
@@ -646,30 +683,30 @@ TEST(BaseTest, PdmObjectFactory)
 {
     {
         SimpleObj* s = NULL;
-        s = dynamic_cast<SimpleObj*> (caf::PdmObjectFactory::instance()->create("SimpleObj"));
+        s = dynamic_cast<SimpleObj*> (caf::PdmDefaultObjectFactory::instance()->create("SimpleObj"));
         EXPECT_TRUE(s != NULL);
     }
     {
         DemoPdmObject* s = NULL;
-        s = dynamic_cast<DemoPdmObject*> (caf::PdmObjectFactory::instance()->create("DemoPdmObject"));
+        s = dynamic_cast<DemoPdmObject*> (caf::PdmDefaultObjectFactory::instance()->create("DemoPdmObject"));
         EXPECT_TRUE(s != NULL);
         delete s;
     }
     {
         InheritedDemoObj* s = NULL;
-        s = dynamic_cast<InheritedDemoObj*> (caf::PdmObjectFactory::instance()->create("InheritedDemoObj"));
+        s = dynamic_cast<InheritedDemoObj*> (caf::PdmDefaultObjectFactory::instance()->create("InheritedDemoObj"));
         EXPECT_TRUE(s != NULL);
     }
 
     {
         caf::PdmDocument* s = NULL;
-        s = dynamic_cast<caf::PdmDocument*> (caf::PdmObjectFactory::instance()->create("PdmDocument"));
+        s = dynamic_cast<caf::PdmDocument*> (caf::PdmDefaultObjectFactory::instance()->create("PdmDocument"));
         EXPECT_TRUE(s != NULL);
     }
 
     {
         caf::PdmObjectGroup* s = NULL;
-        s = dynamic_cast<caf::PdmObjectGroup*> (caf::PdmObjectFactory::instance()->create("PdmObjectGroup"));
+        s = dynamic_cast<caf::PdmObjectGroup*> (caf::PdmDefaultObjectFactory::instance()->create("PdmObjectGroup"));
         EXPECT_TRUE(s != NULL);
     }
 
@@ -680,12 +717,12 @@ TEST(BaseTest, PdmObjectFactory)
 //--------------------------------------------------------------------------------------------------
 TEST(BaseTest, ValidXmlKeywords)
 {
-    EXPECT_TRUE(caf::PdmObject::isValidXmlElementName("Valid_name"));
+    EXPECT_TRUE(caf::PdmXmlObjectHandle::isValidXmlElementName("Valid_name"));
 
-    EXPECT_FALSE(caf::PdmObject::isValidXmlElementName("2Valid_name"));
-    EXPECT_FALSE(caf::PdmObject::isValidXmlElementName(".Valid_name"));
-    EXPECT_FALSE(caf::PdmObject::isValidXmlElementName("xml_Valid_name"));
-    EXPECT_FALSE(caf::PdmObject::isValidXmlElementName("Valid_name_with_space "));
+    EXPECT_FALSE(caf::PdmXmlObjectHandle::isValidXmlElementName("2Valid_name"));
+    EXPECT_FALSE(caf::PdmXmlObjectHandle::isValidXmlElementName(".Valid_name"));
+    EXPECT_FALSE(caf::PdmXmlObjectHandle::isValidXmlElementName("xml_Valid_name"));
+    EXPECT_FALSE(caf::PdmXmlObjectHandle::isValidXmlElementName("Valid_name_with_space "));
 }
 
 TEST(BaseTest, PdmPointersFieldInsertVector)
@@ -703,8 +740,14 @@ TEST(BaseTest, PdmPointersFieldInsertVector)
 
     std::vector<caf::PdmPointer<SimpleObj> > typedObjects;
     pdmGroup.objectsByType(&typedObjects);
+    EXPECT_EQ(size_t(3), typedObjects.size());
 
-    ihd1->m_simpleObjectsField.insert(ihd1->m_simpleObjectsField.size(), typedObjects);
+    std::vector<caf::PdmPointer<SimpleObj> > objs;
+    objs.push_back(new SimpleObj);
+    objs.push_back(new SimpleObj);
+    objs.push_back(new SimpleObj);
+     
+    ihd1->m_simpleObjectsField.insert(ihd1->m_simpleObjectsField.size(), objs);
     EXPECT_EQ(size_t(3), ihd1->m_simpleObjectsField.size());
 
     delete ihd1;
@@ -731,14 +774,159 @@ TEST(BaseTest, PdmObjectGroupCopyOfTypedObjects)
     og.objects.push_back(ihd1);
 
     std::vector<caf::PdmPointer<SimpleObj> > simpleObjList;
-    og.createCopyByType(&simpleObjList);
+    og.createCopyByType(&simpleObjList, caf::PdmDefaultObjectFactory::instance());
     EXPECT_EQ(size_t(3), simpleObjList.size());
+    EXPECT_EQ(1000, simpleObjList[0]->m_position);
+    EXPECT_EQ(size_t(1), simpleObjList[0]->m_numbers.v().size());
+    EXPECT_EQ(10, simpleObjList[0]->m_numbers.v()[0]);
+
+    EXPECT_EQ(2000, simpleObjList[1]->m_position);
+    EXPECT_EQ(3000, simpleObjList[2]->m_position);
+
 
     std::vector<caf::PdmPointer<InheritedDemoObj> > inheritObjList;
-    og.createCopyByType(&inheritObjList);
+    og.createCopyByType(&inheritObjList, caf::PdmDefaultObjectFactory::instance());
     EXPECT_EQ(size_t(1), inheritObjList.size());
 
     og.deleteObjects();
     EXPECT_EQ(size_t(3), simpleObjList.size());
     EXPECT_EQ(size_t(1), inheritObjList.size());
 }
+
+//--------------------------------------------------------------------------------------------------
+/// PdmChildArrayFieldHandle
+//--------------------------------------------------------------------------------------------------
+TEST(BaseTest, PdmChildArrayFieldHandle)
+{
+
+//     virtual size_t      size() const = 0;
+//     virtual bool        empty() const = 0;
+//     virtual void        clear() = 0;
+//     virtual PdmObject*  createAppendObject(int indexAfter) = 0;
+//     virtual void        erase(size_t index) = 0;
+//     virtual void        deleteAllChildObjects() = 0;
+// 
+//     virtual PdmObject*  at(size_t index) = 0;
+// 
+//     bool                hasSameFieldCountForAllObjects();
+
+    SimpleObj* s1 = new SimpleObj;
+    s1->m_position = 1000;
+    s1->m_numbers.v().push_back(10);
+
+    SimpleObj* s2 = new SimpleObj;
+    s2->m_position = 2000;
+
+    SimpleObj* s3 = new SimpleObj;
+    s3->m_position = 3000;
+
+    InheritedDemoObj* ihd1 = new InheritedDemoObj;
+    caf::PdmChildArrayFieldHandle* listField = &(ihd1->m_simpleObjectsField);
+
+    EXPECT_EQ(0, listField->size());
+    EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
+    EXPECT_TRUE(listField->empty());
+
+    ihd1->m_simpleObjectsField.push_back(new SimpleObj);
+    EXPECT_EQ(1, listField->size());
+    EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
+    EXPECT_FALSE(listField->empty());
+
+    ihd1->m_simpleObjectsField.push_back(s1);
+    ihd1->m_simpleObjectsField.push_back(s2);
+    ihd1->m_simpleObjectsField.push_back(s3);
+
+    EXPECT_EQ(4, listField->size());
+    EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
+    EXPECT_FALSE(listField->empty());
+    
+    listField->erase(0);
+    EXPECT_EQ(3, listField->size());
+    EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
+    EXPECT_FALSE(listField->empty());
+
+    listField->deleteAllChildObjects();
+    EXPECT_EQ(0, listField->size());
+    EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
+    EXPECT_TRUE(listField->empty());
+
+}
+
+
+
+class ReferenceDemoPdmObject: public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+public:
+
+    ReferenceDemoPdmObject() 
+    {   
+        CAF_PDM_InitObject("ReferenceDemoPdmObject", "", "Tooltip DemoPdmObject", "WhatsThis DemoPdmObject");
+
+        CAF_PDM_InitFieldNoDefault(&m_pointersField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis");
+        CAF_PDM_InitFieldNoDefault(&m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis");
+    }
+
+    // Fields
+    caf::PdmChildField<PdmObjectHandle*> m_pointersField;
+    caf::PdmChildArrayField<SimpleObj*> m_simpleObjPtrField2;
+};
+
+CAF_PDM_SOURCE_INIT(ReferenceDemoPdmObject, "ReferenceDemoPdmObject");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(BaseTest, PdmReferenceHelper)
+{
+    SimpleObj* s1 = new SimpleObj;
+    s1->m_position = 1000;
+    s1->m_numbers.v().push_back(10);
+
+    SimpleObj* s2 = new SimpleObj;
+    s2->m_position = 2000;
+
+    SimpleObj* s3 = new SimpleObj;
+    s3->m_position = 3000;
+
+    InheritedDemoObj* ihd1 = new InheritedDemoObj;
+    caf::PdmChildArrayFieldHandle* listField = &(ihd1->m_simpleObjectsField);
+    ihd1->m_simpleObjectsField.push_back(new SimpleObj);
+
+    ihd1->m_simpleObjectsField.push_back(s1);
+    ihd1->m_simpleObjectsField.push_back(s2);
+    ihd1->m_simpleObjectsField.push_back(s3);
+
+    {
+        QString refString = caf::PdmReferenceHelper::referenceFromRootToObject(NULL, s3);
+        EXPECT_TRUE(refString.isEmpty());
+
+        refString = caf::PdmReferenceHelper::referenceFromRootToObject(ihd1, s3);
+        QString expectedString = ihd1->m_simpleObjectsField.keyword() + " 3";
+        EXPECT_STREQ(refString.toAscii(), expectedString.toAscii());
+
+        caf::PdmObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference(ihd1, refString);
+        EXPECT_TRUE(fromRef == s3);
+    }
+
+    ReferenceDemoPdmObject* objA = new ReferenceDemoPdmObject;
+    objA->m_pointersField = ihd1;
+
+    {
+        QString refString = caf::PdmReferenceHelper::referenceFromRootToObject(objA, s3);
+
+        caf::PdmObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference(objA, refString);
+        EXPECT_TRUE(fromRef == s3);
+    }
+
+
+    // Test reference to field
+    {
+        QString refString = caf::PdmReferenceHelper::referenceFromRootToField(objA, &(ihd1->m_simpleObjectsField));
+
+        caf::PdmFieldHandle* fromRef = caf::PdmReferenceHelper::fieldFromReference(objA, refString);
+        EXPECT_TRUE(fromRef == &(ihd1->m_simpleObjectsField));
+    }
+
+}
+

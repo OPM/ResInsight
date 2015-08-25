@@ -20,16 +20,19 @@
 
 #include "RimCellRangeFilterCollection.h"
 
-#include "RimEclipseCase.h"
-#include "RigGridBase.h"
-#include "RimEclipseView.h"
 #include "RigCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-#include "RigGeoMechCaseData.h"
 #include "RigFemPart.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
+#include "RigGeoMechCaseData.h"
+#include "RigGridBase.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
+
+#include "cafPdmUiEditorHandle.h"
+
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
 
@@ -38,11 +41,14 @@ CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 {
-    CAF_PDM_InitObject("Cell Range Filters", ":/CellFilter_Range.png", "", "");
+    CAF_PDM_InitObject("Range Filters", ":/CellFilter_Range.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&rangeFilters,   "RangeFilters", "Range Filters", "", "", "");
+    rangeFilters.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
-    isActive.setUiHidden(true);
+    isActive.uiCapability()->setUiHidden(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,11 +56,7 @@ RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection::~RimCellRangeFilterCollection()
 {
-    std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
-    {
-        delete it->p();
-    }
+    rangeFilters.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,10 +76,9 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 {
     CVF_ASSERT(cellRangeFilter);
 
-    std::list< caf::PdmPointer<RimCellRangeFilter> >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); it++)
+    for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        RimCellRangeFilter* rangeFilter = *it;
+        RimCellRangeFilter* rangeFilter = rangeFilters[i];
 
         if (rangeFilter && rangeFilter->isActive() && static_cast<size_t>(rangeFilter->gridIndex()) == gridIndex)
         {
@@ -165,10 +166,8 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 RimCellRangeFilter* RimCellRangeFilterCollection::createAndAppendRangeFilter()
 {
     RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
-    rangeFilter->setParentContainer(this);
+    rangeFilters.push_back(rangeFilter);
     rangeFilter->setDefaultValues();
-
-    rangeFilters.v().push_back(rangeFilter);
 
     rangeFilter->name = QString("New Filter (%1)").arg(rangeFilters().size());
 
@@ -195,11 +194,9 @@ RimEclipseView* RimCellRangeFilterCollection::eclipseView() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::initAfterRead()
 {
-    std::list< caf::PdmPointer<RimCellRangeFilter> >::iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); it++)
+    for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        RimCellRangeFilter* rangeFilter = *it;
-        rangeFilter->setParentContainer(this);
+        RimCellRangeFilter* rangeFilter = rangeFilters[i];
         rangeFilter->updateIconState();
     }
 
@@ -211,7 +208,14 @@ void RimCellRangeFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::remove(RimCellRangeFilter* rangeFilter)
 {
-    rangeFilters.v().remove(rangeFilter);
+    for (size_t i = 0; i < rangeFilters.size(); i++)
+    {
+        if (rangeFilters[i] == rangeFilter)
+        {
+            rangeFilters.erase(i);
+            return;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,10 +225,9 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
 {
     if (!isActive()) return false; 
 
-    std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
+    for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        if ((*it)->isActive()) return true;
+        if (rangeFilters[i]->isActive()) return true;
     }
 
     return false;
@@ -245,10 +248,9 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 {
     if (!isActive) return false; 
 
-    std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
+    for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        if ((*it)->isActive() && (*it)->filterMode() == RimCellFilter::INCLUDE) return true;
+        if (rangeFilters[i]->isActive() && rangeFilters[i]->filterMode() == RimCellFilter::INCLUDE) return true;
     }
 
     return false;

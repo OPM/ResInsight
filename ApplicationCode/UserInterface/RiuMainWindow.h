@@ -22,37 +22,39 @@
 
 #include "cafUiTreeModelPdm.h"
 
-#include <QMainWindow>
 #include <QEvent>
+#include <QMainWindow>
 #include <QPointer>
 
-class QTreeView;
-class QMdiArea;
-class QFrame;
-class QMdiSubWindow;
+class QActionGroup;
 class QComboBox;
+class QFrame;
+class QItemSelection;
 class QLabel;
 class QLineEdit;
-class QItemSelection;
-class QActionGroup;
+class QMdiArea;
+class QMdiSubWindow;
 class QSpinBox;
+class QTreeView;
+class QUndoView;
 
-class RiuViewer;
-class RiuResultInfoPanel;
-class RiuProcessMonitor;
-class RimUiTreeModelPdm;
-class RimUiTreeView;
-class RimEclipseCase;
 class RimCase;
+class RimEclipseCase;
+class RiuProcessMonitor;
+class RiuResultInfoPanel;
+class RiuViewer;
 
 namespace caf
 {
+	class PdmUiTreeView;
+    class AnimationToolBar;
+    class FrameAnimationControl;
+    class PdmObject;
+    class PdmUiPropertyView;
     class UiPropertyCreatorPdm;
     class UiTreeModelPdm;
-    class PdmObject;
-    class FrameAnimationControl;
-    class AnimationToolBar;
-    class PdmUiPropertyView;
+    class PdmUiItem;
+    class PdmUiDragDropHandle;
 }
 
 namespace ssihub
@@ -86,8 +88,7 @@ public:
     void            updateScaleValue();
     void            forceProjectTreeRepaint();
 
-    RimUiTreeModelPdm* uiPdmModel() { return m_treeModelPdm;}
-
+    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
@@ -99,10 +100,13 @@ public:
 
     void            setDefaultWindowSize();
 
-    void            appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu);
+    void            appendActionsContextMenuForPdmObject(caf::PdmObjectHandle* pdmObject, QMenu* menu);
     void            refreshDrawStyleActions();
     
-    void            setExpanded(const caf::PdmObject* pdmObject, bool expanded);
+    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
+
+    void            addRecentFiles(const QString& file);
+    void            removeRecentFiles(const QString& file);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
@@ -117,9 +121,7 @@ private:
     bool            checkForDocumentModifications();
 
     void            updateRecentFileActions();
-    void            addRecentFiles(const QString& file);
-    void            removeRecentFiles(const QString& file);
-    
+
     QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
 
     void            storeTreeViewState();
@@ -132,14 +134,9 @@ private:
 
 private:
     // File actions
-    QAction*		    m_importEclipseCaseAction;
-    QAction*		    m_importInputEclipseFileAction;
     QAction*            m_importGeoMechCaseAction;
-    QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
-    QAction*		    m_importWellPathsFromFileAction;
-    QAction*		    m_importWellPathsFromSSIHubAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeProjectAction;
@@ -207,14 +204,9 @@ private:
 private slots:
 
     // File slots
-    void    slotImportEclipseCase();
-    void    slotImportInputEclipseFiles();
     void    slotImportGeoMechModel();
-    void    slotOpenMultipleCases();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
-    void    slotImportWellPathsFromFile();
-    void    slotImportWellPathsFromSSIHub();
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();
@@ -275,7 +267,10 @@ private slots:
     void    slotOpenUsersGuideInBrowserAction();
 
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
-    void    slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
+
+	void	selectedObjectsChanged();
+    void    customMenuRequested(const QPoint& pos);
+
 
     // Animation slots
     void    slotSetCurrentFrame(int frameIndex);
@@ -285,8 +280,12 @@ private slots:
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 private:
-    RimUiTreeView*              m_treeView;
-    RimUiTreeModelPdm*          m_treeModelPdm;
+	caf::PdmUiTreeView*			m_projectTreeView;
+    
+    caf::PdmUiDragDropHandle*   m_dragDrop;
+    
+    QUndoView*                  m_undoView;
+
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 

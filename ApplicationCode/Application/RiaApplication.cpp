@@ -25,6 +25,7 @@
 #include "cafEffectCache.h"
 #include "cafUtils.h"
 #include "cafAppEnum.h"
+#include "cafPdmSettings.h"
 
 #include "RiaVersionInfo.h"
 #include "RiaBaseDefs.h"
@@ -47,7 +48,6 @@
 #include "RiaSocketServer.h"
 #include "cafUiProcess.h"
 //
-#include "RimUiTreeModelPdm.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "RiaProjectModifier.h"
@@ -141,7 +141,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     //cvf::Trace::enable(false);
 
     m_preferences = new RiaPreferences;
-    readFieldsFromApplicationStore(m_preferences);
+	caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
     applyPreferences();
 
     if (useShaders())
@@ -314,7 +314,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // VL check regarding specific order mentioned in comment above...
 
     m_preferences->lastUsedProjectFileName = projectFileName;
-    writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
@@ -443,12 +443,13 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
         //printf("Create well path collection.\n");
         oilField->wellPathCollection = new RimWellPathCollection();
         oilField->wellPathCollection->setProject(m_project);
-        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project);
+
+        m_project->updateConnectedEditors();
     }
 
     if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
     
-    RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(oilField->wellPathCollection);
+    oilField->wellPathCollection->updateConnectedEditors();
 }
 
 
@@ -518,7 +519,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
     m_project->writeFile();
 
     m_preferences->lastUsedProjectFileName = fileName;
-    writeFieldsToApplicationStore(m_preferences);
+	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
     return true;
 }
@@ -661,11 +662,10 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-
-    uiModel->updateUiSubTree(analysisModels);
+    analysisModels->updateConnectedEditors();
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+
 
     return true;
 }
@@ -698,8 +698,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-    uiModel->updateUiSubTree(analysisModels);
+    analysisModels->updateConnectedEditors();
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
@@ -744,9 +743,8 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
     //}
     progress.incrementProgress();
     progress.setProgressDescription("Loading results information");
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
 
-    uiModel->updateUiSubTree(m_project);
+    m_project->updateConnectedEditors();
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
     
@@ -827,7 +825,7 @@ void RiaApplication::setActiveReservoirView(RimView* rv)
 void RiaApplication::setUseShaders(bool enable)
 {
     m_preferences->useShaders = enable;
-    writeFieldsToApplicationStore(m_preferences);
+	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -859,7 +857,7 @@ RiaApplication::RINavigationPolicy RiaApplication::navigationPolicy() const
 void RiaApplication::setShowPerformanceInfo(bool enable)
 {
     m_preferences->showHud = enable;
-    writeFieldsToApplicationStore(m_preferences);
+	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 
@@ -1289,80 +1287,6 @@ bool RiaApplication::launchProcessForMultipleCases(const QString& program, const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Read fields of a Pdm object using QSettings
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, const QString context)
-{
-    QSettings settings;
-    std::vector<caf::PdmFieldHandle*> fields;
-
-    object->fields(fields);
-    size_t i;
-    for (i = 0; i < fields.size(); i++)
-    {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
-
-        std::vector<caf::PdmObject*> children;
-        fieldHandle->childObjects(&children);
-        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
-        {
-            caf::PdmObject* child = children[childIdx];
-            QString subContext = context + child->classKeyword() + "/";
-            readFieldsFromApplicationStore(child, subContext);
-        }
-        
-        
-        if (children.size() == 0)
-        {
-            QString key = context + fieldHandle->keyword();
-            if (settings.contains(key))
-            {
-                QVariant val = settings.value(key);
-                fieldHandle->setValueFromUi(val);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Write fields of a Pdm object using QSettings
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context)
-{
-    CVF_ASSERT(object);
-
-    QSettings settings;
-
-    std::vector<caf::PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    size_t i;
-    for (i = 0; i < fields.size(); i++)
-    {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
-
-        std::vector<caf::PdmObject*> children;
-        fieldHandle->childObjects(&children);
-        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
-        {
-            caf::PdmObject* child = children[childIdx];
-            QString subContext;
-            if (context.isEmpty())
-            {
-                subContext = context + child->classKeyword() + "/";
-            }
-
-            writeFieldsToApplicationStore(child, subContext);
-        }
-
-        if (children.size() == 0)
-        {
-            settings.setValue(context + fieldHandle->keyword(), fieldHandle->uiValue());
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiaPreferences* RiaApplication::preferences()
@@ -1393,8 +1317,7 @@ void RiaApplication::applyPreferences()
     if (this->project())
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
-        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-        if (treeModel) treeModel->updateUiSubTree(this->project()->scriptCollection());
+        this->project()->scriptCollection()->updateConnectedEditors();
     }
 
 }
@@ -1665,7 +1588,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         this->preferences()->fields(fields);
         for (size_t i = 0; i < fields.size(); i++)
         {
-            QVariant v = fields[i]->uiValue();
+            QVariant v = fields[i]->uiCapability()->uiValue();
             preferencesValues.push_back(v);
         }
     }
@@ -1721,7 +1644,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
             for (size_t i = 0; i < preferencesValues.size(); i++)
             {
-                fields[i]->setValueFromUi(preferencesValues[i]);
+                fields[i]->uiCapability()->setValueFromUi(preferencesValues[i]);
             }
         }
     }
@@ -1848,9 +1771,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         gridCaseGroup->loadMainCaseAndActiveCellInfo();
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
- 
-    uiModel->updateUiSubTree( m_project->activeOilField()->analysisModels());
+    m_project->activeOilField()->analysisModels()->updateConnectedEditors();
 
     if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
     {
@@ -2140,7 +2061,12 @@ void RiaApplication::regressionTestConfigureProject()
             if (resvView)
             {
                 resvView->faultCollection->setShowFaultsOutsideFilters(false);
-                resvView->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+
+				caf::PdmUiFieldHandle* uiFieldHandle = resvView->faultResultSettings->showCustomFaultResult.uiCapability();
+                if (uiFieldHandle)
+                {
+                    uiFieldHandle->setValueFromUi(false);
+                }
             }
         }
     }

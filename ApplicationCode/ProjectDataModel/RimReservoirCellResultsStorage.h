@@ -20,13 +20,16 @@
 #pragma once
 
 
+#include "RimDefines.h"
+
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
-#include "RimDefines.h"
 
 #include <QDateTime>
 
@@ -80,7 +83,7 @@ private:
     QString                         getCacheDirectoryPath();
     // Fields
     caf::PdmField<QString>          m_resultCacheFileName;
-    caf::PdmPointersField<RimReservoirCellResultsStorageEntryInfo*> 
+    caf::PdmChildArrayField<RimReservoirCellResultsStorageEntryInfo*> 
                                     m_resultCacheMetaData;
 
     cvf::ref<RifReaderInterface>    m_readerInterface;

@@ -78,7 +78,8 @@ protected:
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
-    caf::PdmPointer<RimEclipseView>                               m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                                 m_reservoirView;
+
 
 protected:
     void updateFieldVisibility();

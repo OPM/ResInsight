@@ -10,15 +10,28 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
 
 
 include_directories(
+    ${cafPdmCore_SOURCE_DIR}
+    ${cafPdmUiCore_SOURCE_DIR}
+    ${cafPdmXml_SOURCE_DIR}
+    ${cafProjectDataModel_SOURCE_DIR}
+
+    ${cafCommand_SOURCE_DIR}
+    ${cafViewer_SOURCE_DIR}
+    ${cafAnimControl_SOURCE_DIR}
+    ${cafUserInterface_SOURCE_DIR}
+    ${cafPdmCvf_SOURCE_DIR}
+    ${CommonCode_SOURCE_DIR}
+
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
+    ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
-	${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
+    ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
@@ -62,6 +75,10 @@ set( USER_INTERFACE_FILES
     UserInterface/RiuCadNavigation.cpp
     UserInterface/RiuRmsNavigation.cpp
 	UserInterface/RiuGeoQuestNavigation.cpp
+	UserInterface/RiuDragDrop.cpp
+	UserInterface/RiuDragDrop.h
+	UserInterface/RiuTreeViewEventFilter.cpp
+	UserInterface/RiuTreeViewEventFilter.h
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -90,6 +107,10 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/CMakeLists_files.cmake
     ModelVisualization/CMakeLists_files.cmake
 	GeoMech/GeoMechVisualization/CMakeLists_files.cmake
+	Commands/CMakeLists_files.cmake
+	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
+    Commands/ToggleCommands/CMakeLists_files.cmake
+    Commands/OctaveScriptCommands/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
@@ -126,10 +147,9 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 #############################################################################
 
 set ( QT_MOC_HEADERS
+    ${QT_MOC_HEADERS}
     Application/RiaApplication.h
     
-    ProjectDataModel/RimUiTreeModelPdm.h
-    ProjectDataModel/RimUiTreeView.h
     ProjectDataModel/RimMimeData.h
     
     UserInterface/RiuMainWindow.h
@@ -139,7 +159,7 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
     UserInterface/RiuMultiCaseImportDialog.h
     UserInterface/RiuViewerCommands.h
-	
+	UserInterface/RiuTreeViewEventFilter.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
@@ -290,13 +310,28 @@ endif ()
 set( LINK_LIBRARIES
     WellPathImportSsihub
 
-    cafPdmCvf
+#    cafPdmCvf
+#    cafUserInterface
+#    cafProjectDataModel
+#    cafViewer
+#    cafAnimControl
+#	cafTensor
+#    CommonCode
+
+    #cafPdmCore
+    #cafPdmUiCore
+    cafPdmXml
+    #cafProjectDataModel
+    
     cafUserInterface
-    cafProjectDataModel
     cafViewer
     cafAnimControl
+    cafCommand
+    cafPdmCvf
+
 	cafTensor
     CommonCode
+    
     LibGuiQt
     LibViewing
     LibRender

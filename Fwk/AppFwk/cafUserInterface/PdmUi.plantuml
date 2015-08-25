@@ -1,0 +1,49 @@
+@startuml
+
+Namespace TreeView{
+
+QWidget <|-- PdmUiTreeView
+
+PdmUiTreeView --* PdmUiTreeViewEditor
+PdmUiTreeView --* QTreeView
+
+
+PdmUiTreeViewEditor "N" <--> "1" 		PdmUiItem<<root>>
+PdmUiTreeViewEditor "UpdateUi()" <--> "setValueFromUi()" 		PdmUiItem<<root>> 	
+
+PdmUiTreeViewEditor "signals"<--> "confAndUpdate()"		QTreeView 
+PdmUiTreeViewEditor ---* 		PdmUiTreeViewModel 
+'PdmUiTreeViewEditor --* "?, N" PdmUiTreeItemEditor
+
+
+PdmUiTreeViewModel -->  		PdmUiTreeItemEditor	: "SetValueFromUi()"
+PdmUiTreeViewModel <--  		PdmUiTreeItemEditor	: "UpdatUi()" 
+PdmUiTreeViewModel --* 		PdmUiTreeOrdering
+'PdmUiTreeViewModel ---* "?, N" PdmUiTreeItemEditor
+
+PdmUiTreeOrdering "N" <--> "1" 	PdmUiItem2<<item>> 
+PdmUiTreeOrdering --*  			PdmUiTreeItemEditor
+
+PdmUiTreeItemEditor "N" <--  	PdmUiItem2<<item>>  : UpdateUi(), removeFromList()
+PdmUiTreeItemEditor --> "1" 	PdmUiItem2<<item>> 	: setValueFromUi()
+
+}
+
+namespace Properties{
+QWidget <|-- PdmUiPropertyView
+
+PdmUiPropertyView --* PdmUiDefaultObjectEditor
+PdmUiDefaultObjectEditor --* "N" PdmUiFieldEditor
+"QWidget3<<Container>>" --* "QWidget2<<FieldEditor>>"
+
+PdmUiPropertyView --* "QWidget3<<Container>>"
+
+PdmField --> "N" PdmUiFieldEditor : UpdateUi(), removeFromList()
+PdmUiFieldEditor --> "1" PdmField : setValueFromUi()
+PdmUiFieldEditor --> "QWidget2<<FieldEditor>>" : configureAndUpdate()
+PdmUiFieldEditor <-- "QWidget2<<FieldEditor>>" : signals()
+PdmUiDefaultObjectEditor  "N" <--> "1" PdmObject
+
+}
+
+@enduml

@@ -114,7 +114,7 @@ RimLegendConfig::RimLegendConfig()
     CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Min value of the legend", "");
     CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Max value of the legend", "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
-    resultVariableName.setUiHidden(true);
+    resultVariableName.uiCapability()->setUiHidden(true);
 
     m_linDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
     m_logDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLog;
@@ -125,7 +125,6 @@ RimLegendConfig::RimLegendConfig()
 
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     m_legend = new cvf::OverlayScalarMapperLegend(standardFont);
-    m_position = cvf::Vec2ui(20, 50);
 
     updateFieldVisibility();
     updateLegend();
@@ -392,20 +391,20 @@ void RimLegendConfig::updateLegend()
 
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
    {
-       m_userDefinedMaxValue.setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax, 'g', m_precision) + ")");
+       m_userDefinedMaxValue.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax, 'g', m_precision) + ")");
    }
    else
    {
-       m_userDefinedMaxValue.setUiName(QString());
+       m_userDefinedMaxValue.uiCapability()->setUiName(QString());
    }
 
    if (m_globalAutoMin != cvf::UNDEFINED_DOUBLE )
    {
-       m_userDefinedMinValue.setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin, 'g', m_precision) + ")");
+       m_userDefinedMinValue.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin, 'g', m_precision) + ")");
    }
    else
    {
-        m_userDefinedMinValue.setUiName(QString());
+        m_userDefinedMinValue.uiCapability()->setUiName(QString());
    }
 }
 
@@ -470,13 +469,13 @@ void RimLegendConfig::updateFieldVisibility()
 {
     if (m_rangeMode == USER_DEFINED)
     {
-        m_userDefinedMaxValue.setUiHidden(false);
-        m_userDefinedMinValue.setUiHidden(false);
+        m_userDefinedMaxValue.uiCapability()->setUiHidden(false);
+        m_userDefinedMinValue.uiCapability()->setUiHidden(false);
     }
     else
     {
-        m_userDefinedMaxValue.setUiHidden(true);
-        m_userDefinedMinValue.setUiHidden(true);
+        m_userDefinedMaxValue.uiCapability()->setUiHidden(true);
+        m_userDefinedMinValue.uiCapability()->setUiHidden(true);
     }
 }
 
@@ -536,14 +535,6 @@ cvf::ref<cvf::Color3ubArray> RimLegendConfig::interpolateColorArray(const cvf::C
     return colors;
 }
 */
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimLegendConfig::setPosition(cvf::Vec2ui position)
-{
-    m_position = position;
-    updateLegend();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

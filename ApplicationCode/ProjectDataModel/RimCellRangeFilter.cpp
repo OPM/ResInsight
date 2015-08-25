@@ -38,7 +38,6 @@ CAF_PDM_SOURCE_INIT(RimCellRangeFilter, "CellRangeFilter");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilter::RimCellRangeFilter()
-    : m_parentContainer(NULL)
 {
     CAF_PDM_InitObject("Cell Range Filter", ":/CellFilter_Range.png", "", "");
 
@@ -46,22 +45,22 @@ RimCellRangeFilter::RimCellRangeFilter()
     CAF_PDM_InitField(&propagateToSubGrids, "PropagateToSubGrids",  true,  "Apply to Subgrids", "", "","");
 
     CAF_PDM_InitField(&startIndexI, "StartIndexI",  1,  "Start index I", "", "","");
-    startIndexI.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    startIndexI.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
     
     CAF_PDM_InitField(&cellCountI,  "CellCountI",   1,  "Cell Count I", "", "","");
-    cellCountI.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    cellCountI.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&startIndexJ, "StartIndexJ",  1,  "Start index J", "", "","");
-    startIndexJ.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    startIndexJ.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&cellCountJ,  "CellCountJ",   1,  "Cell Count J", "", "","");
-    cellCountJ.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    cellCountJ.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&startIndexK, "StartIndexK",  1,  "Start index K", "", "","");
-    startIndexK.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    startIndexK.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&cellCountK,  "CellCountK",   1,  "Cell Count K", "", "","");
-    cellCountK.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    cellCountK.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
     
     updateIconState();
 }
@@ -82,17 +81,9 @@ void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     {
         computeAndSetValidValues();
     
-        CVF_ASSERT(m_parentContainer);
-        m_parentContainer->fieldChangedByUi(changedField, oldValue, newValue);
+        CVF_ASSERT(parentContainer());
+        parentContainer()->fieldChangedByUi(changedField, oldValue, newValue);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::setParentContainer(RimCellRangeFilterCollection* parentContainer)
-{
-    m_parentContainer = parentContainer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +91,7 @@ void RimCellRangeFilter::setParentContainer(RimCellRangeFilterCollection* parent
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::computeAndSetValidValues()
 {
-    CVF_ASSERT(m_parentContainer);
+    CVF_ASSERT(parentContainer());
 
     const cvf::StructGridInterface* grid = selectedGrid();
     if (grid && grid->cellCountI() > 0 && grid->cellCountJ() > 0 && grid->cellCountK() > 0)
@@ -122,12 +113,12 @@ void RimCellRangeFilter::computeAndSetValidValues()
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues()
 {
-    CVF_ASSERT(m_parentContainer);
+    CVF_ASSERT(parentContainer());
 
     const cvf::StructGridInterface* grid = selectedGrid();
 
-    RigActiveCellInfo* actCellInfo = m_parentContainer->activeCellInfo();
-    if (grid == m_parentContainer->gridByIndex(0) && actCellInfo)
+    RigActiveCellInfo* actCellInfo = parentContainer()->activeCellInfo();
+    if (grid == parentContainer()->gridByIndex(0) && actCellInfo)
     {
         cvf::Vec3st min, max;
         actCellInfo->IJKBoundingBox(min, max);
@@ -164,7 +155,7 @@ void RimCellRangeFilter::setDefaultValues()
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 {
-    return m_parentContainer;
+    return dynamic_cast<RimCellRangeFilterCollection*>(this->parentField()->ownerObject());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +164,7 @@ RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
     caf::PdmUiSliderEditorAttribute* myAttr = static_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
-    if (!myAttr || !m_parentContainer)
+    if (!myAttr || !parentContainer())
     {
         return;
     }
@@ -196,8 +187,8 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         myAttr->m_maximum = static_cast<int>(grid->cellCountK());
     }
 
-    RigActiveCellInfo* actCellInfo = m_parentContainer->activeCellInfo();
-    if (grid == m_parentContainer->gridByIndex(0) && actCellInfo)
+    RigActiveCellInfo* actCellInfo = parentContainer()->activeCellInfo();
+    if (grid == parentContainer()->gridByIndex(0) && actCellInfo)
     {
         cvf::Vec3st min, max;
         actCellInfo->IJKBoundingBox(min, max);
@@ -211,21 +202,21 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         max.y() = max.y() + 1;
         max.z() = max.z() + 1;
 
-        startIndexI.setUiName(QString("I Start (%1)").arg(min.x()));
-        startIndexJ.setUiName(QString("J Start (%1)").arg(min.y()));
-        startIndexK.setUiName(QString("K Start (%1)").arg(min.z()));
-        cellCountI.setUiName(QString("  Width (%1)").arg(max.x() - min.x() + 1));
-        cellCountJ.setUiName(QString("  Width (%1)").arg(max.y() - min.y() + 1));
-        cellCountK.setUiName(QString("  Width (%1)").arg(max.z() - min.z() + 1));
+        startIndexI.uiCapability()->setUiName(QString("I Start (%1)").arg(min.x()));
+        startIndexJ.uiCapability()->setUiName(QString("J Start (%1)").arg(min.y()));
+        startIndexK.uiCapability()->setUiName(QString("K Start (%1)").arg(min.z()));
+        cellCountI.uiCapability()->setUiName(QString("  Width (%1)").arg(max.x() - min.x() + 1));
+        cellCountJ.uiCapability()->setUiName(QString("  Width (%1)").arg(max.y() - min.y() + 1));
+        cellCountK.uiCapability()->setUiName(QString("  Width (%1)").arg(max.z() - min.z() + 1));
     }
     else
     {
-        startIndexI.setUiName(QString("I Start"));
-        startIndexJ.setUiName(QString("J Start"));
-        startIndexK.setUiName(QString("K Start"));
-        cellCountI.setUiName(QString("  Width"));
-        cellCountJ.setUiName(QString("  Width"));
-        cellCountK.setUiName(QString("  Width"));
+        startIndexI.uiCapability()->setUiName(QString("I Start"));
+        startIndexJ.uiCapability()->setUiName(QString("J Start"));
+        startIndexK.uiCapability()->setUiName(QString("K Start"));
+        cellCountI.uiCapability()->setUiName(QString("  Width"));
+        cellCountJ.uiCapability()->setUiName(QString("  Width"));
+        cellCountK.uiCapability()->setUiName(QString("  Width"));
     }
 }
 
@@ -265,12 +256,12 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RimCellRangeFilter::selectedGrid()
 {
-    if (gridIndex() >= m_parentContainer->gridCount())
+    if (gridIndex() >= parentContainer()->gridCount())
     {
         gridIndex = 0;
     }
 
-    const cvf::StructGridInterface* grid = m_parentContainer->gridByIndex(gridIndex());
+    const cvf::StructGridInterface* grid = parentContainer()->gridByIndex(gridIndex());
 
     CVF_ASSERT(grid);
 

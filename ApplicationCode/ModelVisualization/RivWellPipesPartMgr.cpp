@@ -74,10 +74,10 @@ RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclip
     m_scalarMapper = scalarMapper;
 
     caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
-    m_scalarMapperSurfaceEffect = surfEffGen.generateEffect();
+    m_scalarMapperSurfaceEffect = surfEffGen.generateCachedEffect();
 
     caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
-    m_scalarMapperMeshEffect = meshEffGen.generateEffect();
+    m_scalarMapperMeshEffect = meshEffGen.generateCachedEffect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWell->wellPipeColor()), caf::PO_1);
-            cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
+            cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             pbd.m_surfacePart->setEffect(eff.p());
         }
@@ -154,7 +154,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
             pbd.m_centerLinePart->setDrawable(pbd.m_centerLineDrawable.p());
 
             caf::MeshEffectGenerator gen(m_rimWell->wellPipeColor());
-            cvf::ref<cvf::Effect> eff = gen.generateEffect();
+            cvf::ref<cvf::Effect> eff = gen.generateCachedEffect();
 
             pbd.m_centerLinePart->setEffect(eff.p());
         }

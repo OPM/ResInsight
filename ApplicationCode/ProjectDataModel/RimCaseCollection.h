@@ -20,6 +20,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmChildArrayField.h"
 
 class RimEclipseCase;
 class RimIdenticalGridCaseGroup;
@@ -36,7 +37,7 @@ class RimCaseCollection : public caf::PdmObject
 public:
     RimCaseCollection();
     virtual ~RimCaseCollection();
-    caf::PdmPointersField<RimEclipseCase*> reservoirs;
+    caf::PdmChildArrayField<RimEclipseCase*> reservoirs;
 
     RimIdenticalGridCaseGroup*  parentCaseGroup();
     RimEclipseCase*                    findByDescription(const QString& caseDescription) const;

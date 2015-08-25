@@ -34,10 +34,10 @@ RimCalcScript::RimCalcScript()
 
     CAF_PDM_InitField(&absolutePath, "AbsolutePath", QString(), "Location", "", "" ,"");
     CAF_PDM_InitField(&content, "Content", QString(), "Directory", "", "" ,"");
-    content.setUiHidden(true);
-    content.setIOWritable(false);
+    content.uiCapability()->setUiHidden(true);
+    content.xmlCapability()->setIOWritable(false);
 
-    absolutePath.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    absolutePath.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------

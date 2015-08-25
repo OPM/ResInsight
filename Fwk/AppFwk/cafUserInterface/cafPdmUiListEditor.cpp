@@ -114,6 +114,10 @@ PdmUiListEditor::~PdmUiListEditor()
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
+    // TODO: Fix assert here when undoing in testapp
+    // See PdmUiComboBoxEditor for pattern
+    // This might also apply to other editors
+
     assert(!m_listView.isNull());
     assert(!m_label.isNull());
     assert(m_listView->selectionModel());

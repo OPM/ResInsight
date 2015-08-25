@@ -28,11 +28,12 @@
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
+#include "RimCommandObject.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -52,28 +53,32 @@ CAF_PDM_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
-    
-
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
+    reservoirViews.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");
-    m_matrixModelResults.setUiHidden(true);
+    m_matrixModelResults.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
-    m_fractureModelResults.setUiHidden(true);
+    m_fractureModelResults.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
     CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&filesContainingFaults,    "FilesContainingFaults", "", "", "", "");
-    filesContainingFaults.setUiHidden(true);
+    filesContainingFaults.uiCapability()->setUiHidden(true);
 
     // Obsolete field
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
-    caseName.setIOWritable(false);
-    caseName.setUiHidden(true);
+    caseName.xmlCapability()->setIOWritable(false);
+    caseName.uiCapability()->setUiHidden(true);
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
+    m_matrixModelResults.uiCapability()->setUiHidden(true);
+    m_matrixModelResults.uiCapability()->setUiChildrenHidden(true);
+
     m_fractureModelResults = new RimReservoirCellResultsStorage;
+    m_fractureModelResults.uiCapability()->setUiHidden(true);
+    m_fractureModelResults.uiCapability()->setUiChildrenHidden(true);
 
     this->setReservoirData( NULL );
 }
@@ -297,15 +302,7 @@ void RimEclipseCase::computeCachedData()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseCase::parentCaseCollection()
 {
-    std::vector<RimCaseCollection*> parentObjects;
-    this->parentObjectsOfType(parentObjects);
-
-    if (parentObjects.size() > 0)
-    {
-        return parentObjects[0];
-    }
-
-    return NULL;
+    return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
 }
 
 //--------------------------------------------------------------------------------------------------

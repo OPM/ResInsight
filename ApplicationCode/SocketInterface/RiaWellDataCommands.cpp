@@ -32,7 +32,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputPropertyCollection.h"
-#include "RimUiTreeModelPdm.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
 #include "RimCellEdgeColors.h"

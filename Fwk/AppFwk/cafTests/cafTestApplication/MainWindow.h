@@ -6,13 +6,16 @@
 
 class DemoPdmObject;
 class QTreeView;
+class QUndoView;
 
 namespace caf
 {
-    class PdmObjectGroup;
-    class PdmObject;
+    class PdmObjectCollection;
+    class PdmObjectHandle;
     class UiTreeModelPdm;
     class PdmUiPropertyView;
+    class PdmUiTreeView;
+    class PdmUiTableView;
 }
 
 class MainWindow : public QMainWindow
@@ -24,7 +27,7 @@ public:
     ~MainWindow();
 
     static MainWindow* instance();
-    void setPdmRoot(caf::PdmObject* pdmRoot);
+    void setPdmRoot(caf::PdmObjectHandle* pdmRoot);
 
 private:
     void createActions();
@@ -40,17 +43,21 @@ private slots:
     void slotInsert();
     void slotRemove();
     void slotRemoveAll();
-    void slotSelectionChanged(const QItemSelection &, const QItemSelection & );
+
+    void slotSimpleSelectionChanged();
+    void slotShowTableView();
 
 
 private:
     static MainWindow* sm_mainWindowInstance;
 
 private:
-    QTreeView*                  m_treeView;
-    caf::UiTreeModelPdm*        m_treeModelPdm;
-    caf::PdmUiPropertyView*     m_pdmUiPropertyView;
-    caf::PdmObjectGroup*        m_testRoot;
+    QUndoView*                  undoView;
 
+    caf::PdmUiTreeView*         m_pdmUiTreeView;
+    caf::PdmUiTreeView*         m_pdmUiTreeView2;
+    caf::PdmUiPropertyView*     m_pdmUiPropertyView;
+    caf::PdmUiTableView*        m_pdmUiTableView;
+    caf::PdmObjectCollection*        m_testRoot;
 };
 

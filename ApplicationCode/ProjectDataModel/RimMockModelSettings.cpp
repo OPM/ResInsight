@@ -39,7 +39,7 @@ RimMockModelSettings::RimMockModelSettings()
     CAF_PDM_InitField(&cellCountZ,    "CellCountZ",  quint64(10), "Cell Count Z", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&totalCellCount,  "TotalCellCount", "Total Cell Count",   "", "", "");
-    totalCellCount.setUiReadOnly(true);
+    totalCellCount.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&resultCount,    "ResultCount",    quint64(3),    "Result Count", "", "", "");
     CAF_PDM_InitField(&timeStepCount,  "TimeStepCount",  quint64(10),   "Time Step Count", "", "", "");
@@ -58,7 +58,12 @@ RimMockModelSettings::~RimMockModelSettings()
 void RimMockModelSettings::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     totalCellCount = cellCountX * cellCountY * cellCountZ;
-    totalCellCount.updateConnectedEditors();
+
+	caf::PdmUiFieldHandle* uiFieldHandle = totalCellCount.uiCapability();
+    if (uiFieldHandle)
+    {
+        uiFieldHandle->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -25,8 +25,9 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
-#include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 
 
@@ -37,21 +38,15 @@ CAF_PDM_SOURCE_INIT(RimEclipseFaultColors, "RimFaultResultSlot");
 //--------------------------------------------------------------------------------------------------
 RimEclipseFaultColors::RimEclipseFaultColors()
 {
-    CAF_PDM_InitObject("Fault Result Slot", ":/draw_style_faults_24x24.png", "", "");
+    CAF_PDM_InitObject("Separate Fault Result", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
-    showCustomFaultResult.setUiHidden(true);
+    showCustomFaultResult.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
     m_customFaultResultColors = new RimEclipseCellColors();
-    m_customFaultResultColors.setOwnerObject(this);
-    m_customFaultResultColors.setUiHidden(true);
 
-    // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
-    m_customFaultResultColors->m_resultTypeUiField.setOwnerObject(this);
-    m_customFaultResultColors->m_porosityModelUiField.setOwnerObject(this);
-    m_customFaultResultColors->m_resultVariableUiField.setOwnerObject(this);
-
+    m_customFaultResultColors.uiCapability()->setUiHidden(true);
 
     updateFieldVisibility();
 }
@@ -78,13 +73,6 @@ void RimEclipseFaultColors::setReservoirView(RimEclipseView* ownerReservoirView)
 void RimEclipseFaultColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->updateUiIconFromToggleField();
-
-    m_customFaultResultColors->fieldChangedByUi(changedField, oldValue, newValue);
-
-    if (changedField == &m_customFaultResultColors->m_resultVariableUiField)
-    {
-        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
-    }
 
     if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
@@ -157,4 +145,17 @@ bool RimEclipseFaultColors::hasValidCustomResult()
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    if (m_customFaultResultColors()->legendConfig())
+    {
+        uiTreeOrdering.add(m_customFaultResultColors()->legendConfig());
+    }
+
+    uiTreeOrdering.setForgetRemainingFields(true);
 }

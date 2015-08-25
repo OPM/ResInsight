@@ -28,7 +28,6 @@
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseEvaluator.h"
-#include "RimUiTreeModelPdm.h"
 #include "RimEclipseWellCollection.h"
 #include "RiuMainWindow.h"
 
@@ -59,24 +58,24 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_calculateEditCommand,   "m_editingAllowed", "", "", "", "");
-    m_calculateEditCommand.setIOWritable(false);
-    m_calculateEditCommand.setIOReadable(false);
-    m_calculateEditCommand.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_calculateEditCommand.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_calculateEditCommand.xmlCapability()->setIOWritable(false);
+    m_calculateEditCommand.xmlCapability()->setIOReadable(false);
+    m_calculateEditCommand.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_calculateEditCommand.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_calculateEditCommand = false;
 
     CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of calculation setup", "", "", "");
-    m_selectionSummary.setIOWritable(false);
-    m_selectionSummary.setIOReadable(false);
-    m_selectionSummary.setUiReadOnly(true);
-    m_selectionSummary.setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_selectionSummary.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_selectionSummary.xmlCapability()->setIOWritable(false);
+    m_selectionSummary.xmlCapability()->setIOReadable(false);
+    m_selectionSummary.uiCapability()->setUiReadOnly(true);
+    m_selectionSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_selectionSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Result Type", "", "", "");
-    m_resultType.setIOWritable(false);
+    m_resultType.xmlCapability()->setIOWritable(false);
     CAF_PDM_InitFieldNoDefault(&m_porosityModel, "PorosityModel", "Porosity Model", "", "", "");
-    m_porosityModel.setIOWritable(false);
+    m_porosityModel.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedDynamicProperties,   "DynamicPropertiesToCalculate", "Dyn Prop", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedStaticProperties,    "StaticPropertiesToCalculate", "Stat Prop", "", "", "");
@@ -88,15 +87,15 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitFieldNoDefault(&m_selectedFractureGeneratedProperties, "FractureGeneratedPropertiesToCalculate", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedFractureInputProperties,     "FractureInputPropertiesToCalculate", "", "", "", "");
 
-    m_selectedDynamicProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedStaticProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedGeneratedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedInputProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedDynamicProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedStaticProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedGeneratedProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedInputProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_selectedFractureDynamicProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedFractureStaticProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN); 
-    m_selectedFractureGeneratedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedFractureInputProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureDynamicProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureStaticProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN); 
+    m_selectedFractureGeneratedProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureInputProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "");
@@ -161,15 +160,7 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
 {
-    std::vector<RimCaseCollection*> parentObjects;
-    this->parentObjectsOfType(parentObjects);
-
-    if (parentObjects.size() > 0)
-    {
-        return parentObjects[0];
-    }
-
-    return NULL;
+    return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -459,8 +450,6 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_wellDataSourceCase == changedField)
     {
-        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-
         // Find or load well data for given case
         RimEclipseCase* sourceResultCase = caseGroup()->caseCollection()->findByDescription(m_wellDataSourceCase);
         if (sourceResultCase)
@@ -487,8 +476,6 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
 {
-    RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-
     this->reservoirData()->setWellResults(sourceCaseWellResults);
     
     caf::ProgressInfo progInfo(reservoirViews().size() + 1, "Updating Well Data for Views");
@@ -501,8 +488,7 @@ void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collectio
 
         reservoirView->wellCollection()->wells.deleteAllChildObjects();
         reservoirView->updateDisplayModelForWellResults();
-
-        treeModel->updateUiSubTree(reservoirView->wellCollection());
+        reservoirView->wellCollection()->updateConnectedEditors();
 
         progInfo.incrementProgress();
     }
@@ -590,18 +576,18 @@ void RimEclipseStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* 
 void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 {
     bool isLocked = hasComputedStatistics();
-    m_resultType.setUiHidden(isLocked);
-    m_porosityModel.setUiHidden(isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()
+    m_resultType.uiCapability()->setUiHidden(isLocked);
+    m_porosityModel.uiCapability()->setUiHidden(isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()
 
-    m_selectedDynamicProperties.setUiHidden(           isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
-    m_selectedStaticProperties.setUiHidden(            isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
-    m_selectedGeneratedProperties.setUiHidden(         isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::GENERATED));
-    m_selectedInputProperties.setUiHidden(             isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+    m_selectedDynamicProperties.uiCapability()->setUiHidden(           isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
+    m_selectedStaticProperties.uiCapability()->setUiHidden(            isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
+    m_selectedGeneratedProperties.uiCapability()->setUiHidden(         isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::GENERATED));
+    m_selectedInputProperties.uiCapability()->setUiHidden(             isLocked || !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
 
-    m_selectedFractureDynamicProperties.setUiHidden(   isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
-    m_selectedFractureStaticProperties.setUiHidden(    isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
-    m_selectedFractureGeneratedProperties.setUiHidden( isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
-    m_selectedFractureInputProperties.setUiHidden(     isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+    m_selectedFractureDynamicProperties.uiCapability()->setUiHidden(   isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
+    m_selectedFractureStaticProperties.uiCapability()->setUiHidden(    isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
+    m_selectedFractureGeneratedProperties.uiCapability()->setUiHidden( isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
+    m_selectedFractureInputProperties.uiCapability()->setUiHidden(     isLocked || !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -610,11 +596,11 @@ void RimEclipseStatisticsCase::updateSelectionListVisibilities()
 void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 {
     bool isLocked = hasComputedStatistics();
-    m_calculatePercentiles.setUiHidden(isLocked);
-    m_percentileCalculationType.setUiHidden( isLocked || !m_calculatePercentiles());
-    m_lowPercentile .setUiHidden(isLocked || !m_calculatePercentiles());
-    m_midPercentile .setUiHidden(isLocked || !m_calculatePercentiles());
-    m_highPercentile.setUiHidden(isLocked || !m_calculatePercentiles());
+    m_calculatePercentiles.uiCapability()->setUiHidden(isLocked);
+    m_percentileCalculationType.uiCapability()->setUiHidden( isLocked || !m_calculatePercentiles());
+    m_lowPercentile .uiCapability()->setUiHidden(isLocked || !m_calculatePercentiles());
+    m_midPercentile .uiCapability()->setUiHidden(isLocked || !m_calculatePercentiles());
+    m_highPercentile.uiCapability()->setUiHidden(isLocked || !m_calculatePercentiles());
 }
 
 //--------------------------------------------------------------------------------------------------

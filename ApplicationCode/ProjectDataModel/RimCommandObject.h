@@ -20,11 +20,11 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmDocument.h"
+#include "cafPdmObjectGroup.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -92,9 +92,9 @@ public:
     virtual caf::PdmFieldHandle* userDescriptionField();
 
 private:
-    void childObjects(caf::PdmObject* pdmObject, std::vector<caf::PdmObject*>& children);
-    caf::PdmObject* findObjectByName(caf::PdmObject* root, const QString& objectName);
-    caf::PdmFieldHandle* findFieldByKeyword(caf::PdmObject* pdmObject, const QString& fieldName);
+    void childObjects(caf::PdmObject* pdmObject, std::vector<caf::PdmObjectHandle*>& children);
+    caf::PdmObjectHandle* findObjectByName(caf::PdmObjectHandle* root, const QString& objectName);
+    caf::PdmFieldHandle* findFieldByKeyword(caf::PdmObjectHandle* pdmObject, const QString& fieldName);
 
 };
 

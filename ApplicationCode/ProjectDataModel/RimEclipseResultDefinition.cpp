@@ -27,6 +27,8 @@
 #include "RimEclipseView.h"
 
 #include "cafPdmUiListEditor.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipseFaultColors.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 
@@ -39,24 +41,24 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_resultType,     "ResultType",           "Type", "", "", "");
-    m_resultType.setUiHidden(true);
+    m_resultType.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_porosityModel,  "PorosityModelType",    "Porosity", "", "", "");
-    m_porosityModel.setUiHidden(true);
+    m_porosityModel.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
-    m_resultVariable.setUiHidden(true);
+    m_resultVariable.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_resultTypeUiField,     "MResultType",           "Type", "", "", "");
-    m_resultTypeUiField.setIOReadable(false);
-    m_resultTypeUiField.setIOWritable(false);
+    m_resultTypeUiField.xmlCapability()->setIOReadable(false);
+    m_resultTypeUiField.xmlCapability()->setIOWritable(false);
     CAF_PDM_InitFieldNoDefault(&m_porosityModelUiField,  "MPorosityModelType",    "Porosity", "", "", "");
-    m_porosityModelUiField.setIOReadable(false);
-    m_porosityModelUiField.setIOWritable(false);
+    m_porosityModelUiField.xmlCapability()->setIOReadable(false);
+    m_porosityModelUiField.xmlCapability()->setIOWritable(false);
     CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RimDefines::undefinedResultName(), "Result property", "", "", "" );
-    m_resultVariableUiField.setIOReadable(false);
-    m_resultVariableUiField.setIOWritable(false);
+    m_resultVariableUiField.xmlCapability()->setIOReadable(false);
+    m_resultVariableUiField.xmlCapability()->setIOWritable(false);
 
 
-    m_resultVariableUiField.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,6 +119,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             m_resultVariableUiField = "";
         }
+
     }
   
     if (&m_resultVariableUiField == changedField)
@@ -124,8 +127,30 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         m_porosityModel = m_porosityModelUiField;
         m_resultType = m_resultTypeUiField;
         m_resultVariable = m_resultVariableUiField;
-
+        
         loadResult();
+
+        RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
+        if (propFilter)
+        {
+            propFilter->setToDefaultValues();
+            propFilter->updateFilterName();
+            m_reservoirView->scheduleGeometryRegen(PROPERTY_FILTERED);
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+
+    }
+
+    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
+    if (propFilter)
+    {
+        propFilter->updateConnectedEditors();
+    }
+
+    RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>(this->parentField()->ownerObject());
+    if (faultColors)
+    {
+        faultColors->updateConnectedEditors();
     }
 }
 
@@ -134,7 +159,15 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    return calculateValueOptionsForSpecifiedDerivedListPosition(false, fieldNeedingOptions, useOptionsOnly);
+    QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(false, fieldNeedingOptions, useOptionsOnly);
+
+    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
+    if (propFilter)
+    {
+        propFilter->removePerCellFaceOptionItems(optionItems);
+    }
+
+    return optionItems;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,11 +390,11 @@ void RimEclipseResultDefinition::updateFieldVisibility()
     {
         if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() == 0)
         {
-            m_porosityModelUiField.setUiHidden(true);
+            m_porosityModelUiField.uiCapability()->setUiHidden(true);
         }
         else
         {
-            m_porosityModelUiField.setUiHidden(false);
+            m_porosityModelUiField.uiCapability()->setUiHidden(false);
         }
     }
 }

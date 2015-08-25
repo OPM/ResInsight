@@ -24,6 +24,8 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseCellColors.h"
 
+#include "cafPdmUiEditorHandle.h"
+
 
 CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilterCollection, "CellPropertyFilters");
 
@@ -32,11 +34,14 @@ CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilterCollection, "CellPropertyFilters");
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 {
-    CAF_PDM_InitObject("Cell Property Filters", ":/CellFilter_Values.png", "", "");
+    CAF_PDM_InitObject("Property Filters", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
+    propertyFilters.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&active,                  "Active", true, "Active", "", "", "");
-    active.setUiHidden(true);
+    active.uiCapability()->setUiHidden(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +84,12 @@ void RimEclipsePropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHan
 {
     this->updateUiIconFromToggleField();
 
-    m_reservoirView->fieldChangedByUi(&(m_reservoirView->propertyFilterCollection), oldValue, newValue);
+    RimEclipseView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
+    CVF_ASSERT(view);
+
+    view->scheduleGeometryRegen(PROPERTY_FILTERED);
+    view->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +101,6 @@ RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::createAndAppendPro
     
     propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
 
-    propertyFilter->setParentContainer(this);
     propertyFilters.push_back(propertyFilter);
 
     propertyFilter->resultDefinition->setResultVariable(m_reservoirView->cellResult->resultVariable());
@@ -100,7 +109,6 @@ RimEclipsePropertyFilter* RimEclipsePropertyFilterCollection::createAndAppendPro
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();
-
 
     return propertyFilter;
 }
@@ -114,13 +122,7 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
-
-        propertyFilter->setParentContainer(this);
-
-        propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
-        propertyFilter->resultDefinition->loadResult();
-        propertyFilter->updateIconState();
-        propertyFilter->computeResultValueRange();
+        propertyFilter->initAfterRead();
     }
 }
 
@@ -129,8 +131,6 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::initAfterRead()
 {
-    loadAndInitializePropertyFilters();
-
     this->updateUiIconFromToggleField();
 }
 

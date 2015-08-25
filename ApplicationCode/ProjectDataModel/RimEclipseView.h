@@ -21,6 +21,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -84,14 +85,14 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmField<RimEclipseCellColors*>                cellResult;
-    caf::PdmField<RimCellEdgeColors*>                   cellEdgeResult;
-    caf::PdmField<RimEclipseFaultColors*>               faultResultSettings;
+    caf::PdmChildField<RimEclipseCellColors*>                cellResult;
+    caf::PdmChildField<RimCellEdgeColors*>                   cellEdgeResult;
+    caf::PdmChildField<RimEclipseFaultColors*>               faultResultSettings;
 
-    caf::PdmField<RimEclipsePropertyFilterCollection*>  propertyFilterCollection;
+    caf::PdmChildField<RimEclipsePropertyFilterCollection*>  propertyFilterCollection;
 
-    caf::PdmField<RimEclipseWellCollection*>            wellCollection;
-    caf::PdmField<RimFaultCollection*>                  faultCollection;
+    caf::PdmChildField<RimEclipseWellCollection*>            wellCollection;
+    caf::PdmChildField<RimFaultCollection*>                  faultCollection;
 
     // Fields
 

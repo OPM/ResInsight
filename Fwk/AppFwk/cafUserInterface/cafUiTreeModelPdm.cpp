@@ -173,7 +173,7 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
     PdmUiTreeItem* treeItem = UiTreeModelPdm::getTreeItemFromIndex(index);
     assert(treeItem);
 
-    PdmObject* obj = treeItem->dataObject();
+    PdmObjectHandle* obj = treeItem->dataObject();
 
     if (obj == NULL) return QVariant();
 
@@ -182,12 +182,12 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
     // Note: This code will only find first field pointing at the current object. Its valid for now,
     // but will not generally be valid if references is introduced in the pdm system
 
-    PdmFieldHandle* parentField = 0;
+    PdmUiFieldHandle* parentField = 0;
 
     PdmUiTreeItem* parentTreeItem = treeItem->parent();
     if (parentTreeItem)
     {
-        PdmObject* parentObj = parentTreeItem->dataObject();
+        PdmObjectHandle* parentObj = parentTreeItem->dataObject();
         if (parentObj)
         {
             std::vector<PdmFieldHandle*> fields;
@@ -196,15 +196,19 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
             size_t i;
             for (i = 0; i < fields.size(); ++i)
             {
-                std::vector<PdmObject*> children;
+                std::vector<PdmObjectHandle*> children;
                 if (fields[i]) fields[i]->childObjects(&children);
                 size_t cIdx;
                 for (cIdx = 0; cIdx < children.size(); ++ cIdx)
                 {
                     if (children[cIdx] == obj)
-                    { 
-                        parentField = fields[i];
-                        break;
+                    {
+						caf::PdmUiFieldHandle* uiFieldHandle = fields[i]->uiCapability();
+                        if (uiFieldHandle)
+                        {
+                            parentField = uiFieldHandle;
+                            break;
+                        }
                     }
                 }
                 if (parentField) break;
@@ -213,55 +217,89 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
     }
 
     assert(obj);
+    PdmUiObjectHandle* uiObject = uiObj(obj);
 
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        if (obj->userDescriptionField())
+        if (uiObject)
         {
-            return obj->userDescriptionField()->uiValue();
+            if (uiObject->userDescriptionField())
+            {
+				caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
+                if (uiFieldHandle)
+                {
+                    return uiFieldHandle->uiValue();
+                }
+                else
+                {
+                    return QVariant();
+                }
+            }
+            else
+            {
+                if (parentField && !parentField->uiName().isEmpty())
+                    return parentField->uiName();
+                else
+                    return uiObject->uiName();
+            }
         }
         else
         {
-            if (parentField && !parentField->uiName().isEmpty())
-                return parentField->uiName();
-            else
-                return  obj->uiName();
+            return QVariant();
         }
     }
     else if (role == Qt::DecorationRole)
     {
         if (parentField && !parentField->uiIcon().isNull())
             return parentField->uiIcon();
+        else if (uiObject)
+            return uiObject->uiIcon();
         else
-            return obj->uiIcon();
+            return QVariant();
     }
     else if (role == Qt::ToolTipRole)
     {
         if (parentField && !parentField->uiToolTip().isEmpty())
             return parentField->uiToolTip();
+        else if (uiObject)
+            return uiObject->uiToolTip();
         else
-            return  obj->uiToolTip();
+            return QVariant();
     }
     else if (role == Qt::WhatsThisRole)
     {
         if (parentField && !parentField->uiWhatsThis().isEmpty())
             return parentField->uiWhatsThis();
+        else if (uiObject)
+            return uiObject->uiWhatsThis();
         else
-            return  obj->uiWhatsThis();
+            return QVariant();
     }
     else if (role == Qt::CheckStateRole)
     {
-        if (obj->objectToggleField())
+        if (uiObject && uiObject->objectToggleField())
         {
-            bool isToggledOn = obj->objectToggleField()->uiValue().toBool();
-            if (isToggledOn)
+			caf::PdmUiFieldHandle* uiFieldHandle = uiObject->objectToggleField()->uiCapability();
+            if (uiFieldHandle)
             {
-                return Qt::Checked;
+                bool isToggledOn = uiFieldHandle->uiValue().toBool();
+                if (isToggledOn)
+                {
+                    return Qt::Checked;
+                }
+                else
+                {
+                    return Qt::Unchecked;
+                }
             }
             else
             {
-                return Qt::Unchecked;
+                return QVariant();
             }
+        }
+        else
+        {
+            return QVariant();
         }
     }
 
@@ -289,26 +327,35 @@ bool UiTreeModelPdm::setData(const QModelIndex &index, const QVariant &value, in
     PdmUiTreeItem* treeItem = UiTreeModelPdm::getTreeItemFromIndex(index);
     assert(treeItem);
     
-    PdmObject* obj = treeItem->dataObject();
-    assert(obj);
-            
-    if (role == Qt::EditRole && obj->userDescriptionField())
+    PdmUiObjectHandle* uiObject = uiObj(treeItem->dataObject());
+    if (uiObject)
     {
-        obj->userDescriptionField()->setValueFromUi(value);
+        if (role == Qt::EditRole && uiObject->userDescriptionField())
+        {
+			caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
+            if (uiFieldHandle)
+            {
+                uiFieldHandle->setValueFromUi(value);
+            }
 
-        emitDataChanged(index);
-        
-        return true;
-    }
-    else if (role == Qt::CheckStateRole && obj->objectToggleField())
-    {
-        bool toggleOn = (value == Qt::Checked);
-        
-        obj->objectToggleField()->setValueFromUi(toggleOn);
+            emitDataChanged(index);
 
-        emitDataChanged(index);
+            return true;
+        }
+        else if (role == Qt::CheckStateRole && uiObject->objectToggleField())
+        {
+            bool toggleOn = (value == Qt::Checked);
 
-        return true;
+			caf::PdmUiFieldHandle* uiFieldHandle = uiObject->objectToggleField()->uiCapability();
+            if (uiFieldHandle)
+            {
+                uiFieldHandle->setValueFromUi(toggleOn);
+            }
+
+            emitDataChanged(index);
+
+            return true;
+        }
     }
 
     return false;
@@ -328,20 +375,20 @@ Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
     PdmUiTreeItem* treeItem = getTreeItemFromIndex(index);
     if (treeItem)
     {
-        PdmObject* pdmObject = treeItem->dataObject();
-        if (pdmObject)
+        PdmUiObjectHandle* uiObject = uiObj(treeItem->dataObject());
+        if (uiObject)
         {
-            if (pdmObject->userDescriptionField() && !pdmObject->userDescriptionField()->isUiReadOnly())
+			if (uiObject->userDescriptionField() && !uiObject->userDescriptionField()->uiCapability()->isUiReadOnly())
             {
                 flagMask = flagMask | Qt::ItemIsEditable;
             }
 
-            if (pdmObject->objectToggleField())
+            if (uiObject->objectToggleField())
             {
                 flagMask = flagMask | Qt::ItemIsUserCheckable;
             }
 
-            if (pdmObject->isUiReadOnly())
+            if (uiObject->isUiReadOnly())
             {
                 flagMask = flagMask & (~Qt::ItemIsEnabled);
             }
@@ -387,7 +434,7 @@ bool UiTreeModelPdm::removeRows_special(int position, int count, const QModelInd
 //--------------------------------------------------------------------------------------------------
 /// Refreshes the UI-tree below the supplied root PdmObject
 //--------------------------------------------------------------------------------------------------
-void UiTreeModelPdm::updateUiSubTree(PdmObject* pdmRoot)
+void UiTreeModelPdm::updateUiSubTree(PdmObjectHandle* pdmRoot)
 {
     // Build the new "Correct" Tree
 
@@ -545,7 +592,7 @@ PdmUiTreeItem* caf::UiTreeModelPdm::getTreeItemFromIndex(const QModelIndex& inde
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const
+QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObjectHandle * object) const
 {
     if (currentIndex.internalPointer())
     {
@@ -566,7 +613,7 @@ QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObjectRecursive(const QMode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObject( const PdmObject * object) const
+QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObject( const PdmObjectHandle * object) const
 {
    QModelIndex foundIndex;
    int numRows = rowCount(QModelIndex());
@@ -584,31 +631,14 @@ QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObject( const PdmObject * o
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* object)
+PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeItem, int position, caf::PdmObjectHandle* object)
 {
     if (object == NULL)
     {
         return NULL;
     }
 
-  
-    PdmUiTreeItem* objectTreeItem = NULL;
-
-    // Ignore this particular object if the field it resides in is hidden.
-    // Child objects of this object, however, is not hidden
-    // Todo: This is a Hack to make oilField disappear. Must be rewritten when 
-    // a more general ui tree building method is in place.
-
-    std::vector<caf::PdmFieldHandle*> parentFields;
-    object->parentFields(parentFields);
-    if (parentFields.size() == 1 && parentFields[0]->isUiHidden())
-    {
-        objectTreeItem = parentTreeItem;
-    }
-    else
-    {
-        objectTreeItem = new PdmUiTreeItem(parentTreeItem, position, object);
-    }
+    PdmUiTreeItem* objectTreeItem = new PdmUiTreeItem(parentTreeItem, position, object);
 
     std::vector<caf::PdmFieldHandle*> fields;
     object->fields(fields);
@@ -621,21 +651,23 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
         // Fix for hidden legend definitions. There is only one visible legend definition, the others reside in a hidden container
         // Todo: This is a Hack. Must be rewritten when a more general ui tree building method is in place.
         // See comment at top of this method.
-        if (field->isUiChildrenHidden())
+		caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        if (uiFieldHandle && uiFieldHandle->isUiChildrenHidden())
         {
             continue;
         }
 
-        std::vector<caf::PdmObject*> children;
+        std::vector<caf::PdmObjectHandle*> children;
         field->childObjects(&children);
         size_t i;
         for (i = 0; i < children.size(); i++)
         {
-            caf::PdmObject* childObj = children[i];
-            assert(childObj);
-
-            // NOTE: -1 as second argument indicates that child objects will be appended to collection
-            UiTreeItemBuilderPdm::buildViewItems(objectTreeItem, -1, childObj);
+            caf::PdmObjectHandle* childObj = children[i];
+            if (childObj)
+            {
+                // NOTE: -1 as second argument indicates that child objects will be appended to collection
+                UiTreeItemBuilderPdm::buildViewItems(objectTreeItem, -1, childObj);
+            }
         }
     }
 

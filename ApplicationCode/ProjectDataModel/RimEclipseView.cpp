@@ -79,26 +79,32 @@ RimEclipseView::RimEclipseView()
  
     CAF_PDM_InitFieldNoDefault(&cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
     cellResult = new RimEclipseCellColors();
+    cellResult.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeColors();
+    cellEdgeResult.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Separate Fault Result", "", "", "");
     faultResultSettings = new RimEclipseFaultColors();
-
+    faultResultSettings.uiCapability()->setUiHidden(true);
   
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimEclipseWellCollection;
+    wellCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&faultCollection, "FaultCollection", "Faults", "", "", "");
     faultCollection = new RimFaultCollection;
+    faultCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         "", "", "");
     rangeFilterCollection = new RimCellRangeFilterCollection();
+    rangeFilterCollection.uiCapability()->setUiHidden(true);
     rangeFilterCollection->setReservoirView(this);
 
     CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilterCollection = new RimEclipsePropertyFilterCollection();
+    propertyFilterCollection.uiCapability()->setUiHidden(true);
     propertyFilterCollection->setReservoirView(this);
 
     // Visualization fields
@@ -107,11 +113,9 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
    
     this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
 
-    this->cellEdgeResult()->setReservoirView(this);
+	this->cellEdgeResult()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setReservoirView(this);
-    this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
     this->faultResultSettings()->setReservoirView(this);
@@ -120,7 +124,6 @@ RimEclipseView::RimEclipseView()
 
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
     m_reservoir = NULL;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,7 +144,6 @@ RimEclipseView::~RimEclipseView()
 
     m_reservoir = NULL;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -957,17 +959,15 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
             localNegClosestToZero = globalNegClosestToZero;
         }
 
-        resultColors->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        resultColors->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+        CVF_ASSERT(resultColors->legendConfig());
 
-        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig->legend());
-        resultColors->legendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
+        resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
+        resultColors->legendConfig()->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
     }
-    else
-    {
-        resultColors->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        resultColors->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
-    }
+
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
     if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)
@@ -1431,12 +1431,16 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::resetLegendsInViewer()
 {
-    this->cellResult()->legendConfig->recreateLegend();
+    RimLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
+    if (cellResultNormalLegendConfig) cellResultNormalLegendConfig->recreateLegend();
+
     this->cellResult()->ternaryLegendConfig->recreateLegend();
     this->cellEdgeResult()->legendConfig->recreateLegend();
 
     m_viewer->removeAllColorLegends();
-    m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+    
+    if (cellResultNormalLegendConfig) m_viewer->addColorLegendToBottomLeftCorner(cellResultNormalLegendConfig->legend());
+
     m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
 }
 

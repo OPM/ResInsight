@@ -20,22 +20,40 @@
 
 #include "RimProject.h"
 
+
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
+
 #include "RigCaseData.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCase.h"
+
 #include "RimCaseCollection.h"
+#include "RimCommandObject.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
-#include "RimEclipseView.h"
 #include "RimScriptCollection.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
+#include "RimCalcScript.h"
+
+#include "RiuMainWindow.h"
+#include "RiaApplication.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 #include <QDir>
-#include "RimGeoMechModels.h"
-#include "RimGeoMechCase.h"
+#include "cafCmdFeature.h"
+#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
+#include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
+#include "RimEclipseStatisticsCaseCollection.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -44,49 +62,54 @@ CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 RimProject::RimProject(void)
 {
     CAF_PDM_InitFieldNoDefault(&m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "");
-    m_projectFileVersionString.setUiHidden(true);
+    m_projectFileVersionString.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&nextValidCaseId, "NextValidCaseId", 0, "Next Valid Case ID", "", "" ,"");
-    nextValidCaseId.setUiHidden(true);
+    nextValidCaseId.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&nextValidCaseGroupId, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "" ,"");
-    nextValidCaseGroupId.setUiHidden(true);
+    nextValidCaseGroupId.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&oilFields, "OilFields", "Oil Fields",  "", "", "");
-    oilFields.setUiHidden(true);
+    oilFields.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
+    scriptCollection.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
-    treeViewState.setUiHidden(true);
+    treeViewState.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
-    wellPathImport.setUiHidden(true);
-    wellPathImport.setUiChildrenHidden(true);
+    wellPathImport.uiCapability()->setUiHidden(true);
+    wellPathImport.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
-    //wellPathImport.setUiHidden(true);
+    //wellPathImport.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
-    currentModelIndexPath.setUiHidden(true);
+    currentModelIndexPath.uiCapability()->setUiHidden(true);
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
-    casesObsolete.setUiHidden(true);
-    casesObsolete.setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    casesObsolete.uiCapability()->setUiHidden(true);
+    casesObsolete.xmlCapability()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
     CAF_PDM_InitFieldNoDefault(&caseGroupsObsolete, "CaseGroups", "",  "", "", "");
-    caseGroupsObsolete.setUiHidden(true);
-    caseGroupsObsolete.setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    caseGroupsObsolete.uiCapability()->setUiHidden(true);
+    caseGroupsObsolete.xmlCapability()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
 
     // Initialization
 
     scriptCollection = new RimScriptCollection();
-    scriptCollection->directory.setUiHidden(true);
+    scriptCollection->directory.uiCapability()->setUiHidden(true);
+    scriptCollection->uiCapability()->setUiName("Scripts");
+    scriptCollection->uiCapability()->setUiIcon(QIcon(":/Default.png"));
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back(new RimOilField);
 
     initScriptDirectories();
+
+    this->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,6 +142,8 @@ void RimProject::close()
 
     nextValidCaseId = 0;
     nextValidCaseGroupId = 0;
+    currentModelIndexPath = "";
+    treeViewState = "";
 }
 
 
@@ -497,5 +522,307 @@ void RimProject::computeUtmAreaOfInterest()
         wellPathImport->east = east;
         wellPathImport->west = west;
     }
+}
+
+
+
+
+
+
+
+#include "cafCmdFeatureManager.h"
+#include "cafSelectionManager.h"
+
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellRangeFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechView.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include <QMenu>
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
+{
+    QStringList commandIds;
+
+    std::vector<caf::PdmUiItem*> uiItems;
+    caf::SelectionManager::instance()->selectedItems(uiItems);
+
+    if (uiItems.size() > 1)
+    {
+        commandIds << "RicCopyReferencesToClipboardFeature";
+    }
+    else if (uiItems.size() == 1)
+    {
+        caf::PdmUiItem* uiItem = uiItems[0];
+        CVF_ASSERT(uiItem);
+
+        if (dynamic_cast<RimEclipseCaseCollection*>(uiItem))
+        {
+            commandIds << "RicImportEclipseCaseFeature";
+            commandIds << "RicImportInputEclipseCaseFeature";
+            commandIds << "RicCreateGridCaseGroupFeature";
+            commandIds << "RicEclipseCaseNewGroupFeature";
+        }
+        else if (dynamic_cast<RimGeoMechView*>(uiItem))
+        {
+            commandIds << "RicNewViewFeature";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteGeoMechViewsFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimEclipseView*>(uiItem))
+        {
+            commandIds << "RicNewViewFeature";
+
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteEclipseViewsFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimCaseCollection*>(uiItem))
+        {
+            commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "RicNewStatisticsCaseFeature";
+        }
+        else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
+        {
+            //menu.addAction(QString("New View"), this, SLOT(slotAddView()));
+            //menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
+            //menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
+            commandIds << "RicNewViewFeature";
+            commandIds << "RicComputeStatisticsFeature";
+            commandIds << "RicCloseCaseFeature";
+            commandIds << "RicExecuteScriptForCasesFeature";
+        }
+        else if (dynamic_cast<RimEclipseCase*>(uiItem))
+        {
+            commandIds << "RicCopyReferencesToClipboardFeature";
+
+            commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "RicPasteEclipseViewsFeature";
+
+            commandIds << "RicCloseCaseFeature";
+            commandIds << "RicNewViewFeature";
+            commandIds << "RicEclipseCaseNewGroupFeature";
+            commandIds << "RicExecuteScriptForCasesFeature";
+        }
+        else if (dynamic_cast<RimGeoMechCase*>(uiItem))
+        {
+            commandIds << "RicPasteGeoMechViewsFeature";
+            commandIds << "RicNewViewFeature";
+            commandIds << "Separator";
+
+            commandIds << "RicCloseCaseFeature";
+        }
+        else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
+        {
+            commandIds << "RicEclipseCaseNewGroupFeature";
+            commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimCaseCollection*>(uiItem))
+        {
+            commandIds << "RicPasteEclipseCasesFeature";
+        }
+        else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
+        {
+            commandIds << "RicSaveEclipseResultAsInputPropertyFeature";
+        }
+        else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem))
+        {
+            commandIds << "RicAddEclipseInputPropertyFeature";
+        }
+        else if (dynamic_cast<RimEclipseInputProperty*>(uiItem))
+        {
+            commandIds << "RicDeleteItemFeature";
+            commandIds << "RicSaveEclipseInputPropertyFeature";
+        }
+        else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
+        {
+            commandIds << "RicRangeFilterNewFeature";
+            commandIds << "RicRangeFilterNewSliceIFeature";
+            commandIds << "RicRangeFilterNewSliceJFeature";
+            commandIds << "RicRangeFilterNewSliceKFeature";
+        }
+        else if (dynamic_cast<RimCellRangeFilter*>(uiItem))
+        {
+            commandIds << "RicRangeFilterInsertFeature";
+            commandIds << "RicRangeFilterNewSliceIFeature";
+            commandIds << "RicRangeFilterNewSliceJFeature";
+            commandIds << "RicRangeFilterNewSliceKFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
+        {
+            commandIds << "RicEclipsePropertyFilterNewFeature";
+        }
+        else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
+        {
+            commandIds << "RicEclipsePropertyFilterInsertFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
+        {
+            commandIds << "RicGeoMechPropertyFilterNewFeature";
+        }
+        else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
+        {
+            commandIds << "RicGeoMechPropertyFilterInsertFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimWellPathCollection*>(uiItem))
+        {
+            commandIds << "RicWellPathsDeleteAllFeature";
+            commandIds << "RicWellPathsImportFileFeature";
+            commandIds << "RicWellPathsImportSsihubFeature";
+        }
+        else if (dynamic_cast<RimWellPath*>(uiItem))
+        {
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimCalcScript*>(uiItem))
+        {
+            commandIds << "RicEditScriptFeature";
+            commandIds << "RicNewScriptFeature";
+            commandIds << "Separator";
+            commandIds << "RicExecuteScriptFeature";
+        }
+        else if (dynamic_cast<RimScriptCollection*>(uiItem))
+        {
+            commandIds << "RicAddScriptPathFeature";
+            commandIds << "RicDeleteScriptPathFeature";
+        }
+    }
+    
+    if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
+    {
+        commandIds << "Separator";
+        commandIds << "RicToggleItemsOnFeature";
+        commandIds << "RicToggleItemsOffFeature";
+        commandIds << "RicToggleItemsFeature";
+    }
+
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    for (int i = 0; i < commandIds.size(); i++)
+    {
+        if (commandIds[i] == "Separator")
+        {
+            contextMenu.addSeparator();
+        }
+        else if (commandIds[i] == "RicExecuteScriptForCasesFeature")
+        {
+            // Execute script on selection of cases
+             RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
+             if (ruiMainWindow)
+             { 
+                std::vector<RimCase*> cases;
+                ruiMainWindow->selectedCases(cases);
+
+                if (cases.size() > 0)
+                {
+                    QMenu* executeMenu = contextMenu.addMenu("Execute script");
+
+                    RiaApplication* app = RiaApplication::instance();
+                    RimProject* proj = app->project();
+                    if (proj && proj->scriptCollection())
+                    {
+                        RimScriptCollection* rootScriptCollection = proj->scriptCollection();
+
+                        // Root script collection holds a list of subdirectories of user defined script folders
+                        for (size_t i = 0; i < rootScriptCollection->subDirectories.size(); i++)
+                        {
+                            RimScriptCollection* subDir = rootScriptCollection->subDirectories[i];
+
+                            if (subDir)
+                            {
+                                appendScriptItems(executeMenu, subDir);
+                            }
+                        }
+                    }
+
+                    contextMenu.addSeparator();
+                    contextMenu.addMenu(executeMenu);
+                }
+            }
+        }
+        else
+        {
+            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+            if (feature->canFeatureBeExecuted())
+            {
+                QAction* act = commandManager->action(commandIds[i]);
+                CVF_ASSERT(act);
+
+                contextMenu.addAction(act);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection)
+{
+    CVF_ASSERT(menu);
+
+    QDir dir(scriptCollection->directory);
+    QMenu* subMenu = menu->addMenu(dir.dirName());
+
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(commandManager);
+
+    RicExecuteScriptForCasesFeature* executeScriptFeature = dynamic_cast<RicExecuteScriptForCasesFeature*>(commandManager->getCommandFeature("RicExecuteScriptForCasesFeature"));
+    CVF_ASSERT(executeScriptFeature);
+
+    for (size_t i = 0; i < scriptCollection->calcScripts.size(); i++)
+    {
+        RimCalcScript* calcScript = scriptCollection->calcScripts[i];
+        QFileInfo fi(calcScript->absolutePath());
+
+        QString menuText = fi.baseName();
+        QAction* scriptAction = subMenu->addAction(menuText, executeScriptFeature, SLOT(slotExecuteScriptForSelectedCases()));
+
+        scriptAction->setData(QVariant(calcScript->absolutePath()));
+    }
+
+    for (size_t i = 0; i < scriptCollection->subDirectories.size(); i++)
+    {
+        RimScriptCollection* subDir = scriptCollection->subDirectories[i];
+
+        appendScriptItems(subMenu, subDir);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    RimOilField* oilField = activeOilField();
+    if (oilField)
+    {
+        if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
+        if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
+        if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
+    }
+
+    uiTreeOrdering.add(scriptCollection());
+
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 

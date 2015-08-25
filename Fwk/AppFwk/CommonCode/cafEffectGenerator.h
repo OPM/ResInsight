@@ -46,6 +46,11 @@
 #include "cvfString.h"
 #include "cvfRenderStatePolygonOffset.h"
 
+namespace cvf
+{
+    class RenderStatePolygonOffset;
+}
+
 namespace caf {
 
 class CommonShaderSources
@@ -88,7 +93,8 @@ public:
     EffectGenerator()           {}
     virtual ~EffectGenerator()  {}
 
-    cvf::ref<cvf::Effect>       generateEffect() const;
+    cvf::ref<cvf::Effect>       generateUnCachedEffect() const;
+    cvf::ref<cvf::Effect>       generateCachedEffect() const;
     void                        updateEffect(cvf::Effect* effect) const;
 
     static void                 setRenderingMode(RenderingModeType effectType);
@@ -230,6 +236,7 @@ class MeshEffectGenerator : public EffectGenerator
 {
 public:
     MeshEffectGenerator(const cvf::Color3f& color);
+    void setLineStipple(bool enable) { m_lineStipple = enable; }
 
 protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
@@ -240,6 +247,7 @@ protected:
 
 private:
     cvf::Color3f m_color;
+    bool         m_lineStipple;
 };
 
 

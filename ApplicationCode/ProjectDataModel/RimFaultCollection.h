@@ -19,16 +19,20 @@
 
 #pragma once
 
+#include "RimReservoirCellResultsStorage.h"
+
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+
 #include "cvfBase.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
-#include "RimReservoirCellResultsStorage.h"
 
 #include <QString>
 
@@ -78,10 +82,10 @@ public:
     caf::PdmField<bool>                 showNNCs;
     caf::PdmField<bool>                 hideNncsWhenNoResultIsAvailable;
 
-    caf::PdmPointersField<RimFault*>    faults;
+    caf::PdmChildArrayField<RimFault*>    faults;
     RimFault*                           findFaultByName(QString name);
 
-    caf::PdmField<RimNoCommonAreaNncCollection*> noCommonAreaNnncCollection;
+    caf::PdmChildField<RimNoCommonAreaNncCollection*> noCommonAreaNnncCollection;
 
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*        objectToggleField();

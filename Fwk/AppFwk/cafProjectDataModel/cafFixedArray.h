@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include "cvfAssert.h"
+
 namespace caf
 {
 
@@ -55,8 +57,8 @@ public:
 
     FixedArray<T, size>& operator=(const T* ptr) { for (size_t i = 0; i < size ; ++i) m_array[i] = ptr[i]; return *this;} 
 
-    template<typename IndexType>       T& operator[](const IndexType& index)       { return m_array[index]; }
-    template<typename IndexType> const T& operator[](const IndexType& index) const { return m_array[index]; }
+    template<typename IndexType>       T& operator[](const IndexType& index)       { CVF_TIGHT_ASSERT(static_cast<size_t>(index) < size); return m_array[index]; }
+    template<typename IndexType> const T& operator[](const IndexType& index) const { CVF_TIGHT_ASSERT(static_cast<size_t>(index) < size); return m_array[index]; }
 };
 
 typedef FixedArray<int, 3>    IntArray3;

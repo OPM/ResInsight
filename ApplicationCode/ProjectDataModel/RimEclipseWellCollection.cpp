@@ -82,10 +82,10 @@ CAF_PDM_SOURCE_INIT(RimEclipseWellCollection, "Wells");
 //--------------------------------------------------------------------------------------------------
 RimEclipseWellCollection::RimEclipseWellCollection()
 {
-    CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("Simulation Wells", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
-    isActive.setUiHidden(true);
+    isActive.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
@@ -98,7 +98,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&pipeRadiusScaleFactor,       "WellPipeRadiusScale",    0.1,                        "Pipe radius scale", "", "", "");
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
-    pipeCrossSectionVertexCount.setUiHidden(true);
+    pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_NONE),  "Add cells to range filter", "", "", "");
     CAF_PDM_InitField(&showWellCellFences,  "ShowWellFences",           false,                              "Use well fence", "", "", "");
@@ -109,6 +109,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
+    wells.uiCapability()->setUiHidden(true);
 
     m_reservoirView = NULL;
 }

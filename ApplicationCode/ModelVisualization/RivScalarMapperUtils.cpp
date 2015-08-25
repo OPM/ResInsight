@@ -102,7 +102,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGe
     cellFaceEffectGen.setFaceCulling(faceCulling);
     cellFaceEffectGen.disableLighting(disableLighting);
 
-	cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateEffect();
+    cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateCachedEffect();
 	return eff;
 }
 
@@ -119,7 +119,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createScalarMapperEffect(const cvf::
     scalarEffgen.setFaceCulling(faceCulling);
     scalarEffgen.disableLighting(disableLighting);
 
-	cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+    cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateCachedEffect();
 
 	return scalarEffect;
 }
@@ -136,7 +136,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createTernaryScalarMapperEffect(cons
 	scalarEffgen.setOpacityLevel(opacityLevel);
     scalarEffgen.setFaceCulling(faceCulling);
     scalarEffgen.disableLighting(disableLighting);
-	cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+    cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateCachedEffect();
 
 	return scalarEffect;
 }

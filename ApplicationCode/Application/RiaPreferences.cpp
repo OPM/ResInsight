@@ -21,10 +21,12 @@
 #include "RiaStdInclude.h"
 #include "RiaPreferences.h"
 
-#include "cafPdmUiFilePathEditor.h"
+#include "RifReaderSettings.h"
+
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmUiCheckBoxEditor.h"
-#include "RifReaderSettings.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiFilePathEditor.h"
 
 CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
 //--------------------------------------------------------------------------------------------------
@@ -35,17 +37,17 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RiaApplication::RINavigationPolicy>(RiaApplication::NAVIGATION_POLICY_CEETRON), "Navigation mode", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
-    scriptDirectories.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    scriptDirectories.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
     CAF_PDM_InitField(&scriptEditorExecutable,          "scriptEditorExecutable", QString("kate"), "Script Editor", "", "", "");
-    scriptEditorExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    scriptEditorExecutable.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
     CAF_PDM_InitField(&octaveExecutable,                "octaveExecutable", QString("octave"), "Octave executable location", "", "", "");
-    octaveExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-    octaveExecutable.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    octaveExecutable.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    octaveExecutable.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitField(&octaveShowHeaderInfoWhenExecutingScripts, "octaveShowHeaderInfoWhenExecutingScripts", false, "Show text header when executing scripts", "", "", "");
-    octaveShowHeaderInfoWhenExecutingScripts.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    octaveShowHeaderInfoWhenExecutingScripts.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&ssihubAddress,                   "ssihubAddress", QString("http://"), "ssihub Address", "", "", "");
 
@@ -62,13 +64,13 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&showHud,                         "showHud", false, "Show 3D Information", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
-    lastUsedProjectFileName.setUiHidden(true);
+    lastUsedProjectFileName.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&autocomputeDepthRelatedProperties, "autocomputeDepth", true, "Compute DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
-    autocomputeDepthRelatedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    autocomputeDepthRelatedProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     
     CAF_PDM_InitField(&loadAndShowSoil, "loadAndShowSoil", true, "Load and show SOIL", "", "", "");
-    loadAndShowSoil.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    loadAndShowSoil.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     readerSettings = new RifReaderSettings;
     CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader settings", "", "", "");

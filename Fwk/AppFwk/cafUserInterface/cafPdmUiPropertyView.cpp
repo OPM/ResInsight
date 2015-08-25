@@ -83,7 +83,7 @@ void PdmUiPropertyView::setUiConfigurationName(QString uiConfigName)
 
         if (m_currentObjectView)
         {
-            PdmObject* object = m_currentObjectView->pdmObject();
+            PdmObjectHandle* object = m_currentObjectView->pdmObject();
             delete m_currentObjectView;
             m_currentObjectView = NULL;
             this->showProperties(object);
@@ -94,7 +94,7 @@ void PdmUiPropertyView::setUiConfigurationName(QString uiConfigName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyView::showProperties(caf::PdmObject* object)
+void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 {
     // Find specialized object view handle 
 
@@ -108,7 +108,10 @@ void PdmUiPropertyView::showProperties(caf::PdmObject* object)
     {
         if (object)
         {
-            if (m_currentObjectView->pdmObject()->uiEditorTypeName(m_uiConfigName) != object->uiEditorTypeName(m_uiConfigName))
+            PdmUiObjectHandle* uiObject1 = uiObj(m_currentObjectView->pdmObject());
+            PdmUiObjectHandle* uiObject2 = uiObj(object);
+
+            if (uiObject1 && uiObject2 && (uiObject1->uiEditorTypeName(m_uiConfigName) != uiObject2->uiEditorTypeName(m_uiConfigName)))
             {
                 rebuildWidget = true;
             }
@@ -148,7 +151,7 @@ void PdmUiPropertyView::showProperties(caf::PdmObject* object)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* PdmUiPropertyView::currentObject()
+PdmObjectHandle* PdmUiPropertyView::currentObject()
 {
     if (!m_currentObjectView) return NULL;
     return m_currentObjectView->pdmObject();

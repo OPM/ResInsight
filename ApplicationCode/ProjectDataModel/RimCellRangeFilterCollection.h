@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimCellRangeFilter.h"
+#include "cafPdmChildArrayField.h"
 
 class RigActiveCellInfo;
 class RigGridBase;
@@ -38,7 +39,7 @@ public:
 
     // Fields
     caf::PdmField<bool> isActive;
-    caf::PdmField< std::list< caf::PdmPointer< RimCellRangeFilter > > > rangeFilters;
+    caf::PdmChildArrayField<RimCellRangeFilter*> rangeFilters;
 
     // Methods
     RimCellRangeFilter*             createAndAppendRangeFilter();

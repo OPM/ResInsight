@@ -32,13 +32,13 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitObject("RifReaderSettings", "", "", "");
 
     CAF_PDM_InitField(&importFaults, "importFaults", true, "Import faults", "", "", "");
-    importFaults.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    importFaults.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&importNNCs, "importSimulationNNCs", true, "Import NNCs", "", "", "");
-    importNNCs.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    importNNCs.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&importAdvancedMswData, "importAdvancedMswData", false, "Import advanced MSW data", "", "", "");
-    importAdvancedMswData.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    importAdvancedMswData.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------

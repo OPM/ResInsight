@@ -81,7 +81,11 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_label->setToolTip(field()->uiToolTip(uiConfigName));
 
     PdmUiPushButtonEditorAttribute attributes;
-    field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
+    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+    }
 
     QVariant variantFieldValue = field()->uiValue();
 
@@ -109,8 +113,6 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         m_pushButton->setChecked(field()->uiValue().toBool());
     }
-
-   
 }
 
 
@@ -139,7 +141,7 @@ QWidget* PdmUiPushButtonEditor::createLabelWidget(QWidget * parent)
 void PdmUiPushButtonEditor::slotClicked(bool checked)
 {
 
-    if (dynamic_cast<PdmField<bool> *> (field()))
+    if (field() && dynamic_cast<PdmField<bool> *> (field()->fieldHandle()))
     {
         QVariant v;
         v = checked;

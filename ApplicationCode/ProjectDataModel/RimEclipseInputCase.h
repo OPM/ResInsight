@@ -18,16 +18,18 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "RimEclipseCase.h"
+
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimEclipseCase.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
 
 class RifReaderInterface;
-class RimEclipseInputPropertyCollection;
 class RimEclipseInputProperty;
+class RimEclipseInputPropertyCollection;
 
 //==================================================================================================
 //
@@ -43,7 +45,7 @@ public:
     virtual ~RimEclipseInputCase();
 
     // Fields
-    caf::PdmField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
+    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
     // File open methods
     void                        openDataFileSet(const QStringList& fileNames);

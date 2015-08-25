@@ -21,14 +21,18 @@
 #include "RimEclipsePropertyFilter.h"
 
 #include "RigCaseCellResultsData.h"
+
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
+#include "RimReservoirCellResultsStorage.h"
+
+#include "RiuMainWindow.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+
 #include "cvfAssert.h"
 #include "cvfMath.h"
-#include "RiuMainWindow.h"
 
 
 namespace caf
@@ -49,34 +53,26 @@ CAF_PDM_SOURCE_INIT(RimEclipsePropertyFilter, "CellPropertyFilter");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilter::RimEclipsePropertyFilter()
-    : m_parentContainer(NULL)
 {
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation region", "", "", "");
-    obsoleteField_evaluationRegion.setUiHidden(true);
-    obsoleteField_evaluationRegion.setIOWritable(false);
+    obsoleteField_evaluationRegion.uiCapability()->setUiHidden(true);
+    obsoleteField_evaluationRegion.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimEclipseResultDefinition();
-    
-    // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
-    resultDefinition->m_resultTypeUiField.setOwnerObject(this);
-    resultDefinition->m_resultTypeUiField.setUiName("");
-    resultDefinition->m_porosityModelUiField.setOwnerObject(this);
-    resultDefinition->m_porosityModelUiField.setUiName("");
-    resultDefinition->m_resultVariableUiField.setOwnerObject(this);
-    resultDefinition->m_resultVariableUiField.setUiName("");
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
-    resultDefinition.setUiHidden(true);
+    resultDefinition.uiCapability()->setUiHidden(true);
+    resultDefinition.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitField(&lowerBound, "LowerBound", 0.0, "Min", "", "", "");
-    lowerBound.setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&upperBound, "UpperBound", 0.0, "Max", "", "", "");
-    upperBound.setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
 
@@ -100,39 +96,24 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
     }
 
-    if (   &(resultDefinition->m_resultTypeUiField) == changedField 
-        || &(resultDefinition->m_porosityModelUiField) == changedField)
-    {
-        resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
-    }
-
-    if ( &(resultDefinition->m_resultVariableUiField) == changedField )
-    {
-        resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
-        setToDefaultValues();
-        m_parentContainer->fieldChangedByUi(changedField, oldValue,  newValue);
-        updateFilterName();
-    }
-
     if (   &lowerBound == changedField 
         || &upperBound == changedField
         || &obsoleteField_evaluationRegion == changedField
         || &isActive == changedField
         || &filterMode == changedField)
     {
-        m_parentContainer->fieldChangedByUi(changedField, oldValue, newValue);
+        parentContainer()->fieldChangedByUi(changedField, oldValue, newValue);
         updateFilterName();
         this->updateIconState();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Property filter can handle only one value per cell. Remove option items that has more than
+/// one value per cell
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+void RimEclipsePropertyFilter::removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems)
 {
-    QList<caf::PdmOptionItemInfo> optionItems = resultDefinition->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
-
     std::vector<int> indicesToRemove;
     for (int i = 0; i < optionItems.size(); i++)
     {
@@ -145,22 +126,12 @@ QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(co
     }
 
     std::sort(indicesToRemove.begin(), indicesToRemove.end());
-    
+
     std::vector<int>::reverse_iterator rit;
     for (rit = indicesToRemove.rbegin(); rit != indicesToRemove.rend(); ++rit)
     {
         optionItems.takeAt(*rit);
     }
-
-    return optionItems;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::setParentContainer(RimEclipsePropertyFilterCollection* parentContainer)
-{
-    m_parentContainer = parentContainer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +139,7 @@ void RimEclipsePropertyFilter::setParentContainer(RimEclipsePropertyFilterCollec
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 {
-    return m_parentContainer;
+    return dynamic_cast<RimEclipsePropertyFilterCollection*>(this->parentField()->ownerObject());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,7 +147,7 @@ RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::setToDefaultValues()
 {
-    CVF_ASSERT(m_parentContainer);
+    CVF_ASSERT(parentContainer());
 
     computeResultValueRange();
 
@@ -236,7 +207,7 @@ void RimEclipsePropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::computeResultValueRange()
 {
-    CVF_ASSERT(m_parentContainer);
+    CVF_ASSERT(parentContainer());
 
     double min = 0.0;
     double max = 0.0;
@@ -254,8 +225,8 @@ void RimEclipsePropertyFilter::computeResultValueRange()
     m_maximumResultValue = max;
     m_minimumResultValue = min;
 
-    lowerBound.setUiName(QString("Min (%1)").arg(min));
-    upperBound.setUiName(QString("Max (%1)").arg(max));
+    lowerBound.uiCapability()->setUiName(QString("Min (%1)").arg(min));
+    upperBound.uiCapability()->setUiName(QString("Max (%1)").arg(max));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,5 +239,18 @@ void RimEclipsePropertyFilter::updateFilterName()
      + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
     this->name = newFiltername;
     RiuMainWindow::instance()->forceProjectTreeRepaint();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::initAfterRead()
+{
+    resultDefinition->initAfterRead();
+
+    resultDefinition->setReservoirView(parentContainer()->reservoirView());
+    resultDefinition->loadResult();
+    updateIconState();
+    computeResultValueRange();
 }
 

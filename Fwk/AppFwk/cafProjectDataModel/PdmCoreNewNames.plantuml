@@ -1,0 +1,163 @@
+@startuml
+
+class PdmObjectHandle {
+    name()
+    fields();
+    referencingFields();
+	parentField();
+	template<T> capability()
+	void addCapability()
+	
+---
+	std::vector<PdmFieldHandle> m_fields;
+	std::vector<PdmObjectCapability*> m_capabilities;
+}
+
+
+PdmObjectHandle --* "n" PdmObjectCapability
+
+class PdmUiItem{
+
+}
+
+PdmObjectCapability <|- PdmUiObjectHandle 
+PdmUiItem <|- PdmUiObjectHandle 
+
+class PdmUiObjectHandle {
+  uiOrdering() = ?;
+  uiTreeOrdering() = ? ;
+  editorAttribute() = ?;
+
+  objectEditorAttribute() = ? ;
+
+  userDescriptionField(); 
+  objectToggleField() 
+  
+  calculateValueOptions() = ?;
+
+  fieldChangedByUi() = 0;
+  ---
+  m_descriptionField;
+  m_objectToggleField; 
+}
+
+PdmUiObjectHandle  <|-- PdmObject
+PdmObjectHandle <|-- PdmObject
+PdmXmlObjectHandle   <|-- PdmObject
+
+
+class PdmXmlObjectHandle   {
+    classKeyword() = 0;
+    readFields ();
+    writeFields();
+}	
+
+PdmObjectCapability <|- PdmXmlObjectHandle  
+
+
+
+package FieldHandle{
+
+PdmObjectHandle --> "n" PdmFieldHandle
+
+class PdmFieldHandle{
+ name()
+ 
+ setOwnerObject();        
+ ownerObject();                            
+
+ hasChildObjects() = 0;
+ childObjects( ) = 0;  
+ ---
+ std::vector<PdmFieldCapability*> m_attributes;
+}
+
+
+PdmFieldHandle --* "n" PdmFieldCapability
+
+class PdmUiFieldHandle{
+
+    uiValue() 
+    setValueFromUi()
+
+    valueOptions( ) = 0;
+
+}
+
+PdmFieldCapability <|- PdmUiFieldHandle
+PdmUiItem <|- PdmUiFieldHandle
+
+
+class PdmXmlFieldHandle {
+ setKeyword();
+ keyword();                          
+
+ readFieldData()  = 0;
+ writeFieldData() = 0;
+ 
+ isIOReadable()                 
+ isIOWritable()                 
+ setIOWritable() 
+ setIOReadable() 
+---
+ bool m_isReadable;
+ bool m_isWritable;
+}
+
+PdmFieldCapability <|- PdmXmlFieldHandle
+
+
+
+}
+
+package ToDoFields{
+class "InternalPdmXmlFieldCapability<PdmPtrField<T>>"{
+}
+}
+
+package SplittedFields{
+
+PdmFieldHandle <|--- "PdmField<T>"
+"PdmField<T>" --> "InternalPdmUiFieldCapability<FieldT>"
+"PdmField<T>" --> "InternalPdmXmlFieldCapability<FieldT>"
+
+PdmFieldHandle    <|--- "PdmProxyField<T>"
+"PdmProxyField<T>" --> "InternalPdmUiFieldCapability<FieldT>"
+"PdmProxyField<T>" --> "InternalPdmXmlFieldCapability<FieldT>"
+
+PdmUiFieldHandle  <|--- "InternalPdmUiFieldCapability<FieldT>"
+PdmXmlFieldHandle <|--- "InternalPdmXmlFieldCapability<FieldT>"
+
+PdmFieldHandle <|--- "PdmPtrField<T*>"
+"PdmPtrField<T*>" --> "InternalPdmUiFieldCapability<FieldT>"
+"PdmPtrField<T*>" --> "InternalPdmXmlFieldCapability<FieldT>"
+"PdmPtrField<T*>" ..> "Todo" "InternalPdmXmlFieldCapability<PdmPtrField<T>>"
+
+PdmFieldHandle <|--- "PdmChildField<T*>"
+"PdmChildField<T*>"--> "InternalPdmUiFieldCapability<PdmField<T*>>"
+"PdmChildField<T*>"--> "InternalPdmXmlFieldCapability<PdmField<T*>>"
+PdmFieldHandle <|--- "PdmChildArrayField<T*>"
+"PdmChildArrayField<T*>"--> "InternalPdmUiFieldCapability<PdmPointersField<T*>>"
+"PdmChildArrayField<T*>"--> "InternalPdmXmlFieldCapability<PdmPointersField<T*>>"
+
+}
+
+
+package ToDoFields{
+PdmFieldHandle <|-- "PdmProxyPtrField<T>"
+"PdmProxyPtrField<T>" -->  "InternalPdmUiFieldCapability<FieldT>"
+"PdmProxyPtrField<T>" ..> "Todo" "InternalPdmXmlFieldCapability<PdmPtrField<T>>"
+
+PdmFieldHandle <|-- "PdmProxyChildField<T*>"
+"PdmProxyChildField<T*>"--> "InternalPdmUiFieldCapability<PdmField<T*>>"
+"PdmProxyChildField<T*>"--> "InternalPdmXmlFieldCapability<PdmField<T*>>"
+PdmFieldHandle <|-- "PdmProxyChildArrayField<T*>"
+"PdmProxyChildArrayField<T*>"--> "InternalPdmUiFieldCapability<PdmPointersField<T*>>"
+"PdmProxyChildArrayField<T*>"--> "InternalPdmXmlFieldCapability<PdmPointersField<T*>>"
+
+}
+
+
+
+@enduml
+		

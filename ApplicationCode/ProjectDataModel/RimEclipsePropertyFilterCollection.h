@@ -20,6 +20,8 @@
 
 #include "RimEclipsePropertyFilter.h"
 
+#include "cafPdmChildArrayField.h"
+
 //==================================================================================================
 ///  
 ///  
@@ -34,7 +36,7 @@ public:
 
     // Fields:
     caf::PdmField<bool> active;
-    caf::PdmPointersField<RimEclipsePropertyFilter*> propertyFilters;
+    caf::PdmChildArrayField<RimEclipsePropertyFilter*> propertyFilters;
 
     // Methods
     RimEclipsePropertyFilter*  createAndAppendPropertyFilter();

@@ -39,21 +39,21 @@ CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
 RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
     : m_parentContainer(NULL)
 {
-    CAF_PDM_InitObject("GeoMech Property Filter", ":/CellFilter_Values.png", "", "");
+    CAF_PDM_InitObject("Property Filter", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimGeoMechResultDefinition();
-    resultDefinition->setOwnerPropertyFilter(this);
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
-    resultDefinition.setUiHidden(true);
+    resultDefinition.uiCapability()->setUiHidden(true);
+    resultDefinition.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitField(&lowerBound, "LowerBound", 0.0, "Min", "", "", "");
-    lowerBound.setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&upperBound, "UpperBound", 0.0, "Max", "", "", "");
-    upperBound.setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
 
@@ -177,8 +177,8 @@ void RimGeoMechPropertyFilter::computeResultValueRange()
     m_maximumResultValue = max;
     m_minimumResultValue = min;
 
-    lowerBound.setUiName(QString("Min (%1)").arg(min));
-    upperBound.setUiName(QString("Max (%1)").arg(max));
+    lowerBound.uiCapability()->setUiName(QString("Min (%1)").arg(min));
+    upperBound.uiCapability()->setUiName(QString("Max (%1)").arg(max));
 }
 
 //--------------------------------------------------------------------------------------------------

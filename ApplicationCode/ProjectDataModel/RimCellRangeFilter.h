@@ -44,7 +44,6 @@ public:
     RimCellRangeFilter();
     virtual ~RimCellRangeFilter();
 
-    void setParentContainer(RimCellRangeFilterCollection* parentContainer);
     RimCellRangeFilterCollection* parentContainer();
     void setDefaultValues();
 
@@ -69,8 +68,6 @@ protected:
 
 private:
     const cvf::StructGridInterface*            selectedGrid();
-
-    RimCellRangeFilterCollection* m_parentContainer;
 };
 
 

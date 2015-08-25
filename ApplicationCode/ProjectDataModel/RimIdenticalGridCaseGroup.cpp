@@ -51,13 +51,21 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
 
     CAF_PDM_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "" ,"");
-    groupId.setUiReadOnly(true);
+    groupId.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "Derived Statistics", ":/Histograms16x16.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Source Cases", ":/Cases16x16.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField", "", "", "");
+    statisticsCaseCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Source Cases ChildArrayField", "", "", "");
+    caseCollection.uiCapability()->setUiHidden(true);
  
     caseCollection = new RimCaseCollection;
+    caseCollection->uiCapability()->setUiName("Source Cases");
+    caseCollection->uiCapability()->setUiIcon(QIcon(":/Cases16x16.png"));
+
     statisticsCaseCollection = new RimCaseCollection;
+    statisticsCaseCollection->uiCapability()->setUiName("Derived Statistics");
+    statisticsCaseCollection->uiCapability()->setUiIcon(QIcon(":/Histograms16x16.png"));
+
 
     m_mainGrid = NULL;
 
@@ -377,11 +385,14 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
     {
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
 
-        rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
-
-        if (i == 0)
+        if (rimStaticsCase->reservoirData())
         {
-            rimStaticsCase->reservoirData()->computeActiveCellBoundingBoxes();
+            rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
+
+            if (i == 0)
+            {
+                rimStaticsCase->reservoirData()->computeActiveCellBoundingBoxes();
+            }
         }
     }
 }
@@ -396,8 +407,14 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
         if (!rimStaticsCase) continue;
 
-        rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
-        rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->clearAllResults();
+        if (rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults())
+        {
+            rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
+        }
+        if (rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults())
+        {
+            rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->clearAllResults();
+        }
 
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)
         {
@@ -457,11 +474,10 @@ RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RifReaderInterf
 //--------------------------------------------------------------------------------------------------
 bool RimIdenticalGridCaseGroup::isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection)
 {
-    std::vector<caf::PdmFieldHandle*> fields;
-    rimCaseCollection->parentFields(fields);
-    if (fields.size() == 1)
+    caf::PdmFieldHandle* parentField = rimCaseCollection->parentField();
+    if (parentField)
     {
-        if (fields[0]->keyword() == "StatisticsCaseCollection")
+        if (parentField->keyword() == "StatisticsCaseCollection")
         {
             return true;
         }

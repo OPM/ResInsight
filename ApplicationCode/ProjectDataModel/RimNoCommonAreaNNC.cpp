@@ -29,7 +29,7 @@ RimNoCommonAreaNNC::RimNoCommonAreaNNC()
     CAF_PDM_InitObject("RimNoCommonAreaNNC", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&name,       "Name",             "Name", "", "", "");
-    name.setUiReadOnly(true);
+    name.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------

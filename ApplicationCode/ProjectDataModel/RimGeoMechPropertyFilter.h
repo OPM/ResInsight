@@ -21,6 +21,8 @@
 
 #include "RimCellFilter.h"
 
+#include "cafPdmChildField.h"
+
 
 class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;
@@ -37,7 +39,7 @@ public:
     RimGeoMechPropertyFilter();
     virtual ~RimGeoMechPropertyFilter();
 
-    caf::PdmField<RimGeoMechResultDefinition*>  resultDefinition;
+    caf::PdmChildField<RimGeoMechResultDefinition*>  resultDefinition;
 
     caf::PdmField<double>                       lowerBound;
     caf::PdmField<double>                       upperBound;

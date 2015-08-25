@@ -53,22 +53,22 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     CAF_PDM_InitObject("Color Result", ":/CellResult.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionType, "ResultPositionType" , "Result Position", "", "", "");
-    m_resultPositionType.setUiHidden(true);
+    m_resultPositionType.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_resultFieldName, "ResultFieldName", QString(""), "Field Name", "", "", "");
-    m_resultFieldName.setUiHidden(true);
+    m_resultFieldName.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_resultComponentName, "ResultComponentName", QString(""), "Component", "", "", "");
-    m_resultComponentName.setUiHidden(true);
+    m_resultComponentName.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position", "", "", "");
-    m_resultPositionTypeUiField.setIOWritable(false);
-    m_resultPositionTypeUiField.setIOReadable(false);
+    m_resultPositionTypeUiField.xmlCapability()->setIOWritable(false);
+    m_resultPositionTypeUiField.xmlCapability()->setIOReadable(false);
 
     CAF_PDM_InitField(&m_resultVariableUiField, "ResultVariableUI", QString(""), "Value", "", "", "");
-    m_resultVariableUiField.setIOWritable(false);
-    m_resultVariableUiField.setIOReadable(false);
+    m_resultVariableUiField.xmlCapability()->setIOWritable(false);
+    m_resultVariableUiField.xmlCapability()->setIOReadable(false);
 
-    m_resultVariableUiField.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_resultVariableUiField.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_resultVariableUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +165,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     }
 
+    // Get the possible property filter owner
+    RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
+
     if (&m_resultVariableUiField == changedField)
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split(QRegExp("\\s+"));
@@ -186,9 +189,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 m_reservoirView->hasUserRequestedAnimation = true;
             }
             
-            if (m_propertyFilter)
+            if (propFilter)
             {
-                m_propertyFilter->setToDefaultValues();
+                propFilter->setToDefaultValues();
 
                 ((RimView*)reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
             }
@@ -196,10 +199,10 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             reservoirView()->scheduleCreateDisplayModelAndRedraw();
         }
     }
-
-    if (m_propertyFilter)
+      
+    if (propFilter)
     {
-        m_propertyFilter->updateConnectedEditors();
+        propFilter->updateConnectedEditors();
     }
 
 }
@@ -326,13 +329,6 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName(QString resultFie
     return resultFieldName;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechResultDefinition::setOwnerPropertyFilter( RimGeoMechPropertyFilter* propertyFilter )
-{
-    m_propertyFilter = propertyFilter;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

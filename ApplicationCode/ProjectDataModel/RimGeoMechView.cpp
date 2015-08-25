@@ -68,17 +68,19 @@ RimGeoMechView::RimGeoMechView(void)
 
     CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
     cellResult = new RimGeoMechCellColors();
+    cellResult.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
     rangeFilterCollection = new RimCellRangeFilterCollection();
     rangeFilterCollection->setReservoirView(this);
+    rangeFilterCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     propertyFilterCollection->setReservoirView(this);
+    propertyFilterCollection.uiCapability()->setUiHidden(true);
 
     this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
     this->cellResult()->legendConfig()->setReservoirView(this);
 
     m_scaleTransform = new cvf::Transform();

@@ -43,7 +43,7 @@ public:
 
     caf::PdmField<QString>                      name;
     caf::PdmField<bool>                         selected;
-    caf::PdmPointersField<RimOilFieldEntry*>    fields;
+    caf::PdmChildArrayField<RimOilFieldEntry*>    fields;
 
 };
 

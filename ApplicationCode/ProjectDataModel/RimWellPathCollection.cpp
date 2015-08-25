@@ -26,6 +26,7 @@
 #include "RimWellPath.h"
 #include "RivWellPathCollectionPartMgr.h"
 
+#include "cafPdmUiEditorHandle.h"
 #include "cafProgressInfo.h"
 
 #include <QFile>
@@ -56,7 +57,7 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
-    isActive.setUiHidden(true);
+    isActive.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&showWellPathLabel,               "ShowWellPathLabel",        true,                       "Show well path labels", "", "", "");
 
@@ -67,18 +68,20 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitField(&wellPathRadiusScaleFactor,       "WellPathRadiusScale",      0.1,                        "Well Path radius scale", "", "", "");
     CAF_PDM_InitField(&wellPathCrossSectionVertexCount, "WellPathVertexCount",      12,                          "Well Path vertex count", "", "", "");
-    wellPathCrossSectionVertexCount.setIOWritable(false);
-    wellPathCrossSectionVertexCount.setIOReadable(false);
-    wellPathCrossSectionVertexCount.setUiHidden(true);
+    wellPathCrossSectionVertexCount.xmlCapability()->setIOWritable(false);
+    wellPathCrossSectionVertexCount.xmlCapability()->setIOReadable(false);
+    wellPathCrossSectionVertexCount.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&wellPathClip,                    "WellPathClip",             true,                       "Clip Well Paths", "", "", "");
     CAF_PDM_InitField(&wellPathClipZDistance,           "WellPathClipZDistance",    100,                        "Well path clipping depth distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wellPaths,              "WellPaths",                                            "Well Paths",  "", "", "");
+    wellPaths.uiCapability()->setUiHidden(true);
 
     m_wellPathCollectionPartManager = new RivWellPathCollectionPartMgr(this);
     m_project = NULL;
 
     m_asciiFileReader = new RimWellPathAsciiFileReader;
+
 }
 
 

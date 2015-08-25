@@ -368,7 +368,7 @@ void RivFaultPartMgr::updatePartEffect()
     caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, caf::PO_1);
     geometryEffgen.setCullBackfaces(faceCullingMode());
   
-    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
+    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
 
     if (m_nativeFaultFaces.notNull())
     {
@@ -387,7 +387,7 @@ void RivFaultPartMgr::updatePartEffect()
 
     cvf::ref<cvf::Effect> eff;
     caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
-    eff = faultEffGen.generateEffect();
+    eff = faultEffGen.generateCachedEffect();
 
     if (m_nativeFaultGridLines.notNull())
     {
@@ -457,12 +457,15 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         
         cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
         {
-            std::vector<RimFaultCollection*> parentObjects;
-            m_rimFault->parentObjectsOfType(parentObjects);
-
-            if (parentObjects.size() > 0)
+            RimFault* noConstRimFault = const_cast<RimFault*>(m_rimFault);
+            if (noConstRimFault)
             {
-                defWellLabelColor = parentObjects[0]->faultLabelColor();;
+                RimFaultCollection* parentObject;
+                noConstRimFault->firstAnchestorOrThisOfType(parentObject);
+                if (parentObject)
+                {
+                    defWellLabelColor = parentObject->faultLabelColor();;
+                }
             }
         }
 
@@ -511,7 +514,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         m_faultLabelLinePart->updateBoundingBox();
 
         caf::MeshEffectGenerator gen(m_rimFault->faultColor());
-        cvf::ref<cvf::Effect> eff = gen.generateEffect();
+        cvf::ref<cvf::Effect> eff = gen.generateCachedEffect();
         
         m_faultLabelLinePart->setEffect(eff.p());
     }
@@ -674,13 +677,13 @@ void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
         {
             // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_NEG_LARGE);
-            nncEffect = nncEffgen.generateEffect();
+            nncEffect = nncEffgen.generateCachedEffect();
         }
         else
         {
             // If no grid is present, use same offset as grid geometry to be able to see mesh lines
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_1);
-            nncEffect = nncEffgen.generateEffect();
+            nncEffect = nncEffgen.generateCachedEffect();
         }
 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_NNCFaces->drawable());
@@ -702,13 +705,13 @@ void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
         {
             // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_NEG_LARGE);
-            nncEffect = nncEffgen.generateEffect();
+            nncEffect = nncEffgen.generateCachedEffect();
         }
         else
         {
             // If no grid is present, use same offset as grid geometry to be able to see mesh lines
             caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_1);
-            nncEffect = nncEffgen.generateEffect();
+            nncEffect = nncEffgen.generateCachedEffect();
         }
 
         m_NNCFaces->setEffect(nncEffect.p());

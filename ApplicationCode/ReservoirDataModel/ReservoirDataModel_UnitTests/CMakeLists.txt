@@ -20,7 +20,10 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ProjectDataModel
     ${ResInsight_SOURCE_DIR}/ThirdParty
 
-    ${ResInsight_SOURCE_DIR}/Fwk/AppFwk/cafProjectDataModel
+    #${ResInsight_SOURCE_DIR}/Fwk/AppFwk/cafProjectDataModel
+
+	${cafProjectDataModel_SOURCE_DIR}
+	${cafPdmCore_SOURCE_DIR}
 
     ${ResInsight_SOURCE_DIR}/Fwk/AppFwk/CommonCode
 

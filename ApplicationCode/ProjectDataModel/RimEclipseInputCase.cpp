@@ -46,12 +46,13 @@ RimEclipseInputCase::RimEclipseInputCase()
 {
     CAF_PDM_InitObject("RimInputCase", ":/EclipseInput48x48.png", "", "");
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");
-    m_gridFileName.setUiReadOnly(true);
+    m_gridFileName.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&m_additionalFileNames, "AdditionalFileNames", "Additional files", "", "" ,"");
-    m_additionalFileNames.setUiReadOnly(true);
+    m_additionalFileNames.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_inputPropertyCollection, "InputPropertyCollection", "",  "", "", "");
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
+    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden(true);
 }
 
 

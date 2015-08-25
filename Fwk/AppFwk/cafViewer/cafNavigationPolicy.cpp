@@ -47,3 +47,12 @@ cvf::Vec3d caf::NavigationPolicy::pointOfInterest()
     if(!m_viewer->mainScene() || !m_viewer->mainScene()->boundingBox().isValid()) return cvf::Vec3d::ZERO;
     return m_viewer->mainScene()->boundingBox().center();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::NavigationPolicy::setViewer(Viewer* viewer)
+{
+    m_viewer = viewer;
+    init();
+}

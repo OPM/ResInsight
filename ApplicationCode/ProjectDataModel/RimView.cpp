@@ -61,8 +61,9 @@ RimView::RimView(void)
     CAF_PDM_InitField(&name, "UserDescription", QString(""), "Name", "", "", "");
 
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
-    showWindow.setUiHidden(true);
+    showWindow.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
+    cameraPosition.uiCapability()->setUiHidden(true);
 
     double defaultScaleFactor = 1.0;
     if (preferences) defaultScaleFactor = preferences->defaultScaleFactorZ;
@@ -72,16 +73,17 @@ RimView::RimView(void)
     CAF_PDM_InitField(&backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum frame rate", "", "", "");
-    maximumFrameRate.setUiHidden(true);
+    maximumFrameRate.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "");
-    hasUserRequestedAnimation.setUiHidden(true);
+    hasUserRequestedAnimation.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "");
-    m_currentTimeStep.setUiHidden(true);
+    m_currentTimeStep.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
     overlayInfoConfig->setReservoirView(this);
+    overlayInfoConfig.uiCapability()->setUiHidden(true);
 
     caf::AppEnum<RimView::MeshModeType> defaultMeshType = NO_MESH;
     if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
@@ -270,14 +272,14 @@ void RimView::setMeshOnlyDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        meshMode.setValueFromUi(FULL_MESH);
+		meshMode.uiCapability()->setValueFromUi(FULL_MESH);
     }
     else
     {
-        meshMode.setValueFromUi(FAULTS_MESH);
+		meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
     }
 
-    surfaceMode.setValueFromUi(NO_SURFACE);
+	surfaceMode.uiCapability()->setValueFromUi(NO_SURFACE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,13 +289,13 @@ void RimView::setMeshSurfDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        surfaceMode.setValueFromUi(SURFACE);
-        meshMode.setValueFromUi(FULL_MESH);
+		surfaceMode.uiCapability()->setValueFromUi(SURFACE);
+		meshMode.uiCapability()->setValueFromUi(FULL_MESH);
     }
     else
     {
-        surfaceMode.setValueFromUi(FAULTS);
-        meshMode.setValueFromUi(FAULTS_MESH);
+		surfaceMode.uiCapability()->setValueFromUi(FAULTS);
+		meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
     }
 }
 
@@ -309,14 +311,14 @@ void RimView::setFaultMeshSurfDrawstyle()
     //  Mesh SF  SF    SF
     if (this->isGridVisualizationMode())
     {
-         surfaceMode.setValueFromUi(SURFACE);
+		surfaceMode.uiCapability()->setValueFromUi(SURFACE);
     }
     else
     {
-         surfaceMode.setValueFromUi(FAULTS);
+		surfaceMode.uiCapability()->setValueFromUi(FAULTS);
     }
 
-    meshMode.setValueFromUi(FAULTS_MESH);
+	meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,13 +328,14 @@ void RimView::setSurfOnlyDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        surfaceMode.setValueFromUi(SURFACE);
+		surfaceMode.uiCapability()->setValueFromUi(SURFACE);
     }
     else
     {
-        surfaceMode.setValueFromUi(FAULTS);
+		surfaceMode.uiCapability()->setValueFromUi(FAULTS);
     }
-    meshMode.setValueFromUi(NO_MESH);
+
+	meshMode.uiCapability()->setValueFromUi(NO_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,13 +346,13 @@ void RimView::setShowFaultsOnly(bool showFaults)
     if (showFaults)
     {
         m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
-        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(FAULTS);
-        if (meshMode() != NO_MESH) meshMode.setValueFromUi(FAULTS_MESH);
+		if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(FAULTS);
+		if (meshMode() != NO_MESH) meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
     }
     else
     {
-        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
-        if (meshMode() != NO_MESH) meshMode.setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH: FULL_MESH);
+		if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(SURFACE);
+		if (meshMode() != NO_MESH) meshMode.uiCapability()->setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
     }
 }
 
@@ -358,7 +361,7 @@ void RimView::setShowFaultsOnly(bool showFaults)
 //--------------------------------------------------------------------------------------------------
 void RimView::setSurfaceDrawstyle()
 {
-    if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
+	if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(SURFACE);
 }
 
 //--------------------------------------------------------------------------------------------------
