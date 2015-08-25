@@ -30,4 +30,4 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-source_group( "CommandFeature_ObjReferences" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
+source_group( "CommandFeature\\ObjReferences" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
