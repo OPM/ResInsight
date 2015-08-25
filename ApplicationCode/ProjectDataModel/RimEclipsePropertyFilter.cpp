@@ -109,12 +109,11 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Property filter can handle only one value per cell. Remove option items that has more than
+/// one value per cell
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+void RimEclipsePropertyFilter::removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems)
 {
-    QList<caf::PdmOptionItemInfo> optionItems = resultDefinition->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
-
     std::vector<int> indicesToRemove;
     for (int i = 0; i < optionItems.size(); i++)
     {
@@ -127,14 +126,12 @@ QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(co
     }
 
     std::sort(indicesToRemove.begin(), indicesToRemove.end());
-    
+
     std::vector<int>::reverse_iterator rit;
     for (rit = indicesToRemove.rbegin(); rit != indicesToRemove.rend(); ++rit)
     {
         optionItems.takeAt(*rit);
     }
-
-    return optionItems;
 }
 
 //--------------------------------------------------------------------------------------------------
