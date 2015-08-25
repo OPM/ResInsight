@@ -129,7 +129,9 @@ RiuMainWindow::RiuMainWindow()
     // Set pdm root so scripts are displayed
     setPdmRoot(RiaApplication::instance()->project());
 
-    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
+    // Enabling the line below will activate the undo stack
+    // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
+    //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 }
 
 
