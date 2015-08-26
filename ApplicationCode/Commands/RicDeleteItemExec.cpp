@@ -80,12 +80,9 @@ void RicDeleteItemExec::redo()
         RimCellRangeFilterCollection* rangeFilterColl;
         parentObj->firstAnchestorOrThisOfType(rangeFilterColl);
 
-        if (view && rangeFilterColl)
+        if (rangeFilterColl)
         {
-            view->scheduleGeometryRegen(RANGE_FILTERED);
-            view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
-
-            view->scheduleCreateDisplayModelAndRedraw();
+            rangeFilterColl->updateUiUpdateDisplayModel();
         }
 
         RimEclipsePropertyFilterCollection* eclipsePropColl;

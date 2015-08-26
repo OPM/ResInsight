@@ -26,6 +26,7 @@
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigGridBase.h"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
@@ -48,7 +49,6 @@ RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 
     CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +66,6 @@ void RimCellRangeFilterCollection::setReservoirView(RimView* reservoirView)
 {
     m_reservoirView = reservoirView;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// RimCellRangeFilter is using Eclipse 1-based indexing, adjust filter values before 
@@ -108,7 +107,6 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -127,7 +125,6 @@ RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
     return NULL;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -142,16 +139,20 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
     return NULL;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    updateUiUpdateDisplayModel();
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilterCollection::updateUiUpdateDisplayModel()
+{
     this->updateUiIconFromToggleField();
-
-    CVF_ASSERT(m_reservoirView);
 
     m_reservoirView->scheduleGeometryRegen(RANGE_FILTERED);
     m_reservoirView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
@@ -159,20 +160,6 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
     m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimCellRangeFilter* RimCellRangeFilterCollection::createAndAppendRangeFilter()
-{
-    RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
-    rangeFilters.push_back(rangeFilter);
-    rangeFilter->setDefaultValues();
-
-    rangeFilter->name = QString("New Filter (%1)").arg(rangeFilters().size());
-
-    return rangeFilter;
-}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -201,21 +188,6 @@ void RimCellRangeFilterCollection::initAfterRead()
     }
 
     this->updateUiIconFromToggleField();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::remove(RimCellRangeFilter* rangeFilter)
-{
-    for (size_t i = 0; i < rangeFilters.size(); i++)
-    {
-        if (rangeFilters[i] == rangeFilter)
-        {
-            rangeFilters.erase(i);
-            return;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

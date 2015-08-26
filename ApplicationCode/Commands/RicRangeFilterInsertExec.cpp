@@ -65,9 +65,7 @@ void RicRangeFilterInsertExec::redo()
         rangeFilter->setDefaultValues();
         applyCommandDataOnFilter(rangeFilter);
 
-        m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED);
-        m_cellRangeFilterCollection->reservoirView()->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
-        m_cellRangeFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
+        m_cellRangeFilterCollection->updateUiUpdateDisplayModel();
 
         m_cellRangeFilterCollection->updateConnectedEditors();
 

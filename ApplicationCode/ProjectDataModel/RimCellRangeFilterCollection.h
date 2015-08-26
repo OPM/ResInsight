@@ -19,12 +19,13 @@
 #pragma once
 
 #include "RimCellRangeFilter.h"
+
 #include "cafPdmChildArrayField.h"
 
 class RigActiveCellInfo;
+class RigFemPartCollection;
 class RigGridBase;
 class RimView;
-class RigFemPartCollection;
 
 //==================================================================================================
 ///  
@@ -42,9 +43,6 @@ public:
     caf::PdmChildArrayField<RimCellRangeFilter*> rangeFilters;
 
     // Methods
-    RimCellRangeFilter*             createAndAppendRangeFilter();
-    void                            remove(RimCellRangeFilter* rangeFilter);
-
     void                            compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex) const;
     bool                            hasActiveFilters() const;
     bool                            hasActiveIncludeFilters() const;
@@ -57,6 +55,8 @@ public:
     QString                         gridName(int gridIndex) const;
 
     RigActiveCellInfo*              activeCellInfo() const;
+
+    void                            updateUiUpdateDisplayModel();
 
     // Overridden methods
     virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );

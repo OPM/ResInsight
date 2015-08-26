@@ -25,6 +25,7 @@
 #include "RigCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
+
 #include "RimEclipseCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseView.h"
@@ -81,8 +82,7 @@ void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     {
         computeAndSetValidValues();
     
-        CVF_ASSERT(parentContainer());
-        parentContainer()->fieldChangedByUi(changedField, oldValue, newValue);
+        parentContainer()->updateUiUpdateDisplayModel();
     }
 }
 
