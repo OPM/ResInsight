@@ -58,6 +58,7 @@
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
 #include "RiuDragDrop.h"
+#include "RiuWellLogViewer.h"
 
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
@@ -632,6 +633,19 @@ void RiuMainWindow::createDockPanels()
 
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
     }
+
+    // Test - create well log viewer in a dock widget
+    // TODO: remove after making MDI widgets for well log viewers
+//     {
+//         QDockWidget* dockPanel = new QDockWidget("TEST - Well Log Viewer", this);
+//         dockPanel->setObjectName("dockWellLogViewer");
+//         dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+//         
+//         RiuWellLogViewer* wellLogViewer = new RiuWellLogViewer(dockPanel);
+//         dockPanel->setWidget(wellLogViewer);
+// 
+//         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+//     }
 
  
     setCorner(Qt::BottomLeftCorner,	Qt::LeftDockWidgetArea);

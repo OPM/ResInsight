@@ -79,6 +79,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuDragDrop.h
 	UserInterface/RiuTreeViewEventFilter.cpp
 	UserInterface/RiuTreeViewEventFilter.h
+	UserInterface/RiuWellLogViewer.cpp
+	UserInterface/RiuWellLogViewer.h
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -160,6 +162,7 @@ set ( QT_MOC_HEADERS
     UserInterface/RiuMultiCaseImportDialog.h
     UserInterface/RiuViewerCommands.h
 	UserInterface/RiuTreeViewEventFilter.h
+	UserInterface/RiuWellLogViewer.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
@@ -348,6 +351,8 @@ set( LINK_LIBRARIES
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
+
+	Qwt
 )
 set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 
