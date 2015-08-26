@@ -1472,6 +1472,16 @@ void RiuMainWindow::slotBuildWindowActions()
             ++i;
         }
     }
+
+    m_windowMenu->addSeparator();
+    QAction* tileWindowsAction = new QAction("Tile Windows", this);
+    connect(tileWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(tileSubWindows()));
+
+    QAction* cascadeWindowsAction = new QAction("Cascade Windows", this);
+    connect(cascadeWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(cascadeSubWindows()));
+
+    m_windowMenu->addAction(tileWindowsAction);
+    m_windowMenu->addAction(cascadeWindowsAction);
 }
 
 //--------------------------------------------------------------------------------------------------
