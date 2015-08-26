@@ -102,13 +102,11 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
     if (resultVarNameOfNewLegend == RimDefines::ternarySaturationResultName())
     {
-        this->ternaryLegendConfig.uiCapability()->setUiHidden(false);
         this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(false);
         this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(true);
     }
     else
     {
-        this->ternaryLegendConfig.uiCapability()->setUiHidden(true);
         this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(true);
 
         bool found = false;
