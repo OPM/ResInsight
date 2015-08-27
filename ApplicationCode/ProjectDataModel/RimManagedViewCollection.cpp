@@ -116,3 +116,29 @@ void RimManagedViewCollection::updateResult(RimEclipseResultDefinition* resultDe
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewCollection::updateRangeFilters()
+{
+    for (size_t i = 0; i < managedViews.size(); i++)
+    {
+        RimManagedViewConfig* managedViewConfig = managedViews[i];
+        if (managedViewConfig->managedView())
+        {
+            if (managedViewConfig->syncRangeFilters())
+            {
+                RimView* rimView = managedViewConfig->managedView();
+                RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
+                if (eclipeView)
+                {
+                    eclipeView->scheduleGeometryRegen(RANGE_FILTERED);
+                    eclipeView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+
+                    eclipeView->scheduleCreateDisplayModelAndRedraw();
+                }
+            }
+        }
+    }
+}

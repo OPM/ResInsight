@@ -22,8 +22,11 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimCellRangeFilterCollection.h"
 #include "RimProject.h"
 #include "RimView.h"
+
+#include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
@@ -39,9 +42,10 @@ RimManagedViewConfig::RimManagedViewConfig(void)
     CAF_PDM_InitFieldNoDefault(&managedView, "ManagedView", "Managed View", "", "", "");
     managedView.uiCapability()->setUiChildrenHidden(true);
 
-    CAF_PDM_InitField(&syncCamera,      "SyncCamera", true,     "Sync Camera", "", "", "");
-    CAF_PDM_InitField(&syncCellResult,  "SyncCellResult", true, "Sync Cell Result", "", "", "");
-    CAF_PDM_InitField(&syncTimeStep,    "SyncTimeStep", true,   "Sync Time Step", "", "", "");
+    CAF_PDM_InitField(&syncCamera,      "SyncCamera", true,         "Sync Camera", "", "", "");
+    CAF_PDM_InitField(&syncCellResult,  "SyncCellResult", true,     "Sync Cell Result", "", "", "");
+    CAF_PDM_InitField(&syncTimeStep,    "SyncTimeStep", true,       "Sync Time Step", "", "", "");
+    CAF_PDM_InitField(&syncRangeFilters,"SyncRangeFilters", true,   "Sync Range Filters", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,5 +117,74 @@ void RimManagedViewConfig::allVisibleViews(std::vector<RimView*>& views)
 void RimManagedViewConfig::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &syncCamera || changedField == &syncTimeStep)
+    {
+        RimView* masterView = NULL;
+        firstAnchestorOrThisOfType(masterView);
+
+        masterView->viewer()->update();
+    }
+    else if (changedField == &syncRangeFilters)
+    {
+        configureOverrides();
+
+        if (managedView)
+        {
+            managedView->rangeFilterCollection()->updateUiUpdateDisplayModel();
+        }
+    }
+    else if (changedField == &managedView)
+    {
+        configureOverrides();
+
+        if (managedView)
+        {
+            managedView->rangeFilterCollection()->updateUiUpdateDisplayModel();
+        }
+
+        PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
+        if (prevValue)
+        {
+            RimView* rimView = dynamic_cast<RimView*>(prevValue);
+            rimView->setOverrideRangeFilterCollection(NULL);
+            rimView->rangeFilterCollection()->updateUiUpdateDisplayModel();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::configureOverrides()
+{
+    RimView* masterView = NULL;
+    firstAnchestorOrThisOfType(masterView);
+
+    if (managedView)
+    {
+        if (syncRangeFilters)
+        {
+            managedView->setOverrideRangeFilterCollection(masterView->rangeFilterCollection());
+        }
+        else
+        {
+            managedView->setOverrideRangeFilterCollection(NULL);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::initAfterRead()
+{
+    configureOverrides();
 }
 

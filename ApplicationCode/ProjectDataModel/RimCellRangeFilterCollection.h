@@ -47,9 +47,6 @@ public:
     bool                            hasActiveFilters() const;
     bool                            hasActiveIncludeFilters() const;
 
-    void                            setReservoirView(RimView* reservoirView);
-
-    RimView*                        reservoirView();
     const cvf::StructGridInterface* gridByIndex(int gridIndex) const;
     int                             gridCount() const;
     QString                         gridName(int gridIndex) const;
@@ -66,11 +63,11 @@ protected:
     // Overridden methods
     virtual void                    initAfterRead();
 
+private:
+    RimView*                        baseView() const;
 
 private:
     RimEclipseView*                 eclipseView() const;
     RigMainGrid*                    mainGrid() const;
     RigFemPartCollection*           femPartColl() const;
-
-    RimView*                        m_reservoirView;
 };

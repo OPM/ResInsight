@@ -46,4 +46,6 @@ public:
     void updateViewers(RiuViewer* masterViewer);
     void updateTimeStep(int timeStep);
     void updateResult(RimEclipseResultDefinition* resultDefinition);
+
+    void updateRangeFilters();
 };

@@ -42,11 +42,15 @@ public:
     caf::PdmField<bool>         syncCamera;
     caf::PdmField<bool>         syncCellResult;
     caf::PdmField<bool>         syncTimeStep;
+    caf::PdmField<bool>         syncRangeFilters;
 
 protected:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual void                            initAfterRead();
 
 private:
     void allVisibleViews(std::vector<RimView*>& views);
+    void configureOverrides();
 };

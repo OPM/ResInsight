@@ -4,9 +4,10 @@
 #include "RiaPreferences.h"
 
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimManagedViewCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimManagedViewCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -89,10 +90,10 @@ RimView::RimView(void)
     managedViewCollection = new RimManagedViewCollection;
     managedViewCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
-    overlayInfoConfig = new Rim3dOverlayInfoConfig();
-    overlayInfoConfig->setReservoirView(this);
-    overlayInfoConfig.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
+    m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
+    m_overlayInfoConfig->setReservoirView(this);
+    m_overlayInfoConfig.uiCapability()->setUiHidden(true);
 
     caf::AppEnum<RimView::MeshModeType> defaultMeshType = NO_MESH;
     if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
@@ -109,7 +110,7 @@ RimView::RimView(void)
 //--------------------------------------------------------------------------------------------------
 RimView::~RimView(void)
 {
-    delete this->overlayInfoConfig();
+    delete this->m_overlayInfoConfig();
 
     if (m_viewer)
     {
@@ -497,4 +498,42 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
     }
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCellRangeFilterCollection* RimView::rangeFilterCollection()
+{
+    if (m_overrideRangeFilterCollection)
+    {
+        return m_overrideRangeFilterCollection;
+    }
+    else
+    {
+        return m_rangeFilterCollection;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimCellRangeFilterCollection* RimView::rangeFilterCollection() const
+{
+    if (m_overrideRangeFilterCollection)
+    {
+        return m_overrideRangeFilterCollection;
+    }
+    else
+    {
+        return m_rangeFilterCollection;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc)
+{
+    m_overrideRangeFilterCollection = rfc;
 }

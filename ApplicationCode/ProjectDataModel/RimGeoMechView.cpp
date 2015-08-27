@@ -70,10 +70,9 @@ RimGeoMechView::RimGeoMechView(void)
     cellResult = new RimGeoMechCellColors();
     cellResult.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
-    rangeFilterCollection = new RimCellRangeFilterCollection();
-    rangeFilterCollection->setReservoirView(this);
-    rangeFilterCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
+    m_rangeFilterCollection = new RimCellRangeFilterCollection();
+    m_rangeFilterCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
@@ -252,7 +251,7 @@ void RimGeoMechView::createDisplayModel()
    {
        updateLegends();
        m_vizLogic->updateStaticCellColors(-1);
-       overlayInfoConfig()->update3DInfo();
+       m_overlayInfoConfig()->update3DInfo();
    }
 }
 
@@ -303,7 +302,7 @@ void RimGeoMechView::updateCurrentTimeStep()
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
 
-    overlayInfoConfig()->update3DInfo();
+    m_overlayInfoConfig()->update3DInfo();
 }
 
 //--------------------------------------------------------------------------------------------------

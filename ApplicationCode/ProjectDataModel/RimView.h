@@ -69,9 +69,12 @@ public:
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
 
-    caf::PdmChildField<RimCellRangeFilterCollection*>   rangeFilterCollection;
-    
     caf::PdmChildField<RimManagedViewCollection*>  managedViewCollection;
+
+    RimCellRangeFilterCollection*           rangeFilterCollection();
+    const RimCellRangeFilterCollection*     rangeFilterCollection() const;
+    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
+
 
     // Draw style 
 
@@ -147,8 +150,11 @@ protected:
  
     QPointer<RiuViewer>                     m_viewer;
 
-    caf::PdmField<int>                      m_currentTimeStep;
-    caf::PdmChildField<Rim3dOverlayInfoConfig*>  overlayInfoConfig;
+    caf::PdmField<int>                                  m_currentTimeStep;
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>         m_overlayInfoConfig;
+
+    caf::PdmChildField<RimCellRangeFilterCollection*>   m_rangeFilterCollection;
+    caf::PdmPointer<RimCellRangeFilterCollection>       m_overrideRangeFilterCollection;
 
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();

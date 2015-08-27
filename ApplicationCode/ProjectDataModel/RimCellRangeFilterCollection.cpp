@@ -31,6 +31,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
+#include "RimManagedViewCollection.h"
 
 #include "cafPdmUiEditorHandle.h"
 
@@ -57,14 +58,6 @@ RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 RimCellRangeFilterCollection::~RimCellRangeFilterCollection()
 {
     rangeFilters.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::setReservoirView(RimView* reservoirView)
-{
-    m_reservoirView = reservoirView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,7 +124,7 @@ RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
 RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 {
     RimEclipseView* eclipseView = this->eclipseView();
-    if (eclipseView )
+    if (eclipseView)
     {
         return eclipseView->currentActiveCellInfo();
     }
@@ -154,18 +147,16 @@ void RimCellRangeFilterCollection::updateUiUpdateDisplayModel()
 {
     this->updateUiIconFromToggleField();
 
-    m_reservoirView->scheduleGeometryRegen(RANGE_FILTERED);
-    m_reservoirView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
 
-    m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-}
+    rimView->scheduleGeometryRegen(RANGE_FILTERED);
+    rimView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimView* RimCellRangeFilterCollection::reservoirView()
-{
-    return m_reservoirView;
+    rimView->scheduleCreateDisplayModelAndRedraw();
+
+    // Notify managed views of range filter change in master view
+    rimView->managedViewCollection()->updateRangeFilters();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +164,7 @@ RimView* RimCellRangeFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimCellRangeFilterCollection::eclipseView() const
 {
-    return dynamic_cast<RimEclipseView*>(m_reservoirView);
+    return dynamic_cast<RimEclipseView*>(baseView());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,7 +217,6 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
     }
 
     return false;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,16 +293,25 @@ QString RimCellRangeFilterCollection::gridName(int gridIndex) const
 //--------------------------------------------------------------------------------------------------
 RigFemPartCollection* RimCellRangeFilterCollection::femPartColl() const
 {
-       RimGeoMechView* eclipseView = dynamic_cast<RimGeoMechView*>(m_reservoirView);
-
-    if (eclipseView &&
-        eclipseView->geoMechCase() &&
-        eclipseView->geoMechCase()->geoMechData() )
+    RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(baseView());
+    if (geoView &&
+        geoView->geoMechCase() &&
+        geoView->geoMechCase()->geoMechData() )
     {
-
-        return eclipseView->geoMechCase()->geoMechData()->femParts();
+        return geoView->geoMechCase()->geoMechData()->femParts();
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimView* RimCellRangeFilterCollection::baseView() const
+{
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
+
+    return rimView;
 }
 

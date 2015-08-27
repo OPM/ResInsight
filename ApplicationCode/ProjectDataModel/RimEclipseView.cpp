@@ -97,10 +97,9 @@ RimEclipseView::RimEclipseView()
     faultCollection = new RimFaultCollection;
     faultCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         "", "", "");
-    rangeFilterCollection = new RimCellRangeFilterCollection();
-    rangeFilterCollection.uiCapability()->setUiHidden(true);
-    rangeFilterCollection->setReservoirView(this);
+    CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
+    m_rangeFilterCollection = new RimCellRangeFilterCollection();
+    m_rangeFilterCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilterCollection = new RimEclipsePropertyFilterCollection();
@@ -135,7 +134,7 @@ RimEclipseView::~RimEclipseView()
     delete this->cellResult();
     delete this->cellEdgeResult();
 
-    delete rangeFilterCollection();
+    delete m_rangeFilterCollection;
     delete propertyFilterCollection();
     delete wellCollection();
     delete faultCollection();
@@ -232,7 +231,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         createDisplayModelAndRedraw();
     }
-    else if (changedField == &rangeFilterCollection)
+    else if (changedField == &m_rangeFilterCollection)
     {
         m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED);
         m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
@@ -467,7 +466,7 @@ void RimEclipseView::createDisplayModel()
     }
     else
     {
-        overlayInfoConfig()->update3DInfo();
+        m_overlayInfoConfig()->update3DInfo();
         updateLegends();
     }
 }
@@ -647,7 +646,7 @@ void RimEclipseView::updateCurrentTimeStep()
         }
     }
 
-    overlayInfoConfig()->update3DInfo();
+    m_overlayInfoConfig()->update3DInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -707,7 +706,6 @@ void RimEclipseView::initAfterRead()
     this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);
-    this->rangeFilterCollection()->setReservoirView(this);
     this->propertyFilterCollection()->setReservoirView(this);
 
     this->updateUiIconFromToggleField();
