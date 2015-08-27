@@ -3,14 +3,14 @@
 
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmDataValueField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
-#include "cafPdmChildArrayField.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmXmlObjectHandleMacros.h"
-#include "cafPdmDataValueField.h"
 
 #include <QXmlStreamWriter>
 
@@ -194,6 +194,7 @@ TEST(AdvancedObjectTest, FieldWrite)
             sibling->m_demoObjs.push_back(a);
 
             a->readObjectFromXmlString(serializedString, caf::PdmDefaultObjectFactory::instance());
+            //caf::PdmDocument::resolveReferencesTraversal(a);
 
             ASSERT_TRUE(a->m_pointerToItem() == container->m_items[1]);
         }

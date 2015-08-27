@@ -1,14 +1,16 @@
 
 #include "gtest/gtest.h"
 
+#include "Parent.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmValueField.h"
-#include "Parent.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmReferenceHelper.h"
+#include "cafPdmValueField.h"
 
 
 class DemoPdmObject: public caf::PdmObjectHandle
