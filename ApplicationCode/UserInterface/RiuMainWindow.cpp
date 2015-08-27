@@ -58,7 +58,7 @@
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
 #include "RiuDragDrop.h"
-#include "RiuWellLogViewer.h"
+#include "RiuWellLogPlot.h"
 
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
@@ -1155,6 +1155,24 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(RiuViewer* viewer)
     return NULL;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QMdiSubWindow* RiuMainWindow::findMdiSubWindow(RiuWellLogPlot* viewer)
+{
+    QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
+    int i; 
+    for (i = 0; i < subws.size(); ++i)
+    {
+        if (subws[i]->widget() == viewer)
+        {
+            return subws[i];
+        }
+    }
+
+    return NULL;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1190,6 +1208,47 @@ void RiuMainWindow::addViewer(RiuViewer* viewer)
     }
 #endif
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::addWellLogViewer(RiuWellLogPlot* viewer)
+{
+    QMdiSubWindow * subWin = m_mdiArea->addSubWindow(viewer);
+    subWin->resize(400, 400);
+
+    if (m_mdiArea->subWindowList().size() == 1)
+    {
+        // Show first view maximized
+        subWin->showMaximized();
+    }
+    else
+    {
+        subWin->show();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::removeWellLogViewer(RiuWellLogPlot* viewer)
+{
+    m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setActiveWellLogViewer(RiuWellLogPlot* viewer)
+{
+    QMdiSubWindow* subWindow = findMdiSubWindow(viewer); 
+    if (subWindow)
+    {
+        m_mdiArea->setActiveSubWindow(subWindow);
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

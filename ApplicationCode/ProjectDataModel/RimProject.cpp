@@ -47,6 +47,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
+#include "RimMainPlotCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -86,6 +87,9 @@ RimProject::RimProject(void)
     wellPathImport.uiCapability()->setUiHidden(true);
     wellPathImport.uiCapability()->setUiChildrenHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&mainPlotCollection, "MainPlotCollection", "Plots", ":/Default.png", "", "");
+    mainPlotCollection.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
 
@@ -107,6 +111,8 @@ RimProject::RimProject(void)
     scriptCollection->uiCapability()->setUiName("Scripts");
     scriptCollection->uiCapability()->setUiIcon(QIcon(":/Default.png"));
 
+    mainPlotCollection = new RimMainPlotCollection();
+
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back(new RimOilField);
 
@@ -124,6 +130,7 @@ RimProject::~RimProject(void)
 
     oilFields.deleteAllChildObjects();
     if (scriptCollection()) delete scriptCollection();
+    if (mainPlotCollection()) delete mainPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -711,7 +718,11 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicDeleteItemFeature";
         }
-        
+        else if (dynamic_cast<RimMainPlotCollection*>(uiItem))
+        {
+            commandIds << "RicNewWellLogPlotFeature";
+        }
+
         if (dynamic_cast<RimManagedViewCollection*>(uiItem))
         {
             RimManagedViewCollection* viewCollection = dynamic_cast<RimManagedViewCollection*>(uiItem);
@@ -841,6 +852,8 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
     }
 
     uiTreeOrdering.add(scriptCollection());
+    
+    if (mainPlotCollection) uiTreeOrdering.add(mainPlotCollection());
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }

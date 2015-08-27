@@ -17,20 +17,40 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogViewer.h"
+#include "RimWellLogPlotCurve.h"
 
-CAF_PDM_SOURCE_INIT(RimWellLogViewer, "WellLogViewer");
+
+CAF_PDM_SOURCE_INIT(RimWellLogPlotCurve, "WellLogPlotCurve");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogViewer::RimWellLogViewer(void)
+RimWellLogPlotCurve::RimWellLogPlotCurve()
+{
+    CAF_PDM_InitObject("Curve", "", "", "");
+
+    CAF_PDM_InitField(&show, "Show", true, "Show curve", "", "", "");
+    show.uiCapability()->setUiHidden(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlotCurve::~RimWellLogPlotCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogViewer::~RimWellLogViewer(void)
+void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
+{
+    return &show;
 }

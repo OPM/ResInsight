@@ -17,19 +17,32 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellLogViewer.h"
+#pragma once
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuWellLogViewer::RiuWellLogViewer(QWidget* parent)
-    : QwtPlot(parent)
-{
-}
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuWellLogViewer::~RiuWellLogViewer()
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RimWellLogPlotCurve : public caf::PdmObject
 {
-}
+    CAF_PDM_HEADER_INIT;
+public:
+    RimWellLogPlotCurve();
+    virtual ~RimWellLogPlotCurve();
+
+protected:
+
+    // Overridden PDM methods
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+private:
+    virtual caf::PdmFieldHandle* objectToggleField();
+
+private:
+    caf::PdmField<bool> show;
+
+    // TODO: Add curves
+};

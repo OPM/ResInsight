@@ -20,16 +20,34 @@
 #pragma once
 
 #include "cafPdmObject.h"
+#include "cafPdmField.h"
+#include "cafPdmChildArrayField.h"
+
+class RimWellLogPlot;
+
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimWellLogViewer : public caf::PdmObject
+class RimMainPlotCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
-
 public:
-    RimWellLogViewer(void);
-    virtual ~RimWellLogViewer(void);
+    RimMainPlotCollection();
+    virtual ~RimMainPlotCollection();
+
+    void addWellLogPlot();
+
+protected:
+
+    // Overridden PDM methods
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+private:
+    virtual caf::PdmFieldHandle* objectToggleField();
+
+private:
+    caf::PdmField<bool> show;
+    caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
 };

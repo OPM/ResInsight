@@ -19,19 +19,39 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
+
+#include <QPointer>
+
+class RiuWellLogPlot;
+
 
 //==================================================================================================
-//
-// RiuWellLogViewer
-//
+///  
+///  
 //==================================================================================================
-class RiuWellLogViewer : public QwtPlot
+class RimWellLogPlot : public caf::PdmObject
 {
-    Q_OBJECT
-
+    CAF_PDM_HEADER_INIT;
 public:
-    RiuWellLogViewer(QWidget* parent = NULL);
-    virtual ~RiuWellLogViewer();
-};
+    RimWellLogPlot();
+    virtual ~RimWellLogPlot();
 
+    caf::PdmField<bool> showWindow;
+
+protected:
+
+    // Overridden PDM methods
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+private:
+    void updateViewerWidget();
+
+    virtual caf::PdmFieldHandle* objectToggleField();
+
+    // TODO: Add traces
+
+private:
+    QPointer<RiuWellLogPlot> m_viewer;
+};

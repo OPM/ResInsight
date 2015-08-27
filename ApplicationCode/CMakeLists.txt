@@ -79,8 +79,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuDragDrop.h
 	UserInterface/RiuTreeViewEventFilter.cpp
 	UserInterface/RiuTreeViewEventFilter.h
-	UserInterface/RiuWellLogViewer.cpp
-	UserInterface/RiuWellLogViewer.h
+	UserInterface/RiuWellLogPlot.cpp
+	UserInterface/RiuWellLogPlot.h
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -162,7 +162,7 @@ set ( QT_MOC_HEADERS
     UserInterface/RiuMultiCaseImportDialog.h
     UserInterface/RiuViewerCommands.h
 	UserInterface/RiuTreeViewEventFilter.h
-	UserInterface/RiuWellLogViewer.h
+	UserInterface/RiuWellLogPlot.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )

@@ -43,6 +43,7 @@ class RimEclipseCase;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuViewer;
+class RiuWellLogPlot;
 
 namespace caf
 {
@@ -81,6 +82,10 @@ public:
     void            removeViewer( RiuViewer* viewer );
     void            addViewer(RiuViewer* viewer);
     void            setActiveViewer(RiuViewer* subWindow);
+
+    void            addWellLogViewer(RiuWellLogPlot* viewer);
+    void            removeWellLogViewer(RiuWellLogPlot* viewer);
+    void            setActiveWellLogViewer(RiuWellLogPlot* subWindow);
 
     void            setResultInfo(const QString& info) const;
 
@@ -123,6 +128,7 @@ private:
     void            updateRecentFileActions();
 
     QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
+    QMdiSubWindow*  findMdiSubWindow(RiuWellLogPlot* viewer);
 
     void            storeTreeViewState();
     void            restoreTreeViewState();

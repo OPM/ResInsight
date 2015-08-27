@@ -36,6 +36,7 @@ class RimIdenticalGridCaseGroup;
 class RimOilField;
 class RimScriptCollection;
 class RimWellPathImport;
+class RimMainPlotCollection;
 
 namespace caf
 {
@@ -104,4 +105,5 @@ private:
     caf::PdmChildArrayField<RimEclipseCase*>                     casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
 
+    caf::PdmChildField<RimMainPlotCollection*> mainPlotCollection;
 };
