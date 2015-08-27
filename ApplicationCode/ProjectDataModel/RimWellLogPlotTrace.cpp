@@ -19,6 +19,8 @@
 
 #include "RimWellLogPlotTrace.h"
 
+#include "RimWellLogPlotCurve.h"
+
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlotTrace, "WellLogPlotTrace");
 
@@ -31,6 +33,9 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
 
     CAF_PDM_InitField(&show, "Show", true, "Show trace", "", "", "");
     show.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");
+    curves.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,9 +21,11 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmChildArrayField.h"
 
 #include <QPointer>
 
+class RimWellLogPlotTrace;
 class RiuWellLogPlot;
 
 
@@ -50,8 +52,7 @@ private:
 
     virtual caf::PdmFieldHandle* objectToggleField();
 
-    // TODO: Add traces
-
 private:
     QPointer<RiuWellLogPlot> m_viewer;
+    caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
 };

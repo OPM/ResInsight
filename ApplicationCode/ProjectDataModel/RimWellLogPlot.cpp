@@ -19,6 +19,8 @@
 
 #include "RimWellLogPlot.h"
 
+#include "RimWellLogPlotTrace.h"
+
 #include "RiuWellLogPlot.h"
 #include "RiuMainWindow.h"
 
@@ -35,6 +37,9 @@ RimWellLogPlot::RimWellLogPlot()
 
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
     showWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&traces, "Traces", "",  "", "", "");
+    traces.uiCapability()->setUiHidden(true);
 
     updateViewerWidget();
 }

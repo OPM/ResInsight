@@ -21,6 +21,9 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmChildArrayField.h"
+
+class RimWellLogPlotCurve;
 
 //==================================================================================================
 ///  
@@ -43,4 +46,5 @@ private:
 
 private:
     caf::PdmField<bool> show;
+    caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
 };
