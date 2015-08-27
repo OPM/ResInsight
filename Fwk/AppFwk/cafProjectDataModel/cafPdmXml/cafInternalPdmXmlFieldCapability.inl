@@ -67,8 +67,9 @@ template<typename FieldType >
      //
      // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
 
-     m_field->m_isResolved = false;
-     m_field->m_referenceString = dataString;
+     m_isResolved = false;
+     m_referenceString = dataString;
+     m_field->setRawPtr(NULL);
 }
 
  //--------------------------------------------------------------------------------------------------
@@ -86,6 +87,22 @@ template<typename FieldType >
 
      xmlStream.writeCharacters(dataString);
  }
+
+
+ //--------------------------------------------------------------------------------------------------
+ /// 
+ //--------------------------------------------------------------------------------------------------
+ template < typename DataType>
+ void caf::PdmFieldXmlCap< PdmPtrField<DataType*> >::resolveReferences()
+ {
+     if (m_isResolved) return;
+     if (m_referenceString.isEmpty()) return;
+
+     PdmObjectHandle* objHandle = PdmReferenceHelper::objectFromFieldReference(this->fieldHandle(), m_referenceString);
+     m_field->setRawPtr(objHandle);
+     m_isResolved = true;
+ }
+
 
 //==================================================================================================
 /// XML Implementation for PdmChildField<>

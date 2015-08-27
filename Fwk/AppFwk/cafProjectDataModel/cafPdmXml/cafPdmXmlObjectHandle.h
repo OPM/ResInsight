@@ -45,6 +45,10 @@ public:
     /// Check if a string is a valid Xml element name
     static bool             isValidXmlElementName(const QString& name);
 
+    void                    initAfterReadRecursively()         { initAfterReadRecursively(this->m_owner); };
+    void                    setupBeforeSaveRecursively()       { setupBeforeSaveRecursively(this->m_owner); };
+    void                    resolveReferencesRecursively()     { resolveReferencesRecursively(this->m_owner); };
+
 protected: // Virtual 
     /// Method gets called from PdmDocument after all objects are read. 
     /// Re-implement to set up internal pointers etc. in your data structure
@@ -58,9 +62,12 @@ protected: // Virtual
     bool                    isInheritedFromPdmXmlSerializable() { return true; }
 
 private:
+    void                    initAfterReadRecursively(PdmObjectHandle* object);
+    void                    setupBeforeSaveRecursively(PdmObjectHandle * object);
+    void                    resolveReferencesRecursively(PdmObjectHandle* object);
+
+private:
     friend class PdmObjectHandle ; // Only temporary for void PdmObject::addFieldNoDefault( ) accessing findField
-    friend class PdmDocument;    // To access setupBeforeSave()
-    friend class PdmObjectGroup; // To access initAfterRead
 
     PdmObjectHandle* m_owner;
 };

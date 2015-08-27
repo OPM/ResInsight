@@ -44,6 +44,7 @@
 #include "cafPdmDocument.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectGroup.h"
 #include "cafPdmPointer.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmReferenceHelper.h"
@@ -51,7 +52,6 @@
 #include <QFile>
 
 #include <memory>
-#include "cafPdmObjectGroup.h"
 
 
 /// Demo objects to show the usage of the Pdm system
@@ -102,7 +102,7 @@ public:
     caf::PdmField<double>               m_dir;
     caf::PdmField<double>               m_up;
     caf::PdmField<std::vector<double> > m_numbers;
-    caf::PdmProxyValueField<double>          m_proxyDouble;
+    caf::PdmProxyValueField<double>     m_proxyDouble;
 
     void setDoubleMember(const double& d) { m_doubleMember = d; std::cout << "setDoubleMember" << std::endl; }
     double doubleMember() const { std::cout << "doubleMember" << std::endl; return m_doubleMember; }
@@ -176,7 +176,7 @@ public:
 
     caf::PdmField<std::vector<QString> >        m_texts;
     caf::PdmField< caf::AppEnum<TestEnumType> > m_testEnumField;
-    caf::PdmChildArrayField<SimpleObj*>           m_simpleObjectsField;
+    caf::PdmChildArrayField<SimpleObj*>         m_simpleObjectsField;
 
 };
 CAF_PDM_SOURCE_INIT(InheritedDemoObj, "InheritedDemoObj");
@@ -644,21 +644,27 @@ TEST(BaseTest, ReadWrite)
         f3.close();
 
         // Read the document containing errors
-/*
-        caf::PdmDocument xmlErrorDoc;
+
+        MyPdmDocument xmlErrorDoc;
         xmlErrorDoc.fileName = "PdmTestFilWithError.xml";
         xmlErrorDoc.readFile();
 
+        caf::PdmObjectGroup pog;
+        for (size_t i = 0; i < xmlErrorDoc.objects.size(); i++)
+        {
+            pog.addObject(xmlErrorDoc.objects[i]);
+        }
+
         // Check the pointersfield
         std::vector<caf::PdmPointer<InheritedDemoObj> > ihDObjs;
-        xmlErrorDoc.objectsByType(&ihDObjs);
+        pog.objectsByType(&ihDObjs);
 
         EXPECT_EQ(size_t(2), ihDObjs.size() );
         ASSERT_EQ(size_t(3), ihDObjs[0]->m_simpleObjectsField.size());
 
         // check single pointer field
         std::vector<caf::PdmPointer<DemoPdmObject> > demoObjs;
-        xmlErrorDoc.objectsByType(&demoObjs);
+        pog.objectsByType(&demoObjs);
 
         EXPECT_EQ(size_t(4), demoObjs.size() );
         EXPECT_TRUE(demoObjs[0]->m_simpleObjPtrField == NULL );
@@ -666,11 +672,9 @@ TEST(BaseTest, ReadWrite)
 
         // check single pointer field
         std::vector<caf::PdmPointer<SimpleObj> > simpleObjs;
-        xmlErrorDoc.objectsByType(&simpleObjs);
+        pog.objectsByType(&simpleObjs);
         EXPECT_EQ(size_t(1), simpleObjs.size() );
         EXPECT_EQ(size_t(0), simpleObjs[0]->m_numbers().size());
-*/
-
     }   
 }
 

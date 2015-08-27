@@ -34,7 +34,6 @@ public:
     // Ptr referenced objects
     bool             hasPtrReferencedObjects();
     virtual void     ptrReferencedObjects(std::vector<PdmObjectHandle*>*)        {  }
-    virtual void     resolveReferences()                                        {  }
 
     // Capabilities
     void             addCapability(PdmFieldCapability* capability, bool takeOwnership) { m_capabilities.push_back(std::make_pair(capability, takeOwnership)); }

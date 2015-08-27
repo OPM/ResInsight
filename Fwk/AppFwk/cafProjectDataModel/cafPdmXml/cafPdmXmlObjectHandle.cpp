@@ -228,6 +228,96 @@ bool PdmXmlObjectHandle::isValidXmlElementName(const QString& name)
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmXmlObjectHandle::initAfterReadRecursively(PdmObjectHandle* object)
+{
+    if (object == NULL) return;
+
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    std::vector<PdmObjectHandle*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        initAfterReadRecursively(children[cIdx]);
+    }
+
+    PdmXmlObjectHandle* xmlObject = xmlObj(object);
+    if (xmlObject)
+    {
+        xmlObject->initAfterRead();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmXmlObjectHandle::resolveReferencesRecursively(PdmObjectHandle* object)
+{
+    if (object == NULL) return;
+
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    std::vector<PdmObjectHandle*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        PdmFieldHandle* field = fields[fIdx];
+        if (field)
+        {
+            field->childObjects(&children);
+
+            field->xmlCapability()->resolveReferences();
+        }
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        resolveReferencesRecursively(children[cIdx]);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmXmlObjectHandle::setupBeforeSaveRecursively(PdmObjectHandle* object)
+{
+    if (object == NULL) return;
+
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    std::vector<PdmObjectHandle*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        setupBeforeSaveRecursively(children[cIdx]);
+    }
+
+    PdmXmlObjectHandle* xmlObject = xmlObj(object);
+    if (xmlObject)
+    {
+        xmlObject->setupBeforeSave();
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// Implementation of xmlCapability() defined in cafPdmObjectHandle.h

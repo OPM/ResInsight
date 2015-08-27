@@ -194,7 +194,7 @@ TEST(AdvancedObjectTest, FieldWrite)
             sibling->m_demoObjs.push_back(a);
 
             a->readObjectFromXmlString(serializedString, caf::PdmDefaultObjectFactory::instance());
-            //caf::PdmDocument::resolveReferencesTraversal(a);
+            a->xmlCapability()->resolveReferencesRecursively();
 
             ASSERT_TRUE(a->m_pointerToItem() == container->m_items[1]);
         }

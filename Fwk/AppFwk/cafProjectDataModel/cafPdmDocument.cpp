@@ -91,8 +91,8 @@ void PdmDocument::readFile(QIODevice* xmlFile)
     // Ask all objects to initialize and set up internal datastructure and pointers 
     // after everything is read from file
 
-    PdmDocument::resolveReferencesTraversal(this);
-    PdmDocument::initAfterReadTraversal(this);
+    resolveReferencesRecursively();
+    initAfterReadRecursively();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void PdmDocument::writeFile()
 void PdmDocument::writeFile(QIODevice* xmlFile)
 {
     // Ask all objects to make them ready to write themselves to file
-    PdmDocument::setupBeforeSaveTraversal(this);
+    setupBeforeSaveRecursively();
 
     QXmlStreamWriter xmlStream(xmlFile);
     xmlStream.setAutoFormatting(true);
@@ -126,124 +126,6 @@ void PdmDocument::writeFile(QIODevice* xmlFile)
     xmlStream.writeEndElement();  
 
     xmlStream.writeEndDocument();
-}
-
-
-void PdmDocument::setupBeforeSaveTraversal(PdmObjectHandle * object)
-{
-    if (object == NULL) return;
-
-    std::vector<PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    std::vector<PdmObjectHandle*> children;
-    size_t fIdx;
-    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
-    {
-        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
-    }
-
-    size_t cIdx;
-    for (cIdx = 0; cIdx < children.size(); ++cIdx)
-    {
-        PdmDocument::setupBeforeSaveTraversal(children[cIdx]);
-    }
-
-    PdmXmlObjectHandle* xmlObject = xmlObj(object);
-    if (xmlObject)
-    {
-        xmlObject->setupBeforeSave();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmDocument::initAfterReadTraversal(PdmObjectHandle* object)
-{
-    if (object == NULL) return;
-
-    std::vector<PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    std::vector<PdmObjectHandle*> children;
-    size_t fIdx;
-    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
-    {
-        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
-    }
-
-    size_t cIdx;
-    for (cIdx = 0; cIdx < children.size(); ++cIdx)
-    {
-        PdmDocument::initAfterReadTraversal(children[cIdx]);
-    }
-
-    PdmXmlObjectHandle* xmlObject = xmlObj(object);
-    if (xmlObject)
-    {
-        xmlObject->initAfterRead();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmDocument::updateUiIconStateRecursively(PdmObjectHandle* object)
-{
-    if (object == NULL) return;
-
-    std::vector<PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    std::vector<PdmObjectHandle*> children;
-    size_t fIdx;
-    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
-    {
-        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
-    }
-
-    size_t cIdx;
-    for (cIdx = 0; cIdx < children.size(); ++cIdx)
-    {
-        PdmDocument::updateUiIconStateRecursively(children[cIdx]);
-    }
-
-    PdmUiObjectHandle* uiObjectHandle = uiObj(object);
-    if (uiObjectHandle)
-    {
-        uiObjectHandle->updateUiIconFromToggleField();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmDocument::resolveReferencesTraversal(PdmObjectHandle* object)
-{
-    if (object == NULL) return;
-
-    std::vector<PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    std::vector<PdmObjectHandle*> children;
-    size_t fIdx;
-    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
-    {
-        PdmFieldHandle* field = fields[fIdx];
-        if (field)
-        {
-            field->childObjects(&children);
-
-            field->resolveReferences();
-        }
-    }
-
-    size_t cIdx;
-    for (cIdx = 0; cIdx < children.size(); ++cIdx)
-    {
-        PdmDocument::resolveReferencesTraversal(children[cIdx]);
-    }
 }
 
 

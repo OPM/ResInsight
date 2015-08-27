@@ -68,7 +68,7 @@ public:
     // Ptr referenced objects
 
     virtual void ptrReferencedObjects(std::vector<PdmObjectHandle*>* objectsToFill);
-    virtual void resolveReferences();
+
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN(PdmPtrField);
