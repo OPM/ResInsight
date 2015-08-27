@@ -18,16 +18,23 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechResultDefinition.h"
-#include "RimGeoMechView.h"
+
+#include "RifGeoMechReaderInterface.h"
+
+#include "RigFemPartResultsCollection.h"
+#include "RigFemResultAddress.h"
+#include "RigGeoMechCaseData.h"
+
 #include "RimDefines.h"
 #include "RimGeoMechCase.h"
-#include "RifGeoMechReaderInterface.h"
-#include "cafPdmUiListEditor.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartResultsCollection.h"
-#include "RiuMainWindow.h"
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
-#include "RigFemResultAddress.h"
+#include "RimGeoMechView.h"
+#include "RimManagedViewCollection.h"
+
+#include "RiuMainWindow.h"
+
+#include "cafPdmUiListEditor.h"
 
 namespace caf {
 
@@ -197,6 +204,17 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             }
 
             reservoirView()->scheduleCreateDisplayModelAndRedraw();
+
+            if (dynamic_cast<RimGeoMechCellColors*>(this))
+            {
+                RimView* view = NULL;
+                this->firstAnchestorOrThisOfType(view);
+                if (view)
+                {
+                    view->managedViewCollection->updateCellResult();
+                }
+            }
+
         }
     }
       

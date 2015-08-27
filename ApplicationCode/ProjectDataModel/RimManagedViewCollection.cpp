@@ -29,6 +29,9 @@
 
 #include "cvfCamera.h"
 #include "cvfMatrix4.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechCellColors.h"
 
 
 
@@ -95,22 +98,55 @@ void RimManagedViewCollection::updateTimeStep(int timeStep)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::updateResult(RimEclipseResultDefinition* resultDefinition)
+void RimManagedViewCollection::updateCellResult()
 {
-    for (size_t i = 0; i < managedViews.size(); i++)
+    RimView* masterView = NULL;
+    firstAnchestorOrThisOfType(masterView);
+
+    RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(masterView);
+    if (masterEclipseView && masterEclipseView->cellResult())
     {
-        RimManagedViewConfig* managedViewConfig = managedViews[i];
-        if (managedViewConfig->managedView())
+        RimEclipseResultDefinition* eclipseCellResultDefinition = masterEclipseView->cellResult();
+
+        for (size_t i = 0; i < managedViews.size(); i++)
         {
-            if (managedViewConfig->syncCellResult())
+            RimManagedViewConfig* managedViewConfig = managedViews[i];
+            if (managedViewConfig->managedView())
             {
-                RimView* rimView = managedViewConfig->managedView();
-                RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
-                if (eclipeView)
+                if (managedViewConfig->syncCellResult())
                 {
-                    eclipeView->cellResult()->setPorosityModel(resultDefinition->porosityModel());
-                    eclipeView->cellResult()->setResultType(resultDefinition->resultType());
-                    eclipeView->cellResult()->setResultVariable(resultDefinition->resultVariable());
+                    RimView* rimView = managedViewConfig->managedView();
+                    RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
+                    if (eclipeView)
+                    {
+                        eclipeView->cellResult()->setPorosityModel(eclipseCellResultDefinition->porosityModel());
+                        eclipeView->cellResult()->setResultType(eclipseCellResultDefinition->resultType());
+                        eclipeView->cellResult()->setResultVariable(eclipseCellResultDefinition->resultVariable());
+                    }
+                }
+            }
+        }
+    }
+
+    RimGeoMechView* masterGeoView = dynamic_cast<RimGeoMechView*>(masterView);
+    if (masterGeoView && masterGeoView->cellResult())
+    {
+        RimGeoMechResultDefinition* geoMechResultDefinition = masterGeoView->cellResult();
+
+        for (size_t i = 0; i < managedViews.size(); i++)
+        {
+            RimManagedViewConfig* managedViewConfig = managedViews[i];
+            if (managedViewConfig->managedView())
+            {
+                if (managedViewConfig->syncCellResult())
+                {
+                    RimView* rimView = managedViewConfig->managedView();
+                    RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
+                    if (geoView)
+                    {
+                        geoView->cellResult()->setResultAddress(geoMechResultDefinition->resultAddress());
+                        geoView->scheduleCreateDisplayModelAndRedraw();
+                    }
                 }
             }
         }
@@ -137,6 +173,15 @@ void RimManagedViewCollection::updateRangeFilters()
                     eclipeView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
                     eclipeView->scheduleCreateDisplayModelAndRedraw();
+                }
+
+                RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
+                if (geoView)
+                {
+                    geoView->scheduleGeometryRegen(RANGE_FILTERED);
+                    geoView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+
+                    geoView->scheduleCreateDisplayModelAndRedraw();
                 }
             }
         }

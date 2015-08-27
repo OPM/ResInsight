@@ -25,7 +25,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class RimEclipseResultDefinition;
 class RimManagedViewConfig;
 class RiuViewer;
 
@@ -45,7 +44,7 @@ public:
 
     void updateViewers(RiuViewer* masterViewer);
     void updateTimeStep(int timeStep);
-    void updateResult(RimEclipseResultDefinition* resultDefinition);
+    void updateCellResult();
 
     void updateRangeFilters();
 };

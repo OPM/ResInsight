@@ -23,6 +23,7 @@
 
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimManagedViewCollection.h"
 #include "RimProject.h"
 #include "RimView.h"
 
@@ -131,6 +132,19 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
         masterView->viewer()->update();
     }
+    else if (changedField == &syncCellResult)
+    {
+        // When cell result is activated, update cell result in managed views
+        // Original result Will not be restored when cell result is disabled
+        
+        if (syncCellResult())
+        {
+            RimView* masterView = NULL;
+            firstAnchestorOrThisOfType(masterView);
+
+            masterView->managedViewCollection()->updateCellResult();
+        }
+    }
     else if (changedField == &syncRangeFilters)
     {
         configureOverrides();
@@ -147,6 +161,14 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         if (managedView)
         {
             managedView->rangeFilterCollection()->updateUiUpdateDisplayModel();
+
+            if (syncCellResult())
+            {
+                RimView* masterView = NULL;
+                firstAnchestorOrThisOfType(masterView);
+
+                masterView->managedViewCollection()->updateCellResult();
+            }
         }
 
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();

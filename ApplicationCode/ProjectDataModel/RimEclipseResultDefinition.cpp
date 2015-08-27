@@ -149,7 +149,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             this->firstAnchestorOrThisOfType(view);
             if (view)
             {
-                view->managedViewCollection->updateResult(this);
+                view->managedViewCollection->updateCellResult();
             }
         }
 
