@@ -102,9 +102,10 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &isActive == changedField
         || &filterMode == changedField)
     {
-        parentContainer()->fieldChangedByUi(changedField, oldValue, newValue);
         updateFilterName();
         this->updateIconState();
+
+        parentContainer()->updateDisplayModelNotifyManagedViews();
     }
 }
 

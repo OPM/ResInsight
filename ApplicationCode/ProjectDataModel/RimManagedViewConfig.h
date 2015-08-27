@@ -25,6 +25,7 @@
 
 class RimView;
 class RimEclipseView;
+class RimGeoMechView;
 
 //==================================================================================================
 ///  
@@ -57,4 +58,5 @@ private:
     void configureOverrides();
 
     RimEclipseView* managedEclipseView();
+    RimGeoMechView* managedGeoView();
 };

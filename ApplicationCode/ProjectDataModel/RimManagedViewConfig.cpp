@@ -32,6 +32,8 @@
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechPropertyFilterCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimManagedViewConfig, "RimManagedViewConfig");
@@ -154,7 +156,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
         if (managedView)
         {
-            managedView->rangeFilterCollection()->updateUiUpdateDisplayModel();
+            managedView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
         }
     }
     else if (changedField == &syncPropertyFilters)
@@ -164,7 +166,14 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         RimEclipseView* eclipseView = managedEclipseView();
         if (eclipseView)
         {
-            eclipseView->propertyFilterCollection()->updateDisplayModel();
+            eclipseView->propertyFilterCollection()->updateDisplayModelNotifyManagedViews();
+        }
+
+        RimGeoMechView* geoView = managedGeoView();
+        if (geoView)
+        {
+            geoView->scheduleGeometryRegen(PROPERTY_FILTERED);
+            geoView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     else if (changedField == &managedView)
@@ -173,7 +182,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
         if (managedView)
         {
-            managedView->rangeFilterCollection()->updateUiUpdateDisplayModel();
+            managedView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
 
             if (syncCellResult())
             {
@@ -189,12 +198,18 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         {
             RimView* rimView = dynamic_cast<RimView*>(prevValue);
             rimView->setOverrideRangeFilterCollection(NULL);
-            rimView->rangeFilterCollection()->updateUiUpdateDisplayModel();
+            rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
 
             RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(rimView);
             if (rimEclipseView)
             {
                 rimEclipseView->setOverridePropertyFilterCollection(NULL);
+            }
+
+            RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
+            if (geoView)
+            {
+                geoView->setOverridePropertyFilterCollection(NULL);
             }
         }
     }
@@ -235,6 +250,23 @@ void RimManagedViewConfig::configureOverrides()
                 }
             }
         }
+
+        RimGeoMechView* masterGeoView = dynamic_cast<RimGeoMechView*>(masterView);
+        if (masterGeoView)
+        {
+            RimGeoMechView* geoView = managedGeoView();
+            if (geoView)
+            {
+                if (syncPropertyFilters)
+                {
+                    geoView->setOverridePropertyFilterCollection(masterGeoView->propertyFilterCollection());
+                }
+                else
+                {
+                    geoView->setOverridePropertyFilterCollection(NULL);
+                }
+            }
+        }
     }
 }
 
@@ -254,5 +286,15 @@ RimEclipseView* RimManagedViewConfig::managedEclipseView()
     RimView* rimView = managedView;
 
     return dynamic_cast<RimEclipseView*>(rimView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGeoMechView* RimManagedViewConfig::managedGeoView()
+{
+    RimView* rimView = managedView;
+
+    return dynamic_cast<RimGeoMechView*>(rimView);
 }
 

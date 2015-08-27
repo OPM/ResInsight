@@ -38,33 +38,22 @@ public:
     RimGeoMechPropertyFilterCollection();
     virtual ~RimGeoMechPropertyFilterCollection();
 
-    void                  setReservoirView(RimGeoMechView* reservoirView);
     RimGeoMechView*       reservoirView();
-
 
     // Fields:
     caf::PdmField<bool> active;
     caf::PdmChildArrayField<RimGeoMechPropertyFilter*> propertyFilters;
 
     // Methods
-    RimGeoMechPropertyFilter*  createAndAppendPropertyFilter();
-    void                    remove(RimGeoMechPropertyFilter* propertyFilter);
-
     bool                    hasActiveFilters() const; 
     bool                    hasActiveDynamicFilters() const; 
 
-
     void                    loadAndInitializePropertyFilters();
-
-
-    // Overridden methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*    objectToggleField();
+    void                    updateDisplayModelNotifyManagedViews();
 
 protected:
     // Overridden methods
-    virtual void initAfterRead();
-
-private:
-    caf::PdmPointer<RimGeoMechView> m_reservoirView;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual caf::PdmFieldHandle*    objectToggleField();
+    virtual void                    initAfterRead();
 };

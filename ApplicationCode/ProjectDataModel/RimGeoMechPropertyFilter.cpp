@@ -81,8 +81,8 @@ void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         this->updateIconState();
         this->updateFilterName();
-        ((RimView*)resultDefinition->reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
-        resultDefinition->reservoirView()->scheduleCreateDisplayModelAndRedraw();
+
+        parentContainer()->updateDisplayModelNotifyManagedViews();
     }
 }
 

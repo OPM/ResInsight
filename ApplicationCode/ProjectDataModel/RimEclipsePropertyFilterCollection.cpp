@@ -70,7 +70,7 @@ void RimEclipsePropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHan
 {
     this->updateUiIconFromToggleField();
 
-    updateDisplayModel();
+    updateDisplayModelNotifyManagedViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ caf::PdmFieldHandle* RimEclipsePropertyFilterCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilterCollection::updateDisplayModel()
+void RimEclipsePropertyFilterCollection::updateDisplayModelNotifyManagedViews()
 {
     RimEclipseView* view = NULL;
     this->firstAnchestorOrThisOfType(view);

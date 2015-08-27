@@ -18,9 +18,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechPropertyFilterCollection.h"
+
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechCellColors.h"
+#include "RimManagedViewCollection.h"
 
 #include "cvfAssert.h"
 
@@ -52,27 +54,13 @@ RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilterCollection::setReservoirView(RimGeoMechView* reservoirView)
-{
-    m_reservoirView = reservoirView;
-
-    for (size_t i = 0; i < propertyFilters.size(); i++)
-    {
-        RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
-        propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
-
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 {
-    CVF_ASSERT(!m_reservoirView.isNull());
-    return m_reservoirView;
+    RimGeoMechView* geoMechView = NULL;
+    firstAnchestorOrThisOfType(geoMechView);
+    
+    return geoMechView;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -81,30 +69,8 @@ void RimGeoMechPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHan
 {
     this->updateUiIconFromToggleField();
 
-    ((RimView*)m_reservoirView)->scheduleGeometryRegen(PROPERTY_FILTERED);
-    m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+    updateDisplayModelNotifyManagedViews();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilter* RimGeoMechPropertyFilterCollection::createAndAppendPropertyFilter()
-{
-    RimGeoMechPropertyFilter* propertyFilter = new RimGeoMechPropertyFilter();
-    
-    propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
-
-    propertyFilter->setParentContainer(this);
-    propertyFilters.push_back(propertyFilter);
-
-    propertyFilter->resultDefinition->setResultAddress(m_reservoirView->cellResult()->resultAddress());
-    propertyFilter->resultDefinition->loadResult();
-    propertyFilter->setToDefaultValues();
-    propertyFilter->updateFilterName();
- 
-    return propertyFilter;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -130,19 +96,11 @@ void RimGeoMechPropertyFilterCollection::initAfterRead()
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
 
         propertyFilter->setParentContainer(this);
-        propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
+        propertyFilter->resultDefinition->setReservoirView(reservoirView());
         propertyFilter->updateIconState();
     }
 
     this->updateUiIconFromToggleField();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilterCollection::remove(RimGeoMechPropertyFilter* propertyFilter)
-{
-    propertyFilters.removeChildObject(propertyFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,11 +127,26 @@ bool RimGeoMechPropertyFilterCollection::hasActiveDynamicFilters() const
     return hasActiveFilters();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGeoMechPropertyFilterCollection::objectToggleField()
 {
     return &active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilterCollection::updateDisplayModelNotifyManagedViews()
+{
+    RimGeoMechView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
+    CVF_ASSERT(view);
+
+    view->scheduleGeometryRegen(PROPERTY_FILTERED);
+    view->scheduleCreateDisplayModelAndRedraw();
+
+    // Notify managed views of range filter change in master view
+    view->managedViewCollection()->updatePropertyFilters();
 }

@@ -137,16 +137,16 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    updateUiUpdateDisplayModel();
+    this->updateUiIconFromToggleField();
+    
+    updateDisplayModeNotifyManagedViews();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::updateUiUpdateDisplayModel()
+void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews()
 {
-    this->updateUiIconFromToggleField();
-
     RimView* rimView = NULL;
     firstAnchestorOrThisOfType(rimView);
 

@@ -19,38 +19,41 @@
 
 #include "RimGeoMechView.h"
 
-#include "Rim3dOverlayInfoConfig.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-#include "RimGeoMechCellColors.h"
 
-#include "RiuMainWindow.h"
-#include "cafCeetronPlusNavigation.h"
-#include "cafCadNavigation.h"
-#include "RimLegendConfig.h"
-#include "cvfOverlayScalarMapperLegend.h"
-
-#include "RimGeoMechCase.h"
-#include "cvfPart.h"
-#include "cvfViewport.h"
-#include "cvfModelBasicList.h"
-#include "cvfScene.h"
-#include "RimEclipseView.h"
-#include "RiuViewer.h"
-#include "RivGeoMechPartMgr.h"
-#include "RigGeoMechCaseData.h"
-#include "cvfqtUtils.h"
 #include "RigFemPartCollection.h"
-#include "cafFrameAnimationControl.h"
-#include <QMessageBox>
-#include "cafProgressInfo.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RivGeoMechPartMgrCache.h"
-#include "RivGeoMechVizLogic.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
-#include "RimGeoMechPropertyFilterCollection.h"
+#include "RigGeoMechCaseData.h"
 
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimLegendConfig.h"
+
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
+
+#include "RivGeoMechPartMgr.h"
+#include "RivGeoMechPartMgrCache.h"
+#include "RivGeoMechVizLogic.h"
+
+#include "cafCadNavigation.h"
+#include "cafCeetronPlusNavigation.h"
+#include "cafFrameAnimationControl.h"
+#include "cafProgressInfo.h"
+#include "cvfModelBasicList.h"
+#include "cvfOverlayScalarMapperLegend.h"
+#include "cvfPart.h"
+#include "cvfScene.h"
+#include "cvfViewport.h"
+#include "cvfqtUtils.h"
+
+#include <QMessageBox>
 
 
 
@@ -74,17 +77,15 @@ RimGeoMechView::RimGeoMechView(void)
     m_rangeFilterCollection = new RimCellRangeFilterCollection();
     m_rangeFilterCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
-    propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
-    propertyFilterCollection->setReservoirView(this);
-    propertyFilterCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
+    m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
+    m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
     this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setReservoirView(this);
 
     m_scaleTransform = new cvf::Transform();
     m_vizLogic = new RivGeoMechVizLogic(this);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -512,5 +513,28 @@ RimCase* RimGeoMechView::ownerCase()
 void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_vizLogic->scheduleGeometryRegen(geometryType);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc)
+{
+    m_overridePropertyFilterCollection = pfc;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGeoMechPropertyFilterCollection* RimGeoMechView::propertyFilterCollection()
+{
+    if (m_overridePropertyFilterCollection)
+    {
+        return m_overridePropertyFilterCollection;
+    }
+    else
+    {
+        return m_propertyFilterCollection;
+    }
 }
 

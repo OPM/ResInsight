@@ -63,8 +63,10 @@ public:
 
     virtual void                                        loadDataAndUpdate();
 
-    caf::PdmChildField<RimGeoMechCellColors*>                cellResult;
-    caf::PdmChildField<RimGeoMechPropertyFilterCollection*>  propertyFilterCollection;
+    caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
+
+    RimGeoMechPropertyFilterCollection*                 propertyFilterCollection();
+    void                                                setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc);
 
     bool                                                isTimeStepDependentDataVisible();
 
@@ -90,6 +92,9 @@ private:
     virtual void                                        initAfterRead();
 
     virtual RimCase*                                    ownerCase();
+
+    caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
+    caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
 
     caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
     cvf::ref<RivGeoMechVizLogic>                        m_vizLogic;

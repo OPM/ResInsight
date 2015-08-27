@@ -45,7 +45,7 @@ public:
 
     void                    loadAndInitializePropertyFilters();
 
-    void                    updateDisplayModel();
+    void                    updateDisplayModelNotifyManagedViews();
 
 
     // Overridden methods

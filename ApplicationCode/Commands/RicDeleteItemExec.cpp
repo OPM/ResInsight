@@ -82,7 +82,7 @@ void RicDeleteItemExec::redo()
 
         if (rangeFilterColl)
         {
-            rangeFilterColl->updateUiUpdateDisplayModel();
+            rangeFilterColl->updateDisplayModeNotifyManagedViews();
         }
 
         RimEclipsePropertyFilterCollection* eclipsePropColl;

@@ -65,7 +65,7 @@ void RicRangeFilterInsertExec::redo()
         rangeFilter->setDefaultValues();
         applyCommandDataOnFilter(rangeFilter);
 
-        m_cellRangeFilterCollection->updateUiUpdateDisplayModel();
+        m_cellRangeFilterCollection->updateDisplayModeNotifyManagedViews();
 
         m_cellRangeFilterCollection->updateConnectedEditors();
 

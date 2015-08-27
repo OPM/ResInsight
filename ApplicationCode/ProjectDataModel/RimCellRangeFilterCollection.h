@@ -53,7 +53,7 @@ public:
 
     RigActiveCellInfo*              activeCellInfo() const;
 
-    void                            updateUiUpdateDisplayModel();
+    void                            updateDisplayModeNotifyManagedViews();
 
     // Overridden methods
     virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
