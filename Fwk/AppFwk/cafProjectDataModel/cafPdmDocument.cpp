@@ -128,6 +128,35 @@ void PdmDocument::writeFile(QIODevice* xmlFile)
     xmlStream.writeEndDocument();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmDocument::updateUiIconStateRecursively(PdmObjectHandle* object)
+{
+    if (object == NULL) return;
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+    
+    std::vector<PdmObjectHandle*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        PdmDocument::updateUiIconStateRecursively(children[cIdx]);
+    }
+
+    PdmUiObjectHandle* uiObjectHandle = uiObj(object);
+    if (uiObjectHandle)
+    {
+        uiObjectHandle->updateUiIconFromToggleField();
+    }
+}
+
 
 } //End of namespace caf
 

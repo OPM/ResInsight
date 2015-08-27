@@ -148,7 +148,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& object
     for (size_t i = 0; i < insertedCases.size(); i++)
     {
         RimEclipseResultCase* rimResultReservoir = insertedCases[i];
-        caf::PdmDocument::initAfterReadTraversal(rimResultReservoir);
+        rimResultReservoir->initAfterReadRecursively();
     }
 
     // Load stuff 

@@ -87,7 +87,7 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
             rimReservoirView->name = nameOfCopy;
             geomCase->geoMechViews().push_back(rimReservoirView);
 
-            caf::PdmDocument::initAfterReadTraversal(rimReservoirView);
+            rimReservoirView->initAfterReadRecursively();
             rimReservoirView->setGeoMechCase(geomCase);
 
             caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);

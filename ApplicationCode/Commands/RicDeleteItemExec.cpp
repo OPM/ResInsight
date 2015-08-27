@@ -121,7 +121,7 @@ void RicDeleteItemExec::undo()
 
         listField->insertAt(m_commandData->m_indexToObject, obj);
 
-        PdmDocument::initAfterReadTraversal(obj);
+        obj->xmlCapability()->initAfterReadRecursively();
 
         listField->uiCapability()->updateConnectedEditors();
         listField->ownerObject()->uiCapability()->updateConnectedEditors();

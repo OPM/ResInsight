@@ -96,7 +96,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
             // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
             rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
 
-            caf::PdmDocument::initAfterReadTraversal(rimReservoirView);
+            rimReservoirView->initAfterReadRecursively();
             rimReservoirView->setEclipseCase(eclipseCase);
 
             caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
