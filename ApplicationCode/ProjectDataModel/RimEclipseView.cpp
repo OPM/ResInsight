@@ -101,9 +101,9 @@ RimEclipseView::RimEclipseView()
     m_rangeFilterCollection = new RimCellRangeFilterCollection();
     m_rangeFilterCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
-    propertyFilterCollection = new RimEclipsePropertyFilterCollection();
-    propertyFilterCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
+    m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
+    m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
     // Visualization fields
     CAF_PDM_InitField(&showMainGrid,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
@@ -134,7 +134,7 @@ RimEclipseView::~RimEclipseView()
     delete this->cellEdgeResult();
 
     delete m_rangeFilterCollection;
-    delete propertyFilterCollection();
+    delete m_propertyFilterCollection;
     delete wellCollection();
     delete faultCollection();
 
@@ -237,7 +237,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         scheduleCreateDisplayModelAndRedraw();
     }
-    else if (changedField == &propertyFilterCollection)
+    else if (changedField == &m_propertyFilterCollection)
     {
         m_reservoirGridPartManager->scheduleGeometryRegen(PROPERTY_FILTERED);
 
@@ -678,7 +678,7 @@ void RimEclipseView::loadDataAndUpdate()
 
     updateViewerWidget();
 
-    this->propertyFilterCollection()->loadAndInitializePropertyFilters();
+    this->m_propertyFilterCollection()->loadAndInitializePropertyFilters();
 
     this->faultCollection()->setReservoirView(this);
     this->faultCollection()->syncronizeFaults();
@@ -1495,4 +1495,42 @@ void RimEclipseView::addWellPathsToScene(cvf::Scene* scene,
                         scaleTransform);
 
     scene->addModel(wellPathModelBasicList.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipsePropertyFilterCollection* RimEclipseView::propertyFilterCollection()
+{
+    if (m_overridePropertyFilterCollection)
+    {
+        return m_overridePropertyFilterCollection;
+    }
+    else
+    {
+        return m_propertyFilterCollection;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimEclipsePropertyFilterCollection* RimEclipseView::propertyFilterCollection() const
+{
+    if (m_overridePropertyFilterCollection)
+    {
+        return m_overridePropertyFilterCollection;
+    }
+    else
+    {
+        return m_propertyFilterCollection;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc)
+{
+    m_overridePropertyFilterCollection = pfc;
 }

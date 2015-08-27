@@ -23,6 +23,8 @@
 
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
 #include "RimManagedViewCollection.h"
 #include "RimProject.h"
 #include "RimView.h"
@@ -43,10 +45,11 @@ RimManagedViewConfig::RimManagedViewConfig(void)
     CAF_PDM_InitFieldNoDefault(&managedView, "ManagedView", "Managed View", "", "", "");
     managedView.uiCapability()->setUiChildrenHidden(true);
 
-    CAF_PDM_InitField(&syncCamera,      "SyncCamera", true,         "Sync Camera", "", "", "");
-    CAF_PDM_InitField(&syncCellResult,  "SyncCellResult", true,     "Sync Cell Result", "", "", "");
-    CAF_PDM_InitField(&syncTimeStep,    "SyncTimeStep", true,       "Sync Time Step", "", "", "");
-    CAF_PDM_InitField(&syncRangeFilters,"SyncRangeFilters", true,   "Sync Range Filters", "", "", "");
+    CAF_PDM_InitField(&syncCamera,          "SyncCamera", true,         "Sync Camera", "", "", "");
+    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", true,     "Sync Cell Result", "", "", "");
+    CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Sync Time Step", "", "", "");
+    CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Sync Range Filters", "", "", "");
+    CAF_PDM_InitField(&syncPropertyFilters, "SyncPropertyFilters", true,"Sync Property Filters", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,6 +157,16 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             managedView->rangeFilterCollection()->updateUiUpdateDisplayModel();
         }
     }
+    else if (changedField == &syncPropertyFilters)
+    {
+        configureOverrides();
+
+        RimEclipseView* eclipseView = managedEclipseView();
+        if (eclipseView)
+        {
+            eclipseView->propertyFilterCollection()->updateDisplayModel();
+        }
+    }
     else if (changedField == &managedView)
     {
         configureOverrides();
@@ -177,6 +190,12 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             RimView* rimView = dynamic_cast<RimView*>(prevValue);
             rimView->setOverrideRangeFilterCollection(NULL);
             rimView->rangeFilterCollection()->updateUiUpdateDisplayModel();
+
+            RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(rimView);
+            if (rimEclipseView)
+            {
+                rimEclipseView->setOverridePropertyFilterCollection(NULL);
+            }
         }
     }
 }
@@ -199,6 +218,23 @@ void RimManagedViewConfig::configureOverrides()
         {
             managedView->setOverrideRangeFilterCollection(NULL);
         }
+
+        RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(masterView);
+        if (masterEclipseView)
+        {
+            RimEclipseView* eclipseView = managedEclipseView();
+            if (eclipseView)
+            {
+                if (syncPropertyFilters)
+                {
+                    eclipseView->setOverridePropertyFilterCollection(masterEclipseView->propertyFilterCollection());
+                }
+                else
+                {
+                    eclipseView->setOverridePropertyFilterCollection(NULL);
+                }
+            }
+        }
     }
 }
 
@@ -208,5 +244,15 @@ void RimManagedViewConfig::configureOverrides()
 void RimManagedViewConfig::initAfterRead()
 {
     configureOverrides();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimManagedViewConfig::managedEclipseView()
+{
+    RimView* rimView = managedView;
+
+    return dynamic_cast<RimEclipseView*>(rimView);
 }
 

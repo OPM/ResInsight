@@ -24,6 +24,7 @@
 #include "cafPdmPtrField.h"
 
 class RimView;
+class RimEclipseView;
 
 //==================================================================================================
 ///  
@@ -43,6 +44,7 @@ public:
     caf::PdmField<bool>         syncCellResult;
     caf::PdmField<bool>         syncTimeStep;
     caf::PdmField<bool>         syncRangeFilters;
+    caf::PdmField<bool>         syncPropertyFilters;
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -53,4 +55,6 @@ protected:
 private:
     void allVisibleViews(std::vector<RimView*>& views);
     void configureOverrides();
+
+    RimEclipseView* managedEclipseView();
 };

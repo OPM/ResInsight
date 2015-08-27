@@ -47,4 +47,5 @@ public:
     void updateCellResult();
 
     void updateRangeFilters();
+    void updatePropertyFilters();
 };

@@ -20,9 +20,10 @@
 
 #include "RimEclipsePropertyFilterCollection.h"
 
-#include "RimEclipseView.h"
-#include "RimEclipseResultDefinition.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
+#include "RimManagedViewCollection.h"
 
 #include "cafPdmUiEditorHandle.h"
 
@@ -69,12 +70,7 @@ void RimEclipsePropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHan
 {
     this->updateUiIconFromToggleField();
 
-    RimEclipseView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
-    CVF_ASSERT(view);
-
-    view->scheduleGeometryRegen(PROPERTY_FILTERED);
-    view->scheduleCreateDisplayModelAndRedraw();
+    updateDisplayModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,4 +131,20 @@ bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 caf::PdmFieldHandle* RimEclipsePropertyFilterCollection::objectToggleField()
 {
     return &active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::updateDisplayModel()
+{
+    RimEclipseView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
+    CVF_ASSERT(view);
+
+    view->scheduleGeometryRegen(PROPERTY_FILTERED);
+    view->scheduleCreateDisplayModelAndRedraw();
+
+    // Notify managed views of range filter change in master view
+    view->managedViewCollection()->updatePropertyFilters();
 }

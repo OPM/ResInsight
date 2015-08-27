@@ -187,3 +187,38 @@ void RimManagedViewCollection::updateRangeFilters()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewCollection::updatePropertyFilters()
+{
+    for (size_t i = 0; i < managedViews.size(); i++)
+    {
+        RimManagedViewConfig* managedViewConfig = managedViews[i];
+        if (managedViewConfig->managedView())
+        {
+            if (managedViewConfig->syncPropertyFilters())
+            {
+                RimView* rimView = managedViewConfig->managedView();
+                RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
+                if (eclipeView)
+                {
+                    eclipeView->scheduleGeometryRegen(PROPERTY_FILTERED);
+                    eclipeView->scheduleCreateDisplayModelAndRedraw();
+                }
+
+/*
+                RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
+                if (geoView)
+                {
+                    geoView->scheduleGeometryRegen(RANGE_FILTERED);
+                    geoView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+
+                    geoView->scheduleCreateDisplayModelAndRedraw();
+                }
+*/
+            }
+        }
+    }
+}

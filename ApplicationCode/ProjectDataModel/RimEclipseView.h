@@ -89,8 +89,6 @@ public:
     caf::PdmChildField<RimCellEdgeColors*>                   cellEdgeResult;
     caf::PdmChildField<RimEclipseFaultColors*>               faultResultSettings;
 
-    caf::PdmChildField<RimEclipsePropertyFilterCollection*>  propertyFilterCollection;
-
     caf::PdmChildField<RimEclipseWellCollection*>            wellCollection;
     caf::PdmChildField<RimFaultCollection*>                  faultCollection;
 
@@ -101,6 +99,10 @@ public:
     caf::PdmField<bool>                             showMainGrid;
 
     // Access internal objects
+
+    RimEclipsePropertyFilterCollection*             propertyFilterCollection();
+    const RimEclipsePropertyFilterCollection*       propertyFilterCollection() const;
+    void                                            setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc);
 
     RimReservoirCellResultsStorage*                 currentGridCellResults();
     RigActiveCellInfo*                              currentActiveCellInfo();
@@ -161,6 +163,9 @@ private:
     void                                            clampCurrentTimestep();
 
     virtual RimCase*                                ownerCase();
+
+    caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
+    caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
     caf::PdmPointer<RimEclipseCase>                 m_reservoir;
 
