@@ -33,20 +33,15 @@ public:
     RimEclipsePropertyFilterCollection();
     virtual ~RimEclipsePropertyFilterCollection();
 
-
     // Fields:
     caf::PdmField<bool> active;
     caf::PdmChildArrayField<RimEclipsePropertyFilter*> propertyFilters;
 
     // Methods
-    RimEclipsePropertyFilter*  createAndAppendPropertyFilter();
-    void                    remove(RimEclipsePropertyFilter* propertyFilter);
-
     bool                    hasActiveFilters() const; 
     bool                    hasActiveDynamicFilters() const; 
 
-    void                    setReservoirView(RimEclipseView* reservoirView);
-    RimEclipseView*       reservoirView();
+    RimEclipseView*         reservoirView();
 
     void                    loadAndInitializePropertyFilters();
 
@@ -58,7 +53,4 @@ public:
 protected:
     // Overridden methods
     virtual void initAfterRead();
-
-private:
-    caf::PdmPointer<RimEclipseView> m_reservoirView;
 };

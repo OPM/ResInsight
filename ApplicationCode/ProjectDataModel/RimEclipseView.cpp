@@ -104,7 +104,6 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilterCollection = new RimEclipsePropertyFilterCollection();
     propertyFilterCollection.uiCapability()->setUiHidden(true);
-    propertyFilterCollection->setReservoirView(this);
 
     // Visualization fields
     CAF_PDM_InitField(&showMainGrid,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
@@ -706,7 +705,6 @@ void RimEclipseView::initAfterRead()
     this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);
-    this->propertyFilterCollection()->setReservoirView(this);
 
     this->updateUiIconFromToggleField();
 }
