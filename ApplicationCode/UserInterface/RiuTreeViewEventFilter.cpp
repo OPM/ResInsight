@@ -23,16 +23,18 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RiuMainWindow.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeView.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QKeyEvent>
 #include <QTreeView>
-#include "cafSelectionManager.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -58,7 +60,9 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
         if (uiItem)
         {
             if (dynamic_cast<RimEclipseCase*>(uiItem)
-                || dynamic_cast<RimEclipseView*>(uiItem))
+                || dynamic_cast<RimEclipseView*>(uiItem)
+                || dynamic_cast<RimGeoMechCase*>(uiItem)
+                || dynamic_cast<RimGeoMechView*>(uiItem))
             {
                 if (keyEvent->matches(QKeySequence::Copy))
                 {
@@ -77,6 +81,11 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
                     || dynamic_cast<RimEclipseView*>(uiItem))
                 {
                     featureToActivate = "RicPasteEclipseViewsFeature";
+                }
+                else if (dynamic_cast<RimGeoMechCase*>(uiItem)
+                    || dynamic_cast<RimGeoMechView*>(uiItem))
+                {
+                    featureToActivate = "RicPasteGeoMechViewsFeature";
                 }
             }
         }
