@@ -18,9 +18,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLogPlotCollection.h"
+
 #include "RimWellLogPlot.h"
+#include "RimProject.h"
 
 #include "RiuMainWindow.h"
+
+#include "RiaApplication.h"
 
 #include "cafPdmUiTreeView.h"
 
@@ -67,9 +71,9 @@ caf::PdmFieldHandle* RimWellLogPlotCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::addWellLogPlot()
 {
-    RimWellLogPlot* view = new RimWellLogPlot();
-    wellLogPlots.push_back(view);
+    RimWellLogPlot* plot = new RimWellLogPlot();
+    wellLogPlots.push_back(plot);
     
     RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
-    updateConnectedEditors();
+    RiaApplication::instance()->project()->updateConnectedEditors();
 }

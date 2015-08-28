@@ -48,6 +48,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 #include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlot.h"
 
 #include "RiuMainWindow.h"
 
@@ -863,7 +865,16 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 
     uiTreeOrdering.add(scriptCollection());
     
-    if (mainPlotCollection) uiTreeOrdering.add(mainPlotCollection());
+    if (mainPlotCollection)
+    {
+        if (mainPlotCollection->wellLogPlotCollection())
+        {
+            if (mainPlotCollection->wellLogPlotCollection()->wellLogPlots().size() > 0)
+            {
+                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+            }
+        }
+    }
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }

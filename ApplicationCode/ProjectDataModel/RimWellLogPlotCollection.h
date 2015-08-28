@@ -37,6 +37,8 @@ public:
     RimWellLogPlotCollection();
     virtual ~RimWellLogPlotCollection();
 
+    caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
+
     void addWellLogPlot();
 
 protected:
@@ -49,5 +51,4 @@ private:
 
 private:
     caf::PdmField<bool> show;
-    caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
 };
