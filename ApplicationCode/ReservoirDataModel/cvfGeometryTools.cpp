@@ -493,6 +493,58 @@ cvf::Vec3d GeometryTools::barycentricCoords(const cvf::Vec3d&  t0, const cvf::Ve
     return m;
 }
 
+inline double triArea3D(const cvf::Vec3d& v0, 
+                 const cvf::Vec3d& v1,
+                 const cvf::Vec3d& v2)
+{
+    return 0.5 * ((v1-v0) ^ (v2 - v0)).length();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Barycentric coordinates of a Quad
+/// See http://geometry.caltech.edu/pubs/MHBD02.pdf for details
+/// W_i = a_i / Sum(a_0 ... a_3)
+/// a_i = Area(v_(i-1), v_i, v_(i+1))*Area(p, v_(i-2), v_(i-1))*Area(p, v_(i+1), v_(i+2))
+
+//--------------------------------------------------------------------------------------------------
+cvf::Vec4d GeometryTools::barycentricCoords(const cvf::Vec3d& v0, 
+                                            const cvf::Vec3d& v1, 
+                                            const cvf::Vec3d& v2, 
+                                            const cvf::Vec3d& v3, 
+                                            const cvf::Vec3d& p)
+{
+    cvf::Vec4d w;
+    cvf::Vec4d a;
+
+    a[0] = triArea3D(v3, v0, v1)*triArea3D(p, v2, v3)*triArea3D(p, v1, v2);
+    a[1] = triArea3D(v0, v1, v2)*triArea3D(p, v3, v0)*triArea3D(p, v2, v3);
+    a[2] = triArea3D(v1, v2, v3)*triArea3D(p, v0, v1)*triArea3D(p, v3, v0);
+    a[3] = triArea3D(v2, v3, v0)*triArea3D(p, v1, v2)*triArea3D(p, v0, v1);
+
+    double sum_a = a[0] + a[1] + a[2] + a[3];
+
+    w[0] = a[0]/sum_a;
+    w[1] = a[1]/sum_a;
+    w[2] = a[2]/sum_a;
+    w[3] = a[3]/sum_a;
+
+    return w;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double GeometryTools::interpolateQuad(const cvf::Vec3d& v1, double s1, 
+                                      const cvf::Vec3d& v2, double s2, 
+                                      const cvf::Vec3d& v3, double s3, 
+                                      const cvf::Vec3d& v4, double s4, 
+                                      const cvf::Vec3d& point)
+{
+    cvf::Vec4d bc = barycentricCoords(v1, v2, v3, v4, point);
+
+    return s1*bc[0] + s2*bc[1] + s3*bc[2] + s4*bc[3];
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
