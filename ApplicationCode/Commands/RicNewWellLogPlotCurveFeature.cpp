@@ -17,61 +17,51 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RicNewWellLogPlotCurveFeature.h"
+
 #include "RimWellLogPlotTrace.h"
 
-#include "RimWellLogPlotCurve.h"
+#include "cafSelectionManager.h"
 
-#include "RiuMainWindow.h"
+#include <QAction>
 
-#include "cafPdmUiTreeView.h"
 
-CAF_PDM_SOURCE_INIT(RimWellLogPlotTrace, "WellLogPlotTrace");
+CAF_CMD_SOURCE_INIT(RicNewWellLogPlotCurveFeature, "RicNewWellLogPlotCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrace::RimWellLogPlotTrace()
+bool RicNewWellLogPlotCurveFeature::isCommandEnabled()
 {
-    CAF_PDM_InitObject("Trace", "", "", "");
-
-    CAF_PDM_InitField(&show, "Show", true, "Show trace", "", "", "");
-    show.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");
-    curves.uiCapability()->setUiHidden(true);
+    return selectedWellLogPlotTrace() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrace::~RimWellLogPlotTrace()
+void RicNewWellLogPlotCurveFeature::onActionTriggered(bool isChecked)
 {
+    RimWellLogPlotTrace* wellLogPlotTrace = selectedWellLogPlotTrace();
+    if (wellLogPlotTrace)
+    {
+        wellLogPlotTrace->addCurve();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicNewWellLogPlotCurveFeature::setupActionLook(QAction* actionToSetup)
 {
+    actionToSetup->setText("New Curve");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlotTrace::objectToggleField()
+RimWellLogPlotTrace* RicNewWellLogPlotCurveFeature::selectedWellLogPlotTrace()
 {
-    return &show;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::addCurve()
-{
-    RimWellLogPlotCurve* curve = new RimWellLogPlotCurve();
-    curves.push_back(curve);
-
-    RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
-    updateConnectedEditors();
-
+    std::vector<RimWellLogPlotTrace*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
+    return selection.size() > 0 ? selection[0] : NULL;
 }
