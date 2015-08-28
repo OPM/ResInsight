@@ -552,6 +552,7 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimGeoMechView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
+#include "RimWellLogPlot.h"
 #include <QMenu>
 
 
@@ -721,6 +722,10 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         else if (dynamic_cast<RimManagedViewConfig*>(uiItem))
         {
             commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlot*>(uiItem))
+        {
+            commandIds << "RicNewWellLogPlotTraceFeature";
         }
 
         if (dynamic_cast<RimManagedViewCollection*>(uiItem))

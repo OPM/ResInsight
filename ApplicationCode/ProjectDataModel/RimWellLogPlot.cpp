@@ -24,6 +24,9 @@
 #include "RiuWellLogPlot.h"
 #include "RiuMainWindow.h"
 
+#include "cafPdmUiTreeView.h"
+
+
 CAF_PDM_SOURCE_INIT(RimWellLogPlot, "WellLogPlot");
 
 //--------------------------------------------------------------------------------------------------
@@ -91,4 +94,16 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 {
     return &showWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::addTrace()
+{
+    RimWellLogPlotTrace* trace = new RimWellLogPlotTrace();
+    traces.push_back(trace);
+
+    RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
+    updateConnectedEditors();
 }

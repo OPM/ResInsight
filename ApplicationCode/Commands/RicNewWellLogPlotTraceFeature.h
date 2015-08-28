@@ -19,42 +19,23 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafPdmChildArrayField.h"
+#include "cafCmdFeature.h"
 
-#include <QPointer>
-
-class RimWellLogPlotTrace;
-class RiuWellLogPlot;
-
+class RimWellLogPlot;
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimWellLogPlot : public caf::PdmObject
+class RicNewWellLogPlotTraceFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-public:
-    RimWellLogPlot();
-    virtual ~RimWellLogPlot();
-
-    void addTrace();
-
-    caf::PdmField<bool> showWindow;
+    CAF_CMD_HEADER_INIT;
 
 protected:
-
-    // Overridden PDM methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-private:
-    void updateViewerWidget();
-
-    virtual caf::PdmFieldHandle* objectToggleField();
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    QPointer<RiuWellLogPlot> m_viewer;
-    caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
+   RimWellLogPlot* selectedWellLogPlot();
 };

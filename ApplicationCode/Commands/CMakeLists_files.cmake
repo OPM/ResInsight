@@ -44,6 +44,7 @@ ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotTraceFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.h
@@ -94,6 +95,7 @@ ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotTraceFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.cpp
