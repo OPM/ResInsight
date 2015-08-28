@@ -17,57 +17,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellLogPlot.h"
-
 #include "RiuWellLogTracePlot.h"
 
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
-
-#include <QHBoxLayout>
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlot::RiuWellLogPlot(QWidget* parent)
-    : QWidget(parent)
-{
-    m_layout = new QHBoxLayout(this);
-    setLayout(m_layout);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuWellLogPlot::~RiuWellLogPlot()
+RiuWellLogTracePlot::RiuWellLogTracePlot(QWidget* parent)
+    : QwtPlot(parent)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::update(const RimWellLogPlot& plot)
+RiuWellLogTracePlot::~RiuWellLogTracePlot()
 {
-    clear();
-
-    for (size_t traceIdx = 0; traceIdx < plot.traces.size(); traceIdx++)
-    {
-        RiuWellLogTracePlot* tracePlot = new RiuWellLogTracePlot(this);
-        m_layout->addWidget(tracePlot);
-        m_children.append(tracePlot);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::clear()
-{
-    for (int childIdx = 0; childIdx < m_children.size(); childIdx++)
-    {
-        m_layout->removeWidget(m_children[childIdx]);
-        delete m_children[childIdx];
-    }
-
-    m_children.clear();
 }

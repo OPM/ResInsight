@@ -106,4 +106,6 @@ void RimWellLogPlot::addTrace()
 
     RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
     updateConnectedEditors();
+
+    m_viewer->update(*this);
 }

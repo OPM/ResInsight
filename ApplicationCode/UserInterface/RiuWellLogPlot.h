@@ -19,14 +19,19 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include <QWidget>
+#include <QList>
+
+class RimWellLogPlot;
+class RiuWellLogTracePlot;
+class QHBoxLayout;
 
 //==================================================================================================
 //
 // RiuWellLogPlot
 //
 //==================================================================================================
-class RiuWellLogPlot : public QwtPlot
+class RiuWellLogPlot : public QWidget
 {
     Q_OBJECT
 
@@ -34,5 +39,11 @@ public:
     RiuWellLogPlot(QWidget* parent = NULL);
     virtual ~RiuWellLogPlot();
 
+    void update(const RimWellLogPlot& plot);
+    void clear();
+
+private:
+    QHBoxLayout* m_layout;
+    QList<RiuWellLogTracePlot*> m_children;
 };
 
