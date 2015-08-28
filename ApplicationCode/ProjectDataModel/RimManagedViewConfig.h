@@ -51,6 +51,8 @@ public:
 
     void configureOverrides();
 
+    void                        allManagedViews(std::vector<RimView*>& views);
+
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);

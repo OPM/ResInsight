@@ -27,6 +27,7 @@
 
 class RimManagedViewConfig;
 class RiuViewer;
+class RimView;
 
 //==================================================================================================
 ///  
@@ -50,4 +51,7 @@ public:
     void updatePropertyFilters();
 
     void configureOverrides();
+
+    void                        allManagedViews(std::vector<RimView*>& views);
+
 };

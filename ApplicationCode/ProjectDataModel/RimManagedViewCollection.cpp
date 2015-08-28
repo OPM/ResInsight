@@ -245,3 +245,14 @@ void RimManagedViewCollection::configureOverrides()
         managedViewConfig->configureOverrides();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewCollection::allManagedViews(std::vector<RimView*>& views)
+{
+    for (size_t i = 0; i < managedViews.size(); i++)
+    {
+        managedViews[i]->allManagedViews(views);
+    }
+}

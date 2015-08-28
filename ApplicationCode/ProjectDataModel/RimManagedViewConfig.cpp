@@ -347,3 +347,19 @@ void RimManagedViewConfig::updateDisplayName()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::allManagedViews(std::vector<RimView*>& views)
+{
+    if (managedView)
+    {
+        views.push_back(managedView);
+
+        for (size_t i = 0; i < managedView->managedViewCollection()->managedViews().size(); i++)
+        {
+            managedView->managedViewCollection()->managedViews()[i]->allManagedViews(views);
+        }
+    }
+}
+
