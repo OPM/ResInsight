@@ -191,6 +191,8 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             {
                 geoView->setOverridePropertyFilterCollection(NULL);
             }
+
+            rimView->managedViewCollection()->configureOverrides();
         }
     }
 }
@@ -200,7 +202,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewConfig::initAfterRead()
 {
-    configureOverridesUpdateDisplayModel();
+    configureOverrides();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,6 +229,31 @@ RimGeoMechView* RimManagedViewConfig::managedGeoView()
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewConfig::configureOverridesUpdateDisplayModel()
+{
+    configureOverrides();
+
+    if (managedView)
+    {
+        managedView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
+    }
+
+    RimEclipseView* eclipseView = managedEclipseView();
+    if (eclipseView)
+    {
+        eclipseView->propertyFilterCollection()->updateDisplayModelNotifyManagedViews();
+    }
+
+    RimGeoMechView* geoView = managedGeoView();
+    if (geoView)
+    {
+        geoView->propertyFilterCollection()->updateDisplayModelNotifyManagedViews();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::configureOverrides()
 {
     RimView* masterView = NULL;
     firstAnchestorOrThisOfType(masterView);
@@ -278,23 +305,6 @@ void RimManagedViewConfig::configureOverridesUpdateDisplayModel()
 
         // Propagate overrides in current view to managed views
         managedView->managedViewCollection()->configureOverrides();
-    }
-
-    if (managedView)
-    {
-        managedView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
-    }
-
-    RimEclipseView* eclipseView = managedEclipseView();
-    if (eclipseView)
-    {
-        eclipseView->propertyFilterCollection()->updateDisplayModelNotifyManagedViews();
-    }
-
-    RimGeoMechView* geoView = managedGeoView();
-    if (geoView)
-    {
-        geoView->propertyFilterCollection()->updateDisplayModelNotifyManagedViews();
     }
 }
 

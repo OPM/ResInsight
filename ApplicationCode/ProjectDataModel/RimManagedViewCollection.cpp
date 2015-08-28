@@ -242,6 +242,6 @@ void RimManagedViewCollection::configureOverrides()
     for (size_t i = 0; i < managedViews.size(); i++)
     {
         RimManagedViewConfig* managedViewConfig = managedViews[i];
-        managedViewConfig->configureOverridesUpdateDisplayModel();
+        managedViewConfig->configureOverrides();
     }
 }

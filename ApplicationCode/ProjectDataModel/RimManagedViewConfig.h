@@ -47,7 +47,7 @@ public:
     caf::PdmField<bool>         syncRangeFilters;
     caf::PdmField<bool>         syncPropertyFilters;
 
-    void configureOverridesUpdateDisplayModel();
+    void configureOverrides();
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -56,7 +56,8 @@ protected:
     virtual void                            initAfterRead();
 
 private:
-    void allVisibleViews(std::vector<RimView*>& views);
+    void            allVisibleViews(std::vector<RimView*>& views);
+    void            configureOverridesUpdateDisplayModel();
 
     RimEclipseView* managedEclipseView();
     RimGeoMechView* managedGeoView();
