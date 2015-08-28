@@ -726,6 +726,10 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicDeleteItemFeature";
         }
+        else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
+        {
+            commandIds << "RicNewWellLogPlotFeature";
+        }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
             commandIds << "RicNewWellLogPlotTraceFeature";
