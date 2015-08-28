@@ -21,9 +21,9 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
-#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 
-class RimWellLogPlot;
+class RimWellLogPlotCollection;
 
 
 //==================================================================================================
@@ -37,7 +37,7 @@ public:
     RimMainPlotCollection();
     virtual ~RimMainPlotCollection();
 
-    void addWellLogPlot();
+    caf::PdmChildField<RimWellLogPlotCollection*> wellLogPlotCollection;
 
 protected:
 
@@ -49,5 +49,4 @@ private:
 
 private:
     caf::PdmField<bool> show;
-    caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
 };

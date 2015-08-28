@@ -17,50 +17,59 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlot.h"
 
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiTreeView.h"
 
-CAF_PDM_SOURCE_INIT(RimMainPlotCollection, "MainPlotCollection");
+CAF_PDM_SOURCE_INIT(RimWellLogPlotCollection, "WellLogPlotCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimMainPlotCollection::RimMainPlotCollection()
+RimWellLogPlotCollection::RimWellLogPlotCollection()
 {
-    CAF_PDM_InitObject("Plots", "", "", "");
+    CAF_PDM_InitObject("Well Log Plots", "", "", "");
 
     CAF_PDM_InitField(&show, "Show", true, "Show plots", "", "", "");
     show.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&wellLogPlotCollection, "WellLogPlotCollection", "",  "", "", "");
-    wellLogPlotCollection.uiCapability()->setUiHidden(true);
-
-    wellLogPlotCollection = new RimWellLogPlotCollection();
+    CAF_PDM_InitFieldNoDefault(&wellLogPlots, "WellLogPlots", "",  "", "", "");
+    wellLogPlots.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimMainPlotCollection::~RimMainPlotCollection()
-{
-    if (wellLogPlotCollection()) delete wellLogPlotCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+RimWellLogPlotCollection::~RimWellLogPlotCollection()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimMainPlotCollection::objectToggleField()
+void RimWellLogPlotCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellLogPlotCollection::objectToggleField()
 {
     return &show;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::addWellLogPlot()
+{
+    RimWellLogPlot* view = new RimWellLogPlot();
+    wellLogPlots.push_back(view);
+    
+    RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
+    updateConnectedEditors();
 }

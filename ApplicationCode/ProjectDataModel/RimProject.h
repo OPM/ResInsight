@@ -59,10 +59,11 @@ public:
     RimProject(void);
     virtual ~RimProject(void);
 
-    caf::PdmChildArrayField<RimOilField*>                 oilFields;
-    caf::PdmChildField<RimScriptCollection*>                 scriptCollection;
-    caf::PdmChildField<RimWellPathImport*>                   wellPathImport;
-    caf::PdmChildArrayField<RimCommandObject*>            commandObjects;
+    caf::PdmChildArrayField<RimOilField*>               oilFields;
+    caf::PdmChildField<RimScriptCollection*>            scriptCollection;
+    caf::PdmChildField<RimWellPathImport*>              wellPathImport;
+    caf::PdmChildField<RimMainPlotCollection*>          mainPlotCollection;
+    caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
 
@@ -104,6 +105,4 @@ private:
 
     caf::PdmChildArrayField<RimEclipseCase*>                     casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
-
-    caf::PdmChildField<RimMainPlotCollection*> mainPlotCollection;
 };

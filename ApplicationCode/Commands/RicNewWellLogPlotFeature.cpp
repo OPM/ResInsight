@@ -19,9 +19,11 @@
 
 #include "RicNewWellLogPlotFeature.h"
 
+#include "RimProject.h"
 #include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 
-#include "cafSelectionManager.h"
+#include "RiaApplication.h"
 
 #include <QAction>
 
@@ -33,7 +35,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogPlotFeature, "RicNewWellLogPlotFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogPlotFeature::isCommandEnabled()
 {
-    return selectedMainPlotCollection() != NULL;
+    return wellLogPlotCollection() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,10 +43,10 @@ bool RicNewWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimMainPlotCollection* mainPlotCollection = selectedMainPlotCollection();
-    if (mainPlotCollection)
+    RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
+    if (wellLogPlotColl)
     {
-        mainPlotCollection->addWellLogPlot();
+        wellLogPlotColl->addWellLogPlot();
     }
 }
 
@@ -59,9 +61,10 @@ void RicNewWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimMainPlotCollection* RicNewWellLogPlotFeature::selectedMainPlotCollection()
+RimWellLogPlotCollection* RicNewWellLogPlotFeature::wellLogPlotCollection()
 {
-    std::vector<RimMainPlotCollection*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : NULL;
+    RimProject* project = RiaApplication::instance()->project();
+    RimMainPlotCollection* mainPlotCollection = project ? project->mainPlotCollection() : NULL;
+
+    return mainPlotCollection ? mainPlotCollection->wellLogPlotCollection() : NULL;
 }

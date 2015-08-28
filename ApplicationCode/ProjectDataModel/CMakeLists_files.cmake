@@ -62,6 +62,7 @@ ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.h
 ${CEE_CURRENT_LIST_DIR}RimManagedViewConfig.h
 ${CEE_CURRENT_LIST_DIR}RimManagedViewCollection.h
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.h
+${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrace.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.h
@@ -125,6 +126,7 @@ ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.cpp
 ${CEE_CURRENT_LIST_DIR}RimManagedViewConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimManagedViewCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrace.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.cpp

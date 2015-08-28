@@ -565,7 +565,11 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems(uiItems);
 
-    if (uiItems.size() > 1)
+    if (uiItems.size() == 0)
+    {
+        commandIds << "RicNewWellLogPlotFeature";
+    }
+    else if (uiItems.size() > 1)
     {
         commandIds << "RicCopyReferencesToClipboardFeature";
     }
@@ -717,10 +721,6 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         else if (dynamic_cast<RimManagedViewConfig*>(uiItem))
         {
             commandIds << "RicDeleteItemFeature";
-        }
-        else if (dynamic_cast<RimMainPlotCollection*>(uiItem))
-        {
-            commandIds << "RicNewWellLogPlotFeature";
         }
 
         if (dynamic_cast<RimManagedViewCollection*>(uiItem))
