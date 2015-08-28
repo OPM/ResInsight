@@ -124,6 +124,9 @@ void RimManagedViewCollection::updateCellResult()
                         eclipeView->cellResult()->setResultVariable(eclipseCellResultDefinition->resultVariable());
                     }
                 }
+
+                // Notify recursively
+                managedViewConfig->managedView()->managedViewCollection()->updateCellResult();
             }
         }
     }
@@ -148,6 +151,9 @@ void RimManagedViewCollection::updateCellResult()
                         geoView->scheduleCreateDisplayModelAndRedraw();
                     }
                 }
+
+                // Notify recursively
+                managedViewConfig->managedView()->managedViewCollection()->updateCellResult();
             }
         }
     }
@@ -184,6 +190,9 @@ void RimManagedViewCollection::updateRangeFilters()
                     geoView->scheduleCreateDisplayModelAndRedraw();
                 }
             }
+
+            // Notify recursively
+            managedViewConfig->managedView()->managedViewCollection()->updateRangeFilters();
         }
     }
 }
@@ -204,21 +213,35 @@ void RimManagedViewCollection::updatePropertyFilters()
                 RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
                 if (eclipeView)
                 {
-                    eclipeView->scheduleGeometryRegen(PROPERTY_FILTERED);
+                    eclipeView->scheduleGeometryRegen(RANGE_FILTERED);
+                    eclipeView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+
                     eclipeView->scheduleCreateDisplayModelAndRedraw();
                 }
 
-/*
                 RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
                 if (geoView)
                 {
-                    geoView->scheduleGeometryRegen(RANGE_FILTERED);
-                    geoView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+                    geoView->scheduleGeometryRegen(PROPERTY_FILTERED);
 
                     geoView->scheduleCreateDisplayModelAndRedraw();
                 }
-*/
             }
+
+            // Notify recursively
+            managedViewConfig->managedView()->managedViewCollection()->updatePropertyFilters();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewCollection::configureOverrides()
+{
+    for (size_t i = 0; i < managedViews.size(); i++)
+    {
+        RimManagedViewConfig* managedViewConfig = managedViews[i];
+        managedViewConfig->configureOverridesUpdateDisplayModel();
     }
 }

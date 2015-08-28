@@ -48,4 +48,6 @@ public:
 
     void updateRangeFilters();
     void updatePropertyFilters();
+
+    void configureOverrides();
 };
