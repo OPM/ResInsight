@@ -44,6 +44,9 @@ RimManagedViewConfig::RimManagedViewConfig(void)
 {
     CAF_PDM_InitObject("View Config", ":/chain.png", "", "");
 
+    QString defaultName = "View Config : Empty view";
+    CAF_PDM_InitField(&name, "Name", defaultName, "Managed View Name", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&managedView, "ManagedView", "Managed View", "", "", "");
     managedView.uiCapability()->setUiChildrenHidden(true);
 
@@ -75,7 +78,7 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
 
         for (size_t i = 0; i< views.size(); i++)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(views[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
+            optionList.push_back(caf::PdmOptionItemInfo(displayNameForView(views[i]), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
         }
 
         if (optionList.size() > 0)
@@ -171,6 +174,8 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
                 masterView->managedViewCollection()->updateCellResult();
             }
+
+            name = displayNameForView(managedView);
         }
 
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
@@ -194,6 +199,9 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
             rimView->managedViewCollection()->configureOverrides();
         }
+
+        updateDisplayName();
+        name.uiCapability()->updateConnectedEditors();
     }
 }
 
@@ -203,6 +211,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 void RimManagedViewConfig::initAfterRead()
 {
     configureOverrides();
+    updateDisplayName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,6 +314,36 @@ void RimManagedViewConfig::configureOverrides()
 
         // Propagate overrides in current view to managed views
         managedView->managedViewCollection()->configureOverrides();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimManagedViewConfig::displayNameForView(RimView* view)
+{
+    CVF_ASSERT(view);
+
+    RimCase* rimCase = NULL;
+    firstAnchestorOrThisOfType(rimCase);
+
+    QString displayName = rimCase->caseUserDescription() + " : " + view->name;
+
+    return displayName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::updateDisplayName()
+{
+    if (managedView)
+    {
+        name = displayNameForView(managedView);
+    }
+    else
+    {
+        name = "View Config : Empty view";
     }
 }
 

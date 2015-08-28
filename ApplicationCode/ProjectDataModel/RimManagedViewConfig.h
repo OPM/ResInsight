@@ -39,6 +39,8 @@ public:
     RimManagedViewConfig(void);
     virtual ~RimManagedViewConfig(void);
 
+    caf::PdmField<QString>      name;
+
     caf::PdmPtrField<RimView*>  managedView;
     
     caf::PdmField<bool>         syncCamera;
@@ -54,6 +56,8 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual void                            initAfterRead();
+    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
+
 
 private:
     void            allVisibleViews(std::vector<RimView*>& views);
@@ -61,4 +65,7 @@ private:
 
     RimEclipseView* managedEclipseView();
     RimGeoMechView* managedGeoView();
+
+    void            updateDisplayName();
+    QString         displayNameForView(RimView* view);
 };
