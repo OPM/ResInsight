@@ -43,7 +43,6 @@ public:
 
     caf::PdmChildArrayField<RimManagedViewConfig*>       managedViews;
 
-    void updateViewers(RiuViewer* masterViewer);
     void updateTimeStep(int timeStep);
     void updateCellResult();
 

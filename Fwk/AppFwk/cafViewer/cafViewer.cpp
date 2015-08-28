@@ -792,3 +792,12 @@ void caf::Viewer::updateOverlayImagePresence()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Create a virtual method so it is possible to override this function in derived classes
+/// Default implementation calls the base class update()
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::update()
+{
+    caf::OpenGLWidget::update();
+}
+

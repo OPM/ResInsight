@@ -55,28 +55,6 @@ RimManagedViewCollection::~RimManagedViewCollection(void)
 {
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::updateViewers(RiuViewer* masterViewer)
-{
-    for (size_t i = 0; i < managedViews.size(); i++)
-    {
-        RimManagedViewConfig* managedViewConfig = managedViews[i];
-        if (managedViewConfig->managedView())
-        {
-            if (managedViewConfig->syncCamera() && managedViewConfig->managedView()->viewer())
-            {
-                const cvf::Mat4d mat = masterViewer->mainCamera()->viewMatrix();
-
-                managedViewConfig->managedView()->viewer()->mainCamera()->setViewMatrix(mat);
-                managedViewConfig->managedView()->viewer()->update();
-            }
-        }
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

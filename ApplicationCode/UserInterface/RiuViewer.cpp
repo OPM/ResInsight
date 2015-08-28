@@ -21,51 +21,49 @@
 #include "RiaStdInclude.h"
 
 #include "RiuViewer.h"
-#include "RiuViewerCommands.h"
 
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
-
-#include "cafCeetronPlusNavigation.h"
-#include "RiuCadNavigation.h"
-#include "RiuRmsNavigation.h"
-#include "RiuGeoQuestNavigation.h"
-
-#include "RimEclipseView.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimEclipseCase.h"
-#include "RimCellEdgeColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseWellCollection.h"
-
-#include "RimReservoirCellResultsStorage.h"
+#include "RiaBaseDefs.h"
 
 #include "RigCaseData.h"
+#include "RigFemPart.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
+#include "RigGeoMechCaseData.h"
 
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellEdgeColors.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimFaultCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
+#include "RimManagedViewCollection.h"
+#include "RimManagedViewConfig.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+
+#include "RiuCadNavigation.h"
+#include "RiuGeoQuestNavigation.h"
+#include "RiuMainWindow.h"
+#include "RiuResultTextBuilder.h"
+#include "RiuRmsNavigation.h"
 #include "RiuSimpleHistogramWidget.h"
+#include "RiuViewerCommands.h"
 
-#include "cafNavigationPolicy.h"
+#include "RivFemPartGeometryGenerator.h"
+#include "RivFemPickSourceInfo.h"
+#include "RivSourceInfo.h"
+
+#include "cafCeetronPlusNavigation.h"
 #include "cafEffectGenerator.h"
-
+#include "cafNavigationPolicy.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "RivSourceInfo.h"
-#include "RivFemPickSourceInfo.h"
-
-#include "RiuResultTextBuilder.h"
-#include "RivFemPartGeometryGenerator.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RigFemPart.h"
-#include "RigFemPartGrid.h"
-#include "RimProject.h"
-#include "RimManagedViewCollection.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -81,7 +79,6 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 ///
 //==================================================================================================
 
-#include "RiaBaseDefs.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -501,12 +498,58 @@ void RiuViewer::updateNavigationPolicy()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::paintEvent(QPaintEvent* event)
+void RiuViewer::update()
 {
-    caf::Viewer::paintEvent(event);
+    std::vector<RimView*> viewsToUpdate;
 
     if (m_reservoirView)
     {
-        m_reservoirView->managedViewCollection()->updateViewers(this);
+        viewsToUpdate.push_back(m_reservoirView);
+
+        // All downstreams views
+        m_reservoirView->managedViewCollection()->allManagedViews(viewsToUpdate);
+            
+        // All upstreams views
+            
+        RimView* rimView = m_reservoirView;
+        
+        std::vector<caf::PdmObjectHandle*> objects;
+        rimView->objectsWithReferringPtrFields(objects);
+        
+        while (objects.size() > 0)
+        {
+            RimManagedViewConfig* viewConfig = dynamic_cast<RimManagedViewConfig*>(objects[0]);
+            viewConfig->firstAnchestorOrThisOfType(rimView);
+            viewsToUpdate.push_back(rimView);
+            
+            objects.clear();
+            rimView->objectsWithReferringPtrFields(objects);
+        }
     }
+    
+    // Propagate view matrix to all relevant views
+        
+    const cvf::Mat4d mat = this->mainCamera()->viewMatrix();
+    for (size_t i = 0; i < viewsToUpdate.size(); i++)
+    {
+        if (viewsToUpdate[i] && viewsToUpdate[i]->viewer())
+        {
+            viewsToUpdate[i]->viewer()->mainCamera()->setViewMatrix(mat);
+
+            // Make sure to call update on the base class of caf::Viewer to avoid calling
+            // a virtual method and infinite recursion
+            viewsToUpdate[i]->viewer()->issueBaseClassUpdate();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::issueBaseClassUpdate()
+{
+    // Call update on the base class of caf::Viewer
+    // as caf::Viewer::update() is a virtual function
+
+    caf::OpenGLWidget::update();
 }

@@ -72,7 +72,10 @@ public:
     void            addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend);
 
     void            updateNavigationPolicy();
- 
+
+    
+    virtual void    update(); // Override of caf::Viewer::update()
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();
@@ -83,7 +86,7 @@ private:
     void            mouseReleaseEvent(QMouseEvent* event);
     void            mousePressEvent(QMouseEvent* event);
 
-    virtual void    paintEvent(QPaintEvent* event);
+    void            issueBaseClassUpdate();
 
     QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;
