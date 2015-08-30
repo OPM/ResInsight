@@ -374,9 +374,11 @@ double	GeometryTools::linePointSquareDist(const cvf::Vec3d& p1, const cvf::Vec3d
 
 int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d p0, const cvf::Vec3d p1, 
                                                  const cvf::Vec3d t0, const cvf::Vec3d t1, const cvf::Vec3d t2,
-                                                 cvf::Vec3d* intersectionPoint )
+                                                 cvf::Vec3d* intersectionPoint , bool * isLineDirDotNormalNegative)
 {
-    CVF_ASSERT(intersectionPoint != NULL);
+    CVF_TIGHT_ASSERT(intersectionPoint != NULL);
+    CVF_TIGHT_ASSERT(isLineDirDotNormalNegative != NULL);
+
     cvf::Vec3d u, v, n;             // triangle vectors
     cvf::Vec3d dir, w0, w;          // ray vectors
     double     r, a, b;             // params to calc ray-plane intersect
@@ -392,6 +394,9 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d p0, const cvf:
     w0  = p0 - t0;
     a   = -dot(n, w0);
     b   =  dot(n, dir);
+    
+    (*isLineDirDotNormalNegative) = (b < 0.0);
+
     if (fabs(b) < SMALL_NUM) {     // ray is parallel to triangle plane
         if (a == 0)                // ray lies in triangle plane
             return 2;
