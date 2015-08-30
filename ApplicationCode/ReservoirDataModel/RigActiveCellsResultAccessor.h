@@ -36,6 +36,9 @@ public:
     virtual double  cellScalar(size_t gridLocalCellIndex) const;
     virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
+    virtual double  cellScalarGlobIdx(size_t globCellIndex) const;
+    virtual double  cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+
 private:
     const RigActiveCellInfo*    m_activeCellInfo;
     const RigGridBase*          m_grid;
