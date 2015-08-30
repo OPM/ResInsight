@@ -175,6 +175,16 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
         m_pdmUiPropertyView->showProperties(NULL);
     }
 
+    for (size_t i = 0; i < additionalPropertyEditors.size(); i++)
+    {
+        if (!additionalPropertyEditors[i]) continue;
+
+        caf::PdmUiPropertyView* propertyView = dynamic_cast<caf::PdmUiPropertyView*>(additionalPropertyEditors[i]->widget());
+        if (propertyView)
+        {
+            propertyView->showProperties(NULL);
+        }
+    }
     m_processMonitor->startMonitorWorkProcess(NULL);
 }
 
@@ -1293,6 +1303,17 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 	m_projectTreeView->setPdmItem(pdmRoot);
     // For debug only : m_projectTreeView->treeView()->expandAll();
     m_projectTreeView->setDragDropHandle(m_dragDrop);
+
+    for (size_t i = 0; i < additionalProjectTrees.size(); i++)
+    {
+        if (!additionalProjectTrees[i]) continue;
+
+        caf::PdmUiTreeView* treeView = dynamic_cast<caf::PdmUiTreeView*>(additionalProjectTrees[i]->widget());
+        if (treeView)
+        {
+            treeView->setPdmItem(pdmRoot);
+        }
+    }
 
     caf::SelectionManager::instance()->setPdmRootObject(pdmRoot);
 }
