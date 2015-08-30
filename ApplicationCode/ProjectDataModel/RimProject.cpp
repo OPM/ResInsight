@@ -458,6 +458,29 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allVisibleViews(std::vector<RimView*>& views)
+{
+    std::vector<RimCase*> cases;
+    allCases(cases);
+    
+    for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
+    {
+        RimCase* rimCase = cases[caseIdx];
+        if (!rimCase) continue;
+
+        std::vector<RimView*> caseViews = rimCase->views();
+        for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
+        {
+            if (caseViews[viewIdx] && caseViews[viewIdx]->viewer())
+            {
+                views.push_back(caseViews[viewIdx]);
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

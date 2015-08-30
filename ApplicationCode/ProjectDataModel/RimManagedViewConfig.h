@@ -49,8 +49,7 @@ public:
     caf::PdmField<bool>         syncRangeFilters;
     caf::PdmField<bool>         syncPropertyFilters;
 
-    void configureOverrides();
-
+    void                        configureOverrides();
     void                        allManagedViews(std::vector<RimView*>& views);
 
 protected:
@@ -62,7 +61,6 @@ protected:
 
 
 private:
-    void            allVisibleViews(std::vector<RimView*>& views);
     void            configureOverridesUpdateDisplayModel();
 
     RimEclipseView* managedEclipseView();

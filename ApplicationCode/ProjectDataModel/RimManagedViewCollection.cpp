@@ -44,7 +44,6 @@ RimManagedViewCollection::RimManagedViewCollection(void)
     CAF_PDM_InitObject("Managed Views", ":/chain.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&managedViews, "ManagedViews", "Managed Views", "", "", "");
-    managedViews.push_back(new RimManagedViewConfig);
     managedViews.uiCapability()->setUiHidden(true);
 }
 
@@ -233,4 +232,20 @@ void RimManagedViewCollection::allManagedViews(std::vector<RimView*>& views)
     {
         managedViews[i]->allManagedViews(views);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewCollection::applyAllOperations()
+{
+    RimView* masterView = NULL;
+    firstAnchestorOrThisOfType(masterView);
+
+    configureOverrides();
+
+    updateCellResult();
+    updateTimeStep(masterView->currentTimeStep());
+    updateRangeFilters();
+    updatePropertyFilters();
 }

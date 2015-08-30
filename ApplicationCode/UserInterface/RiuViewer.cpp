@@ -504,27 +504,22 @@ void RiuViewer::update()
 
     if (m_reservoirView)
     {
-        viewsToUpdate.push_back(m_reservoirView);
-
-        // All downstreams views
-        m_reservoirView->managedViewCollection()->allManagedViews(viewsToUpdate);
-            
-        // All upstreams views
-            
         RimView* rimView = m_reservoirView;
-        
+
         std::vector<caf::PdmObjectHandle*> objects;
         rimView->objectsWithReferringPtrFields(objects);
-        
+
         while (objects.size() > 0)
         {
             RimManagedViewConfig* viewConfig = dynamic_cast<RimManagedViewConfig*>(objects[0]);
             viewConfig->firstAnchestorOrThisOfType(rimView);
-            viewsToUpdate.push_back(rimView);
-            
+
             objects.clear();
             rimView->objectsWithReferringPtrFields(objects);
         }
+
+        viewsToUpdate.push_back(rimView);
+        rimView->managedViewCollection()->allManagedViews(viewsToUpdate);
     }
     
     // Propagate view matrix to all relevant views

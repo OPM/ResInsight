@@ -525,6 +525,8 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
     m_viewToolBar->addAction(m_toggleFaultsLabelAction);
     m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
+    m_viewToolBar->addSeparator();
+    m_viewToolBar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
 
     QLabel* scaleLabel = new QLabel(m_viewToolBar);
     scaleLabel->setText("Scale");
@@ -542,6 +544,8 @@ void RiuMainWindow::createToolBars()
 
     refreshAnimationActions();
     refreshDrawStyleActions();
+
+    cmdFeatureMgr->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature");
 }
 
 
@@ -1184,6 +1188,8 @@ void RiuMainWindow::removeViewer(RiuViewer* viewer)
 #else
     m_mdiArea->removeSubWindow( findMdiSubWindow(viewer));
 #endif
+
+    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1207,6 +1213,8 @@ void RiuMainWindow::addViewer(RiuViewer* viewer)
         subWin->show();
     }
 #endif
+
+    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature");
 }
 
 

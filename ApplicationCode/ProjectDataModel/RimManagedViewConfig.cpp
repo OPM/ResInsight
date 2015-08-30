@@ -73,12 +73,19 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
 
     if (fieldNeedingOptions == &managedView)
     {
+        RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimView*> views;
-        allVisibleViews(views);
+        proj->allVisibleViews(views);
+
+        RimView* masterView = NULL;
+        firstAnchestorOrThisOfType(masterView);
 
         for (size_t i = 0; i< views.size(); i++)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(displayNameForView(views[i]), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
+            if (views[i] != masterView)
+            {
+                optionList.push_back(caf::PdmOptionItemInfo(displayNameForView(views[i]), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
+            }
         }
 
         if (optionList.size() > 0)
@@ -88,36 +95,6 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
     }
 
     return optionList;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::allVisibleViews(std::vector<RimView*>& views)
-{
-    RimProject* proj = RiaApplication::instance()->project();
-
-    RimView* masterView = NULL;
-    firstAnchestorOrThisOfType(masterView);
-
-    if (proj)
-    {
-        std::vector<RimCase*> cases;
-        proj->allCases(cases);
-        for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
-        {
-            RimCase* rimCase = cases[caseIdx];
-
-            std::vector<RimView*> caseViews = rimCase->views();
-            for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
-            {
-                if (caseViews[viewIdx]->viewer() && caseViews[viewIdx] != masterView)
-                {
-                    views.push_back(caseViews[viewIdx]);
-                }
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

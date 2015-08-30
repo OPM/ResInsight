@@ -37,6 +37,7 @@ class RimOilField;
 class RimScriptCollection;
 class RimWellPathImport;
 class RimMainPlotCollection;
+class RimView;
 
 namespace caf
 {
@@ -77,7 +78,9 @@ public:
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
-    void            allCases(std::vector<RimCase*>& cases); 
+    void            allCases(std::vector<RimCase*>& cases);
+    void            allVisibleViews(std::vector<RimView*>& views);
+
     void            createDisplayModelAndRedrawAllViews(); 
 
     void            computeUtmAreaOfInterest();

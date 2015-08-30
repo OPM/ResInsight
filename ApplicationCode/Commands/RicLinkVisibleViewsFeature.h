@@ -19,39 +19,19 @@
 
 #pragma once
 
-#include "RimDefines.h"
-
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-class RimManagedViewConfig;
-class RiuViewer;
-class RimView;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimManagedViewCollection : public caf::PdmObject
+class RicLinkVisibleViewsFeature : public caf::CmdFeature
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimManagedViewCollection(void);
-    virtual ~RimManagedViewCollection(void);
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
 
-    caf::PdmChildArrayField<RimManagedViewConfig*> managedViews;
-
-    void applyAllOperations();
-
-    void updateTimeStep(int timeStep);
-    void updateCellResult();
-
-    void updateRangeFilters();
-    void updatePropertyFilters();
-
-    void configureOverrides();
-
-    void allManagedViews(std::vector<RimView*>& views);
 };
