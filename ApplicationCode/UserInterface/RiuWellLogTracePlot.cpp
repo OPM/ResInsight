@@ -47,4 +47,10 @@ void RiuWellLogTracePlot::setDefaults()
 
     setAutoFillBackground(true);
     setCanvasBackground(Qt::white);
+
+    QFrame* canvasFrame = dynamic_cast<QFrame*>(canvas());
+    if (canvasFrame)
+    {
+        canvasFrame->setFrameShape(QFrame::NoFrame);
+    }
 }
