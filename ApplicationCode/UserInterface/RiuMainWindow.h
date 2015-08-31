@@ -307,6 +307,5 @@ private:
     QAction*                    m_drawStyleSurfOnlyAction;
     QAction*                    m_addWellCellsToRangeFilterAction;
 
-    std::vector<QPointer<QDockWidget> > additionalProjectTrees;
-    std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
+    std::vector<QPointer<QDockWidget> > additionalProjectViews;
 };

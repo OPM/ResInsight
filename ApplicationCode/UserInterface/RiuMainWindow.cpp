@@ -76,6 +76,7 @@
 #include "cvfTimer.h"
 #include "RimTreeViewStateSerializer.h"
 #include "RiuTreeViewEventFilter.h"
+#include "RiuProjectPropertyView.h"
 
 
 //==================================================================================================
@@ -175,14 +176,12 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
         m_pdmUiPropertyView->showProperties(NULL);
     }
 
-    for (size_t i = 0; i < additionalPropertyEditors.size(); i++)
+    for (size_t i = 0; i < additionalProjectViews.size(); i++)
     {
-        if (!additionalPropertyEditors[i]) continue;
-
-        caf::PdmUiPropertyView* propertyView = dynamic_cast<caf::PdmUiPropertyView*>(additionalPropertyEditors[i]->widget());
-        if (propertyView)
+        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectViews[i]->widget());
+        if (projPropView)
         {
-            propertyView->showProperties(NULL);
+            projPropView->showProperties(NULL);
         }
     }
     m_processMonitor->startMonitorWorkProcess(NULL);
@@ -1304,14 +1303,14 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
     // For debug only : m_projectTreeView->treeView()->expandAll();
     m_projectTreeView->setDragDropHandle(m_dragDrop);
 
-    for (size_t i = 0; i < additionalProjectTrees.size(); i++)
+    for (size_t i = 0; i < additionalProjectViews.size(); i++)
     {
-        if (!additionalProjectTrees[i]) continue;
+        if (!additionalProjectViews[i]) continue;
 
-        caf::PdmUiTreeView* treeView = dynamic_cast<caf::PdmUiTreeView*>(additionalProjectTrees[i]->widget());
-        if (treeView)
+        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectViews[i]->widget());
+        if (projPropView)
         {
-            treeView->setPdmItem(pdmRoot);
+            projPropView->setPdmItem(pdmRoot);
         }
     }
 
@@ -1654,53 +1653,17 @@ void RiuMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotNewObjectPropertyView()
 {
+    QDockWidget* dockWidget = new QDockWidget("Project with Property Editor " + QString::number(additionalProjectViews.size() + 1), this);
+    dockWidget->setObjectName("dockWidget");
+    dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-    caf::PdmUiTreeView* pdmTreeView = NULL;
-    
-    {
-        QDockWidget* dockWidget = new QDockWidget("Additional Project Tree " + QString::number(additionalProjectTrees.size() + 1), this);
-        dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    RiuProjectAndPropertyView* projPropView = new RiuProjectAndPropertyView(dockWidget);
+    dockWidget->setWidget(projPropView);
+    projPropView->setPdmItem(m_pdmRoot);
 
-        pdmTreeView = new caf::PdmUiTreeView(dockWidget);
-        pdmTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        pdmTreeView->enableSelectionManagerUpdating(true);
+    addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
-        // Install event filter used to handle key press events
-        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter(this);
-        pdmTreeView->treeView()->installEventFilter(treeViewEventFilter);
-
-        // Drag and drop configuration
-        pdmTreeView->treeView()->setDragEnabled(true);
-        pdmTreeView->treeView()->viewport()->setAcceptDrops(true);
-        pdmTreeView->treeView()->setDropIndicatorShown(true);
-        pdmTreeView->treeView()->setDragDropMode(QAbstractItemView::DragDrop);
-
-        dockWidget->setWidget(pdmTreeView);
-
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
-        additionalProjectTrees.push_back(dockWidget);
-
-        pdmTreeView->setPdmItem(m_pdmRoot); 
-
-        pdmTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(pdmTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
-    }
-
-
-    {
-        QDockWidget* dockWidget = new QDockWidget("Additional Property Editor "  + QString::number(additionalPropertyEditors.size() + 1), this);
-        dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-
-        caf::PdmUiPropertyView* propView = new caf::PdmUiPropertyView(dockWidget);
-        dockWidget->setWidget(propView);
-
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
-
-        connect(pdmTreeView, SIGNAL(selectedObjectChanged( caf::PdmObjectHandle* )), propView, SLOT(showProperties( caf::PdmObjectHandle* )));
-        additionalPropertyEditors.push_back(dockWidget);
-    }
+    additionalProjectViews.push_back(dockWidget);
 }
 
 //--------------------------------------------------------------------------------------------------

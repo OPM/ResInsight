@@ -83,6 +83,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuWellLogPlot.h
 	UserInterface/RiuWellLogTracePlot.cpp
 	UserInterface/RiuWellLogTracePlot.h
+	UserInterface/RiuProjectPropertyView.h
+	UserInterface/RiuProjectPropertyView.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
