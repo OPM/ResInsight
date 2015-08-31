@@ -74,7 +74,8 @@ public:
     void            updateNavigationPolicy();
 
     
-    virtual void    update(); // Override of caf::Viewer::update()
+    virtual void    update();               // Override of caf::Viewer::update()
+    void            issueBaseClassUpdate();
 
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
@@ -86,7 +87,6 @@ private:
     void            mouseReleaseEvent(QMouseEvent* event);
     void            mousePressEvent(QMouseEvent* event);
 
-    void            issueBaseClassUpdate();
 
     QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;

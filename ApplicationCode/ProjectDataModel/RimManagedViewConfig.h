@@ -50,7 +50,6 @@ public:
     caf::PdmField<bool>         syncPropertyFilters;
 
     void                        configureOverrides();
-    void                        allManagedViews(std::vector<RimView*>& views);
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

@@ -160,7 +160,7 @@ void RimView::updateViewerWidget()
         if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
 
-        m_viewer->update();
+        m_viewer->issueBaseClassUpdate();
     }
     else
     {
@@ -195,6 +195,8 @@ void RimView::scheduleCreateDisplayModelAndRedraw()
 void RimView::setCurrentTimeStep(int frameIndex)
 {
     m_currentTimeStep = frameIndex;
+    clampCurrentTimestep();
+
     this->hasUserRequestedAnimation = true;
     this->updateCurrentTimeStep();
 }
@@ -205,7 +207,7 @@ void RimView::updateCurrentTimeStepAndRedraw()
 {
     this->updateCurrentTimeStep();
     
-    if (m_viewer) m_viewer->update();
+    if (m_viewer) m_viewer->issueBaseClassUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -428,7 +430,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 
             updateScaleTransform();
             createDisplayModelAndRedraw();
-            m_viewer->update();
+            m_viewer->issueBaseClassUpdate();
         }
 
         RiuMainWindow::instance()->updateScaleValue();
@@ -452,7 +454,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         if (m_viewer)
         {
-            m_viewer->update();
+            m_viewer->issueBaseClassUpdate();
 
             managedViewCollection->updateTimeStep(m_currentTimeStep);
         }

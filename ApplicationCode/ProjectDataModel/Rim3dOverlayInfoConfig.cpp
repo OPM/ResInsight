@@ -75,7 +75,7 @@ void Rim3dOverlayInfoConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
 
     if (m_viewDef && m_viewDef->viewer())
     {
-        m_viewDef->viewer()->update();
+        m_viewDef->viewer()->issueBaseClassUpdate();
     }
 }
 

@@ -41,7 +41,7 @@ public:
     RimManagedViewCollection(void);
     virtual ~RimManagedViewCollection(void);
 
-    caf::PdmChildArrayField<RimManagedViewConfig*> managedViews;
+    caf::PdmChildArrayField<RimManagedViewConfig*> viewConfigs;
 
     void applyAllOperations();
 
@@ -53,5 +53,5 @@ public:
 
     void configureOverrides();
 
-    void allManagedViews(std::vector<RimView*>& views);
+    void allViewsForCameraSync(std::vector<RimView*>& views);
 };

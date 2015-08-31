@@ -772,7 +772,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         if (dynamic_cast<RimManagedViewCollection*>(uiItem))
         {
             RimManagedViewCollection* viewCollection = dynamic_cast<RimManagedViewCollection*>(uiItem);
-            caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&viewCollection->managedViews);
+            caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&viewCollection->viewConfigs);
             
             commandIds << "PdmListField_AddItem";
         }

@@ -792,7 +792,7 @@ void RimEclipseView::updateDisplayModelVisibility()
     }
 
     m_viewer->setEnableMask(mask);
-    m_viewer->update();
+    m_viewer->issueBaseClassUpdate();
 
     faultCollection->updateConnectedEditors();
 }

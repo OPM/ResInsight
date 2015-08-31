@@ -43,8 +43,8 @@ RimManagedViewCollection::RimManagedViewCollection(void)
 {
     CAF_PDM_InitObject("Managed Views", ":/chain.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&managedViews, "ManagedViews", "Managed Views", "", "", "");
-    managedViews.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&viewConfigs, "ManagedViews", "Managed Views", "", "", "");
+    viewConfigs.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,9 +59,9 @@ RimManagedViewCollection::~RimManagedViewCollection(void)
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewCollection::updateTimeStep(int timeStep)
 {
-    for (size_t i = 0; i < managedViews.size(); i++)
+    for (size_t i = 0; i < viewConfigs.size(); i++)
     {
-        RimManagedViewConfig* managedViewConfig = managedViews[i];
+        RimManagedViewConfig* managedViewConfig = viewConfigs[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncTimeStep() && managedViewConfig->managedView()->viewer())
@@ -85,9 +85,9 @@ void RimManagedViewCollection::updateCellResult()
     {
         RimEclipseResultDefinition* eclipseCellResultDefinition = masterEclipseView->cellResult();
 
-        for (size_t i = 0; i < managedViews.size(); i++)
+        for (size_t i = 0; i < viewConfigs.size(); i++)
         {
-            RimManagedViewConfig* managedViewConfig = managedViews[i];
+            RimManagedViewConfig* managedViewConfig = viewConfigs[i];
             if (managedViewConfig->managedView())
             {
                 if (managedViewConfig->syncCellResult())
@@ -113,9 +113,9 @@ void RimManagedViewCollection::updateCellResult()
     {
         RimGeoMechResultDefinition* geoMechResultDefinition = masterGeoView->cellResult();
 
-        for (size_t i = 0; i < managedViews.size(); i++)
+        for (size_t i = 0; i < viewConfigs.size(); i++)
         {
-            RimManagedViewConfig* managedViewConfig = managedViews[i];
+            RimManagedViewConfig* managedViewConfig = viewConfigs[i];
             if (managedViewConfig->managedView())
             {
                 if (managedViewConfig->syncCellResult())
@@ -141,9 +141,9 @@ void RimManagedViewCollection::updateCellResult()
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewCollection::updateRangeFilters()
 {
-    for (size_t i = 0; i < managedViews.size(); i++)
+    for (size_t i = 0; i < viewConfigs.size(); i++)
     {
-        RimManagedViewConfig* managedViewConfig = managedViews[i];
+        RimManagedViewConfig* managedViewConfig = viewConfigs[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncRangeFilters())
@@ -179,9 +179,9 @@ void RimManagedViewCollection::updateRangeFilters()
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewCollection::updatePropertyFilters()
 {
-    for (size_t i = 0; i < managedViews.size(); i++)
+    for (size_t i = 0; i < viewConfigs.size(); i++)
     {
-        RimManagedViewConfig* managedViewConfig = managedViews[i];
+        RimManagedViewConfig* managedViewConfig = viewConfigs[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncPropertyFilters())
@@ -216,9 +216,9 @@ void RimManagedViewCollection::updatePropertyFilters()
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewCollection::configureOverrides()
 {
-    for (size_t i = 0; i < managedViews.size(); i++)
+    for (size_t i = 0; i < viewConfigs.size(); i++)
     {
-        RimManagedViewConfig* managedViewConfig = managedViews[i];
+        RimManagedViewConfig* managedViewConfig = viewConfigs[i];
         managedViewConfig->configureOverrides();
     }
 }
@@ -226,11 +226,16 @@ void RimManagedViewCollection::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::allManagedViews(std::vector<RimView*>& views)
+void RimManagedViewCollection::allViewsForCameraSync(std::vector<RimView*>& views)
 {
-    for (size_t i = 0; i < managedViews.size(); i++)
+    for (size_t i = 0; i < viewConfigs.size(); i++)
     {
-        managedViews[i]->allManagedViews(views);
+        if (viewConfigs[i]->syncCamera && viewConfigs[i]->managedView())
+        {
+            views.push_back(viewConfigs[i]->managedView());
+
+            viewConfigs[i]->managedView()->managedViewCollection()->allViewsForCameraSync(views);
+        }
     }
 }
 

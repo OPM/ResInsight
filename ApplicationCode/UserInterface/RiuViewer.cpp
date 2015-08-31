@@ -496,7 +496,10 @@ void RiuViewer::updateNavigationPolicy()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Only camera related operations are supposed to call this function. Especially navigation policies
+/// will call this function
+///
+/// All other updates should be redirected to caf::OpenGLWidget::update()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::update()
 {
@@ -504,6 +507,8 @@ void RiuViewer::update()
 
     if (m_reservoirView)
     {
+        viewsToUpdate.push_back(m_reservoirView);
+
         RimView* rimView = m_reservoirView;
 
         std::vector<caf::PdmObjectHandle*> objects;
@@ -512,14 +517,21 @@ void RiuViewer::update()
         while (objects.size() > 0)
         {
             RimManagedViewConfig* viewConfig = dynamic_cast<RimManagedViewConfig*>(objects[0]);
-            viewConfig->firstAnchestorOrThisOfType(rimView);
-
             objects.clear();
-            rimView->objectsWithReferringPtrFields(objects);
+
+            if (viewConfig->syncCamera())
+            {
+                viewConfig->firstAnchestorOrThisOfType(rimView);
+                rimView->objectsWithReferringPtrFields(objects);
+            }
         }
 
-        viewsToUpdate.push_back(rimView);
-        rimView->managedViewCollection()->allManagedViews(viewsToUpdate);
+        if (rimView != m_reservoirView)
+        {
+            viewsToUpdate.push_back(rimView);
+        }
+    
+        rimView->managedViewCollection()->allViewsForCameraSync(viewsToUpdate);
     }
     
     // Propagate view matrix to all relevant views

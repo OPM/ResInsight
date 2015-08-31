@@ -68,7 +68,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
         RimView* rimView = views[i];
         RimManagedViewConfig* viewConfig = new RimManagedViewConfig;
         viewConfig->managedView = rimView;
-        managedViewCollection->managedViews.push_back(viewConfig);
+        managedViewCollection->viewConfigs.push_back(viewConfig);
 
         viewConfig->initAfterReadRecursively();
     }
