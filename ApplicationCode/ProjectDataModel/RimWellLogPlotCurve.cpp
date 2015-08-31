@@ -56,6 +56,19 @@ RimWellLogPlotCurve::~RimWellLogPlotCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &show)
+    {
+        if (newValue == true)
+        {
+            m_plotCurve->attach(m_plot);
+        }
+        else
+        {
+            m_plotCurve->detach();
+        }
+
+        m_plot->replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
