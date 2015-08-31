@@ -279,7 +279,6 @@ private slots:
 
 
     // Animation slots
-    void    slotSetCurrentFrame(int frameIndex);
     void    slotFramerateChanged(double frameRate);
 
     // Pdm System :
