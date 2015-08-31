@@ -54,6 +54,8 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::~RimWellLogPlot()
 {
+    RiuMainWindow::instance()->removeWellLogViewer(m_viewer);
+    delete m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------
