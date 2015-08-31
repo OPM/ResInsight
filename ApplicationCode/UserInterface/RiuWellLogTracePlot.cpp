@@ -64,4 +64,9 @@ void RiuWellLogTracePlot::setDefaults()
     QPen gridPen(Qt::SolidLine);
     gridPen.setColor(Qt::lightGray);
     m_grid->setPen(gridPen);
+
+    enableAxis(QwtPlot::xTop, true);
+    enableAxis(QwtPlot::yLeft, true);
+    enableAxis(QwtPlot::xBottom, false);
+    enableAxis(QwtPlot::yRight, false);
 }
