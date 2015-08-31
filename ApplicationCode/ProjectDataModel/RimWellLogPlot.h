@@ -25,8 +25,8 @@
 
 #include <QPointer>
 
-class RimWellLogPlotTrace;
 class RiuWellLogPlot;
+class RimWellLogPlotTrace;
 
 
 //==================================================================================================
@@ -44,6 +44,8 @@ public:
     caf::PdmField<bool> showWindow;
 
     void addTrace();
+
+    RiuWellLogPlot* viewer();
 
 protected:
 

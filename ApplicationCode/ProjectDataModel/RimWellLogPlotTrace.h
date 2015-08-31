@@ -23,7 +23,12 @@
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
 
+#include <QPointer>
+
+#include <vector>
+
 class RimWellLogPlotCurve;
+class RiuWellLogTracePlot;
 
 //==================================================================================================
 ///  
@@ -36,7 +41,12 @@ public:
     RimWellLogPlotTrace();
     virtual ~RimWellLogPlotTrace();
 
-    void addCurve();
+    void setViewer(RiuWellLogTracePlot* viewer);
+    void addCurve(std::vector<double>& depthValues, std::vector<double>& values);
+
+    RiuWellLogTracePlot* viewer();
+
+    caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
 
 protected:
 
@@ -48,5 +58,5 @@ private:
 
 private:
     caf::PdmField<bool> show;
-    caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
+    QPointer<RiuWellLogTracePlot> m_viewer;
 };

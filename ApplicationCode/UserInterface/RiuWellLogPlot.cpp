@@ -24,6 +24,8 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
 
+#include "cvfAssert.h"
+
 #include <QHBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
@@ -46,28 +48,12 @@ RiuWellLogPlot::~RiuWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::update(const RimWellLogPlot& plot)
+RiuWellLogTracePlot* RiuWellLogPlot::createTracePlot()
 {
-    clear();
+    RiuWellLogTracePlot* tracePlot = new RiuWellLogTracePlot(this);
 
-    for (size_t traceIdx = 0; traceIdx < plot.traces.size(); traceIdx++)
-    {
-        RiuWellLogTracePlot* tracePlot = new RiuWellLogTracePlot(this);
-        m_layout->addWidget(tracePlot);
-        m_children.append(tracePlot);
-    }
-}
+    m_layout->addWidget(tracePlot);
+    m_tracePlots.append(tracePlot);
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::clear()
-{
-    for (int childIdx = 0; childIdx < m_children.size(); childIdx++)
-    {
-        m_layout->removeWidget(m_children[childIdx]);
-        delete m_children[childIdx];
-    }
-
-    m_children.clear();
+    return tracePlot;
 }

@@ -22,6 +22,13 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
+#include <vector>
+
+class RiuWellLogTracePlot;
+class QwtPlotCurve;
+class QString;
+
+
 //==================================================================================================
 ///  
 ///  
@@ -32,6 +39,13 @@ class RimWellLogPlotCurve : public caf::PdmObject
 public:
     RimWellLogPlotCurve();
     virtual ~RimWellLogPlotCurve();
+
+    void            setPlot(RiuWellLogTracePlot* plot);
+    void            plot(std::vector<double> m_depthValues, std::vector<double> m_values);
+
+    size_t          pointCount() const;
+    const double*   depthValues() const;
+    const double*   values() const;
 
 protected:
 
@@ -44,5 +58,9 @@ private:
 private:
     caf::PdmField<bool> show;
 
-    // TODO: Add curves
+    RiuWellLogTracePlot*    m_plot;
+    QwtPlotCurve*           m_plotCurve;
+
+    std::vector<double>     m_depthValues;
+    std::vector<double>     m_values;
 };

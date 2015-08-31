@@ -19,6 +19,11 @@
 
 #include "RimWellLogPlotCurve.h"
 
+#include "RiuWellLogTracePlot.h"
+
+#include "qwt_plot_curve.h"
+
+#include "cvfAssert.h"
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlotCurve, "WellLogPlotCurve");
 
@@ -31,6 +36,8 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 
     CAF_PDM_InitField(&show, "Show", true, "Show curve", "", "", "");
     show.uiCapability()->setUiHidden(true);
+
+    m_plotCurve = new QwtPlotCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,6 +45,10 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCurve::~RimWellLogPlotCurve()
 {
+    m_plotCurve->detach();    
+    m_plot->replot();
+
+    delete m_plotCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,4 +64,53 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
 {
     return &show;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCurve::plot(std::vector<double> depthValues, std::vector<double> values)
+{
+    CVF_ASSERT(m_plot);
+
+    m_depthValues = depthValues;
+    m_values = values;
+
+    m_plotCurve->setTitle(this->uiName());
+    m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
+    m_plotCurve->attach(m_plot);
+    m_plot->replot();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimWellLogPlotCurve::pointCount() const
+{
+    return m_depthValues.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const double* RimWellLogPlotCurve::depthValues() const
+{
+    return m_depthValues.data();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const double* RimWellLogPlotCurve::values() const
+{
+    return m_values.data();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCurve::setPlot(RiuWellLogTracePlot* plot)
+{
+    m_plot = plot;
 }

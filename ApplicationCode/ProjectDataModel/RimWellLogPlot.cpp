@@ -22,10 +22,12 @@
 #include "RimWellLogPlotTrace.h"
 
 #include "RiuWellLogPlot.h"
+#include "RiuWellLogTracePlot.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiTreeView.h"
 
+#include "cvfAssert.h"
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlot, "WellLogPlot");
 
@@ -104,8 +106,19 @@ void RimWellLogPlot::addTrace()
     RimWellLogPlotTrace* trace = new RimWellLogPlotTrace();
     traces.push_back(trace);
 
+    trace->setUiName(QString("Trace %1").arg(traces.size()));
+
+    RiuWellLogTracePlot* viewer = m_viewer->createTracePlot();
+    trace->setViewer(viewer);
+
     RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
     updateConnectedEditors();
+}
 
-    m_viewer->update(*this);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuWellLogPlot* RimWellLogPlot::viewer()
+{
+    return m_viewer;
 }

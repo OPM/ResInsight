@@ -39,11 +39,10 @@ public:
     RiuWellLogPlot(QWidget* parent = NULL);
     virtual ~RiuWellLogPlot();
 
-    void update(const RimWellLogPlot& plot);
-    void clear();
+    RiuWellLogTracePlot* createTracePlot();
 
 private:
     QHBoxLayout* m_layout;
-    QList<RiuWellLogTracePlot*> m_children;
+    QList<RiuWellLogTracePlot*> m_tracePlots;
 };
 
