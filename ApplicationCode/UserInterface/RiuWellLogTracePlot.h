@@ -22,6 +22,7 @@
 #include "qwt_plot.h"
 
 class QwtPlotGrid;
+class QwtLegend;
 
 //==================================================================================================
 //
@@ -40,6 +41,7 @@ private:
     void setDefaults();
 
 private:
-    QwtPlotGrid* m_grid;
+    QwtPlotGrid*    m_grid;
+    QwtLegend*      m_legend;
 };
 
