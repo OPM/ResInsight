@@ -41,7 +41,7 @@ public:
     virtual ~RimWellLogPlotCurve();
 
     void            setPlot(RiuWellLogTracePlot* plot);
-    void            plot(std::vector<double> m_depthValues, std::vector<double> m_values);
+    void            plot(const std::vector<double>& m_depthValues, const std::vector<double>& m_values);
 
     size_t          pointCount() const;
     const double*   depthValues() const;

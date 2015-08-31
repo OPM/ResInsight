@@ -82,7 +82,7 @@ caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::plot(std::vector<double> depthValues, std::vector<double> values)
+void RimWellLogPlotCurve::plot(const std::vector<double>& depthValues, const std::vector<double>& values)
 {
     CVF_ASSERT(m_plot);
 
@@ -94,7 +94,6 @@ void RimWellLogPlotCurve::plot(std::vector<double> depthValues, std::vector<doub
     m_plotCurve->attach(m_plot);
     m_plot->replot();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
