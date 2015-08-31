@@ -88,8 +88,8 @@ void RimWellLogPlotTrace::addCurve(const std::vector<double>& depthValues, const
     curve->setUiName(QString("Curve %1").arg(curves.size()));
     curve->plot(depthValues, values);
     
-    RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
     updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
 }
 
 
