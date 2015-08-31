@@ -62,7 +62,6 @@ RiuWellLogTracePlot::~RiuWellLogTracePlot()
     delete m_grid;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -91,4 +90,14 @@ void RiuWellLogTracePlot::setDefaults()
     enableAxis(QwtPlot::yRight, false);
 
     axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTracePlot::setDepthRange(double minDepth, double maxDepth)
+{
+    // Note: Y-axis is inverted
+    setAxisScale(QwtPlot::yLeft, maxDepth, minDepth);
+    replot();
 }

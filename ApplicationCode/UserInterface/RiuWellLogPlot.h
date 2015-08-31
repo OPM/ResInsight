@@ -41,6 +41,8 @@ public:
 
     RiuWellLogTracePlot* createTracePlot();
 
+    void setDepthRange(double minDepth, double maxDepth);
+
 private:
     void setDefults();
 

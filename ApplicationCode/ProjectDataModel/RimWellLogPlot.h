@@ -59,4 +59,7 @@ private:
 
 private:
     QPointer<RiuWellLogPlot> m_viewer;
+    
+    caf::PdmField<double> minimumDepth;
+    caf::PdmField<double> maximumDepth;
 };
