@@ -21,6 +21,8 @@
 
 #include "qwt_plot.h"
 
+class QwtPlotGrid;
+
 //==================================================================================================
 //
 // RiuWellLogTracePlot
@@ -36,5 +38,8 @@ public:
 
 private:
     void setDefaults();
+
+private:
+    QwtPlotGrid* m_grid;
 };
 

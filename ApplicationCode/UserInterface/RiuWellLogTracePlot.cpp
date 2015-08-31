@@ -19,12 +19,17 @@
 
 #include "RiuWellLogTracePlot.h"
 
+#include "qwt_plot_grid.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuWellLogTracePlot::RiuWellLogTracePlot(QWidget* parent)
     : QwtPlot(parent)
 {
+    m_grid = new QwtPlotGrid();
+    m_grid->attach(this);
+
     setDefaults();
 }
 
@@ -33,6 +38,8 @@ RiuWellLogTracePlot::RiuWellLogTracePlot(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuWellLogTracePlot::~RiuWellLogTracePlot()
 {
+    m_grid->detach();
+    delete m_grid;
 }
 
 
@@ -53,4 +60,8 @@ void RiuWellLogTracePlot::setDefaults()
     {
         canvasFrame->setFrameShape(QFrame::NoFrame);
     }
+
+    QPen gridPen(Qt::SolidLine);
+    gridPen.setColor(Qt::lightGray);
+    m_grid->setPen(gridPen);
 }
