@@ -71,6 +71,15 @@ void RimWellLogPlot::updateViewerWidget()
             RiuMainWindow::instance()->addWellLogViewer(m_viewer);
             isViewerCreated = true;
         }
+        
+        if (m_viewer->parentWidget())
+        {
+            m_viewer->parentWidget()->showMaximized();
+        }
+        else
+        {
+            m_viewer->showMaximized(); 
+        }
 
         RiuMainWindow::instance()->setActiveWellLogViewer(m_viewer);
     }
@@ -86,6 +95,20 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         if (newValue == true)
         {
             updateViewerWidget();
+        }
+        else
+        {
+            if (m_viewer)
+            {
+                if (m_viewer->parentWidget())
+                {
+                    m_viewer->parentWidget()->hide();
+                }
+                else
+                {
+                    m_viewer->hide(); 
+                }
+            }
         }
     }
 }
