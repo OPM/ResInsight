@@ -19,6 +19,7 @@ ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigResultModifier.h
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.h
+${CEE_CURRENT_LIST_DIR}RigEclipseWellLogExtractor.h
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.h
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.h
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.h
@@ -50,6 +51,7 @@ ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseWellLogExtractor.cpp
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.cpp
