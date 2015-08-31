@@ -35,6 +35,8 @@ RiuWellLogPlot::RiuWellLogPlot(QWidget* parent)
     : QWidget(parent)
 {
     m_layout = new QHBoxLayout(this);
+    m_layout->setMargin(0);
+
     setLayout(m_layout);
 }
 
