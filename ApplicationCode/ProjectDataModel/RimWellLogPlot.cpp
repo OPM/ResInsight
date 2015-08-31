@@ -136,8 +136,8 @@ void RimWellLogPlot::addTrace()
     RiuWellLogTracePlot* viewer = m_viewer->createTracePlot();
     trace->setViewer(viewer);
 
-    RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
     updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(trace);
 }
 
 //--------------------------------------------------------------------------------------------------
