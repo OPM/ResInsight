@@ -42,6 +42,9 @@ public:
     RiuWellLogTracePlot* createTracePlot();
 
 private:
+    void setDefults();
+
+private:
     QHBoxLayout* m_layout;
     QList<RiuWellLogTracePlot*> m_tracePlots;
 };

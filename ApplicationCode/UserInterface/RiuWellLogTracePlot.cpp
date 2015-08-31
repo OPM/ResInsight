@@ -25,6 +25,7 @@
 RiuWellLogTracePlot::RiuWellLogTracePlot(QWidget* parent)
     : QwtPlot(parent)
 {
+    setDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -32,4 +33,18 @@ RiuWellLogTracePlot::RiuWellLogTracePlot(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuWellLogTracePlot::~RiuWellLogTracePlot()
 {
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTracePlot::setDefaults()
+{
+    QPalette newPalette(palette());
+    newPalette.setColor(QPalette::Background, Qt::white);
+    setPalette(newPalette);
+
+    setAutoFillBackground(true);
+    setCanvasBackground(Qt::white);
 }

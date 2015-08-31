@@ -34,5 +34,7 @@ public:
     RiuWellLogTracePlot(QWidget* parent = NULL);
     virtual ~RiuWellLogTracePlot();
 
+private:
+    void setDefaults();
 };
 
