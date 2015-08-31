@@ -48,9 +48,11 @@ void RicNewWellLogPlotCurveFeature::onActionTriggered(bool isChecked)
         // TODO: replace dummy values with values extracted from model or read from well log files
         std::vector<double> depthValues, values;
         depthValues.push_back(0);
-        depthValues.push_back(-1000);
+        depthValues.push_back(250);
+        depthValues.push_back(1000);
 
         values.push_back(wellLogPlotTrace->curves.size() + 1);
+        values.push_back(wellLogPlotTrace->curves.size() + 0.5);
         values.push_back(wellLogPlotTrace->curves.size() + 1);
 
         wellLogPlotTrace->addCurve(depthValues, values);
