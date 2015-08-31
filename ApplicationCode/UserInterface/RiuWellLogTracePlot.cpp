@@ -21,6 +21,7 @@
 
 #include "qwt_plot_grid.h"
 #include "qwt_scale_engine.h"
+#include "qwt_plot_magnifier.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -30,6 +31,13 @@ RiuWellLogTracePlot::RiuWellLogTracePlot(QWidget* parent)
 {
     m_grid = new QwtPlotGrid();
     m_grid->attach(this);
+
+    QwtPlotMagnifier* magnifierDepth = new QwtPlotMagnifier(canvas());
+    magnifierDepth->setWheelModifiers(Qt::ControlModifier);
+    magnifierDepth->setAxisEnabled(QwtPlot::yLeft, true);
+    magnifierDepth->setAxisEnabled(QwtPlot::yRight, false);
+    magnifierDepth->setAxisEnabled(QwtPlot::xTop, false);
+    magnifierDepth->setAxisEnabled(QwtPlot::xBottom, false);
 
     setDefaults();
 }
