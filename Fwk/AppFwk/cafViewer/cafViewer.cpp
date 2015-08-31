@@ -599,7 +599,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
         clampedFrameIndex = static_cast<int>(m_frameScenes.size()) - 1;
     }
 
-    if (frameIndex < 0)
+    if (clampedFrameIndex < 0)
     {
         clampedFrameIndex = 0;
     }
