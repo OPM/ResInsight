@@ -41,14 +41,6 @@ public:
 
     void addWellLogPlot();
 
-protected:
-
-    // Overridden PDM methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-private:
-    virtual caf::PdmFieldHandle* objectToggleField();
-
 private:
     caf::PdmField<bool> show;
 };

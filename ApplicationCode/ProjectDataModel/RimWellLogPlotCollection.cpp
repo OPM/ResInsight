@@ -37,9 +37,6 @@ RimWellLogPlotCollection::RimWellLogPlotCollection()
 {
     CAF_PDM_InitObject("Well Log Plots", "", "", "");
 
-    CAF_PDM_InitField(&show, "Show", true, "Show plots", "", "", "");
-    show.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitFieldNoDefault(&wellLogPlots, "WellLogPlots", "",  "", "", "");
     wellLogPlots.uiCapability()->setUiHidden(true);
 }
@@ -49,21 +46,6 @@ RimWellLogPlotCollection::RimWellLogPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection::~RimWellLogPlotCollection()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlotCollection::objectToggleField()
-{
-    return &show;
 }
 
 //--------------------------------------------------------------------------------------------------
