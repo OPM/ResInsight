@@ -60,6 +60,10 @@ RimWellLogPlotTrace::~RimWellLogPlotTrace()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &show)
+    {
+        m_viewer->setVisible(newValue == true);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
