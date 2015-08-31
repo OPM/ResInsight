@@ -23,6 +23,7 @@
 #include "RigWellPath.h"
 #include "RigResultAccessor.h"
 #include "cvfBoundingBox.h"
+#include "cvfGeometryTools.h"
 
 
 
@@ -58,10 +59,43 @@ public:
     size_t                              m_hexIndex;
 };
 
+//--------------------------------------------------------------------------------------------------
+/// Specialized Line - Hex intersection
+//--------------------------------------------------------------------------------------------------
+
 int lineHexCellIntersection(const cvf::Vec3d p1, const cvf::Vec3d p2, const cvf::Vec3d hexCorners[8], const size_t hexIndex,
                             std::vector<HexIntersectionInfo>* intersections )
 {
-    return 0;
+    CVF_ASSERT(intersections != NULL);
+
+    int intersectionCount = 0; 
+
+    for (int face = 0; face < 6 ; ++face)
+    {
+        cvf::ubyte faceVertexIndices[4];
+        cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
+
+        cvf::Vec3d intersection;
+        bool isEntering = false;
+        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter( hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            int next = i < 3 ? i+1 : 0;
+
+            int intsStatus = cvf::GeometryTools::intersectLineSegmentTriangle(p1, p2,
+                                                             hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter,
+                                                             &intersection,
+                                                             &isEntering);
+            if (intsStatus == 1)
+            {
+                intersectionCount++;
+                intersections->push_back(HexIntersectionInfo(intersection, isEntering, static_cast<cvf::StructGridInterface::FaceType>(face), hexIndex));
+            }
+        }
+    }
+ 
+    return intersectionCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,21 +154,9 @@ struct WellPathDepthPoint
 //--------------------------------------------------------------------------------------------------
 void RigEclipseWellLogExtractor::calculateIntersection()
 {
-    // For each well path line segment
-    // find close cells
-    // intersect line segment with cells
-    // Accumulate MD
-    // for each hit
-    //      Store 
-    //          intersection point
-    //          MD
-    //      If entering cell
-    //          Store  cellIndex
-    // 
-    bool isInsideCell = false;
-    size_t insideCellIdx = cvf::UNDEFINED_SIZE_T;
     const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
-    double globalMeasuredDepth = 0;
+
+    double globalMeasuredDepth = 0; // Where do we start ? z - of first well path point ? 
 
     for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
     {
@@ -146,7 +168,6 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         bb.add(p2);
 
         std::vector<size_t> closeCells = findCloseCells(bb );
-
         std::vector<HexIntersectionInfo> intersections;
 
         cvf::Vec3d hexCorners[8];
@@ -177,11 +198,11 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         {
             double lenghtAlongLineSegment = (intersections[intIdx].m_intersectionPoint - p1).length();
             double measuredDepthOfPoint = globalMeasuredDepth + lenghtAlongLineSegment;
-            //sortedIntersections[WellPathDepthPoint(measuredDepthOfPoint, intersections[intIdx].m_isIntersectionEntering)] =  intersections[intIdx];  
             sortedIntersections.insert(std::make_pair(WellPathDepthPoint(measuredDepthOfPoint, intersections[intIdx].m_isIntersectionEntering),  intersections[intIdx]));  
         }
 
         // Now populate the return arrays
+
         std::map<WellPathDepthPoint, HexIntersectionInfo >::iterator it;
         it = sortedIntersections.begin();
         while (it != sortedIntersections.end())
@@ -192,6 +213,8 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             m_intersectedCells.push_back(it->second.m_hexIndex);
             m_intersectedCellFaces.push_back(it->second.m_face);
         }
+
+        // Increment the measured depth
         globalMeasuredDepth += (p2-p1).length();
     }
 }
@@ -210,6 +233,7 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
         cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
         (*values)[cpIdx] = resultAccessor->cellFaceScalarGlobIdx(cellIdx, cellFace);
     }
+
     // What do we do with the endpoint of the wellpath ?
     // Ignore it for now ...
 }
