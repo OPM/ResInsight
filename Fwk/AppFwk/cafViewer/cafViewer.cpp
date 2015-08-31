@@ -592,18 +592,28 @@ bool caf::Viewer::isAnimationActive()
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 {
-    if (frameIndex < 0 || static_cast<size_t>(frameIndex) >= m_frameScenes.size() || m_frameScenes.at(frameIndex) == NULL) return;
+    int clampedFrameIndex = frameIndex;
 
+    if (static_cast<size_t>(frameIndex) >= m_frameScenes.size())
+    {
+        clampedFrameIndex = static_cast<int>(m_frameScenes.size()) - 1;
+    }
 
-    if(m_releaseOGLResourcesEachFrame)
+    if (frameIndex < 0)
+    {
+        clampedFrameIndex = 0;
+    }
+
+    if (m_frameScenes.at(clampedFrameIndex) == NULL) return;
+
+    if (m_releaseOGLResourcesEachFrame)
     {
         releaseOGlResourcesForCurrentFrame();
     }
 
-    m_renderingSequence->firstRendering()->setScene(m_frameScenes.at(frameIndex));
+    m_renderingSequence->firstRendering()->setScene(m_frameScenes.at(clampedFrameIndex));
 
-
-    update();
+    caf::OpenGLWidget::update();
 }
 
 void caf::Viewer::releaseOGlResourcesForCurrentFrame()
@@ -639,7 +649,8 @@ void caf::Viewer::slotEndAnimation()
     }
 
     m_renderingSequence->firstRendering()->setScene(m_mainScene.p());
-    update();
+
+    caf::OpenGLWidget::update();
 }
 
 //--------------------------------------------------------------------------------------------------
