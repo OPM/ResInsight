@@ -56,6 +56,6 @@ void RimWellLogPlotCollection::addWellLogPlot()
     RimWellLogPlot* plot = new RimWellLogPlot();
     wellLogPlots.push_back(plot);
     
-    RiuMainWindow::instance()->projectTreeView()->setExpanded(this, true);
     RiaApplication::instance()->project()->updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(plot);
 }
