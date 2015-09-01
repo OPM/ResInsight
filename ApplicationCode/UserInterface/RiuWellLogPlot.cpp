@@ -30,6 +30,8 @@
 #include <QWheelEvent>
 #include <QScrollBar>
 
+#include <math.h>
+
 #define RIU_SCROLLWHEEL_ZOOMFACTOR 1.05
 
 //--------------------------------------------------------------------------------------------------
