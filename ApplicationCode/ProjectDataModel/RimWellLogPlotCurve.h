@@ -42,7 +42,6 @@ public:
 
     void    setPlot(RiuWellLogTracePlot* plot);
 
-
 protected:
 
     // Overridden PDM methods
@@ -50,9 +49,13 @@ protected:
 
 private:
     virtual caf::PdmFieldHandle* objectToggleField();
-    void updatePlot();
+    void updatePlotData();
+
+    virtual caf::PdmFieldHandle* userDescriptionField();
+
 private:
-    caf::PdmField<bool> show;
+    caf::PdmField<bool>     m_showCurve;
+    caf::PdmField<QString>  m_userName;
 
     RiuWellLogTracePlot*    m_plot;
     QwtPlotCurve*           m_plotCurve;

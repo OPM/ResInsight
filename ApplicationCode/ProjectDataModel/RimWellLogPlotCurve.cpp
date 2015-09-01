@@ -34,8 +34,9 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 {
     CAF_PDM_InitObject("Curve", "", "", "");
 
-    CAF_PDM_InitField(&show, "Show", true, "Show curve", "", "", "");
-    show.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_showCurve, "Show", true, "Show curve", "", "", "");
+    m_showCurve.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_userName, "CurveDescription", "Name", "", "", "");
 
     m_plotCurve = new QwtPlotCurve;
 }
@@ -56,7 +57,7 @@ RimWellLogPlotCurve::~RimWellLogPlotCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &show)
+    if (changedField == &m_showCurve)
     {
         if (newValue == true)
         {
@@ -70,8 +71,9 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         m_plot->replot();
     }
 
+    m_plotCurve->setTitle(this->m_userName());
 
-
+    this->updatePlotData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,21 +81,34 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
 {
-    return &show;
+    return &m_showCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::updatePlot()
+void RimWellLogPlotCurve::updatePlotData()
 {
     CVF_ASSERT(m_plot);
+    
+    // Dummy Data
 
+    std::vector<double> values;
+    values.push_back(34);
+    values.push_back(47);
+    values.push_back(49);
+    values.push_back(22);
+    values.push_back(20);
 
-    m_plotCurve->setTitle(this->uiName());
-    //m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
-    m_plotCurve->attach(m_plot);
-    m_plot->replot();
+    std::vector<double> depthValues;
+    depthValues.push_back(200);
+    depthValues.push_back(400);
+    depthValues.push_back(600);
+    depthValues.push_back(800);
+    depthValues.push_back(1000);
+
+    m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,4 +117,14 @@ void RimWellLogPlotCurve::updatePlot()
 void RimWellLogPlotCurve::setPlot(RiuWellLogTracePlot* plot)
 {
     m_plot = plot;
+    m_plotCurve->attach(m_plot);
+    m_plot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellLogPlotCurve::userDescriptionField()
+{
+    return &m_userName;
 }
