@@ -140,7 +140,7 @@ void caf::CeetronNavigation::mouseMoveEvent(QMouseEvent* event)
     bool needRedraw = m_trackball->updateNavigation(posX, posY);
     if (needRedraw)
     {
-        m_viewer->update();
+        m_viewer->navigationPolicyUpdate();
     }
 
     setCursorFromCurrentState();
@@ -208,7 +208,7 @@ void caf::CeetronNavigation::wheelEvent(QWheelEvent* event)
     m_trackball->updateNavigation(event->x(), posY + navDelta);
     m_trackball->endNavigation();
 
-    m_viewer->update();
+    m_viewer->navigationPolicyUpdate();
 
     event->accept();
 }

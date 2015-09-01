@@ -131,7 +131,7 @@ public:
     // Find out whether the system supports shaders
     static bool             isShadersSupported();
 
-    virtual void            update();
+    virtual void            navigationPolicyUpdate();
 
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);

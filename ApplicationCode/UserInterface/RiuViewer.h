@@ -73,9 +73,7 @@ public:
 
     void            updateNavigationPolicy();
 
-    
-    virtual void    update();               // Override of caf::Viewer::update()
-    void            issueBaseClassUpdate();
+    virtual void    navigationPolicyUpdate();               // Override of caf::Viewer::navigationPolicyUpdate()
 
     void            setCurrentFrame(int frameIndex);
 

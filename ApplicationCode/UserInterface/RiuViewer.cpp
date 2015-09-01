@@ -501,7 +501,7 @@ void RiuViewer::updateNavigationPolicy()
 ///
 /// All other updates should be redirected to caf::OpenGLWidget::update()
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::update()
+void RiuViewer::navigationPolicyUpdate()
 {
     std::vector<RimView*> viewsToUpdate;
 
@@ -542,22 +542,9 @@ void RiuViewer::update()
         {
             viewsToUpdate[i]->viewer()->mainCamera()->setViewMatrix(mat);
 
-            // Make sure to call update on the base class of caf::Viewer to avoid calling
-            // a virtual method and infinite recursion
-            viewsToUpdate[i]->viewer()->issueBaseClassUpdate();
+            viewsToUpdate[i]->viewer()->update();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::issueBaseClassUpdate()
-{
-    // Call update on the base class of caf::Viewer
-    // as caf::Viewer::update() is a virtual function
-
-    caf::OpenGLWidget::update();
 }
 
 //--------------------------------------------------------------------------------------------------

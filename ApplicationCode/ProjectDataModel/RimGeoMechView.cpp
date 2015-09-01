@@ -352,8 +352,7 @@ void RimGeoMechView::updateDisplayModelVisibility()
     }
 
     m_viewer->setEnableMask(mask);
-    m_viewer->issueBaseClassUpdate();
-
+    m_viewer->update();
 }
 
 //--------------------------------------------------------------------------------------------------

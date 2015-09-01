@@ -156,7 +156,7 @@ void RimView::updateViewerWidget()
         if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
 
-        m_viewer->issueBaseClassUpdate();
+        m_viewer->update();
     }
     else
     {
@@ -203,7 +203,7 @@ void RimView::updateCurrentTimeStepAndRedraw()
 {
     this->updateCurrentTimeStep();
     
-    if (m_viewer) m_viewer->issueBaseClassUpdate();
+    if (m_viewer) m_viewer->update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,7 +426,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 
             updateScaleTransform();
             createDisplayModelAndRedraw();
-            m_viewer->issueBaseClassUpdate();
+            m_viewer->update();
         }
 
         RiuMainWindow::instance()->updateScaleValue();
@@ -450,7 +450,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         if (m_viewer)
         {
-            m_viewer->issueBaseClassUpdate();
+            m_viewer->update();
 
             RimProject* proj = NULL;
             this->firstAnchestorOrThisOfType(proj);
