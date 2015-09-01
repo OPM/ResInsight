@@ -40,7 +40,6 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimManagedViewCollection.h"
 #include "RimManagedViewConfig.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
@@ -50,6 +49,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlot.h"
+#include "RimLinkedViews.h"
 
 #include "RiuMainWindow.h"
 
@@ -91,6 +91,9 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&mainPlotCollection, "MainPlotCollection", "Plots", ":/Default.png", "", "");
     mainPlotCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&linkedViews, "LinkedViews", "Linked Views", ":/chain.png", "", "");
+    linkedViews.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
@@ -751,6 +754,10 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicDeleteItemFeature";
         }
+        else if (dynamic_cast<RimLinkedViews*>(uiItem))
+        {
+            commandIds << "RicDeleteItemFeature";
+        }
         else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
         {
             commandIds << "RicNewWellLogPlotFeature";
@@ -768,18 +775,6 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         else if (dynamic_cast<RimWellLogPlotCurve*>(uiItem))
         {
             commandIds << "RicDeleteItemFeature";
-        }
-
-        if (dynamic_cast<RimManagedViewCollection*>(uiItem))
-        {
-            RimManagedViewCollection* viewCollection = dynamic_cast<RimManagedViewCollection*>(uiItem);
-            caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&viewCollection->viewConfigs);
-            
-            commandIds << "PdmListField_AddItem";
-        }
-        else
-        {
-            caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(NULL);
         }
     }
     
@@ -911,6 +906,28 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         }
     }
 
+    uiTreeOrdering.add(&linkedViews);
+
     uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimLinkedViews* RimProject::findLinkedViewsGroupForView(RimView* view)
+{
+    for (size_t i = 0; i < linkedViews.size(); i++)
+    {
+        RimLinkedViews* group = linkedViews[i];
+        if (view == group->mainView()) return group;
+
+        for (size_t j = 0; j < group->viewConfigs.size(); j++)
+        {
+            RimManagedViewConfig* viewConfig = group->viewConfigs[j];
+            if (viewConfig->managedView() == view) return group;
+        }
+    }
+
+    return NULL;
 }
 

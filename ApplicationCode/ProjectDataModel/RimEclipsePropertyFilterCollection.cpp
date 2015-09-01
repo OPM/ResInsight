@@ -23,7 +23,8 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimManagedViewCollection.h"
+#include "RimLinkedViews.h"
+#include "RimProject.h"
 
 #include "cafPdmUiEditorHandle.h"
 
@@ -145,6 +146,12 @@ void RimEclipsePropertyFilterCollection::updateDisplayModelNotifyManagedViews()
     view->scheduleGeometryRegen(PROPERTY_FILTERED);
     view->scheduleCreateDisplayModelAndRedraw();
 
-    // Notify managed views of range filter change in master view
-    view->managedViewCollection()->updatePropertyFilters();
+    RimProject* proj = NULL;
+    view->firstAnchestorOrThisOfType(proj);
+
+    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
+    if (linkedViews)
+    {
+        linkedViews->updatePropertyFilters();
+    }
 }

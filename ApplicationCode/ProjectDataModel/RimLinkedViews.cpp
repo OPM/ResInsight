@@ -17,31 +17,41 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimManagedViewCollection.h"
+#include "RimLinkedViews.h"
 
+#include "RiaApplication.h"
+
+#include "RimCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
 #include "RimManagedViewConfig.h"
+#include "RimProject.h"
 #include "RimView.h"
 
 #include "RiuViewer.h"
 
 #include "cvfCamera.h"
 #include "cvfMatrix4.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechResultDefinition.h"
-#include "RimGeoMechCellColors.h"
+#include "cafPdmUiTreeOrdering.h"
 
 
 
-CAF_PDM_SOURCE_INIT(RimManagedViewCollection, "RimManagedViewCollection");
+CAF_PDM_SOURCE_INIT(RimLinkedViews, "RimLinkedViews");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimManagedViewCollection::RimManagedViewCollection(void)
+RimLinkedViews::RimLinkedViews(void)
 {
-    CAF_PDM_InitObject("Managed Views", ":/chain.png", "", "");
+    CAF_PDM_InitObject("Linked Views", ":/chain.png", "", "");
+
+    CAF_PDM_InitField(&name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&mainView, "MainView", "Main View", "", "", "");
+    mainView.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&viewConfigs, "ManagedViews", "Managed Views", "", "", "");
     viewConfigs.uiCapability()->setUiHidden(true);
@@ -50,23 +60,38 @@ RimManagedViewCollection::RimManagedViewCollection(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimManagedViewCollection::~RimManagedViewCollection(void)
+RimLinkedViews::~RimLinkedViews(void)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::updateTimeStep(int timeStep)
+void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
 {
+    RimManagedViewConfig* sourceViewConfig = viewConfigForView(sourceView);
+    if (sourceViewConfig && !sourceViewConfig->syncTimeStep())
+    {
+        return;
+    }
+
+    if (sourceView && sourceView != mainView)
+    {
+        mainView->viewer()->setCurrentFrame(timeStep);
+    }
+    else
+    {
+        mainView->viewer()->setCurrentFrame(timeStep);
+    }
+
     for (size_t i = 0; i < viewConfigs.size(); i++)
     {
         RimManagedViewConfig* managedViewConfig = viewConfigs[i];
-        if (managedViewConfig->managedView())
+        if (managedViewConfig->managedView() && managedViewConfig->managedView() != sourceView)
         {
             if (managedViewConfig->syncTimeStep() && managedViewConfig->managedView()->viewer())
             {
-                managedViewConfig->managedView()->viewer()->slotSetCurrentFrame(timeStep);
+                managedViewConfig->managedView()->viewer()->setCurrentFrame(timeStep);
             }
         }
     }
@@ -75,12 +100,10 @@ void RimManagedViewCollection::updateTimeStep(int timeStep)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::updateCellResult()
+void RimLinkedViews::updateCellResult()
 {
-    RimView* masterView = NULL;
-    firstAnchestorOrThisOfType(masterView);
-
-    RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(masterView);
+    RimView* rimView = mainView;
+    RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (masterEclipseView && masterEclipseView->cellResult())
     {
         RimEclipseResultDefinition* eclipseCellResultDefinition = masterEclipseView->cellResult();
@@ -101,14 +124,11 @@ void RimManagedViewCollection::updateCellResult()
                         eclipeView->cellResult()->setResultVariable(eclipseCellResultDefinition->resultVariable());
                     }
                 }
-
-                // Notify recursively
-                managedViewConfig->managedView()->managedViewCollection()->updateCellResult();
             }
         }
     }
 
-    RimGeoMechView* masterGeoView = dynamic_cast<RimGeoMechView*>(masterView);
+    RimGeoMechView* masterGeoView = dynamic_cast<RimGeoMechView*>(rimView);
     if (masterGeoView && masterGeoView->cellResult())
     {
         RimGeoMechResultDefinition* geoMechResultDefinition = masterGeoView->cellResult();
@@ -128,9 +148,6 @@ void RimManagedViewCollection::updateCellResult()
                         geoView->scheduleCreateDisplayModelAndRedraw();
                     }
                 }
-
-                // Notify recursively
-                managedViewConfig->managedView()->managedViewCollection()->updateCellResult();
             }
         }
     }
@@ -139,7 +156,7 @@ void RimManagedViewCollection::updateCellResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::updateRangeFilters()
+void RimLinkedViews::updateRangeFilters()
 {
     for (size_t i = 0; i < viewConfigs.size(); i++)
     {
@@ -167,9 +184,6 @@ void RimManagedViewCollection::updateRangeFilters()
                     geoView->scheduleCreateDisplayModelAndRedraw();
                 }
             }
-
-            // Notify recursively
-            managedViewConfig->managedView()->managedViewCollection()->updateRangeFilters();
         }
     }
 }
@@ -177,7 +191,7 @@ void RimManagedViewCollection::updateRangeFilters()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::updatePropertyFilters()
+void RimLinkedViews::updatePropertyFilters()
 {
     for (size_t i = 0; i < viewConfigs.size(); i++)
     {
@@ -190,8 +204,7 @@ void RimManagedViewCollection::updatePropertyFilters()
                 RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
                 if (eclipeView)
                 {
-                    eclipeView->scheduleGeometryRegen(RANGE_FILTERED);
-                    eclipeView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+                    eclipeView->scheduleGeometryRegen(PROPERTY_FILTERED);
 
                     eclipeView->scheduleCreateDisplayModelAndRedraw();
                 }
@@ -204,9 +217,6 @@ void RimManagedViewCollection::updatePropertyFilters()
                     geoView->scheduleCreateDisplayModelAndRedraw();
                 }
             }
-
-            // Notify recursively
-            managedViewConfig->managedView()->managedViewCollection()->updatePropertyFilters();
         }
     }
 }
@@ -214,7 +224,7 @@ void RimManagedViewCollection::updatePropertyFilters()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::configureOverrides()
+void RimLinkedViews::configureOverrides()
 {
     for (size_t i = 0; i < viewConfigs.size(); i++)
     {
@@ -226,15 +236,15 @@ void RimManagedViewCollection::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::allViewsForCameraSync(std::vector<RimView*>& views)
+void RimLinkedViews::allViewsForCameraSync(std::vector<RimView*>& views)
 {
+    views.push_back(mainView());
+
     for (size_t i = 0; i < viewConfigs.size(); i++)
     {
         if (viewConfigs[i]->syncCamera && viewConfigs[i]->managedView())
         {
             views.push_back(viewConfigs[i]->managedView());
-
-            viewConfigs[i]->managedView()->managedViewCollection()->allViewsForCameraSync(views);
         }
     }
 }
@@ -242,15 +252,82 @@ void RimManagedViewCollection::allViewsForCameraSync(std::vector<RimView*>& view
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewCollection::applyAllOperations()
+void RimLinkedViews::applyAllOperations()
 {
-    RimView* masterView = NULL;
-    firstAnchestorOrThisOfType(masterView);
-
     configureOverrides();
 
     updateCellResult();
-    updateTimeStep(masterView->currentTimeStep());
+    updateTimeStep(NULL, mainView->currentTimeStep());
     updateRangeFilters();
     updatePropertyFilters();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimLinkedViews::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> optionList;
+
+    if (fieldNeedingOptions == &mainView)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        std::vector<RimView*> views;
+        proj->allVisibleViews(views);
+
+        for (size_t i = 0; i < views.size(); i++)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(displayNameForView(views[i]), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
+        }
+
+        if (optionList.size() > 0)
+        {
+            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+        }
+    }
+
+    return optionList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimLinkedViews::displayNameForView(RimView* view)
+{
+    RimCase* rimCase = NULL;
+    view->firstAnchestorOrThisOfType(rimCase);
+
+    QString displayName = rimCase->caseUserDescription() + " : " + view->name;
+
+    return displayName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLinkedViews::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    for (size_t cIdx = 0; cIdx < viewConfigs.size(); ++cIdx)
+    {
+        PdmObjectHandle* childObject = viewConfigs[cIdx];
+        if (childObject)
+        {
+            uiTreeOrdering.add(childObject);
+        }
+    }
+
+    uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimManagedViewConfig* RimLinkedViews::viewConfigForView(RimView* view)
+{
+    for (size_t i = 0; i < viewConfigs.size(); i++)
+    {
+        if (viewConfigs[i]->managedView() == view) return viewConfigs[i];
+    }
+
+    return NULL;
 }

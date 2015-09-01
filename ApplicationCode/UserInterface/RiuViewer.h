@@ -77,6 +77,8 @@ public:
     virtual void    update();               // Override of caf::Viewer::update()
     void            issueBaseClassUpdate();
 
+    void            setCurrentFrame(int frameIndex);
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();

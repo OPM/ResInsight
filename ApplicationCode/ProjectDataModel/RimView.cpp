@@ -5,7 +5,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimManagedViewCollection.h"
+#include "RimLinkedViews.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
@@ -85,10 +85,6 @@ RimView::RimView(void)
 
     CAF_PDM_InitField(&m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "");
     m_currentTimeStep.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitFieldNoDefault(&managedViewCollection, "ManagedViewCollection", "Managed View Collection", "", "", "");
-    managedViewCollection = new RimManagedViewCollection;
-    managedViewCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
@@ -456,7 +452,13 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         {
             m_viewer->issueBaseClassUpdate();
 
-            managedViewCollection->updateTimeStep(m_currentTimeStep);
+            RimProject* proj = NULL;
+            this->firstAnchestorOrThisOfType(proj);
+            RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(this);
+            if (linkedViews)
+            {
+                linkedViews->updateTimeStep(this, m_currentTimeStep);
+            }
         }
     }
     else if (changedField == &backgroundColor)

@@ -28,11 +28,12 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"
-#include "RimManagedViewCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
 
 #include "cafPdmUiListEditor.h"
+#include "RimProject.h"
+#include "RimLinkedViews.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 
@@ -153,10 +154,16 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             this->firstAnchestorOrThisOfType(view);
             if (view)
             {
-                view->managedViewCollection->updateCellResult();
+                RimProject* proj = NULL;
+                view->firstAnchestorOrThisOfType(proj);
+
+                RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
+                if (linkedViews)
+                {
+                    linkedViews->updateCellResult();
+                }
             }
         }
-
     }
 
     RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());

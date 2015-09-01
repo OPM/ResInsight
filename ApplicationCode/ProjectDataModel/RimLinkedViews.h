@@ -24,6 +24,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 class RimManagedViewConfig;
 class RiuViewer;
@@ -33,19 +34,22 @@ class RimView;
 ///  
 ///  
 //==================================================================================================
-class RimManagedViewCollection : public caf::PdmObject
+class RimLinkedViews : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimManagedViewCollection(void);
-    virtual ~RimManagedViewCollection(void);
+    RimLinkedViews(void);
+    virtual ~RimLinkedViews(void);
+
+    caf::PdmPtrField<RimView*> mainView;
+    caf::PdmField<QString> name;
 
     caf::PdmChildArrayField<RimManagedViewConfig*> viewConfigs;
 
     void applyAllOperations();
 
-    void updateTimeStep(int timeStep);
+    void updateTimeStep(RimView* sourceView, int timeStep);
     void updateCellResult();
 
     void updateRangeFilters();
@@ -54,4 +58,13 @@ public:
     void configureOverrides();
 
     void allViewsForCameraSync(std::vector<RimView*>& views);
+
+public:
+    static QString  displayNameForView(RimView* view);
+    RimManagedViewConfig* viewConfigForView(RimView* view);
+
+protected:
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
+    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 };

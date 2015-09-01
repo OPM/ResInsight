@@ -34,7 +34,6 @@
 class Rim3dOverlayInfoConfig;
 class RimCase;
 class RimCellRangeFilterCollection;
-class RimManagedViewCollection;
 class RiuViewer;
 
 namespace cvf
@@ -68,8 +67,6 @@ public:
 
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
-
-    caf::PdmChildField<RimManagedViewCollection*>  managedViewCollection;
 
     RimCellRangeFilterCollection*           rangeFilterCollection();
     const RimCellRangeFilterCollection*     rangeFilterCollection() const;

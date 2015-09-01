@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RimManagedViewCollection.h"
+#include "RimLinkedViews.h"
 #include "RimManagedViewConfig.h"
 #include "RimProject.h"
 #include "RimView.h"
@@ -57,28 +57,32 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     RimProject* proj = RiaApplication::instance()->project();
     std::vector<RimView*> views;
     proj->allVisibleViews(views);
-
     CVF_ASSERT(views.size() > 1);
-
+    
     RimView* masterView = views[0];
 
-    RimManagedViewCollection* managedViewCollection = masterView->managedViewCollection();
+    RimLinkedViews* linkedViews = new RimLinkedViews;
+    linkedViews->mainView = masterView;
+
     for (size_t i = 1; i < views.size(); i++)
     {
         RimView* rimView = views[i];
         RimManagedViewConfig* viewConfig = new RimManagedViewConfig;
         viewConfig->managedView = rimView;
-        managedViewCollection->viewConfigs.push_back(viewConfig);
+        linkedViews->viewConfigs.push_back(viewConfig);
 
         viewConfig->initAfterReadRecursively();
     }
 
-    managedViewCollection->applyAllOperations();
-    managedViewCollection->updateConnectedEditors();
+    proj->linkedViews.push_back(linkedViews);
+    proj->linkedViews.uiCapability()->updateConnectedEditors();
+
+    linkedViews->applyAllOperations();
+    linkedViews->updateConnectedEditors();
 
     // Set managed view collection to selected and expanded in project tree
     caf::PdmUiTreeView* projTreeView = RiuMainWindow::instance()->projectTreeView();
-    QModelIndex modIndex = projTreeView->findModelIndex(managedViewCollection);
+    QModelIndex modIndex = projTreeView->findModelIndex(linkedViews);
     projTreeView->treeView()->setCurrentIndex(modIndex);
 
     projTreeView->treeView()->setExpanded(modIndex, true);

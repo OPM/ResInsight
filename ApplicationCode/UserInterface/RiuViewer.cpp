@@ -42,7 +42,6 @@
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimManagedViewCollection.h"
 #include "RimManagedViewConfig.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -64,6 +63,7 @@
 #include "cafNavigationPolicy.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "RimLinkedViews.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -271,18 +271,18 @@ void RiuViewer::slotEndAnimation()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotSetCurrentFrame(int frameIndex)
 {
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
-    CVF_ASSERT(firstRendering);
-
-    if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
-
-    caf::Viewer::slotSetCurrentFrame(frameIndex);
+    setCurrentFrame(frameIndex);
 
     if (m_reservoirView)
     {
-        m_reservoirView->managedViewCollection()->updateTimeStep(frameIndex);
+        RimProject* proj = NULL;
+        m_reservoirView->firstAnchestorOrThisOfType(proj);
+        RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(m_reservoirView);
+        if (linkedViews)
+        {
+            linkedViews->updateTimeStep(m_reservoirView, frameIndex);
+        }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -509,29 +509,28 @@ void RiuViewer::update()
     {
         viewsToUpdate.push_back(m_reservoirView);
 
-        RimView* rimView = m_reservoirView;
-
-        std::vector<caf::PdmObjectHandle*> objects;
-        rimView->objectsWithReferringPtrFields(objects);
-
-        while (objects.size() > 0)
+        RimProject* proj = NULL;
+        m_reservoirView->firstAnchestorOrThisOfType(proj);
+        RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(m_reservoirView);
+        if (linkedViews)
         {
-            RimManagedViewConfig* viewConfig = dynamic_cast<RimManagedViewConfig*>(objects[0]);
-            objects.clear();
-
-            if (viewConfig->syncCamera())
+            RimManagedViewConfig* viewConf = linkedViews->viewConfigForView(m_reservoirView);
+            
+            // There is no view config for a master view, but all views for sync must be updated
+            if (!viewConf || viewConf->syncCamera())
             {
-                viewConfig->firstAnchestorOrThisOfType(rimView);
-                rimView->objectsWithReferringPtrFields(objects);
+                std::vector<RimView*> allViews;
+                linkedViews->allViewsForCameraSync(allViews);
+
+                for (size_t i = 0; i < allViews.size(); i++)
+                {
+                    if (allViews[i] != m_reservoirView)
+                    {
+                        viewsToUpdate.push_back(allViews[i]);
+                    }
+                }
             }
         }
-
-        if (rimView != m_reservoirView)
-        {
-            viewsToUpdate.push_back(rimView);
-        }
-    
-        rimView->managedViewCollection()->allViewsForCameraSync(viewsToUpdate);
     }
     
     // Propagate view matrix to all relevant views
@@ -559,4 +558,17 @@ void RiuViewer::issueBaseClassUpdate()
     // as caf::Viewer::update() is a virtual function
 
     caf::OpenGLWidget::update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setCurrentFrame(int frameIndex)
+{
+    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    CVF_ASSERT(firstRendering);
+
+    if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
+
+    caf::Viewer::slotSetCurrentFrame(frameIndex);
 }

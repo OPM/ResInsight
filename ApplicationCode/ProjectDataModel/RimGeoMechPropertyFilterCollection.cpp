@@ -22,9 +22,10 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
-#include "RimManagedViewCollection.h"
+#include "RimProject.h"
 
 #include "cvfAssert.h"
+#include "RimLinkedViews.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilterCollection, "GeoMechPropertyFilters");
@@ -147,6 +148,12 @@ void RimGeoMechPropertyFilterCollection::updateDisplayModelNotifyManagedViews()
     view->scheduleGeometryRegen(PROPERTY_FILTERED);
     view->scheduleCreateDisplayModelAndRedraw();
 
-    // Notify managed views of range filter change in master view
-    view->managedViewCollection()->updatePropertyFilters();
+    RimProject* proj = NULL;
+    view->firstAnchestorOrThisOfType(proj);
+
+    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
+    if (linkedViews)
+    {
+        linkedViews->updatePropertyFilters();
+    }
 }

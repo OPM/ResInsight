@@ -30,11 +30,12 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
-#include "RimManagedViewCollection.h"
 
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiListEditor.h"
+#include "RimProject.h"
+#include "RimLinkedViews.h"
 
 namespace caf {
 
@@ -188,7 +189,19 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
             if (dynamic_cast<RimGeoMechCellColors*>(this))
             {
-                if (view) view->managedViewCollection->updateCellResult();
+                RimView* view = NULL;
+                this->firstAnchestorOrThisOfType(view);
+                if (view)
+                {
+                    RimProject* proj = NULL;
+                    view->firstAnchestorOrThisOfType(proj);
+
+                    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
+                    if (linkedViews)
+                    {
+                        linkedViews->updateCellResult();
+                    }
+                }
             }
         }
     }

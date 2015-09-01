@@ -27,7 +27,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "RimManagedViewCollection.h"
+#include "RimLinkedViews.h"
 #include "RimProject.h"
 #include "RimView.h"
 
@@ -46,6 +46,7 @@ RimManagedViewConfig::RimManagedViewConfig(void)
 
     QString defaultName = "View Config : Empty view";
     CAF_PDM_InitField(&name, "Name", defaultName, "Managed View Name", "", "", "");
+    name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&managedView, "ManagedView", "Managed View", "", "", "");
     managedView.uiCapability()->setUiChildrenHidden(true);
@@ -110,25 +111,24 @@ void RimManagedViewConfig::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOr
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &syncCamera || changedField == &syncTimeStep)
+    if (changedField == &syncCamera && syncCamera())
     {
-        RimView* masterView = NULL;
-        firstAnchestorOrThisOfType(masterView);
-
-        masterView->viewer()->update();
+        if (managedView && managedView->viewer()) managedView->viewer()->update();
     }
-    else if (changedField == &syncCellResult)
+    else if (changedField == &syncTimeStep && syncTimeStep())
     {
-        // When cell result is activated, update cell result in managed views
-        // Original result Will not be restored when cell result is disabled
-        
-        if (syncCellResult())
+        if (managedView)
         {
-            RimView* masterView = NULL;
-            firstAnchestorOrThisOfType(masterView);
-
-            masterView->managedViewCollection()->updateCellResult();
+            RimLinkedViews* linkedViews = NULL;
+            this->firstAnchestorOrThisOfType(linkedViews);
+            linkedViews->updateTimeStep(managedView, managedView->currentTimeStep());
         }
+    }
+    else if (changedField == &syncCellResult && syncCellResult())
+    {
+        RimLinkedViews* linkedViews = NULL;
+        this->firstAnchestorOrThisOfType(linkedViews);
+        linkedViews->updateCellResult();
     }
     else if (changedField == &syncRangeFilters)
     {
@@ -146,10 +146,9 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         {
             if (syncCellResult())
             {
-                RimView* masterView = NULL;
-                firstAnchestorOrThisOfType(masterView);
-
-                masterView->managedViewCollection()->updateCellResult();
+                RimLinkedViews* linkedViews = NULL;
+                this->firstAnchestorOrThisOfType(linkedViews);
+                linkedViews->updateCellResult();
             }
 
             name = displayNameForView(managedView);
@@ -174,7 +173,9 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 geoView->setOverridePropertyFilterCollection(NULL);
             }
 
-            rimView->managedViewCollection()->configureOverrides();
+            RimLinkedViews* linkedViews = NULL;
+            this->firstAnchestorOrThisOfType(linkedViews);
+            linkedViews->configureOverrides();
         }
 
         updateDisplayName();
@@ -241,8 +242,10 @@ void RimManagedViewConfig::configureOverridesUpdateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewConfig::configureOverrides()
 {
-    RimView* masterView = NULL;
-    firstAnchestorOrThisOfType(masterView);
+    RimLinkedViews* linkedViews = NULL;
+    this->firstAnchestorOrThisOfType(linkedViews);
+
+    RimView* masterView = linkedViews->mainView();
 
     if (managedView)
     {
@@ -288,9 +291,6 @@ void RimManagedViewConfig::configureOverrides()
                 }
             }
         }
-
-        // Propagate overrides in current view to managed views
-        managedView->managedViewCollection()->configureOverrides();
     }
 }
 
@@ -299,6 +299,8 @@ void RimManagedViewConfig::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 QString RimManagedViewConfig::displayNameForView(RimView* view)
 {
+    return RimLinkedViews::displayNameForView(view);
+/*
     CVF_ASSERT(view);
 
     RimCase* rimCase = NULL;
@@ -307,6 +309,7 @@ QString RimManagedViewConfig::displayNameForView(RimView* view)
     QString displayName = rimCase->caseUserDescription() + " : " + view->name;
 
     return displayName;
+*/
 }
 
 //--------------------------------------------------------------------------------------------------

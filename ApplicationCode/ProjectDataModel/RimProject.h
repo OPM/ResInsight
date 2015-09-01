@@ -33,11 +33,12 @@ class RimCase;
 class RimCommandObject;
 class RimEclipseCase;
 class RimIdenticalGridCaseGroup;
+class RimLinkedViews;
+class RimMainPlotCollection;
 class RimOilField;
 class RimScriptCollection;
-class RimWellPathImport;
-class RimMainPlotCollection;
 class RimView;
+class RimWellPathImport;
 
 namespace caf
 {
@@ -64,6 +65,7 @@ public:
     caf::PdmChildField<RimScriptCollection*>            scriptCollection;
     caf::PdmChildField<RimWellPathImport*>              wellPathImport;
     caf::PdmChildField<RimMainPlotCollection*>          mainPlotCollection;
+    caf::PdmChildArrayField<RimLinkedViews*>            linkedViews;
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
@@ -88,6 +90,8 @@ public:
     RimOilField*    activeOilField();
 
     void            actionsBasedOnSelection(QMenu& contextMenu);
+
+    RimLinkedViews* findLinkedViewsGroupForView(RimView* view);
 
 protected:
     // Overridden methods

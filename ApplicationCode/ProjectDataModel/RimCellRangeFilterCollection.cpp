@@ -31,7 +31,8 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimManagedViewCollection.h"
+#include "RimLinkedViews.h"
+#include "RimProject.h"
 
 #include "cafPdmUiEditorHandle.h"
 
@@ -147,16 +148,22 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews()
 {
-    RimView* rimView = NULL;
-    firstAnchestorOrThisOfType(rimView);
+    RimView* view = NULL;
+    firstAnchestorOrThisOfType(view);
 
-    rimView->scheduleGeometryRegen(RANGE_FILTERED);
-    rimView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+    view->scheduleGeometryRegen(RANGE_FILTERED);
+    view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
-    rimView->scheduleCreateDisplayModelAndRedraw();
+    view->scheduleCreateDisplayModelAndRedraw();
 
-    // Notify managed views of range filter change in master view
-    rimView->managedViewCollection()->updateRangeFilters();
+    RimProject* proj = NULL;
+    view->firstAnchestorOrThisOfType(proj);
+
+    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
+    if (linkedViews)
+    {
+        linkedViews->updateRangeFilters();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
