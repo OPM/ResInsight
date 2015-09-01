@@ -41,6 +41,8 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
     CAF_PDM_InitFieldNoDefault(&m_userName, "CurveDescription", "Name", "", "", "");
 
     m_plotCurve = new QwtPlotCurve;
+    m_plotCurve->setXAxis(QwtPlot::xTop);
+    m_plotCurve->setYAxis(QwtPlot::yLeft);
 }
 
 //--------------------------------------------------------------------------------------------------
