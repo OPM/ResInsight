@@ -318,7 +318,7 @@ namespace caf {
         progressDialog()->setValue(static_cast<int>(currentTotalProgress()));
         progressDialog()->setLabelText(currentComposedLabel());
 
-        QCoreApplication::processEvents();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 
 
@@ -332,7 +332,7 @@ namespace caf {
         descriptionStack().back() = description;
 
         progressDialog()->setLabelText(currentComposedLabel());
-        QCoreApplication::processEvents();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ namespace caf {
         progressDialog()->setMaximum(totalMaxProgress);
         progressDialog()->setValue(totalProgress);
 
-        QCoreApplication::processEvents();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -420,7 +420,7 @@ namespace caf {
         }
 
         // Make sure the Gui is repainted
-        QCoreApplication::processEvents();
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 
 
