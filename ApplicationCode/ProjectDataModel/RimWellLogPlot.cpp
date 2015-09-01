@@ -29,7 +29,7 @@
 
 #include "cvfAssert.h"
 
-#include <limits.h>
+#include <float.h>
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlot, "WellLogPlot");
 
