@@ -36,9 +36,7 @@
 RiuProjectAndPropertyView::RiuProjectAndPropertyView(QWidget* parent, Qt::WindowFlags f)
     : QWidget(parent, f)
 {
-
     // Tree View
-
     m_projectTreeView = new caf::PdmUiTreeView;
     m_projectTreeView->treeView()->setHeaderHidden(true);
     m_projectTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -57,25 +55,33 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView(QWidget* parent, Qt::Window
     m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), RiuMainWindow::instance(), SLOT(customMenuRequested(const QPoint&)));
 
-
     // Property view
     m_propertyView = new caf::PdmUiPropertyView;
 
     connect(m_projectTreeView, SIGNAL(selectedObjectChanged(caf::PdmObjectHandle*)), m_propertyView, SLOT(showProperties(caf::PdmObjectHandle*)));
 
-    QSplitter *splitter = new QSplitter(Qt::Vertical);
+	QWidget* propertyEditorWithHeader = new QWidget;
+	{
+		QLabel* propertyHeader = new QLabel;
+		propertyHeader->setText("Property Editor");
+		propertyHeader->setStyleSheet("QLabel { background-color: #CCCCCC }");
+		propertyHeader->setFixedHeight(20);
 
+		QVBoxLayout* layout = new QVBoxLayout;
+		layout->setMargin(0);
+		layout->addWidget(propertyHeader);
+		layout->addWidget(m_propertyView);
+
+		propertyEditorWithHeader->setLayout(layout);
+		propertyEditorWithHeader->setMinimumHeight(150);
+	}
+
+    QSplitter* splitter = new QSplitter(Qt::Vertical);
     splitter->addWidget(m_projectTreeView);
-
-    QLabel* propertyHeader = new QLabel;
-    propertyHeader->setText("Property Editor");
-    splitter->addWidget(propertyHeader);
-
-    splitter->addWidget(m_propertyView);
+	splitter->addWidget(propertyEditorWithHeader);
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setMargin(0);
-
     layout->addWidget(splitter);
 
     setLayout(layout);
