@@ -592,6 +592,8 @@ bool caf::Viewer::isAnimationActive()
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 {
+    if (m_frameScenes.size() == 0) return;
+
     int clampedFrameIndex = frameIndex;
 
     if (static_cast<size_t>(frameIndex) >= m_frameScenes.size())
