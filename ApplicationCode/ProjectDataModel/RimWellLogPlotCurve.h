@@ -41,6 +41,7 @@ public:
     virtual ~RimWellLogPlotCurve();
 
     void    setPlot(RiuWellLogTracePlot* plot);
+    bool    depthRange(double* minimumDepth, double* maximumDepth);
 
 protected:
 

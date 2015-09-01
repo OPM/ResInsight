@@ -27,6 +27,7 @@ class RiuWellLogTracePlot;
 
 class QHBoxLayout;
 class QWheelEvent;
+class QScrollBar;
 
 //==================================================================================================
 //
@@ -38,7 +39,7 @@ class RiuWellLogPlot : public QWidget
     Q_OBJECT
 
 public:
-    RiuWellLogPlot(RimWellLogPlot* dataModelPlot, QWidget* parent = NULL);
+    RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = NULL);
     virtual ~RiuWellLogPlot();
 
     RiuWellLogTracePlot* createTracePlot();
@@ -49,11 +50,15 @@ protected:
     void wheelEvent(QWheelEvent* event);
 
 private:
-    void setDefults();
+    void updateScrollBar(double minDepth, double maxDepth);
+
+private slots:
+    void slotSetMinDepth(int value);
 
 private:
     QHBoxLayout*                m_layout;
+    QScrollBar*                 m_scrollBar;
     QList<RiuWellLogTracePlot*> m_tracePlots;
-    RimWellLogPlot*             m_dataModelPlot;
+    RimWellLogPlot*             m_plotDefinition;
 };
 

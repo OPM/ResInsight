@@ -43,6 +43,7 @@ public:
 
     void setViewer(RiuWellLogTracePlot* viewer);
     void addCurve(RimWellLogPlotCurve* curve);
+    bool availableDepthRange(double* minimumDepth, double* maximumDepth);
 
     RiuWellLogTracePlot* viewer();
 

@@ -43,13 +43,14 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
     showWindow.uiCapability()->setUiHidden(true);
     
-    CAF_PDM_InitField(&m_minimumDepth, "MinimumDepth", 0.0, "Set minimum depth", "", "", "");
-    CAF_PDM_InitField(&m_maximumDepth, "MaximumDepth", 1000.0, "Set maximum depth", "", "", "");
+    CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Set minimum depth", "", "", "");
+    CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Set maximum depth", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&traces, "Traces", "",  "", "", "");
     traces.uiCapability()->setUiHidden(true);
 
     updateViewerWidget();
+    updateAvailableDepthRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,9 +117,9 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             }
         }
     }
-    else if (changedField == &m_minimumDepth || changedField == &m_maximumDepth)
+    else if (changedField == &m_minimumVisibleDepth || changedField == &m_maximumVisibleDepth)
     {
-        m_viewer->setDepthRange(m_minimumDepth, m_maximumDepth);
+        m_viewer->setDepthRange(m_minimumVisibleDepth, m_maximumVisibleDepth);
     }
 }
 
@@ -160,17 +161,81 @@ RiuWellLogPlot* RimWellLogPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::zoomDepth(double zoomFactor)
 {
-    double center       = (m_maximumDepth + m_minimumDepth)/2;
-    double newHalfDepth = zoomFactor*(m_maximumDepth - m_minimumDepth)/2;
+    double center       = (m_maximumVisibleDepth + m_minimumVisibleDepth)/2;
+    double newHalfDepth = zoomFactor*(m_maximumVisibleDepth - m_minimumVisibleDepth)/2;
 
     double newMinimum = center - newHalfDepth;
     double newMaximum = center + newHalfDepth;
 
-    m_minimumDepth = newMinimum;
-    m_maximumDepth = newMaximum;
+    setDepthRange(newMinimum, newMaximum);
+}
 
-    m_minimumDepth.uiCapability()->updateConnectedEditors();
-    m_maximumDepth.uiCapability()->updateConnectedEditors();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setDepthRange(double minimumDepth, double maximumDepth)
+{
+    m_minimumVisibleDepth = minimumDepth;
+    m_maximumVisibleDepth = maximumDepth;
 
-    m_viewer->setDepthRange(m_minimumDepth, m_maximumDepth);
+    m_minimumVisibleDepth.uiCapability()->updateConnectedEditors();
+    m_maximumVisibleDepth.uiCapability()->updateConnectedEditors();
+
+    m_viewer->setDepthRange(m_minimumVisibleDepth, m_maximumVisibleDepth);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateAvailableDepthRange()
+{
+    double minDepth = DBL_MAX;
+    double maxDepth = DBL_MIN;
+
+    for (size_t tIdx = 0; tIdx < traces.size(); tIdx++)
+    {
+        double minTraceDepth = DBL_MAX;
+        double maxTraceDepth = DBL_MIN;
+
+        if (traces[tIdx]->availableDepthRange(&minTraceDepth, &maxTraceDepth))
+        {
+            if (minTraceDepth < minDepth)
+            {
+                minDepth = minTraceDepth;
+            }
+
+            if (maxTraceDepth > maxDepth)
+            {
+                maxDepth = maxTraceDepth;
+            }
+        }
+    }
+
+    m_depthRangeMinimum = minDepth;
+    m_depthRangeMaximum = maxDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlot::availableDepthRange(double* minimumDepth, double* maximumDepth)
+{
+    if (m_maximumVisibleDepth > m_minimumVisibleDepth)
+    {
+        *minimumDepth = m_depthRangeMinimum;
+        *maximumDepth = m_depthRangeMaximum;
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::visibleDepthRange(double* minimumDepth, double* maximumDepth)
+{
+    *minimumDepth = m_minimumVisibleDepth;
+    *maximumDepth = m_maximumVisibleDepth;
 }

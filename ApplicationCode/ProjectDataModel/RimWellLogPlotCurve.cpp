@@ -19,6 +19,8 @@
 
 #include "RimWellLogPlotCurve.h"
 
+#include "RimWellLogPlot.h"
+
 #include "RiuWellLogTracePlot.h"
 
 #include "qwt_plot_curve.h"
@@ -108,7 +110,14 @@ void RimWellLogPlotCurve::updatePlotData()
     depthValues.push_back(1000);
 
     m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
-   
+  
+    RimWellLogPlot* wellLogPlot;
+    firstAnchestorOrThisOfType(wellLogPlot);
+
+    if (wellLogPlot)
+    {
+        wellLogPlot->updateAvailableDepthRange();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,4 +136,23 @@ void RimWellLogPlotCurve::setPlot(RiuWellLogTracePlot* plot)
 caf::PdmFieldHandle* RimWellLogPlotCurve::userDescriptionField()
 {
     return &m_userName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
+{
+    CVF_ASSERT(minimumDepth && maximumDepth);
+    CVF_ASSERT(m_plotCurve);
+
+    if (m_plotCurve->data()->size() < 1)
+    {
+        return false;
+    }
+
+    *minimumDepth = m_plotCurve->minYValue();
+    *maximumDepth = m_plotCurve->maxYValue();
+
+    return true;
 }

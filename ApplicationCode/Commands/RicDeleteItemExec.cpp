@@ -33,6 +33,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimView.h"
+#include "RimWellLogPlot.h"
 
 
 namespace caf
@@ -103,6 +104,13 @@ void RicDeleteItemExec::redo()
         if (wellPathColl)
         {
             wellPathColl->scheduleGeometryRegenAndRedrawViews();
+        }
+
+        RimWellLogPlot* wellLogPlot;
+        parentObj->firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+            wellLogPlot->updateAvailableDepthRange();
         }
     }
 }

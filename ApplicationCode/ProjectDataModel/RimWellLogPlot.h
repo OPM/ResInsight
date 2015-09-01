@@ -48,6 +48,12 @@ public:
     RiuWellLogPlot* viewer();
 
     void zoomDepth(double zoomFactor);
+    void setDepthRange(double minimumDepth, double maximumDepth);
+
+    void updateAvailableDepthRange();
+    bool availableDepthRange(double* minimumDepth, double* maximumDepth);
+
+    void visibleDepthRange(double* minimumDepth, double* maximumDepth);
 
 protected:
 
@@ -56,13 +62,15 @@ protected:
 
 private:
     void updateViewerWidget();
-    void setDepthRange(double minimumDepth, double maximumDepth);
 
     virtual caf::PdmFieldHandle* objectToggleField();
 
 private:
     QPointer<RiuWellLogPlot> m_viewer;
     
-    caf::PdmField<double> m_minimumDepth;
-    caf::PdmField<double> m_maximumDepth;
+    caf::PdmField<double> m_minimumVisibleDepth;
+    caf::PdmField<double> m_maximumVisibleDepth;
+
+    double m_depthRangeMinimum;
+    double m_depthRangeMaximum;
 };

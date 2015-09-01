@@ -28,22 +28,29 @@
 
 #include <QHBoxLayout>
 #include <QWheelEvent>
+#include <QScrollBar>
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR 1.05
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* dataModelPlot, QWidget* parent)
+RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
     : QWidget(parent)
 {
-    Q_ASSERT(dataModelPlot);
-    m_dataModelPlot = dataModelPlot;
+    Q_ASSERT(plotDefinition);
+    m_plotDefinition = plotDefinition;
 
     m_layout = new QHBoxLayout(this);
     m_layout->setMargin(0);
-
     setLayout(m_layout);
+
+    m_scrollBar = new QScrollBar(this);
+    m_scrollBar->setOrientation(Qt::Vertical);
+    m_scrollBar->setVisible(false);
+    m_layout->addWidget(m_scrollBar);
+    
+    connect(m_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(slotSetMinDepth(int)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +67,8 @@ RiuWellLogTracePlot* RiuWellLogPlot::createTracePlot()
 {
     RiuWellLogTracePlot* tracePlot = new RiuWellLogTracePlot(this);
 
-    m_layout->addWidget(tracePlot);
+    // Insert the plot to the left of the scroll bar
+    m_layout->insertWidget(m_layout->count() - 1, tracePlot);
     m_tracePlots.append(tracePlot);
 
     return tracePlot;
@@ -75,15 +83,37 @@ void RiuWellLogPlot::setDepthRange(double minDepth, double maxDepth)
     {
         m_tracePlots[tpIdx]->setDepthRange(minDepth, maxDepth);
     }
+
+    updateScrollBar(minDepth, maxDepth);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::updateScrollBar(double minDepth, double maxDepth)
+{
+    double availableMinDepth;
+    double availableMaxDepth;
+    if (m_plotDefinition->availableDepthRange(&availableMinDepth, &availableMaxDepth))
+    {
+        double availableDepth = availableMaxDepth - availableMinDepth;
+        double visibleDepth = maxDepth - minDepth;
+
+        m_scrollBar->setRange((int) availableMinDepth, (int) (ceil(availableMaxDepth - visibleDepth)));
+        m_scrollBar->setPageStep((int) visibleDepth);
+        m_scrollBar->setValue((int) minDepth);
+
+        m_scrollBar->setVisible(true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::wheelEvent(QWheelEvent* event)
 {
-     if (!m_dataModelPlot)
+     if (!m_plotDefinition)
      {
          QWidget::wheelEvent(event);
          return;
@@ -91,12 +121,25 @@ void RiuWellLogPlot::wheelEvent(QWheelEvent* event)
 
      if (event->delta() > 0)
      {
-         m_dataModelPlot->zoomDepth(RIU_SCROLLWHEEL_ZOOMFACTOR);
+         m_plotDefinition->zoomDepth(RIU_SCROLLWHEEL_ZOOMFACTOR);
      }
      else
      {
-         m_dataModelPlot->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR);
+         m_plotDefinition->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR);
      }
 
      event->accept();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::slotSetMinDepth(int value)
+{
+    double minimumDepth;
+    double maximumDepth;
+    m_plotDefinition->visibleDepthRange(&minimumDepth, &maximumDepth);
+
+    double delta = value - minimumDepth;
+    m_plotDefinition->setDepthRange(minimumDepth + delta, maximumDepth + delta);
 }

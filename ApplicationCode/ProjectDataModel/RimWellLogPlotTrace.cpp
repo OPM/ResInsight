@@ -106,3 +106,49 @@ RiuWellLogTracePlot* RimWellLogPlotTrace::viewer()
 {
     return m_viewer;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlotTrace::availableDepthRange(double* minimumDepth, double* maximumDepth)
+{
+    double minDepth = DBL_MAX;
+    double maxDepth = DBL_MIN;
+
+    size_t curveCount = curves.size();
+    if (curveCount < 1)
+    {
+        return false;
+    }
+
+    bool rangeUpdated = false;
+
+    for (size_t cIdx = 0; cIdx < curveCount; cIdx++)
+    {
+        double minCurveDepth = DBL_MAX;
+        double maxCurveDepth = DBL_MIN;
+
+        if (curves[cIdx]->depthRange(&minCurveDepth, &maxCurveDepth))
+        {
+            if (minCurveDepth < minDepth)
+            {
+                minDepth = minCurveDepth;
+                rangeUpdated = true;
+            }
+
+            if (maxCurveDepth > maxDepth)
+            {
+                maxDepth = maxCurveDepth;
+                rangeUpdated = true;
+            }
+        }
+    }
+
+    if (rangeUpdated)
+    {
+        *minimumDepth = minDepth;
+        *maximumDepth = maxDepth;
+    }
+
+    return rangeUpdated;
+}
