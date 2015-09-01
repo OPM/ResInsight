@@ -40,7 +40,6 @@ CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition::RimEclipseResultDefinition() 
-    //: m_gridScalarResultIndex(cvf::UNDEFINED_SIZE_T)
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
@@ -76,30 +75,29 @@ RimEclipseResultDefinition::~RimEclipseResultDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 {
-    m_reservoirView = ownerReservoirView;
-
-    updateFieldVisibility();
+     m_eclipseCase = eclipseCase;
+     updateFieldVisibility();
 }
 
 QStringList RimEclipseResultDefinition::getResultVariableListForCurrentUIFieldSettings()
 {
-    if (!m_reservoirView || !m_reservoirView->eclipseCase() ) return QStringList();
+    if (!m_eclipseCase  ) return QStringList();
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModelUiField());
 
-    return m_reservoirView->eclipseCase()->results(porosityModel)->cellResults()->resultNames(m_resultTypeUiField());
+    return m_eclipseCase->results(porosityModel)->cellResults()->resultNames(m_resultTypeUiField());
 }
 
 
 RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResults() const
 {
-    if (!m_reservoirView || !m_reservoirView->eclipseCase()) return NULL;
+    if (!m_eclipseCase ) return NULL;
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModel());
 
-    return m_reservoirView->eclipseCase()->results(porosityModel);
+    return m_eclipseCase->results(porosityModel);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,8 +126,8 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
   
     if (&m_resultVariableUiField == changedField)
     {
-        m_porosityModel = m_porosityModelUiField;
-        m_resultType = m_resultTypeUiField;
+        m_porosityModel  = m_porosityModelUiField;
+        m_resultType     = m_resultTypeUiField;
         m_resultVariable = m_resultVariableUiField;
         
         loadResult();
@@ -139,8 +137,14 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             propFilter->setToDefaultValues();
             propFilter->updateFilterName();
-            m_reservoirView->scheduleGeometryRegen(PROPERTY_FILTERED);
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+
+            RimView* view = NULL;
+            this->firstAnchestorOrThisOfType(view);
+            if (view)
+            {
+                view->scheduleGeometryRegen(PROPERTY_FILTERED);
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
         }
 
         if (dynamic_cast<RimEclipseCellColors*>(this))
@@ -334,13 +338,6 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
     return false;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEclipseView* RimEclipseResultDefinition::reservoirView()
-{
-    return m_reservoirView;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -397,12 +394,11 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::updateFieldVisibility()
 {
-    if (m_reservoirView &&
-        m_reservoirView->eclipseCase() &&
-        m_reservoirView->eclipseCase()->reservoirData() &&
-        m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) )
+    if (m_eclipseCase &&
+        m_eclipseCase->reservoirData() &&
+        m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) )
     {
-        if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() == 0)
+        if (m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() == 0)
         {
             m_porosityModelUiField.uiCapability()->setUiHidden(true);
         }

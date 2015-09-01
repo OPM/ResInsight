@@ -249,7 +249,7 @@ void RimEclipsePropertyFilter::initAfterRead()
 {
     resultDefinition->initAfterRead();
 
-    resultDefinition->setReservoirView(parentContainer()->reservoirView());
+    resultDefinition->setEclipseCase(parentContainer()->reservoirView()->eclipseCase());
     resultDefinition->loadResult();
     updateIconState();
     computeResultValueRange();

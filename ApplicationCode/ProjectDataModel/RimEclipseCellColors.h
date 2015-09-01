@@ -41,26 +41,29 @@ public:
     RimEclipseCellColors();
     virtual ~RimEclipseCellColors();
 
-    virtual void setReservoirView(RimEclipseView* ownerReservoirView);
+    void                                        setReservoirView(RimEclipseView* ownerReservoirView);
+    RimEclipseView*                             reservoirView();
 
-    RimLegendConfig* legendConfig();
-
+    RimLegendConfig*                            legendConfig();
     caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
 
-    // Overridden methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void setResultVariable(const QString& resultName);
-
+    virtual void                                setResultVariable(const QString& resultName);
 protected:
+    // Overridden methods
+    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
     friend class RimEclipseFaultColors;
-    virtual void initAfterRead();
+    virtual void                                initAfterRead();
 
 private:
-    void changeLegendConfig(QString resultVarNameOfNewLegend);
+    void                                        changeLegendConfig(QString resultVarNameOfNewLegend);
 
     caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigData;
-    caf::PdmPtrField<RimLegendConfig*>            m_legendConfigPtrField;
+    caf::PdmPtrField<RimLegendConfig*>          m_legendConfigPtrField;
 
+    caf::PdmPointer<RimEclipseView>             m_reservoirView;
+
+    // Obsolete   
     caf::PdmChildField<RimLegendConfig*>        obsoleteField_legendConfig;
 };
 

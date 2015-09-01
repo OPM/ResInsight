@@ -181,7 +181,7 @@ void RimEclipseCellColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
-    RimEclipseResultDefinition::setReservoirView(ownerReservoirView);
+    this->setEclipseCase(ownerReservoirView->eclipseCase());
 
     m_reservoirView = ownerReservoirView;
 
@@ -192,6 +192,14 @@ void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 
     this->ternaryLegendConfig()->setReservoirView(ownerReservoirView);
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimEclipseCellColors::reservoirView()
+{
+    return m_reservoirView;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

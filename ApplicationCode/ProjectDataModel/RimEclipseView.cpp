@@ -662,7 +662,7 @@ void RimEclipseView::loadDataAndUpdate()
             QMessageBox::warning(RiuMainWindow::instance(), 
                                 "Error when opening project file", 
                                 "Could not open the Eclipse Grid file: \n"+ m_reservoir->gridFileName());
-            m_reservoir = NULL;
+            this->setEclipseCase( NULL);
             return;
         }
     }
@@ -1031,6 +1031,9 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 {
     m_reservoir = reservoir;
+    cellResult()->setEclipseCase(reservoir);
+    faultResultSettings()->customFaultResult()->setEclipseCase(reservoir);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
