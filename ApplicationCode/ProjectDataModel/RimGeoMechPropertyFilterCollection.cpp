@@ -80,7 +80,7 @@ void RimGeoMechPropertyFilterCollection::loadAndInitializePropertyFilters()
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
-
+        propertyFilter->resultDefinition->setGeoMechCase(reservoirView()->geoMechCase());
         propertyFilter->resultDefinition->loadResult();
         propertyFilter->computeResultValueRange();
     }
@@ -96,7 +96,7 @@ void RimGeoMechPropertyFilterCollection::initAfterRead()
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
 
         propertyFilter->setParentContainer(this);
-        propertyFilter->resultDefinition->setReservoirView(reservoirView());
+        propertyFilter->resultDefinition->setGeoMechCase(reservoirView()->geoMechCase());
         propertyFilter->updateIconState();
     }
 

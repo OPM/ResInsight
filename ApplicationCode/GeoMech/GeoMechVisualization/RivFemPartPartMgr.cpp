@@ -288,7 +288,10 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
             }
         }
 
-        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
+        RimView* view = NULL;
+        cellResultColors->firstAnchestorOrThisOfType(view);
+
+        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, view->isLightingDisabled());
     }
 }
 

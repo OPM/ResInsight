@@ -81,7 +81,7 @@ RimGeoMechView::RimGeoMechView(void)
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
-    this->cellResult()->setReservoirView(this);
+    //this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setReservoirView(this);
 
     m_scaleTransform = new cvf::Transform();
@@ -362,6 +362,8 @@ void RimGeoMechView::updateDisplayModelVisibility()
 void RimGeoMechView::setGeoMechCase(RimGeoMechCase* gmCase)
 {
     m_geomechCase = gmCase;
+    cellResult()->setGeoMechCase(gmCase);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -494,7 +496,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::initAfterRead()
 {
-    this->cellResult()->setReservoirView(this);
+    this->cellResult()->setGeoMechCase(m_geomechCase);
 
     this->updateUiIconFromToggleField();
 }

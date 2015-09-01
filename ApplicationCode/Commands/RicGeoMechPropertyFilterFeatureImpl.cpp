@@ -112,7 +112,7 @@ void RicGeoMechPropertyFilterFeatureImpl::setDefaults(RimGeoMechPropertyFilter* 
     RimGeoMechView* reservoirView = propertyFilterCollection->reservoirView();
     CVF_ASSERT(reservoirView);
 
-    propertyFilter->resultDefinition->setReservoirView(reservoirView);
+    propertyFilter->resultDefinition->setGeoMechCase(reservoirView->geoMechCase());
     propertyFilter->resultDefinition->setResultAddress(reservoirView->cellResult()->resultAddress());
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();

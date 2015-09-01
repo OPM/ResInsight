@@ -94,7 +94,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (m_reservoirView)
+    if (m_geomCase)
     {
 
        
@@ -110,19 +110,6 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
             {
                 options.push_back(caf::PdmOptionItemInfo(uiVarNames[oIdx], varNames[oIdx]));
             }
-
-#if 0
-
-            for (auto fieldIt = fieldCompNames.begin(); fieldIt != fieldCompNames.end(); ++fieldIt)
-            {
-                options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(fieldIt->first), QString::fromStdString(fieldIt->first)));
-
-                for (auto compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
-                {
-                    options.push_back(caf::PdmOptionItemInfo(QString::fromStdString("   " +  *compIt), QString::fromStdString(fieldIt->first + " " + *compIt)));
-                }
-            }
-#endif
         }
     }
 
@@ -130,23 +117,14 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
 }
 
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechResultDefinition::setReservoirView(RimGeoMechView* ownerReservoirView)
+void RimGeoMechResultDefinition::setGeoMechCase(RimGeoMechCase* geomCase)
 {
-    m_reservoirView = ownerReservoirView;
+    m_geomCase = geomCase;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimGeoMechView* RimGeoMechResultDefinition::reservoirView()
-{
-    return m_reservoirView;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -174,6 +152,8 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     // Get the possible property filter owner
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
+    RimView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
 
     if (&m_resultVariableUiField == changedField)
     {
@@ -191,30 +171,25 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 m_resultComponentName = "";
             }
 
-            if (m_reservoirView->geoMechCase()->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress()))
+
+            if (m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress()))
             {
-                m_reservoirView->hasUserRequestedAnimation = true;
+                if (view) view->hasUserRequestedAnimation = true;
             }
             
             if (propFilter)
             {
                 propFilter->setToDefaultValues();
 
-                ((RimView*)reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
+                if (view) view->scheduleGeometryRegen(PROPERTY_FILTERED);
             }
 
-            reservoirView()->scheduleCreateDisplayModelAndRedraw();
+            if (view) view->scheduleCreateDisplayModelAndRedraw();
 
             if (dynamic_cast<RimGeoMechCellColors*>(this))
             {
-                RimView* view = NULL;
-                this->firstAnchestorOrThisOfType(view);
-                if (view)
-                {
-                    view->managedViewCollection->updateCellResult();
-                }
+                if (view) view->managedViewCollection->updateCellResult();
             }
-
         }
     }
       
@@ -230,7 +205,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string> > RimGeoMechResultDefinition::getResultMetaDataForUIFieldSetting()
 {
-    RimGeoMechCase* gmCase = m_reservoirView->geoMechCase();
+    RimGeoMechCase* gmCase = m_geomCase;
     if (gmCase && gmCase->geoMechData())
     {
         return gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames(m_resultPositionTypeUiField());
@@ -296,9 +271,9 @@ void RimGeoMechResultDefinition::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::loadResult()
 {
-    if (m_reservoirView->geoMechCase())
+    if (m_geomCase)
     {
-        m_reservoirView->geoMechCase()->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+        m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
     }
 }
 
@@ -307,7 +282,7 @@ void RimGeoMechResultDefinition::loadResult()
 //--------------------------------------------------------------------------------------------------
 RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData()
 {
-    return m_reservoirView->geoMechCase()->geoMechData();
+    return m_geomCase->geoMechData();
 }
 
 //--------------------------------------------------------------------------------------------------

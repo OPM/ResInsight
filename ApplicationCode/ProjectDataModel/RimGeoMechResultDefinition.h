@@ -30,6 +30,7 @@ class RimGeoMechView;
 class RimGeoMechPropertyFilter;
 class RifGeoMechReaderInterface;
 class RigGeoMechCaseData;
+class RimGeoMechCase;
 
 //==================================================================================================
 ///  
@@ -43,8 +44,7 @@ public:
     RimGeoMechResultDefinition(void);
     virtual ~RimGeoMechResultDefinition(void);
 
-    void                       setReservoirView(RimGeoMechView* ownerReservoirView);
-    RimGeoMechView*            reservoirView();
+    void                       setGeoMechCase(RimGeoMechCase* geomCase);
 
     RigGeoMechCaseData*        ownerCaseData();
     bool                       hasResult(); 
@@ -82,7 +82,7 @@ private:
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionTypeUiField;
     caf::PdmField<QString>                           m_resultVariableUiField;
 
-    caf::PdmPointer<RimGeoMechView>                  m_reservoirView;
+    caf::PdmPointer<RimGeoMechCase>                  m_geomCase;
 
     static QString convertToUiResultFieldName(QString resultFieldName);
 };
