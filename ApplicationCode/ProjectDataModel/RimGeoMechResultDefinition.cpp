@@ -311,11 +311,13 @@ RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Is the result probably valid and possible to load
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::hasResult()
 {
-    return ownerCaseData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+    RigFemResultAddress resAddr = this->resultAddress();
+
+    return (resAddr.isValid() && resAddr.fieldName != "None");
 }
 
 
