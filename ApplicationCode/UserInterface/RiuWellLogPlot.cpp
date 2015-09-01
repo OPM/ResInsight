@@ -27,13 +27,19 @@
 #include "cvfAssert.h"
 
 #include <QHBoxLayout>
+#include <QWheelEvent>
+
+#define RIU_SCROLLWHEEL_ZOOMFACTOR 1.05
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlot::RiuWellLogPlot(QWidget* parent)
+RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* dataModelPlot, QWidget* parent)
     : QWidget(parent)
 {
+    Q_ASSERT(dataModelPlot);
+    m_dataModelPlot = dataModelPlot;
+
     m_layout = new QHBoxLayout(this);
     m_layout->setMargin(0);
 
@@ -69,4 +75,28 @@ void RiuWellLogPlot::setDepthRange(double minDepth, double maxDepth)
     {
         m_tracePlots[tpIdx]->setDepthRange(minDepth, maxDepth);
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::wheelEvent(QWheelEvent* event)
+{
+     if (!m_dataModelPlot)
+     {
+         QWidget::wheelEvent(event);
+         return;
+     }
+
+     if (event->delta() > 0)
+     {
+         m_dataModelPlot->zoomDepth(RIU_SCROLLWHEEL_ZOOMFACTOR);
+     }
+     else
+     {
+         m_dataModelPlot->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR);
+     }
+
+     event->accept();
 }

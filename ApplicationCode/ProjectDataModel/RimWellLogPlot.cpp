@@ -43,8 +43,8 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
     showWindow.uiCapability()->setUiHidden(true);
     
-    CAF_PDM_InitField(&minimumDepth, "MinimumDepth", 0.0, "Set minimum depth", "", "", "");
-    CAF_PDM_InitField(&maximumDepth, "MaximumDepth", 1000.0, "Set maximum depth", "", "", "");
+    CAF_PDM_InitField(&m_minimumDepth, "MinimumDepth", 0.0, "Set minimum depth", "", "", "");
+    CAF_PDM_InitField(&m_maximumDepth, "MaximumDepth", 1000.0, "Set maximum depth", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&traces, "Traces", "",  "", "", "");
     traces.uiCapability()->setUiHidden(true);
@@ -71,7 +71,7 @@ void RimWellLogPlot::updateViewerWidget()
         bool isViewerCreated = false;
         if (!m_viewer)
         {
-            m_viewer = new RiuWellLogPlot(RiuMainWindow::instance());
+            m_viewer = new RiuWellLogPlot(this, RiuMainWindow::instance());
 
             RiuMainWindow::instance()->addWellLogViewer(m_viewer);
             isViewerCreated = true;
@@ -116,9 +116,9 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             }
         }
     }
-    else if (changedField == &minimumDepth || changedField == &maximumDepth)
+    else if (changedField == &m_minimumDepth || changedField == &m_maximumDepth)
     {
-        m_viewer->setDepthRange(minimumDepth, maximumDepth);
+        m_viewer->setDepthRange(m_minimumDepth, m_maximumDepth);
     }
 }
 
@@ -153,4 +153,24 @@ void RimWellLogPlot::addTrace()
 RiuWellLogPlot* RimWellLogPlot::viewer()
 {
     return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::zoomDepth(double zoomFactor)
+{
+    double center       = (m_maximumDepth + m_minimumDepth)/2;
+    double newHalfDepth = zoomFactor*(m_maximumDepth - m_minimumDepth)/2;
+
+    double newMinimum = center - newHalfDepth;
+    double newMaximum = center + newHalfDepth;
+
+    m_minimumDepth = newMinimum;
+    m_maximumDepth = newMaximum;
+
+    m_minimumDepth.uiCapability()->updateConnectedEditors();
+    m_maximumDepth.uiCapability()->updateConnectedEditors();
+
+    m_viewer->setDepthRange(m_minimumDepth, m_maximumDepth);
 }

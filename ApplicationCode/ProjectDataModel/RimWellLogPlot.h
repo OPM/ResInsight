@@ -47,6 +47,8 @@ public:
 
     RiuWellLogPlot* viewer();
 
+    void zoomDepth(double zoomFactor);
+
 protected:
 
     // Overridden PDM methods
@@ -54,12 +56,13 @@ protected:
 
 private:
     void updateViewerWidget();
+    void setDepthRange(double minimumDepth, double maximumDepth);
 
     virtual caf::PdmFieldHandle* objectToggleField();
 
 private:
     QPointer<RiuWellLogPlot> m_viewer;
     
-    caf::PdmField<double> minimumDepth;
-    caf::PdmField<double> maximumDepth;
+    caf::PdmField<double> m_minimumDepth;
+    caf::PdmField<double> m_maximumDepth;
 };
