@@ -1194,22 +1194,39 @@ void RiuMainWindow::removeViewer(RiuViewer* viewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addViewer(RiuViewer* viewer)
+void RiuMainWindow::addViewer(RiuViewer* viewer, const std::vector<int>& windowsGeometry)
 {
 #if 0
     m_CentralFrame->layout()->addWidget(viewer->layoutWidget());
 #else
     QMdiSubWindow * subWin = m_mdiArea->addSubWindow(viewer->layoutWidget());
-    subWin->resize(400, 400);
 
-    if (m_mdiArea->subWindowList().size() == 1)
+    if (windowsGeometry.size() == 5)
     {
-        // Show first view maximized
-        subWin->showMaximized();
+        subWin->move(QPoint(windowsGeometry[0], windowsGeometry[1]));
+        subWin->resize(QSize(windowsGeometry[2], windowsGeometry[3]));
+        if (windowsGeometry[4] > 0)
+        {
+            subWin->showMaximized();
+        }
+        else
+        {
+            subWin->show();
+        }
     }
     else
     {
-        subWin->show();
+        subWin->resize(400, 400);
+        
+        if (m_mdiArea->subWindowList().size() == 1)
+        {
+            // Show first view maximized
+            subWin->showMaximized();
+        }
+        else
+        {
+            subWin->show();
+        }
     }
 #endif
 
@@ -2148,3 +2165,24 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
         menu.exec(globalPos);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RiuMainWindow::windowGeometryForViewer(RiuViewer* viewer)
+{
+    std::vector<int> geo;
+
+    QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
+    if (mdiWindow)
+    {
+        geo.push_back(mdiWindow->pos().x());
+        geo.push_back(mdiWindow->pos().y());
+        geo.push_back(mdiWindow->size().width());
+        geo.push_back(mdiWindow->size().height());
+        geo.push_back(mdiWindow->isMaximized());
+    }
+
+    return geo;
+}
+

@@ -74,6 +74,9 @@ public:
 
     void                                    notifyCameraHasChanged();
 
+    caf::PdmField< std::vector<int> >       windowGeometry;
+
+
     // Draw style 
 
     enum MeshModeType

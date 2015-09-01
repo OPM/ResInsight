@@ -80,7 +80,7 @@ public:
     void		    cleanupGuiBeforeProjectClose();
 
     void            removeViewer( RiuViewer* viewer );
-    void            addViewer(RiuViewer* viewer);
+    void            addViewer(RiuViewer* viewer, const std::vector<int>& windowsGeometry);
     void            setActiveViewer(RiuViewer* subWindow);
 
     void            addWellLogViewer(RiuWellLogPlot* viewer);
@@ -112,6 +112,8 @@ public:
 
     void            addRecentFiles(const QString& file);
     void            removeRecentFiles(const QString& file);
+
+    std::vector<int>    windowGeometryForViewer(RiuViewer* viewer);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
