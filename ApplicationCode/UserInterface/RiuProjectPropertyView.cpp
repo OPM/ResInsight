@@ -25,6 +25,7 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiTreeView.h"
 
+#include <QLabel>
 #include <QSplitter>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -63,10 +64,18 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView(QWidget* parent, Qt::Window
     connect(m_projectTreeView, SIGNAL(selectedObjectChanged(caf::PdmObjectHandle*)), m_propertyView, SLOT(showProperties(caf::PdmObjectHandle*)));
 
     QSplitter *splitter = new QSplitter(Qt::Vertical);
+
     splitter->addWidget(m_projectTreeView);
+
+    QLabel* propertyHeader = new QLabel;
+    propertyHeader->setText("Property Editor");
+    splitter->addWidget(propertyHeader);
+
     splitter->addWidget(m_propertyView);
 
     QVBoxLayout* layout = new QVBoxLayout;
+    layout->setMargin(0);
+
     layout->addWidget(splitter);
 
     setLayout(layout);

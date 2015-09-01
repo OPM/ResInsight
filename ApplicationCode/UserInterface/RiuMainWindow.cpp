@@ -1643,7 +1643,7 @@ void RiuMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotNewObjectPropertyView()
 {
-    QDockWidget* dockWidget = new QDockWidget("Project with Property Editor " + QString::number(additionalProjectViews.size() + 1), this);
+    QDockWidget* dockWidget = new QDockWidget(QString("Additional Project Tree (%1)").arg(additionalProjectViews.size() + 1), this);
     dockWidget->setObjectName("dockWidget");
     dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
