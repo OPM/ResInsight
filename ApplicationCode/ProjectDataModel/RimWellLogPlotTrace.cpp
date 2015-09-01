@@ -77,19 +77,11 @@ caf::PdmFieldHandle* RimWellLogPlotTrace::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::addCurve(const std::vector<double>& depthValues, const std::vector<double>& values)
+void RimWellLogPlotTrace::addCurve(RimWellLogPlotCurve* curve)
 {
     CVF_ASSERT(m_viewer);
-
-    RimWellLogPlotCurve* curve = new RimWellLogPlotCurve();
     curves.push_back(curve);
-
     curve->setPlot(m_viewer);
-    curve->setUiName(QString("Curve %1").arg(curves.size()));
-    curve->plot(depthValues, values);
-    
-    updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
 }
 
 

@@ -69,6 +69,9 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
         m_plot->replot();
     }
+
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,15 +85,13 @@ caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::plot(const std::vector<double>& depthValues, const std::vector<double>& values)
+void RimWellLogPlotCurve::updatePlot()
 {
     CVF_ASSERT(m_plot);
 
-    m_depthValues = depthValues;
-    m_values = values;
 
     m_plotCurve->setTitle(this->uiName());
-    m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
+    //m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
     m_plotCurve->attach(m_plot);
     m_plot->replot();
 }

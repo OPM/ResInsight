@@ -26,6 +26,8 @@
 #include <QAction>
 
 #include <vector>
+#include "RiuMainWindow.h"
+#include "RimWellLogPlotCurve.h"
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogPlotCurveFeature, "RicNewWellLogPlotCurveFeature");
 
@@ -45,17 +47,13 @@ void RicNewWellLogPlotCurveFeature::onActionTriggered(bool isChecked)
     RimWellLogPlotTrace* wellLogPlotTrace = selectedWellLogPlotTrace();
     if (wellLogPlotTrace)
     {
-        // TODO: replace dummy values with values extracted from model or read from well log files
-        std::vector<double> depthValues, values;
-        depthValues.push_back(0);
-        depthValues.push_back(250);
-        depthValues.push_back(1000);
+        RimWellLogPlotCurve* curve = new RimWellLogPlotCurve();
+        wellLogPlotTrace->addCurve(curve);
 
-        values.push_back(wellLogPlotTrace->curves.size() + 1);
-        values.push_back(wellLogPlotTrace->curves.size() + 0.5);
-        values.push_back(wellLogPlotTrace->curves.size() + 1);
+        curve->setUiName(QString("Curve %1").arg(wellLogPlotTrace->curves.size()));
 
-        wellLogPlotTrace->addCurve(depthValues, values);
+        wellLogPlotTrace->updateConnectedEditors();
+        RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
     }
 }
 

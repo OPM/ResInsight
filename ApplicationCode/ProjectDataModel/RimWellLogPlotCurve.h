@@ -41,7 +41,7 @@ public:
     virtual ~RimWellLogPlotCurve();
 
     void    setPlot(RiuWellLogTracePlot* plot);
-    void    plot(const std::vector<double>& m_depthValues, const std::vector<double>& m_values);
+
 
 protected:
 
@@ -50,13 +50,10 @@ protected:
 
 private:
     virtual caf::PdmFieldHandle* objectToggleField();
-
+    void updatePlot();
 private:
     caf::PdmField<bool> show;
 
     RiuWellLogTracePlot*    m_plot;
     QwtPlotCurve*           m_plotCurve;
-
-    std::vector<double>     m_depthValues;
-    std::vector<double>     m_values;
 };

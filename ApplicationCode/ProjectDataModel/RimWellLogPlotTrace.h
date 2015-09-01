@@ -42,7 +42,7 @@ public:
     virtual ~RimWellLogPlotTrace();
 
     void setViewer(RiuWellLogTracePlot* viewer);
-    void addCurve(const std::vector<double>& depthValues, const std::vector<double>& values);
+    void addCurve(RimWellLogPlotCurve* curve);
 
     RiuWellLogTracePlot* viewer();
 
