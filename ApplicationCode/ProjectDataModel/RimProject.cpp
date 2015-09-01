@@ -273,9 +273,10 @@ void RimProject::initAfterRead()
     bool movedOneRimCase = false;
     for (size_t cIdx = 0; cIdx < casesObsolete().size(); ++cIdx)
     {
-        RimEclipseCase* sourceCase = casesObsolete[cIdx];
         if (analysisModels)
         {
+            RimEclipseCase* sourceCase = casesObsolete[cIdx];
+            casesObsolete.set(cIdx, NULL);
             analysisModels->cases.push_back(sourceCase);
             //printf("Moved m_project->casesObsolete[%i] to first oil fields analysis models\n", cIdx);
             movedOneRimCase = true; // moved at least one so assume the others will be moved too...
