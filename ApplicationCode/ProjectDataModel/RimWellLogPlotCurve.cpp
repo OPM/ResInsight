@@ -158,3 +158,105 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 
     return true;
 }
+
+
+#include "RimProject.h"
+#include "RiaApplication.h"
+#include "RimOilField.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPath.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
+
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+
+CAF_PDM_SOURCE_INIT(RimWellLogEclipseCurve, "WellLogEclipseCurve");
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogEclipseCurve::RimWellLogEclipseCurve()
+{
+    CAF_PDM_InitObject("Well Log Curve", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", "Well Path", "", "", "");
+    m_wellPath.uiCapability()->setUiChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_case, "CurveEclipseCase", "Case", "", "", "");
+    m_case.uiCapability()->setUiChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_resultdefinition, "CurveResult", "", "", "", "");
+    m_resultdefinition.uiCapability()->setUiChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_timeStep, "CurveTimeStep", "Time Step", "", "", "");
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogEclipseCurve::~RimWellLogEclipseCurve()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogEclipseCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogEclipseCurve::updatePlotData()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellLogEclipseCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+   QList<caf::PdmOptionItemInfo> optionList;
+
+    if (fieldNeedingOptions == &m_wellPath)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        caf::PdmChildArrayField<RimWellPath*>& wellPaths =  proj->activeOilField()->wellPathCollection()->wellPaths;
+
+        for (size_t i = 0; i< wellPaths.size(); i++)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
+        }
+
+        if (optionList.size() > 0)
+        {
+            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+        }
+    }
+
+    
+    if (fieldNeedingOptions == &m_case)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        std::vector<RimCase*> cases;
+
+        proj->allCases(cases);
+
+        for (size_t i = 0; i< cases.size(); i++)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(cases[i]->caseUserDescription(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(cases[i]))));
+        }
+
+        if (optionList.size() > 0)
+        {
+            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+        }
+    }
+
+    return optionList;
+}

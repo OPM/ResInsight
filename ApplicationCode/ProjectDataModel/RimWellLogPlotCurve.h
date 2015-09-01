@@ -46,18 +46,51 @@ public:
 protected:
 
     // Overridden PDM methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-private:
+    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle* objectToggleField();
-    void updatePlotData();
-
     virtual caf::PdmFieldHandle* userDescriptionField();
 
-private:
+    virtual void                 updatePlotData();
+
     caf::PdmField<bool>     m_showCurve;
     caf::PdmField<QString>  m_userName;
+    // caf::PdmField<QColor> m_curveColor;
+    // caf::PdmField<Linestyle> m_lineStyle;
+    // caf::PdmField<int>       m_lineWidth;
 
     RiuWellLogTracePlot*    m_plot;
     QwtPlotCurve*           m_plotCurve;
+};
+
+#include "cafPdmPtrField.h"
+#include "cafPdmChildField.h"
+
+class RimWellPath;
+class RimEclipseResultDefinition;
+class RimCase;
+
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RimWellLogEclipseCurve : public RimWellLogPlotCurve
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    RimWellLogEclipseCurve();
+    virtual ~RimWellLogEclipseCurve();
+
+protected:
+
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void updatePlotData();
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+
+    caf::PdmPtrField<RimWellPath*>                  m_wellPath;
+    caf::PdmPtrField<RimCase*>               m_case;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_resultdefinition;
+    caf::PdmField<int>                              m_timeStep;
+
+
 };
