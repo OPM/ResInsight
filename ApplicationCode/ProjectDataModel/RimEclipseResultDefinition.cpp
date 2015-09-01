@@ -264,7 +264,10 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
     size_t gridScalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
     const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
-    if (gridCellResults) gridScalarResultIndex = gridCellResults->cellResults()->findScalarResultIndex(m_resultType(), m_resultVariable());
+    if (gridCellResults && gridCellResults->cellResults())
+    {
+        gridScalarResultIndex = gridCellResults->cellResults()->findScalarResultIndex(m_resultType(), m_resultVariable());
+    }
 
     return gridScalarResultIndex;
 }
