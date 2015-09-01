@@ -22,6 +22,7 @@
 #include "qwt_plot_grid.h"
 #include "qwt_legend.h"
 #include "qwt_scale_engine.h"
+#include "qwt_plot_layout.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -73,6 +74,8 @@ void RiuWellLogTracePlot::setDefaults()
     enableAxis(QwtPlot::yLeft, true);
     enableAxis(QwtPlot::xBottom, false);
     enableAxis(QwtPlot::yRight, false);
+
+    plotLayout()->setAlignCanvasToScales(true);
 
     axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
 }
