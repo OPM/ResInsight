@@ -22,7 +22,6 @@
 #include "qwt_plot_grid.h"
 #include "qwt_legend.h"
 #include "qwt_scale_engine.h"
-#include "qwt_plot_panner.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -36,12 +35,6 @@ RiuWellLogTracePlot::RiuWellLogTracePlot(QWidget* parent)
     m_legend = new QwtLegend(this);
     insertLegend(m_legend, QwtPlot::TopLegend);
     
-    QwtPlotPanner* panner = new QwtPlotPanner(canvas());
-    panner->setAxisEnabled(QwtPlot::yLeft, true);
-    panner->setAxisEnabled(QwtPlot::yRight, false);
-    panner->setAxisEnabled(QwtPlot::xTop, false);
-    panner->setAxisEnabled(QwtPlot::xBottom, false);
-
     setDefaults();
 }
 
