@@ -29,6 +29,8 @@
 #include "cafPdmUiTreeView.h"
 #include "cvfAssert.h"
 
+#include <limits.h>
+
 CAF_PDM_SOURCE_INIT(RimWellLogPlotTrace, "WellLogPlotTrace");
 
 //--------------------------------------------------------------------------------------------------

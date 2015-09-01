@@ -29,6 +29,8 @@
 
 #include "cvfAssert.h"
 
+#include <limits.h>
+
 CAF_PDM_SOURCE_INIT(RimWellLogPlot, "WellLogPlot");
 
 //--------------------------------------------------------------------------------------------------
