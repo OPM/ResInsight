@@ -526,6 +526,8 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_viewFromAbove);
     m_viewToolBar->addAction(m_viewFromBelow);
     m_viewToolBar->addSeparator();
+    m_viewToolBar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
+    m_viewToolBar->addSeparator();
     m_viewToolBar->addAction(m_drawStyleLinesAction);
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
@@ -534,8 +536,6 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
     m_viewToolBar->addAction(m_toggleFaultsLabelAction);
     m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
-    m_viewToolBar->addSeparator();
-    m_viewToolBar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
 
     QLabel* scaleLabel = new QLabel(m_viewToolBar);
     scaleLabel->setText("Scale");
