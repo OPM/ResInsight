@@ -51,6 +51,9 @@ RimEclipseCellColors::RimEclipseCellColors()
     CAF_PDM_InitFieldNoDefault(&m_legendConfigPtrField, "LegendDefinitionPtrField", "Legend Definition PtrField", "", "", "");
     this->m_legendConfigPtrField.uiCapability()->setUiHidden(true);
     this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(true);
+
+    // Make sure we have a created legend for the default/undefined result variable
+    changeLegendConfig(this->resultVariable());
 }
 
 //--------------------------------------------------------------------------------------------------
