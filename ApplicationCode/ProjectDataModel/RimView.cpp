@@ -6,6 +6,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimLinkedViews.h"
+#include "RimManagedViewConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
@@ -540,4 +541,50 @@ const RimCellRangeFilterCollection* RimView::rangeFilterCollection() const
 void RimView::setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc)
 {
     m_overrideRangeFilterCollection = rfc;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::notifyCameraHasChanged()
+{
+    std::vector<RimView*> viewsToUpdate;
+
+    viewsToUpdate.push_back(this);
+
+    RimProject* proj = NULL;
+    this->firstAnchestorOrThisOfType(proj);
+    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(this);
+    if (linkedViews)
+    {
+        RimManagedViewConfig* viewConf = linkedViews->viewConfigForView(this);
+
+        // There is no view config for a master view, but all views for sync must be updated
+        if (!viewConf || viewConf->syncCamera())
+        {
+            std::vector<RimView*> allViews;
+            linkedViews->allViewsForCameraSync(allViews);
+
+            for (size_t i = 0; i < allViews.size(); i++)
+            {
+                if (allViews[i] != this)
+                {
+                    viewsToUpdate.push_back(allViews[i]);
+                }
+            }
+        }
+    }
+
+    // Propagate view matrix to all relevant views
+
+    const cvf::Mat4d mat = this->viewer()->mainCamera()->viewMatrix();
+    for (size_t i = 0; i < viewsToUpdate.size(); i++)
+    {
+        if (viewsToUpdate[i] && viewsToUpdate[i]->viewer())
+        {
+            viewsToUpdate[i]->viewer()->mainCamera()->setViewMatrix(mat);
+
+            viewsToUpdate[i]->viewer()->update();
+        }
+    }
 }

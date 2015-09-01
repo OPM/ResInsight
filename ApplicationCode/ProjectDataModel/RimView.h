@@ -72,6 +72,7 @@ public:
     const RimCellRangeFilterCollection*     rangeFilterCollection() const;
     void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
 
+    void                                    notifyCameraHasChanged();
 
     // Draw style 
 

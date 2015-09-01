@@ -18,52 +18,34 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RiuViewer.h"
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 
-#include "RigCaseData.h"
-#include "RigFemPart.h"
-#include "RigFemPartCollection.h"
-#include "RigFemPartGrid.h"
-#include "RigGeoMechCaseData.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
-#include "RimFaultCollection.h"
-#include "RimGeoMechCase.h"
-#include "RimGeoMechView.h"
-#include "RimManagedViewConfig.h"
+#include "RimLinkedViews.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsStorage.h"
+#include "RimView.h"
 
 #include "RiuCadNavigation.h"
 #include "RiuGeoQuestNavigation.h"
-#include "RiuMainWindow.h"
-#include "RiuResultTextBuilder.h"
 #include "RiuRmsNavigation.h"
 #include "RiuSimpleHistogramWidget.h"
 #include "RiuViewerCommands.h"
 
-#include "RivFemPartGeometryGenerator.h"
-#include "RivFemPickSourceInfo.h"
-#include "RivSourceInfo.h"
-
 #include "cafCeetronPlusNavigation.h"
 #include "cafEffectGenerator.h"
-#include "cafNavigationPolicy.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimLinkedViews.h"
+#include "cvfCamera.h"
+#include "cvfFont.h"
+#include "cvfOverlayAxisCross.h"
+#include "cvfRenderSequence.h"
+#include "cvfRendering.h"
+#include "cvfScene.h"
+
+#include <QCDEStyle>
+#include <QLabel>
+#include <QMouseEvent>
+#include <QProgressBar>
 
 using cvf::ManipulatorTrackball;
 
@@ -496,54 +478,13 @@ void RiuViewer::updateNavigationPolicy()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Only camera related operations are supposed to call this function. Especially navigation policies
-/// will call this function
-///
-/// All other updates should be redirected to caf::OpenGLWidget::update()
+/// 
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::navigationPolicyUpdate()
 {
-    std::vector<RimView*> viewsToUpdate;
-
     if (m_reservoirView)
     {
-        viewsToUpdate.push_back(m_reservoirView);
-
-        RimProject* proj = NULL;
-        m_reservoirView->firstAnchestorOrThisOfType(proj);
-        RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(m_reservoirView);
-        if (linkedViews)
-        {
-            RimManagedViewConfig* viewConf = linkedViews->viewConfigForView(m_reservoirView);
-            
-            // There is no view config for a master view, but all views for sync must be updated
-            if (!viewConf || viewConf->syncCamera())
-            {
-                std::vector<RimView*> allViews;
-                linkedViews->allViewsForCameraSync(allViews);
-
-                for (size_t i = 0; i < allViews.size(); i++)
-                {
-                    if (allViews[i] != m_reservoirView)
-                    {
-                        viewsToUpdate.push_back(allViews[i]);
-                    }
-                }
-            }
-        }
-    }
-    
-    // Propagate view matrix to all relevant views
-        
-    const cvf::Mat4d mat = this->mainCamera()->viewMatrix();
-    for (size_t i = 0; i < viewsToUpdate.size(); i++)
-    {
-        if (viewsToUpdate[i] && viewsToUpdate[i]->viewer())
-        {
-            viewsToUpdate[i]->viewer()->mainCamera()->setViewMatrix(mat);
-
-            viewsToUpdate[i]->viewer()->update();
-        }
+        m_reservoirView->notifyCameraHasChanged();
     }
 }
 
