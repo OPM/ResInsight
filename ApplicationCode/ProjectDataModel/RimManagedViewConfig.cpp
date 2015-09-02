@@ -191,8 +191,8 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 void RimManagedViewConfig::initAfterRead()
 {
     configureOverrides();
-
     updateDisplayName();
+    updateViewChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
