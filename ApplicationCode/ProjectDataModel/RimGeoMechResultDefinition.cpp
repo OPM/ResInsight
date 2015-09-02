@@ -36,6 +36,7 @@
 #include "cafPdmUiListEditor.h"
 #include "RimProject.h"
 #include "RimLinkedViews.h"
+#include "RimWellLogPlotCurve.h"
 
 namespace caf {
 
@@ -155,6 +156,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
     RimView* view = NULL;
     this->firstAnchestorOrThisOfType(view);
+    RimWellLogEclipseCurve* curve = NULL;
+    this->firstAnchestorOrThisOfType(curve);
+
 
     if (&m_resultVariableUiField == changedField)
     {
@@ -189,8 +193,6 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
             if (dynamic_cast<RimGeoMechCellColors*>(this))
             {
-                RimView* view = NULL;
-                this->firstAnchestorOrThisOfType(view);
                 if (view)
                 {
                     RimProject* proj = NULL;
@@ -203,6 +205,11 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                     }
                 }
             }
+
+            if (curve)
+            {
+                curve->updatePlotData();
+            }
         }
     }
       
@@ -211,6 +218,10 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         propFilter->updateConnectedEditors();
     }
 
+    if (curve)
+    {
+        curve->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

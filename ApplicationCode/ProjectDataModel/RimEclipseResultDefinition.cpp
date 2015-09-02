@@ -34,6 +34,7 @@
 #include "cafPdmUiListEditor.h"
 #include "RimProject.h"
 #include "RimLinkedViews.h"
+#include "RimWellLogPlotCurve.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 
@@ -124,7 +125,13 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         }
 
     }
-  
+
+    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
+    RimView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
+    RimWellLogEclipseCurve* curve = NULL;
+    this->firstAnchestorOrThisOfType(curve);
+
     if (&m_resultVariableUiField == changedField)
     {
         m_porosityModel  = m_porosityModelUiField;
@@ -133,14 +140,11 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         
         loadResult();
 
-        RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
         if (propFilter)
         {
             propFilter->setToDefaultValues();
             propFilter->updateFilterName();
 
-            RimView* view = NULL;
-            this->firstAnchestorOrThisOfType(view);
             if (view)
             {
                 view->scheduleGeometryRegen(PROPERTY_FILTERED);
@@ -150,8 +154,6 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
         if (dynamic_cast<RimEclipseCellColors*>(this))
         {
-            RimView* view = NULL;
-            this->firstAnchestorOrThisOfType(view);
             if (view)
             {
                 RimProject* proj = NULL;
@@ -164,9 +166,13 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 }
             }
         }
+
+        if (curve) 
+        {
+            curve->updatePlotData();
+        }
     }
 
-    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
     if (propFilter)
     {
         propFilter->updateConnectedEditors();
@@ -177,6 +183,12 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         faultColors->updateConnectedEditors();
     }
+
+    if (curve)
+    {
+        curve->updateConnectedEditors();
+    }
+ 
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,6 +42,7 @@ public:
 
     void    setPlot(RiuWellLogTracePlot* plot);
     bool    depthRange(double* minimumDepth, double* maximumDepth);
+    virtual void                 updatePlotData();
 
 protected:
 
@@ -50,7 +51,6 @@ protected:
     virtual caf::PdmFieldHandle* objectToggleField();
     virtual caf::PdmFieldHandle* userDescriptionField();
 
-    virtual void                 updatePlotData();
 
     caf::PdmField<bool>     m_showCurve;
     caf::PdmField<QString>  m_userName;
@@ -67,6 +67,7 @@ protected:
 
 class RimWellPath;
 class RimEclipseResultDefinition;
+class RimGeoMechResultDefinition;
 class RimCase;
 
 //==================================================================================================
@@ -79,18 +80,18 @@ class RimWellLogEclipseCurve : public RimWellLogPlotCurve
 public:
     RimWellLogEclipseCurve();
     virtual ~RimWellLogEclipseCurve();
+    virtual void updatePlotData();
 
 protected:
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void updatePlotData();
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
-    caf::PdmPtrField<RimCase*>               m_case;
-    caf::PdmChildField<RimEclipseResultDefinition*> m_resultdefinition;
+    caf::PdmPtrField<RimCase*>                      m_case;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
+    caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
     caf::PdmField<int>                              m_timeStep;
-
-
 };

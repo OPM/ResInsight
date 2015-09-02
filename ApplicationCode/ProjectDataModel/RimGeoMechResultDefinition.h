@@ -61,8 +61,7 @@ public:
     QString                    resultComponentUiName();
 
 protected:
-    friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields
-
+   
 private:
     virtual QList<caf::PdmOptionItemInfo>            calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                            bool * useOptionsOnly);
@@ -79,6 +78,9 @@ private:
     caf::PdmField<QString>                           m_resultFieldName;
     caf::PdmField<QString>                           m_resultComponentName;
 
+    friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields
+    friend class RimWellLogEclipseCurve; // Curve needs the ui fields
+ 
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionTypeUiField;
     caf::PdmField<QString>                           m_resultVariableUiField;
 

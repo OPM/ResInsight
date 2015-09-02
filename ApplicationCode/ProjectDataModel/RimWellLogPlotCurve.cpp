@@ -167,6 +167,8 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 #include "RimWellPath.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechCase.h"
 
 //==================================================================================================
 ///  
@@ -183,12 +185,16 @@ RimWellLogEclipseCurve::RimWellLogEclipseCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", "Well Path", "", "", "");
     m_wellPath.uiCapability()->setUiChildrenHidden(true);
-    CAF_PDM_InitFieldNoDefault(&m_case, "CurveEclipseCase", "Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiChildrenHidden(true);
-    CAF_PDM_InitFieldNoDefault(&m_resultdefinition, "CurveResult", "", "", "", "");
-    m_resultdefinition.uiCapability()->setUiChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_eclipseResultDefinition, "CurveEclipseResult", "", "", "", "");
+    m_eclipseResultDefinition.uiCapability()->setUiChildrenHidden(true);
+    m_eclipseResultDefinition = new RimEclipseResultDefinition;
+    CAF_PDM_InitFieldNoDefault(&m_geomResultDefinition, "CurveGeomechResult", "", "", "", "");
+    m_geomResultDefinition.uiCapability()->setUiChildrenHidden(true);
+    m_geomResultDefinition = new RimGeoMechResultDefinition;
 
-    CAF_PDM_InitFieldNoDefault(&m_timeStep, "CurveTimeStep", "Time Step", "", "", "");
+    CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0,"Time Step", "", "", "");
 
 }
 
@@ -206,6 +212,15 @@ RimWellLogEclipseCurve::~RimWellLogEclipseCurve()
 void RimWellLogEclipseCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+
+    if (changedField == &m_case)
+    {
+        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+
+        m_eclipseResultDefinition->setEclipseCase(eclipseCase);
+        m_geomResultDefinition->setGeoMechCase(geomCase);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,7 +228,33 @@ void RimWellLogEclipseCurve::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimWellLogEclipseCurve::updatePlotData()
 {
+    if (m_wellPath)
+    {
+        //RigWellLog m_wellPath->wellPathGeometry()->wellLogExtractor(m_case);
+        std::vector<double> values;
+        values.push_back(34);
+        values.push_back(47);
+        values.push_back(49);
+        values.push_back(22);
+        values.push_back(20);
 
+        std::vector<double> depthValues;
+        depthValues.push_back(200);
+        depthValues.push_back(400);
+        depthValues.push_back(600);
+        depthValues.push_back(800);
+        depthValues.push_back(1000);
+
+        m_plotCurve->setSamples(values.data(), depthValues.data(), (int)depthValues.size());
+
+        RimWellLogPlot* wellLogPlot;
+        firstAnchestorOrThisOfType(wellLogPlot);
+
+        if (wellLogPlot)
+        {
+            wellLogPlot->updateAvailableDepthRange();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,4 +300,31 @@ QList<caf::PdmOptionItemInfo> RimWellLogEclipseCurve::calculateValueOptions(cons
     }
 
     return optionList;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogEclipseCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+    uiOrdering.add(&m_userName);
+    uiOrdering.add(&m_wellPath);
+
+    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
+    group1->add(&m_case);
+    if (eclipseCase)
+    {
+
+        group1->add(&(m_eclipseResultDefinition->m_resultTypeUiField));
+        group1->add(&(m_eclipseResultDefinition->m_porosityModelUiField));
+        group1->add(&(m_eclipseResultDefinition->m_resultVariableUiField));
+    }
+    if (geomCase)
+    {
+        group1->add(&(m_geomResultDefinition->m_resultPositionTypeUiField));
+        group1->add(&(m_geomResultDefinition->m_resultVariableUiField));
+    }
 }
