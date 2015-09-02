@@ -212,6 +212,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             m_intersections.push_back(it->second.m_intersectionPoint);
             m_intersectedCells.push_back(it->second.m_hexIndex);
             m_intersectedCellFaces.push_back(it->second.m_face);
+            ++it;
         }
 
         // Increment the measured depth
@@ -270,3 +271,28 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::Boundi
 
     return closeCells;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigEclipseWellLogExtractor::measuredDepth()
+{
+    return m_measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigEclipseWellLogExtractor::trueVerticalDepth()
+{
+    return m_trueVerticalDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigEclipseWellLogExtractor::cellIndicesPrSegment()
+{
+    CVF_ASSERT(false); // Not implemented
+    return m_globalCellIndicesPrSegment;
+}   

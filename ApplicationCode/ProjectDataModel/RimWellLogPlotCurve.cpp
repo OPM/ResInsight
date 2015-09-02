@@ -170,6 +170,10 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 #include "RimEclipseResultDefinition.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechCase.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RigResultAccessorFactory.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 
 //==================================================================================================
 ///  
@@ -229,23 +233,39 @@ void RimWellLogEclipseCurve::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimWellLogEclipseCurve::updatePlotData()
 {
+    bool isNeedingUpdate = false;
+    std::vector<double> values;
+    std::vector<double> depthValues;
+
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+
     if (m_wellPath)
     {
-        //RigWellLog m_wellPath->wellPathGeometry()->wellLogExtractor(m_case);
-        std::vector<double> values;
-        values.push_back(34);
-        values.push_back(47);
-        values.push_back(49);
-        values.push_back(22);
-        values.push_back(20);
+        if (eclipseCase)
+        {        
+            RigEclipseWellLogExtractor extractor(eclipseCase->reservoirData(), m_wellPath->wellPathGeometry());
+            depthValues = (extractor.measuredDepth());
+            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
+            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
+                                                                            eclipseCase->reservoirData(), 0,
+                                                                            porosityModel,
+                                                                            m_timeStep,
+                                                                            m_eclipseResultDefinition->resultVariable());
+            if (resAcc.notNull())
+            {
+                extractor.curveData(resAcc.p(), &values);
+                isNeedingUpdate = true;
+            }
+        }
+        else if (geomCase)
+        {
+        
+        }
+    }
 
-        std::vector<double> depthValues;
-        depthValues.push_back(200);
-        depthValues.push_back(400);
-        depthValues.push_back(600);
-        depthValues.push_back(800);
-        depthValues.push_back(1000);
-
+    if (isNeedingUpdate)
+    {
         m_plotCurve->setSamples(values.data(), depthValues.data(), (int)depthValues.size());
 
         RimWellLogPlot* wellLogPlot;
@@ -255,9 +275,11 @@ void RimWellLogEclipseCurve::updatePlotData()
         {
             wellLogPlot->updateAvailableDepthRange();
         }
+
+        m_plot->replot();
     }
 
-    m_plot->replot();
+ 
 }
 
 //--------------------------------------------------------------------------------------------------
