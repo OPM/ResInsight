@@ -121,13 +121,16 @@ void RiuWellLogPlot::wheelEvent(QWheelEvent* event)
          return;
      }
 
-     if (event->delta() > 0)
+     if (event->modifiers() & Qt::ControlModifier)
      {
-         m_plotDefinition->zoomDepth(RIU_SCROLLWHEEL_ZOOMFACTOR);
-     }
-     else
-     {
-         m_plotDefinition->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR);
+         if (event->delta() > 0)
+         {
+             m_plotDefinition->zoomDepth(RIU_SCROLLWHEEL_ZOOMFACTOR);
+         }
+         else
+         {
+             m_plotDefinition->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR);
+         }
      }
 
      event->accept();
