@@ -1143,25 +1143,7 @@ void RiuMainWindow::removeRecentFiles(const QString& file)
 /// 
 //--------------------------------------------------------------------------------------------------
 
-QMdiSubWindow* RiuMainWindow::findMdiSubWindow(RiuViewer* viewer)
-{
-    QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
-    int i; 
-    for (i = 0; i < subws.size(); ++i)
-    {
-        if (subws[i]->widget() == viewer->layoutWidget())
-        {
-            return subws[i];
-        }
-    }
-
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QMdiSubWindow* RiuMainWindow::findMdiSubWindow(RiuWellLogPlot* viewer)
+QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 {
     QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
     int i; 
@@ -1176,11 +1158,10 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(RiuWellLogPlot* viewer)
     return NULL;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::removeViewer(RiuViewer* viewer)
+void RiuMainWindow::removeViewer(QWidget* viewer)
 {
 #if 0
     m_CentralFrame->layout()->removeWidget(viewer->layoutWidget());
@@ -1194,12 +1175,12 @@ void RiuMainWindow::removeViewer(RiuViewer* viewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addViewer(RiuViewer* viewer, const std::vector<int>& windowsGeometry)
+void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGeometry)
 {
 #if 0
     m_CentralFrame->layout()->addWidget(viewer->layoutWidget());
 #else
-    QMdiSubWindow * subWin = m_mdiArea->addSubWindow(viewer->layoutWidget());
+    QMdiSubWindow * subWin = m_mdiArea->addSubWindow(viewer);
 
     if (windowsGeometry.size() == 5)
     {
@@ -1234,44 +1215,6 @@ void RiuMainWindow::addViewer(RiuViewer* viewer, const std::vector<int>& windows
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addWellLogViewer(RiuWellLogPlot* viewer)
-{
-    QMdiSubWindow * subWin = m_mdiArea->addSubWindow(viewer);
-    subWin->resize(400, 400);
-
-    if (m_mdiArea->subWindowList().size() == 1)
-    {
-        // Show first view maximized
-        subWin->showMaximized();
-    }
-    else
-    {
-        subWin->show();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::removeWellLogViewer(RiuWellLogPlot* viewer)
-{
-    m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setActiveWellLogViewer(RiuWellLogPlot* viewer)
-{
-    QMdiSubWindow* subWindow = findMdiSubWindow(viewer); 
-    if (subWindow)
-    {
-        m_mdiArea->setActiveSubWindow(subWindow);
-    }
-}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -1533,7 +1476,7 @@ void RiuMainWindow::slotEditPreferences()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setActiveViewer(RiuViewer* viewer)
+void RiuMainWindow::setActiveViewer(QWidget* viewer)
 {
    QMdiSubWindow * swin = findMdiSubWindow(viewer); 
    if (swin) m_mdiArea->setActiveSubWindow(swin);
@@ -1639,7 +1582,7 @@ void RiuMainWindow::selectedObjectsChanged()
             // Set focus in MDI area to this window if it exists
             if (selectedReservoirView->viewer())
             {
-                setActiveViewer(selectedReservoirView->viewer());
+                setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
             }
 
             // m_projectTreeView->selectAsCurrentItem(uiItems[0]); TODO: Is this neccesary ? Was done in the old tree view.
@@ -2173,7 +2116,7 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RiuMainWindow::windowGeometryForViewer(RiuViewer* viewer)
+std::vector<int> RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
 {
     std::vector<int> geo;
 

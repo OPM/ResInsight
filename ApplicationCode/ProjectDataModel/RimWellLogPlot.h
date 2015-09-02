@@ -42,6 +42,7 @@ public:
 
     caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
     caf::PdmField<bool> showWindow;
+    caf::PdmField< std::vector<int> >       windowGeometry;
 
     void addTrace();
 
@@ -60,11 +61,15 @@ protected:
 
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void initAfterRead();
+    virtual void setupBeforeSave();
 
 private:
     void updateViewerWidget();
 
     virtual caf::PdmFieldHandle* objectToggleField();
+
+
 
 private:
     QPointer<RiuWellLogPlot> m_viewer;

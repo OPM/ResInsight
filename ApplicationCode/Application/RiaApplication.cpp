@@ -1464,7 +1464,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 setActiveReservoirView(riv);
 
                 RiuViewer* viewer = riv->viewer();
-                mainWnd->setActiveViewer(viewer);
+                mainWnd->setActiveViewer(viewer->layoutWidget());
 
                 // Process all events to avoid a black image when grabbing frame buffer
                 QCoreApplication::processEvents();

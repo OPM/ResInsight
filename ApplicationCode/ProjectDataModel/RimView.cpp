@@ -114,7 +114,7 @@ RimView::~RimView(void)
 
     if (m_viewer)
     {
-        RiuMainWindow::instance()->removeViewer(m_viewer);
+        RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
     }
 
     delete m_viewer;
@@ -144,7 +144,7 @@ void RimView::updateViewerWidget()
             m_viewer = new RiuViewer(glFormat, NULL);
             m_viewer->setOwnerReservoirView(this);
 
-            RiuMainWindow::instance()->addViewer(m_viewer, windowGeometry());
+            RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), windowGeometry());
             m_viewer->setMinNearPlaneDistance(10);
            
             this->resetLegendsInViewer();
@@ -155,7 +155,7 @@ void RimView::updateViewerWidget()
             isViewerCreated = true;
         }
 
-        RiuMainWindow::instance()->setActiveViewer(m_viewer);
+        RiuMainWindow::instance()->setActiveViewer(m_viewer->layoutWidget());
 
         if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
@@ -259,7 +259,7 @@ void RimView::setupBeforeSave()
         hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go, and store the user intentions. But I guess that in practice...
         cameraPosition = m_viewer->mainCamera()->viewMatrix();
 
-        windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
+        windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget());
   }
 }
 

@@ -203,7 +203,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             if (m_viewer)
             {
-                RiuMainWindow::instance()->removeViewer(m_viewer);
+                RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
                 delete m_viewer;
                 m_viewer = NULL;
             }

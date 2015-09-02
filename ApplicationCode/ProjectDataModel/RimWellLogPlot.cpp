@@ -51,6 +51,9 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitFieldNoDefault(&traces, "Traces", "",  "", "", "");
     traces.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
+    windowGeometry.uiCapability()->setUiHidden(true);
+
     updateViewerWidget();
     updateAvailableDepthRange();
 }
@@ -60,7 +63,7 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::~RimWellLogPlot()
 {
-    RiuMainWindow::instance()->removeWellLogViewer(m_viewer);
+    RiuMainWindow::instance()->removeViewer(m_viewer);
     delete m_viewer;
 }
 
@@ -76,7 +79,7 @@ void RimWellLogPlot::updateViewerWidget()
         {
             m_viewer = new RiuWellLogPlot(this, RiuMainWindow::instance());
 
-            RiuMainWindow::instance()->addWellLogViewer(m_viewer);
+            RiuMainWindow::instance()->addViewer(m_viewer, windowGeometry());
             isViewerCreated = true;
         }
         
@@ -89,7 +92,7 @@ void RimWellLogPlot::updateViewerWidget()
             m_viewer->showMaximized(); 
         }
 
-        RiuMainWindow::instance()->setActiveWellLogViewer(m_viewer);
+        RiuMainWindow::instance()->setActiveViewer(m_viewer);
     }
 }
 
@@ -249,4 +252,20 @@ void RimWellLogPlot::visibleDepthRange(double* minimumDepth, double* maximumDept
 {
     *minimumDepth = m_minimumVisibleDepth;
     *maximumDepth = m_maximumVisibleDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::initAfterRead()
+{
+    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setupBeforeSave()
+{
+     windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
 }

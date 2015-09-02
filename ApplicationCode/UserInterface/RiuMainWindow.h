@@ -79,13 +79,9 @@ public:
     void		    initializeGuiNewProjectLoaded();
     void		    cleanupGuiBeforeProjectClose();
 
-    void            removeViewer( RiuViewer* viewer );
-    void            addViewer(RiuViewer* viewer, const std::vector<int>& windowsGeometry);
-    void            setActiveViewer(RiuViewer* subWindow);
-
-    void            addWellLogViewer(RiuWellLogPlot* viewer);
-    void            removeWellLogViewer(RiuWellLogPlot* viewer);
-    void            setActiveWellLogViewer(RiuWellLogPlot* subWindow);
+    void            removeViewer( QWidget* viewer );
+    void            addViewer(QWidget* viewer, const std::vector<int>& windowsGeometry);
+    void            setActiveViewer(QWidget* subWindow);
 
     void            setResultInfo(const QString& info) const;
 
@@ -113,7 +109,7 @@ public:
     void            addRecentFiles(const QString& file);
     void            removeRecentFiles(const QString& file);
 
-    std::vector<int>    windowGeometryForViewer(RiuViewer* viewer);
+    std::vector<int>    windowGeometryForViewer(QWidget* viewer);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
@@ -129,8 +125,7 @@ private:
 
     void            updateRecentFileActions();
 
-    QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
-    QMdiSubWindow*  findMdiSubWindow(RiuWellLogPlot* viewer);
+    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 
     void            storeTreeViewState();
     void            restoreTreeViewState();
