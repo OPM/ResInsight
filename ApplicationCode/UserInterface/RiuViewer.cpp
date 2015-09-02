@@ -162,6 +162,8 @@ RiuViewer::~RiuViewer()
     if (m_reservoirView)
     {
         m_reservoirView->showWindow = false;
+        m_reservoirView->uiCapability()->updateUiIconFromToggleField();
+
         m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
     }
     delete m_InfoLabel;
