@@ -156,7 +156,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
     RimView* view = NULL;
     this->firstAnchestorOrThisOfType(view);
-    RimWellLogEclipseCurve* curve = NULL;
+    RimWellLogExtractionCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
 
 

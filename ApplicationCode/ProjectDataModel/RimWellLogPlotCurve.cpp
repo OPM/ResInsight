@@ -180,11 +180,11 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogEclipseCurve, "WellLogEclipseCurve");
+CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurve, "WellLogEclipseCurve");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogEclipseCurve::RimWellLogEclipseCurve()
+RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 {
     CAF_PDM_InitObject("Well Log Curve", "", "", "");
 
@@ -206,7 +206,7 @@ RimWellLogEclipseCurve::RimWellLogEclipseCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogEclipseCurve::~RimWellLogEclipseCurve()
+RimWellLogExtractionCurve::~RimWellLogExtractionCurve()
 {
 
 }
@@ -214,7 +214,7 @@ RimWellLogEclipseCurve::~RimWellLogEclipseCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogEclipseCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
@@ -231,7 +231,7 @@ void RimWellLogEclipseCurve::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogEclipseCurve::updatePlotData()
+void RimWellLogExtractionCurve::updatePlotData()
 {
     bool isNeedingUpdate = false;
     std::vector<double> values;
@@ -277,6 +277,8 @@ void RimWellLogEclipseCurve::updatePlotData()
         }
 
         m_plot->replot();
+        m_plot->
+        
     }
 
  
@@ -285,7 +287,7 @@ void RimWellLogEclipseCurve::updatePlotData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellLogEclipseCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
    QList<caf::PdmOptionItemInfo> optionList;
 
@@ -331,7 +333,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogEclipseCurve::calculateValueOptions(cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogEclipseCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());

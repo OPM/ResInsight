@@ -72,7 +72,7 @@ protected:
 
     friend class RimEclipsePropertyFilter;
     friend class RimEclipseFaultColors;
-    friend class RimWellLogEclipseCurve;
+    friend class RimWellLogExtractionCurve;
 
     // User interface only fields, to support "filtering"-like behaviour etc.
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;

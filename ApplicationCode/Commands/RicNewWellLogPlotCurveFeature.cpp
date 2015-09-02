@@ -47,7 +47,7 @@ void RicNewWellLogPlotCurveFeature::onActionTriggered(bool isChecked)
     RimWellLogPlotTrace* wellLogPlotTrace = selectedWellLogPlotTrace();
     if (wellLogPlotTrace)
     {
-        RimWellLogPlotCurve* curve = new RimWellLogEclipseCurve();
+        RimWellLogPlotCurve* curve = new RimWellLogExtractionCurve();
         wellLogPlotTrace->addCurve(curve);
 
         curve->setUiName(QString("Curve %1").arg(wellLogPlotTrace->curves.size()));

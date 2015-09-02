@@ -74,12 +74,12 @@ class RimCase;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogEclipseCurve : public RimWellLogPlotCurve
+class RimWellLogExtractionCurve : public RimWellLogPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimWellLogEclipseCurve();
-    virtual ~RimWellLogEclipseCurve();
+    RimWellLogExtractionCurve();
+    virtual ~RimWellLogExtractionCurve();
     virtual void updatePlotData();
 
 protected:
