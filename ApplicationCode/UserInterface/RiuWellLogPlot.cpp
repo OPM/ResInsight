@@ -66,15 +66,13 @@ RiuWellLogPlot::~RiuWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTracePlot* RiuWellLogPlot::createTracePlot()
+void RiuWellLogPlot::insertTracePlot(RiuWellLogTracePlot* tracePlot)
 {
-    RiuWellLogTracePlot* tracePlot = new RiuWellLogTracePlot(this);
 
     // Insert the plot to the left of the scroll bar
     m_layout->insertWidget(m_layout->count() - 1, tracePlot);
     m_tracePlots.append(tracePlot);
-
-    return tracePlot;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -50,7 +50,7 @@ void RicNewWellLogPlotCurveFeature::onActionTriggered(bool isChecked)
         RimWellLogPlotCurve* curve = new RimWellLogExtractionCurve();
         wellLogPlotTrace->addCurve(curve);
 
-        curve->setUiName(QString("Curve %1").arg(wellLogPlotTrace->curves.size()));
+        curve->setDescription(QString("Curve %1").arg(wellLogPlotTrace->curveCount()));
 
         wellLogPlotTrace->updateConnectedEditors();
         RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);

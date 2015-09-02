@@ -41,23 +41,23 @@ public:
     RimWellLogPlotTrace();
     virtual ~RimWellLogPlotTrace();
 
-    void setViewer(RiuWellLogTracePlot* viewer);
     void addCurve(RimWellLogPlotCurve* curve);
+    size_t curveCount() { return curves.size(); }
+
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
 
     RiuWellLogTracePlot* viewer();
-
-    caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
 
 protected:
 
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-private:
+    virtual void initAfterRead();
     virtual caf::PdmFieldHandle* objectToggleField();
 
 private:
     caf::PdmField<bool> show;
+    caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
+
     QPointer<RiuWellLogTracePlot> m_viewer;
 };

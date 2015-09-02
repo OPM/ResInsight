@@ -40,11 +40,8 @@ public:
     RimWellLogPlot();
     virtual ~RimWellLogPlot();
 
-    caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
-    caf::PdmField<bool> showWindow;
-    caf::PdmField< std::vector<int> >       windowGeometry;
-
-    void addTrace();
+    void    addTrace(RimWellLogPlotTrace* trace);
+    size_t  traceCount() { return traces.size();}
 
     RiuWellLogPlot* viewer();
 
@@ -73,6 +70,11 @@ private:
 
 private:
     QPointer<RiuWellLogPlot> m_viewer;
+    
+    caf::PdmField<bool> showWindow;
+    caf::PdmField< std::vector<int> >       windowGeometry;
+
+    caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
     
     caf::PdmField<double> m_minimumVisibleDepth;
     caf::PdmField<double> m_maximumVisibleDepth;

@@ -42,7 +42,7 @@ public:
     RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = NULL);
     virtual ~RiuWellLogPlot();
 
-    RiuWellLogTracePlot* createTracePlot();
+    void insertTracePlot(RiuWellLogTracePlot* tracePlot);
 
     void setDepthRange(double minDepth, double maxDepth);
 

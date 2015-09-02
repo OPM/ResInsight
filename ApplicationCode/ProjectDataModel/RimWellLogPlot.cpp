@@ -139,18 +139,10 @@ caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::addTrace()
+void RimWellLogPlot::addTrace(RimWellLogPlotTrace* trace)
 {
-    RimWellLogPlotTrace* trace = new RimWellLogPlotTrace();
     traces.push_back(trace);
-
-    trace->setUiName(QString("Trace %1").arg(traces.size()));
-
-    RiuWellLogTracePlot* viewer = m_viewer->createTracePlot();
-    trace->setViewer(viewer);
-
-    updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(trace);
+    m_viewer->insertTracePlot(trace->viewer());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,7 +251,10 @@ void RimWellLogPlot::visibleDepthRange(double* minimumDepth, double* maximumDept
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::initAfterRead()
 {
-    
+    for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
+    {
+        m_viewer->insertTracePlot(traces[tIdx]->viewer());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,7 +46,7 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
     CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");
     curves.uiCapability()->setUiHidden(true);
 
-    m_viewer = NULL;
+    m_viewer = new RiuWellLogTracePlot; 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 {
     if (changedField == &show)
     {
-        m_viewer->setVisible(newValue == true);
+        m_viewer->setVisible(show());
     }
 }
 
@@ -84,20 +84,6 @@ void RimWellLogPlotTrace::addCurve(RimWellLogPlotCurve* curve)
     CVF_ASSERT(m_viewer);
     curves.push_back(curve);
     curve->setPlot(m_viewer);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::setViewer(RiuWellLogTracePlot* viewer)
-{
-    if (m_viewer)
-    {
-        delete m_viewer;
-    }
-
-    m_viewer = viewer;
 }
 
 
@@ -153,4 +139,15 @@ bool RimWellLogPlotTrace::availableDepthRange(double* minimumDepth, double* maxi
     }
 
     return rangeUpdated;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrace::initAfterRead()
+{
+    for(size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+    {
+        curves[cIdx]->setPlot(this->m_viewer);
+    }
 }
