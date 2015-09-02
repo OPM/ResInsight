@@ -175,6 +175,15 @@ void RimWellLogPlot::zoomDepth(double zoomFactor)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::panDepth(double panFactor)
+{
+    double delta = panFactor*(m_maximumVisibleDepth - m_minimumVisibleDepth);
+    setDepthRange(m_minimumVisibleDepth + delta, m_maximumVisibleDepth + delta);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::setDepthRange(double minimumDepth, double maximumDepth)
 {
     m_minimumVisibleDepth = minimumDepth;

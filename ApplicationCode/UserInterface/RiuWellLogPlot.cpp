@@ -32,7 +32,8 @@
 
 #include <math.h>
 
-#define RIU_SCROLLWHEEL_ZOOMFACTOR 1.05
+#define RIU_SCROLLWHEEL_ZOOMFACTOR  1.05
+#define RIU_SCROLLWHEEL_PANFACTOR   0.05
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -131,6 +132,10 @@ void RiuWellLogPlot::wheelEvent(QWheelEvent* event)
          {
              m_plotDefinition->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR);
          }
+     }
+     else
+     {
+         m_plotDefinition->panDepth(event->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR : -RIU_SCROLLWHEEL_PANFACTOR);
      }
 
      event->accept();
