@@ -72,7 +72,7 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             m_plotCurve->detach();
         }
 
-        m_plot->replot();
+       
     }
 
     m_plotCurve->setTitle(this->m_userName());
@@ -120,6 +120,7 @@ void RimWellLogPlotCurve::updatePlotData()
     {
         wellLogPlot->updateAvailableDepthRange();
     }
+     m_plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,6 +256,8 @@ void RimWellLogEclipseCurve::updatePlotData()
             wellLogPlot->updateAvailableDepthRange();
         }
     }
+
+    m_plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
