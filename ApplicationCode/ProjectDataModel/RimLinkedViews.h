@@ -58,6 +58,7 @@ public:
     void configureOverrides();
 
     void allViewsForCameraSync(std::vector<RimView*>& views);
+    void allViews(std::vector<RimView*>& views);
 
 public:
     static QString  displayNameForView(RimView* view);

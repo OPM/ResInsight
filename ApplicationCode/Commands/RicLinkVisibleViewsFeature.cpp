@@ -21,6 +21,8 @@
 
 #include "RiaApplication.h"
 
+#include "RicLinkVisibleViewsFeatureUi.h"
+
 #include "RimLinkedViews.h"
 #include "RimManagedViewConfig.h"
 #include "RimProject.h"
@@ -28,12 +30,13 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
 
 #include <QAction>
 #include <QTreeView>
-#include "RicLinkVisibleViewsFeatureUi.h"
-#include "cafPdmUiPropertyViewDialog.h"
+#include <QMessageBox>
+
 
 CAF_CMD_SOURCE_INIT(RicLinkVisibleViewsFeature, "RicLinkVisibleViewsFeature");
 
@@ -57,14 +60,20 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
 {
     RimProject* proj = RiaApplication::instance()->project();
+    
     std::vector<RimView*> views;
-    proj->allVisibleViews(views);
-    CVF_ASSERT(views.size() > 1);
+    findNotLinkedVisibleViews(views);
+    if (views.size() < 2)
+    {
+        QMessageBox::warning(RiuMainWindow::instance(), "Link Visible Views", "Less than two views available for linking. Please open at least two not linked views before creating a new link group.");
+
+        return;
+    }
 
     RicLinkVisibleViewsFeatureUi featureUi;
     featureUi.setViews(views);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "New View Group", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Link Visible Views", "");
     propertyDialog.setWindowIcon(QIcon(":/chain.png"));
     if (propertyDialog.exec() != QDialog::Accepted) return;
 
@@ -107,5 +116,56 @@ void RicLinkVisibleViewsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Link Visible Views");
     actionToSetup->setIcon(QIcon(":/chain.png"));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<RimView*>& views)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    for (size_t i = 0; i < proj->linkedViews().size(); i++)
+    {
+        RimLinkedViews* linkedViews = proj->linkedViews()[i];
+        linkedViews->allViews(views);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimView*> &views)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    std::vector<RimView*> alreadyLinkedViews;
+    allLinkedViews(alreadyLinkedViews);
+
+    std::vector<RimView*> visibleViews;
+    proj->allVisibleViews(visibleViews);
+
+    bool anyAlreadyLinkedViews = false;
+    for (size_t i = 0; i < visibleViews.size(); i++)
+    {
+        bool isLinked = false;
+        for (size_t j = 0; j < alreadyLinkedViews.size(); j++)
+        {
+            if (visibleViews[i] == alreadyLinkedViews[j])
+            {
+                anyAlreadyLinkedViews = true;
+                isLinked = true;
+            }
+        }
+
+        if (!isLinked)
+        {
+            views.push_back(visibleViews[i]);
+        }
+    }
+
+    if (anyAlreadyLinkedViews)
+    {
+        QMessageBox::warning(RiuMainWindow::instance(), "Link Visible Views", "Detected one or more visible view(s) already part of a Linked View Group.\nThese views were removed from the list of visible views.");
+    }
 }
 

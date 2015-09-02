@@ -24,6 +24,7 @@
 
 #include "RimView.h"
 #include "RimLinkedViews.h"
+#include "cafPdmUiItem.h"
 
 CAF_PDM_SOURCE_INIT(RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi");
 
@@ -34,8 +35,9 @@ RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi(void)
 {
     CAF_PDM_InitObject("Link Visible Views Feature UI", ":/chain.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_allViewsAsText,     "VisibleViews",     "Visible Views", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_allViewsAsText,     "VisibleViews",     "Visible Views (Case name : View Name)", "", "", "");
     m_allViewsAsText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_allViewsAsText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_masterView, "MasterView", "Master View", "", "", "");
 }

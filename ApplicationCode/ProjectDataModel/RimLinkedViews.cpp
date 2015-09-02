@@ -354,3 +354,19 @@ RimView* RimLinkedViews::mainView()
     return m_mainView;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLinkedViews::allViews(std::vector<RimView*>& views)
+{
+    views.push_back(m_mainView());
+
+    for (size_t i = 0; i < viewConfigs.size(); i++)
+    {
+        if (viewConfigs[i]->managedView())
+        {
+            views.push_back(viewConfigs[i]->managedView());
+        }
+    }
+}
+

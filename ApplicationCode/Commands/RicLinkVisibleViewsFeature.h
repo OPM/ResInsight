@@ -21,6 +21,10 @@
 
 #include "cafCmdFeature.h"
 
+#include <vector>
+
+class RimView;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -32,6 +36,11 @@ protected:
     // Overrides
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
 
+
+    virtual void setupActionLook(QAction* actionToSetup);
+
+private:
+    void findNotLinkedVisibleViews(std::vector<RimView*> &views);
+    void allLinkedViews(std::vector<RimView*>& views);
 };
