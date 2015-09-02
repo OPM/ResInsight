@@ -64,6 +64,7 @@ public:
     RimManagedViewConfig* viewConfigForView(RimView* view);
 
 protected:
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");

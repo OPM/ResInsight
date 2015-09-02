@@ -52,8 +52,8 @@ RimManagedViewConfig::RimManagedViewConfig(void)
     managedView.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitField(&syncCamera,          "SyncCamera", true,         "Sync Camera", "", "", "");
-    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", true,     "Sync Cell Result", "", "", "");
     CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Sync Time Step", "", "", "");
+    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", true,     "Sync Cell Result", "", "", "");
     CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Sync Range Filters", "", "", "");
     CAF_PDM_InitField(&syncPropertyFilters, "SyncPropertyFilters", true,"Sync Property Filters", "", "", "");
 }
@@ -85,7 +85,7 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
         {
             if (views[i] != masterView)
             {
-                optionList.push_back(caf::PdmOptionItemInfo(displayNameForView(views[i]), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
+                optionList.push_back(caf::PdmOptionItemInfo(RimLinkedViews::displayNameForView(views[i]), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
             }
         }
 
@@ -151,7 +151,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 linkedViews->updateCellResult();
             }
 
-            name = displayNameForView(managedView);
+            name = RimLinkedViews::displayNameForView(managedView);
         }
 
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
@@ -178,7 +178,9 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             linkedViews->configureOverrides();
         }
 
+        updateViewChanged();
         updateDisplayName();
+
         name.uiCapability()->updateConnectedEditors();
     }
 }
@@ -189,6 +191,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 void RimManagedViewConfig::initAfterRead()
 {
     configureOverrides();
+
     updateDisplayName();
 }
 
@@ -297,19 +300,41 @@ void RimManagedViewConfig::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimManagedViewConfig::displayNameForView(RimView* view)
+void RimManagedViewConfig::updateViewChanged()
 {
-    return RimLinkedViews::displayNameForView(view);
-/*
-    CVF_ASSERT(view);
+    RimLinkedViews* linkedViews = NULL;
+    firstAnchestorOrThisOfType(linkedViews);
+    CVF_ASSERT(linkedViews);
 
-    RimCase* rimCase = NULL;
-    firstAnchestorOrThisOfType(rimCase);
+    RimView* mainView = linkedViews->mainView();
+    RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(mainView);
+    RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(mainView);
 
-    QString displayName = rimCase->caseUserDescription() + " : " + view->name;
+    bool hideCapabilities = false;
+    if (eclipseMasterView && !managedEclipseView())
+    {
+        hideCapabilities = true;
+    }
+    if (geoMasterView && !managedGeoView())
+    {
+        hideCapabilities = true;
+    }
 
-    return displayName;
-*/
+    if (hideCapabilities)
+    {
+        this->syncCellResult.uiCapability()->setUiReadOnly(true);
+        this->syncCellResult = false;
+        this->syncRangeFilters.uiCapability()->setUiReadOnly(true);
+        this->syncRangeFilters = false;
+        this->syncPropertyFilters.uiCapability()->setUiReadOnly(true);
+        this->syncPropertyFilters = false;
+    }
+    else
+    {
+        this->syncCellResult.uiCapability()->setUiReadOnly(false);
+        this->syncRangeFilters.uiCapability()->setUiReadOnly(false);
+        this->syncPropertyFilters.uiCapability()->setUiReadOnly(false);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,7 +344,7 @@ void RimManagedViewConfig::updateDisplayName()
 {
     if (managedView)
     {
-        name = displayNameForView(managedView);
+        name = RimLinkedViews::displayNameForView(managedView);
     }
     else
     {

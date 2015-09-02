@@ -60,18 +60,20 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     CVF_ASSERT(views.size() > 1);
     
     RimView* masterView = views[0];
-
     RimLinkedViews* linkedViews = new RimLinkedViews;
     linkedViews->mainView = masterView;
 
     for (size_t i = 1; i < views.size(); i++)
     {
         RimView* rimView = views[i];
+
         RimManagedViewConfig* viewConfig = new RimManagedViewConfig;
         viewConfig->managedView = rimView;
+
         linkedViews->viewConfigs.push_back(viewConfig);
 
         viewConfig->initAfterReadRecursively();
+        viewConfig->updateViewChanged();
     }
 
     proj->linkedViews.push_back(linkedViews);

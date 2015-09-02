@@ -331,3 +331,18 @@ RimManagedViewConfig* RimLinkedViews::viewConfigForView(RimView* view)
 
     return NULL;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLinkedViews::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &mainView)
+    {
+        for (size_t i = 0; i < viewConfigs.size(); i++)
+        {
+            viewConfigs[i]->updateViewChanged();
+            viewConfigs[i]->updateConnectedEditors();
+        }
+    }
+}

@@ -44,12 +44,13 @@ public:
     caf::PdmPtrField<RimView*>  managedView;
     
     caf::PdmField<bool>         syncCamera;
-    caf::PdmField<bool>         syncCellResult;
     caf::PdmField<bool>         syncTimeStep;
+    caf::PdmField<bool>         syncCellResult;
     caf::PdmField<bool>         syncRangeFilters;
     caf::PdmField<bool>         syncPropertyFilters;
 
     void                        configureOverrides();
+    void                        updateViewChanged();
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -61,10 +62,8 @@ protected:
 
 private:
     void            configureOverridesUpdateDisplayModel();
+    void            updateDisplayName();
 
     RimEclipseView* managedEclipseView();
     RimGeoMechView* managedGeoView();
-
-    void            updateDisplayName();
-    QString         displayNameForView(RimView* view);
 };
