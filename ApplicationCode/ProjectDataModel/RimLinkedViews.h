@@ -68,6 +68,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual void                            initAfterRead();
 
 private:
     caf::PdmPtrField<RimView*>  m_mainView;

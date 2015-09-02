@@ -752,10 +752,14 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimManagedViewConfig*>(uiItem))
         {
+            commandIds << "RicShowAllLinkedViewsFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimLinkedViews*>(uiItem))
         {
+            commandIds << "RicShowAllLinkedViewsFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))

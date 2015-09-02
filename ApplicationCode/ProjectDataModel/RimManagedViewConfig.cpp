@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT(RimManagedViewConfig, "RimManagedViewConfig");
 //--------------------------------------------------------------------------------------------------
 RimManagedViewConfig::RimManagedViewConfig(void)
 {
-    CAF_PDM_InitObject("View Config", ":/chain.png", "", "");
+    CAF_PDM_InitObject("View Config", ":/ReservoirView.png", "", "");
 
     QString defaultName = "View Config : Empty view";
     CAF_PDM_InitField(&name, "Name", defaultName, "Managed View Name", "", "", "");
@@ -249,6 +249,9 @@ void RimManagedViewConfig::configureOverrides()
     this->firstAnchestorOrThisOfType(linkedViews);
 
     RimView* masterView = linkedViews->mainView();
+    CVF_ASSERT(masterView);
+    
+    if (!masterView) return;
 
     if (m_managedView)
     {
@@ -307,6 +310,8 @@ void RimManagedViewConfig::updateViewChanged()
     CVF_ASSERT(linkedViews);
 
     RimView* mainView = linkedViews->mainView();
+    CVF_ASSERT(mainView);
+
     RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(mainView);
     RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(mainView);
 
@@ -366,7 +371,5 @@ RimView* RimManagedViewConfig::managedView()
 void RimManagedViewConfig::setManagedView(RimView* view)
 {
     m_managedView = view;
-
-    this->uiCapability()->setUiIcon(view->uiCapability()->uiIcon());
 }
 

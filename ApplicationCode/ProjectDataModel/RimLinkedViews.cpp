@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT(RimLinkedViews, "RimLinkedViews");
 //--------------------------------------------------------------------------------------------------
 RimLinkedViews::RimLinkedViews(void)
 {
-    CAF_PDM_InitObject("Linked Views", "", "", "");
+    CAF_PDM_InitObject("Linked Views", ":/ReservoirView.png", "", "");
 
     CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
@@ -77,11 +77,7 @@ void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
         return;
     }
 
-    if (sourceView && sourceView != m_mainView)
-    {
-        m_mainView->viewer()->setCurrentFrame(timeStep);
-    }
-    else
+    if (m_mainView && m_mainView->viewer() && sourceView != m_mainView)
     {
         m_mainView->viewer()->setCurrentFrame(timeStep);
     }
@@ -296,10 +292,15 @@ QList<caf::PdmOptionItemInfo> RimLinkedViews::calculateValueOptions(const caf::P
 //--------------------------------------------------------------------------------------------------
 QString RimLinkedViews::displayNameForView(RimView* view)
 {
-    RimCase* rimCase = NULL;
-    view->firstAnchestorOrThisOfType(rimCase);
+    QString displayName = "None";
 
-    QString displayName = rimCase->caseUserDescription() + " : " + view->name;
+    if (view)
+    {
+        RimCase* rimCase = NULL;
+        view->firstAnchestorOrThisOfType(rimCase);
+
+        displayName = rimCase->caseUserDescription() + " : " + view->name;
+    }
 
     return displayName;
 }
@@ -341,9 +342,7 @@ void RimLinkedViews::setMainView(RimView* view)
 {
     m_mainView = view;
 
-    m_name = displayNameForView(view);
-
-    this->uiCapability()->setUiIcon(view->uiCapability()->uiIcon());
+    initAfterRead();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,5 +367,13 @@ void RimLinkedViews::allViews(std::vector<RimView*>& views)
             views.push_back(viewConfigs[i]->managedView());
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLinkedViews::initAfterRead()
+{
+    m_name = displayNameForView(m_mainView);
 }
 
