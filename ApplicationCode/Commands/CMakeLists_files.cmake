@@ -52,6 +52,7 @@ ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathsDeleteAllFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicLinkVisibleViewsFeature.h
+${CEE_CURRENT_LIST_DIR}RicLinkVisibleViewsFeatureUi.h
 
 
 # General delete of any object in a child array field
@@ -107,6 +108,7 @@ ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsDeleteAllFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicLinkVisibleViewsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicLinkVisibleViewsFeatureUi.cpp
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.cpp

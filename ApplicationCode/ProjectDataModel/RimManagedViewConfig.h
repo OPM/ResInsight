@@ -41,8 +41,9 @@ public:
 
     caf::PdmField<QString>      name;
 
-    caf::PdmPtrField<RimView*>  managedView;
-    
+    RimView*                    managedView();
+    void                        setManagedView(RimView* view);
+
     caf::PdmField<bool>         syncCamera;
     caf::PdmField<bool>         syncTimeStep;
     caf::PdmField<bool>         syncCellResult;
@@ -66,4 +67,6 @@ private:
 
     RimEclipseView* managedEclipseView();
     RimGeoMechView* managedGeoView();
+
+    caf::PdmPtrField<RimView*>  m_managedView;
 };

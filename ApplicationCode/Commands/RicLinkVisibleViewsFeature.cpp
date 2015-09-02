@@ -32,6 +32,8 @@
 
 #include <QAction>
 #include <QTreeView>
+#include "RicLinkVisibleViewsFeatureUi.h"
+#include "cafPdmUiPropertyViewDialog.h"
 
 CAF_CMD_SOURCE_INIT(RicLinkVisibleViewsFeature, "RicLinkVisibleViewsFeature");
 
@@ -58,17 +60,25 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     std::vector<RimView*> views;
     proj->allVisibleViews(views);
     CVF_ASSERT(views.size() > 1);
-    
-    RimView* masterView = views[0];
-    RimLinkedViews* linkedViews = new RimLinkedViews;
-    linkedViews->mainView = masterView;
 
-    for (size_t i = 1; i < views.size(); i++)
+    RicLinkVisibleViewsFeatureUi featureUi;
+    featureUi.setViews(views);
+
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "New View Group", "");
+    propertyDialog.setWindowIcon(QIcon(":/chain.png"));
+    if (propertyDialog.exec() != QDialog::Accepted) return;
+
+    RimView* masterView = featureUi.masterView();
+    RimLinkedViews* linkedViews = new RimLinkedViews;
+    linkedViews->setMainView(masterView);
+
+    for (size_t i = 0; i < views.size(); i++)
     {
         RimView* rimView = views[i];
+        if (rimView == masterView) continue;
 
         RimManagedViewConfig* viewConfig = new RimManagedViewConfig;
-        viewConfig->managedView = rimView;
+        viewConfig->setManagedView(rimView);
 
         linkedViews->viewConfigs.push_back(viewConfig);
 

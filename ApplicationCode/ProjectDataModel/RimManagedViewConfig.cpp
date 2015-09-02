@@ -48,8 +48,8 @@ RimManagedViewConfig::RimManagedViewConfig(void)
     CAF_PDM_InitField(&name, "Name", defaultName, "Managed View Name", "", "", "");
     name.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&managedView, "ManagedView", "Managed View", "", "", "");
-    managedView.uiCapability()->setUiChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Managed View", "", "", "");
+    m_managedView.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitField(&syncCamera,          "SyncCamera", true,         "Sync Camera", "", "", "");
     CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Sync Time Step", "", "", "");
@@ -72,7 +72,7 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
 {
     QList<caf::PdmOptionItemInfo> optionList;
 
-    if (fieldNeedingOptions == &managedView)
+    if (fieldNeedingOptions == &m_managedView)
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimView*> views;
@@ -113,15 +113,15 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 {
     if (changedField == &syncCamera && syncCamera())
     {
-        if (managedView && managedView->viewer()) managedView->viewer()->update();
+        if (m_managedView && m_managedView->viewer()) m_managedView->viewer()->update();
     }
     else if (changedField == &syncTimeStep && syncTimeStep())
     {
-        if (managedView)
+        if (m_managedView)
         {
             RimLinkedViews* linkedViews = NULL;
             this->firstAnchestorOrThisOfType(linkedViews);
-            linkedViews->updateTimeStep(managedView, managedView->currentTimeStep());
+            linkedViews->updateTimeStep(m_managedView, m_managedView->currentTimeStep());
         }
     }
     else if (changedField == &syncCellResult && syncCellResult())
@@ -138,11 +138,11 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
     {
         configureOverridesUpdateDisplayModel();
     }
-    else if (changedField == &managedView)
+    else if (changedField == &m_managedView)
     {
         configureOverridesUpdateDisplayModel();
 
-        if (managedView)
+        if (m_managedView)
         {
             if (syncCellResult())
             {
@@ -151,7 +151,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 linkedViews->updateCellResult();
             }
 
-            name = RimLinkedViews::displayNameForView(managedView);
+            name = RimLinkedViews::displayNameForView(m_managedView);
         }
 
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
@@ -200,7 +200,7 @@ void RimManagedViewConfig::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimManagedViewConfig::managedEclipseView()
 {
-    RimView* rimView = managedView;
+    RimView* rimView = m_managedView;
 
     return dynamic_cast<RimEclipseView*>(rimView);
 }
@@ -210,7 +210,7 @@ RimEclipseView* RimManagedViewConfig::managedEclipseView()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimManagedViewConfig::managedGeoView()
 {
-    RimView* rimView = managedView;
+    RimView* rimView = m_managedView;
 
     return dynamic_cast<RimGeoMechView*>(rimView);
 }
@@ -222,9 +222,9 @@ void RimManagedViewConfig::configureOverridesUpdateDisplayModel()
 {
     configureOverrides();
 
-    if (managedView)
+    if (m_managedView)
     {
-        managedView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
+        m_managedView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
     }
 
     RimEclipseView* eclipseView = managedEclipseView();
@@ -250,15 +250,15 @@ void RimManagedViewConfig::configureOverrides()
 
     RimView* masterView = linkedViews->mainView();
 
-    if (managedView)
+    if (m_managedView)
     {
         if (syncRangeFilters)
         {
-            managedView->setOverrideRangeFilterCollection(masterView->rangeFilterCollection());
+            m_managedView->setOverrideRangeFilterCollection(masterView->rangeFilterCollection());
         }
         else
         {
-            managedView->setOverrideRangeFilterCollection(NULL);
+            m_managedView->setOverrideRangeFilterCollection(NULL);
         }
 
         RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(masterView);
@@ -342,13 +342,31 @@ void RimManagedViewConfig::updateViewChanged()
 //--------------------------------------------------------------------------------------------------
 void RimManagedViewConfig::updateDisplayName()
 {
-    if (managedView)
+    if (m_managedView)
     {
-        name = RimLinkedViews::displayNameForView(managedView);
+        name = RimLinkedViews::displayNameForView(m_managedView);
     }
     else
     {
         name = "View Config : Empty view";
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimView* RimManagedViewConfig::managedView()
+{
+    return m_managedView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::setManagedView(RimView* view)
+{
+    m_managedView = view;
+
+    this->uiCapability()->setUiIcon(view->uiCapability()->uiIcon());
 }
 

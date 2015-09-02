@@ -19,57 +19,33 @@
 
 #pragma once
 
-#include "RimDefines.h"
-
-#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-class RimManagedViewConfig;
-class RiuViewer;
+#include <vector>
+
 class RimView;
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimLinkedViews : public caf::PdmObject
+class RicLinkVisibleViewsFeatureUi : public caf::PdmObject
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    RimLinkedViews(void);
-    virtual ~RimLinkedViews(void);
+    RicLinkVisibleViewsFeatureUi(void);
 
-    void     setMainView(RimView* view);
-    RimView* mainView();
-
-    caf::PdmChildArrayField<RimManagedViewConfig*> viewConfigs;
-
-    void applyAllOperations();
-
-    void updateTimeStep(RimView* sourceView, int timeStep);
-    void updateCellResult();
-
-    void updateRangeFilters();
-    void updatePropertyFilters();
-
-    void configureOverrides();
-
-    void allViewsForCameraSync(std::vector<RimView*>& views);
-
-public:
-    static QString  displayNameForView(RimView* view);
-    RimManagedViewConfig* viewConfigForView(RimView* view);
+    void                    setViews(const std::vector<RimView*>& allViews);
+    RimView*                masterView();
 
 protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
-    caf::PdmPtrField<RimView*>  m_mainView;
-    caf::PdmField<QString>      m_name;
+    caf::PdmField<QString>      m_allViewsAsText;
+    caf::PdmPtrField<RimView*>  m_masterView;
 
+    std::vector<RimView*>       m_allViews;
 };

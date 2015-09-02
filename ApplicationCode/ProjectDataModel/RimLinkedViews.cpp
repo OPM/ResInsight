@@ -46,12 +46,14 @@ CAF_PDM_SOURCE_INIT(RimLinkedViews, "RimLinkedViews");
 //--------------------------------------------------------------------------------------------------
 RimLinkedViews::RimLinkedViews(void)
 {
-    CAF_PDM_InitObject("Linked Views", ":/chain.png", "", "");
+    CAF_PDM_InitObject("Linked Views", "", "", "");
 
-    CAF_PDM_InitField(&name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
+    CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
+    m_name.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&mainView, "MainView", "Main View", "", "", "");
-    mainView.uiCapability()->setUiChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_mainView, "MainView", "Main View", "", "", "");
+    m_mainView.uiCapability()->setUiChildrenHidden(true);
+    m_mainView.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&viewConfigs, "ManagedViews", "Managed Views", "", "", "");
     viewConfigs.uiCapability()->setUiHidden(true);
@@ -75,13 +77,13 @@ void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
         return;
     }
 
-    if (sourceView && sourceView != mainView)
+    if (sourceView && sourceView != m_mainView)
     {
-        mainView->viewer()->setCurrentFrame(timeStep);
+        m_mainView->viewer()->setCurrentFrame(timeStep);
     }
     else
     {
-        mainView->viewer()->setCurrentFrame(timeStep);
+        m_mainView->viewer()->setCurrentFrame(timeStep);
     }
 
     for (size_t i = 0; i < viewConfigs.size(); i++)
@@ -102,7 +104,7 @@ void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
 //--------------------------------------------------------------------------------------------------
 void RimLinkedViews::updateCellResult()
 {
-    RimView* rimView = mainView;
+    RimView* rimView = m_mainView;
     RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (masterEclipseView && masterEclipseView->cellResult())
     {
@@ -238,7 +240,7 @@ void RimLinkedViews::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 void RimLinkedViews::allViewsForCameraSync(std::vector<RimView*>& views)
 {
-    views.push_back(mainView());
+    views.push_back(m_mainView());
 
     for (size_t i = 0; i < viewConfigs.size(); i++)
     {
@@ -257,7 +259,7 @@ void RimLinkedViews::applyAllOperations()
     configureOverrides();
 
     updateCellResult();
-    updateTimeStep(NULL, mainView->currentTimeStep());
+    updateTimeStep(NULL, m_mainView->currentTimeStep());
     updateRangeFilters();
     updatePropertyFilters();
 }
@@ -269,7 +271,7 @@ QList<caf::PdmOptionItemInfo> RimLinkedViews::calculateValueOptions(const caf::P
 {
     QList<caf::PdmOptionItemInfo> optionList;
 
-    if (fieldNeedingOptions == &mainView)
+    if (fieldNeedingOptions == &m_mainView)
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimView*> views;
@@ -335,14 +337,20 @@ RimManagedViewConfig* RimLinkedViews::viewConfigForView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimLinkedViews::setMainView(RimView* view)
 {
-    if (changedField == &mainView)
-    {
-        for (size_t i = 0; i < viewConfigs.size(); i++)
-        {
-            viewConfigs[i]->updateViewChanged();
-            viewConfigs[i]->updateConnectedEditors();
-        }
-    }
+    m_mainView = view;
+
+    m_name = displayNameForView(view);
+
+    this->uiCapability()->setUiIcon(view->uiCapability()->uiIcon());
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimView* RimLinkedViews::mainView()
+{
+    return m_mainView;
+}
+
