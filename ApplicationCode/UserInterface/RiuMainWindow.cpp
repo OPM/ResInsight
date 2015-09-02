@@ -1588,8 +1588,12 @@ void RiuMainWindow::slotBuildWindowActions()
     QAction* cascadeWindowsAction = new QAction("Cascade Windows", this);
     connect(cascadeWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(cascadeSubWindows()));
 
+    QAction* closeAllSubWindowsAction = new QAction("Close All Windows", this);
+    connect(closeAllSubWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(closeAllSubWindows()));
+
     m_windowMenu->addAction(tileWindowsAction);
     m_windowMenu->addAction(cascadeWindowsAction);
+    m_windowMenu->addAction(closeAllSubWindowsAction);
 }
 
 //--------------------------------------------------------------------------------------------------
