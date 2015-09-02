@@ -66,6 +66,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrace.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.h
 ${CEE_CURRENT_LIST_DIR}RimLinkedViews.h
+${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -130,6 +131,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrace.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimLinkedViews.cpp
+${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

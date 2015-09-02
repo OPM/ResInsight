@@ -27,7 +27,7 @@
 
 #include <vector>
 #include "RiuMainWindow.h"
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogExtractionCurve.h"
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogPlotCurveFeature, "RicNewWellLogPlotCurveFeature");
 

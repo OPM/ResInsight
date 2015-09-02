@@ -19,45 +19,39 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
+#include "RimWellLogPlotCurve.h"
+#include "cafPdmPtrField.h"
+#include "cafPdmChildField.h"
 
-#include <vector>
-
-class RiuWellLogTracePlot;
-class QwtPlotCurve;
-class QString;
-
+class RimWellPath;
+class RimEclipseResultDefinition;
+class RimGeoMechResultDefinition;
+class RimCase;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimWellLogPlotCurve : public caf::PdmObject
+class RimWellLogExtractionCurve : public RimWellLogPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimWellLogPlotCurve();
-    virtual ~RimWellLogPlotCurve();
-
-    void    setPlot(RiuWellLogTracePlot* plot);
-    bool    depthRange(double* minimumDepth, double* maximumDepth);
-    virtual void                 updatePlotData();
+    RimWellLogExtractionCurve();
+    virtual ~RimWellLogExtractionCurve();
+    virtual void updatePlotData();
 
 protected:
 
-    // Overridden PDM methods
-    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle* objectToggleField();
-    virtual caf::PdmFieldHandle* userDescriptionField();
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
-    caf::PdmField<bool>     m_showCurve;
-    caf::PdmField<QString>  m_userName;
-    // caf::PdmField<QColor> m_curveColor;
-    // caf::PdmField<Linestyle> m_lineStyle;
-    // caf::PdmField<int>       m_lineWidth;
-
-    RiuWellLogTracePlot*    m_plot;
-    QwtPlotCurve*           m_plotCurve;
+    caf::PdmPtrField<RimWellPath*>                  m_wellPath;
+    caf::PdmPtrField<RimCase*>                      m_case;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
+    caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
+    caf::PdmField<int>                              m_timeStep;
 };
+
+

@@ -129,7 +129,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
     RimView* view = NULL;
     this->firstAnchestorOrThisOfType(view);
-    RimWellLogExtractionCurve* curve = NULL;
+    RimWellLogPlotCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
 
     if (&m_resultVariableUiField == changedField)
