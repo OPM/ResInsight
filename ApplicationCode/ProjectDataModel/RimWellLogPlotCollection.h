@@ -38,9 +38,4 @@ public:
     virtual ~RimWellLogPlotCollection();
 
     caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
-
-    void addWellLogPlot();
-
-private:
-    caf::PdmField<bool> show;
 };

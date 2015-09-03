@@ -22,8 +22,11 @@
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotTrace.h"
 
 #include "RiaApplication.h"
+#include "RiuMainWindow.h"
 
 #include <QAction>
 
@@ -46,7 +49,14 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
     if (wellLogPlotColl)
     {
-        wellLogPlotColl->addWellLogPlot();
+        RimWellLogPlot* plot = new RimWellLogPlot();
+        RimWellLogPlotTrace* plotrace = new RimWellLogPlotTrace();
+
+        plot->addTrace(plotrace);
+        wellLogPlotColl->wellLogPlots().push_back(plot);
+
+        RiaApplication::instance()->project()->updateConnectedEditors();
+        RiuMainWindow::instance()->setCurrentObjectInTreeView(plot);
     }
 }
 

@@ -20,11 +20,6 @@
 #include "RimWellLogPlotCollection.h"
 
 #include "RimWellLogPlot.h"
-#include "RimProject.h"
-
-#include "RiuMainWindow.h"
-
-#include "RiaApplication.h"
 
 #include "cafPdmUiTreeView.h"
 
@@ -47,16 +42,4 @@ RimWellLogPlotCollection::RimWellLogPlotCollection()
 RimWellLogPlotCollection::~RimWellLogPlotCollection()
 {
     wellLogPlots.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCollection::addWellLogPlot()
-{
-    RimWellLogPlot* plot = new RimWellLogPlot();
-    wellLogPlots.push_back(plot);
-    
-    RiaApplication::instance()->project()->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(plot);
 }
