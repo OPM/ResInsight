@@ -54,17 +54,17 @@ public:
     void updateAvailableDepthRange();
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
 
-    void visibleDepthRange(double* minimumDepth, double* maximumDepth);
-
+    void visibleDepthRange(double* minimumDepth, double* maximumDepth) const;
+    void updateAxisRanges();
 protected:
 
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void initAfterRead();
     virtual void setupBeforeSave();
 
 private:
     void updateViewerWidget();
+    void recreateTracePlots();
 
     virtual caf::PdmFieldHandle* objectToggleField();
 

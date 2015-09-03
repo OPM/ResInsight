@@ -84,6 +84,8 @@ void RiuWellLogTracePlot::setDefaults()
     axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Floating, true);
     setAxisScale(QwtPlot::yLeft, 1000, 0);
     setAxisScale(QwtPlot::xTop, -10, 100);
+
+    setAxisAutoScale(QwtPlot::xTop, true);
 }
 
 //--------------------------------------------------------------------------------------------------

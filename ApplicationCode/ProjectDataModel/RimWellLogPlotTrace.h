@@ -44,6 +44,7 @@ public:
     void addCurve(RimWellLogPlotCurve* curve);
     size_t curveCount() { return curves.size(); }
 
+    void recreateViewer();
     void loadDataAndUpdate();
 
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
@@ -54,7 +55,6 @@ protected:
 
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void initAfterRead();
     virtual caf::PdmFieldHandle* objectToggleField();
 
 private:

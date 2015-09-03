@@ -48,8 +48,7 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
 
     CAF_PDM_InitField(&m_minimumValue, "MinimumValue", -10.0, "Minimum value", "", "", "");
     CAF_PDM_InitField(&m_maximumValue, "MaximumValue", 100.0, "Maximum value", "", "", "");
-
-    m_viewer = new RiuWellLogTracePlot; 
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +66,7 @@ void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 {
     if (changedField == &show)
     {
-        m_viewer->setVisible(show());
+        if (m_viewer) m_viewer->setVisible(show());
     }
     else if (changedField == &m_minimumValue || changedField == &m_maximumValue)
     {
@@ -108,8 +107,8 @@ RiuWellLogTracePlot* RimWellLogPlotTrace::viewer()
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlotTrace::availableDepthRange(double* minimumDepth, double* maximumDepth)
 {
-    double minDepth = DBL_MAX;
-    double maxDepth = DBL_MIN;
+    double minDepth = HUGE_VAL;
+    double maxDepth = -HUGE_VAL;
 
     size_t curveCount = curves.size();
     if (curveCount < 1)
@@ -121,8 +120,8 @@ bool RimWellLogPlotTrace::availableDepthRange(double* minimumDepth, double* maxi
 
     for (size_t cIdx = 0; cIdx < curveCount; cIdx++)
     {
-        double minCurveDepth = DBL_MAX;
-        double maxCurveDepth = DBL_MIN;
+        double minCurveDepth = HUGE_VAL;
+        double maxCurveDepth = -HUGE_VAL;
 
         if (curves[cIdx]->depthRange(&minCurveDepth, &maxCurveDepth))
         {
@@ -152,21 +151,26 @@ bool RimWellLogPlotTrace::availableDepthRange(double* minimumDepth, double* maxi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::initAfterRead()
+void RimWellLogPlotTrace::loadDataAndUpdate()
 {
-    for(size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+    CVF_ASSERT(m_viewer);
+
+    for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
-        curves[cIdx]->setPlot(this->m_viewer);
+        curves[cIdx]->updatePlotData();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::loadDataAndUpdate()
+void RimWellLogPlotTrace::recreateViewer()
 {
+    CVF_ASSERT(m_viewer == NULL);
+
+    m_viewer = new RiuWellLogTracePlot;
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
-        curves[cIdx]->updatePlotData();
+        curves[cIdx]->setPlot(this->m_viewer);
     }
 }
