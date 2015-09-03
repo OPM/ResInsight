@@ -39,12 +39,14 @@ class RimWellLogPlotCurve : public caf::PdmObject
 public:
     RimWellLogPlotCurve();
     virtual ~RimWellLogPlotCurve();
-    void setDescription(QString description) {m_userName = description;}
 
-    void    setPlot(RiuWellLogTracePlot* plot);
+    void setDescription(QString description) {m_userName = description;}
     void    setColor(const cvf::Color3f& color);
-    bool    depthRange(double* minimumDepth, double* maximumDepth);
+
+    bool    depthRange(double* minimumDepth, double* maximumDepth) const;
     
+    void    setPlot(RiuWellLogTracePlot* plot);
+    void    detachCurve();
     virtual void                 updatePlotData();
 
 protected:

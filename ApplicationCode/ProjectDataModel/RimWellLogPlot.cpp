@@ -64,6 +64,7 @@ RimWellLogPlot::RimWellLogPlot()
 RimWellLogPlot::~RimWellLogPlot()
 {
     RiuMainWindow::instance()->removeViewer(m_viewer);
+    detachAllCurves();
     delete m_viewer;
 }
 
@@ -92,6 +93,7 @@ void RimWellLogPlot::updateViewerWidget()
             windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
 
             RiuMainWindow::instance()->removeViewer(m_viewer);
+            detachAllCurves();
             delete m_viewer;
             m_viewer = NULL;
            
@@ -283,5 +285,16 @@ void RimWellLogPlot::recreateTracePlots()
     {
         traces[tIdx]->recreateViewer();
         m_viewer->insertTracePlot(traces[tIdx]->viewer());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::detachAllCurves()
+{
+    for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
+    {
+       traces[tIdx]->detachAllCurves();
     }
 }

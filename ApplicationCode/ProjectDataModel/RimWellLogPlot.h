@@ -65,6 +65,7 @@ protected:
 private:
     void updateViewerWidget();
     void recreateTracePlots();
+    void detachAllCurves();
 
     virtual caf::PdmFieldHandle* objectToggleField();
 

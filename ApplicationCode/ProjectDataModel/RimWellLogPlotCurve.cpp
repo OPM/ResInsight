@@ -140,7 +140,7 @@ caf::PdmFieldHandle* RimWellLogPlotCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
+bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth) const
 {
     CVF_ASSERT(minimumDepth && maximumDepth);
     CVF_ASSERT(m_plotCurve);
@@ -162,5 +162,13 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 void RimWellLogPlotCurve::setColor(const cvf::Color3f& color)
 {
     m_curveColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCurve::detachCurve()
+{
+    m_plotCurve->detach();
 }
 

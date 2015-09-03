@@ -177,3 +177,14 @@ void RimWellLogPlotTrace::recreateViewer()
         curves[cIdx]->setPlot(this->m_viewer);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrace::detachAllCurves()
+{
+    for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+    {
+        curves[cIdx]->detachCurve();
+    }
+}

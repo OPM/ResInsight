@@ -45,6 +45,8 @@ public:
     size_t curveCount() { return curves.size(); }
 
     void recreateViewer();
+    void detachAllCurves();
+
     void loadDataAndUpdate();
 
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
