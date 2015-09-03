@@ -60,6 +60,8 @@ protected:
 private:
     caf::PdmField<bool> show;
     caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
+    caf::PdmField<double> m_minimumValue;
+    caf::PdmField<double> m_maximumValue;
 
     QPointer<RiuWellLogTracePlot> m_viewer;
 };

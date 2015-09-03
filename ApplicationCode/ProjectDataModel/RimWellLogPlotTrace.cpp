@@ -46,6 +46,9 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
     CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");
     curves.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitField(&m_minimumValue, "MinimumValue", -10.0, "Minimum value", "", "", "");
+    CAF_PDM_InitField(&m_maximumValue, "MaximumValue", 100.0, "Maximum value", "", "", "");
+
     m_viewer = new RiuWellLogTracePlot; 
 }
 
@@ -65,6 +68,11 @@ void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     if (changedField == &show)
     {
         m_viewer->setVisible(show());
+    }
+    else if (changedField == &m_minimumValue || changedField == &m_maximumValue)
+    {
+        m_viewer->setAxisScale(QwtPlot::xTop, m_minimumValue, m_maximumValue);
+        m_viewer->replot();
     }
 }
 
