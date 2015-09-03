@@ -82,6 +82,8 @@ void RiuWellLogTracePlot::setDefaults()
     // Align the canvas with the actual min and max values of the curves
     axisScaleEngine(QwtPlot::xTop)->setAttribute(QwtScaleEngine::Floating, true);
     axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Floating, true);
+    setAxisScale(QwtPlot::yLeft, 1000, 0);
+    setAxisScale(QwtPlot::xTop, -10, 100);
 }
 
 //--------------------------------------------------------------------------------------------------
