@@ -3,8 +3,12 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RigCaseData.h"
+
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimLinkedViews.h"
 #include "RimManagedViewConfig.h"
 #include "RimOilField.h"
@@ -432,7 +436,20 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 
             updateScaleTransform();
             createDisplayModelAndRedraw();
-            m_viewer->update();
+
+            RimProject* proj = NULL;
+            this->firstAnchestorOrThisOfType(proj);
+            RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(this);
+            if (linkedViews)
+            {
+                RimManagedViewConfig* viewConf = linkedViews->viewConfigForView(this);
+                if (!viewConf || viewConf->syncCamera())
+                {
+                    linkedViews->updateScaleZ(this, scaleZ);
+                }
+            }
+
+            m_viewer->navigationPolicyUpdate();
         }
 
         RiuMainWindow::instance()->updateScaleValue();
@@ -567,17 +584,26 @@ void RimView::notifyCameraHasChanged()
         // There is no view config for a master view, but all views for sync must be updated
         if (!viewConf || viewConf->syncCamera())
         {
-            std::vector<RimView*> allViews;
-            linkedViews->allViewsForCameraSync(allViews);
-
-            for (size_t i = 0; i < allViews.size(); i++)
-            {
-                if (allViews[i] != this)
-                {
-                    viewsToUpdate.push_back(allViews[i]);
-                }
-            }
+            linkedViews->allViewsForCameraSync(this, viewsToUpdate);
         }
+    }
+
+    cvf::Vec3d up;
+    cvf::Vec3d domainEye;
+    cvf::Vec3d domainViewRefPoint;
+    this->viewer()->mainCamera()->toLookAt(&domainEye, &domainViewRefPoint, &up);
+
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(this);
+    if (eclipseView
+        && eclipseView->eclipseCase()
+        && eclipseView->eclipseCase()->reservoirData()
+        && eclipseView->eclipseCase()->reservoirData()->mainGrid())
+    {
+        cvf::Vec3d offset = eclipseView->eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
+        offset.z() *= eclipseView->scaleZ();
+
+        domainEye += offset;
+        domainViewRefPoint += offset;
     }
 
     // Propagate view matrix to all relevant views
@@ -587,10 +613,37 @@ void RimView::notifyCameraHasChanged()
     {
         if (viewsToUpdate[i] && viewsToUpdate[i]->viewer())
         {
-            viewsToUpdate[i]->viewer()->mainCamera()->setViewMatrix(mat);
+            RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(viewsToUpdate[i]);
+            if (destEclipseView
+                && destEclipseView->eclipseCase()
+                && destEclipseView->eclipseCase()->reservoirData()
+                && destEclipseView->eclipseCase()->reservoirData()->mainGrid())
+            {
+                cvf::Vec3d destOffset = destEclipseView->eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
+                destOffset.z() *= destEclipseView->scaleZ();
+
+                cvf::Vec3d eclipseEye = domainEye - destOffset;
+                cvf::Vec3d eclipseViewRefPoint = domainViewRefPoint - destOffset;
+
+                viewsToUpdate[i]->viewer()->mainCamera()->setFromLookAt(eclipseEye, eclipseViewRefPoint, up);
+            }
+            else
+            {
+                viewsToUpdate[i]->viewer()->mainCamera()->setFromLookAt(domainEye, domainViewRefPoint, up);
+            }
 
             viewsToUpdate[i]->viewer()->update();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::setScaleZAndUpdate(double scaleZ)
+{
+    this->scaleZ = scaleZ;
+    updateScaleTransform();
+    createDisplayModelAndRedraw();
 }
 

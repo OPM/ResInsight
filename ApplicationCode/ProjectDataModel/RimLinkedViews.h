@@ -57,7 +57,8 @@ public:
 
     void configureOverrides();
 
-    void allViewsForCameraSync(std::vector<RimView*>& views);
+    void updateScaleZ(RimView* source, double scaleZ);
+    void allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
     void allViews(std::vector<RimView*>& views);
 
 public:

@@ -234,13 +234,16 @@ void RimLinkedViews::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::allViewsForCameraSync(std::vector<RimView*>& views)
+void RimLinkedViews::allViewsForCameraSync(RimView* source, std::vector<RimView*>& views)
 {
-    views.push_back(m_mainView());
+    if (source != m_mainView())
+    {
+        views.push_back(m_mainView());
+    }
 
     for (size_t i = 0; i < viewConfigs.size(); i++)
     {
-        if (viewConfigs[i]->syncCamera && viewConfigs[i]->managedView())
+        if (viewConfigs[i]->syncCamera && viewConfigs[i]->managedView() && source != viewConfigs[i]->managedView())
         {
             views.push_back(viewConfigs[i]->managedView());
         }
@@ -258,6 +261,7 @@ void RimLinkedViews::applyAllOperations()
     updateTimeStep(NULL, m_mainView->currentTimeStep());
     updateRangeFilters();
     updatePropertyFilters();
+    updateScaleZ(m_mainView, m_mainView->scaleZ());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -375,5 +379,20 @@ void RimLinkedViews::allViews(std::vector<RimView*>& views)
 void RimLinkedViews::initAfterRead()
 {
     m_name = displayNameForView(m_mainView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLinkedViews::updateScaleZ(RimView* source, double scaleZ)
+{
+    std::vector<RimView*> views;
+    allViewsForCameraSync(source, views);
+
+    // Make sure scale factors are identical
+    for (size_t i = 0; i < views.size(); i++)
+    {
+        views[i]->setScaleZAndUpdate(scaleZ);
+    }
 }
 

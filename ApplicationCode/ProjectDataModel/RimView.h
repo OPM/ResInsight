@@ -108,6 +108,8 @@ public:
     void                                    setShowFaultsOnly(bool showFaults);
     bool                                    isGridVisualizationMode() const;
 
+    void                                    setScaleZAndUpdate(double scaleZ);
+
     // Animation
     int                                     currentTimeStep()    { return m_currentTimeStep;}
     void                                    setCurrentTimeStep(int frameIdx);

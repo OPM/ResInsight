@@ -113,7 +113,14 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 {
     if (changedField == &syncCamera && syncCamera())
     {
-        if (m_managedView && m_managedView->viewer()) m_managedView->viewer()->update();
+        RimLinkedViews* linkedViews = NULL;
+        this->firstAnchestorOrThisOfType(linkedViews);
+        linkedViews->updateScaleZ(linkedViews->mainView(), linkedViews->mainView()->scaleZ());
+
+        if (m_managedView && m_managedView->viewer())
+        {
+            m_managedView->viewer()->navigationPolicyUpdate();
+        }
     }
     else if (changedField == &syncTimeStep && syncTimeStep())
     {
