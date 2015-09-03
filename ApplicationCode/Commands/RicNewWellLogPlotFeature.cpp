@@ -53,6 +53,7 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
         RimWellLogPlotTrace* plotrace = new RimWellLogPlotTrace();
 
         plot->addTrace(plotrace);
+        plot->loadDataAndUpdate();
         wellLogPlotColl->wellLogPlots().push_back(plot);
 
         RiaApplication::instance()->project()->updateConnectedEditors();
