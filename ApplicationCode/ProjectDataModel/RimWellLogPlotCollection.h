@@ -22,10 +22,12 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
+#include "cvfCollection.h"
 
 class RimWellLogPlot;
-
-
+class RigEclipseWellLogExtractor;
+class RimWellPath;
+class RimEclipseCase;
 //==================================================================================================
 ///  
 ///  
@@ -36,6 +38,10 @@ class RimWellLogPlotCollection : public caf::PdmObject
 public:
     RimWellLogPlotCollection();
     virtual ~RimWellLogPlotCollection();
+    
+    RigEclipseWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase);
 
     caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
+private:
+    cvf::Collection<RigEclipseWellLogExtractor> m_extractors;
 };

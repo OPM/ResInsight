@@ -36,6 +36,7 @@
 #include "RimWellLogPlot.h"
 #include "RiuWellLogTracePlot.h"
 #include "qwt_plot_curve.h"
+#include "RimWellLogPlotCollection.h"
 
 //==================================================================================================
 ///  
@@ -112,60 +113,64 @@ void RimWellLogExtractionCurve::updatePlotData()
 
     if (m_showCurve)
     {
-        bool hasData = false;
-
-
-
-        std::vector<double> filteredValues;
-        std::vector<double> filteredDepths;
+        // Make sure we have set correct case data into the result definitions.
 
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
         m_eclipseResultDefinition->setEclipseCase(eclipseCase);
         m_geomResultDefinition->setGeoMechCase(geomCase);
 
-        if (m_wellPath)
+        RimWellLogPlotCollection* wellLogCollection = NULL;
+        this->firstAnchestorOrThisOfType(wellLogCollection);
+
+        CVF_ASSERT(wellLogCollection);
+
+        cvf::ref<RigEclipseWellLogExtractor> eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
+        //cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
+
+        std::vector<double> filteredValues;
+        std::vector<double> filteredDepths;
+        bool hasData = false;
+
+        if (eclExtractor.notNull())
         {
-            if (eclipseCase)
+            const std::vector<double>& depthValues = eclExtractor->measuredDepth();
+
+            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
+            m_eclipseResultDefinition->loadResult();
+
+            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
+                eclipseCase->reservoirData(), 0,
+                porosityModel,
+                m_timeStep,
+                m_eclipseResultDefinition->resultVariable());
+
+            std::vector<double> values;
+
+            if (resAcc.notNull())
             {
-                RigEclipseWellLogExtractor extractor(eclipseCase->reservoirData(), m_wellPath->wellPathGeometry());
-                const std::vector<double>& depthValues = (extractor.measuredDepth());
-
-                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-                m_eclipseResultDefinition->loadResult();
-
-                cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
-                    eclipseCase->reservoirData(), 0,
-                    porosityModel,
-                    m_timeStep,
-                    m_eclipseResultDefinition->resultVariable());
-
-                std::vector<double> values;
-
-                if (resAcc.notNull())
-                {
-                    extractor.curveData(resAcc.p(), &values);
-                    hasData = true;
-                }
-                
-                filteredValues.reserve(values.size());
-                filteredDepths.reserve(values.size());
-                for (size_t vIdx = 0; vIdx < values.size(); ++vIdx)
-                {
-                    if (values[vIdx] == HUGE_VAL || values[vIdx] == -HUGE_VAL || (values[vIdx] != values[vIdx]))
-                    {
-                        continue;
-                    }
-
-                    filteredDepths.push_back(depthValues[vIdx]);
-                    filteredValues.push_back(values[vIdx]);
-                }
+                eclExtractor->curveData(resAcc.p(), &values);
+                hasData = true;
             }
-            else if (geomCase)
+
+            // Remove values that are too difficult for Qwt to handle
+            
+            filteredValues.reserve(values.size());
+            filteredDepths.reserve(values.size());
+            for (size_t vIdx = 0; vIdx < values.size(); ++vIdx)
             {
+                if (values[vIdx] == HUGE_VAL || values[vIdx] == -HUGE_VAL || (values[vIdx] != values[vIdx]))
+                {
+                    continue;
+                }
 
-
+                filteredDepths.push_back(depthValues[vIdx]);
+                filteredValues.push_back(values[vIdx]);
             }
+        }
+        else if (false) // geomExtractor
+        {
+            // Todo: do geomech log extraction
         }
 
         m_plotCurve->setSamples(filteredValues.data(), filteredDepths.data(), (int)filteredValues.size());
@@ -182,8 +187,6 @@ void RimWellLogExtractionCurve::updatePlotData()
         }
 
         updateCurveTitle();
-        
-
         m_plot->replot();
     }
    

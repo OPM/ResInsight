@@ -49,6 +49,9 @@ public:
 
     void curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
 
+    const RigCaseData* caseData()     { return m_caseData.p();}
+    const RigWellPath* wellPathData() { return m_wellPath.p();}
+
 private:
     void calculateIntersection();
     std::vector<size_t> findCloseCells(const cvf::BoundingBox& bb);

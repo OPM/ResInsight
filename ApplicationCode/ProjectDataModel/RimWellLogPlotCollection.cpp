@@ -22,6 +22,11 @@
 #include "RimWellLogPlot.h"
 
 #include "cafPdmUiTreeView.h"
+#include "RigCaseData.h"
+#include "RimWellPath.h"
+#include "RimEclipseCase.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RimWellPathCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlotCollection, "WellLogPlotCollection");
 
@@ -42,4 +47,30 @@ RimWellLogPlotCollection::RimWellLogPlotCollection()
 RimWellLogPlotCollection::~RimWellLogPlotCollection()
 {
     wellLogPlots.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase)
+{
+    if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->reservoirData()))
+    {
+        return NULL;
+    }
+
+    RigCaseData* eclCaseData = eclCase->reservoirData();
+    RigWellPath* wellPathGeom = wellPath->wellPathGeometry();
+    for (size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx)
+    {
+         if (m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathData() == wellPathGeom)
+         {
+            return m_extractors[exIdx].p();
+         }
+    }
+
+    cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(eclCaseData, wellPathGeom);
+    m_extractors.push_back(extractor.p());
+
+    return extractor.p();
 }
