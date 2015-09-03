@@ -45,8 +45,8 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
     showWindow.uiCapability()->setUiHidden(true);
     
-    CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Set minimum depth", "", "", "");
-    CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Set maximum depth", "", "", "");
+    CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Minimum depth", "", "", "");
+    CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Maximum depth", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&traces, "Traces", "",  "", "", "");
     traces.uiCapability()->setUiHidden(true);
