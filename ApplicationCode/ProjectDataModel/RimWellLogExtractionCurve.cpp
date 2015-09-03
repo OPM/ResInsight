@@ -114,8 +114,10 @@ void RimWellLogExtractionCurve::updatePlotData()
     {
         bool hasData = false;
 
-        std::vector<double> values;
-        std::vector<double> depthValues;
+
+
+        std::vector<double> filteredValues;
+        std::vector<double> filteredDepths;
 
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
@@ -127,7 +129,7 @@ void RimWellLogExtractionCurve::updatePlotData()
             if (eclipseCase)
             {
                 RigEclipseWellLogExtractor extractor(eclipseCase->reservoirData(), m_wellPath->wellPathGeometry());
-                depthValues = (extractor.measuredDepth());
+                const std::vector<double>& depthValues = (extractor.measuredDepth());
 
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
                 m_eclipseResultDefinition->loadResult();
@@ -137,10 +139,26 @@ void RimWellLogExtractionCurve::updatePlotData()
                     porosityModel,
                     m_timeStep,
                     m_eclipseResultDefinition->resultVariable());
+
+                std::vector<double> values;
+
                 if (resAcc.notNull())
                 {
                     extractor.curveData(resAcc.p(), &values);
                     hasData = true;
+                }
+                
+                filteredValues.reserve(values.size());
+                filteredDepths.reserve(values.size());
+                for (size_t vIdx = 0; vIdx < values.size(); ++vIdx)
+                {
+                    if (values[vIdx] == HUGE_VAL || values[vIdx] == -HUGE_VAL || (values[vIdx] != values[vIdx]))
+                    {
+                        continue;
+                    }
+
+                    filteredDepths.push_back(depthValues[vIdx]);
+                    filteredValues.push_back(values[vIdx]);
                 }
             }
             else if (geomCase)
@@ -150,7 +168,7 @@ void RimWellLogExtractionCurve::updatePlotData()
             }
         }
 
-        m_plotCurve->setSamples(values.data(), depthValues.data(), (int)values.size());
+        m_plotCurve->setSamples(filteredValues.data(), filteredDepths.data(), (int)filteredValues.size());
 
         if (hasData)
         {
