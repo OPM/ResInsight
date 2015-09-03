@@ -88,9 +88,12 @@ caf::PdmFieldHandle* RimWellLogPlotTrace::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotTrace::addCurve(RimWellLogPlotCurve* curve)
 {
-    CVF_ASSERT(m_viewer);
     curves.push_back(curve);
-    curve->setPlot(m_viewer);
+
+    if (m_viewer)
+    {
+        curve->setPlot(m_viewer);
+    }
 }
 
 
