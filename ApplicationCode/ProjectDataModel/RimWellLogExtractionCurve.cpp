@@ -84,16 +84,23 @@ RimWellLogExtractionCurve::~RimWellLogExtractionCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+
    if (changedField == &m_case)
     {
-        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-
-        m_eclipseResultDefinition->setEclipseCase(eclipseCase);
-        m_geomResultDefinition->setGeoMechCase(geomCase);
+        this->updatePlotData();
     }    
     
-    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+    if (changedField == &m_wellPath)
+    {
+        this->updatePlotData();
+    }
+
+    if (changedField == &m_timeStep)
+    {
+        this->updatePlotData();
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,57 +108,67 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::updatePlotData()
 {
-    bool isNeedingUpdate = false;
-    std::vector<double> values;
-    std::vector<double> depthValues;
+    RimWellLogPlotCurve::updatePlotData();
 
-    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-    m_eclipseResultDefinition->setEclipseCase(eclipseCase);
-    m_geomResultDefinition->setGeoMechCase(geomCase);
-
-    if (m_wellPath)
+    if (m_showCurve)
     {
-        if (eclipseCase)
-        {        
-            RigEclipseWellLogExtractor extractor(eclipseCase->reservoirData(), m_wellPath->wellPathGeometry());
-            depthValues = (extractor.measuredDepth());
-            
-            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-            m_eclipseResultDefinition->loadResult();
+        bool hasData = false;
 
-            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
-                                                                            eclipseCase->reservoirData(), 0,
-                                                                            porosityModel,
-                                                                            m_timeStep,
-                                                                            m_eclipseResultDefinition->resultVariable());
-            if (resAcc.notNull())
+        std::vector<double> values;
+        std::vector<double> depthValues;
+
+        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+        m_eclipseResultDefinition->setEclipseCase(eclipseCase);
+        m_geomResultDefinition->setGeoMechCase(geomCase);
+
+        if (m_wellPath)
+        {
+            if (eclipseCase)
             {
-                extractor.curveData(resAcc.p(), &values);
-                isNeedingUpdate = true;
+                RigEclipseWellLogExtractor extractor(eclipseCase->reservoirData(), m_wellPath->wellPathGeometry());
+                depthValues = (extractor.measuredDepth());
+
+                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
+                m_eclipseResultDefinition->loadResult();
+
+                cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
+                    eclipseCase->reservoirData(), 0,
+                    porosityModel,
+                    m_timeStep,
+                    m_eclipseResultDefinition->resultVariable());
+                if (resAcc.notNull())
+                {
+                    extractor.curveData(resAcc.p(), &values);
+                    hasData = true;
+                }
+            }
+            else if (geomCase)
+            {
+
+
             }
         }
-        else if (geomCase)
+
+        m_plotCurve->setSamples(values.data(), depthValues.data(), (int)values.size());
+
+        if (hasData)
         {
+            RimWellLogPlot* wellLogPlot;
+            firstAnchestorOrThisOfType(wellLogPlot);
+
+            if (wellLogPlot)
+            {
+                wellLogPlot->updateAvailableDepthRange();
+            }
+        }
+
+        updateCurveTitle();
         
-        }
-    }
-
-    if (isNeedingUpdate)
-    {
-        m_plotCurve->setSamples(values.data(), depthValues.data(), (int)depthValues.size());
-        m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
-
-        RimWellLogPlot* wellLogPlot;
-        firstAnchestorOrThisOfType(wellLogPlot);
-
-        if (wellLogPlot)
-        {
-            wellLogPlot->updateAvailableDepthRange();
-        }
 
         m_plot->replot();
     }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,6 +256,24 @@ void RimWellLogExtractionCurve::initAfterRead()
 
     m_eclipseResultDefinition->setEclipseCase(eclipseCase);
     m_geomResultDefinition->setGeoMechCase(geomCase);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::updateCurveTitle()
+{
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+    QString resVar;
+    if (eclipseCase)
+    {
+        resVar = m_eclipseResultDefinition->resultVariable();
+    }
+
+    m_userName = resVar;
+
+    m_plotCurve->setTitle(m_userName);
 }
 
 

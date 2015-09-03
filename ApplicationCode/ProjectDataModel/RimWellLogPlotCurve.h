@@ -48,6 +48,7 @@ public:
     virtual void                 updatePlotData();
 
 protected:
+    void updateCurveVisibility();
 
     // Overridden PDM methods
     virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

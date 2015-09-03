@@ -61,21 +61,24 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 {
     if (changedField == &m_showCurve)
     {
-        if (newValue == true)
-        {
-            m_plotCurve->attach(m_plot);
-        }
-        else
-        {
-            m_plotCurve->detach();
-        }
-
-       
+       this->updateCurveVisibility();
+       m_plot->replot();
     }
 
-    m_plotCurve->setTitle(this->m_userName());
+    if (m_showCurve())
+    {
+        if (changedField == &m_userName)
+        {
+            m_plotCurve->setTitle(this->m_userName());
+            m_plot->replot();
+        }
 
-    this->updatePlotData();
+        if (&m_curveColor == changedField)
+        {
+            m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
+            m_plot->replot();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,37 +92,28 @@ caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCurve::updateCurveVisibility()
+{
+    if (m_showCurve())
+    {
+        m_plotCurve->attach(m_plot);
+    }
+    else
+    {
+        m_plotCurve->detach();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCurve::updatePlotData()
 {
-    CVF_ASSERT(m_plot);
-    
-    // Dummy Data
+    this->updateCurveVisibility();
 
-    std::vector<double> values;
-    values.push_back(34);
-    values.push_back(47);
-    values.push_back(49);
-    values.push_back(22);
-    values.push_back(20);
-
-    std::vector<double> depthValues;
-    depthValues.push_back(200);
-    depthValues.push_back(400);
-    depthValues.push_back(600);
-    depthValues.push_back(800);
-    depthValues.push_back(1000);
-
-    m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
+    m_plotCurve->setTitle(this->m_userName());
     m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
-  
-    RimWellLogPlot* wellLogPlot;
-    firstAnchestorOrThisOfType(wellLogPlot);
-
-    if (wellLogPlot)
-    {
-        wellLogPlot->updateAvailableDepthRange();
-    }
-     m_plot->replot();
+    // Todo: Rest of the curve setup controlled from this class
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,8 +122,11 @@ void RimWellLogPlotCurve::updatePlotData()
 void RimWellLogPlotCurve::setPlot(RiuWellLogTracePlot* plot)
 {
     m_plot = plot;
-    m_plotCurve->attach(m_plot);
-    m_plot->replot();
+    if (m_showCurve)
+    {
+        m_plotCurve->attach(m_plot);
+        m_plot->replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
