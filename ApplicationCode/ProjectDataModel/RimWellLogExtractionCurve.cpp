@@ -37,6 +37,7 @@
 #include "RiuWellLogTracePlot.h"
 #include "qwt_plot_curve.h"
 #include "RimWellLogPlotCollection.h"
+#include "cafPdmUiTreeOrdering.h"
 
 //==================================================================================================
 ///  
@@ -295,6 +296,14 @@ void RimWellLogExtractionCurve::updateCurveTitle()
     m_userName = resVar;
 
     m_plotCurve->setTitle(m_userName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 
