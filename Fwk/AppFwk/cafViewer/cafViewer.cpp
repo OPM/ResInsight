@@ -518,7 +518,8 @@ void caf::Viewer::setView(const cvf::Vec3d& alongDirection, const cvf::Vec3d& up
     if (m_navigationPolicy.notNull())
     {
         m_navigationPolicy->setView(alongDirection, upDirection); 
-        update();
+
+        navigationPolicyUpdate();
     }
 }
 
@@ -544,7 +545,8 @@ void caf::Viewer::zoomAll()
     m_mainCamera->toLookAt(&eye, &vrp, &up);
 
     m_mainCamera->fitView(bb, vrp-eye, up);
-    update();
+
+    navigationPolicyUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -615,7 +617,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 
     m_renderingSequence->firstRendering()->setScene(m_frameScenes.at(clampedFrameIndex));
 
-    caf::OpenGLWidget::update();
+    update();
 }
 
 void caf::Viewer::releaseOGlResourcesForCurrentFrame()
@@ -652,7 +654,7 @@ void caf::Viewer::slotEndAnimation()
 
     m_renderingSequence->firstRendering()->setScene(m_mainScene.p());
 
-    caf::OpenGLWidget::update();
+    update();
 }
 
 //--------------------------------------------------------------------------------------------------
