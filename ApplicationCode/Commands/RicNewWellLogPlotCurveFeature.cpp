@@ -20,14 +20,46 @@
 #include "RicNewWellLogPlotCurveFeature.h"
 
 #include "RimWellLogPlotTrace.h"
+#include "RimWellLogExtractionCurve.h"
+
+#include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
+#include "cafPdmFieldCvfColor.h"
 
 #include <QAction>
+#include <QColor>
 
 #include <vector>
-#include "RiuMainWindow.h"
-#include "RimWellLogExtractionCurve.h"
+
+static const int RI_LOGPLOT_CURVECOLORSCOUNT = 15;
+static const int RI_LOGPLOT_CURVECOLORS[] =
+{
+    Qt::blue,
+    Qt::red,
+    Qt::green,
+    Qt::yellow,
+    Qt::magenta,
+    Qt::cyan,
+    Qt::gray,
+    Qt::darkBlue,
+    Qt::darkRed,
+    Qt::darkGreen,
+    Qt::darkYellow,
+    Qt::darkMagenta,
+    Qt::darkCyan,
+    Qt::darkGray,
+    Qt::black
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Pick default curve color from an index based palette
+//--------------------------------------------------------------------------------------------------
+static QColor sg_curveColorFromIndex(size_t curveIndex)
+{
+    return QColor(Qt::GlobalColor(RI_LOGPLOT_CURVECOLORS[curveIndex % RI_LOGPLOT_CURVECOLORSCOUNT]));
+}
+
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogPlotCurveFeature, "RicNewWellLogPlotCurveFeature");
 
@@ -47,8 +79,14 @@ void RicNewWellLogPlotCurveFeature::onActionTriggered(bool isChecked)
     RimWellLogPlotTrace* wellLogPlotTrace = selectedWellLogPlotTrace();
     if (wellLogPlotTrace)
     {
+        size_t curveIndex = wellLogPlotTrace->curveCount();
+
         RimWellLogPlotCurve* curve = new RimWellLogExtractionCurve();
         wellLogPlotTrace->addCurve(curve);
+
+        QColor curveColorQt = sg_curveColorFromIndex(curveIndex);
+        cvf::Color3f curveColor(curveColorQt.redF(), curveColorQt.greenF(), curveColorQt.blueF());
+        curve->setColor(curveColor);
 
         curve->setDescription(QString("Curve %1").arg(wellLogPlotTrace->curveCount()));
 

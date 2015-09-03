@@ -43,6 +43,7 @@
 //==================================================================================================
 
 CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurve, "WellLogEclipseCurve");
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +69,6 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition = new RimGeoMechResultDefinition;
 
     CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0,"Time Step", "", "", "");
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,6 +140,7 @@ void RimWellLogExtractionCurve::updatePlotData()
     if (isNeedingUpdate)
     {
         m_plotCurve->setSamples(values.data(), depthValues.data(), (int)depthValues.size());
+        m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
 
         RimWellLogPlot* wellLogPlot;
         firstAnchestorOrThisOfType(wellLogPlot);

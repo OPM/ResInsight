@@ -36,6 +36,8 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
     m_showCurve.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_userName, "CurveDescription", "Name", "", "", "");
 
+    CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
+
     m_plotCurve = new QwtPlotCurve;
     m_plotCurve->setXAxis(QwtPlot::xTop);
     m_plotCurve->setYAxis(QwtPlot::yLeft);
@@ -108,6 +110,7 @@ void RimWellLogPlotCurve::updatePlotData()
     depthValues.push_back(1000);
 
     m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
+    m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
   
     RimWellLogPlot* wellLogPlot;
     firstAnchestorOrThisOfType(wellLogPlot);
@@ -154,5 +157,13 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
     *maximumDepth = m_plotCurve->maxYValue();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCurve::setColor(const cvf::Color3f& color)
+{
+    m_curveColor = color;
 }
 

@@ -21,13 +21,13 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"    
 
 #include <vector>
 
 class RiuWellLogTracePlot;
 class QwtPlotCurve;
 class QString;
-
 
 //==================================================================================================
 ///  
@@ -42,7 +42,9 @@ public:
     void setDescription(QString description) {m_userName = description;}
 
     void    setPlot(RiuWellLogTracePlot* plot);
+    void    setColor(const cvf::Color3f& color);
     bool    depthRange(double* minimumDepth, double* maximumDepth);
+    
     virtual void                 updatePlotData();
 
 protected:
@@ -53,9 +55,9 @@ protected:
     virtual caf::PdmFieldHandle* userDescriptionField();
 
 
-    caf::PdmField<bool>     m_showCurve;
-    caf::PdmField<QString>  m_userName;
-    // caf::PdmField<QColor> m_curveColor;
+    caf::PdmField<bool>         m_showCurve;
+    caf::PdmField<QString>      m_userName;
+    caf::PdmField<cvf::Color3f> m_curveColor;
     // caf::PdmField<Linestyle> m_lineStyle;
     // caf::PdmField<int>       m_lineWidth;
 
