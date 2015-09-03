@@ -135,7 +135,6 @@ RimProject::~RimProject(void)
 
     oilFields.deleteAllChildObjects();
     if (scriptCollection()) delete scriptCollection();
-    if (mainPlotCollection()) delete mainPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,6 +144,7 @@ void RimProject::close()
 {
     oilFields.deleteAllChildObjects();
     oilFields.push_back(new RimOilField);
+    if (mainPlotCollection()) delete mainPlotCollection();
 
     casesObsolete.deleteAllChildObjects();
     caseGroupsObsolete.deleteAllChildObjects();

@@ -44,6 +44,8 @@ public:
     void addCurve(RimWellLogPlotCurve* curve);
     size_t curveCount() { return curves.size(); }
 
+    void loadDataAndUpdate();
+
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
 
     RiuWellLogTracePlot* viewer();

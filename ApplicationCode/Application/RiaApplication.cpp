@@ -85,7 +85,9 @@
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCellColors.h"
-
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlot.h"
 
 namespace caf
 {
@@ -366,7 +368,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // Add all "native" cases in the project
     std::vector<RimCase*> casesToLoad;
     m_project->allCases(casesToLoad);
-
+    
     caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
     
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
@@ -393,9 +395,20 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
         caseProgress.incrementProgress();
     }
+    
+    {
+        if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
+        {
+            RimWellLogPlotCollection* wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
+            caf::ProgressInfo plotProgress(wlpColl->wellLogPlots().size(), "Loading Plot Data");
 
-
-
+            for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
+            {
+                wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+    }
     // NB! This function must be called before executing command objects, 
     // because the tree view state is restored from project file and sets
     // current active view ( see restoreTreeViewState() )

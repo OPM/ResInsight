@@ -43,6 +43,8 @@ public:
     void    addTrace(RimWellLogPlotTrace* trace);
     size_t  traceCount() { return traces.size();}
 
+    void loadDataAndUpdate();
+
     RiuWellLogPlot* viewer();
 
     void zoomDepth(double zoomFactor);

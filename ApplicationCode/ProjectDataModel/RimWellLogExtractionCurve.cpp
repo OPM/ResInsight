@@ -52,12 +52,18 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", "Well Path", "", "", "");
     m_wellPath.uiCapability()->setUiChildrenHidden(true);
+    //m_wellPath.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiChildrenHidden(true);
+    //m_case.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_eclipseResultDefinition, "CurveEclipseResult", "", "", "", "");
+    m_eclipseResultDefinition.uiCapability()->setUiHidden(true);
     m_eclipseResultDefinition.uiCapability()->setUiChildrenHidden(true);
     m_eclipseResultDefinition = new RimEclipseResultDefinition;
+
     CAF_PDM_InitFieldNoDefault(&m_geomResultDefinition, "CurveGeomechResult", "", "", "", "");
+    m_geomResultDefinition.uiCapability()->setUiHidden(true);
     m_geomResultDefinition.uiCapability()->setUiChildrenHidden(true);
     m_geomResultDefinition = new RimGeoMechResultDefinition;
 
@@ -78,16 +84,16 @@ RimWellLogExtractionCurve::~RimWellLogExtractionCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
-
-    if (changedField == &m_case)
+   if (changedField == &m_case)
     {
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 
         m_eclipseResultDefinition->setEclipseCase(eclipseCase);
         m_geomResultDefinition->setGeoMechCase(geomCase);
-    }
+    }    
+    
+    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +107,8 @@ void RimWellLogExtractionCurve::updatePlotData()
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+    m_eclipseResultDefinition->setEclipseCase(eclipseCase);
+    m_geomResultDefinition->setGeoMechCase(geomCase);
 
     if (m_wellPath)
     {
@@ -108,7 +116,10 @@ void RimWellLogExtractionCurve::updatePlotData()
         {        
             RigEclipseWellLogExtractor extractor(eclipseCase->reservoirData(), m_wellPath->wellPathGeometry());
             depthValues = (extractor.measuredDepth());
+            
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
+            m_eclipseResultDefinition->loadResult();
+
             cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
                                                                             eclipseCase->reservoirData(), 0,
                                                                             porosityModel,
@@ -152,16 +163,19 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
     if (fieldNeedingOptions == &m_wellPath)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        caf::PdmChildArrayField<RimWellPath*>& wellPaths =  proj->activeOilField()->wellPathCollection()->wellPaths;
-
-        for (size_t i = 0; i< wellPaths.size(); i++)
+        if (proj->activeOilField()->wellPathCollection())
         {
-            optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
-        }
+            caf::PdmChildArrayField<RimWellPath*>& wellPaths =  proj->activeOilField()->wellPathCollection()->wellPaths;
 
-        if (optionList.size() > 0)
-        {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            for (size_t i = 0; i< wellPaths.size(); i++)
+            {
+                optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
+            }
+
+            if (optionList.size() > 0)
+            {
+                optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            }
         }
     }
 
@@ -212,6 +226,18 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
         group1->add(&(m_geomResultDefinition->m_resultPositionTypeUiField));
         group1->add(&(m_geomResultDefinition->m_resultVariableUiField));
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::initAfterRead()
+{
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+
+    m_eclipseResultDefinition->setEclipseCase(eclipseCase);
+    m_geomResultDefinition->setGeoMechCase(geomCase);
 }
 
 

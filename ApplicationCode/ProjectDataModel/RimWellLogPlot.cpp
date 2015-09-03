@@ -264,3 +264,14 @@ void RimWellLogPlot::setupBeforeSave()
 {
      windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::loadDataAndUpdate()
+{
+    for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
+    {
+        traces[tIdx]->loadDataAndUpdate();
+    }
+}

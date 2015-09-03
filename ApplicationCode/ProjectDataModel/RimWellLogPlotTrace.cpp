@@ -151,3 +151,14 @@ void RimWellLogPlotTrace::initAfterRead()
         curves[cIdx]->setPlot(this->m_viewer);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrace::loadDataAndUpdate()
+{
+    for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+    {
+        curves[cIdx]->updatePlotData();
+    }
+}

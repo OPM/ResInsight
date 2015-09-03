@@ -47,6 +47,8 @@ protected:
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
+    virtual void initAfterRead();
+
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;

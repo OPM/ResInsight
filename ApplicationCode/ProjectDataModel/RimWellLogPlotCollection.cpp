@@ -46,6 +46,7 @@ RimWellLogPlotCollection::RimWellLogPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection::~RimWellLogPlotCollection()
 {
+    wellLogPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
