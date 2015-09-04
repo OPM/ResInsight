@@ -96,17 +96,16 @@ void RiuWellLogPlot::updateScrollBar(double minDepth, double maxDepth)
 {
     double availableMinDepth;
     double availableMaxDepth;
-    if (m_plotDefinition->availableDepthRange(&availableMinDepth, &availableMaxDepth))
-    {
-        double availableDepth = availableMaxDepth - availableMinDepth;
-        double visibleDepth = maxDepth - minDepth;
+    m_plotDefinition->availableDepthRange(&availableMinDepth, &availableMaxDepth);
 
-        m_scrollBar->setRange((int) availableMinDepth, (int) (ceil(availableMaxDepth - visibleDepth)));
-        m_scrollBar->setPageStep((int) visibleDepth);
-        m_scrollBar->setValue((int) minDepth);
+    double availableDepth = availableMaxDepth - availableMinDepth;
+    double visibleDepth = maxDepth - minDepth;
 
-        m_scrollBar->setVisible(true);
-    }
+    m_scrollBar->setRange((int) availableMinDepth, (int) (ceil(availableMaxDepth - visibleDepth)));
+    m_scrollBar->setPageStep((int) visibleDepth);
+    m_scrollBar->setValue((int) minDepth);
+
+    m_scrollBar->setVisible(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,5 +148,5 @@ void RiuWellLogPlot::slotSetMinDepth(int value)
     m_plotDefinition->visibleDepthRange(&minimumDepth, &maximumDepth);
 
     double delta = value - minimumDepth;
-    m_plotDefinition->setDepthRange(minimumDepth + delta, maximumDepth + delta);
+    m_plotDefinition->setVisibleDepthRange(minimumDepth + delta, maximumDepth + delta);
 }

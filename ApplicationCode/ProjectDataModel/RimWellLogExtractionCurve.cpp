@@ -184,9 +184,10 @@ void RimWellLogExtractionCurve::updatePlotData()
 
             if (wellLogPlot)
             {
+                bool setDepthRange = !wellLogPlot->hasAvailableDepthRange();
                 wellLogPlot->updateAvailableDepthRange();
 
-                if (wellLogPlot->traceCount() == 1)
+                if (setDepthRange && wellLogPlot->traceCount() == 1)
                 {
                     RimWellLogPlotTrace* plotTrace;
                     firstAnchestorOrThisOfType(plotTrace);

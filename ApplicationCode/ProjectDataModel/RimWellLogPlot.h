@@ -49,10 +49,11 @@ public:
 
     void zoomDepth(double zoomFactor);
     void panDepth(double panFactor);
-    void setDepthRange(double minimumDepth, double maximumDepth);
+    void setVisibleDepthRange(double minimumDepth, double maximumDepth);
 
     void updateAvailableDepthRange();
-    bool availableDepthRange(double* minimumDepth, double* maximumDepth);
+    void availableDepthRange(double* minimumDepth, double* maximumDepth) const;
+    bool hasAvailableDepthRange() const;
 
     void visibleDepthRange(double* minimumDepth, double* maximumDepth) const;
     void updateAxisRanges();
