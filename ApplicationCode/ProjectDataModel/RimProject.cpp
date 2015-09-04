@@ -153,6 +153,8 @@ void RimProject::close()
 
     commandObjects.deleteAllChildObjects();
 
+    linkedViews.deleteAllChildObjects();
+
     fileName = "";
 
     nextValidCaseId = 0;
