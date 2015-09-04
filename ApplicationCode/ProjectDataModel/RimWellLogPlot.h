@@ -56,6 +56,8 @@ public:
 
     void visibleDepthRange(double* minimumDepth, double* maximumDepth) const;
     void updateAxisRanges();
+    void setVisibleDepthRangeFromContents();
+
 protected:
 
     // Overridden PDM methods

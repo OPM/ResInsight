@@ -34,6 +34,7 @@
 #include "RimWellLogPlotCurve.h"
 
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotTrace.h"
 #include "RiuWellLogTracePlot.h"
 #include "qwt_plot_curve.h"
 #include "RimWellLogPlotCollection.h"
@@ -184,6 +185,16 @@ void RimWellLogExtractionCurve::updatePlotData()
             if (wellLogPlot)
             {
                 wellLogPlot->updateAvailableDepthRange();
+
+                if (wellLogPlot->traceCount() == 1)
+                {
+                    RimWellLogPlotTrace* plotTrace;
+                    firstAnchestorOrThisOfType(plotTrace);
+                    if (plotTrace && plotTrace->curveCount() == 1)
+                    {
+                        wellLogPlot->setVisibleDepthRangeFromContents();
+                    }
+                }
             }
         }
 

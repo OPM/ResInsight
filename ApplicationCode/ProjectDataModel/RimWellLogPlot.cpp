@@ -277,6 +277,15 @@ void RimWellLogPlot::updateAxisRanges()
     if (m_viewer) m_viewer->setDepthRange(m_minimumVisibleDepth, m_maximumVisibleDepth);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setVisibleDepthRangeFromContents()
+{
+    setDepthRange(m_depthRangeMinimum, m_depthRangeMaximum);
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
