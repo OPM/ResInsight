@@ -25,148 +25,16 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 
-//==================================================================================================
-///  Internal class for intersection point info 
-//==================================================================================================
-
-struct HexIntersectionInfo
-{
-
-public:
-    HexIntersectionInfo( cvf::Vec3d                          intersectionPoint,
-                         bool                                isIntersectionEntering,
-                         cvf::StructGridInterface::FaceType  face,
-                         size_t                              hexIndex) 
-                         : m_intersectionPoint(intersectionPoint),
-                           m_isIntersectionEntering(isIntersectionEntering),
-                           m_face(face),
-                           m_hexIndex(hexIndex) {}
-
-
-    cvf::Vec3d                          m_intersectionPoint;
-    bool                                m_isIntersectionEntering;
-    cvf::StructGridInterface::FaceType  m_face;
-    size_t                              m_hexIndex;
-};
-
-//--------------------------------------------------------------------------------------------------
-/// Specialized Line - Hex intersection
-//--------------------------------------------------------------------------------------------------
-
-int lineHexCellIntersection(const cvf::Vec3d p1, const cvf::Vec3d p2, const cvf::Vec3d hexCorners[8], const size_t hexIndex,
-                            std::vector<HexIntersectionInfo>* intersections )
-{
-    CVF_ASSERT(intersections != NULL);
-
-    int intersectionCount = 0; 
-
-    for (int face = 0; face < 6 ; ++face)
-    {
-        cvf::ubyte faceVertexIndices[4];
-        cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
-
-        cvf::Vec3d intersection;
-        bool isEntering = false;
-        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter( hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
-
-        for (int i = 0; i < 4; ++i)
-        {
-            int next = i < 3 ? i+1 : 0;
-
-            int intsStatus = cvf::GeometryTools::intersectLineSegmentTriangle(p1, p2,
-                                                             hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter,
-                                                             &intersection,
-                                                             &isEntering);
-            if (intsStatus == 1)
-            {
-                intersectionCount++;
-                intersections->push_back(HexIntersectionInfo(intersection, isEntering, static_cast<cvf::StructGridInterface::FaceType>(face), hexIndex));
-            }
-        }
-    }
- 
-    return intersectionCount;
-}
-
-//==================================================================================================
-///  Class used to sort the intersections along the wellpath
-//==================================================================================================
-
-struct WellPathDepthPoint
-{
-    WellPathDepthPoint(double md, bool entering): measuredDepth(md), isEnteringCell(entering){}
-
-    double measuredDepth;
-    bool   isEnteringCell; // As opposed to leaving.
-
-    bool operator < (const WellPathDepthPoint& other) const 
-    {
-        double depthDiff = other.measuredDepth - measuredDepth;
-
-        const double tolerance = 1e-6;
-
-        if (fabs(depthDiff) < tolerance) // Equal depth
-        {
-            if (isEnteringCell == other.isEnteringCell)
-            {
-                CVF_ASSERT(false); // For now
-
-                return false; // Completely equal
-            }
-
-            if(!isEnteringCell) // Leaving this cell
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        // The depths are not equal
-
-        if (measuredDepth < other.measuredDepth)
-        {
-            return true;
-        }
-        else if (measuredDepth > other.measuredDepth)
-        {
-            return false;
-        }
-
-        CVF_ASSERT(false);
-        return false;
-    }
-};
+#include "RigWellLogExtractionTools.h"
 
 //==================================================================================================
 /// 
 //==================================================================================================
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath)
     : m_caseData(aCase), m_wellPath(wellpath)
 {
     calculateIntersection();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigEclipseWellLogExtractor::measuredDepth()
-{
-    return m_measuredDepth;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigEclipseWellLogExtractor::trueVerticalDepth()
-{
-    return m_trueVerticalDepth;
 }
 
 
@@ -206,7 +74,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             hexCorners[6] = nodeCoords[cornerIndices[6]];
             hexCorners[7] = nodeCoords[cornerIndices[7]];
 
-            int intersectionCount = lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
+            int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
         }
 
         // Now, with all the intersections of this piece of line, we need to 
@@ -292,3 +160,5 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::Boundi
 
     return closeCells;
 }
+
+

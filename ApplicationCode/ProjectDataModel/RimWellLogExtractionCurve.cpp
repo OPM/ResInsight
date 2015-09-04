@@ -39,6 +39,7 @@
 #include "qwt_plot_curve.h"
 #include "RimWellLogPlotCollection.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "RigGeoMechWellLogExtractor.h"
 
 //==================================================================================================
 ///  
@@ -128,7 +129,7 @@ void RimWellLogExtractionCurve::updatePlotData()
         CVF_ASSERT(wellLogCollection);
 
         cvf::ref<RigEclipseWellLogExtractor> eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
-        //cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
+        cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
 
         std::vector<double> filteredValues;
         std::vector<double> filteredDepths;

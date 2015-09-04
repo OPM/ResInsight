@@ -35,8 +35,6 @@ class RigFemPartNodes
 public:
      std::vector<int>           nodeIds;
      std::vector<cvf::Vec3f>    coordinates;
-
-     
 };
 
 class RigFemPart : public cvf::Object

@@ -26,6 +26,8 @@
 
 class RimWellLogPlot;
 class RigEclipseWellLogExtractor;
+class RigGeoMechWellLogExtractor;
+class RimGeoMechCase;
 class RimWellPath;
 class RimEclipseCase;
 //==================================================================================================
@@ -40,8 +42,10 @@ public:
     virtual ~RimWellLogPlotCollection();
     
     RigEclipseWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase);
+    RigGeoMechWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* eclCase);
 
     caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
 private:
     cvf::Collection<RigEclipseWellLogExtractor> m_extractors;
+    cvf::Collection<RigGeoMechWellLogExtractor> m_geomExtractors;
 };

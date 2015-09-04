@@ -109,6 +109,7 @@ list( APPEND CPP_SOURCES
 
 list( APPEND REFERENCED_CMAKE_FILES
     ReservoirDataModel/CMakeLists_files.cmake
+    ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
     FileInterface/CMakeLists_files.cmake
     ProjectDataModel/CMakeLists_files.cmake
     ModelVisualization/CMakeLists_files.cmake

@@ -27,6 +27,8 @@
 #include "RimEclipseCase.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RimWellPathCollection.h"
+#include "RimGeoMechCase.h"
+#include "RigGeoMechWellLogExtractor.h"
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlotCollection, "WellLogPlotCollection");
 
@@ -71,6 +73,32 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
 
     cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(eclCaseData, wellPathGeom);
     m_extractors.push_back(extractor.p());
+
+    return extractor.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* eclCase)
+{
+    if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->geoMechData()))
+    {
+        return NULL;
+    }
+
+    RigGeoMechCaseData* eclCaseData = eclCase->geoMechData();
+    RigWellPath* wellPathGeom = wellPath->wellPathGeometry();
+    for (size_t exIdx = 0; exIdx < m_geomExtractors.size(); ++exIdx)
+    {
+         if (m_geomExtractors[exIdx]->caseData() == eclCaseData && m_geomExtractors[exIdx]->wellPathData() == wellPathGeom)
+         {
+            return m_geomExtractors[exIdx].p();
+         }
+    }
+
+    cvf::ref<RigGeoMechWellLogExtractor> extractor = new RigGeoMechWellLogExtractor(eclCaseData, wellPathGeom);
+    m_geomExtractors.push_back(extractor.p());
 
     return extractor.p();
 }

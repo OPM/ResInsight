@@ -27,9 +27,9 @@
 #include <vector>
 #include "cvfStructGrid.h"
 
-class RigCaseData;
 class RigWellPath;
-class RigResultAccessor;
+class RigGeoMechCaseData;
+class RigFemResultAddress;
 
 namespace cvf {
     class BoundingBox;
@@ -38,32 +38,35 @@ namespace cvf {
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigEclipseWellLogExtractor : public cvf::Object
+class RigGeoMechWellLogExtractor : public cvf::Object
 {
 public:
-    RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath);
+    RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase, const RigWellPath* wellpath);
 
-    const std::vector<double>&  measuredDepth(){ return m_measuredDepth; }
-    const std::vector<double>&  trueVerticalDepth(){return m_trueVerticalDepth;}
+    const std::vector<double>&   measuredDepth(){ return m_measuredDepth; }
+    const std::vector<double>&   trueVerticalDepth(){return m_trueVerticalDepth;}
 
-    const RigWellPath*          wellPathData() { return m_wellPath.p();}
-    void                        curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
+    const RigWellPath*           wellPathData() { return m_wellPath.p();}
 
-    const RigCaseData*          caseData()     { return m_caseData.p();}
+    void                         curveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
 
-protected:
-    void                        calculateIntersection();
-    std::vector<size_t>         findCloseCells(const cvf::BoundingBox& bb);
+    const RigGeoMechCaseData*    caseData()     { return m_caseData.p();}
 
-    cvf::cref<RigCaseData>      m_caseData;
+private:
+    void                         calculateIntersection();
+    std::vector<size_t>          findCloseCells(const cvf::BoundingBox& bb);
 
-    std::vector<double>         m_measuredDepth;
-    std::vector<double>         m_trueVerticalDepth;
-    
-    std::vector<cvf::Vec3d>     m_intersections;
-    std::vector<size_t>         m_intersectedCells;
-    std::vector<cvf::StructGridInterface::FaceType> 
-                                m_intersectedCellFaces;
+    cvf::ref<RigGeoMechCaseData> m_caseData;
+    std::vector<double>          m_measuredDepth;
+    std::vector<double>          m_trueVerticalDepth;
 
-    cvf::cref<RigWellPath>      m_wellPath;
+    std::vector<cvf::Vec3d>      m_intersections;
+    std::vector<size_t>          m_intersectedCells;
+    std::vector<cvf::StructGridInterface::FaceType>
+                                 m_intersectedCellFaces;
+
+    cvf::cref<RigWellPath>       m_wellPath;
+
 };
+
+
