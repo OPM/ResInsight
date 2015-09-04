@@ -41,6 +41,7 @@ public:
     virtual ~RimWellLogPlot();
 
     void setDescription(const QString& description);
+    void updateViewerWidgetWindowTitle();
 
     void    addTrace(RimWellLogPlotTrace* trace);
     size_t  traceCount() { return traces.size();}

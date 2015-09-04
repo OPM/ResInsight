@@ -89,6 +89,7 @@ void RimWellLogPlot::updateViewerWidget()
         RiuMainWindow::instance()->addViewer(m_viewer, windowGeometry());
         RiuMainWindow::instance()->setActiveViewer(m_viewer);
         updateAxisRanges();
+        updateViewerWidgetWindowTitle();
     }
     else
     {
@@ -117,6 +118,10 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     else if (changedField == &m_minimumVisibleDepth || changedField == &m_maximumVisibleDepth)
     {
         updateAxisRanges();
+    }
+    else if (changedField == &m_userName)
+    {
+        updateViewerWidgetWindowTitle();
     }
 }
 
@@ -338,4 +343,15 @@ void RimWellLogPlot::detachAllCurves()
 void RimWellLogPlot::setDescription(const QString& description)
 {
     m_userName = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateViewerWidgetWindowTitle()
+{
+    if (m_viewer)
+    {
+        m_viewer->setWindowTitle(QString("Well Log Plot - %1").arg(m_userName));
+    }
 }
