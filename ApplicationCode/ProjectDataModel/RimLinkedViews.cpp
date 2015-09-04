@@ -35,6 +35,7 @@
 #include "RiuViewer.h"
 
 #include "cvfCamera.h"
+#include "cafFrameAnimationControl.h"
 #include "cvfMatrix4.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -80,6 +81,7 @@ void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
     if (m_mainView && m_mainView->viewer() && sourceView != m_mainView)
     {
         m_mainView->viewer()->setCurrentFrame(timeStep);
+        m_mainView->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
     }
 
     for (size_t i = 0; i < viewConfigs.size(); i++)
@@ -90,6 +92,7 @@ void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
             if (managedViewConfig->syncTimeStep() && managedViewConfig->managedView()->viewer())
             {
                 managedViewConfig->managedView()->viewer()->setCurrentFrame(timeStep);
+                managedViewConfig->managedView()->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
             }
         }
     }
