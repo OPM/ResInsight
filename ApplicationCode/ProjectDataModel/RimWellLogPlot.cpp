@@ -54,8 +54,8 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
     windowGeometry.uiCapability()->setUiHidden(true);
    
-    m_depthRangeMinimum = HUGE_VAL;
-    m_depthRangeMaximum = -HUGE_VAL;
+    m_depthRangeMinimum = 0.00;
+    m_depthRangeMaximum = 1000.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,8 +209,11 @@ void RimWellLogPlot::updateAvailableDepthRange()
         }
     }
 
-    m_depthRangeMinimum = minDepth;
-    m_depthRangeMaximum = maxDepth;
+    if (minDepth < HUGE_VAL && maxDepth > -HUGE_VAL)
+    {
+        m_depthRangeMinimum = minDepth;
+        m_depthRangeMaximum = maxDepth;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
