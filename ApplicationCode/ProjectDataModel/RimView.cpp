@@ -588,10 +588,16 @@ void RimView::notifyCameraHasChanged()
         }
     }
 
-    cvf::Vec3d up;
-    cvf::Vec3d domainEye;
-    cvf::Vec3d domainViewRefPoint;
-    this->viewer()->mainCamera()->toLookAt(&domainEye, &domainViewRefPoint, &up);
+    cvf::Vec3d sourceCamUp;
+    cvf::Vec3d sourceCamEye;
+    cvf::Vec3d sourceCamViewRefPoint;
+    this->viewer()->mainCamera()->toLookAt(&sourceCamEye, &sourceCamViewRefPoint, &sourceCamUp);
+
+    cvf::Vec3d sourceCamGlobalEye = sourceCamEye;
+    cvf::Vec3d sourceCamGlobalViewRefPoint = sourceCamViewRefPoint;
+    
+    // Source bounding box in global coordinates including scaleZ
+    cvf::BoundingBox sourceSceneBB = this->viewer()->currentScene()->boundingBox();
 
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(this);
     if (eclipseView
@@ -602,8 +608,12 @@ void RimView::notifyCameraHasChanged()
         cvf::Vec3d offset = eclipseView->eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
         offset.z() *= eclipseView->scaleZ();
 
-        domainEye += offset;
-        domainViewRefPoint += offset;
+        sourceCamGlobalEye += offset;
+        sourceCamGlobalViewRefPoint += offset;
+        
+        cvf::Mat4d trans;
+        trans.setTranslation(offset);
+        sourceSceneBB.transform(trans);
     }
 
     // Propagate view matrix to all relevant views
@@ -613,6 +623,11 @@ void RimView::notifyCameraHasChanged()
     {
         if (viewsToUpdate[i] && viewsToUpdate[i]->viewer())
         {
+            RiuViewer* destinationViewer = viewsToUpdate[i]->viewer();
+
+            // Destination bounding box in global coordinates including scaleZ
+            cvf::BoundingBox destSceneBB = destinationViewer->currentScene()->boundingBox();
+
             RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(viewsToUpdate[i]);
             if (destEclipseView
                 && destEclipseView->eclipseCase()
@@ -622,17 +637,37 @@ void RimView::notifyCameraHasChanged()
                 cvf::Vec3d destOffset = destEclipseView->eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
                 destOffset.z() *= destEclipseView->scaleZ();
 
-                cvf::Vec3d eclipseEye = domainEye - destOffset;
-                cvf::Vec3d eclipseViewRefPoint = domainViewRefPoint - destOffset;
+                cvf::Vec3d destinationCamEye = sourceCamGlobalEye - destOffset;
+                cvf::Vec3d destinationCamViewRefPoint = sourceCamGlobalViewRefPoint - destOffset;
 
-                viewsToUpdate[i]->viewer()->mainCamera()->setFromLookAt(eclipseEye, eclipseViewRefPoint, up);
+                cvf::Mat4d trans;
+                trans.setTranslation(destOffset);
+                destSceneBB.transform(trans);
+
+                if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
+                {
+                    destinationViewer->mainCamera()->setFromLookAt(destinationCamEye, destinationCamViewRefPoint, sourceCamUp);
+                }
+                else
+                {
+                    // Fallback using values from source camera
+                    destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
+                }
             }
             else
             {
-                viewsToUpdate[i]->viewer()->mainCamera()->setFromLookAt(domainEye, domainViewRefPoint, up);
+                if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
+                {
+                    destinationViewer->mainCamera()->setFromLookAt(sourceCamGlobalEye, sourceCamGlobalViewRefPoint, sourceCamUp);
+                }
+                else
+                {
+                    // Fallback using values from source camera
+                    destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
+                }
             }
 
-            viewsToUpdate[i]->viewer()->update();
+            destinationViewer->update();
         }
     }
 }
@@ -645,5 +680,27 @@ void RimView::setScaleZAndUpdate(double scaleZ)
     this->scaleZ = scaleZ;
     updateScaleTransform();
     createDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimView::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB)
+{
+    if (sourceBB.intersects(destBB)) return true;
+
+    double largestExtent = sourceBB.extent().length();
+    if (destBB.extent().length() > largestExtent)
+    {
+        largestExtent = destBB.extent().length();
+    }
+
+    double centerDist = (sourceBB.center() - destBB.center()).length();
+    if (centerDist < largestExtent * 5)
+    {
+        return true;
+    }
+
+    return false;
 }
 

@@ -165,6 +165,9 @@ protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 private:
+    static bool isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
+
+private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;
 
