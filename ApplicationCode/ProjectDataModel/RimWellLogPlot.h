@@ -40,6 +40,8 @@ public:
     RimWellLogPlot();
     virtual ~RimWellLogPlot();
 
+    void setDescription(const QString& description);
+
     void    addTrace(RimWellLogPlotTrace* trace);
     size_t  traceCount() { return traces.size();}
 
@@ -82,8 +84,9 @@ private:
 
     caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
     
-    caf::PdmField<double> m_minimumVisibleDepth;
-    caf::PdmField<double> m_maximumVisibleDepth;
+    caf::PdmField<QString>  m_userName;
+    caf::PdmField<double>   m_minimumVisibleDepth;
+    caf::PdmField<double>   m_maximumVisibleDepth;
 
     double m_depthRangeMinimum;
     double m_depthRangeMaximum;

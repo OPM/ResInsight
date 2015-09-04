@@ -50,11 +50,13 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
     if (wellLogPlotColl)
     {
         RimWellLogPlot* plot = new RimWellLogPlot();
-        RimWellLogPlotTrace* plotrace = new RimWellLogPlotTrace();
-
-        plot->addTrace(plotrace);
-        plot->loadDataAndUpdate();
         wellLogPlotColl->wellLogPlots().push_back(plot);
+
+        RimWellLogPlotTrace* plotrace = new RimWellLogPlotTrace();
+        plot->addTrace(plotrace);
+        
+        plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
+        plot->loadDataAndUpdate();
 
         RiaApplication::instance()->project()->updateConnectedEditors();
         RiuMainWindow::instance()->setCurrentObjectInTreeView(plot);
