@@ -32,8 +32,8 @@
 
 #include <math.h>
 
-#define RIU_SCROLLWHEEL_ZOOMFACTOR  1.05
-#define RIU_SCROLLWHEEL_PANFACTOR   0.05
+#define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
+#define RIU_SCROLLWHEEL_PANFACTOR   0.1
 
 //--------------------------------------------------------------------------------------------------
 /// 
