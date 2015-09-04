@@ -43,26 +43,27 @@ class RigEclipseWellLogExtractor : public cvf::Object
 public:
     RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath);
 
-    const std::vector<double>& measuredDepth();
-    const std::vector<double>& trueVerticalDepth();
-    const std::vector<size_t>& cellIndicesPrSegment();
+    const std::vector<double>&  measuredDepth();
+    const std::vector<double>&  trueVerticalDepth();
 
-    void curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
+    void                        curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
 
-    const RigCaseData* caseData()     { return m_caseData.p();}
-    const RigWellPath* wellPathData() { return m_wellPath.p();}
+    const RigCaseData*          caseData()     { return m_caseData.p();}
+    const RigWellPath*          wellPathData() { return m_wellPath.p();}
 
 private:
-    void calculateIntersection();
-    std::vector<size_t> findCloseCells(const cvf::BoundingBox& bb);
-    std::vector<double> m_measuredDepth;
-    std::vector<double> m_trueVerticalDepth;
-    std::vector<size_t> m_globalCellIndicesPrSegment;
-    std::vector<cvf::Vec3d> m_intersections;
-    std::vector<size_t> m_intersectedCells;
-    std::vector<cvf::StructGridInterface::FaceType>  m_intersectedCellFaces;
+    void                        calculateIntersection();
+    std::vector<size_t>         findCloseCells(const cvf::BoundingBox& bb);
 
-    cvf::cref<RigCaseData> m_caseData;
-    cvf::cref<RigWellPath> m_wellPath;
+    std::vector<double>         m_measuredDepth;
+    std::vector<double>         m_trueVerticalDepth;
+    
+    std::vector<cvf::Vec3d>     m_intersections;
+    std::vector<size_t>         m_intersectedCells;
+    std::vector<cvf::StructGridInterface::FaceType> 
+                                m_intersectedCellFaces;
+
+    cvf::cref<RigCaseData>      m_caseData;
+    cvf::cref<RigWellPath>      m_wellPath;
 
 };

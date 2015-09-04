@@ -25,20 +25,10 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 
+//==================================================================================================
+///  Internal class for intersection point info 
+//==================================================================================================
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath)
-    : m_caseData(aCase), m_wellPath(wellpath)
-{
-    calculateIntersection();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Internal class for intersection point info 
-//--------------------------------------------------------------------------------------------------
 struct HexIntersectionInfo
 {
 
@@ -98,9 +88,10 @@ int lineHexCellIntersection(const cvf::Vec3d p1, const cvf::Vec3d p2, const cvf:
     return intersectionCount;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// Class used to sort the intersections along the wellpath
-//--------------------------------------------------------------------------------------------------
+//==================================================================================================
+///  Class used to sort the intersections along the wellpath
+//==================================================================================================
+
 struct WellPathDepthPoint
 {
     WellPathDepthPoint(double md, bool entering): measuredDepth(md), isEnteringCell(entering){}
@@ -148,6 +139,36 @@ struct WellPathDepthPoint
         return false;
     }
 };
+
+//==================================================================================================
+/// 
+//==================================================================================================
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath)
+    : m_caseData(aCase), m_wellPath(wellpath)
+{
+    calculateIntersection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigEclipseWellLogExtractor::measuredDepth()
+{
+    return m_measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigEclipseWellLogExtractor::trueVerticalDepth()
+{
+    return m_trueVerticalDepth;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -271,28 +292,3 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::Boundi
 
     return closeCells;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigEclipseWellLogExtractor::measuredDepth()
-{
-    return m_measuredDepth;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigEclipseWellLogExtractor::trueVerticalDepth()
-{
-    return m_trueVerticalDepth;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigEclipseWellLogExtractor::cellIndicesPrSegment()
-{
-    CVF_ASSERT(false); // Not implemented
-    return m_globalCellIndicesPrSegment;
-}   
