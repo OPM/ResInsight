@@ -21,8 +21,11 @@
 
 #include "qwt_plot.h"
 
+class RimWellLogPlotTrace;
 class QwtPlotGrid;
 class QwtLegend;
+
+class QEvent;
 
 //==================================================================================================
 //
@@ -34,16 +37,20 @@ class RiuWellLogTracePlot : public QwtPlot
     Q_OBJECT
 
 public:
-    RiuWellLogTracePlot(QWidget* parent = NULL);
+    RiuWellLogTracePlot(RimWellLogPlotTrace* plotTraceDefinition, QWidget* parent = NULL);
     virtual ~RiuWellLogTracePlot();
 
     void setDepthRange(double minDepth, double maxDepth);
+
+protected:
+    virtual bool eventFilter(QObject* watched, QEvent* event);
 
 private:
     void setDefaults();
 
 private:
-    QwtPlotGrid*    m_grid;
-    QwtLegend*      m_legend;
+    RimWellLogPlotTrace*    m_plotTraceDefinition;
+    QwtPlotGrid*            m_grid;
+    QwtLegend*              m_legend;
 };
 

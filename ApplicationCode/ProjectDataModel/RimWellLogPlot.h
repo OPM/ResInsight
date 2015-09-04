@@ -47,7 +47,7 @@ public:
 
     RiuWellLogPlot* viewer();
 
-    void zoomDepth(double zoomFactor);
+    void zoomDepth(double zoomFactor, double zoomCenter);
     void panDepth(double panFactor);
     void setVisibleDepthRange(double minimumDepth, double maximumDepth);
 

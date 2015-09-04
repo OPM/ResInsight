@@ -171,7 +171,7 @@ void RimWellLogPlotTrace::recreateViewer()
 {
     CVF_ASSERT(m_viewer == NULL);
 
-    m_viewer = new RiuWellLogTracePlot;
+    m_viewer = new RiuWellLogTracePlot(this);
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
         curves[cIdx]->setPlot(this->m_viewer);

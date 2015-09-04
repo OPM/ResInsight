@@ -19,17 +19,28 @@
 
 #include "RiuWellLogTracePlot.h"
 
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotTrace.h"
+
 #include "qwt_plot_grid.h"
 #include "qwt_legend.h"
 #include "qwt_scale_engine.h"
 #include "qwt_plot_layout.h"
 
+#include <QWheelEvent>
+
+#define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
+#define RIU_SCROLLWHEEL_PANFACTOR   0.1
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTracePlot::RiuWellLogTracePlot(QWidget* parent)
+RiuWellLogTracePlot::RiuWellLogTracePlot(RimWellLogPlotTrace* plotTraceDefinition, QWidget* parent)
     : QwtPlot(parent)
 {
+    Q_ASSERT(plotTraceDefinition);
+    m_plotTraceDefinition = plotTraceDefinition;
+
     m_grid = new QwtPlotGrid();
     m_grid->attach(this);
 
@@ -66,6 +77,9 @@ void RiuWellLogTracePlot::setDefaults()
         canvasFrame->setFrameShape(QFrame::NoFrame);
     }
 
+    canvas()->setMouseTracking(true);
+    canvas()->installEventFilter(this);
+
     QPen gridPen(Qt::SolidLine);
     gridPen.setColor(Qt::lightGray);
     m_grid->setPen(gridPen);
@@ -96,4 +110,53 @@ void RiuWellLogTracePlot::setDepthRange(double minDepth, double maxDepth)
     // Note: Y-axis is inverted
     setAxisScale(QwtPlot::yLeft, maxDepth, minDepth);
     replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuWellLogTracePlot::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == canvas())
+    {
+        QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>(event);
+        if (wheelEvent)
+        {
+            if (!m_plotTraceDefinition)
+            {
+                return QwtPlot::eventFilter(watched, event);
+            }
+
+            RimWellLogPlot* plotDefinition;
+            m_plotTraceDefinition->firstAnchestorOrThisOfType(plotDefinition);
+            if (!plotDefinition)
+            {
+                return QwtPlot::eventFilter(watched, event);
+            }
+
+            if (wheelEvent->modifiers() & Qt::ControlModifier)
+            {
+                QwtScaleMap scaleMap = canvasMap(QwtPlot::yLeft);
+                double zoomCenter = scaleMap.invTransform(wheelEvent->pos().y());
+
+                if (wheelEvent->delta() > 0)
+                {
+                    plotDefinition->zoomDepth(RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
+                }
+                else
+                {
+                    plotDefinition->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
+                }
+            }
+            else
+            {
+                plotDefinition->panDepth(wheelEvent->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR : -RIU_SCROLLWHEEL_PANFACTOR);
+            }
+
+            event->accept();
+            return true;
+        }
+    }
+
+    return QwtPlot::eventFilter(watched, event);
 }

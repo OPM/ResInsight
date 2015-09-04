@@ -27,13 +27,9 @@
 #include "cvfAssert.h"
 
 #include <QHBoxLayout>
-#include <QWheelEvent>
 #include <QScrollBar>
 
 #include <math.h>
-
-#define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
-#define RIU_SCROLLWHEEL_PANFACTOR   0.1
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -68,11 +64,9 @@ RiuWellLogPlot::~RiuWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::insertTracePlot(RiuWellLogTracePlot* tracePlot)
 {
-
     // Insert the plot to the left of the scroll bar
     m_layout->insertWidget(m_layout->count() - 1, tracePlot);
-    m_tracePlots.append(tracePlot);
-   
+    m_tracePlots.append(tracePlot);  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +81,6 @@ void RiuWellLogPlot::setDepthRange(double minDepth, double maxDepth)
 
     updateScrollBar(minDepth, maxDepth);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -106,36 +99,6 @@ void RiuWellLogPlot::updateScrollBar(double minDepth, double maxDepth)
     m_scrollBar->setValue((int) minDepth);
 
     m_scrollBar->setVisible(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::wheelEvent(QWheelEvent* event)
-{
-     if (!m_plotDefinition)
-     {
-         QWidget::wheelEvent(event);
-         return;
-     }
-
-     if (event->modifiers() & Qt::ControlModifier)
-     {
-         if (event->delta() > 0)
-         {
-             m_plotDefinition->zoomDepth(RIU_SCROLLWHEEL_ZOOMFACTOR);
-         }
-         else
-         {
-             m_plotDefinition->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR);
-         }
-     }
-     else
-     {
-         m_plotDefinition->panDepth(event->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR : -RIU_SCROLLWHEEL_PANFACTOR);
-     }
-
-     event->accept();
 }
 
 //--------------------------------------------------------------------------------------------------

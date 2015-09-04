@@ -151,13 +151,10 @@ RiuWellLogPlot* RimWellLogPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::zoomDepth(double zoomFactor)
+void RimWellLogPlot::zoomDepth(double zoomFactor, double zoomCenter)
 {
-    double center       = (m_maximumVisibleDepth + m_minimumVisibleDepth)/2;
-    double newHalfDepth = zoomFactor*(m_maximumVisibleDepth - m_minimumVisibleDepth)/2;
-
-    double newMinimum = center - newHalfDepth;
-    double newMaximum = center + newHalfDepth;
+    double newMinimum = zoomCenter - (zoomCenter - m_minimumVisibleDepth)*zoomFactor;
+    double newMaximum = zoomCenter + (m_maximumVisibleDepth - zoomCenter)*zoomFactor;
 
     setVisibleDepthRange(newMinimum, newMaximum);
 }

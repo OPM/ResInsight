@@ -26,7 +26,6 @@ class RimWellLogPlot;
 class RiuWellLogTracePlot;
 
 class QHBoxLayout;
-class QWheelEvent;
 class QScrollBar;
 
 //==================================================================================================
@@ -45,9 +44,6 @@ public:
     void insertTracePlot(RiuWellLogTracePlot* tracePlot);
 
     void setDepthRange(double minDepth, double maxDepth);
-
-protected:
-    void wheelEvent(QWheelEvent* event);
 
 private:
     void updateScrollBar(double minDepth, double maxDepth);
