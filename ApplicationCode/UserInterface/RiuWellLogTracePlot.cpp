@@ -28,6 +28,7 @@
 #include "qwt_plot_layout.h"
 
 #include <QWheelEvent>
+#include <QFont>
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
 #define RIU_SCROLLWHEEL_PANFACTOR   0.1
@@ -100,6 +101,14 @@ void RiuWellLogTracePlot::setDefaults()
     setAxisScale(QwtPlot::xTop, -10, 100);
 
     setAxisAutoScale(QwtPlot::xTop, true);
+
+    QFont xAxisFont = axisFont(QwtPlot::xTop);
+    xAxisFont.setPixelSize(9);
+    setAxisFont(QwtPlot::xTop, xAxisFont);
+
+    QFont yAxisFont = axisFont(QwtPlot::yLeft);
+    yAxisFont.setPixelSize(9);
+    setAxisFont(QwtPlot::yLeft, yAxisFont);
 }
 
 //--------------------------------------------------------------------------------------------------
