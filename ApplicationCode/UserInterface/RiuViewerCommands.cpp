@@ -33,8 +33,13 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechCellColors.h"
+#include "RimProject.h"
+#include "RimOilField.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPath.h"
 
 #include "RivSourceInfo.h"
+#include "RivWellPathSourceInfo.h"
 #include "RivFemPickSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RigCaseData.h"
@@ -120,7 +125,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     if (faceIndex == cvf::UNDEFINED_UINT) return;
 
     if (!firstHitPart->sourceInfo()) return;
-            
+
     const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
     const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
 
@@ -312,6 +317,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
     size_t gridIndex = cvf::UNDEFINED_SIZE_T;
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
     size_t nncIndex = cvf::UNDEFINED_SIZE_T;
+    size_t wellPathIndex = cvf::UNDEFINED_SIZE_T;
     cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::NO_FACE;
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
 
@@ -334,6 +340,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
         {
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
+            const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
             {
@@ -350,6 +357,10 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
             {
                 gridIndex = femSourceInfo->femPartIndex();
                 cellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(firstPartTriangleIndex);
+            }
+            else if (wellPathSourceInfo)
+            {
+                wellPathIndex = wellPathSourceInfo->wellPathIndex();
             }
         }
        
@@ -399,6 +410,19 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
             resultInfo = textBuilder.mainResultText();
 
             pickInfo = textBuilder.topologyText(", ");
+        }
+    }
+
+    if (wellPathIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        CVF_ASSERT(project);
+
+        RimOilField* oilField = project->activeOilField();
+        if (oilField)
+        {
+            RimWellPath* wellPath = oilField->wellPathCollection()->wellPaths[wellPathIndex];
+            pickInfo = QString("Well path hit: %1").arg(wellPath->name());
         }
     }
 

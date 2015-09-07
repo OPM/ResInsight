@@ -50,7 +50,7 @@ public:
     void                                    scheduleGeometryRegen() { m_needsTransformUpdate = true; }//printf("R"); }
 
     void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox, size_t wellPathIndex);
 
 private:
     caf::PdmPointer<RimWellPathCollection>  m_wellPathCollection;
@@ -59,7 +59,7 @@ private:
     cvf::ref<cvf::Transform>                m_scaleTransform; 
     bool                                    m_needsTransformUpdate;
 
-    void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+    void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox, size_t wellPathIndex);
 
     struct RivPipeBranchData
     {
