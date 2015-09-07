@@ -138,32 +138,6 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::Boundi
 {
     std::vector<size_t> closeCells;
     m_caseData->mainGrid()->findIntersectingCells(bb, &closeCells);
-    #if 0
-    const std::vector<RigCell>& cells = m_caseData->mainGrid()->cells();
-    const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
-    
-   
-
-    size_t cellCount = cells.size(); 
-    for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
-    {
-        const caf::SizeTArray8& cellIndices = cells[cIdx].cornerIndices();
-        cvf::BoundingBox cellBB;
-        cellBB.add(nodeCoords[cellIndices[0]]);
-        cellBB.add(nodeCoords[cellIndices[1]]);
-        cellBB.add(nodeCoords[cellIndices[2]]);
-        cellBB.add(nodeCoords[cellIndices[3]]);
-        cellBB.add(nodeCoords[cellIndices[4]]);
-        cellBB.add(nodeCoords[cellIndices[5]]);
-        cellBB.add(nodeCoords[cellIndices[6]]);
-        cellBB.add(nodeCoords[cellIndices[7]]);
-
-        if (bb.intersects(cellBB))
-        {
-            closeCells.push_back(cIdx);  
-        }
-    }
-    #endif
     return closeCells;
 }
 

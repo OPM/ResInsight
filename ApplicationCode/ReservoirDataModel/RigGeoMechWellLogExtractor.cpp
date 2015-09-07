@@ -191,26 +191,7 @@ std::vector<size_t> RigGeoMechWellLogExtractor::findCloseCells(const cvf::Boundi
 
     if (m_caseData->femParts()->partCount())
     {
-        const RigFemPart* femPart = m_caseData->femParts()->part(0);
-        const std::vector<cvf::Vec3f>& nodeCoords =  femPart->nodes().coordinates;
-
-        size_t elmCount = femPart->elementCount();
-        for (size_t elmIdx = 0; elmIdx < elmCount; ++elmIdx)
-        {
-            const int* elmNodeIndices = femPart->connectivities(elmIdx);
-            int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
-            cvf::BoundingBox cellBB;
-
-            for (int enIdx = 0; enIdx < elmNodeCount; ++enIdx)
-            {
-                cellBB.add(cvf::Vec3d(nodeCoords[elmNodeIndices[enIdx]]));
-            }
-
-            if (bb.intersects(cellBB))
-            {
-                closeCells.push_back(elmIdx);
-            }
-        }
+        m_caseData->femParts()->part(0)->findIntersectingCells(bb, &closeCells);
     }
     return closeCells;
 }

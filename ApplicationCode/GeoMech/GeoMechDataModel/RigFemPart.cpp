@@ -21,6 +21,7 @@
 
 #include "RigFemPartGrid.h"
 #include "cvfBoundingBox.h"
+#include "cvfBoundingBoxTree.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -336,5 +337,40 @@ cvf::BoundingBox RigFemPart::boundingBox()
     }
 
     return m_boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const
+{
+    if (m_elementSearchTree.isNull())
+    {
+        // build tree
+
+        size_t elmCount = elementCount();
+
+        std::vector<cvf::BoundingBox> cellBoundingBoxes;
+        cellBoundingBoxes.resize(elmCount);
+
+        for (size_t elmIdx = 0; elmIdx < elmCount; ++elmIdx)
+        {
+            const int* cellIndices = connectivities(elmIdx);
+            cvf::BoundingBox& cellBB = cellBoundingBoxes[elmIdx];
+            cellBB.add(m_nodes.coordinates[cellIndices[0]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[1]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[2]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[3]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[4]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[5]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[6]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[7]]);
+        }
+
+        m_elementSearchTree = new cvf::BoundingBoxTree;
+        m_elementSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, NULL);
+    }
+
+    m_elementSearchTree->findIntersections(inputBB, elementIndices);
 }
 

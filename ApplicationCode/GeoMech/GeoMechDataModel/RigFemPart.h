@@ -30,6 +30,11 @@
 
 class RigFemPartGrid;
 
+namespace cvf
+{
+    class BoundingBoxTree;
+}
+
 class RigFemPartNodes
 {
 public:
@@ -74,6 +79,7 @@ public:
     cvf::BoundingBox            boundingBox();
     float                       characteristicElementSize();
     const std::vector<int>&     possibleGridCornerElements() const { return m_possibleGridCornerElements; }
+    void                        findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const;
 
     cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex);
 
@@ -101,5 +107,7 @@ private:
 
     float                       m_characteristicElementSize;
     cvf::BoundingBox            m_boundingBox;
+
+    mutable cvf::ref<cvf::BoundingBoxTree> m_elementSearchTree;
 
 };
