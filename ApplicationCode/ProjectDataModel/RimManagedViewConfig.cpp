@@ -51,11 +51,11 @@ RimManagedViewConfig::RimManagedViewConfig(void)
     CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Managed View", "", "", "");
     m_managedView.uiCapability()->setUiChildrenHidden(true);
 
-    CAF_PDM_InitField(&syncCamera,          "SyncCamera", true,         "Sync Camera", "", "", "");
-    CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Sync Time Step", "", "", "");
-    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", true,     "Sync Cell Result", "", "", "");
-    CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Sync Range Filters", "", "", "");
-    CAF_PDM_InitField(&syncPropertyFilters, "SyncPropertyFilters", true,"Sync Property Filters", "", "", "");
+    CAF_PDM_InitField(&syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
+    CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
+    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", true,     "Cell Result", "", "", "");
+    CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
+    CAF_PDM_InitField(&syncPropertyFilters, "SyncPropertyFilters", true,"Property Filters", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -411,5 +411,21 @@ RimView* RimManagedViewConfig::managedView()
 void RimManagedViewConfig::setManagedView(RimView* view)
 {
     m_managedView = view;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimManagedViewConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_managedView);
+
+    caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Properties for sync");
+
+    scriptGroup->add(&syncCamera);
+    scriptGroup->add(&syncTimeStep);
+    scriptGroup->add(&syncCellResult);
+    scriptGroup->add(&syncRangeFilters);
+    scriptGroup->add(&syncPropertyFilters);
 }
 

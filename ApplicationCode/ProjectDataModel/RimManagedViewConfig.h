@@ -59,6 +59,7 @@ protected:
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual void                            initAfterRead();
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 
 private:
