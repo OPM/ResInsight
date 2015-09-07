@@ -50,6 +50,7 @@ public:
     void loadDataAndUpdate();
 
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
+    void updateAxisRanges();
 
     RiuWellLogTracePlot* viewer();
 

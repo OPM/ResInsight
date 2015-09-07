@@ -34,6 +34,7 @@
 #include "RimWellPathCollection.h"
 #include "RimView.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotTrace.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimProject.h"
 
@@ -113,6 +114,13 @@ void RicDeleteItemExec::redo()
         if (wellLogPlot)
         {
             wellLogPlot->updateAvailableDepthRange();
+        }
+
+        RimWellLogPlotTrace* wellLogPlotTrace;
+        parentObj->firstAnchestorOrThisOfType(wellLogPlotTrace);
+        if (wellLogPlotTrace)
+        {
+            wellLogPlotTrace->updateAxisRanges();
         }
 
         RimWellLogPlotCollection* wellLogPlotCollection = NULL;

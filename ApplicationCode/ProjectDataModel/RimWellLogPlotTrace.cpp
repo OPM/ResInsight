@@ -31,6 +31,10 @@
 
 #include <math.h>
 
+#define RI_LOGPLOTTRACE_MINX_DEFAULT    -10.0
+#define RI_LOGPLOTTRACE_MAXX_DEFAULT    100.0
+
+
 CAF_PDM_SOURCE_INIT(RimWellLogPlotTrace, "WellLogPlotTrace");
 
 //--------------------------------------------------------------------------------------------------
@@ -46,9 +50,8 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
     CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");
     curves.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_minimumValue, "MinimumValue", -10.0, "Minimum value", "", "", "");
-    CAF_PDM_InitField(&m_maximumValue, "MaximumValue", 100.0, "Maximum value", "", "", "");
-   
+    CAF_PDM_InitField(&m_minimumValue, "MinimumValue", RI_LOGPLOTTRACE_MINX_DEFAULT, "Minimum value", "", "", "");
+    CAF_PDM_InitField(&m_maximumValue, "MaximumValue", RI_LOGPLOTTRACE_MAXX_DEFAULT, "Maximum value", "", "", "");   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,5 +189,39 @@ void RimWellLogPlotTrace::detachAllCurves()
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
         curves[cIdx]->detachCurve();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrace::updateAxisRanges()
+{
+    bool rangesChanged = false;
+
+    if (m_viewer)
+    {
+        RimWellLogPlot* wellLogPlot;
+        firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+            double minimumDepth, maximumDepth;
+            wellLogPlot->visibleDepthRange(&minimumDepth, &maximumDepth);
+
+            m_viewer->setAxisScale(QwtPlot::yLeft, minimumDepth, maximumDepth);
+            rangesChanged = true;
+        }
+
+        // Assume auto-scaling on X-axis as long as curves exist, reset to default if not
+        if (curves.size() < 1)
+        {
+            m_viewer->setAxisScale(QwtPlot::xTop, RI_LOGPLOTTRACE_MINX_DEFAULT, RI_LOGPLOTTRACE_MAXX_DEFAULT);
+            rangesChanged = true;
+        }
+
+        if (rangesChanged)
+        {
+            m_viewer->replot();
+        }
     }
 }
