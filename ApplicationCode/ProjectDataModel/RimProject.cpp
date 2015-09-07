@@ -899,8 +899,6 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
     }
 
-    uiTreeOrdering.add(scriptCollection());
-    
     if (mainPlotCollection)
     {
         if (mainPlotCollection->wellLogPlotCollection())
@@ -912,6 +910,8 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         }
     }
 
+    uiTreeOrdering.add(scriptCollection());
+    
     uiTreeOrdering.add(&linkedViews);
 
     uiTreeOrdering.setForgetRemainingFields(true);
