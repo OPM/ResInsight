@@ -30,11 +30,11 @@
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
+#include "RimProject.h"
+#include "RimViewLinker.h"
+#include "RimWellLogPlotCurve.h"
 
 #include "cafPdmUiListEditor.h"
-#include "RimProject.h"
-#include "RimLinkedViews.h"
-#include "RimWellLogPlotCurve.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 
@@ -159,10 +159,10 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 RimProject* proj = NULL;
                 view->firstAnchestorOrThisOfType(proj);
 
-                RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
-                if (linkedViews)
+                RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
+                if (viewLinker)
                 {
-                    linkedViews->updateCellResult();
+                    viewLinker->updateCellResult();
                 }
             }
         }

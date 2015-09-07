@@ -31,8 +31,8 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimLinkedViews.h"
 #include "RimProject.h"
+#include "RimViewLinker.h"
 
 #include "cafPdmUiEditorHandle.h"
 
@@ -159,10 +159,10 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews()
     RimProject* proj = NULL;
     view->firstAnchestorOrThisOfType(proj);
 
-    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
-    if (linkedViews)
+    RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
+    if (viewLinker)
     {
-        linkedViews->updateRangeFilters();
+        viewLinker->updateRangeFilters();
     }
 }
 

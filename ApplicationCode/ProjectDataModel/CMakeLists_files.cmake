@@ -59,13 +59,13 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
 ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.h
-${CEE_CURRENT_LIST_DIR}RimManagedViewConfig.h
+${CEE_CURRENT_LIST_DIR}RimLinkedView.h
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrace.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.h
-${CEE_CURRENT_LIST_DIR}RimLinkedViews.h
+${CEE_CURRENT_LIST_DIR}RimViewLinker.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.h
 )
 
@@ -124,13 +124,13 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.cpp
-${CEE_CURRENT_LIST_DIR}RimManagedViewConfig.cpp
+${CEE_CURRENT_LIST_DIR}RimLinkedView.cpp
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrace.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.cpp
-${CEE_CURRENT_LIST_DIR}RimLinkedViews.cpp
+${CEE_CURRENT_LIST_DIR}RimViewLinker.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.cpp
 )
 

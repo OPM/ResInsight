@@ -9,10 +9,10 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimLinkedViews.h"
-#include "RimManagedViewConfig.h"
+#include "RimLinkedView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -439,13 +439,13 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 
             RimProject* proj = NULL;
             this->firstAnchestorOrThisOfType(proj);
-            RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(this);
-            if (linkedViews)
+            RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
+            if (viewLinker)
             {
-                RimManagedViewConfig* viewConf = linkedViews->viewConfigForView(this);
-                if (!viewConf || viewConf->syncCamera())
+                RimLinkedView* linkedView = viewLinker->linkedViewFromView(this);
+                if (!linkedView || linkedView->syncCamera())
                 {
-                    linkedViews->updateScaleZ(this, scaleZ);
+                    viewLinker->updateScaleZ(this, scaleZ);
                 }
             }
 
@@ -477,10 +477,10 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 
             RimProject* proj = NULL;
             this->firstAnchestorOrThisOfType(proj);
-            RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(this);
-            if (linkedViews)
+            RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
+            if (viewLinker)
             {
-                linkedViews->updateTimeStep(this, m_currentTimeStep);
+                viewLinker->updateTimeStep(this, m_currentTimeStep);
             }
         }
     }
@@ -578,15 +578,15 @@ void RimView::notifyCameraHasChanged()
 
     RimProject* proj = NULL;
     this->firstAnchestorOrThisOfType(proj);
-    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(this);
-    if (linkedViews)
+    RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
+    if (viewLinker)
     {
-        RimManagedViewConfig* viewConf = linkedViews->viewConfigForView(this);
+        RimLinkedView* linkedView = viewLinker->linkedViewFromView(this);
 
         // There is no view config for a master view, but all views for sync must be updated
-        if (!viewConf || viewConf->syncCamera())
+        if (!linkedView || linkedView->syncCamera())
         {
-            linkedViews->allViewsForCameraSync(this, viewsToUpdate);
+            viewLinker->allViewsForCameraSync(this, viewsToUpdate);
         }
     }
 

@@ -23,8 +23,8 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimLinkedViews.h"
 #include "RimProject.h"
+#include "RimViewLinker.h"
 
 #include "cafPdmUiEditorHandle.h"
 
@@ -149,9 +149,9 @@ void RimEclipsePropertyFilterCollection::updateDisplayModelNotifyManagedViews()
     RimProject* proj = NULL;
     view->firstAnchestorOrThisOfType(proj);
 
-    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
-    if (linkedViews)
+    RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
+    if (viewLinker)
     {
-        linkedViews->updatePropertyFilters();
+        viewLinker->updatePropertyFilters();
     }
 }

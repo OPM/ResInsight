@@ -23,9 +23,9 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 
-#include "RimLinkedViews.h"
 #include "RimProject.h"
 #include "RimView.h"
+#include "RimViewLinker.h"
 
 #include "RiuCadNavigation.h"
 #include "RiuGeoQuestNavigation.h"
@@ -261,10 +261,10 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
     {
         RimProject* proj = NULL;
         m_reservoirView->firstAnchestorOrThisOfType(proj);
-        RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(m_reservoirView);
-        if (linkedViews)
+        RimViewLinker* viewLinker = proj->findViewLinkerFromView(m_reservoirView);
+        if (viewLinker)
         {
-            linkedViews->updateTimeStep(m_reservoirView, frameIndex);
+            viewLinker->updateTimeStep(m_reservoirView, frameIndex);
         }
     }
 }

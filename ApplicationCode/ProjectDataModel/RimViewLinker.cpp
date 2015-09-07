@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimLinkedViews.h"
+#include "RimViewLinker.h"
 
 #include "RiaApplication.h"
 
@@ -28,7 +28,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimManagedViewConfig.h"
+#include "RimLinkedView.h"
 #include "RimProject.h"
 #include "RimView.h"
 
@@ -41,11 +41,11 @@
 
 
 
-CAF_PDM_SOURCE_INIT(RimLinkedViews, "RimLinkedViews");
+CAF_PDM_SOURCE_INIT(RimViewLinker, "RimLinkedViews");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimLinkedViews::RimLinkedViews(void)
+RimViewLinker::RimViewLinker(void)
 {
     CAF_PDM_InitObject("Linked Views", ":/Reservoir1View.png", "", "");
 
@@ -56,24 +56,24 @@ RimLinkedViews::RimLinkedViews(void)
     m_mainView.uiCapability()->setUiChildrenHidden(true);
     m_mainView.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&viewConfigs, "ManagedViews", "Managed Views", "", "", "");
-    viewConfigs.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&linkedViews, "ManagedViews", "Managed Views", "", "", "");
+    linkedViews.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimLinkedViews::~RimLinkedViews(void)
+RimViewLinker::~RimViewLinker(void)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
+void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 {
-    RimManagedViewConfig* sourceViewConfig = viewConfigForView(sourceView);
-    if (sourceViewConfig && !sourceViewConfig->syncTimeStep())
+    RimLinkedView* sourceLinkedView = linkedViewFromView(sourceView);
+    if (sourceLinkedView && !sourceLinkedView->syncTimeStep())
     {
         return;
     }
@@ -84,9 +84,9 @@ void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
         m_mainView->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
     }
 
-    for (size_t i = 0; i < viewConfigs.size(); i++)
+    for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimManagedViewConfig* managedViewConfig = viewConfigs[i];
+        RimLinkedView* managedViewConfig = linkedViews[i];
         if (managedViewConfig->managedView() && managedViewConfig->managedView() != sourceView)
         {
             if (managedViewConfig->syncTimeStep() && managedViewConfig->managedView()->viewer())
@@ -101,7 +101,7 @@ void RimLinkedViews::updateTimeStep(RimView* sourceView, int timeStep)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::updateCellResult()
+void RimViewLinker::updateCellResult()
 {
     RimView* rimView = m_mainView;
     RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(rimView);
@@ -109,9 +109,9 @@ void RimLinkedViews::updateCellResult()
     {
         RimEclipseResultDefinition* eclipseCellResultDefinition = masterEclipseView->cellResult();
 
-        for (size_t i = 0; i < viewConfigs.size(); i++)
+        for (size_t i = 0; i < linkedViews.size(); i++)
         {
-            RimManagedViewConfig* managedViewConfig = viewConfigs[i];
+            RimLinkedView* managedViewConfig = linkedViews[i];
             if (managedViewConfig->managedView())
             {
                 if (managedViewConfig->syncCellResult())
@@ -134,9 +134,9 @@ void RimLinkedViews::updateCellResult()
     {
         RimGeoMechResultDefinition* geoMechResultDefinition = masterGeoView->cellResult();
 
-        for (size_t i = 0; i < viewConfigs.size(); i++)
+        for (size_t i = 0; i < linkedViews.size(); i++)
         {
-            RimManagedViewConfig* managedViewConfig = viewConfigs[i];
+            RimLinkedView* managedViewConfig = linkedViews[i];
             if (managedViewConfig->managedView())
             {
                 if (managedViewConfig->syncCellResult())
@@ -157,11 +157,11 @@ void RimLinkedViews::updateCellResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::updateRangeFilters()
+void RimViewLinker::updateRangeFilters()
 {
-    for (size_t i = 0; i < viewConfigs.size(); i++)
+    for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimManagedViewConfig* managedViewConfig = viewConfigs[i];
+        RimLinkedView* managedViewConfig = linkedViews[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncRangeFilters())
@@ -192,11 +192,11 @@ void RimLinkedViews::updateRangeFilters()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::updatePropertyFilters()
+void RimViewLinker::updatePropertyFilters()
 {
-    for (size_t i = 0; i < viewConfigs.size(); i++)
+    for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimManagedViewConfig* managedViewConfig = viewConfigs[i];
+        RimLinkedView* managedViewConfig = linkedViews[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncPropertyFilters())
@@ -225,11 +225,11 @@ void RimLinkedViews::updatePropertyFilters()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::configureOverrides()
+void RimViewLinker::configureOverrides()
 {
-    for (size_t i = 0; i < viewConfigs.size(); i++)
+    for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimManagedViewConfig* managedViewConfig = viewConfigs[i];
+        RimLinkedView* managedViewConfig = linkedViews[i];
         managedViewConfig->configureOverrides();
     }
 }
@@ -237,18 +237,18 @@ void RimLinkedViews::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::allViewsForCameraSync(RimView* source, std::vector<RimView*>& views)
+void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>& views)
 {
     if (source != m_mainView())
     {
         views.push_back(m_mainView());
     }
 
-    for (size_t i = 0; i < viewConfigs.size(); i++)
+    for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        if (viewConfigs[i]->syncCamera && viewConfigs[i]->managedView() && source != viewConfigs[i]->managedView())
+        if (linkedViews[i]->syncCamera && linkedViews[i]->managedView() && source != linkedViews[i]->managedView())
         {
-            views.push_back(viewConfigs[i]->managedView());
+            views.push_back(linkedViews[i]->managedView());
         }
     }
 }
@@ -256,7 +256,7 @@ void RimLinkedViews::allViewsForCameraSync(RimView* source, std::vector<RimView*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::applyAllOperations()
+void RimViewLinker::applyAllOperations()
 {
     configureOverrides();
 
@@ -270,7 +270,7 @@ void RimLinkedViews::applyAllOperations()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimLinkedViews::displayNameForView(RimView* view)
+QString RimViewLinker::displayNameForView(RimView* view)
 {
     QString displayName = "None";
 
@@ -288,11 +288,11 @@ QString RimLinkedViews::displayNameForView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimViewLinker::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    for (size_t cIdx = 0; cIdx < viewConfigs.size(); ++cIdx)
+    for (size_t cIdx = 0; cIdx < linkedViews.size(); ++cIdx)
     {
-        PdmObjectHandle* childObject = viewConfigs[cIdx];
+        PdmObjectHandle* childObject = linkedViews[cIdx];
         if (childObject)
         {
             uiTreeOrdering.add(childObject);
@@ -305,11 +305,11 @@ void RimLinkedViews::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimManagedViewConfig* RimLinkedViews::viewConfigForView(RimView* view)
+RimLinkedView* RimViewLinker::linkedViewFromView(RimView* view)
 {
-    for (size_t i = 0; i < viewConfigs.size(); i++)
+    for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        if (viewConfigs[i]->managedView() == view) return viewConfigs[i];
+        if (linkedViews[i]->managedView() == view) return linkedViews[i];
     }
 
     return NULL;
@@ -318,7 +318,7 @@ RimManagedViewConfig* RimLinkedViews::viewConfigForView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::setMainView(RimView* view)
+void RimViewLinker::setMainView(RimView* view)
 {
     m_mainView = view;
 
@@ -328,7 +328,7 @@ void RimLinkedViews::setMainView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimLinkedViews::mainView()
+RimView* RimViewLinker::mainView()
 {
     return m_mainView;
 }
@@ -336,15 +336,15 @@ RimView* RimLinkedViews::mainView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::allViews(std::vector<RimView*>& views)
+void RimViewLinker::allViews(std::vector<RimView*>& views)
 {
     views.push_back(m_mainView());
 
-    for (size_t i = 0; i < viewConfigs.size(); i++)
+    for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        if (viewConfigs[i]->managedView())
+        if (linkedViews[i]->managedView())
         {
-            views.push_back(viewConfigs[i]->managedView());
+            views.push_back(linkedViews[i]->managedView());
         }
     }
 }
@@ -352,7 +352,7 @@ void RimLinkedViews::allViews(std::vector<RimView*>& views)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::initAfterRead()
+void RimViewLinker::initAfterRead()
 {
     m_name = displayNameForView(m_mainView);
 
@@ -371,7 +371,7 @@ void RimLinkedViews::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLinkedViews::updateScaleZ(RimView* source, double scaleZ)
+void RimViewLinker::updateScaleZ(RimView* source, double scaleZ)
 {
     std::vector<RimView*> views;
     allViewsForCameraSync(source, views);

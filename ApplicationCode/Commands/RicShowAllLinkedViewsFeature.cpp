@@ -19,9 +19,9 @@
 
 #include "RicShowAllLinkedViewsFeature.h"
 
-#include "RimLinkedViews.h"
-#include "RimManagedViewConfig.h"
+#include "RimLinkedView.h"
 #include "RimView.h"
+#include "RimViewLinker.h"
 
 #include "cafSelectionManager.h"
 
@@ -42,14 +42,14 @@ bool RicShowAllLinkedViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowAllLinkedViewsFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimLinkedViews*> linkedViews;
+    std::vector<RimViewLinker*> linkedViews;
     caf::SelectionManager::instance()->objectsByType(&linkedViews);
 
-    std::vector<RimManagedViewConfig*> managedViews;
+    std::vector<RimLinkedView*> managedViews;
     caf::SelectionManager::instance()->objectsByType(&managedViews);
     for (size_t i = 0; i < managedViews.size(); i++)
     {
-        RimLinkedViews* rimLinked = NULL;
+        RimViewLinker* rimLinked = NULL;
         managedViews[i]->firstAnchestorOrThisOfType(rimLinked);
 
         linkedViews.push_back(rimLinked);

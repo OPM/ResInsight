@@ -22,8 +22,8 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
-#include "RimLinkedViews.h"
 #include "RimView.h"
+#include "RimViewLinker.h"
 
 CAF_PDM_SOURCE_INIT(RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi");
 
@@ -91,7 +91,7 @@ QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOption
             }
 
 
-            optionList.push_back(caf::PdmOptionItemInfo(RimLinkedViews::displayNameForView(m_allViews[i]), 
+            optionList.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(m_allViews[i]), 
                 QVariant::fromValue(caf::PdmPointer<PdmObjectHandle>(m_allViews[i])),
                 false,
                 icon));

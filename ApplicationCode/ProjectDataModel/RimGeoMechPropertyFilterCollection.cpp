@@ -23,9 +23,9 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
+#include "RimViewLinker.h"
 
 #include "cvfAssert.h"
-#include "RimLinkedViews.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilterCollection, "GeoMechPropertyFilters");
@@ -151,9 +151,9 @@ void RimGeoMechPropertyFilterCollection::updateDisplayModelNotifyManagedViews()
     RimProject* proj = NULL;
     view->firstAnchestorOrThisOfType(proj);
 
-    RimLinkedViews* linkedViews = proj->findLinkedViewsGroupForView(view);
-    if (linkedViews)
+    RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
+    if (viewLinker)
     {
-        linkedViews->updatePropertyFilters();
+        viewLinker->updatePropertyFilters();
     }
 }

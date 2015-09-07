@@ -40,16 +40,16 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimManagedViewConfig.h"
+#include "RimLinkedView.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
+#include "RimViewLinker.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
-#include "RimMainPlotCollection.h"
-#include "RimWellLogPlotCollection.h"
-#include "RimWellLogPlot.h"
-#include "RimLinkedViews.h"
 
 #include "RiuMainWindow.h"
 
@@ -475,7 +475,7 @@ void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
     std::vector<RimView*> alreadyLinkedViews;
     for (size_t i = 0; i < linkedViews().size(); i++)
     {
-        RimLinkedViews* viewLinker = linkedViews()[i];
+        RimViewLinker* viewLinker = linkedViews()[i];
         viewLinker->allViews(alreadyLinkedViews);
     }
 
@@ -791,13 +791,13 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicAddScriptPathFeature";
             commandIds << "RicDeleteScriptPathFeature";
         }
-        else if (dynamic_cast<RimManagedViewConfig*>(uiItem))
+        else if (dynamic_cast<RimLinkedView*>(uiItem))
         {
             commandIds << "RicShowAllLinkedViewsFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
-        else if (dynamic_cast<RimLinkedViews*>(uiItem))
+        else if (dynamic_cast<RimViewLinker*>(uiItem))
         {
             commandIds << "RicShowAllLinkedViewsFeature";
             commandIds << "Separator";
@@ -962,16 +962,16 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimLinkedViews* RimProject::findLinkedViewsGroupForView(RimView* view)
+RimViewLinker* RimProject::findViewLinkerFromView(RimView* view)
 {
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimLinkedViews* group = linkedViews[i];
+        RimViewLinker* group = linkedViews[i];
         if (view == group->mainView()) return group;
 
-        for (size_t j = 0; j < group->viewConfigs.size(); j++)
+        for (size_t j = 0; j < group->linkedViews.size(); j++)
         {
-            RimManagedViewConfig* viewConfig = group->viewConfigs[j];
+            RimLinkedView* viewConfig = group->linkedViews[j];
             if (viewConfig->managedView() == view) return group;
         }
     }

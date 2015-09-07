@@ -23,10 +23,10 @@
 
 #include "RicLinkVisibleViewsFeatureUi.h"
 
-#include "RimLinkedViews.h"
-#include "RimManagedViewConfig.h"
+#include "RimLinkedView.h"
 #include "RimProject.h"
 #include "RimView.h"
+#include "RimViewLinker.h"
 
 #include "RiuMainWindow.h"
 
@@ -78,7 +78,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     if (propertyDialog.exec() != QDialog::Accepted) return;
 
     RimView* masterView = featureUi.masterView();
-    RimLinkedViews* linkedViews = new RimLinkedViews;
+    RimViewLinker* linkedViews = new RimViewLinker;
     linkedViews->setMainView(masterView);
 
     for (size_t i = 0; i < views.size(); i++)
@@ -86,10 +86,10 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
         RimView* rimView = views[i];
         if (rimView == masterView) continue;
 
-        RimManagedViewConfig* viewConfig = new RimManagedViewConfig;
+        RimLinkedView* viewConfig = new RimLinkedView;
         viewConfig->setManagedView(rimView);
 
-        linkedViews->viewConfigs.push_back(viewConfig);
+        linkedViews->linkedViews.push_back(viewConfig);
 
         viewConfig->initAfterReadRecursively();
         viewConfig->updateViewChanged();
@@ -126,7 +126,7 @@ void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<RimView*>& views)
     RimProject* proj = RiaApplication::instance()->project();
     for (size_t i = 0; i < proj->linkedViews().size(); i++)
     {
-        RimLinkedViews* linkedViews = proj->linkedViews()[i];
+        RimViewLinker* linkedViews = proj->linkedViews()[i];
         linkedViews->allViews(views);
     }
 }

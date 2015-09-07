@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimManagedViewConfig.h"
+#include "RimLinkedView.h"
 
 #include "RiaApplication.h"
 
@@ -27,20 +27,20 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "RimLinkedViews.h"
 #include "RimProject.h"
 #include "RimView.h"
+#include "RimViewLinker.h"
 
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
 
-CAF_PDM_SOURCE_INIT(RimManagedViewConfig, "RimManagedViewConfig");
+CAF_PDM_SOURCE_INIT(RimLinkedView, "RimManagedViewConfig");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimManagedViewConfig::RimManagedViewConfig(void)
+RimLinkedView::RimLinkedView(void)
 {
     CAF_PDM_InitObject("View Config", ":/ReservoirView.png", "", "");
 
@@ -61,14 +61,14 @@ RimManagedViewConfig::RimManagedViewConfig(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimManagedViewConfig::~RimManagedViewConfig(void)
+RimLinkedView::~RimLinkedView(void)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimLinkedView::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> optionList;
 
@@ -84,7 +84,7 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
             views.push_back(this->managedView());
         }
 
-        RimLinkedViews* linkedViews = NULL;
+        RimViewLinker* linkedViews = NULL;
         this->firstAnchestorOrThisOfType(linkedViews);
 
         for (size_t i = 0; i< views.size(); i++)
@@ -99,7 +99,7 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
                     icon = rimCase->uiCapability()->uiIcon();
                 }
 
-                optionList.push_back(caf::PdmOptionItemInfo(RimLinkedViews::displayNameForView(views[i]),
+                optionList.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(views[i]),
                     QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i])),
                     false,
                     icon));
@@ -118,7 +118,7 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimLinkedView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.setForgetRemainingFields(true);
 }
@@ -126,11 +126,11 @@ void RimManagedViewConfig::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimLinkedView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &syncCamera && syncCamera())
     {
-        RimLinkedViews* linkedViews = NULL;
+        RimViewLinker* linkedViews = NULL;
         this->firstAnchestorOrThisOfType(linkedViews);
         linkedViews->updateScaleZ(linkedViews->mainView(), linkedViews->mainView()->scaleZ());
 
@@ -143,14 +143,14 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
     {
         if (m_managedView)
         {
-            RimLinkedViews* linkedViews = NULL;
+            RimViewLinker* linkedViews = NULL;
             this->firstAnchestorOrThisOfType(linkedViews);
             linkedViews->updateTimeStep(m_managedView, m_managedView->currentTimeStep());
         }
     }
     else if (changedField == &syncCellResult && syncCellResult())
     {
-        RimLinkedViews* linkedViews = NULL;
+        RimViewLinker* linkedViews = NULL;
         this->firstAnchestorOrThisOfType(linkedViews);
         linkedViews->updateCellResult();
     }
@@ -168,7 +168,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
         if (m_managedView)
         {
-            RimLinkedViews* linkedViews = NULL;
+            RimViewLinker* linkedViews = NULL;
             this->firstAnchestorOrThisOfType(linkedViews);
 
             if (syncCellResult())
@@ -180,7 +180,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 m_managedView->notifyCameraHasChanged();
             }
 
-            name = RimLinkedViews::displayNameForView(m_managedView);
+            name = RimViewLinker::displayNameForView(m_managedView);
         }
 
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
@@ -202,7 +202,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
                 geoView->setOverridePropertyFilterCollection(NULL);
             }
 
-            RimLinkedViews* linkedViews = NULL;
+            RimViewLinker* linkedViews = NULL;
             this->firstAnchestorOrThisOfType(linkedViews);
             linkedViews->configureOverrides();
         }
@@ -217,7 +217,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::initAfterRead()
+void RimLinkedView::initAfterRead()
 {
     configureOverrides();
     updateDisplayNameAndIcon();
@@ -227,7 +227,7 @@ void RimManagedViewConfig::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RimManagedViewConfig::managedEclipseView()
+RimEclipseView* RimLinkedView::managedEclipseView()
 {
     RimView* rimView = m_managedView;
 
@@ -237,7 +237,7 @@ RimEclipseView* RimManagedViewConfig::managedEclipseView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView* RimManagedViewConfig::managedGeoView()
+RimGeoMechView* RimLinkedView::managedGeoView()
 {
     RimView* rimView = m_managedView;
 
@@ -247,7 +247,7 @@ RimGeoMechView* RimManagedViewConfig::managedGeoView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::configureOverridesUpdateDisplayModel()
+void RimLinkedView::configureOverridesUpdateDisplayModel()
 {
     configureOverrides();
 
@@ -272,9 +272,9 @@ void RimManagedViewConfig::configureOverridesUpdateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::configureOverrides()
+void RimLinkedView::configureOverrides()
 {
-    RimLinkedViews* linkedViews = NULL;
+    RimViewLinker* linkedViews = NULL;
     this->firstAnchestorOrThisOfType(linkedViews);
 
     RimView* masterView = linkedViews->mainView();
@@ -332,9 +332,9 @@ void RimManagedViewConfig::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::updateViewChanged()
+void RimLinkedView::updateViewChanged()
 {
-    RimLinkedViews* linkedViews = NULL;
+    RimViewLinker* linkedViews = NULL;
     firstAnchestorOrThisOfType(linkedViews);
     CVF_ASSERT(linkedViews);
 
@@ -374,11 +374,11 @@ void RimManagedViewConfig::updateViewChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::updateDisplayNameAndIcon()
+void RimLinkedView::updateDisplayNameAndIcon()
 {
     if (m_managedView)
     {
-        name = RimLinkedViews::displayNameForView(m_managedView);
+        name = RimViewLinker::displayNameForView(m_managedView);
     }
     else
     {
@@ -400,7 +400,7 @@ void RimManagedViewConfig::updateDisplayNameAndIcon()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimManagedViewConfig::managedView()
+RimView* RimLinkedView::managedView()
 {
     return m_managedView;
 }
@@ -408,7 +408,7 @@ RimView* RimManagedViewConfig::managedView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::setManagedView(RimView* view)
+void RimLinkedView::setManagedView(RimView* view)
 {
     m_managedView = view;
 }
@@ -416,7 +416,7 @@ void RimManagedViewConfig::setManagedView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimLinkedView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_managedView);
 
