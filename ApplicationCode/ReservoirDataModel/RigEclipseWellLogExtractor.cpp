@@ -47,6 +47,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
     const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
 
     double globalMeasuredDepth = 0; // Where do we start ? z - of first well path point ? 
+    bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
 
     if (!m_wellPath->m_wellPathPoints.size()) return ;
 
@@ -88,6 +89,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
         for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
         {
+            if (!isCellFaceNormalsOut) intersections[intIdx].m_isIntersectionEntering = !intersections[intIdx].m_isIntersectionEntering ;
             double lenghtAlongLineSegment = (intersections[intIdx].m_intersectionPoint - p1).length();
             double measuredDepthOfPoint = globalMeasuredDepth + lenghtAlongLineSegment;
             sortedIntersections.insert(std::make_pair(WellPathDepthPoint(measuredDepthOfPoint, intersections[intIdx].m_isIntersectionEntering),  intersections[intIdx]));  
