@@ -19,12 +19,11 @@
 
 #include "RicLinkVisibleViewsFeatureUi.h"
 
-#include "cafPdmUiTextEditor.h"
-#include "cafPdmObjectGroup.h"
+#include "RiaApplication.h"
 
-#include "RimView.h"
+#include "RimCase.h"
 #include "RimLinkedViews.h"
-#include "cafPdmUiItem.h"
+#include "RimView.h"
 
 CAF_PDM_SOURCE_INIT(RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi");
 
@@ -34,10 +33,6 @@ CAF_PDM_SOURCE_INIT(RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi"
 RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi(void)
 {
     CAF_PDM_InitObject("Link Visible Views Feature UI", ":/chain.png", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_allViewsAsText,     "VisibleViews",     "Visible Views (Case name : View Name)", "", "", "");
-    m_allViewsAsText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_allViewsAsText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_masterView, "MasterView", "Master View", "", "", "");
 }
@@ -49,15 +44,19 @@ void RicLinkVisibleViewsFeatureUi::setViews(const std::vector<RimView*>& allView
 {
     m_allViews = allViews;
 
-    QString viewNames;
-    for (int i = 0; i < m_allViews.size(); i++)
-    {
-        viewNames += RimLinkedViews::displayNameForView(m_allViews[i]);
-        viewNames += "\n";
-    }
-    m_allViewsAsText = viewNames;
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
 
-    if (allViews.size() > 0)
+    // Set Active view as master view
+    for (size_t i = 0; i < allViews.size(); i++)
+    {
+        if (activeView == allViews[i])
+        {
+            m_masterView = allViews[i];
+        }
+    }
+
+    // Fallback to use first view if no active view is present
+    if (!m_masterView && allViews.size() > 0)
     {
         m_masterView = allViews[0];
     }
@@ -82,8 +81,20 @@ QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOption
     {
         for (int i = 0; i < m_allViews.size(); i++)
         {
+            RimCase* rimCase = NULL;
+            m_allViews[i]->firstAnchestorOrThisOfType(rimCase);
+
+            QIcon icon;
+            if (rimCase)
+            {
+                icon = rimCase->uiCapability()->uiIcon();
+            }
+
+
             optionList.push_back(caf::PdmOptionItemInfo(RimLinkedViews::displayNameForView(m_allViews[i]), 
-                QVariant::fromValue(caf::PdmPointer<PdmObjectHandle>(m_allViews[i]))));
+                QVariant::fromValue(caf::PdmPointer<PdmObjectHandle>(m_allViews[i])),
+                false,
+                icon));
         }
     }
 

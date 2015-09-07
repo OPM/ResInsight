@@ -63,7 +63,7 @@ protected:
 
 private:
     void            configureOverridesUpdateDisplayModel();
-    void            updateDisplayName();
+    void            updateDisplayNameAndIcon();
 
     RimEclipseView* managedEclipseView();
     RimGeoMechView* managedGeoView();

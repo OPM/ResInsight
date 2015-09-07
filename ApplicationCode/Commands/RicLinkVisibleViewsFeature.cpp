@@ -73,7 +73,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     RicLinkVisibleViewsFeatureUi featureUi;
     featureUi.setViews(views);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Link Visible Views", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Select Master View", "");
     propertyDialog.setWindowIcon(QIcon(":/chain.png"));
     if (propertyDialog.exec() != QDialog::Accepted) return;
 

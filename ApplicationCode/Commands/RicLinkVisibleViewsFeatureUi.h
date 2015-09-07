@@ -44,7 +44,6 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 private:
-    caf::PdmField<QString>      m_allViewsAsText;
     caf::PdmPtrField<RimView*>  m_masterView;
 
     std::vector<RimView*>       m_allViews;

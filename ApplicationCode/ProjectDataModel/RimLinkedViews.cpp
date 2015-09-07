@@ -47,7 +47,7 @@ CAF_PDM_SOURCE_INIT(RimLinkedViews, "RimLinkedViews");
 //--------------------------------------------------------------------------------------------------
 RimLinkedViews::RimLinkedViews(void)
 {
-    CAF_PDM_InitObject("Linked Views", ":/ReservoirView.png", "", "");
+    CAF_PDM_InitObject("Linked Views", ":/Reservoir1View.png", "", "");
 
     CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
@@ -270,33 +270,6 @@ void RimLinkedViews::applyAllOperations()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimLinkedViews::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
-{
-    QList<caf::PdmOptionItemInfo> optionList;
-
-    if (fieldNeedingOptions == &m_mainView)
-    {
-        RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimView*> views;
-        proj->allVisibleViews(views);
-
-        for (size_t i = 0; i < views.size(); i++)
-        {
-            optionList.push_back(caf::PdmOptionItemInfo(displayNameForView(views[i]), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
-        }
-
-        if (optionList.size() > 0)
-        {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
-        }
-    }
-
-    return optionList;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QString RimLinkedViews::displayNameForView(RimView* view)
 {
     QString displayName = "None";
@@ -382,6 +355,17 @@ void RimLinkedViews::allViews(std::vector<RimView*>& views)
 void RimLinkedViews::initAfterRead()
 {
     m_name = displayNameForView(m_mainView);
+
+    QIcon icon;
+    if (m_mainView)
+    {
+        RimCase* rimCase = NULL;
+        m_mainView->firstAnchestorOrThisOfType(rimCase);
+
+        icon = rimCase->uiCapability()->uiIcon();
+    }
+
+    this->setUiIcon(icon);
 }
 
 //--------------------------------------------------------------------------------------------------

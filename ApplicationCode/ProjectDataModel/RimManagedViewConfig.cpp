@@ -186,7 +186,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         }
 
         updateViewChanged();
-        updateDisplayName();
+        updateDisplayNameAndIcon();
 
         name.uiCapability()->updateConnectedEditors();
     }
@@ -198,7 +198,7 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 void RimManagedViewConfig::initAfterRead()
 {
     configureOverrides();
-    updateDisplayName();
+    updateDisplayNameAndIcon();
     updateViewChanged();
 }
 
@@ -352,7 +352,7 @@ void RimManagedViewConfig::updateViewChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimManagedViewConfig::updateDisplayName()
+void RimManagedViewConfig::updateDisplayNameAndIcon()
 {
     if (m_managedView)
     {
@@ -362,6 +362,17 @@ void RimManagedViewConfig::updateDisplayName()
     {
         name = "View Config : Empty view";
     }
+
+    QIcon icon;
+    if (m_managedView)
+    {
+        RimCase* rimCase = NULL;
+        m_managedView->firstAnchestorOrThisOfType(rimCase);
+
+        icon = rimCase->uiCapability()->uiIcon();
+    }
+
+    this->setUiIcon(icon);
 }
 
 //--------------------------------------------------------------------------------------------------
