@@ -52,6 +52,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimMainPlotCollection.h"
 
 #include "RiuMultiCaseImportDialog.h"
 #include "RiuProcessMonitor.h"
@@ -1353,6 +1355,22 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
     if (!subWindow) return;
+
+    RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(subWindow->widget());
+    if (wellLogPlotViewer)
+    {
+        RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
+        RimWellLogPlotCollection* wellPlotColl = mainPlotColl ? mainPlotColl->wellLogPlotCollection() : NULL;
+        if (wellPlotColl)
+        {
+            RimWellLogPlot* wellLogPlot = wellPlotColl->wellLogPlotFromViewer(wellLogPlotViewer);
+            if (wellLogPlot)
+            {
+                projectTreeView()->selectAsCurrentItem(wellLogPlot);
+                return;
+            }
+        }
+    }
 
     // Iterate all cases in each oil field
     std::vector<RimCase*> allCases;

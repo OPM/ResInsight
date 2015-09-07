@@ -30,6 +30,8 @@
 #include "RimGeoMechCase.h"
 #include "RigGeoMechWellLogExtractor.h"
 
+#include "cvfAssert.h"
+
 CAF_PDM_SOURCE_INIT(RimWellLogPlotCollection, "WellLogPlotCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -101,4 +103,23 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
     m_geomExtractors.push_back(extractor.p());
 
     return extractor.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot* RimWellLogPlotCollection::wellLogPlotFromViewer(RiuWellLogPlot* viewer) const
+{
+    CVF_ASSERT(viewer);
+
+    for (size_t pIdx = 0; pIdx < wellLogPlots.size(); pIdx++)
+    {
+        RimWellLogPlot* wellLogPlot = wellLogPlots[pIdx];
+        if (wellLogPlot->viewer() == viewer)
+        {
+            return wellLogPlot;
+        }
+    }
+
+    return NULL;
 }

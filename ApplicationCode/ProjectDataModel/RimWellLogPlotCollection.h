@@ -30,6 +30,8 @@ class RigGeoMechWellLogExtractor;
 class RimGeoMechCase;
 class RimWellPath;
 class RimEclipseCase;
+class RiuWellLogPlot;
+
 //==================================================================================================
 ///  
 ///  
@@ -43,6 +45,8 @@ public:
     
     RigEclipseWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase);
     RigGeoMechWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* eclCase);
+
+    RimWellLogPlot* wellLogPlotFromViewer(RiuWellLogPlot* viewer) const;
 
     caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
 private:
