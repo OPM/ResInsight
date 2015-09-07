@@ -156,7 +156,15 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         RimEclipseCellColors* cellColors = eclipseView->cellResult().p();
         if (cellColors)
         {
-            menu.addAction(QString("Add property filter"), this, SLOT(slotAddEclipsePropertyFilter()));
+            QAction* propertyAction = new QAction(QString("Add property filter"), this);
+            connect(propertyAction, SIGNAL(triggered()), SLOT(slotAddEclipsePropertyFilter()));
+
+            bool isPerCellFaceResult = RimDefines::isPerCellFaceResult(cellColors->resultVariable());
+            if (isPerCellFaceResult)
+            {
+                propertyAction->setEnabled(false);
+            }
+            menu.addAction(propertyAction);
         }
 
         // Hide faults command
