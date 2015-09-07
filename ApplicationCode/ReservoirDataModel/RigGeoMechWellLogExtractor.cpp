@@ -43,11 +43,16 @@ RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase
 void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values)
 {   
     CVF_TIGHT_ASSERT(values);
-    values->resize(m_intersections.size());// + 1); // Plus one for the end of the wellpath stopping inside a cell
+    
+    if (!resAddr.isValid()) return ;
 
     const RigFemPart* femPart                 = m_caseData->femParts()->part(0);
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
     const std::vector<float>& resultValues    = m_caseData->femPartResults()->resultValues(resAddr, 0, frameIndex);
+
+    if (!resultValues.size()) return;
+
+    values->resize(m_intersections.size());// + 1); // Plus one for the end of the wellpath stopping inside a cell
 
     for (size_t cpIdx = 0; cpIdx < m_intersections.size(); ++cpIdx)
     {
@@ -127,11 +132,11 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         std::vector<HexIntersectionInfo> intersections;
 
         cvf::Vec3d hexCorners[8];
-        for (size_t cIdx = 0; cIdx < closeCells.size(); ++cIdx)
+        for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
         {
-            if (femPart->elementType(cIdx) != HEX8) continue;
+            if (femPart->elementType(closeCells[ccIdx]) != HEX8) continue;
 
-            const int* cornerIndices = femPart->connectivities(cIdx);
+            const int* cornerIndices = femPart->connectivities(closeCells[ccIdx]);
 
             hexCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
             hexCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
@@ -142,7 +147,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
             hexCorners[6] = cvf::Vec3d(nodeCoords[cornerIndices[6]]);
             hexCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
 
-            int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
+            int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[ccIdx], &intersections);
         }
 
         // Now, with all the intersections of this piece of line, we need to 
@@ -193,14 +198,17 @@ std::vector<size_t> RigGeoMechWellLogExtractor::findCloseCells(const cvf::Boundi
         for (size_t elmIdx = 0; elmIdx < elmCount; ++elmIdx)
         {
             const int* elmNodeIndices = femPart->connectivities(elmIdx);
-            int elmNodeCount = RigFemTypes::elmentNodeCount( femPart->elementType(elmIdx));
+            int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
+            cvf::BoundingBox cellBB;
+
             for (int enIdx = 0; enIdx < elmNodeCount; ++enIdx)
             {
-                if (bb.contains(cvf::Vec3d(nodeCoords[elmNodeIndices[enIdx]])))
-                {
-                    closeCells.push_back(elmIdx);
-                    break;
-                }
+                cellBB.add(cvf::Vec3d(nodeCoords[elmNodeIndices[enIdx]]));
+            }
+
+            if (bb.intersects(cellBB))
+            {
+                closeCells.push_back(elmIdx);
             }
         }
     }

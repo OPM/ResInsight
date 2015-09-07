@@ -30,6 +30,11 @@
 #include <QtGlobal>
 #include "RigNNCData.h"
 
+namespace cvf
+{
+    class BoundingBoxTree;
+}
+
 class RigMainGrid : public RigGridBase
 {
 public:
@@ -63,7 +68,8 @@ public:
     void                                    setDisplayModelOffset(cvf::Vec3d offset);
 
     void                                    setFlipAxis(bool flipXAxis, bool flipYAxis);
-
+    void                                    findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices);
+                 
 private:
     void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
@@ -81,6 +87,7 @@ private:
     cvf::ref<RigFaultsPrCellAccumulator>    m_faultsPrCellAcc;
 
     cvf::Vec3d                              m_displayModelOffset;
+    cvf::ref<cvf::BoundingBoxTree>          m_cellSearchTree;    
 
     bool                                    m_flipXAxis;
     bool                                    m_flipYAxis;

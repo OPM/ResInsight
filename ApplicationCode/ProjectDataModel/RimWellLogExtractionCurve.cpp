@@ -133,7 +133,6 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         std::vector<double> filteredValues;
         std::vector<double> filteredDepths;
-        bool hasData = false;
 
         if (eclExtractor.notNull())
         {
@@ -153,32 +152,28 @@ void RimWellLogExtractionCurve::updatePlotData()
             if (resAcc.notNull())
             {
                 eclExtractor->curveData(resAcc.p(), &values);
-                hasData = true;
             }
 
-            // Remove values that are too difficult for Qwt to handle
-            
-            filteredValues.reserve(values.size());
-            filteredDepths.reserve(values.size());
-            for (size_t vIdx = 0; vIdx < values.size(); ++vIdx)
-            {
-                if (values[vIdx] == HUGE_VAL || values[vIdx] == -HUGE_VAL || (values[vIdx] != values[vIdx]))
-                {
-                    continue;
-                }
+            filterPlotValues( depthValues,  filteredDepths, 
+                              values,       filteredValues );
 
-                filteredDepths.push_back(depthValues[vIdx]);
-                filteredValues.push_back(values[vIdx]);
-            }
         }
-        else if (false) // geomExtractor
+        else if (geomExtractor.notNull()) // geomExtractor
         {
-            // Todo: do geomech log extraction
+            const std::vector<double>& depthValues = geomExtractor->measuredDepth();
+            m_geomResultDefinition->loadResult();
+            std::vector<double> values;
+            geomExtractor->curveData(m_geomResultDefinition->resultAddress() , m_timeStep, &values);
+            
+
+            filterPlotValues( depthValues,  filteredDepths, 
+                              values,       filteredValues );
+
         }
 
         m_plotCurve->setSamples(filteredValues.data(), filteredDepths.data(), (int)filteredValues.size());
 
-        if (hasData)
+        if (filteredValues.size())
         {
             RimWellLogPlot* wellLogPlot;
             firstAnchestorOrThisOfType(wellLogPlot);
@@ -317,6 +312,28 @@ void RimWellLogExtractionCurve::updateCurveTitle()
 void RimWellLogExtractionCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::filterPlotValues(const std::vector<double>& depthValues, std::vector<double> &filteredDepths, 
+                                                 const std::vector<double> &values,      std::vector<double> &filteredValues  )
+{
+    // Remove values that are too difficult for Qwt to handle
+
+    filteredValues.reserve(values.size());
+    filteredDepths.reserve(values.size());
+    for (size_t vIdx = 0; vIdx < values.size(); ++vIdx)
+    {
+        if (values[vIdx] == HUGE_VAL || values[vIdx] == -HUGE_VAL || (values[vIdx] != values[vIdx]))
+        {
+            continue;
+        }
+
+        filteredDepths.push_back(depthValues[vIdx]);
+        filteredValues.push_back(values[vIdx]);
+    }
 }
 
 

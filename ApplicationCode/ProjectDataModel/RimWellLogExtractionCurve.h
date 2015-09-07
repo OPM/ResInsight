@@ -52,6 +52,9 @@ protected:
 
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
+    void filterPlotValues(const std::vector<double>& depthValues, std::vector<double> &filteredDepths, 
+                          const std::vector<double> &values,      std::vector<double> &filteredValues );
+
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;

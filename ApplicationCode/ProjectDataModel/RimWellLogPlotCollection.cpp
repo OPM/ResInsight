@@ -80,24 +80,24 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* eclCase)
+RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* geomCase)
 {
-    if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->geoMechData()))
+    if (!(wellPath && geomCase && wellPath->wellPathGeometry() && geomCase->geoMechData()))
     {
         return NULL;
     }
 
-    RigGeoMechCaseData* eclCaseData = eclCase->geoMechData();
+    RigGeoMechCaseData* geomCaseData = geomCase->geoMechData();
     RigWellPath* wellPathGeom = wellPath->wellPathGeometry();
     for (size_t exIdx = 0; exIdx < m_geomExtractors.size(); ++exIdx)
     {
-         if (m_geomExtractors[exIdx]->caseData() == eclCaseData && m_geomExtractors[exIdx]->wellPathData() == wellPathGeom)
+         if (m_geomExtractors[exIdx]->caseData() == geomCaseData && m_geomExtractors[exIdx]->wellPathData() == wellPathGeom)
          {
             return m_geomExtractors[exIdx].p();
          }
     }
 
-    cvf::ref<RigGeoMechWellLogExtractor> extractor = new RigGeoMechWellLogExtractor(eclCaseData, wellPathGeom);
+    cvf::ref<RigGeoMechWellLogExtractor> extractor = new RigGeoMechWellLogExtractor(geomCaseData, wellPathGeom);
     m_geomExtractors.push_back(extractor.p());
 
     return extractor.p();
