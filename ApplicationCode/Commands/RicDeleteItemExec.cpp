@@ -34,6 +34,8 @@
 #include "RimWellPathCollection.h"
 #include "RimView.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimProject.h"
 
 
 namespace caf
@@ -111,6 +113,18 @@ void RicDeleteItemExec::redo()
         if (wellLogPlot)
         {
             wellLogPlot->updateAvailableDepthRange();
+        }
+
+        RimWellLogPlotCollection* wellLogPlotCollection = NULL;
+        parentObj->firstAnchestorOrThisOfType(wellLogPlotCollection);
+        if (wellLogPlotCollection)
+        {
+            RimProject* project = NULL;
+            parentObj->firstAnchestorOrThisOfType(project);
+            if (project)
+            {
+                project->updateConnectedEditors();
+            }
         }
     }
 }
