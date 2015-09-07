@@ -92,6 +92,7 @@ public:
     void            actionsBasedOnSelection(QMenu& contextMenu);
 
     RimLinkedViews* findLinkedViewsGroupForView(RimView* view);
+    void            recreateMainPlotCollection();
 
 protected:
     // Overridden methods

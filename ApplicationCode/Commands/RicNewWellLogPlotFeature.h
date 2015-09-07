@@ -21,6 +21,7 @@
 
 #include "cafCmdFeature.h"
 
+class RimMainPlotCollection;
 class RimWellLogPlotCollection;
 
 //==================================================================================================
@@ -37,5 +38,6 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-   RimWellLogPlotCollection* wellLogPlotCollection();
+    RimMainPlotCollection*      mainPlotCollection();
+    RimWellLogPlotCollection*   wellLogPlotCollection();
 };

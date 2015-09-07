@@ -30,6 +30,8 @@
 
 #include <QAction>
 
+#include "cvfAssert.h"
+
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogPlotFeature, "RicNewWellLogPlotFeature");
 
@@ -38,7 +40,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogPlotFeature, "RicNewWellLogPlotFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogPlotFeature::isCommandEnabled()
 {
-    return wellLogPlotCollection() != NULL;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,20 +49,19 @@ bool RicNewWellLogPlotFeature::isCommandEnabled()
 void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
-    if (wellLogPlotColl)
-    {
-        RimWellLogPlot* plot = new RimWellLogPlot();
-        wellLogPlotColl->wellLogPlots().push_back(plot);
+    CVF_ASSERT(wellLogPlotColl);
 
-        RimWellLogPlotTrace* plotrace = new RimWellLogPlotTrace();
-        plot->addTrace(plotrace);
+    RimWellLogPlot* plot = new RimWellLogPlot();
+    wellLogPlotColl->wellLogPlots().push_back(plot);
+
+    RimWellLogPlotTrace* plotrace = new RimWellLogPlotTrace();
+    plot->addTrace(plotrace);
         
-        plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
-        plot->loadDataAndUpdate();
+    plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
+    plot->loadDataAndUpdate();
 
-        RiaApplication::instance()->project()->updateConnectedEditors();
-        RiuMainWindow::instance()->setCurrentObjectInTreeView(plot);
-    }
+    RiaApplication::instance()->project()->updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(plot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,10 +75,33 @@ void RicNewWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotCollection* RicNewWellLogPlotFeature::wellLogPlotCollection()
+RimMainPlotCollection* RicNewWellLogPlotFeature::mainPlotCollection()
 {
     RimProject* project = RiaApplication::instance()->project();
-    RimMainPlotCollection* mainPlotCollection = project ? project->mainPlotCollection() : NULL;
+    CVF_ASSERT(project);
 
-    return mainPlotCollection ? mainPlotCollection->wellLogPlotCollection() : NULL;
+    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
+    if (!mainPlotColl)
+    {
+        project->recreateMainPlotCollection();
+    }
+
+    return project->mainPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlotCollection* RicNewWellLogPlotFeature::wellLogPlotCollection()
+{
+    RimMainPlotCollection* mainPlotColl = mainPlotCollection();
+    CVF_ASSERT(mainPlotColl);
+
+    RimWellLogPlotCollection* wellLogPlotColl = mainPlotColl->wellLogPlotCollection();
+    if (!wellLogPlotColl)
+    {
+        mainPlotColl->recreateWellLogPlotCollection();
+    }
+
+    return mainPlotColl->wellLogPlotCollection();
 }

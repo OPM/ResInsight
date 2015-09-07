@@ -36,10 +36,10 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitField(&show, "Show", true, "Show plots", "", "", "");
     show.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&wellLogPlotCollection, "WellLogPlotCollection", "",  "", "", "");
-    wellLogPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_wellLogPlotCollection, "WellLogPlotCollection", "",  "", "", "");
+    m_wellLogPlotCollection.uiCapability()->setUiHidden(true);
 
-    wellLogPlotCollection = new RimWellLogPlotCollection();
+    m_wellLogPlotCollection = new RimWellLogPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ RimMainPlotCollection::RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection::~RimMainPlotCollection()
 {
-    if (wellLogPlotCollection()) delete wellLogPlotCollection();
+    if (m_wellLogPlotCollection()) delete m_wellLogPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,4 +63,23 @@ void RimMainPlotCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 caf::PdmFieldHandle* RimMainPlotCollection::objectToggleField()
 {
     return &show;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::recreateWellLogPlotCollection()
+{
+    if (!wellLogPlotCollection())
+    {
+        m_wellLogPlotCollection = new RimWellLogPlotCollection();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlotCollection* RimMainPlotCollection::wellLogPlotCollection()
+{
+    return m_wellLogPlotCollection();
 }

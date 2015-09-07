@@ -37,7 +37,8 @@ public:
     RimMainPlotCollection();
     virtual ~RimMainPlotCollection();
 
-    caf::PdmChildField<RimWellLogPlotCollection*> wellLogPlotCollection;
+    RimWellLogPlotCollection* wellLogPlotCollection();
+    void recreateWellLogPlotCollection();
 
 protected:
 
@@ -46,7 +47,8 @@ protected:
 
 private:
     virtual caf::PdmFieldHandle* objectToggleField();
-
+    
 private:
+    caf::PdmChildField<RimWellLogPlotCollection*> m_wellLogPlotCollection;
     caf::PdmField<bool> show;
 };

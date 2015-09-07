@@ -937,3 +937,14 @@ RimLinkedViews* RimProject::findLinkedViewsGroupForView(RimView* view)
     return NULL;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::recreateMainPlotCollection()
+{
+    if (!mainPlotCollection())
+    {
+        mainPlotCollection = new RimMainPlotCollection();
+    }
+}
+
