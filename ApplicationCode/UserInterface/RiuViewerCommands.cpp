@@ -317,7 +317,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
     size_t gridIndex = cvf::UNDEFINED_SIZE_T;
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
     size_t nncIndex = cvf::UNDEFINED_SIZE_T;
-    size_t wellPathIndex = cvf::UNDEFINED_SIZE_T;
+    RimWellPath* wellPath = NULL;
     cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::NO_FACE;
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
 
@@ -360,7 +360,8 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
             }
             else if (wellPathSourceInfo)
             {
-                wellPathIndex = wellPathSourceInfo->wellPathIndex();
+                //wellPathIndex = wellPathSourceInfo->wellPathIndex();
+                wellPath = wellPathSourceInfo->wellPath();
             }
         }
        
@@ -413,17 +414,9 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
         }
     }
 
-    if (wellPathIndex != cvf::UNDEFINED_SIZE_T)
+    if (wellPath)
     {
-        RimProject* project = RiaApplication::instance()->project();
-        CVF_ASSERT(project);
-
-        RimOilField* oilField = project->activeOilField();
-        if (oilField)
-        {
-            RimWellPath* wellPath = oilField->wellPathCollection()->wellPaths[wellPathIndex];
-            pickInfo = QString("Well path hit: %1").arg(wellPath->name());
-        }
+        pickInfo = QString("Well path hit: %1").arg(wellPath->name());
     }
 
     // Display the text

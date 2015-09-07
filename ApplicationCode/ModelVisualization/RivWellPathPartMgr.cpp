@@ -97,7 +97,7 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 /// The pipe geometry needs to be rebuilt on scale change to keep the pipes round
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, 
-                                            cvf::BoundingBox wellPathClipBoundingBox, size_t wellPathIndex)
+                                            cvf::BoundingBox wellPathClipBoundingBox)
 {
     if (m_wellPathCollection.isNull()) return;
 
@@ -160,7 +160,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
             pbd.m_surfacePart = new cvf::Part;
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
             
-            RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo(wellPathIndex);
+            RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo(m_rimWellPath);
             pbd.m_surfacePart->setSourceInfo(sourceInfo);
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), caf::PO_1);
@@ -226,7 +226,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                          double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox, size_t wellPathIndex)
+                                                          double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
 {
     if (m_wellPathCollection.isNull()) return;
     if (m_rimWellPath.isNull()) return;
@@ -240,7 +240,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     if (m_needsTransformUpdate) 
     {
         // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
-        buildWellPathParts(displayModelOffset, characteristicCellSize, wellPathClipBoundingBox, wellPathIndex);
+        buildWellPathParts(displayModelOffset, characteristicCellSize, wellPathClipBoundingBox);
     }
  
     std::list<RivPipeBranchData>::iterator it;

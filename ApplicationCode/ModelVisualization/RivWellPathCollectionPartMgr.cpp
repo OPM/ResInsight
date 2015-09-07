@@ -78,7 +78,7 @@ void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBa
     {
         RivWellPathPartMgr* partMgr = m_wellPathCollection->wellPaths[wIdx]->partMgr();
         partMgr->setScaleTransform(scaleTransform);
-        partMgr->appendStaticGeometryPartsToModel(model, displayModelOffset, characteristicCellSize, wellPathClipBoundingBox, wIdx);
+        partMgr->appendStaticGeometryPartsToModel(model, displayModelOffset, characteristicCellSize, wellPathClipBoundingBox);
     }
 }
 

@@ -21,6 +21,9 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
+#include "cafPdmPointer.h"
+
+class RimWellPath;
 
 //==================================================================================================
 ///  
@@ -29,10 +32,10 @@
 class RivWellPathSourceInfo : public cvf::Object
 {
 public:
-    RivWellPathSourceInfo(size_t wellPathIndex);
+    RivWellPathSourceInfo(RimWellPath* wellPath);
 
-    size_t wellPathIndex() const;
+    RimWellPath* wellPath() const;
 
 private:    
-    size_t m_wellPathIndex;
+    caf::PdmPointer<RimWellPath> m_wellPath;
 };

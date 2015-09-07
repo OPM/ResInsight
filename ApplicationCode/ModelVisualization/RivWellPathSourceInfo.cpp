@@ -19,18 +19,21 @@
 
 #include "RivWellPathSourceInfo.h"
 
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPathSourceInfo::RivWellPathSourceInfo(size_t wellPathIndex)
+RivWellPathSourceInfo::RivWellPathSourceInfo(RimWellPath* wellPath)
 {
-    m_wellPathIndex = wellPathIndex;
+    m_wellPath = wellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RivWellPathSourceInfo::wellPathIndex() const
+RimWellPath* RivWellPathSourceInfo::wellPath() const
 {
-    return m_wellPathIndex;
+    return m_wellPath.p();
 }
