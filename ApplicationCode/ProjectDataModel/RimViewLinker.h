@@ -67,10 +67,15 @@ public:
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
+    virtual caf::PdmFieldHandle*            objectToggleField()     { return &m_active; }
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual void                            initAfterRead();
 
 private:
+    bool isActive();
+
+private:
+    caf::PdmField<bool>         m_active;
     caf::PdmPtrField<RimView*>  m_mainView;
     caf::PdmField<QString>      m_name;
 };

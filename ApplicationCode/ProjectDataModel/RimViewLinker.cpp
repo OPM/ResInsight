@@ -49,6 +49,9 @@ RimViewLinker::RimViewLinker(void)
 {
     CAF_PDM_InitObject("Linked Views", ":/Reservoir1View.png", "", "");
 
+    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
 
@@ -72,6 +75,8 @@ RimViewLinker::~RimViewLinker(void)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 {
+    if (!isActive()) return;
+
     RimLinkedView* sourceLinkedView = linkedViewFromView(sourceView);
     if (sourceLinkedView && !sourceLinkedView->syncTimeStep())
     {
@@ -103,6 +108,8 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCellResult()
 {
+    if (!isActive()) return;
+
     RimView* rimView = m_mainView;
     RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (masterEclipseView && masterEclipseView->cellResult())
@@ -159,6 +166,8 @@ void RimViewLinker::updateCellResult()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateRangeFilters()
 {
+    if (!isActive()) return;
+
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
         RimLinkedView* managedViewConfig = linkedViews[i];
@@ -194,6 +203,8 @@ void RimViewLinker::updateRangeFilters()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updatePropertyFilters()
 {
+    if (!isActive()) return;
+
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
         RimLinkedView* managedViewConfig = linkedViews[i];
@@ -239,6 +250,8 @@ void RimViewLinker::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>& views)
 {
+    if (!isActive()) return;
+
     if (source != m_mainView())
     {
         views.push_back(m_mainView());
@@ -381,5 +394,13 @@ void RimViewLinker::updateScaleZ(RimView* source, double scaleZ)
     {
         views[i]->setScaleZAndUpdate(scaleZ);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewLinker::isActive()
+{
+    return m_isActive;
 }
 
