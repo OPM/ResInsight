@@ -99,7 +99,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     proj->linkedViews.uiCapability()->updateConnectedEditors();
 
     linkedViews->applyAllOperations();
-    linkedViews->updateConnectedEditors();
+    proj->updateConnectedEditors();
 
     // Set managed view collection to selected and expanded in project tree
     caf::PdmUiTreeView* projTreeView = RiuMainWindow::instance()->projectTreeView();

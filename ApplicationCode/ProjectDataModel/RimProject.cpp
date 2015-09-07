@@ -930,6 +930,11 @@ void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptColle
 //--------------------------------------------------------------------------------------------------
 void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
+    if (linkedViews.size() > 0)
+    {
+        uiTreeOrdering.add(&linkedViews);
+    }
+
     RimOilField* oilField = activeOilField();
     if (oilField)
     {
@@ -951,8 +956,6 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 
     uiTreeOrdering.add(scriptCollection());
     
-    uiTreeOrdering.add(&linkedViews);
-
     uiTreeOrdering.setForgetRemainingFields(true);
 }
 
