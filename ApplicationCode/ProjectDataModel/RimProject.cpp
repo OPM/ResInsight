@@ -467,6 +467,45 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
+{
+    std::vector<RimCase*> cases;
+    allCases(cases);
+
+    std::vector<RimView*> alreadyLinkedViews;
+    for (size_t i = 0; i < linkedViews().size(); i++)
+    {
+        RimLinkedViews* viewLinker = linkedViews()[i];
+        viewLinker->allViews(alreadyLinkedViews);
+    }
+
+    for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
+    {
+        RimCase* rimCase = cases[caseIdx];
+        if (!rimCase) continue;
+
+        std::vector<RimView*> caseViews = rimCase->views();
+        for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
+        {
+            bool isLinked = false;
+            for (size_t lnIdx = 0; lnIdx < alreadyLinkedViews.size(); lnIdx++)
+            {
+                if (caseViews[viewIdx] == alreadyLinkedViews[lnIdx])
+                {
+                    isLinked = true;
+                }
+            }
+            if (!isLinked)
+            {
+                views.push_back(caseViews[viewIdx]);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimProject::allVisibleViews(std::vector<RimView*>& views)
 {
     std::vector<RimCase*> cases;

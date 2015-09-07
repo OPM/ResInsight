@@ -76,16 +76,33 @@ QList<caf::PdmOptionItemInfo> RimManagedViewConfig::calculateValueOptions(const 
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimView*> views;
-        proj->allVisibleViews(views);
+        proj->allNotLinkedViews(views);
 
-        RimView* masterView = NULL;
-        firstAnchestorOrThisOfType(masterView);
+        // Add currently linked view to list
+        if (this->managedView())
+        {
+            views.push_back(this->managedView());
+        }
+
+        RimLinkedViews* linkedViews = NULL;
+        this->firstAnchestorOrThisOfType(linkedViews);
 
         for (size_t i = 0; i< views.size(); i++)
         {
-            if (views[i] != masterView)
+            if (views[i] != linkedViews->mainView())
             {
-                optionList.push_back(caf::PdmOptionItemInfo(RimLinkedViews::displayNameForView(views[i]), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i]))));
+                RimCase* rimCase = NULL;
+                views[i]->firstAnchestorOrThisOfType(rimCase);
+                QIcon icon;
+                if (rimCase)
+                {
+                    icon = rimCase->uiCapability()->uiIcon();
+                }
+
+                optionList.push_back(caf::PdmOptionItemInfo(RimLinkedViews::displayNameForView(views[i]),
+                    QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i])),
+                    false,
+                    icon));
             }
         }
 
@@ -151,11 +168,16 @@ void RimManagedViewConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 
         if (m_managedView)
         {
+            RimLinkedViews* linkedViews = NULL;
+            this->firstAnchestorOrThisOfType(linkedViews);
+
             if (syncCellResult())
             {
-                RimLinkedViews* linkedViews = NULL;
-                this->firstAnchestorOrThisOfType(linkedViews);
                 linkedViews->updateCellResult();
+            }
+            if (syncCamera())
+            {
+                m_managedView->notifyCameraHasChanged();
             }
 
             name = RimLinkedViews::displayNameForView(m_managedView);

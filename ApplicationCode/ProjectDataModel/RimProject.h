@@ -81,6 +81,7 @@ public:
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
     void            allCases(std::vector<RimCase*>& cases);
+    void            allNotLinkedViews(std::vector<RimView*>& views);
     void            allVisibleViews(std::vector<RimView*>& views);
 
     void            createDisplayModelAndRedrawAllViews(); 

@@ -570,6 +570,8 @@ void RimView::setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc
 //--------------------------------------------------------------------------------------------------
 void RimView::notifyCameraHasChanged()
 {
+    if (!this->viewer()) return;
+
     std::vector<RimView*> viewsToUpdate;
 
     viewsToUpdate.push_back(this);
