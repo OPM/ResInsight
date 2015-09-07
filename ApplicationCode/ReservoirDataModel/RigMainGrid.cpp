@@ -446,7 +446,7 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices)
+void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices) const
 {
     if (m_cellSearchTree.isNull())
     {

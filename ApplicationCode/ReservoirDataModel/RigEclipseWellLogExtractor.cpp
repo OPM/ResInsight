@@ -26,6 +26,7 @@
 #include "cvfGeometryTools.h"
 
 #include "RigWellLogExtractionTools.h"
+#include "RigMainGrid.h"
 
 //==================================================================================================
 /// 
@@ -46,6 +47,8 @@ void RigEclipseWellLogExtractor::calculateIntersection()
     const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
 
     double globalMeasuredDepth = 0; // Where do we start ? z - of first well path point ? 
+
+    if (!m_wellPath->m_wellPathPoints.size()) return ;
 
     for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
     {
@@ -133,10 +136,13 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::BoundingBox& bb)
 {
+    std::vector<size_t> closeCells;
+    m_caseData->mainGrid()->findIntersectingCells(bb, &closeCells);
+    #if 0
     const std::vector<RigCell>& cells = m_caseData->mainGrid()->cells();
     const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
     
-    std::vector<size_t> closeCells;
+   
 
     size_t cellCount = cells.size(); 
     for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
@@ -157,7 +163,7 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::Boundi
             closeCells.push_back(cIdx);  
         }
     }
-
+    #endif
     return closeCells;
 }
 
