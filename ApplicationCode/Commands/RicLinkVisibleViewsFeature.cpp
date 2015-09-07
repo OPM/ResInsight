@@ -65,7 +65,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     findNotLinkedVisibleViews(views);
     if (views.size() < 2)
     {
-        QMessageBox::warning(RiuMainWindow::instance(), "Link Visible Views", "Less than two views available for linking. Please open at least two not linked views before creating a new link group.");
+        QMessageBox::warning(RiuMainWindow::instance(), "Link Visible Views", "Less than two views are available for linking. Please open at least two not linked views before creating a new linked views group.");
 
         return;
     }
@@ -165,7 +165,8 @@ void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimView*>
 
     if (anyAlreadyLinkedViews)
     {
-        QMessageBox::warning(RiuMainWindow::instance(), "Link Visible Views", "Detected one or more visible view(s) already part of a Linked View Group.\nThese views were removed from the list of visible views.");
+        QMessageBox::warning(RiuMainWindow::instance(), "Link Visible Views",
+            "Detected one or more visible view(s) already part of a Linked View Group.\nThese views were removed from the list views to be linked.");
     }
 }
 
