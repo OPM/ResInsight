@@ -51,6 +51,7 @@
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
+#include "RimWellLogPlot.h"
 
 #include "RiuMultiCaseImportDialog.h"
 #include "RiuProcessMonitor.h"
@@ -1557,46 +1558,55 @@ void RiuMainWindow::selectedObjectsChanged()
 
     if (uiItems.size() == 1)
     {
-        RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
-
-        // Find the reservoir view that the selected item is within 
-
-        if (!firstSelectedObject)
+        std::vector<RimWellLogPlot*> selection;
+        caf::SelectionManager::instance()->objectsByType(&selection);
+        if (selection.size() > 0)
         {
-            caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
-            if (selectedField) firstSelectedObject = selectedField->ownerObject();
-        }
-
-        RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
-        if (!selectedReservoirView && firstSelectedObject)
-        {
-            firstSelectedObject->firstAnchestorOrThisOfType(selectedReservoirView);
-        }
-
-        // If current selection is an item within a different reservoir view than active, 
-        // show new reservoir view and set this as activate view
-
-        if (selectedReservoirView && selectedReservoirView != activeReservoirView)
-        {
-            RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
-            // Set focus in MDI area to this window if it exists
-            if (selectedReservoirView->viewer())
+            RimWellLogPlot* wellLogPlot = selection[0];
+            RiuWellLogPlot* wellLogPlotViewer = wellLogPlot ? wellLogPlot->viewer() : NULL;
+            if (wellLogPlotViewer)
             {
-                setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
+                setActiveViewer(wellLogPlotViewer);
+            }
+        }
+        else
+        {
+            // Find the reservoir view that the selected item is within 
+
+            if (!firstSelectedObject)
+            {
+                caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
+                if (selectedField) firstSelectedObject = selectedField->ownerObject();
             }
 
-            // m_projectTreeView->selectAsCurrentItem(uiItems[0]); TODO: Is this neccesary ? Was done in the old tree view.
+            RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
+            if (!selectedReservoirView && firstSelectedObject)
+            {
+                firstSelectedObject->firstAnchestorOrThisOfType(selectedReservoirView);
+            }
 
-            refreshDrawStyleActions();
-            refreshAnimationActions();
-            slotRefreshFileActions();
-            slotRefreshEditActions();
-            slotRefreshViewActions();
+            if (selectedReservoirView)
+            {
+                RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
+                // Set focus in MDI area to this window if it exists
+                if (selectedReservoirView->viewer())
+                {
+                    setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
+                }
 
-            // The only way to get to this code is by selection change initiated from the project tree view
-            // As we are activating an MDI-window, the focus is given to this MDI-window
-            // Set focus back to the tree view to be able to continue keyboard tree view navigation
-            m_projectTreeView->treeView()->setFocus();
+                // m_projectTreeView->selectAsCurrentItem(uiItems[0]); TODO: Is this neccesary ? Was done in the old tree view.
+
+                refreshDrawStyleActions();
+                refreshAnimationActions();
+                slotRefreshFileActions();
+                slotRefreshEditActions();
+                slotRefreshViewActions();
+
+                // The only way to get to this code is by selection change initiated from the project tree view
+                // As we are activating an MDI-window, the focus is given to this MDI-window
+                // Set focus back to the tree view to be able to continue keyboard tree view navigation
+                m_projectTreeView->treeView()->setFocus();
+            }
         }
     }
 }
