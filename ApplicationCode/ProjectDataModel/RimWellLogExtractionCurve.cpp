@@ -175,22 +175,24 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         if (filteredValues.size())
         {
+            RimWellLogPlotTrace* plotTrace;
+            firstAnchestorOrThisOfType(plotTrace);
+
             RimWellLogPlot* wellLogPlot;
             firstAnchestorOrThisOfType(wellLogPlot);
 
-            if (wellLogPlot)
+            if (wellLogPlot && plotTrace)
             {
                 bool setDepthRange = !wellLogPlot->hasAvailableDepthRange();
                 wellLogPlot->updateAvailableDepthRange();
 
-                if (setDepthRange && wellLogPlot->traceCount() == 1)
+                if (setDepthRange)
                 {
-                    RimWellLogPlotTrace* plotTrace;
-                    firstAnchestorOrThisOfType(plotTrace);
-                    if (plotTrace && plotTrace->curveCount() == 1)
-                    {
-                        wellLogPlot->setVisibleDepthRangeFromContents();
-                    }
+                    wellLogPlot->setVisibleDepthRangeFromContents();
+                }
+                else if (plotTrace->curveCount() == 1)
+                {
+                    plotTrace->updateAxisRanges();
                 }
             }
         }

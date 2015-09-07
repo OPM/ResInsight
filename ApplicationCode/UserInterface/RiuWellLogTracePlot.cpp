@@ -118,7 +118,7 @@ void RiuWellLogTracePlot::setDepthRange(double minDepth, double maxDepth)
 {
     // Note: Y-axis is inverted
     setAxisScale(QwtPlot::yLeft, maxDepth, minDepth);
-    replot();
+    //replot();
 }
 
 //--------------------------------------------------------------------------------------------------

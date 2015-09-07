@@ -208,7 +208,7 @@ void RimWellLogPlotTrace::updateAxisRanges()
             double minimumDepth, maximumDepth;
             wellLogPlot->visibleDepthRange(&minimumDepth, &maximumDepth);
 
-            m_viewer->setAxisScale(QwtPlot::yLeft, minimumDepth, maximumDepth);
+            m_viewer->setDepthRange(minimumDepth, maximumDepth);
             rangesChanged = true;
         }
 
