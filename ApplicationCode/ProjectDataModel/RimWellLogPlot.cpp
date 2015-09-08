@@ -121,6 +121,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_userName)
     {
+        setUiName(m_userName);
         updateViewerWidgetWindowTitle();
     }
 }
@@ -343,6 +344,7 @@ void RimWellLogPlot::detachAllCurves()
 void RimWellLogPlot::setDescription(const QString& description)
 {
     m_userName = description;
+    setUiName(description);
 }
 
 //--------------------------------------------------------------------------------------------------
