@@ -62,6 +62,8 @@ public:
     void updateAxisRanges();
     void setVisibleDepthRangeFromContents();
 
+    caf::PdmField<bool> showWindow;
+
 protected:
 
     // Overridden PDM methods
@@ -80,7 +82,6 @@ private:
 private:
     QPointer<RiuWellLogPlot> m_viewer;
     
-    caf::PdmField<bool> showWindow;
     caf::PdmField< std::vector<int> >       windowGeometry;
 
     caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;

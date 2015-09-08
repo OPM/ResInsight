@@ -57,6 +57,12 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuWellLogPlot::~RiuWellLogPlot()
 {
+    if (m_plotDefinition)
+    {
+        m_plotDefinition->showWindow = false;
+        m_plotDefinition->uiCapability()->updateUiIconFromToggleField();
+        m_plotDefinition->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
