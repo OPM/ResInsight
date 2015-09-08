@@ -21,6 +21,9 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotTrace.h"
+
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionHelper.h"
 #include "cafPdmChildArrayField.h"
@@ -45,6 +48,20 @@ bool RicDeleteItemFeature::isCommandEnabled()
 
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(currentPdmObject->parentField());
     if (!childArrayFieldHandle) return false;
+
+    if (dynamic_cast<RimWellLogPlotTrace*>(currentPdmObject))
+    {
+        RimWellLogPlotTrace* plotTrace = dynamic_cast<RimWellLogPlotTrace*>(currentPdmObject);
+        RimWellLogPlot* wellLogPlot;
+        plotTrace->firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+            if (wellLogPlot->traceCount() < 2)
+            {
+                return false;
+            }
+        }
+    }
 
     return true;
 }
