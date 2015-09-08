@@ -62,6 +62,8 @@ public:
     void updateAxisRanges();
     void setVisibleDepthRangeFromContents();
 
+    virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_userName; }
+
 protected:
 
     // Overridden PDM methods

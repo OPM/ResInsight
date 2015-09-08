@@ -62,6 +62,7 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
     plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
     plot->loadDataAndUpdate();
 
+    plot->updateConnectedEditors();
     RiaApplication::instance()->project()->updateConnectedEditors();
 
     RicNewWellLogPlotCurveFeature::addCurve(plotTrace);

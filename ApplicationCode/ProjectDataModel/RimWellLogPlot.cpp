@@ -48,7 +48,7 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
     m_showWindow.uiCapability()->setUiHidden(true);
     
-    CAF_PDM_InitFieldNoDefault(&m_userName, "PlotDescription", "Name", "", "", "");
+    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
     CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Minimum depth", "", "", "");
     CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Maximum depth", "", "", "");
 
@@ -121,7 +121,6 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_userName)
     {
-        setUiName(m_userName);
         updateViewerWidgetWindowTitle();
     }
 }
@@ -281,7 +280,6 @@ void RimWellLogPlot::loadDataAndUpdate()
 
     updateAvailableDepthRange();
     updateAxisRanges();
-    setUiName(m_userName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +343,6 @@ void RimWellLogPlot::detachAllCurves()
 void RimWellLogPlot::setDescription(const QString& description)
 {
     m_userName = description;
-    setUiName(description);
 }
 
 //--------------------------------------------------------------------------------------------------
