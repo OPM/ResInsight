@@ -24,6 +24,8 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotCurve.h"
+#include "RicNewWellLogPlotCurveFeature.h"
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
@@ -54,14 +56,15 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
     RimWellLogPlot* plot = new RimWellLogPlot();
     wellLogPlotColl->wellLogPlots().push_back(plot);
 
-    RimWellLogPlotTrace* plotrace = new RimWellLogPlotTrace();
-    plot->addTrace(plotrace);
-        
+    RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace();
+    plot->addTrace(plotTrace);
+
     plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
     plot->loadDataAndUpdate();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(plot);
+
+    RicNewWellLogPlotCurveFeature::addCurve(plotTrace);
 }
 
 //--------------------------------------------------------------------------------------------------

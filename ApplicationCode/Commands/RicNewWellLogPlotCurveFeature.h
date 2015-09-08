@@ -30,6 +30,10 @@ class RicNewWellLogPlotCurveFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static void addCurve(RimWellLogPlotTrace* plotTrace);
+
+
 protected:
     // Overrides
     virtual bool isCommandEnabled();

@@ -79,19 +79,7 @@ void RicNewWellLogPlotCurveFeature::onActionTriggered(bool isChecked)
     RimWellLogPlotTrace* wellLogPlotTrace = selectedWellLogPlotTrace();
     if (wellLogPlotTrace)
     {
-        size_t curveIndex = wellLogPlotTrace->curveCount();
-
-        RimWellLogPlotCurve* curve = new RimWellLogExtractionCurve();
-        wellLogPlotTrace->addCurve(curve);
-
-        QColor curveColorQt = sg_curveColorFromIndex(curveIndex);
-        cvf::Color3f curveColor(curveColorQt.redF(), curveColorQt.greenF(), curveColorQt.blueF());
-        curve->setColor(curveColor);
-
-        curve->setDescription(QString("Curve %1").arg(wellLogPlotTrace->curveCount()));
-
-        wellLogPlotTrace->updateConnectedEditors();
-        RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
+        addCurve(wellLogPlotTrace);
     }
 }
 
@@ -111,4 +99,26 @@ RimWellLogPlotTrace* RicNewWellLogPlotCurveFeature::selectedWellLogPlotTrace()
     std::vector<RimWellLogPlotTrace*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     return selection.size() > 0 ? selection[0] : NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewWellLogPlotCurveFeature::addCurve(RimWellLogPlotTrace* plotTrace)
+{
+    CVF_ASSERT(plotTrace);
+
+    size_t curveIndex = plotTrace->curveCount();
+
+    RimWellLogPlotCurve* curve = new RimWellLogExtractionCurve();
+    plotTrace->addCurve(curve);
+
+    QColor curveColorQt = sg_curveColorFromIndex(curveIndex);
+    cvf::Color3f curveColor(curveColorQt.redF(), curveColorQt.greenF(), curveColorQt.blueF());
+    curve->setColor(curveColor);
+
+    curve->setDescription(QString("Curve %1").arg(plotTrace->curveCount()));
+
+    plotTrace->updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
 }

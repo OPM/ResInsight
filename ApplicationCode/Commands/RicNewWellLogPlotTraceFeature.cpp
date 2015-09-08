@@ -20,12 +20,15 @@
 #include "RicNewWellLogPlotTraceFeature.h"
 
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotTrace.h"
+
+#include "RiuMainWindow.h"
+
+#include "RicNewWellLogPlotCurveFeature.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include "RimWellLogPlotTrace.h"
-#include "RiuMainWindow.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogPlotTraceFeature, "RicNewWellLogPlotTraceFeature");
@@ -46,12 +49,12 @@ void RicNewWellLogPlotTraceFeature::onActionTriggered(bool isChecked)
     RimWellLogPlot* wellLogPlot = selectedWellLogPlot();
     if (wellLogPlot)
     {
-         RimWellLogPlotTrace* trace = new RimWellLogPlotTrace;
-         wellLogPlot->addTrace(trace);
-         trace->setUiName(QString("Trace %1").arg(wellLogPlot->traceCount()));
+         RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace;
+         wellLogPlot->addTrace(plotTrace);
+         plotTrace->setUiName(QString("Trace %1").arg(wellLogPlot->traceCount()));
 
          wellLogPlot->updateConnectedEditors();
-         RiuMainWindow::instance()->setCurrentObjectInTreeView(trace);
+         RicNewWellLogPlotCurveFeature::addCurve(plotTrace);
     }
 }
 
