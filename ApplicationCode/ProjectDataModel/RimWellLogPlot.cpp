@@ -352,7 +352,7 @@ void RimWellLogPlot::updateViewerWidgetWindowTitle()
 {
     if (m_viewer)
     {
-        m_viewer->setWindowTitle(QString("Well Log Plot - %1").arg(m_userName));
+        m_viewer->setWindowTitle(m_userName);
     }
 }
 
