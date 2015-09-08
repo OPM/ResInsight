@@ -27,6 +27,7 @@
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -95,8 +96,9 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
         viewConfig->updateViewChanged();
     }
 
-    proj->linkedViews.push_back(linkedViews);
-    proj->linkedViews.uiCapability()->updateConnectedEditors();
+    proj->viewLinkerCollection()->viewLinkers().push_back(linkedViews);
+    linkedViews->updateUiIcon();
+    proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
 
     linkedViews->applyAllOperations();
     proj->updateConnectedEditors();
@@ -124,9 +126,9 @@ void RicLinkVisibleViewsFeature::setupActionLook(QAction* actionToSetup)
 void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<RimView*>& views)
 {
     RimProject* proj = RiaApplication::instance()->project();
-    for (size_t i = 0; i < proj->linkedViews().size(); i++)
+    for (size_t i = 0; i < proj->viewLinkerCollection()->viewLinkers().size(); i++)
     {
-        RimViewLinker* linkedViews = proj->linkedViews()[i];
+        RimViewLinker* linkedViews = proj->viewLinkerCollection()->viewLinkers()[i];
         linkedViews->allViews(views);
     }
 }

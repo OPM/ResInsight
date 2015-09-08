@@ -45,6 +45,7 @@
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
@@ -92,8 +93,9 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&mainPlotCollection, "MainPlotCollection", "Plots", ":/Default.png", "", "");
     mainPlotCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&linkedViews, "LinkedViews", "Linked Views", ":/chain.png", "", "");
-    linkedViews.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&viewLinkerCollection, "LinkedViews", "Linked Views (field in RimProject", ":/chain.png", "", "");
+    viewLinkerCollection.uiCapability()->setUiHidden(true);
+    viewLinkerCollection = new RimViewLinkerCollection;
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
@@ -153,7 +155,7 @@ void RimProject::close()
 
     commandObjects.deleteAllChildObjects();
 
-    linkedViews.deleteAllChildObjects();
+    viewLinkerCollection->viewLinkers().deleteAllChildObjects();
 
     fileName = "";
 
@@ -473,9 +475,9 @@ void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
     allCases(cases);
 
     std::vector<RimView*> alreadyLinkedViews;
-    for (size_t i = 0; i < linkedViews().size(); i++)
+    for (size_t i = 0; i < viewLinkerCollection->viewLinkers().size(); i++)
     {
-        RimViewLinker* viewLinker = linkedViews()[i];
+        RimViewLinker* viewLinker = viewLinkerCollection->viewLinkers()[i];
         viewLinker->allViews(alreadyLinkedViews);
     }
 
@@ -930,9 +932,10 @@ void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptColle
 //--------------------------------------------------------------------------------------------------
 void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    if (linkedViews.size() > 0)
+    if (viewLinkerCollection()->viewLinkers().size() > 0)
     {
-        uiTreeOrdering.add(&linkedViews);
+        // Use object instead of field to avoid duplicate entries in the tree view
+        uiTreeOrdering.add(viewLinkerCollection());
     }
 
     RimOilField* oilField = activeOilField();
@@ -964,9 +967,9 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimProject::findViewLinkerFromView(RimView* view)
 {
-    for (size_t i = 0; i < linkedViews.size(); i++)
+    for (size_t i = 0; i < viewLinkerCollection()->viewLinkers().size(); i++)
     {
-        RimViewLinker* group = linkedViews[i];
+        RimViewLinker* group = viewLinkerCollection()->viewLinkers()[i];
         if (view == group->mainView()) return group;
 
         for (size_t j = 0; j < group->linkedViews.size(); j++)

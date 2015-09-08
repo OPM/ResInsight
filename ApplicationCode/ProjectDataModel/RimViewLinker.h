@@ -61,21 +61,28 @@ public:
     void allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
     void allViews(std::vector<RimView*>& views);
 
+    void updateUiIcon();
+
 public:
     static QString  displayNameForView(RimView* view);
     RimLinkedView*  linkedViewFromView(RimView* view);
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual caf::PdmFieldHandle*            objectToggleField()     { return &m_active; }
+    virtual caf::PdmFieldHandle*            objectToggleField()     { return &m_isActive; }
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual void                            initAfterRead();
+
+    void setNameAndIcon();
+
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 private:
     bool isActive();
 
 private:
-    caf::PdmField<bool>         m_active;
+    caf::PdmField<bool>         m_isActive;
     caf::PdmPtrField<RimView*>  m_mainView;
     caf::PdmField<QString>      m_name;
+    QIcon                       m_originalIcon;
 };

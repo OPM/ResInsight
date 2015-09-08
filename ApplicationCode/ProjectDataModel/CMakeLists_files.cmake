@@ -66,6 +66,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrace.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.h
 ${CEE_CURRENT_LIST_DIR}RimViewLinker.h
+${CEE_CURRENT_LIST_DIR}RimViewLinkerCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.h
 )
 
@@ -131,6 +132,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrace.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewLinker.cpp
+${CEE_CURRENT_LIST_DIR}RimViewLinkerCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.cpp
 )
 

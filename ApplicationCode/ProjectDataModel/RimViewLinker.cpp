@@ -23,14 +23,18 @@
 
 #include "RimCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimLinkedView.h"
 #include "RimProject.h"
 #include "RimView.h"
+#include "RimViewLinkerCollection.h"
 
 #include "RiuViewer.h"
 
@@ -335,7 +339,7 @@ void RimViewLinker::setMainView(RimView* view)
 {
     m_mainView = view;
 
-    initAfterRead();
+    setNameAndIcon();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,18 +371,8 @@ void RimViewLinker::allViews(std::vector<RimView*>& views)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::initAfterRead()
 {
-    m_name = displayNameForView(m_mainView);
-
-    QIcon icon;
-    if (m_mainView)
-    {
-        RimCase* rimCase = NULL;
-        m_mainView->firstAnchestorOrThisOfType(rimCase);
-
-        icon = rimCase->uiCapability()->uiIcon();
-    }
-
-    this->setUiIcon(icon);
+    setNameAndIcon();
+    updateUiIcon();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -401,6 +395,67 @@ void RimViewLinker::updateScaleZ(RimView* source, double scaleZ)
 //--------------------------------------------------------------------------------------------------
 bool RimViewLinker::isActive()
 {
+    RimViewLinkerCollection* viewLinkerCollection = NULL;
+    this->firstAnchestorOrThisOfType(viewLinkerCollection);
+    
+    if (!viewLinkerCollection->isActive()) return false;
+    
     return m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    updateUiIcon();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Hande icon update locally as PdmUiItem::updateUiIconFromState works only for static icons
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateUiIcon()
+{
+    QPixmap icPixmap;
+    icPixmap = m_originalIcon.pixmap(16, 16, QIcon::Normal);
+
+    if (!m_isActive)
+    {
+        QIcon temp(icPixmap);
+        icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
+    }
+
+    QIcon newIcon(icPixmap);
+    this->setUiIcon(newIcon);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::setNameAndIcon()
+{
+    m_name = displayNameForView(m_mainView);
+
+    QIcon icon;
+    if (m_mainView)
+    {
+        RimCase* rimCase = NULL;
+        m_mainView->firstAnchestorOrThisOfType(rimCase);
+
+        if (dynamic_cast<RimGeoMechCase*>(rimCase))
+        {
+            icon = QIcon(":/GeoMechCase48x48.png");
+        }
+        else if (dynamic_cast<RimEclipseResultCase*>(rimCase))
+        {
+            icon = QIcon(":/Case48x48.png");
+        }
+        else if (dynamic_cast<RimEclipseInputCase*>(rimCase))
+        {
+            icon = QIcon(":/EclipseInput48x48.png");
+        }
+    }
+
+    m_originalIcon = icon;
 }
 
