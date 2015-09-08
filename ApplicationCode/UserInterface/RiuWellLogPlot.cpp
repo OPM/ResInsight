@@ -59,9 +59,7 @@ RiuWellLogPlot::~RiuWellLogPlot()
 {
     if (m_plotDefinition)
     {
-        m_plotDefinition->showWindow = false;
-        m_plotDefinition->uiCapability()->updateUiIconFromToggleField();
-        m_plotDefinition->updateConnectedEditors();
+        m_plotDefinition->handleViewerDeletion();
     }
 }
 

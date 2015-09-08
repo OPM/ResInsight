@@ -45,8 +45,8 @@ RimWellLogPlot::RimWellLogPlot()
 
     m_viewer = NULL;
 
-    CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
-    showWindow.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
+    m_showWindow.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&m_userName, "PlotDescription", "Name", "", "", "");
     CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Minimum depth", "", "", "");
@@ -77,7 +77,7 @@ RimWellLogPlot::~RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::updateViewerWidget()
 {
-    if (showWindow())
+    if (m_showWindow())
     {
         if (!m_viewer)
         {
@@ -111,7 +111,7 @@ void RimWellLogPlot::updateViewerWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &showWindow)
+    if (changedField == &m_showWindow)
     {
         updateViewerWidget();
     }
@@ -130,7 +130,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 {
-    return &showWindow;
+    return &m_showWindow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,4 +354,23 @@ void RimWellLogPlot::updateViewerWidgetWindowTitle()
     {
         m_viewer->setWindowTitle(QString("Well Log Plot - %1").arg(m_userName));
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::handleViewerDeletion()
+{
+    m_showWindow = false;
+
+    if (m_viewer)
+    {
+        windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
+
+        detachAllCurves();
+        m_viewer = NULL;
+    }
+ 
+    uiCapability()->updateUiIconFromToggleField();
+    updateConnectedEditors();
 }
