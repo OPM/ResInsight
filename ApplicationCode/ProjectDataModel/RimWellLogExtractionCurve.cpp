@@ -303,6 +303,15 @@ void RimWellLogExtractionCurve::updateCurveTitle()
         resVar = m_eclipseResultDefinition->resultVariable();
     }
 
+    if (geomCase)
+    {
+        QString resCompName = m_geomResultDefinition->resultComponentUiName();
+        if (resCompName.isEmpty())
+            resVar = m_geomResultDefinition->resultFieldUiName();
+        else
+            resVar = m_geomResultDefinition->resultFieldUiName() + "." + resCompName ;
+    }
+
     m_userName = resVar;
 
     m_plotCurve->setTitle(m_userName);
