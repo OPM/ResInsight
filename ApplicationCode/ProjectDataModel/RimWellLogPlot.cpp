@@ -281,6 +281,7 @@ void RimWellLogPlot::loadDataAndUpdate()
 
     updateAvailableDepthRange();
     updateAxisRanges();
+    setUiName(m_userName);
 }
 
 //--------------------------------------------------------------------------------------------------
