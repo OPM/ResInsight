@@ -1356,6 +1356,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     if (!proj) return;
     if (!subWindow) return;
 
+    #if 0 // Causes crash for some reason
     RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(subWindow->widget());
     if (wellLogPlotViewer)
     {
@@ -1371,6 +1372,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
             }
         }
     }
+    #endif
 
     // Iterate all cases in each oil field
     std::vector<RimCase*> allCases;
