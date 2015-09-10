@@ -22,6 +22,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
+#include "cafAppEnum.h"
 
 #include <QPointer>
 
@@ -36,6 +37,14 @@ class RimWellLogPlotTrace;
 class RimWellLogPlot : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    enum DepthTypeEnum
+    {
+        MEASURED_DEPTH,
+        TRUE_VERTICAL_DEPTH
+    };
+
 public:
     RimWellLogPlot();
     virtual ~RimWellLogPlot();
@@ -88,9 +97,10 @@ private:
 
     caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
     
-    caf::PdmField<QString>  m_userName;
-    caf::PdmField<double>   m_minimumVisibleDepth;
-    caf::PdmField<double>   m_maximumVisibleDepth;
+    caf::PdmField<QString>                          m_userName;
+    caf::PdmField< caf::AppEnum< DepthTypeEnum > >  m_depthType;
+    caf::PdmField<double>                           m_minimumVisibleDepth;
+    caf::PdmField<double>                           m_maximumVisibleDepth;
 
     double m_depthRangeMinimum;
     double m_depthRangeMaximum;

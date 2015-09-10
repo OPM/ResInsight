@@ -34,6 +34,19 @@
 #define RI_LOGPLOT_MINDEPTH_DEFAULT 0.0
 #define RI_LOGPLOT_MAXDEPTH_DEFAULT 1000.0
 
+namespace caf {
+
+    template<>
+    void caf::AppEnum< RimWellLogPlot::DepthTypeEnum >::setUp()
+    {
+        addItem(RimWellLogPlot::MEASURED_DEPTH,       "MEASURED_DEPTH",       "Measured Depth");
+        addItem(RimWellLogPlot::TRUE_VERTICAL_DEPTH,  "TRUE_VERTICAL_DEPTH",  "True Vertical Depth");
+        setDefault(RimWellLogPlot::MEASURED_DEPTH);
+    }
+
+} // End namespace caf
+
+
 CAF_PDM_SOURCE_INIT(RimWellLogPlot, "WellLogPlot");
 
 //--------------------------------------------------------------------------------------------------
@@ -49,8 +62,12 @@ RimWellLogPlot::RimWellLogPlot()
     m_showWindow.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
+    
+    caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
+    CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Depth type",   "", "", "");
+
     CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Minimum depth", "", "", "");
-    CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Maximum depth", "", "", "");
+    CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Maximum depth", "", "", "");    
 
     CAF_PDM_InitFieldNoDefault(&traces, "Traces", "",  "", "", "");
     traces.uiCapability()->setUiHidden(true);
