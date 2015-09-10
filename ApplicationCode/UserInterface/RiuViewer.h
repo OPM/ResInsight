@@ -58,6 +58,7 @@ public:
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
     void            setOwnerReservoirView(RimView * owner);
+    RimView*        ownerReservoirView();
     void            setEnableMask(unsigned int mask);
 
     void            showInfoText(bool enable);

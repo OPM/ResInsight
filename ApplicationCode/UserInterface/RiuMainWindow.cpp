@@ -99,7 +99,8 @@ RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = NULL;
 RiuMainWindow::RiuMainWindow()
     : m_pdmRoot(NULL),
     m_mainViewer(NULL),
-    m_windowMenu(NULL)
+    m_windowMenu(NULL),
+    m_blockSlotSubWindowActivated(false)
 {
     CVF_ASSERT(sm_mainWindowInstance == NULL);
 
@@ -1352,29 +1353,35 @@ void RiuMainWindow::slotZoomAll()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
+    if (!subWindow) return;
+    if (m_blockSlotSubWindowActivated) return;
+
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
-    if (!subWindow) return;
 
-    #if 0 // Causes crash for some reason
     RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(subWindow->widget());
+
     if (wellLogPlotViewer)
     {
-        RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
-        RimWellLogPlotCollection* wellPlotColl = mainPlotColl ? mainPlotColl->wellLogPlotCollection() : NULL;
-        if (wellPlotColl)
+        RimWellLogPlot* wellLogPlot = wellLogPlotViewer->ownerPlotDefinition();
+        
+        if (wellLogPlot != RiaApplication::instance()->activeWellLogPlot())
         {
-            RimWellLogPlot* wellLogPlot = wellPlotColl->wellLogPlotFromViewer(wellLogPlotViewer);
+            RiaApplication::instance()->setActiveWellLogPlot(wellLogPlot);
             if (wellLogPlot)
             {
                 projectTreeView()->selectAsCurrentItem(wellLogPlot);
-                return;
             }
         }
+        return;
     }
-    #endif
 
-    // Iterate all cases in each oil field
+    RiaApplication::instance()->setActiveWellLogPlot(NULL);
+
+    // Find the activated 3D view
+    
+    RimView* activatedView = NULL;
+
     std::vector<RimCase*> allCases;
     proj->allCases(allCases);
 
@@ -1382,7 +1389,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     {
         RimCase* reservoirCase = allCases[caseIdx];
         if (reservoirCase == NULL) continue;
-        
+
         std::vector<RimView*> views = reservoirCase->views();
 
         size_t viewIdx;
@@ -1395,64 +1402,73 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                 riv->viewer()->layoutWidget() &&
                 riv->viewer()->layoutWidget()->parent() == subWindow)
             {
-                RimView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
-                RiaApplication::instance()->setActiveReservoirView(riv);
-                if (previousActiveReservoirView && previousActiveReservoirView != riv)
-                {
-                    // Try to select the same entry in the new View, as was selected in the previous
-
-                    QModelIndex previousViewModelIndex = m_projectTreeView->findModelIndex(previousActiveReservoirView);
-                    QModelIndex newViewModelIndex = m_projectTreeView->findModelIndex(riv);
-
-                    QModelIndex newSelectionIndex = newViewModelIndex;
-                    QModelIndex currentSelectionIndex = m_projectTreeView->treeView()->selectionModel()->currentIndex();
-
-                    if (currentSelectionIndex != newViewModelIndex &&
-                        currentSelectionIndex.isValid())
-                    {
-                        QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
-
-                        QModelIndex tmpModelIndex = currentSelectionIndex;
-
-                        while (tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex)
-                        {
-                            // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
-                            route.push_front(tmpModelIndex);
-
-                            tmpModelIndex = tmpModelIndex.parent();
-                        }
-
-                        // Traverse model indices from new view index to currently selected item
-                        int i;
-                        for (i = 0; i < route.size(); i++)
-                        {
-                            QModelIndex tmp = route[i];
-                            if (newSelectionIndex.isValid())
-                            {
-                                newSelectionIndex = m_projectTreeView->treeView()->model()->index(tmp.row(), tmp.column(), newSelectionIndex);
-                            }
-                        }
-
-                        // Use view model index if anything goes wrong
-                        if (!newSelectionIndex.isValid())
-                        {
-                            newSelectionIndex = newViewModelIndex;
-                        }
-                    }
-
-                    m_projectTreeView->treeView()->setCurrentIndex(newSelectionIndex);
-                    if (newSelectionIndex != newViewModelIndex)
-                    {
-                        m_projectTreeView->treeView()->setExpanded(newViewModelIndex, true);
-                    }
-                }
-
-                slotRefreshViewActions();
-                refreshAnimationActions();
-                refreshDrawStyleActions();
+                activatedView = riv;
                 break;
             }
         }
+    }
+
+    {
+        RimView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
+        RiaApplication::instance()->setActiveReservoirView(activatedView);
+
+        if (previousActiveReservoirView != activatedView)
+        {
+            QModelIndex newViewModelIndex = m_projectTreeView->findModelIndex(activatedView);
+            QModelIndex newSelectionIndex = newViewModelIndex;
+
+            if (previousActiveReservoirView)
+            {
+                // Try to select the same entry in the new View, as was selected in the previous
+
+                QModelIndex previousViewModelIndex = m_projectTreeView->findModelIndex(previousActiveReservoirView);
+                QModelIndex currentSelectionIndex = m_projectTreeView->treeView()->selectionModel()->currentIndex();
+
+                if (currentSelectionIndex != newViewModelIndex &&
+                    currentSelectionIndex.isValid())
+                {
+                    QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+
+                    QModelIndex tmpModelIndex = currentSelectionIndex;
+
+                    while (tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex)
+                    {
+                        // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
+                        route.push_front(tmpModelIndex);
+
+                        tmpModelIndex = tmpModelIndex.parent();
+                    }
+
+                    // Traverse model indices from new view index to currently selected item
+                    int i;
+                    for (i = 0; i < route.size(); i++)
+                    {
+                        QModelIndex tmp = route[i];
+                        if (newSelectionIndex.isValid())
+                        {
+                            newSelectionIndex = m_projectTreeView->treeView()->model()->index(tmp.row(), tmp.column(), newSelectionIndex);
+                        }
+                    }
+
+                    // Use view model index if anything goes wrong
+                    if (!newSelectionIndex.isValid())
+                    {
+                        newSelectionIndex = newViewModelIndex;
+                    }
+                }
+            }
+
+            m_projectTreeView->treeView()->setCurrentIndex(newSelectionIndex);
+            if (newSelectionIndex != newViewModelIndex)
+            {
+                m_projectTreeView->treeView()->setExpanded(newViewModelIndex, true);
+            }
+
+        }
+
+        slotRefreshViewActions();
+        refreshAnimationActions();
+        refreshDrawStyleActions();
     }
 }
 
@@ -1578,55 +1594,73 @@ void RiuMainWindow::selectedObjectsChanged()
 
     if (uiItems.size() == 1)
     {
-        std::vector<RimWellLogPlot*> selection;
-        caf::SelectionManager::instance()->objectsByType(&selection);
-        if (selection.size() > 0)
+        // Find the reservoir view or the Plot that the selected item is within 
+
+        if (!firstSelectedObject)
         {
-            RimWellLogPlot* wellLogPlot = selection[0];
-            RiuWellLogPlot* wellLogPlotViewer = wellLogPlot ? wellLogPlot->viewer() : NULL;
-            if (wellLogPlotViewer)
+            caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
+            if (selectedField) firstSelectedObject = selectedField->ownerObject();
+        }
+
+        if (!firstSelectedObject) return;
+
+        // First check if we are within a RimView
+        RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
+        if (!selectedReservoirView)
+        {
+            firstSelectedObject->firstAnchestorOrThisOfType(selectedReservoirView);
+        }
+
+        bool isActiveViewChanged = false;
+        
+        RimWellLogPlot* selectedWellLogPlot = NULL;
+
+        if (selectedReservoirView)
+        {
+            // Set focus in MDI area to this window if it exists
+            if (selectedReservoirView->viewer())
             {
-                setActiveViewer(wellLogPlotViewer);
+                m_blockSlotSubWindowActivated = true;
+                setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
+                m_blockSlotSubWindowActivated = false;
+            }
+            isActiveViewChanged = true;
+        }
+        else // Check if we are winthin a Well Log plot
+        {
+            selectedWellLogPlot = dynamic_cast<RimWellLogPlot*>(firstSelectedObject);
+            if (!selectedWellLogPlot)
+            {
+                firstSelectedObject->firstAnchestorOrThisOfType(selectedWellLogPlot);
+            }
+
+            if (selectedWellLogPlot)
+            {
+                if (selectedWellLogPlot->viewer())
+                {
+                    m_blockSlotSubWindowActivated = true;
+                    setActiveViewer(selectedWellLogPlot->viewer());
+                    m_blockSlotSubWindowActivated = false;
+
+                }
+                isActiveViewChanged = true;
             }
         }
-        else
+
+        if (isActiveViewChanged)
         {
-            // Find the reservoir view that the selected item is within 
+            RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
+            RiaApplication::instance()->setActiveWellLogPlot(selectedWellLogPlot);
+            refreshDrawStyleActions();
+            refreshAnimationActions();
+            slotRefreshFileActions();
+            slotRefreshEditActions();
+            slotRefreshViewActions();
 
-            if (!firstSelectedObject)
-            {
-                caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
-                if (selectedField) firstSelectedObject = selectedField->ownerObject();
-            }
-
-            RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
-            if (!selectedReservoirView && firstSelectedObject)
-            {
-                firstSelectedObject->firstAnchestorOrThisOfType(selectedReservoirView);
-            }
-
-            if (selectedReservoirView)
-            {
-                RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
-                // Set focus in MDI area to this window if it exists
-                if (selectedReservoirView->viewer())
-                {
-                    setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
-                }
-
-                // m_projectTreeView->selectAsCurrentItem(uiItems[0]); TODO: Is this neccesary ? Was done in the old tree view.
-
-                refreshDrawStyleActions();
-                refreshAnimationActions();
-                slotRefreshFileActions();
-                slotRefreshEditActions();
-                slotRefreshViewActions();
-
-                // The only way to get to this code is by selection change initiated from the project tree view
-                // As we are activating an MDI-window, the focus is given to this MDI-window
-                // Set focus back to the tree view to be able to continue keyboard tree view navigation
-                m_projectTreeView->treeView()->setFocus();
-            }
+            // The only way to get to this code is by selection change initiated from the project tree view
+            // As we are activating an MDI-window, the focus is given to this MDI-window
+            // Set focus back to the tree view to be able to continue keyboard tree view navigation
+            m_projectTreeView->treeView()->setFocus();
         }
     }
 }

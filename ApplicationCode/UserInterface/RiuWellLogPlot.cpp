@@ -118,3 +118,11 @@ void RiuWellLogPlot::slotSetMinDepth(int value)
     double delta = value - minimumDepth;
     m_plotDefinition->setVisibleDepthRange(minimumDepth + delta, maximumDepth + delta);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot* RiuWellLogPlot::ownerPlotDefinition()
+{
+    return m_plotDefinition;
+}

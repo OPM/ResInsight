@@ -304,4 +304,6 @@ private:
     QAction*                    m_addWellCellsToRangeFilterAction;
 
     std::vector<QPointer<QDockWidget> > additionalProjectViews;
+
+    bool                        m_blockSlotSubWindowActivated;
 };

@@ -42,6 +42,7 @@ class RimView;
 class RimProject;
 class RimCommandObject;
 class RiaProjectModifier;
+class RimWellLogPlot;
 
 namespace caf
 {
@@ -78,6 +79,9 @@ public:
     void                    setActiveReservoirView(RimView*);
     RimView*                activeReservoirView();
     const RimView*          activeReservoirView() const;
+
+    void                    setActiveWellLogPlot(RimWellLogPlot*);
+    RimWellLogPlot*         activeWellLogPlot();
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
@@ -175,6 +179,8 @@ private slots:
 
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
+    caf::PdmPointer<RimWellLogPlot>     m_activeWellLogPlot;
+
     caf::PdmPointer<RimProject>         m_project;
 
     std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;

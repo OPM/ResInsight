@@ -502,3 +502,11 @@ void RiuViewer::setCurrentFrame(int frameIndex)
 
     caf::Viewer::slotSetCurrentFrame(frameIndex);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimView* RiuViewer::ownerReservoirView()
+{
+    return m_reservoirView;
+}

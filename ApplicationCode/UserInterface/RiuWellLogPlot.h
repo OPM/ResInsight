@@ -21,6 +21,7 @@
 
 #include <QWidget>
 #include <QList>
+#include "cafPdmPointer.h"
 
 class RimWellLogPlot;
 class RiuWellLogTracePlot;
@@ -41,6 +42,8 @@ public:
     RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = NULL);
     virtual ~RiuWellLogPlot();
 
+    RimWellLogPlot* ownerPlotDefinition();
+
     void insertTracePlot(RiuWellLogTracePlot* tracePlot);
 
     void setDepthRange(double minDepth, double maxDepth);
@@ -52,9 +55,9 @@ private slots:
     void slotSetMinDepth(int value);
 
 private:
-    QHBoxLayout*                m_layout;
-    QScrollBar*                 m_scrollBar;
-    QList<RiuWellLogTracePlot*> m_tracePlots;
-    RimWellLogPlot*             m_plotDefinition;
+    QHBoxLayout*                    m_layout;
+    QScrollBar*                     m_scrollBar;
+    QList<RiuWellLogTracePlot*>     m_tracePlots;
+    caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
 };
 
