@@ -204,6 +204,9 @@ void RimWellPath::readJsonWellPathFile()
         QMap<QString, QVariant> coordinateMap = point.toMap();
         cvf::Vec3d vec3d(coordinateMap["east"].toDouble(), coordinateMap["north"].toDouble(), -(coordinateMap["tvd"].toDouble() - datumElevation));
         wellPathGeom->m_wellPathPoints.push_back(vec3d);
+        
+        double measuredDepth = coordinateMap["md"].toDouble();
+        wellPathGeom->m_measuredDepths.push_back(measuredDepth);
     }
 
     //jsonReader.dumpToFile(wellPathGeom->m_wellPathPoints, "c:\\temp\\jsonpoints.txt");
