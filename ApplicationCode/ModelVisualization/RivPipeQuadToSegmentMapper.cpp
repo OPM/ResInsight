@@ -17,26 +17,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivWellPathSourceInfo.h"
-
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-
 #include "RivPipeQuadToSegmentMapper.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPathSourceInfo::RivWellPathSourceInfo(RimWellPath* wellPath/*, RivPipeQuadToSegmentMapper* quadToSegmentMapper*/)
+RivPipeQuadToSegmentMapper::RivPipeQuadToSegmentMapper()
 {
-    m_wellPath = wellPath;
-    //m_quadToSegmentMapper = quadToSegmentMapper;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RivWellPathSourceInfo::wellPath() const
-{
-    return m_wellPath.p();
 }

@@ -19,25 +19,17 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cafPdmPointer.h"
-
-class RimWellPath;
-//class RivPipeQuadToSegmentMapper;
+#include <vector>
 
 //==================================================================================================
 ///  
-///  TODO: Implement and add RivPipeQuadToSegmentMapper
+///  TODO: Implement
 //==================================================================================================
-class RivWellPathSourceInfo : public cvf::Object
+class RivPipeQuadToSegmentMapper
 {
 public:
-    RivWellPathSourceInfo(RimWellPath* wellPath/*, RivPipeQuadToSegmentMapper* quadToSegmentMapper*/);
+    RivPipeQuadToSegmentMapper();
 
-    RimWellPath* wellPath() const;
-
-private:    
-    caf::PdmPointer<RimWellPath>    m_wellPath;
-    //RivPipeQuadToSegmentMapper*     m_quadToSegmentMapper;
+private:
+    std::vector<size_t> m_quadsToSegment;
 };
