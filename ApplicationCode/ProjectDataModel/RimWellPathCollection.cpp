@@ -283,6 +283,7 @@ void RimWellPathAsciiFileReader::readAllWellData(QString filePath)
 
                 cvf::Vec3d wellPoint(x, y, -tvd);
                 fileWellDataArray.back().m_wellPathGeometry->m_wellPathPoints.push_back(wellPoint);
+                fileWellDataArray.back().m_wellPathGeometry->m_measuredDepths.push_back(md);
 
                 x = HUGE_VAL;
                 y = HUGE_VAL;
