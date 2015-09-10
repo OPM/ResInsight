@@ -188,8 +188,8 @@ int RigFemPartGrid::findElmIdxForIJK000()
         cvf::Vec3i ijkMainFaceIndices = findMainIJKFaces(elmIdx);
 
         if (   m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1
-            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1
-            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1 ) 
+            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[1]) != -1
+            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[2]) != -1 ) 
         {
             return elmIdx;
         }
