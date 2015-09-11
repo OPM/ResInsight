@@ -87,7 +87,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
         RimView* rimView = views[i];
         if (rimView == masterView) continue;
 
-        RimLinkedView* viewConfig = new RimLinkedView;
+        RimViewLink* viewConfig = new RimViewLink;
         viewConfig->setManagedView(rimView);
 
         linkedViews->linkedViews.push_back(viewConfig);

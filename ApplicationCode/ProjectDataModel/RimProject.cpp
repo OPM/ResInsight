@@ -793,7 +793,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicAddScriptPathFeature";
             commandIds << "RicDeleteScriptPathFeature";
         }
-        else if (dynamic_cast<RimLinkedView*>(uiItem))
+        else if (dynamic_cast<RimViewLink*>(uiItem))
         {
             commandIds << "RicShowAllLinkedViewsFeature";
             commandIds << "Separator";
@@ -974,7 +974,7 @@ RimViewLinker* RimProject::findViewLinkerFromView(RimView* view)
 
         for (size_t j = 0; j < group->linkedViews.size(); j++)
         {
-            RimLinkedView* viewConfig = group->linkedViews[j];
+            RimViewLink* viewConfig = group->linkedViews[j];
             if (viewConfig->managedView() == view) return group;
         }
     }

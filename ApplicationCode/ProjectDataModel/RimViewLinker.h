@@ -26,7 +26,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-class RimLinkedView;
+class RimViewLink;
 class RiuViewer;
 class RimView;
 
@@ -45,7 +45,7 @@ public:
     void     setMainView(RimView* view);
     RimView* mainView();
 
-    caf::PdmChildArrayField<RimLinkedView*> linkedViews;
+    caf::PdmChildArrayField<RimViewLink*> linkedViews;
 
     void applyAllOperations();
 
@@ -65,7 +65,7 @@ public:
 
 public:
     static QString  displayNameForView(RimView* view);
-    RimLinkedView*  linkedViewFromView(RimView* view);
+    RimViewLink*  linkedViewFromView(RimView* view);
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }

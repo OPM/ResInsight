@@ -31,13 +31,13 @@ class RimGeoMechView;
 ///  
 ///  
 //==================================================================================================
-class RimLinkedView : public caf::PdmObject
+class RimViewLink : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimLinkedView(void);
-    virtual ~RimLinkedView(void);
+    RimViewLink(void);
+    virtual ~RimViewLink(void);
 
     caf::PdmField<QString>      name;
 

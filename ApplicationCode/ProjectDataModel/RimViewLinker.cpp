@@ -45,7 +45,7 @@
 
 
 
-CAF_PDM_SOURCE_INIT(RimViewLinker, "RimLinkedViews");
+CAF_PDM_SOURCE_INIT(RimViewLinker, "RimViewLinker");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 {
     if (!isActive()) return;
 
-    RimLinkedView* sourceLinkedView = linkedViewFromView(sourceView);
+    RimViewLink* sourceLinkedView = linkedViewFromView(sourceView);
     if (sourceLinkedView && !sourceLinkedView->syncTimeStep())
     {
         return;
@@ -95,7 +95,7 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimLinkedView* managedViewConfig = linkedViews[i];
+        RimViewLink* managedViewConfig = linkedViews[i];
         if (managedViewConfig->managedView() && managedViewConfig->managedView() != sourceView)
         {
             if (managedViewConfig->syncTimeStep() && managedViewConfig->managedView()->viewer())
@@ -122,7 +122,7 @@ void RimViewLinker::updateCellResult()
 
         for (size_t i = 0; i < linkedViews.size(); i++)
         {
-            RimLinkedView* managedViewConfig = linkedViews[i];
+            RimViewLink* managedViewConfig = linkedViews[i];
             if (managedViewConfig->managedView())
             {
                 if (managedViewConfig->syncCellResult())
@@ -147,7 +147,7 @@ void RimViewLinker::updateCellResult()
 
         for (size_t i = 0; i < linkedViews.size(); i++)
         {
-            RimLinkedView* managedViewConfig = linkedViews[i];
+            RimViewLink* managedViewConfig = linkedViews[i];
             if (managedViewConfig->managedView())
             {
                 if (managedViewConfig->syncCellResult())
@@ -174,7 +174,7 @@ void RimViewLinker::updateRangeFilters()
 
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimLinkedView* managedViewConfig = linkedViews[i];
+        RimViewLink* managedViewConfig = linkedViews[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncRangeFilters())
@@ -211,7 +211,7 @@ void RimViewLinker::updatePropertyFilters()
 
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimLinkedView* managedViewConfig = linkedViews[i];
+        RimViewLink* managedViewConfig = linkedViews[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncPropertyFilters())
@@ -244,7 +244,7 @@ void RimViewLinker::configureOverrides()
 {
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
-        RimLinkedView* managedViewConfig = linkedViews[i];
+        RimViewLink* managedViewConfig = linkedViews[i];
         managedViewConfig->configureOverrides();
     }
 }
@@ -322,7 +322,7 @@ void RimViewLinker::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimLinkedView* RimViewLinker::linkedViewFromView(RimView* view)
+RimViewLink* RimViewLinker::linkedViewFromView(RimView* view)
 {
     for (size_t i = 0; i < linkedViews.size(); i++)
     {
