@@ -130,7 +130,14 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &m_showWindow)
     {
-        loadDataAndUpdate();
+        if (m_showWindow)
+        {
+            loadDataAndUpdate();
+        }
+        else
+        {
+            updateViewerWidget();
+        }
     }
     else if (changedField == &m_minimumVisibleDepth || changedField == &m_maximumVisibleDepth)
     {
