@@ -284,10 +284,10 @@ void RimViewLink::configureOverridesUpdateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimViewLink::configureOverrides()
 {
-    RimViewLinker* linkedViews = NULL;
-    this->firstAnchestorOrThisOfType(linkedViews);
+    RimViewLinker* viewLinker = NULL;
+    this->firstAnchestorOrThisOfType(viewLinker);
 
-    RimView* masterView = linkedViews->mainView();
+    RimView* masterView = viewLinker->mainView();
     CVF_ASSERT(masterView);
     
     if (!masterView) return;
@@ -304,6 +304,9 @@ void RimViewLink::configureOverrides()
             if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
 
             // Todo: set up the managed view with the visible cell override.
+            // Create Cell-mapping if necessary
+            // Set VisibleCellsOverrider object on the managed view, 
+            // with master view and mapper object
         }
         else
         {

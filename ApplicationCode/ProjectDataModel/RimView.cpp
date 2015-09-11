@@ -706,3 +706,22 @@ bool RimView::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* RimView::dependentViews()
+{
+    RimViewLinker* viewLinker = NULL;
+    std::vector<caf::PdmObjectHandle*> reffingObjs;
+
+    this->objectsWithReferringPtrFields(reffingObjs);
+
+    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    {
+         viewLinker = dynamic_cast<RimViewLinker*>(reffingObjs[i]);
+         if (viewLinker ) break;
+    }
+
+    return viewLinker;
+}
+

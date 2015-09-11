@@ -35,6 +35,7 @@ class Rim3dOverlayInfoConfig;
 class RimCase;
 class RimCellRangeFilterCollection;
 class RiuViewer;
+class RimViewLinker;
 
 namespace cvf
 {
@@ -128,6 +129,7 @@ public:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
 protected:
 
+    RimViewLinker*                          dependentViews();
     void                                    setDefaultView();
 
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
