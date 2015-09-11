@@ -355,6 +355,8 @@ set( LINK_LIBRARIES
     ert_geometry
     ecl_well
 
+    NRLib
+
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
 
