@@ -47,11 +47,14 @@ public:
     caf::PdmField<bool>         syncCamera;
     caf::PdmField<bool>         syncTimeStep;
     caf::PdmField<bool>         syncCellResult;
+
+    caf::PdmField<bool>         syncVisibleCells;
+
     caf::PdmField<bool>         syncRangeFilters;
     caf::PdmField<bool>         syncPropertyFilters;
 
     void                        configureOverrides();
-    void                        updateViewChanged();
+    void                        updateOptionSensitivity();
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

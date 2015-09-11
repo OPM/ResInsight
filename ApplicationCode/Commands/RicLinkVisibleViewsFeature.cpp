@@ -93,7 +93,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
         linkedViews->linkedViews.push_back(viewConfig);
 
         viewConfig->initAfterReadRecursively();
-        viewConfig->updateViewChanged();
+        viewConfig->updateOptionSensitivity();
     }
 
     proj->viewLinkerCollection()->viewLinkers().push_back(linkedViews);
