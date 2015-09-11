@@ -114,7 +114,8 @@ void RiuWellLogTracePlot::setDefaults()
 
     QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
     QFont yAxisTitleFont = axisTitleY.font();
-    yAxisTitleFont.setPixelSize(12);
+    yAxisTitleFont.setPixelSize(9);
+    yAxisTitleFont.setBold(false);
     axisTitleY.setFont(yAxisTitleFont);
     axisTitleY.setRenderFlags(Qt::AlignRight);
     setAxisTitle(QwtPlot::yLeft, axisTitleY);
