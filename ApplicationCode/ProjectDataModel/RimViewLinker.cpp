@@ -31,7 +31,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimLinkedView.h"
+#include "RimViewLink.h"
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
