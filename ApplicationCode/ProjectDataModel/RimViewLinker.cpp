@@ -63,8 +63,8 @@ RimViewLinker::RimViewLinker(void)
     m_mainView.uiCapability()->setUiChildrenHidden(true);
     m_mainView.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&linkedViews, "ManagedViews", "Managed Views", "", "", "");
-    linkedViews.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&viewLinks, "ManagedViews", "Managed Views", "", "", "");
+    viewLinks.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 {
     if (!isActive()) return;
 
-    RimViewLink* sourceLinkedView = linkedViewFromView(sourceView);
+    RimViewLink* sourceLinkedView = viewLinkFromView(sourceView);
     if (sourceLinkedView && !sourceLinkedView->syncTimeStep())
     {
         return;
@@ -93,9 +93,9 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
         m_mainView->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
     }
 
-    for (size_t i = 0; i < linkedViews.size(); i++)
+    for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        RimViewLink* managedViewConfig = linkedViews[i];
+        RimViewLink* managedViewConfig = viewLinks[i];
         if (managedViewConfig->managedView() && managedViewConfig->managedView() != sourceView)
         {
             if (managedViewConfig->syncTimeStep() && managedViewConfig->managedView()->viewer())
@@ -120,9 +120,9 @@ void RimViewLinker::updateCellResult()
     {
         RimEclipseResultDefinition* eclipseCellResultDefinition = masterEclipseView->cellResult();
 
-        for (size_t i = 0; i < linkedViews.size(); i++)
+        for (size_t i = 0; i < viewLinks.size(); i++)
         {
-            RimViewLink* managedViewConfig = linkedViews[i];
+            RimViewLink* managedViewConfig = viewLinks[i];
             if (managedViewConfig->managedView())
             {
                 if (managedViewConfig->syncCellResult())
@@ -145,9 +145,9 @@ void RimViewLinker::updateCellResult()
     {
         RimGeoMechResultDefinition* geoMechResultDefinition = masterGeoView->cellResult();
 
-        for (size_t i = 0; i < linkedViews.size(); i++)
+        for (size_t i = 0; i < viewLinks.size(); i++)
         {
-            RimViewLink* managedViewConfig = linkedViews[i];
+            RimViewLink* managedViewConfig = viewLinks[i];
             if (managedViewConfig->managedView())
             {
                 if (managedViewConfig->syncCellResult())
@@ -172,9 +172,9 @@ void RimViewLinker::updateRangeFilters()
 {
     if (!isActive()) return;
 
-    for (size_t i = 0; i < linkedViews.size(); i++)
+    for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        RimViewLink* managedViewConfig = linkedViews[i];
+        RimViewLink* managedViewConfig = viewLinks[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncRangeFilters())
@@ -209,9 +209,9 @@ void RimViewLinker::updatePropertyFilters()
 {
     if (!isActive()) return;
 
-    for (size_t i = 0; i < linkedViews.size(); i++)
+    for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        RimViewLink* managedViewConfig = linkedViews[i];
+        RimViewLink* managedViewConfig = viewLinks[i];
         if (managedViewConfig->managedView())
         {
             if (managedViewConfig->syncPropertyFilters())
@@ -242,9 +242,9 @@ void RimViewLinker::updatePropertyFilters()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::configureOverrides()
 {
-    for (size_t i = 0; i < linkedViews.size(); i++)
+    for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        RimViewLink* managedViewConfig = linkedViews[i];
+        RimViewLink* managedViewConfig = viewLinks[i];
         managedViewConfig->configureOverrides();
     }
 }
@@ -261,11 +261,11 @@ void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>
         views.push_back(m_mainView());
     }
 
-    for (size_t i = 0; i < linkedViews.size(); i++)
+    for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        if (linkedViews[i]->syncCamera && linkedViews[i]->managedView() && source != linkedViews[i]->managedView())
+        if (viewLinks[i]->syncCamera && viewLinks[i]->managedView() && source != viewLinks[i]->managedView())
         {
-            views.push_back(linkedViews[i]->managedView());
+            views.push_back(viewLinks[i]->managedView());
         }
     }
 }
@@ -307,9 +307,9 @@ QString RimViewLinker::displayNameForView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    for (size_t cIdx = 0; cIdx < linkedViews.size(); ++cIdx)
+    for (size_t cIdx = 0; cIdx < viewLinks.size(); ++cIdx)
     {
-        PdmObjectHandle* childObject = linkedViews[cIdx];
+        PdmObjectHandle* childObject = viewLinks[cIdx];
         if (childObject)
         {
             uiTreeOrdering.add(childObject);
@@ -322,11 +322,11 @@ void RimViewLinker::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLink* RimViewLinker::linkedViewFromView(RimView* view)
+RimViewLink* RimViewLinker::viewLinkFromView(RimView* view)
 {
-    for (size_t i = 0; i < linkedViews.size(); i++)
+    for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        if (linkedViews[i]->managedView() == view) return linkedViews[i];
+        if (viewLinks[i]->managedView() == view) return viewLinks[i];
     }
 
     return NULL;
@@ -357,11 +357,11 @@ void RimViewLinker::allViews(std::vector<RimView*>& views)
 {
     views.push_back(m_mainView());
 
-    for (size_t i = 0; i < linkedViews.size(); i++)
+    for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        if (linkedViews[i]->managedView())
+        if (viewLinks[i]->managedView())
         {
-            views.push_back(linkedViews[i]->managedView());
+            views.push_back(viewLinks[i]->managedView());
         }
     }
 }

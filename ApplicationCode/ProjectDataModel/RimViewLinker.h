@@ -45,7 +45,7 @@ public:
     void     setMainView(RimView* view);
     RimView* mainView();
 
-    caf::PdmChildArrayField<RimViewLink*> linkedViews;
+    caf::PdmChildArrayField<RimViewLink*> viewLinks;
 
     void applyAllOperations();
 
@@ -65,7 +65,7 @@ public:
 
 public:
     static QString  displayNameForView(RimView* view);
-    RimViewLink*  linkedViewFromView(RimView* view);
+    RimViewLink*  viewLinkFromView(RimView* view);
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }

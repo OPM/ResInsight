@@ -90,7 +90,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
         RimViewLink* viewConfig = new RimViewLink;
         viewConfig->setManagedView(rimView);
 
-        linkedViews->linkedViews.push_back(viewConfig);
+        linkedViews->viewLinks.push_back(viewConfig);
 
         viewConfig->initAfterReadRecursively();
         viewConfig->updateOptionSensitivity();

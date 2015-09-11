@@ -972,9 +972,9 @@ RimViewLinker* RimProject::findViewLinkerFromView(RimView* view)
         RimViewLinker* group = viewLinkerCollection()->viewLinkers()[i];
         if (view == group->mainView()) return group;
 
-        for (size_t j = 0; j < group->linkedViews.size(); j++)
+        for (size_t j = 0; j < group->viewLinks.size(); j++)
         {
-            RimViewLink* viewConfig = group->linkedViews[j];
+            RimViewLink* viewConfig = group->viewLinks[j];
             if (viewConfig->managedView() == view) return group;
         }
     }
