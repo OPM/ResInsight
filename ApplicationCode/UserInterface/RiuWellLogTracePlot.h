@@ -41,6 +41,7 @@ public:
     virtual ~RiuWellLogTracePlot();
 
     void setDepthRange(double minDepth, double maxDepth);
+    void setDepthTitle(const QString& title);
 
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event);

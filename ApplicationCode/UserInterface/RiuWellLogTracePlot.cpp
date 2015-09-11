@@ -26,6 +26,8 @@
 #include "qwt_legend.h"
 #include "qwt_scale_engine.h"
 #include "qwt_plot_layout.h"
+#include "qwt_scale_draw.h"
+#include "qwt_text.h"
 
 #include <QWheelEvent>
 #include <QFont>
@@ -109,6 +111,13 @@ void RiuWellLogTracePlot::setDefaults()
     QFont yAxisFont = axisFont(QwtPlot::yLeft);
     yAxisFont.setPixelSize(9);
     setAxisFont(QwtPlot::yLeft, yAxisFont);
+
+    QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
+    QFont yAxisTitleFont = axisTitleY.font();
+    yAxisTitleFont.setPixelSize(12);
+    axisTitleY.setFont(yAxisTitleFont);
+    axisTitleY.setRenderFlags(Qt::AlignRight);
+    setAxisTitle(QwtPlot::yLeft, axisTitleY);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,6 +128,16 @@ void RiuWellLogTracePlot::setDepthRange(double minDepth, double maxDepth)
     // Note: Y-axis is inverted
     setAxisScale(QwtPlot::yLeft, maxDepth, minDepth);
     //replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTracePlot::setDepthTitle(const QString& title)
+{
+    QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
+    axisTitleY.setText(title);
+    setAxisTitle(QwtPlot::yLeft, axisTitleY);
 }
 
 //--------------------------------------------------------------------------------------------------

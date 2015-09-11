@@ -161,6 +161,14 @@ void RimWellLogPlotTrace::loadDataAndUpdate()
 {
     CVF_ASSERT(m_viewer);
 
+    RimWellLogPlot* wellLogPlot;
+    firstAnchestorOrThisOfType(wellLogPlot);
+    if (wellLogPlot)
+    {
+        QString depthTitle = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? "MD" : "TVD";
+        m_viewer->setDepthTitle(depthTitle);
+    }
+
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
         curves[cIdx]->updatePlotData();
