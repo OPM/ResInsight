@@ -44,8 +44,8 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
 {
     CAF_PDM_InitObject("Trace", "", "", "");
 
-    CAF_PDM_InitField(&show, "Show", true, "Show trace", "", "", "");
-    show.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_show, "Show", true, "Show trace", "", "", "");
+    m_show.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");
     curves.uiCapability()->setUiHidden(true);
@@ -67,9 +67,9 @@ RimWellLogPlotTrace::~RimWellLogPlotTrace()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &show)
+    if (changedField == &m_show)
     {
-        if (m_viewer) m_viewer->setVisible(show());
+        if (m_viewer) m_viewer->setVisible(m_show());
     }
     else if (changedField == &m_minimumValue || changedField == &m_maximumValue)
     {
@@ -83,7 +83,7 @@ void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellLogPlotTrace::objectToggleField()
 {
-    return &show;
+    return &m_show;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ void RimWellLogPlotTrace::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::updateAxisRanges()
+void RimWellLogPlotTrace::updateAxisRangesAndReplot()
 {
     bool rangesChanged = false;
 

@@ -56,6 +56,7 @@ public:
     size_t  traceCount() { return traces.size();}
 
     void loadDataAndUpdate();
+    void updateTraces();
 
     RiuWellLogPlot* viewer();
 
@@ -70,6 +71,8 @@ public:
     void visibleDepthRange(double* minimumDepth, double* maximumDepth) const;
     void updateAxisRanges();
     void setVisibleDepthRangeFromContents();
+
+    DepthTypeEnum depthType() const;
 
     virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_userName; }
 

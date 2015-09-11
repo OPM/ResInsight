@@ -50,7 +50,7 @@ public:
     void loadDataAndUpdate();
 
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
-    void updateAxisRanges();
+    void updateAxisRangesAndReplot();
 
     RiuWellLogTracePlot* viewer();
 
@@ -61,7 +61,7 @@ protected:
     virtual caf::PdmFieldHandle* objectToggleField();
 
 private:
-    caf::PdmField<bool> show;
+    caf::PdmField<bool> m_show;
     caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
     caf::PdmField<double> m_minimumValue;
     caf::PdmField<double> m_maximumValue;

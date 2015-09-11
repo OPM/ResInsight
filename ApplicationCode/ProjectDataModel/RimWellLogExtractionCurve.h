@@ -38,6 +38,7 @@ class RimWellLogExtractionCurve : public RimWellLogPlotCurve
 public:
     RimWellLogExtractionCurve();
     virtual ~RimWellLogExtractionCurve();
+    
     virtual void updatePlotData();
 
 protected:

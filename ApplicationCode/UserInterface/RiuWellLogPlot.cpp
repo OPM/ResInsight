@@ -76,7 +76,7 @@ void RiuWellLogPlot::insertTracePlot(RiuWellLogTracePlot* tracePlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::setDepthRange(double minDepth, double maxDepth)
+void RiuWellLogPlot::setDepthRangeAndReplot(double minDepth, double maxDepth)
 {
     for (int tpIdx = 0; tpIdx < m_tracePlots.count(); tpIdx++)
     {

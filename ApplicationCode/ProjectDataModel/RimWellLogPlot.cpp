@@ -101,11 +101,11 @@ void RimWellLogPlot::updateViewerWidget()
             m_viewer = new RiuWellLogPlot(this, RiuMainWindow::instance());
 
             recreateTracePlots();
+
+            RiuMainWindow::instance()->addViewer(m_viewer, windowGeometry());
+            RiuMainWindow::instance()->setActiveViewer(m_viewer);
         }
 
-        RiuMainWindow::instance()->addViewer(m_viewer, windowGeometry());
-        RiuMainWindow::instance()->setActiveViewer(m_viewer);
-        updateAxisRanges();
         updateViewerWidgetWindowTitle();
     }
     else
@@ -130,7 +130,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &m_showWindow)
     {
-        updateViewerWidget();
+        loadDataAndUpdate();
     }
     else if (changedField == &m_minimumVisibleDepth || changedField == &m_maximumVisibleDepth)
     {
@@ -139,6 +139,10 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     else if (changedField == &m_userName)
     {
         updateViewerWidgetWindowTitle();
+    }
+    if (changedField == &m_depthType)
+    {
+        updateTraces();
     }
 }
 
@@ -289,7 +293,14 @@ void RimWellLogPlot::setupBeforeSave()
 void RimWellLogPlot::loadDataAndUpdate()
 {
     updateViewerWidget();
+    updateTraces();
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateTraces()
+{
     for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
     {
         traces[tIdx]->loadDataAndUpdate();
@@ -298,6 +309,7 @@ void RimWellLogPlot::loadDataAndUpdate()
     updateAvailableDepthRange();
     updateAxisRanges();
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -309,7 +321,7 @@ void RimWellLogPlot::updateAxisRanges()
         double minDepth = m_minimumVisibleDepth < HUGE_VAL ? m_minimumVisibleDepth : RI_LOGPLOT_MINDEPTH_DEFAULT;
         double maxDepth = m_maximumVisibleDepth > -HUGE_VAL ? m_maximumVisibleDepth : RI_LOGPLOT_MAXDEPTH_DEFAULT;
 
-        m_viewer->setDepthRange(minDepth, maxDepth);
+        m_viewer->setDepthRangeAndReplot(minDepth, maxDepth);
     }
 }
 
@@ -390,4 +402,12 @@ void RimWellLogPlot::handleViewerDeletion()
  
     uiCapability()->updateUiIconFromToggleField();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot::DepthTypeEnum RimWellLogPlot::depthType() const
+{
+    return m_depthType.value();
 }

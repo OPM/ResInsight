@@ -120,7 +120,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAnchestorOrThisOfType(wellLogPlotTrace);
         if (wellLogPlotTrace)
         {
-            wellLogPlotTrace->updateAxisRanges();
+            wellLogPlotTrace->updateAxisRangesAndReplot();
         }
 
         RimWellLogPlotCollection* wellLogPlotCollection = NULL;

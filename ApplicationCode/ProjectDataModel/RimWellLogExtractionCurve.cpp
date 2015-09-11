@@ -32,9 +32,9 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RimWellLogPlotCurve.h"
-
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
+
 #include "RiuWellLogTracePlot.h"
 #include "qwt_plot_curve.h"
 #include "RimWellLogPlotCollection.h"
@@ -90,7 +90,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 {
     RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
-   if (changedField == &m_case)
+    if (changedField == &m_case)
     {
         this->updatePlotData();
     }    
@@ -104,7 +104,6 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         this->updatePlotData();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +135,11 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         if (eclExtractor.notNull())
         {
-            const std::vector<double>& depthValues = eclExtractor->measuredDepth();
+            RimWellLogPlot* wellLogPlot;
+            firstAnchestorOrThisOfType(wellLogPlot);
+            CVF_ASSERT(wellLogPlot);
+
+            const std::vector<double>& depthValues = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? eclExtractor->measuredDepth() : eclExtractor->trueVerticalDepth();
 
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
             m_eclipseResultDefinition->loadResult();
@@ -192,7 +195,7 @@ void RimWellLogExtractionCurve::updatePlotData()
                 }
                 else if (plotTrace->curveCount() == 1)
                 {
-                    plotTrace->updateAxisRanges();
+                    plotTrace->updateAxisRangesAndReplot();
                 }
             }
         }

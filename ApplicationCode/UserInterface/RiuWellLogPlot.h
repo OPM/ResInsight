@@ -46,7 +46,7 @@ public:
 
     void insertTracePlot(RiuWellLogTracePlot* tracePlot);
 
-    void setDepthRange(double minDepth, double maxDepth);
+    void setDepthRangeAndReplot(double minDepth, double maxDepth);
 
 private:
     void updateScrollBar(double minDepth, double maxDepth);
