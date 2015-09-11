@@ -296,7 +296,7 @@ QString RimViewLinker::displayNameForView(RimView* view)
         RimCase* rimCase = NULL;
         view->firstAnchestorOrThisOfType(rimCase);
 
-        displayName = rimCase->caseUserDescription() + " : " + view->name;
+        displayName = rimCase->caseUserDescription() + ": " + view->name;
     }
 
     return displayName;

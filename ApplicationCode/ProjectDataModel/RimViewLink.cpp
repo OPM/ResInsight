@@ -44,16 +44,16 @@ RimViewLink::RimViewLink(void)
 {
     CAF_PDM_InitObject("View Config", ":/ReservoirView.png", "", "");
 
-    QString defaultName = "View Config : Empty view";
+    QString defaultName = "View Config: Empty view";
     CAF_PDM_InitField(&name, "Name", defaultName, "Managed View Name", "", "", "");
     name.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Managed View", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View", "", "", "");
     m_managedView.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitField(&syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
     CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
-    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", true,     "Cell Result", "", "", "");
+    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", false,     "Cell Result", "", "", "");
     CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
     CAF_PDM_InitField(&syncPropertyFilters, "SyncPropertyFilters", true,"Property Filters", "", "", "");
 }
@@ -382,7 +382,7 @@ void RimViewLink::updateDisplayNameAndIcon()
     }
     else
     {
-        name = "View Config : Empty view";
+        name = "View Config: Empty view";
     }
 
     QIcon icon;
@@ -420,12 +420,14 @@ void RimViewLink::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 {
     uiOrdering.add(&m_managedView);
 
-    caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Properties for sync");
+    caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Link Options");
 
     scriptGroup->add(&syncCamera);
     scriptGroup->add(&syncTimeStep);
     scriptGroup->add(&syncCellResult);
-    scriptGroup->add(&syncRangeFilters);
-    scriptGroup->add(&syncPropertyFilters);
+
+    caf::PdmUiGroup* visibleCells = uiOrdering.addNewGroup("Link Cell Filters");
+    visibleCells->add(&syncRangeFilters);
+    visibleCells->add(&syncPropertyFilters);
 }
 
