@@ -73,6 +73,7 @@ public:
     void setVisibleDepthRangeFromContents();
 
     DepthTypeEnum depthType() const;
+    QString depthPlotTitle() const;
 
     virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_userName; }
 

@@ -418,3 +418,25 @@ RimWellLogPlot::DepthTypeEnum RimWellLogPlot::depthType() const
 {
     return m_depthType.value();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogPlot::depthPlotTitle() const
+{
+    QString depthTitle = "Depth";
+    
+    switch (m_depthType.value())
+    {
+        case MEASURED_DEPTH:
+            depthTitle = "MD";
+            break;
+
+        case TRUE_VERTICAL_DEPTH:
+            depthTitle = "TVD";
+            break;
+    }
+
+    depthTitle += " [m]";
+    return depthTitle;
+}
