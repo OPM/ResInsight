@@ -56,6 +56,7 @@ public:
 
     void                        configureOverrides();
     void                        updateOptionSensitivity();
+    void                        removeOverrides();
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

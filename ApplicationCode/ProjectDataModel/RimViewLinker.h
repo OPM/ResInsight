@@ -62,6 +62,7 @@ public:
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
 
     void                                    configureOverrides();
+    void                                    removeOverrides();
 
     void                                    allViews(std::vector<RimView*>& views);
 

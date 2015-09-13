@@ -65,6 +65,7 @@ RimViewLink::RimViewLink(void)
 //--------------------------------------------------------------------------------------------------
 RimViewLink::~RimViewLink(void)
 {
+    this->removeOverrides();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -459,5 +460,21 @@ void RimViewLink::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     visibleCells->add(&syncVisibleCells);
     visibleCells->add(&syncRangeFilters);
     visibleCells->add(&syncPropertyFilters);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLink::removeOverrides()
+{
+
+    if (m_managedView)
+    {
+        RimEclipseView* manEclView = managedEclipseView();
+        RimGeoMechView* manGeoView = managedGeoView();
+        m_managedView->setOverrideRangeFilterCollection(NULL);
+        if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
+        if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
+    }
 }
 

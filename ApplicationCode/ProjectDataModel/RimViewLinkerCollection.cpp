@@ -71,6 +71,24 @@ void RimViewLinkerCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTre
 //--------------------------------------------------------------------------------------------------
 void RimViewLinkerCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (&isActive == changedField)
+    {
+        if (isActive)
+        {
+            for (size_t cIdx = 0; cIdx < viewLinkers.size(); ++cIdx)
+            {
+                viewLinkers[cIdx]->applyAllOperations();
+            }
+        }
+        else
+        {
+            for (size_t cIdx = 0; cIdx < viewLinkers.size(); ++cIdx)
+            {
+                viewLinkers[cIdx]->removeOverrides();
+            }
+        }
+    }
+
     this->updateUiIconFromToggleField();
 }
 

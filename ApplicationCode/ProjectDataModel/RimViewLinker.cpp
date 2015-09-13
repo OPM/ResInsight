@@ -72,6 +72,7 @@ RimViewLinker::RimViewLinker(void)
 //--------------------------------------------------------------------------------------------------
 RimViewLinker::~RimViewLinker(void)
 {
+    viewLinks.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -419,6 +420,18 @@ bool RimViewLinker::isActive()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (&m_isActive == changedField)
+    {
+        if (m_isActive)
+        {
+            this->applyAllOperations();
+        }
+        else
+        {
+            this->removeOverrides();
+        }
+    }
+
     updateUiIcon();
 }
 
@@ -510,6 +523,20 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
             {
                 viewLinks[i]->managedView()->scheduleCreateDisplayModelAndRedraw();
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::removeOverrides()
+{
+    for (size_t i = 0; i < viewLinks.size(); i++)
+    {
+        if (viewLinks[i]->managedView())
+        {
+            viewLinks[i]->removeOverrides();
         }
     }
 }
