@@ -61,6 +61,7 @@
 #include <QMessageBox>
 
 #include <limits.h>
+#include "RimViewLinker.h"
 
 
 
@@ -835,7 +836,13 @@ RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
-    m_reservoirGridPartManager->scheduleGeometryRegen(static_cast<RivCellSetEnum>(geometryType));
+    m_reservoirGridPartManager->scheduleGeometryRegen(geometryType);
+
+    RimViewLinker* viewLinker = viewLinkerWithDepViews();
+    if (viewLinker)
+    {
+        viewLinker->scheduleGeometryRegenForDepViews(geometryType);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1536,4 +1543,7 @@ const RimEclipsePropertyFilterCollection* RimEclipseView::propertyFilterCollecti
 void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc)
 {
     m_overridePropertyFilterCollection = pfc;
+
+    this->scheduleGeometryRegen(PROPERTY_FILTERED);
+    this->scheduleCreateDisplayModelAndRedraw();
 }

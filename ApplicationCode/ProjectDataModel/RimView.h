@@ -129,7 +129,7 @@ public:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
 protected:
 
-    RimViewLinker*                          dependentViews();
+    RimViewLinker*                          viewLinkerWithDepViews();
     void                                    setDefaultView();
 
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 

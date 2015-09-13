@@ -44,12 +44,13 @@ public:
     RimView*                    managedView();
     void                        setManagedView(RimView* view);
 
+    // Linked (both ways) properties
     caf::PdmField<bool>         syncCamera;
     caf::PdmField<bool>         syncTimeStep;
+
+    // Overridden properties
     caf::PdmField<bool>         syncCellResult;
-
     caf::PdmField<bool>         syncVisibleCells;
-
     caf::PdmField<bool>         syncRangeFilters;
     caf::PdmField<bool>         syncPropertyFilters;
 

@@ -25,6 +25,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "RivCellSetEnum.h"
 
 class RimViewLink;
 class RiuViewer;
@@ -42,30 +43,33 @@ public:
     RimViewLinker(void);
     virtual ~RimViewLinker(void);
 
-    void     setMainView(RimView* view);
-    RimView* mainView();
+    void                                    setMainView(RimView* view);
+    RimView*                                mainView();
 
-    caf::PdmChildArrayField<RimViewLink*> viewLinks;
+    caf::PdmChildArrayField<RimViewLink*>   viewLinks;
 
-    void applyAllOperations();
+    void                                    applyAllOperations();
 
-    void updateTimeStep(RimView* sourceView, int timeStep);
-    void updateCellResult();
+    void                                    updateTimeStep(RimView* sourceView, int timeStep);
+    void                                    updateScaleZ(RimView* source, double scaleZ);
+    void                                    allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
 
-    void updateRangeFilters();
-    void updatePropertyFilters();
+    void                                    updateCellResult();
+    void                                    updateRangeFilters();
+    void                                    updatePropertyFilters();
 
-    void configureOverrides();
+    void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
+    void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
 
-    void updateScaleZ(RimView* source, double scaleZ);
-    void allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
-    void allViews(std::vector<RimView*>& views);
+    void                                    configureOverrides();
 
-    void updateUiIcon();
+    void                                    allViews(std::vector<RimView*>& views);
+
+    void                                    updateUiIcon();
 
 public:
-    static QString  displayNameForView(RimView* view);
-    RimViewLink*  viewLinkFromView(RimView* view);
+    static QString                          displayNameForView(RimView* view);
+    RimViewLink*                            viewLinkFromView(RimView* view);
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
@@ -73,16 +77,16 @@ protected:
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual void                            initAfterRead();
 
-    void setNameAndIcon();
+    void                                    setNameAndIcon();
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 private:
-    bool isActive();
+    bool                                    isActive();
 
 private:
-    caf::PdmField<bool>         m_isActive;
-    caf::PdmPtrField<RimView*>  m_mainView;
-    caf::PdmField<QString>      m_name;
-    QIcon                       m_originalIcon;
+    caf::PdmField<bool>                     m_isActive;
+    caf::PdmPtrField<RimView*>              m_mainView;
+    caf::PdmField<QString>                  m_name;
+    QIcon                                   m_originalIcon;
 };

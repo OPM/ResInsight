@@ -54,6 +54,7 @@
 #include "cvfqtUtils.h"
 
 #include <QMessageBox>
+#include "RimViewLinker.h"
 
 
 
@@ -514,6 +515,12 @@ RimCase* RimGeoMechView::ownerCase()
 void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_vizLogic->scheduleGeometryRegen(geometryType);
+
+    RimViewLinker* viewLinker = viewLinkerWithDepViews();
+    if (viewLinker)
+    {
+        viewLinker->scheduleGeometryRegenForDepViews(geometryType);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,6 +529,9 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 void RimGeoMechView::setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc)
 {
     m_overridePropertyFilterCollection = pfc;
+    
+    this->scheduleGeometryRegen(PROPERTY_FILTERED);
+    this->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -172,6 +172,11 @@ void RimViewLinker::updateRangeFilters()
 {
     if (!isActive()) return;
 
+    this->scheduleGeometryRegenForDepViews(RANGE_FILTERED);
+    this->scheduleGeometryRegenForDepViews(RANGE_FILTERED_INACTIVE);
+    this->scheduleCreateDisplayModelAndRedrawForDependentViews();
+
+    #if 0
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
         RimViewLink* managedViewConfig = viewLinks[i];
@@ -200,6 +205,7 @@ void RimViewLinker::updateRangeFilters()
             }
         }
     }
+    #endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,7 +214,11 @@ void RimViewLinker::updateRangeFilters()
 void RimViewLinker::updatePropertyFilters()
 {
     if (!isActive()) return;
+    this->scheduleGeometryRegenForDepViews(RANGE_FILTERED);
+    this->scheduleGeometryRegenForDepViews(RANGE_FILTERED_INACTIVE);
+    this->scheduleCreateDisplayModelAndRedrawForDependentViews();
 
+#if 0
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
         RimViewLink* managedViewConfig = viewLinks[i];
@@ -235,6 +245,7 @@ void RimViewLinker::updatePropertyFilters()
             }
         }
     }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -457,5 +468,49 @@ void RimViewLinker::setNameAndIcon()
     }
 
     m_originalIcon = icon;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType)
+{
+    for (size_t i = 0; i < viewLinks.size(); i++)
+    {
+        if (  viewLinks[i]->syncVisibleCells() 
+           || viewLinks[i]->syncPropertyFilters() 
+           || viewLinks[i]->syncRangeFilters() 
+           )
+        {
+            if (viewLinks[i]->managedView())
+            {
+                if (viewLinks[i]->syncVisibleCells()) {
+                    viewLinks[i]->managedView()->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
+                }else{
+                    viewLinks[i]->managedView()->scheduleGeometryRegen(geometryType);
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
+{
+    for (size_t i = 0; i < viewLinks.size(); i++)
+    {
+        if (viewLinks[i]->syncVisibleCells()
+            || viewLinks[i]->syncPropertyFilters()
+            || viewLinks[i]->syncRangeFilters()
+            )
+        {
+            if (viewLinks[i]->managedView())
+            {
+                viewLinks[i]->managedView()->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
 }
 

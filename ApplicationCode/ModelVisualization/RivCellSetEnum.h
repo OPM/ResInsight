@@ -21,6 +21,7 @@
 
 enum RivCellSetEnum
 {
+    OVERRIDDEN_CELL_VISIBILITY,                     ////< Use the total visibility from a different case directly
     ALL_CELLS,
     ACTIVE,                                         ///< All Active cells without ALL_WELL_CELLS
     ALL_WELL_CELLS,                                 ///< All cells ever having a connection to a well (Might be inactive cells as well. Wellhead cells typically)

@@ -149,9 +149,11 @@ void RimEclipsePropertyFilterCollection::updateDisplayModelNotifyManagedViews()
     RimProject* proj = NULL;
     view->firstAnchestorOrThisOfType(proj);
 
+    /*
     RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
     if (viewLinker)
     {
         viewLinker->updatePropertyFilters();
     }
+    */
 }

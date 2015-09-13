@@ -155,7 +155,7 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews()
     view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
     view->scheduleCreateDisplayModelAndRedraw();
-
+    /*
     RimProject* proj = NULL;
     view->firstAnchestorOrThisOfType(proj);
 
@@ -164,6 +164,7 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews()
     {
         viewLinker->updateRangeFilters();
     }
+    */
 }
 
 //--------------------------------------------------------------------------------------------------

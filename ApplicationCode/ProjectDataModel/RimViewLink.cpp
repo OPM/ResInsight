@@ -217,6 +217,7 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     else if (&syncVisibleCells == changedField)
     {
         updateOptionSensitivity();
+        configureOverridesUpdateDisplayModel();
     }
 }
 
@@ -258,7 +259,7 @@ void RimViewLink::configureOverridesUpdateDisplayModel()
     configureOverrides();
 
     // This update scheduling actually schedules update in the master view (not the managed view). Is that intentional ? JJS
-
+    /*
     if (m_managedView)
     {
         m_managedView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
@@ -275,7 +276,7 @@ void RimViewLink::configureOverridesUpdateDisplayModel()
     {
         geoView->propertyFilterCollection()->updateDisplayModelNotifyManagedViews();
     }
-
+    */
     // Todo : Notify the managed view of the possible change of visualCellsOverride 
 }
 

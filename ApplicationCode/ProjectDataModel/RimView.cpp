@@ -191,6 +191,11 @@ void RimView::updateViewerWidget()
 void RimView::scheduleCreateDisplayModelAndRedraw()
 {
     RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
+    RimViewLinker* viewLinker = viewLinkerWithDepViews();
+    if (viewLinker)
+    {
+        viewLinker->scheduleCreateDisplayModelAndRedrawForDependentViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -563,6 +568,10 @@ const RimCellRangeFilterCollection* RimView::rangeFilterCollection() const
 void RimView::setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc)
 {
     m_overrideRangeFilterCollection = rfc;
+    this->scheduleGeometryRegen(RANGE_FILTERED);
+    this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+
+    this->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -709,7 +718,7 @@ bool RimView::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLinker* RimView::dependentViews()
+RimViewLinker* RimView::viewLinkerWithDepViews()
 {
     RimViewLinker* viewLinker = NULL;
     std::vector<caf::PdmObjectHandle*> reffingObjs;
