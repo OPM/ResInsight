@@ -838,11 +838,13 @@ void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_reservoirGridPartManager->scheduleGeometryRegen(geometryType);
 
-    RimViewLinker* viewLinker = viewLinkerWithDepViews();
+    RimViewLinker* viewLinker = viewLinkerWithMyDepViews();
     if (viewLinker)
     {
         viewLinker->scheduleGeometryRegenForDepViews(geometryType);
     }
+
+    m_currentReservoirCellVisibility = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1546,4 +1548,32 @@ void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilte
 
     this->scheduleGeometryRegen(PROPERTY_FILTERED);
     this->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
+{
+    size_t gridCount = this->eclipseCase()->reservoirData()->gridCount();
+    size_t cellCount = this->eclipseCase()->reservoirData()->mainGrid()->cells().size();
+
+    totalVisibility->resize(cellCount);
+    totalVisibility->setAll(false);
+
+    for (size_t gridIdx = 0; gridIdx < gridCount; ++gridIdx)
+    {
+        RigGridBase * grid = this->eclipseCase()->reservoirData()->grid(gridIdx);
+        int gridCellCount = static_cast<int>(grid->cellCount());
+
+        for (size_t gpIdx = 0; gpIdx < m_visibleGridParts.size(); ++gpIdx)
+        {
+            cvf::cref<cvf::UByteArray> visibility =  m_reservoirGridPartManager->cellVisibility(m_visibleGridParts[gpIdx], gridIdx, m_currentTimeStep);
+
+            for (int lcIdx = 0; lcIdx < gridCellCount; ++ lcIdx)
+            {
+                (*totalVisibility)[grid->reservoirCellIndex(lcIdx)] |= (*visibility)[lcIdx];
+            }
+        }
+    }
 }

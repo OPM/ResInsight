@@ -164,6 +164,8 @@ private:
 
     virtual RimCase*                                ownerCase();
 
+    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
+
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 

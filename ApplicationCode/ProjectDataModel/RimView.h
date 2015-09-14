@@ -29,6 +29,11 @@
 
 #include "RivCellSetEnum.h"
 
+#include "cvfArray.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
+
+
 #include <QPointer>
 
 class Rim3dOverlayInfoConfig;
@@ -36,6 +41,7 @@ class RimCase;
 class RimCellRangeFilterCollection;
 class RiuViewer;
 class RimViewLinker;
+class RimViewLink;
 
 namespace cvf
 {
@@ -120,6 +126,8 @@ public:
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
+    RimViewLink*                            controllingViewLink();
+    cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
@@ -129,7 +137,7 @@ public:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
 protected:
 
-    RimViewLinker*                          viewLinkerWithDepViews();
+    RimViewLinker*                          viewLinkerWithMyDepViews();
     void                                    setDefaultView();
 
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
@@ -152,7 +160,8 @@ protected:
     virtual void                            updateViewerWidgetWindowTitle() = 0;
 
     virtual void                            resetLegendsInViewer() = 0;
- 
+    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
+
     QPointer<RiuViewer>                     m_viewer;
 
     caf::PdmField<int>                                  m_currentTimeStep;
@@ -166,13 +175,13 @@ protected:
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
+    cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
 private:
     static bool isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;
-
 };
 
 

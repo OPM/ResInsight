@@ -500,3 +500,15 @@ void RimViewLink::doSyncCellResult()
     linkedViews->updateCellResult();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* RimViewLink::ownerViewLinker()
+{
+    RimViewLinker* viewLinker = NULL;
+    this->firstAnchestorOrThisOfType(viewLinker);
+    CVF_ASSERT(viewLinker);
+
+    return viewLinker;
+}
+

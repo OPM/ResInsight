@@ -20,6 +20,7 @@
 #pragma once
 
 #include <cstddef>
+#include "cvfArray.h"
 #include "cvfObject.h"
 #include "cvfColor4.h"
 #include "RivGeoMechPartMgrCache.h"
@@ -47,6 +48,7 @@ public:
     void                             updateCellResultColor(int timeStepIndex, RimGeoMechCellColors* cellResultColors);
     void                             updateStaticCellColors(int timeStepIndex);
     void                             scheduleGeometryRegen(RivCellSetEnum geometryType);
+    void                             calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStepIndex);
 private:
 
     std::vector<RivGeoMechPartMgrCache::Key>      keysToVisiblePartMgrs(int timeStepIndex);

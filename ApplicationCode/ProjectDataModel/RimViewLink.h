@@ -26,6 +26,7 @@
 class RimView;
 class RimEclipseView;
 class RimGeoMechView;
+class RimViewLinker;
 
 //==================================================================================================
 ///  
@@ -44,6 +45,7 @@ public:
 
     RimView*                    managedView();
     void                        setManagedView(RimView* view);
+    RimViewLinker*              ownerViewLinker();
 
     // Linked (both ways) properties
     caf::PdmField<bool>         syncCamera;

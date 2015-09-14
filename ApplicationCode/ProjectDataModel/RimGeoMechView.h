@@ -93,6 +93,8 @@ private:
 
     virtual RimCase*                                    ownerCase();
 
+    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
+
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
 

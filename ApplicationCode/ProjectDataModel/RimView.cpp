@@ -191,7 +191,7 @@ void RimView::updateViewerWidget()
 void RimView::scheduleCreateDisplayModelAndRedraw()
 {
     RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
-    RimViewLinker* viewLinker = viewLinkerWithDepViews();
+    RimViewLinker* viewLinker = viewLinkerWithMyDepViews();
     if (viewLinker)
     {
         viewLinker->scheduleCreateDisplayModelAndRedrawForDependentViews();
@@ -723,7 +723,7 @@ bool RimView::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLinker* RimView::viewLinkerWithDepViews()
+RimViewLinker* RimView::viewLinkerWithMyDepViews()
 {
     RimViewLinker* viewLinker = NULL;
     std::vector<caf::PdmObjectHandle*> reffingObjs;
@@ -737,5 +737,38 @@ RimViewLinker* RimView::viewLinkerWithDepViews()
     }
 
     return viewLinker;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewLink* RimView::controllingViewLink()
+{
+    RimViewLink* viewLink = NULL;
+    std::vector<caf::PdmObjectHandle*> reffingObjs;
+
+    this->objectsWithReferringPtrFields(reffingObjs);
+    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    {
+        viewLink = dynamic_cast<RimViewLink*>(reffingObjs[i]);
+        if (viewLink) break;
+    }
+
+    return viewLink;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::UByteArray> RimView::currentTotalCellVisibility()
+{
+    if (m_currentReservoirCellVisibility.isNull())
+    {
+        m_currentReservoirCellVisibility = new cvf::UByteArray;
+        this->calculateCurrentTotalCellVisibility(m_currentReservoirCellVisibility.p());
+    }
+
+    return m_currentReservoirCellVisibility;
 }
 

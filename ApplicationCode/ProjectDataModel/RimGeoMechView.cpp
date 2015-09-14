@@ -516,11 +516,12 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_vizLogic->scheduleGeometryRegen(geometryType);
 
-    RimViewLinker* viewLinker = viewLinkerWithDepViews();
+    RimViewLinker* viewLinker = viewLinkerWithMyDepViews();
     if (viewLinker)
     {
         viewLinker->scheduleGeometryRegenForDepViews(geometryType);
     }
+    m_currentReservoirCellVisibility = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -547,5 +548,13 @@ RimGeoMechPropertyFilterCollection* RimGeoMechView::propertyFilterCollection()
     {
         return m_propertyFilterCollection;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
+{
+    m_vizLogic->calculateCurrentTotalCellVisibility(totalVisibility, m_currentTimeStep);
 }
 

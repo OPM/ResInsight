@@ -40,6 +40,8 @@
 #include "RimEclipseWellCollection.h"
 
 #include "RivGridPartMgr.h"
+#include "RimViewLink.h"
+#include "RimViewLinker.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -59,6 +61,8 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     switch (geometryType)
     {
+    case OVERRIDDEN_CELL_VISIBILITY:
+        clearGeometryCache(OVERRIDDEN_CELL_VISIBILITY);
     case INACTIVE:
         clearGeometryCache(INACTIVE);
         clearGeometryCache(RANGE_FILTERED_INACTIVE);
@@ -184,6 +188,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::clearGeometryCache()
 {
+    clearGeometryCache(OVERRIDDEN_CELL_VISIBILITY);
     clearGeometryCache(ACTIVE);
     clearGeometryCache(ALL_WELL_CELLS);
     clearGeometryCache(VISIBLE_WELL_CELLS);
@@ -268,6 +273,9 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
 
     switch (geometryType)
     {
+    case OVERRIDDEN_CELL_VISIBILITY:
+        computeOverriddenCellVisibility(cellVisibility, grid);
+    break;
     case ACTIVE:
         computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx), false, false, true, m_reservoirView->showMainGrid() );
         break;
@@ -581,6 +589,67 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid)
+{
+
+    RimViewLink* masterViewLink = m_reservoirView->controllingViewLink();
+    
+    CVF_ASSERT(masterViewLink);
+
+    RimView* masterView = masterViewLink->ownerViewLinker()->mainView();
+
+#if 0
+    // get cell visibility
+    #if 1
+    cvf::ref<cvf::UByteArray> totCellVisibility =  masterView->currentTotalCellVisibility();
+    #else
+    // Could get something more like 
+    std::vector<std::vector<cvf::UByteArray*> > gridsWithCellSetVisibility = masterView->getAllGridsCurrentCellSetsCellVisibility();
+    #endif    
+    
+    CVF_ASSERT(cellVisibility != NULL);
+    CVF_ASSERT(grid != NULL);
+
+    size_t gridCellCount = grid->cellCount();
+    cellVisibility->resize(gridCellCount);
+    cellVisibility->setAll(false);
+
+    RigCaseCellMapper* cellMapper = masterViewLink->cellMapper();
+
+    for (size_t lcIdx = 0; lcIdx < gridCellCount; ++lcIdx)
+    {
+        #if 1
+        size_t reservoirCellIdx = grid->reservoirCellIndex(lcIdx);
+        int cellCount = 0;
+        const int* cellIndicesInMasterCase = cellMapper->masterCaseCellIndex(reservoirCellIdx, &cellCount);
+        
+        for (int mcIdx = 0; mcIdx < cellCount; ++mcIdx)
+        {
+            (*cellVisibility)[lcIdx] |=  (*totCellVisibility)[cellIndicesInMasterCase[mcIdx]]; // If any is visible, show
+        }
+
+        #else
+        
+        const RigGridCells& masterCaseCells = cellMapper->masterCaseGridAndLocalCellIndex(grid->gridIndex, lcIdx);
+
+        for (int mcIdx = 0; mcIdx < masterCaseCells.cellCount(); ++mcIdx)
+        {
+            int cellSetCount = gridsWithCellSetVisibility[ masterCaseCells.gridIndex[mcIdx] ].size();
+            for (int csIdx = 0; csIdx < cellSetCount; ++csIdx)
+            {
+                (*cellVisibility)[lcIdx] |=  gridsWithCellSetVisibility[masterCaseCells.gridIndex[mcIdx]][masterCaseCells.cellIndex[mcIdx]];
+            }
+        }
+        #endif
+    }
+#endif
+}
+
+
 
 
 //--------------------------------------------------------------------------------------------------

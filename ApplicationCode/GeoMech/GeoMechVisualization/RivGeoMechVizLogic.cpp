@@ -207,6 +207,13 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
                                                                      m_geomechView->propertyFilterCollection()
                                                                      );
         }
+        else if (pMgrKey.geometryType() == OVERRIDDEN_CELL_VISIBILITY)
+        {
+            RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(elmVisibility.p(), 
+                                                                           caseData->femParts()->part(femPartIdx),
+                                                                           m_geomechView->controllingViewLink());
+        }
+
         else if (pMgrKey.geometryType() == ALL_CELLS)
         {
             RivFemElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), caseData->femParts()->part(femPartIdx));
@@ -222,6 +229,34 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
     m_partMgrCache->setGenerationFinished(pMgrKey);
 
     return partMgrToUpdate;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStepIndex)
+{
+    size_t gridCount = m_geomechView->geoMechCase()->geoMechData()->femParts()->partCount();
+    
+    if (gridCount == 0) return;
+
+    RigFemPart* part = m_geomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+    size_t elmCount = part->elementCount();
+
+    totalVisibility->resize(elmCount);
+    totalVisibility->setAll(false);
+
+    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs(timeStepIndex);
+    for (size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx)
+    {
+        RivGeoMechPartMgr*  partMgr = m_partMgrCache->partMgr(visiblePartMgrs[pmIdx]);
+
+        cvf::ref<cvf::UByteArray> visibility =  partMgr->cellVisibility(0);
+        for (int elmIdx = 0; elmIdx < elmCount; ++ elmIdx)
+        {
+            (*totalVisibility)[elmIdx] |= (*visibility)[elmIdx];
+        }
+    }
 }
 
 
