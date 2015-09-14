@@ -55,7 +55,9 @@ RimViewLink::RimViewLink(void)
     CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
     CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", false,     "Cell Result", "", "", "");
     
-    CAF_PDM_InitField(&syncVisibleCells,    "SyncVisibleCells", true,   "Visible Cells", "", "", "");
+    CAF_PDM_InitField(&syncVisibleCells,    "SyncVisibleCells", false,   "Visible Cells", "", "", "");
+    syncVisibleCells.uiCapability()->setUiHidden(true); // For now
+
     CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
     CAF_PDM_InitField(&syncPropertyFilters, "SyncPropertyFilters", true,"Property Filters", "", "", "");
 }
