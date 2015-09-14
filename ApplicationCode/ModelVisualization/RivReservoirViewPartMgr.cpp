@@ -618,7 +618,7 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* c
     cellVisibility->resize(gridCellCount);
     cellVisibility->setAll(false);
 
-    RigCaseCellMapper* cellMapper = masterViewLink->cellMapper();
+    RigCaseToCaseCellMapper* cellMapper = masterViewLink->cellMapper();
 
     for (size_t lcIdx = 0; lcIdx < gridCellCount; ++lcIdx)
     {

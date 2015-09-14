@@ -186,7 +186,7 @@ void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(cvf::UByteAr
     elmVisibilities->resize(elmCount);
     elmVisibilities->setAll(false);
 
-    RigCaseCellMapper* cellMapper = masterViewLink->cellMapper();
+    RigCaseToCaseCellMapper* cellMapper = masterViewLink->cellMapper();
 
     for (size_t elmIdx = 0; elmIdx < elmCount; ++elmIdx)
     {

@@ -6,10 +6,12 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
     ${CEE_CURRENT_LIST_DIR}RigGeoMechWellLogExtractor.h
+    ${CEE_CURRENT_LIST_DIR}RigCaseToCaseCellmapper.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
     ${CEE_CURRENT_LIST_DIR}RigGeoMechWellLogExtractor.cpp
+    ${CEE_CURRENT_LIST_DIR}RigCaseToCaseCellmapper.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
