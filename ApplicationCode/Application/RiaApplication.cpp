@@ -465,6 +465,29 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
     oilField->wellPathCollection->updateConnectedEditors();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Add a list of well log file paths (LAS files) to the well path collection
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::addWellLogsToModel(const QList<QString>& wellLogFilePaths)
+{
+    if (m_project == NULL || m_project->oilFields.size() < 1) return;
+
+    RimOilField* oilField = m_project->activeOilField();
+    if (oilField == NULL) return;
+
+    if (oilField->wellPathCollection == NULL)
+    {
+        oilField->wellPathCollection = new RimWellPathCollection();
+        oilField->wellPathCollection->setProject(m_project);
+
+        m_project->updateConnectedEditors();
+    }
+
+    if (oilField->wellPathCollection) oilField->wellPathCollection->addWellLogs(wellLogFilePaths);
+
+    oilField->wellPathCollection->updateConnectedEditors();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

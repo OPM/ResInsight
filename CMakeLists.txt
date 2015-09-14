@@ -113,6 +113,7 @@ set_property(TARGET
 ################################################################################
 
 add_subdirectory(ThirdParty/NRLib)
+include_directories(ThirdParty/NRLib/nrlib/well)
 
 
 ################################################################################

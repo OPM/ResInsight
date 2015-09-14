@@ -23,6 +23,7 @@
 #include "RifJsonEncodeDecode.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellLasFileInfo.h"
 #include "RimWellPathCollection.h"
 #include "RivWellPathPartMgr.h"
 
@@ -81,6 +82,9 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField(&wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well path radius scale", "", "", "");
     CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well path color", "", "", "");
     
+    CAF_PDM_InitFieldNoDefault(&m_lasFileInfo,      "LasFileInfo",  "Las File Info", "", "", "");
+    m_lasFileInfo.uiCapability()->setUiHidden(true);
+
     m_wellPath = NULL;
     m_project = NULL;
 }
@@ -91,6 +95,10 @@ RimWellPath::RimWellPath()
 //--------------------------------------------------------------------------------------------------
 RimWellPath::~RimWellPath()
 {
+    if (m_lasFileInfo)
+    {
+        delete m_lasFileInfo;
+    }
 }
 
 
@@ -162,6 +170,29 @@ void RimWellPath::readWellPathFile()
         this->readAsciiWellPathFile();
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLasFileInfo* RimWellPath::readWellLogFile(const QString& logFilePath)
+{
+    QFileInfo fi(logFilePath);
+
+    RimWellLasFileInfo* lasFileInfo = NULL;
+
+    if (fi.suffix().compare("las") == 0)
+    {
+        lasFileInfo = new RimWellLasFileInfo();
+        lasFileInfo->setFileName(logFilePath);
+        if (!lasFileInfo->readFile())
+        {
+            delete lasFileInfo;
+            lasFileInfo = NULL;
+        }
+    }
+
+    return lasFileInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,7 +276,6 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     ssihubGroup->add(&updateDate);
     ssihubGroup->add(&updateUser);
     ssihubGroup->add(&m_surveyType);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,3 +353,18 @@ void RimWellPath::updateFilePathsFromProjectPath()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setLogFileInfo(RimWellLasFileInfo* logFileInfo)
+{
+    if (m_lasFileInfo)
+    {
+        delete m_lasFileInfo;
+    }
+
+    m_lasFileInfo = logFileInfo;
+    m_lasFileInfo->uiCapability()->setUiHidden(true);
+
+    this->name = m_lasFileInfo->wellName();
+}

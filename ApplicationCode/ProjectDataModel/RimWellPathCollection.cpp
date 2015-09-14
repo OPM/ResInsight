@@ -24,6 +24,7 @@
 #include "RiaPreferences.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellLasFileInfo.h"
 #include "RivWellPathCollectionPartMgr.h"
 
 #include "cafPdmUiEditorHandle.h"
@@ -81,7 +82,6 @@ RimWellPathCollection::RimWellPathCollection()
     m_project = NULL;
 
     m_asciiFileReader = new RimWellPathAsciiFileReader;
-
 }
 
 
@@ -127,7 +127,15 @@ void RimWellPathCollection::readWellPathFiles()
 
     for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
     {
-        wellPaths[wpIdx]->readWellPathFile();
+        if (!wellPaths[wpIdx]->filepath().isEmpty())
+        {
+            wellPaths[wpIdx]->readWellPathFile();
+        }
+
+        if (wellPaths[wpIdx]->m_lasFileInfo)
+        {
+            wellPaths[wpIdx]->m_lasFileInfo->readFile();
+        }
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name));
         progress.incrementProgress();
@@ -190,6 +198,26 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
     }
 
     readWellPathFiles();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
+{
+    foreach (QString filePath, filePaths)
+    {
+        RimWellLasFileInfo* logFileInfo = RimWellPath::readWellLogFile(filePath);
+        if (logFileInfo)
+        {
+            // TODO: Check for existing well paths and add log to correct well path if existing
+
+            RimWellPath* wellPath = new RimWellPath();
+            wellPath->setCollection(this);
+            wellPaths.push_back(wellPath);
+            wellPath->setLogFileInfo(logFileInfo);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

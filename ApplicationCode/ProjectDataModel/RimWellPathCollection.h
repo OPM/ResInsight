@@ -81,6 +81,8 @@ public:
     void                                readWellPathFiles();
     void                                addWellPaths(QStringList filePaths);
     RimWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
+    
+    void                                addWellLogs(const QStringList& filePaths);
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
@@ -98,6 +100,10 @@ private:
 };
 
 
+//==================================================================================================
+///  
+///  
+//==================================================================================================
 class RimWellPathAsciiFileReader
 {
 public:

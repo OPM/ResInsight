@@ -111,6 +111,7 @@ public:
     bool                saveProjectPromptForFileName();
     bool                closeProject(bool askToSaveIfDirty);
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
+    void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
     void                copySnapshotToClipboard();
     void                saveSnapshotPromtpForFilename();

@@ -423,6 +423,7 @@ void RiuMainWindow::createMenus()
     #endif
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(m_snapshotToFile);
