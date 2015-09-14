@@ -210,11 +210,14 @@ void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
         RimWellLasFileInfo* logFileInfo = RimWellPath::readWellLogFile(filePath);
         if (logFileInfo)
         {
-            // TODO: Check for existing well paths and add log to correct well path if existing
+            RimWellPath* wellPath = wellPathByName(logFileInfo->wellName());
+            if (!wellPath)
+            {
+                RimWellPath* wellPath = new RimWellPath();
+                wellPath->setCollection(this);
+                wellPaths.push_back(wellPath);
+            }
 
-            RimWellPath* wellPath = new RimWellPath();
-            wellPath->setCollection(this);
-            wellPaths.push_back(wellPath);
             wellPath->setLogFileInfo(logFileInfo);
         }
     }
@@ -264,6 +267,22 @@ void RimWellPathCollection::updateFilePathsFromProjectPath()
     {
         wellPaths[wellPathIdx]->updateFilePathsFromProjectPath();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellPathCollection::wellPathByName(const QString& wellPathName) const
+{
+    for (size_t wellPathIdx = 0; wellPathIdx < wellPaths.size(); wellPathIdx++)
+    {
+        if (wellPaths[wellPathIdx]->name() == wellPathName)
+        {
+            return wellPaths[wellPathIdx];
+        }
+    }
+
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

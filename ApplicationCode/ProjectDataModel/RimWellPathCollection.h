@@ -82,6 +82,7 @@ public:
     void                                addWellPaths(QStringList filePaths);
     RimWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
     
+    RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     void                                addWellLogs(const QStringList& filePaths);
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
