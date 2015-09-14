@@ -27,3 +27,6 @@ add_library( ${PROJECT_NAME}
        ${NRLIB_IOTOOLS_SRC}
        ${NRLIB_WELL_SRC}
 )
+
+add_subdirectory(well_UnitTests)
+
