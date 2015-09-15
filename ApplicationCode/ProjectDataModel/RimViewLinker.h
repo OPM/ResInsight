@@ -67,6 +67,10 @@ public:
     void                                    allViews(std::vector<RimView*>& views);
 
     void                                    updateUiIcon();
+    void                                    setNameAndIcon();
+
+    static void                             applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable);
+    static void                             findNameAndIconFromView(QString* name, QIcon* icon, RimView* view);
 
 public:
     static QString                          displayNameForView(RimView* view);
@@ -74,19 +78,12 @@ public:
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual caf::PdmFieldHandle*            objectToggleField()     { return &m_isActive; }
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual void                            initAfterRead();
-
-    void                                    setNameAndIcon();
-
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 private:
     bool                                    isActive();
 
 private:
-    caf::PdmField<bool>                     m_isActive;
     caf::PdmPtrField<RimView*>              m_mainView;
     caf::PdmField<QString>                  m_name;
     QIcon                                   m_originalIcon;

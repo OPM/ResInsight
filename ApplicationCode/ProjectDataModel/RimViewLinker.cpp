@@ -51,10 +51,7 @@ CAF_PDM_SOURCE_INIT(RimViewLinker, "RimViewLinker");
 //--------------------------------------------------------------------------------------------------
 RimViewLinker::RimViewLinker(void)
 {
-    CAF_PDM_InitObject("Linked Views", ":/Reservoir1View.png", "", "");
-
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
-    m_isActive.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitObject("Linked Views", "", "", "");
 
     CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
@@ -65,6 +62,7 @@ RimViewLinker::RimViewLinker(void)
 
     CAF_PDM_InitFieldNoDefault(&viewLinks, "ManagedViews", "Managed Views", "", "", "");
     viewLinks.uiCapability()->setUiHidden(true);
+    viewLinks.uiCapability()->setUiChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,13 +94,15 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        RimViewLink* managedViewConfig = viewLinks[i];
-        if (managedViewConfig->managedView() && managedViewConfig->managedView() != sourceView)
+        RimViewLink* viewLink = viewLinks[i];
+        if (!viewLink->isActive) continue;
+
+        if (viewLink->managedView() && viewLink->managedView() != sourceView)
         {
-            if (managedViewConfig->syncTimeStep() && managedViewConfig->managedView()->viewer())
+            if (viewLink->syncTimeStep() && viewLink->managedView()->viewer())
             {
-                managedViewConfig->managedView()->viewer()->setCurrentFrame(timeStep);
-                managedViewConfig->managedView()->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
+                viewLink->managedView()->viewer()->setCurrentFrame(timeStep);
+                viewLink->managedView()->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
             }
         }
     }
@@ -123,12 +123,14 @@ void RimViewLinker::updateCellResult()
 
         for (size_t i = 0; i < viewLinks.size(); i++)
         {
-            RimViewLink* managedViewConfig = viewLinks[i];
-            if (managedViewConfig->managedView())
+            RimViewLink* viewLink = viewLinks[i];
+            if (!viewLink->isActive) continue;
+
+            if (viewLink->managedView())
             {
-                if (managedViewConfig->syncCellResult())
+                if (viewLink->syncCellResult())
                 {
-                    RimView* rimView = managedViewConfig->managedView();
+                    RimView* rimView = viewLink->managedView();
                     RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
                     if (eclipeView)
                     {
@@ -148,12 +150,14 @@ void RimViewLinker::updateCellResult()
 
         for (size_t i = 0; i < viewLinks.size(); i++)
         {
-            RimViewLink* managedViewConfig = viewLinks[i];
-            if (managedViewConfig->managedView())
+            RimViewLink* viewLink = viewLinks[i];
+            if (!viewLink->isActive) continue;
+
+            if (viewLink->managedView())
             {
-                if (managedViewConfig->syncCellResult())
+                if (viewLink->syncCellResult())
                 {
-                    RimView* rimView = managedViewConfig->managedView();
+                    RimView* rimView = viewLink->managedView();
                     RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
                     if (geoView)
                     {
@@ -256,8 +260,15 @@ void RimViewLinker::configureOverrides()
 {
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        RimViewLink* managedViewConfig = viewLinks[i];
-        managedViewConfig->configureOverrides();
+        RimViewLink* viewLink = viewLinks[i];
+        if (viewLink->isActive)
+        {
+            viewLink->configureOverrides();
+        }
+        else
+        {
+            viewLink->removeOverrides();
+        }
     }
 }
 
@@ -275,7 +286,7 @@ void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>
 
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        if (viewLinks[i]->syncCamera && viewLinks[i]->managedView() && source != viewLinks[i]->managedView())
+        if (viewLinks[i]->isActive() && viewLinks[i]->syncCamera && viewLinks[i]->managedView() && source != viewLinks[i]->managedView())
         {
             views.push_back(viewLinks[i]->managedView());
         }
@@ -312,23 +323,6 @@ QString RimViewLinker::displayNameForView(RimView* view)
     }
 
     return displayName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimViewLinker::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
-{
-    for (size_t cIdx = 0; cIdx < viewLinks.size(); ++cIdx)
-    {
-        PdmObjectHandle* childObject = viewLinks[cIdx];
-        if (childObject)
-        {
-            uiTreeOrdering.add(childObject);
-        }
-    }
-
-    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,47 +404,33 @@ bool RimViewLinker::isActive()
     RimViewLinkerCollection* viewLinkerCollection = NULL;
     this->firstAnchestorOrThisOfType(viewLinkerCollection);
     
-    if (!viewLinkerCollection->isActive()) return false;
-    
-    return m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimViewLinker::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
-{
-    if (&m_isActive == changedField)
-    {
-        if (m_isActive)
-        {
-            this->applyAllOperations();
-        }
-        else
-        {
-            this->removeOverrides();
-        }
-    }
-
-    updateUiIcon();
+    return viewLinkerCollection->isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Hande icon update locally as PdmUiItem::updateUiIconFromState works only for static icons
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateUiIcon()
+void RimViewLinker::applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable)
 {
     QPixmap icPixmap;
-    icPixmap = m_originalIcon.pixmap(16, 16, QIcon::Normal);
+    icPixmap = icon.pixmap(16, 16, QIcon::Normal);
 
-    if (!m_isActive)
+    if (disable)
     {
         QIcon temp(icPixmap);
         icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
     }
 
     QIcon newIcon(icPixmap);
-    this->setUiIcon(newIcon);
+    obj->setUiIcon(newIcon);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateUiIcon()
+{
+    RimViewLinker::applyIconEnabledState(this, m_originalIcon, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -458,29 +438,7 @@ void RimViewLinker::updateUiIcon()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::setNameAndIcon()
 {
-    m_name = displayNameForView(m_mainView);
-
-    QIcon icon;
-    if (m_mainView)
-    {
-        RimCase* rimCase = NULL;
-        m_mainView->firstAnchestorOrThisOfType(rimCase);
-
-        if (dynamic_cast<RimGeoMechCase*>(rimCase))
-        {
-            icon = QIcon(":/GeoMechCase48x48.png");
-        }
-        else if (dynamic_cast<RimEclipseResultCase*>(rimCase))
-        {
-            icon = QIcon(":/Case48x48.png");
-        }
-        else if (dynamic_cast<RimEclipseInputCase*>(rimCase))
-        {
-            icon = QIcon(":/EclipseInput48x48.png");
-        }
-    }
-
-    m_originalIcon = icon;
+    RimViewLinker::findNameAndIconFromView(&m_name.v(), &m_originalIcon, m_mainView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -490,6 +448,8 @@ void RimViewLinker::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType
 {
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
+        if (!viewLinks[i]->isActive) continue;
+
         if (  viewLinks[i]->syncVisibleCells() 
            || viewLinks[i]->syncPropertyFilters() 
            || viewLinks[i]->syncRangeFilters() 
@@ -514,6 +474,8 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 {
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
+        if (!viewLinks[i]->isActive) continue;
+
         if (viewLinks[i]->syncVisibleCells()
             || viewLinks[i]->syncPropertyFilters()
             || viewLinks[i]->syncRangeFilters()
@@ -538,6 +500,39 @@ void RimViewLinker::removeOverrides()
         {
             viewLinks[i]->removeOverrides();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView* view)
+{
+    CVF_ASSERT(name && icon);
+
+    *name = displayNameForView(view);
+
+    if (view)
+    {
+        RimCase* rimCase = NULL;
+        view->firstAnchestorOrThisOfType(rimCase);
+
+        if (dynamic_cast<RimGeoMechCase*>(rimCase))
+        {
+            *icon = QIcon(":/GeoMechCase48x48.png");
+        }
+        else if (dynamic_cast<RimEclipseResultCase*>(rimCase))
+        {
+            *icon = QIcon(":/Case48x48.png");
+        }
+        else if (dynamic_cast<RimEclipseInputCase*>(rimCase))
+        {
+            *icon = QIcon(":/EclipseInput48x48.png");
+        }
+    }
+    else
+    {
+        *icon = QIcon();
     }
 }
 

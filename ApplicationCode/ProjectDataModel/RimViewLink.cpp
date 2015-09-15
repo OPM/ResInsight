@@ -42,7 +42,10 @@ CAF_PDM_SOURCE_INIT(RimViewLink, "RimViewLink");
 //--------------------------------------------------------------------------------------------------
 RimViewLink::RimViewLink(void)
 {
-    CAF_PDM_InitObject("View Config", ":/ReservoirView.png", "", "");
+    CAF_PDM_InitObject("View Config", "", "", "");
+
+    CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
+    isActive.uiCapability()->setUiHidden(true);
 
     QString defaultName = "View Config: Empty view";
     CAF_PDM_InitField(&name, "Name", defaultName, "Managed View Name", "", "", "");
@@ -133,7 +136,12 @@ void RimViewLink::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 //--------------------------------------------------------------------------------------------------
 void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &syncCamera && syncCamera())
+    if (changedField == &isActive)
+    {
+        updateUiIcon();
+        configureOverrides();
+    }
+    else if (changedField == &syncCamera && syncCamera())
     {
         RimViewLinker* linkedViews = NULL;
         this->firstAnchestorOrThisOfType(linkedViews);
@@ -214,6 +222,7 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
         updateOptionSensitivity();
         updateDisplayNameAndIcon();
+        updateUiIcon();
 
         name.uiCapability()->updateConnectedEditors();
     }
@@ -231,6 +240,7 @@ void RimViewLink::initAfterRead()
 {
     configureOverrides();
     updateDisplayNameAndIcon();
+    updateUiIcon();
     updateOptionSensitivity();
 }
 
@@ -301,7 +311,13 @@ void RimViewLink::configureOverrides()
         RimEclipseView* manEclView = managedEclipseView();
         RimGeoMechView* manGeoView = managedGeoView();
 
-        if (syncVisibleCells)
+        if (!isActive)
+        {
+            m_managedView->setOverrideRangeFilterCollection(NULL);
+            if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
+            if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
+        }
+        else if (syncVisibleCells)
         {
             m_managedView->setOverrideRangeFilterCollection(NULL);
             if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
@@ -406,32 +422,6 @@ void RimViewLink::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::updateDisplayNameAndIcon()
-{
-    if (m_managedView)
-    {
-        name = RimViewLinker::displayNameForView(m_managedView);
-    }
-    else
-    {
-        name = "View Config: Empty view";
-    }
-
-    QIcon icon;
-    if (m_managedView)
-    {
-        RimCase* rimCase = NULL;
-        m_managedView->firstAnchestorOrThisOfType(rimCase);
-
-        icon = rimCase->uiCapability()->uiIcon();
-    }
-
-    this->setUiIcon(icon);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimView* RimViewLink::managedView()
 {
     return m_managedView;
@@ -469,7 +459,6 @@ void RimViewLink::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 void RimViewLink::removeOverrides()
 {
-
     if (m_managedView)
     {
         RimEclipseView* manEclView = managedEclipseView();
@@ -478,5 +467,21 @@ void RimViewLink::removeOverrides()
         if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
         if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLink::updateUiIcon()
+{
+    RimViewLinker::applyIconEnabledState(this, m_originalIcon, !isActive());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLink::updateDisplayNameAndIcon()
+{
+    RimViewLinker::findNameAndIconFromView(&name.v(), &m_originalIcon, managedView());
 }
 

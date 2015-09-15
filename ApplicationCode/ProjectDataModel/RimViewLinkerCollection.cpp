@@ -20,6 +20,7 @@
 #include "RimViewLinkerCollection.h"
 
 #include "RimViewLinker.h"
+#include "RimViewLink.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
@@ -56,10 +57,14 @@ void RimViewLinkerCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTre
 {
     for (size_t cIdx = 0; cIdx < viewLinkers.size(); ++cIdx)
     {
-        PdmObjectHandle* childObject = viewLinkers[cIdx];
+        RimViewLinker* childObject = viewLinkers[cIdx];
         if (childObject)
         {
             uiTreeOrdering.add(childObject);
+            for (size_t j = 0; j < childObject->viewLinks.size(); j++)
+            {
+                uiTreeOrdering.add(childObject->viewLinks()[j]);
+            }
         }
     }
 

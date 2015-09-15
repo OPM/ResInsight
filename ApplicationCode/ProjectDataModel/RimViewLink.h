@@ -39,6 +39,7 @@ public:
     RimViewLink(void);
     virtual ~RimViewLink(void);
 
+    caf::PdmField<bool>         isActive;
     caf::PdmField<QString>      name;
 
     RimView*                    managedView();
@@ -58,6 +59,10 @@ public:
     void                        updateOptionSensitivity();
     void                        removeOverrides();
 
+    void                        updateUiIcon();
+    void                        updateDisplayNameAndIcon();
+
+
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
@@ -65,14 +70,15 @@ protected:
     virtual void                            initAfterRead();
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual caf::PdmFieldHandle*            objectToggleField()     { return &isActive; }
 
 
 private:
     void            configureOverridesUpdateDisplayModel();
-    void            updateDisplayNameAndIcon();
 
     RimEclipseView* managedEclipseView();
     RimGeoMechView* managedGeoView();
 
     caf::PdmPtrField<RimView*>  m_managedView;
+    QIcon                       m_originalIcon;
 };
