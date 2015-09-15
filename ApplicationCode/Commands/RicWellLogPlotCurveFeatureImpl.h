@@ -19,28 +19,14 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-#include "RicWellLogPlotCurveFeatureImpl.h"
-
-class RimWellLogPlotTrace;
+#include "cafPdmFieldCvfColor.h"
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellLogPlotCurveFeature : public caf::CmdFeature, RicWellLogPlotCurveFeatureImpl
+class RicWellLogPlotCurveFeatureImpl
 {
-    CAF_CMD_HEADER_INIT;
-
-public:
-    static void addCurve(RimWellLogPlotTrace* plotTrace);
-
 
 protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
-
-private:
-   RimWellLogPlotTrace* selectedWellLogPlotTrace();
+    static cvf::Color3f curveColorFromIndex(size_t curveIndex);
 };

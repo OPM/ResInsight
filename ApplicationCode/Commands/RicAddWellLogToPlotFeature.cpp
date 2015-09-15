@@ -73,11 +73,16 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         wellLog->firstAnchestorOrThisOfType(lasFileInfo);
         if (lasFileInfo)
         {
+            size_t curveIdx = plotTrace->curveCount();
+
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
             plotTrace->addCurve(curve);
 
-            curve->setCurveData(lasFileInfo->logValues(wellLog->name()), lasFileInfo->depthValues());
+            cvf::Color3f curveColor = curveColorFromIndex(curveIdx);
+            curve->setColor(curveColor);
             curve->setDescription(wellLog->name());
+            curve->setCurveData(lasFileInfo->logValues(wellLog->name()), lasFileInfo->depthValues());
+
             curve->updatePlotData();
         }        
     }
