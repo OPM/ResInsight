@@ -69,7 +69,7 @@ ${CEE_CURRENT_LIST_DIR}RimViewLinker.h
 ${CEE_CURRENT_LIST_DIR}RimViewLinkerCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.h
 ${CEE_CURRENT_LIST_DIR}RimWellLasFileInfo.h
-${CEE_CURRENT_LIST_DIR}RimWellLasLog.h
+${CEE_CURRENT_LIST_DIR}RimWellLog.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -137,7 +137,7 @@ ${CEE_CURRENT_LIST_DIR}RimViewLinker.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewLinkerCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLasFileInfo.cpp
-${CEE_CURRENT_LIST_DIR}RimWellLasLog.cpp
+${CEE_CURRENT_LIST_DIR}RimWellLog.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

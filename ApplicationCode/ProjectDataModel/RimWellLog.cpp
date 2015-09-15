@@ -17,19 +17,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLasLog.h"
+#include "RimWellLog.h"
 
 #include <QString>
 
 
-CAF_PDM_SOURCE_INIT(RimWellLasLog, "WellLasLog");
+CAF_PDM_SOURCE_INIT(RimWellLog, "WellLog");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLasLog::RimWellLasLog()
+RimWellLog::RimWellLog()
 {
-    CAF_PDM_InitObject("Well LAS File Log", "", "", "");
+    CAF_PDM_InitObject("Well Log", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_name, "Name", "",  "", "", "");
     m_name.uiCapability()->setUiHidden(true);
@@ -39,7 +39,7 @@ RimWellLasLog::RimWellLasLog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLasLog::setName(const QString& name)
+void RimWellLog::setName(const QString& name)
 {
     m_name = name;
 }

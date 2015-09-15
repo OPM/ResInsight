@@ -24,7 +24,7 @@
 #include "cafPdmChildArrayField.h"
 
 
-class RimWellLasLog;
+class RimWellLog;
 class QString;
 
 
@@ -49,7 +49,7 @@ public:
     virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
 
 private:
-    caf::PdmChildArrayField<RimWellLasLog*>  m_lasFileLogs;
+    caf::PdmChildArrayField<RimWellLog*>  m_lasFileLogs;
 
 private:
     caf::PdmField<QString> m_wellName;

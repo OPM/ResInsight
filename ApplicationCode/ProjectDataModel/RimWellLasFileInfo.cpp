@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLasFileInfo.h"
-#include "RimWellLasLog.h"
+#include "RimWellLog.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -110,7 +110,7 @@ bool RimWellLasFileInfo::readFile()
 
     for (size_t logIdx = 0; logIdx < wellLogNames.size(); logIdx++)
     {
-        RimWellLasLog* wellLog = new RimWellLasLog();
+        RimWellLog* wellLog = new RimWellLog();
         wellLog->setName(wellLogNames[logIdx]);
         m_lasFileLogs.push_back(wellLog);
     }
