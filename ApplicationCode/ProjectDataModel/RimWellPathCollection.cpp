@@ -213,7 +213,7 @@ void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
             RimWellPath* wellPath = wellPathByName(logFileInfo->wellName());
             if (!wellPath)
             {
-                RimWellPath* wellPath = new RimWellPath();
+                wellPath = new RimWellPath();
                 wellPath->setCollection(this);
                 wellPaths.push_back(wellPath);
             }

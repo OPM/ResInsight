@@ -95,7 +95,7 @@ RimWellPath::RimWellPath()
 //--------------------------------------------------------------------------------------------------
 RimWellPath::~RimWellPath()
 {
-    if (m_lasFileInfo)
+    if (m_lasFileInfo())
     {
         delete m_lasFileInfo;
     }
@@ -358,7 +358,7 @@ void RimWellPath::updateFilePathsFromProjectPath()
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::setLogFileInfo(RimWellLasFileInfo* logFileInfo)
 {
-    if (m_lasFileInfo)
+    if (m_lasFileInfo())
     {
         delete m_lasFileInfo;
     }
