@@ -41,7 +41,7 @@ public:
     RigCaseToCaseCellMapper(RigFemPart*  masterFemPart, RigMainGrid* dependentEclGrid);
     RigCaseToCaseCellMapper(RigFemPart*  masterFemPart, RigFemPart*  dependentFemPart);
 
-    const int * masterCaseCellIndices(int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount);
+    const int * masterCaseCellIndices(int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount) const;
 
     const RigMainGrid* masterGrid() const           { return m_masterGrid;}
     const RigMainGrid* dependentGrid() const        { return m_dependentGrid;}

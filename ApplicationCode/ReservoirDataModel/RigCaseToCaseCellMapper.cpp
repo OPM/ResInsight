@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigCaseToCaseCellMapper.h"
+#include "RigFemPart.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -29,7 +30,8 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
       m_masterFemPart(dependentFemPart),
       m_dependentFemPart(NULL)
 {
-
+    m_masterCellOrIntervalIndex.resize(dependentFemPart->elementCount(), cvf::UNDEFINED_INT);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,9 +74,16 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigFemPart* masterFemPart, RigF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount)
+const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount) const
 {
     int seriesIndex = m_masterCellOrIntervalIndex[dependentCaseReservoirCellIndex];
+
+    if (seriesIndex == cvf::UNDEFINED_INT)
+    {
+        (*masterCaseCellIndexCount) = 0;
+        return NULL;
+    }
+
     if (seriesIndex < 0)
     {
         (*masterCaseCellIndexCount) = static_cast<int>(m_masterCellIndexSeries[-seriesIndex].size());

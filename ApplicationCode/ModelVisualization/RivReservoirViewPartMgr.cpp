@@ -42,6 +42,7 @@
 #include "RivGridPartMgr.h"
 #include "RimViewLink.h"
 #include "RimViewLinker.h"
+#include "RigCaseToCaseCellMapper.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -602,7 +603,6 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* c
 
     RimView* masterView = masterViewLink->ownerViewLinker()->mainView();
 
-#if 0
     // get cell visibility
     #if 1
     cvf::ref<cvf::UByteArray> totCellVisibility =  masterView->currentTotalCellVisibility();
@@ -618,14 +618,14 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* c
     cellVisibility->resize(gridCellCount);
     cellVisibility->setAll(false);
 
-    RigCaseToCaseCellMapper* cellMapper = masterViewLink->cellMapper();
+    const RigCaseToCaseCellMapper* cellMapper = masterViewLink->cellMapper();
 
     for (size_t lcIdx = 0; lcIdx < gridCellCount; ++lcIdx)
     {
         #if 1
-        size_t reservoirCellIdx = grid->reservoirCellIndex(lcIdx);
+        int reservoirCellIdx = static_cast<int>(grid->reservoirCellIndex(lcIdx));
         int cellCount = 0;
-        const int* cellIndicesInMasterCase = cellMapper->masterCaseCellIndex(reservoirCellIdx, &cellCount);
+        const int* cellIndicesInMasterCase = cellMapper->masterCaseCellIndices(reservoirCellIdx, &cellCount);
         
         for (int mcIdx = 0; mcIdx < cellCount; ++mcIdx)
         {
@@ -646,7 +646,6 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* c
         }
         #endif
     }
-#endif
 }
 
 

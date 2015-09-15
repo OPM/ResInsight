@@ -34,6 +34,7 @@
 #include "RigFemPartResultsCollection.h"
 #include "RimViewLink.h"
 #include "RimViewLinker.h"
+#include "RigCaseToCaseCellMapper.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -175,7 +176,6 @@ void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(cvf::UByteAr
                                                                     const RigFemPart* femPart, 
                                                                     RimViewLink* masterViewLink)
 {
-#if 0
     CVF_ASSERT(elmVisibilities != NULL);
     CVF_ASSERT(femPart != NULL);
 
@@ -186,13 +186,13 @@ void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(cvf::UByteAr
     elmVisibilities->resize(elmCount);
     elmVisibilities->setAll(false);
 
-    RigCaseToCaseCellMapper* cellMapper = masterViewLink->cellMapper();
+    const RigCaseToCaseCellMapper* cellMapper = masterViewLink->cellMapper();
 
-    for (size_t elmIdx = 0; elmIdx < elmCount; ++elmIdx)
+    for (int elmIdx = 0; elmIdx < elmCount; ++elmIdx)
     {
         // We are assuming that there is only one part.  
         int cellCount = 0;
-        const int* cellIndicesInMasterCase = cellMapper->masterCaseCellIndex(elmIdx, &cellCount);
+        const int* cellIndicesInMasterCase = cellMapper->masterCaseCellIndices(elmIdx, &cellCount);
         
         for (int mcIdx = 0; mcIdx < cellCount; ++mcIdx)
         {
@@ -200,6 +200,5 @@ void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(cvf::UByteAr
         }
 
     }
-#endif
 }
 
