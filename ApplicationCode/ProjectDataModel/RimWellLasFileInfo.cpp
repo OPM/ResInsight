@@ -25,6 +25,7 @@
 #include "well.hpp"
 
 #include <QString>
+#include <QStringList>
 #include <QFileInfo>
 
 
@@ -89,18 +90,30 @@ bool RimWellLasFileInfo::readFile()
     m_wellName = QString::fromStdString(well->GetWellName());
     m_name = QFileInfo(m_fileName).fileName();
 
-    const std::map<std::string, std::vector<double> >& contLogs = well->GetContLog();
+    QStringList wellLogNames;
 
+    const std::map<std::string, std::vector<double> >& contLogs = well->GetContLog();
     std::vector<std::string> contLogNames;
     std::map<std::string, std::vector<double> >::const_iterator itCL;
     for (itCL = contLogs.begin(); itCL != contLogs.end(); itCL++)
     {
-        RimWellLasLog* contLog = new RimWellLasLog();
-        contLog->setName(QString::fromStdString(itCL->first));
-        m_lasFileLogs.push_back(contLog);
+        wellLogNames.append(QString::fromStdString(itCL->first));
     }
 
-    // TODO: Do the same for discrete logs
+    const std::map<std::string, std::vector<int> >& discLogs = well->GetDiscLog();
+    std::vector<std::string> discLogNames;
+    std::map<std::string, std::vector<int> >::const_iterator itDL;
+    for (itDL = discLogs.begin(); itDL != discLogs.end(); itDL++)
+    {
+        wellLogNames.append(QString::fromStdString(itDL->first));
+    }
+
+    for (size_t logIdx = 0; logIdx < wellLogNames.size(); logIdx++)
+    {
+        RimWellLasLog* wellLog = new RimWellLasLog();
+        wellLog->setName(wellLogNames[logIdx]);
+        m_lasFileLogs.push_back(wellLog);
+    }
 
     RimWellPath* wellPath;
     firstAnchestorOrThisOfType(wellPath);
