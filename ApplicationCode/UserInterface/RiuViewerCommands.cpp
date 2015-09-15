@@ -154,9 +154,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
             // IJK -slice commands
 
-            menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-            menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-            menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+            menu.addAction(QIcon(":/CellFilter_Range.png"), QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
+            menu.addAction(QIcon(":/CellFilter_Range.png"), QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
+            menu.addAction(QIcon(":/CellFilter_Range.png"), QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
 
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
             if (eclipseView)
@@ -164,7 +164,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RimEclipseCellColors* cellColors = eclipseView->cellResult().p();
                 if (cellColors)
                 {
-                    QAction* propertyAction = new QAction(QString("Add property filter"), this);
+                    QAction* propertyAction = new QAction(QIcon(":/CellFilter_Values.png"), QString("Add property filter"), this);
                     connect(propertyAction, SIGNAL(triggered()), SLOT(slotAddEclipsePropertyFilter()));
 
                     bool isPerCellFaceResult = RimDefines::isPerCellFaceResult(cellColors->resultVariable());
@@ -193,7 +193,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RimGeoMechCellColors* cellColors = geoMechView->cellResult().p();
                 if (cellColors)
                 {
-                    menu.addAction(QString("Add property filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+                    menu.addAction(QIcon(":/CellFilter_Values.png"), QString("Add property filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
                 }
             }
 
