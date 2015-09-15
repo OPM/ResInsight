@@ -64,49 +64,76 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     
     std::vector<RimView*> views;
     findNotLinkedVisibleViews(views);
-    if (views.size() < 2)
-    {
-        QMessageBox::warning(RiuMainWindow::instance(), "Link Visible Views", "Less than two views are available for linking. Please open at least two not linked views before creating a new linked views group.");
 
-        return;
+    RimViewLinker* viewLinker = NULL;
+
+    if (proj->viewLinkerCollection->viewLinkers().size() > 0)
+    {
+        // We have a view linker, add not already linked views
+        viewLinker = proj->viewLinkerCollection->viewLinkers()[0];
+
+        for (size_t i = 0; i < views.size(); i++)
+        {
+            RimView* rimView = views[i];
+            if (rimView == viewLinker->mainView()) continue;
+
+            RimViewLink* viewLink = new RimViewLink;
+            viewLink->setManagedView(rimView);
+
+            viewLinker->viewLinks.push_back(viewLink);
+
+            viewLink->initAfterReadRecursively();
+            viewLink->updateOptionSensitivity();
+            viewLink->updateUiIconFromActiveState();
+        }
+    }
+    else
+    {
+        // Create a new view linker
+
+        if (views.size() < 2)
+        {
+            return;
+        }
+
+        RicLinkVisibleViewsFeatureUi featureUi;
+        featureUi.setViews(views);
+
+        caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Select Master View", "");
+        propertyDialog.setWindowIcon(QIcon(":/chain.png"));
+        if (propertyDialog.exec() != QDialog::Accepted) return;
+
+        RimView* masterView = featureUi.masterView();
+        viewLinker = new RimViewLinker;
+        proj->viewLinkerCollection()->viewLinkers().push_back(viewLinker);
+        viewLinker->setMainView(masterView);
+
+        for (size_t i = 0; i < views.size(); i++)
+        {
+            RimView* rimView = views[i];
+            if (rimView == masterView) continue;
+
+            RimViewLink* viewLink = new RimViewLink;
+            viewLink->setManagedView(rimView);
+
+            viewLinker->viewLinks.push_back(viewLink);
+
+            viewLink->initAfterReadRecursively();
+            viewLink->updateOptionSensitivity();
+            viewLink->updateUiIconFromActiveState();
+        }
+
+        viewLinker->updateUiIcon();
+
     }
 
-    RicLinkVisibleViewsFeatureUi featureUi;
-    featureUi.setViews(views);
-
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Select Master View", "");
-    propertyDialog.setWindowIcon(QIcon(":/chain.png"));
-    if (propertyDialog.exec() != QDialog::Accepted) return;
-
-    RimView* masterView = featureUi.masterView();
-    RimViewLinker* linkedViews = new RimViewLinker;
-    linkedViews->setMainView(masterView);
-
-    for (size_t i = 0; i < views.size(); i++)
-    {
-        RimView* rimView = views[i];
-        if (rimView == masterView) continue;
-
-        RimViewLink* viewLink = new RimViewLink;
-        viewLink->setManagedView(rimView);
-
-        linkedViews->viewLinks.push_back(viewLink);
-
-        viewLink->initAfterReadRecursively();
-        viewLink->updateOptionSensitivity();
-        viewLink->updateUiIconFromActiveState();
-    }
-
-    proj->viewLinkerCollection()->viewLinkers().push_back(linkedViews);
-    linkedViews->updateUiIcon();
+    viewLinker->applyAllOperations();
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
-
-    linkedViews->applyAllOperations();
     proj->updateConnectedEditors();
 
     // Set managed view collection to selected and expanded in project tree
     caf::PdmUiTreeView* projTreeView = RiuMainWindow::instance()->projectTreeView();
-    QModelIndex modIndex = projTreeView->findModelIndex(linkedViews);
+    QModelIndex modIndex = projTreeView->findModelIndex(viewLinker);
     projTreeView->treeView()->setCurrentIndex(modIndex);
 
     projTreeView->treeView()->setExpanded(modIndex, true);
@@ -147,7 +174,6 @@ void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimView*>
     std::vector<RimView*> visibleViews;
     proj->allVisibleViews(visibleViews);
 
-    bool anyAlreadyLinkedViews = false;
     for (size_t i = 0; i < visibleViews.size(); i++)
     {
         bool isLinked = false;
@@ -155,7 +181,6 @@ void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimView*>
         {
             if (visibleViews[i] == alreadyLinkedViews[j])
             {
-                anyAlreadyLinkedViews = true;
                 isLinked = true;
             }
         }
@@ -164,12 +189,6 @@ void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimView*>
         {
             views.push_back(visibleViews[i]);
         }
-    }
-
-    if (anyAlreadyLinkedViews)
-    {
-        QMessageBox::warning(RiuMainWindow::instance(), "Link Visible Views",
-            "Detected one or more visible view(s) already part of a Linked View Group.\nThese views were removed from the list views to be linked.");
     }
 }
 
