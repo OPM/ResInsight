@@ -147,3 +147,29 @@ QString RimWellLasFileInfo::wellName() const
 {
     return m_wellName;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLasFileInfo::depthValues() const
+{
+    return logValues("DEPT");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLasFileInfo::logValues(const QString& logName) const
+{
+    std::vector<double> values;
+
+    int wellFormat = NRLib::Well::LAS;
+    NRLib::Well* well = NRLib::Well::ReadWell(m_fileName().toStdString(), wellFormat);
+    if (well)
+    {
+        values = well->GetContLog(logName.toStdString());
+        delete well;
+    }
+
+    return values;
+}

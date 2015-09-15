@@ -42,13 +42,16 @@ public:
 
     void setFileName(const QString& fileName);
     bool readFile();
-    void close();
     
     QString wellName() const;
-
     virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
 
+    std::vector<double> depthValues() const;
+    std::vector<double> logValues(const QString& logName) const;
+
 private:
+    void close();
+
     caf::PdmChildArrayField<RimWellLog*>  m_lasFileLogs;
 
 private:
