@@ -94,7 +94,7 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
 
         viewLink->initAfterReadRecursively();
         viewLink->updateOptionSensitivity();
-        viewLink->updateUiIcon();
+        viewLink->updateUiIconFromActiveState();
     }
 
     proj->viewLinkerCollection()->viewLinkers().push_back(linkedViews);

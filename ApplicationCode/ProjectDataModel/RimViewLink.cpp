@@ -30,6 +30,7 @@
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 
 #include "RiuViewer.h"
 
@@ -42,7 +43,7 @@ CAF_PDM_SOURCE_INIT(RimViewLink, "RimViewLink");
 //--------------------------------------------------------------------------------------------------
 RimViewLink::RimViewLink(void)
 {
-    CAF_PDM_InitObject("View Config", "", "", "");
+    CAF_PDM_InitObject("View Link", "", "", "");
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
@@ -56,9 +57,9 @@ RimViewLink::RimViewLink(void)
 
     CAF_PDM_InitField(&syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
     CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
-    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", false,     "Cell Result", "", "", "");
+    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", false,    "Cell Result", "", "", "");
     
-    CAF_PDM_InitField(&syncVisibleCells,    "SyncVisibleCells", false,   "Visible Cells", "", "", "");
+    CAF_PDM_InitField(&syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
     syncVisibleCells.uiCapability()->setUiHidden(true); // For now
 
     CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
@@ -138,46 +139,35 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 {
     if (changedField == &isActive)
     {
-        updateUiIcon();
+        updateUiIconFromActiveState();
+        if (syncCamera())       doSyncCamera();
+        if (syncTimeStep())     doSyncTimeStep();
+        if (syncCellResult())   doSyncCellResult();
         configureOverrides();
     }
     else if (changedField == &syncCamera && syncCamera())
     {
-        RimViewLinker* linkedViews = NULL;
-        this->firstAnchestorOrThisOfType(linkedViews);
-        linkedViews->updateScaleZ(linkedViews->mainView(), linkedViews->mainView()->scaleZ());
-
-        if (m_managedView && m_managedView->viewer())
-        {
-            m_managedView->viewer()->navigationPolicyUpdate();
-        }
+        doSyncCamera();
     }
     else if (changedField == &syncTimeStep && syncTimeStep())
     {
-        if (m_managedView)
-        {
-            RimViewLinker* linkedViews = NULL;
-            this->firstAnchestorOrThisOfType(linkedViews);
-            linkedViews->updateTimeStep(m_managedView, m_managedView->currentTimeStep());
-        }
+        doSyncTimeStep();
     }
     else if (changedField == &syncCellResult && syncCellResult())
     {
-        RimViewLinker* linkedViews = NULL;
-        this->firstAnchestorOrThisOfType(linkedViews);
-        linkedViews->updateCellResult();
+        doSyncCellResult();
     }
     else if (changedField == &syncRangeFilters)
     {
-        configureOverridesUpdateDisplayModel();
+        configureOverrides();
     }
     else if (changedField == &syncPropertyFilters)
     {
-        configureOverridesUpdateDisplayModel();
+        configureOverrides();
     }
     else if (changedField == &m_managedView)
     {
-        configureOverridesUpdateDisplayModel();
+        configureOverrides();
 
         if (m_managedView)
         {
@@ -222,14 +212,14 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
         updateOptionSensitivity();
         updateDisplayNameAndIcon();
-        updateUiIcon();
+        updateUiIconFromActiveState();
 
         name.uiCapability()->updateConnectedEditors();
     }
     else if (&syncVisibleCells == changedField)
     {
         updateOptionSensitivity();
-        configureOverridesUpdateDisplayModel();
+        configureOverrides();
     }
 }
 
@@ -240,7 +230,7 @@ void RimViewLink::initAfterRead()
 {
     configureOverrides();
     updateDisplayNameAndIcon();
-    updateUiIcon();
+    updateUiIconFromActiveState();
     updateOptionSensitivity();
 }
 
@@ -267,37 +257,12 @@ RimGeoMechView* RimViewLink::managedGeoView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::configureOverridesUpdateDisplayModel()
-{
-    configureOverrides();
-
-    // This update scheduling actually schedules update in the master view (not the managed view). Is that intentional ? JJS
-    /*
-    if (m_managedView)
-    {
-        m_managedView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
-    }
-
-    RimEclipseView* eclipseView = managedEclipseView();
-    if (eclipseView)
-    {
-        eclipseView->propertyFilterCollection()->updateDisplayModelNotifyManagedViews();
-    }
-
-    RimGeoMechView* geoView = managedGeoView();
-    if (geoView)
-    {
-        geoView->propertyFilterCollection()->updateDisplayModelNotifyManagedViews();
-    }
-    */
-    // Todo : Notify the managed view of the possible change of visualCellsOverride 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimViewLink::configureOverrides()
 {
+    RimViewLinkerCollection* viewLinkerColl = NULL;
+    this->firstAnchestorOrThisOfType(viewLinkerColl);
+    if (!viewLinkerColl->isActive()) return;
+
     RimViewLinker* viewLinker = NULL;
     this->firstAnchestorOrThisOfType(viewLinker);
 
@@ -472,7 +437,7 @@ void RimViewLink::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::updateUiIcon()
+void RimViewLink::updateUiIconFromActiveState()
 {
     RimViewLinker::applyIconEnabledState(this, m_originalIcon, !isActive());
 }
@@ -483,5 +448,55 @@ void RimViewLink::updateUiIcon()
 void RimViewLink::updateDisplayNameAndIcon()
 {
     RimViewLinker::findNameAndIconFromView(&name.v(), &m_originalIcon, managedView());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLink::doSyncCamera()
+{
+    RimViewLinkerCollection* viewLinkerColl = NULL;
+    this->firstAnchestorOrThisOfType(viewLinkerColl);
+    if (!viewLinkerColl->isActive()) return;
+
+    RimViewLinker* viewLinker = NULL;
+    this->firstAnchestorOrThisOfType(viewLinker);
+    viewLinker->updateScaleZ(viewLinker->mainView(), viewLinker->mainView()->scaleZ());
+
+    if (m_managedView && m_managedView->viewer())
+    {
+        m_managedView->viewer()->navigationPolicyUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLink::doSyncTimeStep()
+{
+    RimViewLinkerCollection* viewLinkerColl = NULL;
+    this->firstAnchestorOrThisOfType(viewLinkerColl);
+    if (!viewLinkerColl->isActive()) return;
+
+    if (m_managedView)
+    {
+        RimViewLinker* linkedViews = NULL;
+        this->firstAnchestorOrThisOfType(linkedViews);
+        linkedViews->updateTimeStep(m_managedView, m_managedView->currentTimeStep());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLink::doSyncCellResult()
+{
+    RimViewLinkerCollection* viewLinkerColl = NULL;
+    this->firstAnchestorOrThisOfType(viewLinkerColl);
+    if (!viewLinkerColl->isActive()) return;
+
+    RimViewLinker* linkedViews = NULL;
+    this->firstAnchestorOrThisOfType(linkedViews);
+    linkedViews->updateCellResult();
 }
 

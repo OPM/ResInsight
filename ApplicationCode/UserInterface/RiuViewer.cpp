@@ -25,6 +25,7 @@
 
 #include "RimProject.h"
 #include "RimView.h"
+#include "RimViewLink.h"
 #include "RimViewLinker.h"
 
 #include "RiuCadNavigation.h"
@@ -264,7 +265,11 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
         RimViewLinker* viewLinker = proj->findViewLinkerFromView(m_reservoirView);
         if (viewLinker)
         {
-            viewLinker->updateTimeStep(m_reservoirView, frameIndex);
+            RimViewLink* viewLink = viewLinker->viewLinkFromView(m_reservoirView);
+            if (m_reservoirView == viewLinker->mainView() || (viewLink && viewLink->isActive() && viewLink->syncTimeStep()))
+            {
+                viewLinker->updateTimeStep(m_reservoirView, frameIndex);
+            }
         }
     }
 }

@@ -59,9 +59,8 @@ public:
     void                        updateOptionSensitivity();
     void                        removeOverrides();
 
-    void                        updateUiIcon();
+    void                        updateUiIconFromActiveState();
     void                        updateDisplayNameAndIcon();
-
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -72,9 +71,10 @@ protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual caf::PdmFieldHandle*            objectToggleField()     { return &isActive; }
 
-
 private:
-    void            configureOverridesUpdateDisplayModel();
+    void            doSyncCamera();
+    void            doSyncTimeStep();
+    void            doSyncCellResult();
 
     RimEclipseView* managedEclipseView();
     RimGeoMechView* managedGeoView();

@@ -447,8 +447,8 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
             RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
             if (viewLinker)
             {
-                RimViewLink* linkedView = viewLinker->viewLinkFromView(this);
-                if (!linkedView || linkedView->syncCamera())
+                RimViewLink* viewLink = viewLinker->viewLinkFromView(this);
+                if (this == viewLinker->mainView() || (viewLink && viewLink->isActive() && viewLink->syncCamera()))
                 {
                     viewLinker->updateScaleZ(this, scaleZ);
                 }
@@ -485,7 +485,11 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
             RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
             if (viewLinker)
             {
-                viewLinker->updateTimeStep(this, m_currentTimeStep);
+                RimViewLink* viewLink = viewLinker->viewLinkFromView(this);
+                if (this == viewLinker->mainView() || (viewLink && viewLink->isActive() && viewLink->syncTimeStep()))
+                {
+                    viewLinker->updateTimeStep(this, m_currentTimeStep);
+                }
             }
         }
     }
@@ -590,10 +594,9 @@ void RimView::notifyCameraHasChanged()
     RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
     if (viewLinker)
     {
-        RimViewLink* linkedView = viewLinker->viewLinkFromView(this);
+        RimViewLink* viewLink = viewLinker->viewLinkFromView(this);
 
-        // There is no view config for a master view, but all views for sync must be updated
-        if (!linkedView || linkedView->syncCamera())
+        if (this == viewLinker->mainView() || (viewLink && viewLink->isActive() && viewLink->syncCamera()))
         {
             viewLinker->allViewsForCameraSync(this, viewsToUpdate);
         }

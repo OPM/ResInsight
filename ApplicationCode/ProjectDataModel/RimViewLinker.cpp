@@ -305,6 +305,8 @@ void RimViewLinker::applyAllOperations()
     updateRangeFilters();
     updatePropertyFilters();
     updateScaleZ(m_mainView, m_mainView->scaleZ());
+    
+    m_mainView->notifyCameraHasChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
