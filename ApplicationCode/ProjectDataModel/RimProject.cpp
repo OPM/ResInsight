@@ -627,6 +627,7 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
 #include "RimWellLogPlotCurve.h"
+#include "RimWellLog.h"
 #include <QMenu>
 
 
@@ -823,6 +824,10 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         else if (dynamic_cast<RimWellLogPlotCurve*>(uiItem))
         {
             commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimWellLog*>(uiItem))
+        {
+            commandIds << "RicAddWellLogToPlotFeature";
         }
     }
     

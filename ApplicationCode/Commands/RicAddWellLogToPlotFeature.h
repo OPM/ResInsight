@@ -19,28 +19,38 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
+#include "cafCmdFeature.h"
 
-class QString;
+#include <vector>
 
-//==================================================================================================
-///  
-///  
-//==================================================================================================
-class RimWellLog : public caf::PdmObject
+class RimMainPlotCollection;
+class RimWellLogPlotCollection;
+class RimWellLogPlot;
+class RimWellLog;
+
+namespace caf 
 {
-    CAF_PDM_HEADER_INIT;
 
-public:
-    RimWellLog();
-    
-    void    setName(const QString& name);
-    QString name() const { return m_name; }
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicAddWellLogToPlotFeature : public CmdFeature
+{
+    CAF_CMD_HEADER_INIT;
+protected:
 
-    virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    caf::PdmField<QString> m_name;
+    std::vector<RimWellLog*>    selectedWellLogs();
+    RimMainPlotCollection*      mainPlotCollection();
+    RimWellLogPlotCollection*   wellLogPlotCollection();
+    RimWellLogPlot*             createWellLogPlot();
 };
 
+
+
+} // end namespace caf

@@ -19,28 +19,25 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
+#include "RimWellLogPlotCurve.h"
 
-class QString;
+#include <vector>
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimWellLog : public caf::PdmObject
+class RimWellLogFileCurve : public RimWellLogPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLog();
+    RimWellLogFileCurve();
+    virtual ~RimWellLogFileCurve();
     
-    void    setName(const QString& name);
-    QString name() const { return m_name; }
+    virtual void updatePlotData();
 
-    virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
-
-private:
-    caf::PdmField<QString> m_name;
+    void setCurveData(const std::vector<double>& values, const std::vector<double>& depthValues);
 };
+
 
