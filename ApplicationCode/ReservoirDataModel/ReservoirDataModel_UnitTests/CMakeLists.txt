@@ -19,6 +19,7 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ProjectDataModel
     ${ResInsight_SOURCE_DIR}/ThirdParty
+    ${ResInsight_SOURCE_DIR}/ThirdParty/NRLib/nrlib/well
 
     #${ResInsight_SOURCE_DIR}/Fwk/AppFwk/cafProjectDataModel
 
@@ -67,6 +68,8 @@ set( LINK_LIBRARIES
     ecl
     ecl_well
     ert_util
+
+	NRLib
 
     ${QT_LIBRARIES}
 )

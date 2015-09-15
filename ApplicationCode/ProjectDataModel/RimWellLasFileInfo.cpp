@@ -22,9 +22,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "well.hpp"
+#include "RigWellLogFile.h"
 
-#include <QString>
 #include <QStringList>
 #include <QFileInfo>
 
@@ -54,6 +53,8 @@ RimWellLasFileInfo::RimWellLasFileInfo()
     CAF_PDM_InitFieldNoDefault(&m_lasFileLogs, "WellLASFileLogs", "",  "", "", "");
     m_lasFileLogs.uiCapability()->setUiHidden(true);
     m_lasFileLogs.xmlCapability()->setIOWritable(false);
+
+    m_wellLogFile = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +62,6 @@ RimWellLasFileInfo::RimWellLasFileInfo()
 //--------------------------------------------------------------------------------------------------
 RimWellLasFileInfo::~RimWellLasFileInfo()
 {
-    close();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,38 +77,23 @@ void RimWellLasFileInfo::setFileName(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 bool RimWellLasFileInfo::readFile()
 {
-    close();
-
-    int wellFormat = NRLib::Well::LAS;
-    NRLib::Well* well = NRLib::Well::ReadWell(m_fileName().toStdString(), wellFormat);
-    if (!well)
+    if (!m_wellLogFile.p())
     {
-        // TODO: Error handling
+        m_wellLogFile = new RigWellLogFile;
+    }
+
+    if (!m_wellLogFile->open(m_fileName))
+    {
         return false;
     }
 
-    m_wellName = QString::fromStdString(well->GetWellName());
+    m_wellName = m_wellLogFile->wellName();
     m_name = QFileInfo(m_fileName).fileName();
 
-    QStringList wellLogNames;
+    m_lasFileLogs.deleteAllChildObjects();
 
-    const std::map<std::string, std::vector<double> >& contLogs = well->GetContLog();
-    std::vector<std::string> contLogNames;
-    std::map<std::string, std::vector<double> >::const_iterator itCL;
-    for (itCL = contLogs.begin(); itCL != contLogs.end(); itCL++)
-    {
-        wellLogNames.append(QString::fromStdString(itCL->first));
-    }
-
-    const std::map<std::string, std::vector<int> >& discLogs = well->GetDiscLog();
-    std::vector<std::string> discLogNames;
-    std::map<std::string, std::vector<int> >::const_iterator itDL;
-    for (itDL = discLogs.begin(); itDL != discLogs.end(); itDL++)
-    {
-        wellLogNames.append(QString::fromStdString(itDL->first));
-    }
-
-    for (size_t logIdx = 0; logIdx < wellLogNames.size(); logIdx++)
+    QStringList wellLogNames = m_wellLogFile->wellLogNames();
+    for (int logIdx = 0; logIdx < wellLogNames.size(); logIdx++)
     {
         RimWellLog* wellLog = new RimWellLog();
         wellLog->setName(wellLogNames[logIdx]);
@@ -117,7 +102,6 @@ bool RimWellLasFileInfo::readFile()
 
     RimWellPath* wellPath;
     firstAnchestorOrThisOfType(wellPath);
-
     if (wellPath)
     {
         if (wellPath->filepath().isEmpty())
@@ -126,19 +110,8 @@ bool RimWellLasFileInfo::readFile()
         }
     }
 
-    delete well;
     return true;
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLasFileInfo::close()
-{   
-    m_lasFileLogs.deleteAllChildObjects();
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -146,30 +119,4 @@ void RimWellLasFileInfo::close()
 QString RimWellLasFileInfo::wellName() const
 {
     return m_wellName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLasFileInfo::depthValues() const
-{
-    return logValues("DEPT");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLasFileInfo::logValues(const QString& logName) const
-{
-    std::vector<double> values;
-
-    int wellFormat = NRLib::Well::LAS;
-    NRLib::Well* well = NRLib::Well::ReadWell(m_fileName().toStdString(), wellFormat);
-    if (well)
-    {
-        values = well->GetContLog(logName.toStdString());
-        delete well;
-    }
-
-    return values;
 }

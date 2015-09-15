@@ -19,44 +19,38 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafPdmChildArrayField.h"
-
-#include "RigWellLogFile.h"
-
 #include "cvfBase.h"
+#include "cvfObject.h"
 
-class RimWellLog;
+#include <QStringList>
+#include <vector>
 
-class QString;
-
-//==================================================================================================
-///  
-///  
-//==================================================================================================
-class RimWellLasFileInfo : public caf::PdmObject
+namespace NRLib
 {
-    CAF_PDM_HEADER_INIT;
+    class Well;
+}
 
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RigWellLogFile : public cvf::Object
+{
 public:
-    RimWellLasFileInfo();
-    virtual ~RimWellLasFileInfo();
+    RigWellLogFile();
+    virtual ~RigWellLogFile();
 
-    void setFileName(const QString& fileName);
-    bool readFile();
-    
-    QString wellName() const;
-    virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
+    bool open(const QString& fileName);
 
-    RigWellLogFile* wellLogFile() { return m_wellLogFile.p(); }
+    QString     wellName() const;
+    QStringList wellLogNames() const;
 
-private:
-    caf::PdmChildArrayField<RimWellLog*>  m_lasFileLogs;
+    std::vector<double> depthValues() const;
+    std::vector<double> values(const QString& name) const;
 
 private:
-    cvf::ref<RigWellLogFile>    m_wellLogFile;
-    caf::PdmField<QString>      m_wellName;
-    caf::PdmField<QString>      m_fileName;
-    caf::PdmField<QString>      m_name;
+    void close();
+
+    NRLib::Well*    m_wellLogFile;
+    QStringList     m_wellLogNames;
 };

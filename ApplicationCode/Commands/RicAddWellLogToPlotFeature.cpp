@@ -27,6 +27,7 @@
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RigWellLogFile.h"
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
@@ -81,11 +82,16 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             cvf::Color3f curveColor = curveColorFromIndex(curveIdx);
             curve->setColor(curveColor);
             curve->setDescription(wellLog->name());
-            curve->setCurveData(lasFileInfo->logValues(wellLog->name()), lasFileInfo->depthValues());
+
+            RigWellLogFile* wellLogFile = lasFileInfo->wellLogFile();
+
+            curve->setCurveData(wellLogFile->values(wellLog->name()), wellLogFile->depthValues());
 
             curve->updatePlotData();
         }        
     }
+
+    plot->setVisibleDepthRangeFromContents();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 }

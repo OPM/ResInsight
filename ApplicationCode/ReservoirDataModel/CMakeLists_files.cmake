@@ -35,6 +35,7 @@ ${CEE_CURRENT_LIST_DIR}RigResultAccessor2d.h
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.h
 ${CEE_CURRENT_LIST_DIR}RigNativeStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigMultipleDatasetStatCalc.h
+${CEE_CURRENT_LIST_DIR}RigWellLogFile.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -64,6 +65,7 @@ ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.cpp
 ${CEE_CURRENT_LIST_DIR}RigNativeStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigMultipleDatasetStatCalc.cpp
+${CEE_CURRENT_LIST_DIR}RigWellLogFile.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
