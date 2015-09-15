@@ -35,6 +35,12 @@
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
+#include "RimEclipseCase.h"
+#include "RigCaseData.h"
+#include "RimGeoMechCase.h"
+#include "RigGeomechCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RigCaseToCaseCellMapper.h"
 
 
 CAF_PDM_SOURCE_INIT(RimViewLink, "RimViewLink");
@@ -191,7 +197,6 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         {
             RimView* rimView = dynamic_cast<RimView*>(prevValue);
             rimView->setOverrideRangeFilterCollection(NULL);
-            rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews();
 
             RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(rimView);
             if (rimEclipseView)
@@ -207,7 +212,7 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
             RimViewLinker* linkedViews = NULL;
             this->firstAnchestorOrThisOfType(linkedViews);
-            linkedViews->configureOverrides();
+            linkedViews->configureOverrides(); // Should not be neccesary? JJS
         }
 
         updateOptionSensitivity();
@@ -510,5 +515,91 @@ RimViewLinker* RimViewLink::ownerViewLinker()
     CVF_ASSERT(viewLinker);
 
     return viewLinker;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigCaseToCaseCellMapper* RimViewLink::cellMapper()
+{
+    RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(masterView());
+    RimEclipseView* dependEclipseView = managedEclipseView();
+    RimGeoMechView* masterGeomechView = dynamic_cast<RimGeoMechView*>(masterView());
+    RimGeoMechView* dependGeomechView = managedGeoView();
+
+    RigMainGrid* masterEclGrid = NULL;
+    RigMainGrid* dependEclGrid = NULL;
+    RigFemPart*  masterFemPart = NULL;
+    RigFemPart*  dependFemPart = NULL;
+
+    if (masterEclipseView && masterEclipseView->eclipseCase()->reservoirData())
+    {
+        masterEclGrid = masterEclipseView->eclipseCase()->reservoirData()->mainGrid();
+    }
+
+    if (dependEclipseView && dependEclipseView->eclipseCase()->reservoirData())
+    {
+        dependEclGrid = dependEclipseView->eclipseCase()->reservoirData()->mainGrid();
+    }
+
+    if (masterGeomechView && masterGeomechView->geoMechCase()->geoMechData()
+        && masterGeomechView->geoMechCase()->geoMechData()->femParts()->partCount())
+    {
+        masterFemPart = masterGeomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+    }
+
+    if (dependGeomechView &&  dependGeomechView->geoMechCase()->geoMechData()
+        && dependGeomechView->geoMechCase()->geoMechData()->femParts()->partCount())
+    {
+        dependFemPart = dependGeomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+    }
+
+    // If we have the correct mapping already, return it.
+    if (m_caseToCaseCellMapper.notNull())
+    {
+        if (   masterEclGrid == m_caseToCaseCellMapper->masterGrid()
+            && dependEclGrid == m_caseToCaseCellMapper->dependentGrid()
+            && masterFemPart == m_caseToCaseCellMapper->masterFemPart()
+            && dependFemPart == m_caseToCaseCellMapper->dependentFemPart())
+            {
+                return m_caseToCaseCellMapper.p();
+            }
+            else
+            {
+                m_caseToCaseCellMapper = NULL;
+            }
+    }
+
+    // Create the mapping if needed
+
+    if (m_caseToCaseCellMapper.isNull())
+    {
+        if (masterEclGrid && dependFemPart)
+        {
+            m_caseToCaseCellMapper = new RigCaseToCaseCellMapper(masterEclGrid, dependFemPart);
+        }
+        else if (masterEclGrid && dependEclGrid)
+        {
+            m_caseToCaseCellMapper = new RigCaseToCaseCellMapper(masterEclGrid, dependEclGrid);
+        }
+        else if (masterFemPart && dependFemPart)
+        {
+            m_caseToCaseCellMapper = new RigCaseToCaseCellMapper(masterFemPart, dependFemPart);
+        }
+         else if (masterFemPart && dependEclGrid)
+        {
+             m_caseToCaseCellMapper = new RigCaseToCaseCellMapper(masterFemPart, dependEclGrid);
+        }
+    }
+
+    return m_caseToCaseCellMapper.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimView* RimViewLink::masterView()
+{
+    return ownerViewLinker()->mainView();
 }
 

@@ -20,11 +20,14 @@
 #include "RigCaseToCaseCellMapper.h"
 
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* eclipseGrid, RigFemPart* femPart)
+RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart)
+    : m_masterGrid(masterEclGrid),
+      m_dependentGrid(NULL),
+      m_masterFemPart(dependentFemPart),
+      m_dependentFemPart(NULL)
 {
 
 }
@@ -32,10 +35,54 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* eclipseGrid, RigFe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigMainGrid* dependentEclGrid)
+    : m_masterGrid(masterEclGrid),
+      m_dependentGrid(dependentEclGrid),
+      m_masterFemPart(NULL),
+      m_dependentFemPart(NULL)
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigFemPart* masterFemPart, RigMainGrid* dependentEclGrid)
+    : m_masterGrid(NULL),
+      m_dependentGrid(dependentEclGrid),
+      m_masterFemPart(masterFemPart),
+      m_dependentFemPart(NULL)
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigFemPart* masterFemPart, RigFemPart* dependentFemPart)
+    : m_masterGrid(NULL),
+      m_dependentGrid(NULL),
+      m_masterFemPart(masterFemPart),
+      m_dependentFemPart(dependentFemPart)
+{
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount)
 {
-    static int a = 0;
-    (*masterCaseCellIndexCount) = 1;
-    return &a;
-
+    int seriesIndex = m_masterCellOrIntervalIndex[dependentCaseReservoirCellIndex];
+    if (seriesIndex < 0)
+    {
+        (*masterCaseCellIndexCount) = static_cast<int>(m_masterCellIndexSeries[-seriesIndex].size());
+        return &(m_masterCellIndexSeries[-seriesIndex][0]);    
+    }
+    else
+    {
+        (*masterCaseCellIndexCount) = 1;
+        return &(m_masterCellOrIntervalIndex[dependentCaseReservoirCellIndex]);
+    }
 }

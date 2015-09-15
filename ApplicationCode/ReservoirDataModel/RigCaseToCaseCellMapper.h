@@ -36,11 +36,18 @@ class RigFemPart;
 class RigCaseToCaseCellMapper : public cvf::Object
 {
 public:
-    RigCaseToCaseCellMapper(RigMainGrid* eclipseGrid, RigFemPart* femPart);
-   
+    RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigFemPart*  dependentFemPart);
+    RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigMainGrid* dependentEclGrid);
+    RigCaseToCaseCellMapper(RigFemPart*  masterFemPart, RigMainGrid* dependentEclGrid);
+    RigCaseToCaseCellMapper(RigFemPart*  masterFemPart, RigFemPart*  dependentFemPart);
+
     const int * masterCaseCellIndices(int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount);
 
-    
+    const RigMainGrid* masterGrid() const           { return m_masterGrid;}
+    const RigMainGrid* dependentGrid() const        { return m_dependentGrid;}
+    const RigFemPart*  masterFemPart() const        { return m_masterFemPart;}
+    const RigFemPart*  dependentFemPart() const     { return m_dependentFemPart;}
+
 private:
 #if 0
     cvf::Vec3i  m_ecToGmOffset;
@@ -52,4 +59,12 @@ private:
     std::vector<int>    m_gmecCellOrIntervalIndex;
     std::vector<std::vector<int> > m_gmecCellIndexIntervals;
 #endif
+    std::vector<int>    m_masterCellOrIntervalIndex;
+    std::vector<std::vector<int> > m_masterCellIndexSeries;
+
+    RigMainGrid* m_masterGrid;
+    RigMainGrid* m_dependentGrid;
+    RigFemPart*  m_masterFemPart;
+    RigFemPart*  m_dependentFemPart;
+
 };

@@ -23,10 +23,14 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+
 class RimView;
 class RimEclipseView;
 class RimGeoMechView;
 class RimViewLinker;
+class RigCaseToCaseCellMapper;
 
 //==================================================================================================
 ///  
@@ -45,7 +49,10 @@ public:
 
     RimView*                    managedView();
     void                        setManagedView(RimView* view);
+    RimView*                    masterView();
     RimViewLinker*              ownerViewLinker();
+
+    const RigCaseToCaseCellMapper* cellMapper();
 
     // Linked (both ways) properties
     caf::PdmField<bool>         syncCamera;
@@ -83,4 +90,6 @@ private:
 
     caf::PdmPtrField<RimView*>  m_managedView;
     QIcon                       m_originalIcon;
+    cvf::ref<RigCaseToCaseCellMapper> m_caseToCaseCellMapper;
+
 };
