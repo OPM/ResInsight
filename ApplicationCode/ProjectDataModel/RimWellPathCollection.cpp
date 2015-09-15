@@ -148,6 +148,8 @@ void RimWellPathCollection::readWellPathFiles()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellPaths( QStringList filePaths )
 {
+    std::vector<RimWellPath*> wellPathArray;
+
     foreach (QString filePath, filePaths)
     {
         // Check if this file is already open
@@ -178,7 +180,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
                 wellPath->setProject(m_project);
                 wellPath->setCollection(this);
                 wellPath->filepath = filePath;
-                wellPaths.push_back(wellPath);
+                wellPathArray.push_back(wellPath);
             }
             else
             {
@@ -191,14 +193,49 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
                     wellPath->setCollection(this);
                     wellPath->filepath = filePath;
                     wellPath->wellPathIndexInFile = static_cast<int>(i);
-                    wellPaths.push_back(wellPath);
+                    wellPathArray.push_back(wellPath);
                 }
             }
         }
     }
 
-    readWellPathFiles();
+    readAndAddWellPaths(wellPathArray);
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray)
+{
+    caf::ProgressInfo progress(wellPathArray.size(), "Reading well paths from file");
+
+    for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
+    {
+        RimWellPath* wellPath = wellPathArray[wpIdx];
+        wellPath->readWellPathFile();
+
+        progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name));
+
+        // If a well path with this name exists already, make it read the well path file
+        RimWellPath* existingWellPath = wellPathByName(wellPath->name);
+        if (existingWellPath)
+        {
+            existingWellPath->filepath = wellPath->filepath;
+            existingWellPath->wellPathIndexInFile = wellPath->wellPathIndexInFile;
+            existingWellPath->readWellPathFile();
+
+            delete wellPath;
+        }
+        else
+        {
+            wellPaths.push_back(wellPath);
+        }
+
+        progress.incrementProgress();
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

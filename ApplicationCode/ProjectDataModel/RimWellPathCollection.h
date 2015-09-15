@@ -94,6 +94,8 @@ private:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     virtual caf::PdmFieldHandle*        objectToggleField();
 
+    void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
+
     caf::PdmPointer<RimProject>         m_project;
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 
