@@ -21,22 +21,23 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmReferenceHelper.h"
-#include "cafPdmUiFieldHandle.h"
-
-#include "cafNotificationCenter.h"
-#include "cafSelectionManager.h"
-#include "cafPdmDocument.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
-#include "RimWellPathCollection.h"
-#include "RimView.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
-#include "RimWellLogPlotCollection.h"
 #include "RimProject.h"
+#include "RimView.h"
+#include "RimViewLinkerCollection.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlotTrace.h"
+#include "RimWellPathCollection.h"
+
+#include "cafNotificationCenter.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmDocument.h"
+#include "cafPdmReferenceHelper.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafSelectionManager.h"
 
 
 namespace caf
@@ -132,6 +133,22 @@ void RicDeleteItemExec::redo()
             if (project)
             {
                 project->updateConnectedEditors();
+            }
+        }
+
+        RimViewLinkerCollection* viewLinkerCollection = NULL;
+        parentObj->firstAnchestorOrThisOfType(viewLinkerCollection);
+        if (viewLinkerCollection)
+        {
+            viewLinkerCollection->uiCapability()->updateConnectedEditors();
+
+            RimProject* project = NULL;
+            parentObj->firstAnchestorOrThisOfType(project);
+            if (project)
+            {
+                // Update visibility of top level Linked Views item in the project tree
+                // Not visible if no views are linked
+                project->uiCapability()->updateConnectedEditors();
             }
         }
     }

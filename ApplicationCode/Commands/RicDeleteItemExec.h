@@ -25,7 +25,6 @@
 namespace caf 
 {
 
-class PdmChildArrayFieldHandle;
 class RicDeleteItemExecData;
 
 //==================================================================================================
