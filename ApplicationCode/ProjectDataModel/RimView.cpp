@@ -698,6 +698,8 @@ void RimView::setScaleZAndUpdate(double scaleZ)
 //--------------------------------------------------------------------------------------------------
 bool RimView::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB)
 {
+    if (!sourceBB.isValid() || !destBB.isValid()) return false;
+
     if (sourceBB.intersects(destBB)) return true;
 
     double largestExtent = sourceBB.extent().length();
