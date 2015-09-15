@@ -8,12 +8,18 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicLinkVisibleViewsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicLinkVisibleViewsFeatureUi.h
 ${CEE_CURRENT_LIST_DIR}RicShowAllLinkedViewsFeature.h
+${CEE_CURRENT_LIST_DIR}RicLinkViewFeature.h
+${CEE_CURRENT_LIST_DIR}RicUnLinkViewFeature.h
+${CEE_CURRENT_LIST_DIR}RicShowLinkOptionsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicLinkVisibleViewsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicLinkVisibleViewsFeatureUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowAllLinkedViewsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicLinkViewFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicUnLinkViewFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicShowLinkOptionsFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

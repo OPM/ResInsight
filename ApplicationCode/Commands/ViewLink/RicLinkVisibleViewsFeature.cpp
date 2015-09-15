@@ -60,11 +60,72 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    
     std::vector<RimView*> views;
     findNotLinkedVisibleViews(views);
 
+    linkViews(views);
+    return;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicLinkVisibleViewsFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Link Visible Views");
+    actionToSetup->setIcon(QIcon(":/chain.png"));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<RimView*>& views)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    for (size_t i = 0; i < proj->viewLinkerCollection()->viewLinkers().size(); i++)
+    {
+        RimViewLinker* linkedViews = proj->viewLinkerCollection()->viewLinkers()[i];
+        linkedViews->allViews(views);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimView*> &views)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    std::vector<RimView*> alreadyLinkedViews;
+    allLinkedViews(alreadyLinkedViews);
+
+    std::vector<RimView*> visibleViews;
+    proj->allVisibleViews(visibleViews);
+
+    for (size_t i = 0; i < visibleViews.size(); i++)
+    {
+        bool isLinked = false;
+        for (size_t j = 0; j < alreadyLinkedViews.size(); j++)
+        {
+            if (visibleViews[i] == alreadyLinkedViews[j])
+            {
+                isLinked = true;
+            }
+        }
+
+        if (!isLinked)
+        {
+            views.push_back(visibleViews[i]);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
+{
+    RimProject* proj = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = NULL;
 
     if (proj->viewLinkerCollection->viewLinkers().size() > 0)
@@ -137,58 +198,5 @@ void RicLinkVisibleViewsFeature::onActionTriggered(bool isChecked)
     projTreeView->treeView()->setCurrentIndex(modIndex);
 
     projTreeView->treeView()->setExpanded(modIndex, true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::setupActionLook(QAction* actionToSetup)
-{
-    actionToSetup->setText("Link Visible Views");
-    actionToSetup->setIcon(QIcon(":/chain.png"));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<RimView*>& views)
-{
-    RimProject* proj = RiaApplication::instance()->project();
-    for (size_t i = 0; i < proj->viewLinkerCollection()->viewLinkers().size(); i++)
-    {
-        RimViewLinker* linkedViews = proj->viewLinkerCollection()->viewLinkers()[i];
-        linkedViews->allViews(views);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimView*> &views)
-{
-    RimProject* proj = RiaApplication::instance()->project();
-
-    std::vector<RimView*> alreadyLinkedViews;
-    allLinkedViews(alreadyLinkedViews);
-
-    std::vector<RimView*> visibleViews;
-    proj->allVisibleViews(visibleViews);
-
-    for (size_t i = 0; i < visibleViews.size(); i++)
-    {
-        bool isLinked = false;
-        for (size_t j = 0; j < alreadyLinkedViews.size(); j++)
-        {
-            if (visibleViews[i] == alreadyLinkedViews[j])
-            {
-                isLinked = true;
-            }
-        }
-
-        if (!isLinked)
-        {
-            views.push_back(visibleViews[i]);
-        }
-    }
 }
 

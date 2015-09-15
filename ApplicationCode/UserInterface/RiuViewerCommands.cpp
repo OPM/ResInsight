@@ -18,52 +18,59 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuViewerCommands.h"
-#include "RiuViewer.h"
+
+#include "RiaApplication.h"
+
+#include "RicEclipsePropertyFilterNewExec.h"
+#include "RicGeoMechPropertyFilterNewExec.h"
+#include "RicRangeFilterNewExec.h"
+
+#include "RigCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
+#include "RigGeoMechCaseData.h"
+
 #include "RimCellRangeFilter.h"
-#include "RimView.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseView.h"
-#include "RimGeoMechView.h"
-#include "RimFaultCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimGeoMechView.h"
+#include "RimEclipseView.h"
+#include "RimFaultCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
-#include "RimGeoMechCellColors.h"
-#include "RimProject.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechView.h"
 #include "RimOilField.h"
-#include "RimWellPathCollection.h"
+#include "RimProject.h"
+#include "RimView.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
+#include "RiuFemResultTextBuilder.h"
+#include "RiuMainWindow.h"
+#include "RiuResultTextBuilder.h"
+#include "RiuViewer.h"
+
+#include "RivFemPartGeometryGenerator.h"
+#include "RivFemPickSourceInfo.h"
 #include "RivSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
-#include "RivFemPickSourceInfo.h"
-#include "RivFemPartGeometryGenerator.h"
-#include "RigCaseData.h"
-#include "RiuMainWindow.h"
-#include "RiaApplication.h"
-#include "RiuResultTextBuilder.h"
-#include "RigGeoMechCaseData.h"
-#include "RimGeoMechCase.h"
-#include "RigFemPartCollection.h"
-#include "RigFemPartGrid.h"
+
+#include "cafCmdExecCommandManager.h"
+#include "cafCmdFeature.h"
+#include "cafCmdFeatureManager.h"
 
 #include "cvfDrawableGeo.h"
-#include "cvfPart.h"
 #include "cvfHitItemCollection.h"
+#include "cvfPart.h"
 
 #include <QMenu>
 #include <QMouseEvent>
-
 #include <QStatusBar>
-#include "RiuFemResultTextBuilder.h"
-#include "RicRangeFilterNewExec.h"
-#include "cafCmdExecCommandManager.h"
-#include "RicGeoMechPropertyFilterNewExec.h"
-#include "RicEclipsePropertyFilterNewExec.h"
 
 //==================================================================================================
 //
@@ -107,6 +114,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     int winPosX = event->x();
     int winPosY = event->y();
 
+    QMenu menu;
+
     uint faceIndex = cvf::UNDEFINED_UINT;
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
 
@@ -120,77 +129,107 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &faceIndex, &nncFirstHitPart, NULL);
     }
 
-    if (!firstHitPart) return;
-    
-    if (faceIndex == cvf::UNDEFINED_UINT) return;
-
-    if (!firstHitPart->sourceInfo()) return;
-
-    const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
-    const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
-
-    if (!(rivSourceInfo || femSourceInfo) ) return;
-    
-    if (rivSourceInfo)
+    if (firstHitPart && faceIndex != cvf::UNDEFINED_UINT)
     {
-        if (!rivSourceInfo->hasCellFaceMapping()) return;
+        const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
+        const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
 
-        // Set the data regarding what was hit
-
-        m_currentGridIdx = rivSourceInfo->gridIndex();
-        m_currentCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(faceIndex);
-        m_currentFaceIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(faceIndex);
-    }
-    else
-    {
-        m_currentGridIdx = femSourceInfo->femPartIndex();
-        m_currentCellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(faceIndex);
-    }
-
-    // IJK -slice commands
-
-    QMenu menu;
-
-    menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-    menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-    menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
-
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-    if (eclipseView)
-    {
-        RimEclipseCellColors* cellColors = eclipseView->cellResult().p();
-        if (cellColors)
+        if (rivSourceInfo || femSourceInfo)
         {
-            QAction* propertyAction = new QAction(QString("Add property filter"), this);
-            connect(propertyAction, SIGNAL(triggered()), SLOT(slotAddEclipsePropertyFilter()));
-
-            bool isPerCellFaceResult = RimDefines::isPerCellFaceResult(cellColors->resultVariable());
-            if (isPerCellFaceResult)
+            if (rivSourceInfo)
             {
-                propertyAction->setEnabled(false);
+                if (!rivSourceInfo->hasCellFaceMapping()) return;
+
+                // Set the data regarding what was hit
+
+                m_currentGridIdx = rivSourceInfo->gridIndex();
+                m_currentCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(faceIndex);
+                m_currentFaceIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(faceIndex);
             }
-            menu.addAction(propertyAction);
-        }
+            else
+            {
+                m_currentGridIdx = femSourceInfo->femPartIndex();
+                m_currentCellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(faceIndex);
+            }
 
-        // Hide faults command
-        const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
-        const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
-        if (fault)
-        {
-            menu.addSeparator();
+            // IJK -slice commands
 
-            QString faultName = fault->name();
-            menu.addAction(QString("Hide ") + faultName, this, SLOT(slotHideFault()));
+            menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
+            menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
+            menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+            if (eclipseView)
+            {
+                RimEclipseCellColors* cellColors = eclipseView->cellResult().p();
+                if (cellColors)
+                {
+                    QAction* propertyAction = new QAction(QString("Add property filter"), this);
+                    connect(propertyAction, SIGNAL(triggered()), SLOT(slotAddEclipsePropertyFilter()));
+
+                    bool isPerCellFaceResult = RimDefines::isPerCellFaceResult(cellColors->resultVariable());
+                    if (isPerCellFaceResult)
+                    {
+                        propertyAction->setEnabled(false);
+                    }
+                    menu.addAction(propertyAction);
+                }
+
+                // Hide faults command
+                const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
+                const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
+                if (fault)
+                {
+                    menu.addSeparator();
+
+                    QString faultName = fault->name();
+                    menu.addAction(QString("Hide ") + faultName, this, SLOT(slotHideFault()));
+                }
+            }
+
+            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+            if (geoMechView)
+            {
+                RimGeoMechCellColors* cellColors = geoMechView->cellResult().p();
+                if (cellColors)
+                {
+                    menu.addAction(QString("Add property filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+                }
+            }
+
         }
     }
 
-    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-    if (geoMechView)
+    // View Link commands
     {
-        RimGeoMechCellColors* cellColors = geoMechView->cellResult().p();
-        if (cellColors)
+        QStringList commandIds;
+
+        commandIds << "RicLinkViewFeature";
+        commandIds << "RicUnLinkViewFeature";
+        commandIds << "RicShowLinkOptionsFeature";
+
+        bool firstLinkAction = true;
+
+        caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+        for (int i = 0; i < commandIds.size(); i++)
         {
-            menu.addAction(QString("Add property filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+            if (feature->canFeatureBeExecuted())
+            {
+                QAction* act = commandManager->action(commandIds[i]);
+                CVF_ASSERT(act);
+
+                if (firstLinkAction)
+                {
+                    if (menu.actions().size() > 0)
+                    {
+                        menu.addSeparator();
+                    }
+                    firstLinkAction = false;
+                }
+
+                menu.addAction(act);
+            }
         }
     }
 

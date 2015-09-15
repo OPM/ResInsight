@@ -23,27 +23,16 @@
 
 #include <vector>
 
-class RimView;
-
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicLinkVisibleViewsFeature : public caf::CmdFeature
+class RicUnLinkViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static void linkViews(std::vector<RimView*> &views);
 
 protected:
     // Overrides
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
-
-
     virtual void setupActionLook(QAction* actionToSetup);
-
-private:
-    void findNotLinkedVisibleViews(std::vector<RimView*> &views);
-    void allLinkedViews(std::vector<RimView*>& views);
 };
