@@ -49,16 +49,7 @@ public:
     const RigFemPart*  dependentFemPart() const     { return m_dependentFemPart;}
 
 private:
-#if 0
-    cvf::Vec3i  m_ecToGmOffset;
-    cvf::Matrix3<int> m_ecToGmAxisTransform;
-     
 
-    std::vector<int>    m_ecgmCellOrIntervalIndex;
-    std::vector<std::vector<int> > m_ecgmCellIndexIntervals;
-    std::vector<int>    m_gmecCellOrIntervalIndex;
-    std::vector<std::vector<int> > m_gmecCellIndexIntervals;
-#endif
     std::vector<int>    m_masterCellOrIntervalIndex;
     std::vector<std::vector<int> > m_masterCellIndexSeries;
 

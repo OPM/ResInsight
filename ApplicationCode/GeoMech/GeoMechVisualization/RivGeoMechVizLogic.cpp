@@ -34,6 +34,8 @@
 #include "RivFemElmVisibilityCalculator.h"
 #include "RigFemPartResultsCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
+#include "RimView.h"
+#include "RimViewLink.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -138,8 +140,11 @@ void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry(RivCellSetEnum
 std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMgrs(int timeStepIndex)
 {
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs;
-
-    if (timeStepIndex >= 0 && m_geomechView->propertyFilterCollection()->hasActiveFilters())
+    if (m_geomechView->controllingViewLink() && m_geomechView->controllingViewLink()->syncVisibleCells())
+    {
+        visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(OVERRIDDEN_CELL_VISIBILITY, -1));
+    }
+    else if (timeStepIndex >= 0 && m_geomechView->propertyFilterCollection()->hasActiveFilters())
     {
         visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(PROPERTY_FILTERED, timeStepIndex));
     }

@@ -126,6 +126,7 @@ public:
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
+
     RimViewLink*                            controllingViewLink();
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 

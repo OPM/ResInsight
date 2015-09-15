@@ -62,6 +62,7 @@
 
 #include <limits.h>
 #include "RimViewLinker.h"
+#include "RimViewLink.h"
 
 
 
@@ -330,11 +331,17 @@ void RimEclipseView::createDisplayModel()
     // For property filtered geometry : just set all the models as empty scenes 
     // updateCurrentTimeStep requests the actual parts
 
-    if (!this->propertyFilterCollection()->hasActiveFilters())
+    if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells() 
+        || !this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;
 
-        if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+        if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
+        {
+            geometryTypesToAdd.push_back(OVERRIDDEN_CELL_VISIBILITY);
+
+        }
+        else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
         {
             geometryTypesToAdd.push_back(RANGE_FILTERED);
             geometryTypesToAdd.push_back(RANGE_FILTERED_WELL_CELLS);
@@ -716,6 +723,7 @@ void RimEclipseView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateStaticCellColors()
 {
+    updateStaticCellColors( OVERRIDDEN_CELL_VISIBILITY);
     updateStaticCellColors( ACTIVE);
     updateStaticCellColors( ALL_WELL_CELLS);
     updateStaticCellColors( VISIBLE_WELL_CELLS);
