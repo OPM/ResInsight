@@ -17,50 +17,64 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellLogPlotFeature.h"
+#include "RicNewWellLogPlotFeatureImpl.h"
 
 #include "RimProject.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
-#include "RicNewWellLogPlotCurveFeature.h"
-#include "RiaApplication.h"
 
-#include <QAction>
+#include "RiaApplication.h"
 
 #include "cvfAssert.h"
 
-
-CAF_CMD_SOURCE_INIT(RicNewWellLogPlotFeature, "RicNewWellLogPlotFeature");
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogPlotFeature::isCommandEnabled()
+RimMainPlotCollection* RicNewWellLogPlotFeatureImpl::mainPlotCollection()
 {
-    return true;
+    RimProject* project = RiaApplication::instance()->project();
+    CVF_ASSERT(project);
+
+    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
+    if (!mainPlotColl)
+    {
+        project->recreateMainPlotCollection();
+    }
+
+    return project->mainPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
+RimWellLogPlotCollection* RicNewWellLogPlotFeatureImpl::wellLogPlotCollection()
 {
-    RimWellLogPlot* plot = createWellLogPlot();
+    RimMainPlotCollection* mainPlotColl = mainPlotCollection();
+    CVF_ASSERT(mainPlotColl);
 
-    RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace();
-    plot->addTrace(plotTrace);
+    RimWellLogPlotCollection* wellLogPlotColl = mainPlotColl->wellLogPlotCollection();
+    if (!wellLogPlotColl)
+    {
+        mainPlotColl->recreateWellLogPlotCollection();
+    }
 
-    plot->loadDataAndUpdate();
-    plot->updateConnectedEditors();
-    RiaApplication::instance()->project()->updateConnectedEditors();
-
-    RicNewWellLogPlotCurveFeature::addCurve(plotTrace);
+    return mainPlotColl->wellLogPlotCollection();
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
+RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot()
 {
-    actionToSetup->setText("New Well Log Plot");
+    RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
+    CVF_ASSERT(wellLogPlotColl);
+
+    RimWellLogPlot* plot = new RimWellLogPlot();
+    wellLogPlotColl->wellLogPlots().push_back(plot);
+
+    plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
+
+    return plot;
 }

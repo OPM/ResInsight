@@ -19,37 +19,18 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-#include "RicWellLogPlotCurveFeatureImpl.h"
-#include "RicNewWellLogPlotFeatureImpl.h"
-
-#include <vector>
-
 class RimMainPlotCollection;
 class RimWellLogPlotCollection;
 class RimWellLogPlot;
-class RimWellLog;
-
-namespace caf 
-{
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicAddWellLogToPlotFeature : public CmdFeature, RicWellLogPlotCurveFeatureImpl, RicNewWellLogPlotFeatureImpl
+class RicNewWellLogPlotFeatureImpl
 {
-    CAF_CMD_HEADER_INIT;
+
 protected:
-
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
-
-private:
-    std::vector<RimWellLog*>    selectedWellLogs();
+    RimMainPlotCollection*      mainPlotCollection();
+    RimWellLogPlotCollection*   wellLogPlotCollection();
+    RimWellLogPlot*             createWellLogPlot();
 };
-
-
-
-} // end namespace caf

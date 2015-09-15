@@ -20,14 +20,12 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-
-class RimMainPlotCollection;
-class RimWellLogPlotCollection;
+#include "RicNewWellLogPlotFeatureImpl.h"
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellLogPlotFeature : public caf::CmdFeature
+class RicNewWellLogPlotFeature : public caf::CmdFeature, RicNewWellLogPlotFeatureImpl
 {
     CAF_CMD_HEADER_INIT;
 
@@ -36,8 +34,4 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
-
-private:
-    RimMainPlotCollection*      mainPlotCollection();
-    RimWellLogPlotCollection*   wellLogPlotCollection();
 };
