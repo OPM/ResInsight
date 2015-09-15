@@ -19,6 +19,8 @@
 
 #include "RicNewWellLogPlotCurveFeature.h"
 
+#include "RicWellLogPlotCurveFeatureImpl.h"
+
 #include "RimWellLogPlotTrace.h"
 #include "RimWellLogExtractionCurve.h"
 
@@ -83,7 +85,7 @@ void RicNewWellLogPlotCurveFeature::addCurve(RimWellLogPlotTrace* plotTrace)
     RimWellLogPlotCurve* curve = new RimWellLogExtractionCurve();
     plotTrace->addCurve(curve);
 
-    cvf::Color3f curveColor = curveColorFromIndex(curveIndex);
+    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIndex);
     curve->setColor(curveColor);
 
     curve->setDescription(QString("Curve %1").arg(plotTrace->curveCount()));

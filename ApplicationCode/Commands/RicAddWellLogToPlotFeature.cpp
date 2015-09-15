@@ -19,6 +19,9 @@
 
 #include "RicAddWellLogToPlotFeature.h"
 
+#include "RicWellLogPlotCurveFeatureImpl.h"
+#include "RicNewWellLogPlotFeatureImpl.h"
+
 #include "RimWellLasFileInfo.h"
 #include "RimWellLog.h"
 #include "RimWellLogPlot.h"
@@ -59,7 +62,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
     std::vector<RimWellLog*> selection = selectedWellLogs();
     if (selection.size() < 1) return;
 
-    RimWellLogPlot* plot = createWellLogPlot();
+    RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
     RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace();
     plot->addTrace(plotTrace);
@@ -79,7 +82,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
             plotTrace->addCurve(curve);
 
-            cvf::Color3f curveColor = curveColorFromIndex(curveIdx);
+            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIdx);
             curve->setColor(curveColor);
             curve->setDescription(wellLog->name());
 

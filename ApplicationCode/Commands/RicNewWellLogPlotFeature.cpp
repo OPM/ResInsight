@@ -19,6 +19,8 @@
 
 #include "RicNewWellLogPlotFeature.h"
 
+#include "RicNewWellLogPlotFeatureImpl.h"
+
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
@@ -45,7 +47,7 @@ bool RicNewWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogPlot* plot = createWellLogPlot();
+    RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
     RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace();
     plot->addTrace(plotTrace);

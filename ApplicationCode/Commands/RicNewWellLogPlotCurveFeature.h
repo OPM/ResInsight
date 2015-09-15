@@ -20,14 +20,13 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "RicWellLogPlotCurveFeatureImpl.h"
 
 class RimWellLogPlotTrace;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellLogPlotCurveFeature : public caf::CmdFeature, RicWellLogPlotCurveFeatureImpl
+class RicNewWellLogPlotCurveFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

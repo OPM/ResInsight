@@ -27,6 +27,6 @@
 class RicWellLogPlotCurveFeatureImpl
 {
 
-protected:
+public:
     static cvf::Color3f curveColorFromIndex(size_t curveIndex);
 };

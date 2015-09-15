@@ -20,12 +20,11 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "RicNewWellLogPlotFeatureImpl.h"
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellLogPlotFeature : public caf::CmdFeature, RicNewWellLogPlotFeatureImpl
+class RicNewWellLogPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

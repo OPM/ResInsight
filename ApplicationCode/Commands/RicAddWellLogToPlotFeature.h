@@ -20,8 +20,6 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "RicWellLogPlotCurveFeatureImpl.h"
-#include "RicNewWellLogPlotFeatureImpl.h"
 
 #include <vector>
 
@@ -36,7 +34,7 @@ namespace caf
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicAddWellLogToPlotFeature : public CmdFeature, RicWellLogPlotCurveFeatureImpl, RicNewWellLogPlotFeatureImpl
+class RicAddWellLogToPlotFeature : public CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:

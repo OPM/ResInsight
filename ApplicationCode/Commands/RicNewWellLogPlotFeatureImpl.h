@@ -28,9 +28,9 @@ class RimWellLogPlot;
 //==================================================================================================
 class RicNewWellLogPlotFeatureImpl
 {
+public:
 
-protected:
-    RimMainPlotCollection*      mainPlotCollection();
-    RimWellLogPlotCollection*   wellLogPlotCollection();
-    RimWellLogPlot*             createWellLogPlot();
+    static RimMainPlotCollection*      mainPlotCollection();
+    static RimWellLogPlotCollection*   wellLogPlotCollection();
+    static RimWellLogPlot*             createWellLogPlot();
 };
