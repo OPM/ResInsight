@@ -51,8 +51,6 @@ RimWellLogFileCurve::RimWellLogFileCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
 
-    m_userName.uiCapability()->setUiHidden(true);
-
     m_wellPath = NULL;
 }
 
@@ -79,13 +77,11 @@ void RimWellLogFileCurve::updatePlotData()
             {
                 RigWellLogFile* wellLogFile = logFileInfo->wellLogFile();
                 m_plotCurve->setSamples(wellLogFile->values(m_wellLogChannnelName).data(), wellLogFile->depthValues().data(), (int) wellLogFile->depthValues().size());
-                m_plotCurve->setTitle(m_wellLogChannnelName);
             }
         }
         else
         {
             m_plotCurve->setSamples(NULL, NULL, 0);
-            m_plotCurve->setTitle("None");
         }
     }
 }
@@ -127,6 +123,11 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     }
     else if (changedField == &m_wellLogChannnelName)
     {
+        if (oldValue.toString() == m_userName)
+        {
+            m_userName = m_wellLogChannnelName;
+        }
+
         this->updatePlotData();
 
         RimWellLogPlot* wellLoglot;
@@ -149,6 +150,7 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellPath);
     uiOrdering.add(&m_wellLogChannnelName);
 }
@@ -200,7 +202,6 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
                 {
                     QString wellLogChannelName = (*fileLogs)[i]->name();
                     optionList.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
-
                 }
             }
         }
