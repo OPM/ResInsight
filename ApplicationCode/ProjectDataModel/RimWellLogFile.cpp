@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLasFileInfo.h"
+#include "RimWellLogFile.h"
 #include "RimWellLog.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -28,12 +28,12 @@
 #include <QFileInfo>
 
 
-CAF_PDM_SOURCE_INIT(RimWellLasFileInfo, "WellLasFileInfo");
+CAF_PDM_SOURCE_INIT(RimWellLogFile, "WellLogFile");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLasFileInfo::RimWellLasFileInfo()
+RimWellLogFile::RimWellLogFile()
 {
     CAF_PDM_InitObject("Well LAS File Info", "", "", "");
 
@@ -50,24 +50,24 @@ RimWellLasFileInfo::RimWellLasFileInfo()
     m_name.uiCapability()->setUiHidden(true);
     m_name.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_lasFileLogs, "WellLASFileLogs", "",  "", "", "");
-    m_lasFileLogs.uiCapability()->setUiHidden(true);
-    m_lasFileLogs.xmlCapability()->setIOWritable(false);
+    CAF_PDM_InitFieldNoDefault(&m_wellLogChannelNames, "WellLogChannelNames", "",  "", "", "");
+    m_wellLogChannelNames.uiCapability()->setUiHidden(true);
+    m_wellLogChannelNames.xmlCapability()->setIOWritable(false);
 
-    m_wellLogFile = NULL;
+    m_wellLogDataFile = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLasFileInfo::~RimWellLasFileInfo()
+RimWellLogFile::~RimWellLogFile()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLasFileInfo::setFileName(const QString& fileName)
+void RimWellLogFile::setFileName(const QString& fileName)
 {
     m_fileName = fileName;
 }
@@ -75,29 +75,29 @@ void RimWellLasFileInfo::setFileName(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLasFileInfo::readFile()
+bool RimWellLogFile::readFile()
 {
-    if (!m_wellLogFile.p())
+    if (!m_wellLogDataFile.p())
     {
-        m_wellLogFile = new RigWellLogFile;
+        m_wellLogDataFile = new RigWellLogFile;
     }
 
-    if (!m_wellLogFile->open(m_fileName))
+    if (!m_wellLogDataFile->open(m_fileName))
     {
         return false;
     }
 
-    m_wellName = m_wellLogFile->wellName();
+    m_wellName = m_wellLogDataFile->wellName();
     m_name = QFileInfo(m_fileName).fileName();
 
-    m_lasFileLogs.deleteAllChildObjects();
+    m_wellLogChannelNames.deleteAllChildObjects();
 
-    QStringList wellLogNames = m_wellLogFile->wellLogNames();
+    QStringList wellLogNames = m_wellLogDataFile->wellLogNames();
     for (int logIdx = 0; logIdx < wellLogNames.size(); logIdx++)
     {
         RimWellLog* wellLog = new RimWellLog();
         wellLog->setName(wellLogNames[logIdx]);
-        m_lasFileLogs.push_back(wellLog);
+        m_wellLogChannelNames.push_back(wellLog);
     }
 
     RimWellPath* wellPath;
@@ -116,7 +116,7 @@ bool RimWellLasFileInfo::readFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellLasFileInfo::wellName() const
+QString RimWellLogFile::wellName() const
 {
     return m_wellName;
 }

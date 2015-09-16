@@ -24,7 +24,7 @@
 #include "RiaPreferences.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
-#include "RimWellLasFileInfo.h"
+#include "RimWellLogFile.h"
 #include "RivWellPathCollectionPartMgr.h"
 
 #include "cafPdmUiEditorHandle.h"
@@ -132,9 +132,9 @@ void RimWellPathCollection::readWellPathFiles()
             wellPaths[wpIdx]->readWellPathFile();
         }
 
-        if (wellPaths[wpIdx]->m_lasFileInfo)
+        if (wellPaths[wpIdx]->m_wellLogFile)
         {
-            wellPaths[wpIdx]->m_lasFileInfo->readFile();
+            wellPaths[wpIdx]->m_wellLogFile->readFile();
         }
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name));
@@ -244,7 +244,7 @@ void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
 {
     foreach (QString filePath, filePaths)
     {
-        RimWellLasFileInfo* logFileInfo = RimWellPath::readWellLogFile(filePath);
+        RimWellLogFile* logFileInfo = RimWellPath::readWellLogFile(filePath);
         if (logFileInfo)
         {
             RimWellPath* wellPath = wellPathByName(logFileInfo->wellName());

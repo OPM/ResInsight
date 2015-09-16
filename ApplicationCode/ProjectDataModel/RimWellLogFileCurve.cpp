@@ -24,7 +24,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPath.h"
 #include "RimWellLog.h"
-#include "RimWellLasFileInfo.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogPlotTrace.h"
 #include "RimWellLogPlot.h"
 
@@ -72,7 +72,7 @@ void RimWellLogFileCurve::updatePlotData()
     {
         if (m_wellPath)
         {
-            RimWellLasFileInfo* logFileInfo = m_wellPath->m_lasFileInfo;
+            RimWellLogFile* logFileInfo = m_wellPath->m_wellLogFile;
             if (logFileInfo)
             {
                 RigWellLogFile* wellLogFile = logFileInfo->wellLogFile();
@@ -193,10 +193,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
     {
         if (m_wellPath())
         {
-            RimWellLasFileInfo* lasFileInfo = m_wellPath->m_lasFileInfo();
-            if (lasFileInfo)
+            RimWellLogFile* wellLogFile = m_wellPath->m_wellLogFile();
+            if (wellLogFile)
             {
-                const caf::PdmChildArrayField<RimWellLog*>* fileLogs = lasFileInfo->lasFileLogs();
+                const caf::PdmChildArrayField<RimWellLog*>* fileLogs = wellLogFile->wellLogChannelNames();
 
                 for (size_t i = 0; i < fileLogs->size(); i++)
                 {

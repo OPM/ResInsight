@@ -22,7 +22,7 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 
-#include "RimWellLasFileInfo.h"
+#include "RimWellLogFile.h"
 #include "RimWellLog.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
@@ -82,9 +82,9 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         RimWellPath* wellPath;
         wellLog->firstAnchestorOrThisOfType(wellPath);
 
-        RimWellLasFileInfo* lasFileInfo;
-        wellLog->firstAnchestorOrThisOfType(lasFileInfo);
-        if (lasFileInfo)
+        RimWellLogFile* wellLogFile;
+        wellLog->firstAnchestorOrThisOfType(wellLogFile);
+        if (wellLogFile)
         {
             size_t curveIdx = plotTrace->curveCount();
 

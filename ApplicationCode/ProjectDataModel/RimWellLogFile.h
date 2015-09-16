@@ -35,13 +35,13 @@ class QString;
 ///  
 ///  
 //==================================================================================================
-class RimWellLasFileInfo : public caf::PdmObject
+class RimWellLogFile : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLasFileInfo();
-    virtual ~RimWellLasFileInfo();
+    RimWellLogFile();
+    virtual ~RimWellLogFile();
 
     void setFileName(const QString& fileName);
     bool readFile();
@@ -49,15 +49,15 @@ public:
     QString wellName() const;
     virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
 
-    RigWellLogFile* wellLogFile() { return m_wellLogFile.p(); }
+    RigWellLogFile* wellLogFile() { return m_wellLogDataFile.p(); }
 
-    const caf::PdmChildArrayField<RimWellLog*>* lasFileLogs() const { return &m_lasFileLogs; }
-
-private:
-    caf::PdmChildArrayField<RimWellLog*>  m_lasFileLogs;
+    const caf::PdmChildArrayField<RimWellLog*>* wellLogChannelNames() const { return &m_wellLogChannelNames; }
 
 private:
-    cvf::ref<RigWellLogFile>    m_wellLogFile;
+    caf::PdmChildArrayField<RimWellLog*>  m_wellLogChannelNames;
+
+private:
+    cvf::ref<RigWellLogFile>    m_wellLogDataFile;
     caf::PdmField<QString>      m_wellName;
     caf::PdmField<QString>      m_fileName;
     caf::PdmField<QString>      m_name;

@@ -34,7 +34,7 @@
 class RimProject;
 class RivWellPathPartMgr;
 class RimWellPathCollection;
-class RimWellLasFileInfo;
+class RimWellLogFile;
 
 //==================================================================================================
 ///  
@@ -50,7 +50,7 @@ public:
 
     void                                setProject(RimProject* project) { m_project = project; }
     void                                setCollection(RimWellPathCollection* collection) { m_wellPathCollection = collection; }
-    void                                setLogFileInfo(RimWellLasFileInfo* logFileInfo);
+    void                                setLogFileInfo(RimWellLogFile* logFileInfo);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
@@ -68,13 +68,13 @@ public:
     caf::PdmField<cvf::Color3f>         wellPathColor;
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
-    caf::PdmChildField<RimWellLasFileInfo*> m_lasFileInfo;
+    caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
     RigWellPath*                        wellPathGeometry() { return m_wellPath.p(); }
     RivWellPathPartMgr*                 partMgr();
 
     void                                readWellPathFile();
-    static RimWellLasFileInfo*          readWellLogFile(const QString& logFilePath);
+    static RimWellLogFile*              readWellLogFile(const QString& logFilePath);
     void                                updateFilePathsFromProjectPath();
 
 
