@@ -70,6 +70,8 @@ RimViewLinker::RimViewLinker(void)
 //--------------------------------------------------------------------------------------------------
 RimViewLinker::~RimViewLinker(void)
 {
+    removeOverrides();
+
     viewLinks.deleteAllChildObjects();
 }
 

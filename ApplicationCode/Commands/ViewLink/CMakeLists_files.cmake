@@ -11,6 +11,7 @@ ${CEE_CURRENT_LIST_DIR}RicShowAllLinkedViewsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicLinkViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicUnLinkViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowLinkOptionsFeature.h
+${CEE_CURRENT_LIST_DIR}RicDeleteAllLinkedViewsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -20,6 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RicShowAllLinkedViewsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicLinkViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicUnLinkViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowLinkOptionsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicDeleteAllLinkedViewsFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
