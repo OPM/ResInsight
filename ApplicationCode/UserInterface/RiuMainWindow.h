@@ -110,6 +110,7 @@ public:
     void            removeRecentFiles(const QString& file);
 
     std::vector<int>    windowGeometryForViewer(QWidget* viewer);
+    std::vector<int>    windowGeometryForWidget(QWidget* widget);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
@@ -194,11 +195,10 @@ private:
     QToolBar*           m_snapshotToolbar;
 
 
-    QFrame*             m_CentralFrame;
     QMdiArea*           m_mdiArea;
-    RiuViewer*           m_mainViewer;
-    RiuResultInfoPanel*  m_resultInfoPanel;
-    RiuProcessMonitor*   m_processMonitor;
+    RiuViewer*          m_mainViewer;
+    RiuResultInfoPanel* m_resultInfoPanel;
+    RiuProcessMonitor*  m_processMonitor;
     
     QMenu*              m_windowMenu;
 

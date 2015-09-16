@@ -104,15 +104,9 @@ RiuMainWindow::RiuMainWindow()
 {
     CVF_ASSERT(sm_mainWindowInstance == NULL);
 
-#if 0
-    m_CentralFrame = new QFrame;
-    QHBoxLayout* frameLayout = new QHBoxLayout(m_CentralFrame);
-    setCentralWidget(m_CentralFrame);
-#else
     m_mdiArea = new QMdiArea;
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
-#endif
 
     //m_mainViewer = createViewer();
 
@@ -1168,29 +1162,55 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::removeViewer(QWidget* viewer)
 {
-#if 0
-    m_CentralFrame->layout()->removeWidget(viewer->layoutWidget());
-#else
     m_mdiArea->removeSubWindow( findMdiSubWindow(viewer));
-#endif
 
     caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature");
 }
+
+
+// Helper class used to trap the close event of an QMdiSubWindow
+class RiuMdiSubWindow : public QMdiSubWindow
+{
+public:
+    RiuMdiSubWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0)
+        : QMdiSubWindow(parent, flags)
+    {
+    }
+
+protected:
+    virtual void closeEvent(QCloseEvent* event)
+    {
+        QWidget* mainWidget = widget();
+
+        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(mainWidget);
+        if (wellLogPlot)
+        {
+            wellLogPlot->ownerPlotDefinition()->windowGeometry = RiuMainWindow::instance()->windowGeometryForWidget(this);
+        }
+        else
+        {
+            RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
+            if (viewer)
+            {
+                viewer->ownerReservoirView()->windowGeometry = RiuMainWindow::instance()->windowGeometryForWidget(this);
+            }
+        }
+
+        QMdiSubWindow::closeEvent(event);
+    }
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGeometry)
 {
-#if 0
-    m_CentralFrame->layout()->addWidget(viewer->layoutWidget());
-#else
-    QMdiSubWindow * subWin = m_mdiArea->addSubWindow(viewer);
+    RiuMdiSubWindow* subWin = new RiuMdiSubWindow(m_mdiArea);
+    subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
+    subWin->setWidget(viewer);
 
     if (windowsGeometry.size() == 5)
     {
-        subWin->move(QPoint(windowsGeometry[0], windowsGeometry[1]));
-        subWin->resize(QSize(windowsGeometry[2], windowsGeometry[3]));
         if (windowsGeometry[4] > 0)
         {
             subWin->showMaximized();
@@ -1199,6 +1219,12 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
         {
             subWin->show();
         }
+
+        // Move and resize must be done after window is visible
+        // If not, the position and size of the window is different to specification (Windows 7)
+        // Might be a Qt bug, must be tested on Linux
+        subWin->move(QPoint(windowsGeometry[0], windowsGeometry[1]));
+        subWin->resize(QSize(windowsGeometry[2], windowsGeometry[3]));
     }
     else
     {
@@ -1214,13 +1240,9 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
             subWin->show();
         }
     }
-#endif
 
     caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature");
 }
-
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -2183,16 +2205,30 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
 {
-    std::vector<int> geo;
-
     QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
     if (mdiWindow)
     {
-        geo.push_back(mdiWindow->pos().x());
-        geo.push_back(mdiWindow->pos().y());
-        geo.push_back(mdiWindow->size().width());
-        geo.push_back(mdiWindow->size().height());
-        geo.push_back(mdiWindow->isMaximized());
+        return windowGeometryForWidget(mdiWindow);
+    }
+
+    std::vector<int> geo;
+    return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RiuMainWindow::windowGeometryForWidget(QWidget* widget)
+{
+    std::vector<int> geo;
+
+    if (widget)
+    {
+        geo.push_back(widget->pos().x());
+        geo.push_back(widget->pos().y());
+        geo.push_back(widget->size().width());
+        geo.push_back(widget->size().height());
+        geo.push_back(widget->isMaximized());
     }
 
     return geo;

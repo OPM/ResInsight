@@ -401,8 +401,6 @@ void RimWellLogPlot::handleViewerDeletion()
 
     if (m_viewer)
     {
-        windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
-
         detachAllCurves();
         m_viewer = NULL;
     }

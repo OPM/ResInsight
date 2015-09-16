@@ -77,6 +77,9 @@ public:
 
     virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_userName; }
 
+    caf::PdmField< std::vector<int> >   windowGeometry;
+
+
 protected:
 
     // Overridden PDM methods
@@ -97,7 +100,6 @@ private:
     QPointer<RiuWellLogPlot> m_viewer;
     
     caf::PdmField<bool>                 m_showWindow;
-    caf::PdmField< std::vector<int> >   windowGeometry;
 
     caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
     
