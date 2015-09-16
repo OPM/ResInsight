@@ -92,7 +92,7 @@ bool RimWellLogFile::readFile()
 
     m_wellLogChannelNames.deleteAllChildObjects();
 
-    QStringList wellLogNames = m_wellLogDataFile->wellLogNames();
+    QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for (int logIdx = 0; logIdx < wellLogNames.size(); logIdx++)
     {
         RimWellLog* wellLog = new RimWellLog();

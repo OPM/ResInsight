@@ -77,7 +77,7 @@ bool RigWellLogFile::open(const QString& fileName)
 //         wellLogNames.append(QString::fromStdString(itDL->first));
 //     }
 
-    m_wellLogNames = wellLogNames;
+    m_wellLogChannelNames = wellLogNames;
     m_wellLogFile = well;
 
     return true;
@@ -94,7 +94,7 @@ void RigWellLogFile::close()
         m_wellLogFile = NULL;
     }
 
-    m_wellLogNames.clear();
+    m_wellLogChannelNames.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,9 +109,9 @@ QString RigWellLogFile::wellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RigWellLogFile::wellLogNames() const
+QStringList RigWellLogFile::wellLogChannelNames() const
 {
-    return m_wellLogNames;
+    return m_wellLogChannelNames;
 }
 
 //--------------------------------------------------------------------------------------------------

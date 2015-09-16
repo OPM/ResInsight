@@ -43,7 +43,7 @@ public:
     bool open(const QString& fileName);
 
     QString     wellName() const;
-    QStringList wellLogNames() const;
+    QStringList wellLogChannelNames() const;
 
     std::vector<double> depthValues() const;
     std::vector<double> values(const QString& name) const;
@@ -52,5 +52,5 @@ private:
     void close();
 
     NRLib::Well*    m_wellLogFile;
-    QStringList     m_wellLogNames;
+    QStringList     m_wellLogChannelNames;
 };
