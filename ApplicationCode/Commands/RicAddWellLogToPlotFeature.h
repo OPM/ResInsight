@@ -45,7 +45,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    std::vector<RimWellLog*>    selectedWellLogs();
+    std::vector<RimWellLog*> selectedWellLogs();
 };
 
 

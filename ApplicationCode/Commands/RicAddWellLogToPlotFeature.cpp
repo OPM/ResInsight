@@ -30,6 +30,9 @@
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
 #include "RigWellLogFile.h"
 
 #include "RiaApplication.h"
@@ -37,6 +40,7 @@
 #include "RiuWellLogTracePlot.h"
 
 #include "cafSelectionManager.h"
+#include "cafPdmUiTreeView.h"
 
 #include <QAction>
 
@@ -61,7 +65,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellLog*> selection = selectedWellLogs();
     if (selection.size() < 1) return;
-
+    
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
     RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace();
@@ -69,9 +73,14 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 
     plot->loadDataAndUpdate();
 
+    caf::PdmUiItem* uiItem = NULL;
+
     for (size_t wlIdx = 0; wlIdx < selection.size(); wlIdx++)
     {
         RimWellLog* wellLog = selection[wlIdx];
+
+        RimWellPath* wellPath;
+        wellLog->firstAnchestorOrThisOfType(wellPath);
 
         RimWellLasFileInfo* lasFileInfo;
         wellLog->firstAnchestorOrThisOfType(lasFileInfo);
@@ -85,18 +94,28 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIdx);
             curve->setColor(curveColor);
             curve->setDescription(wellLog->name());
-
-            RigWellLogFile* wellLogFile = lasFileInfo->wellLogFile();
-
-            curve->setCurveData(wellLogFile->values(wellLog->name()), wellLogFile->depthValues());
+            curve->setWellPath(wellPath);
+            curve->setWellLogChannelName(wellLog->name());
 
             curve->updatePlotData();
+
+            if (wlIdx == selection.size() - 1)
+            {
+                uiItem = curve;
+            }
         }        
     }
 
+    plot->updateAvailableDepthRange();
     plot->setVisibleDepthRangeFromContents();
+    plotTrace->viewer()->replot();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
+
+    if (uiItem)
+    {
+        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(uiItem);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

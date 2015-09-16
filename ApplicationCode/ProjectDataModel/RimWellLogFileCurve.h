@@ -21,7 +21,13 @@
 
 #include "RimWellLogPlotCurve.h"
 
+#include "cafPdmPtrField.h"
+#include "cafPdmField.h"
+
 #include <vector>
+
+class RimWellPath;
+class RimWellLog;
 
 //==================================================================================================
 ///  
@@ -37,7 +43,18 @@ public:
     
     virtual void updatePlotData();
 
-    void setCurveData(const std::vector<double>& values, const std::vector<double>& depthValues);
+    void setWellPath(RimWellPath* wellPath);
+    void setWellLogChannelName(const QString& name);
+
+protected:
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+
+protected:
+    caf::PdmPtrField<RimWellPath*>  m_wellPath;
+    caf::PdmField<QString>          m_wellLogChannnelName;
 };
 
 

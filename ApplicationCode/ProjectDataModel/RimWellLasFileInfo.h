@@ -51,6 +51,8 @@ public:
 
     RigWellLogFile* wellLogFile() { return m_wellLogFile.p(); }
 
+    const caf::PdmChildArrayField<RimWellLog*>* lasFileLogs() const { return &m_lasFileLogs; }
+
 private:
     caf::PdmChildArrayField<RimWellLog*>  m_lasFileLogs;
 
