@@ -48,6 +48,7 @@
 		<file>GeoMechCase48x48.png</file>
         <file>GeoMechCases48x48.png</file>
         <file>chain.png</file>
+        <file>view-page-multi-24.png</file>
 	</qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

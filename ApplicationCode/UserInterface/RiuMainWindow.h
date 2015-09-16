@@ -112,6 +112,8 @@ public:
     std::vector<int>    windowGeometryForViewer(QWidget* viewer);
     std::vector<int>    windowGeometryForWidget(QWidget* widget);
 
+    void            tileWindows();
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 

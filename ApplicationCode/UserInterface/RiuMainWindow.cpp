@@ -526,6 +526,7 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_viewFromBelow);
     m_viewToolBar->addSeparator();
     m_viewToolBar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
+    m_viewToolBar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
     m_viewToolBar->addSeparator();
     m_viewToolBar->addAction(m_drawStyleLinesAction);
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
@@ -1585,16 +1586,13 @@ void RiuMainWindow::slotBuildWindowActions()
     }
 
     m_windowMenu->addSeparator();
-    QAction* tileWindowsAction = new QAction("Tile Windows", this);
-    connect(tileWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(tileSubWindows()));
-
     QAction* cascadeWindowsAction = new QAction("Cascade Windows", this);
     connect(cascadeWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(cascadeSubWindows()));
 
     QAction* closeAllSubWindowsAction = new QAction("Close All Windows", this);
     connect(closeAllSubWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(closeAllSubWindows()));
 
-    m_windowMenu->addAction(tileWindowsAction);
+    m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTileWindowsFeature"));
     m_windowMenu->addAction(cascadeWindowsAction);
     m_windowMenu->addAction(closeAllSubWindowsAction);
 }
@@ -2232,5 +2230,13 @@ std::vector<int> RiuMainWindow::windowGeometryForWidget(QWidget* widget)
     }
 
     return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::tileWindows()
+{
+    m_mdiArea->tileSubWindows();
 }
 
