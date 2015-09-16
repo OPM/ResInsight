@@ -82,10 +82,9 @@ void RicLinkVisibleViewsFeature::setupActionLook(QAction* actionToSetup)
 void RicLinkVisibleViewsFeature::allLinkedViews(std::vector<RimView*>& views)
 {
     RimProject* proj = RiaApplication::instance()->project();
-    for (size_t i = 0; i < proj->viewLinkerCollection()->viewLinkers().size(); i++)
+    if (proj->viewLinkerCollection()->viewLinker())
     {
-        RimViewLinker* linkedViews = proj->viewLinkerCollection()->viewLinkers()[i];
-        linkedViews->allViews(views);
+        proj->viewLinkerCollection()->viewLinker()->allViews(views);
     }
 }
 
@@ -128,10 +127,10 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
     RimProject* proj = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = NULL;
 
-    if (proj->viewLinkerCollection->viewLinkers().size() > 0)
+    if (proj->viewLinkerCollection->viewLinker())
     {
         // We have a view linker, add not already linked views
-        viewLinker = proj->viewLinkerCollection->viewLinkers()[0];
+        viewLinker = proj->viewLinkerCollection->viewLinker();
 
         for (size_t i = 0; i < views.size(); i++)
         {
@@ -166,7 +165,7 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
 
         RimView* masterView = featureUi.masterView();
         viewLinker = new RimViewLinker;
-        proj->viewLinkerCollection()->viewLinkers().push_back(viewLinker);
+        proj->viewLinkerCollection()->viewLinker = viewLinker;
         viewLinker->setMainView(masterView);
 
         for (size_t i = 0; i < views.size(); i++)

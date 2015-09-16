@@ -21,7 +21,7 @@
 
 #include "RimDefines.h"
 
-#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -39,8 +39,8 @@ public:
     RimViewLinkerCollection(void);
     virtual ~RimViewLinkerCollection(void);
 
-    caf::PdmField<bool>                     isActive;
-    caf::PdmChildArrayField<RimViewLinker*> viewLinkers;
+    caf::PdmField<bool>                 isActive;
+    caf::PdmChildField<RimViewLinker*>  viewLinker;
 
 protected:
     virtual caf::PdmFieldHandle*    objectToggleField()     { return &isActive; }

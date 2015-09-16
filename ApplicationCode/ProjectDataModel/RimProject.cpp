@@ -155,7 +155,8 @@ void RimProject::close()
 
     commandObjects.deleteAllChildObjects();
 
-    viewLinkerCollection->viewLinkers().deleteAllChildObjects();
+    delete viewLinkerCollection->viewLinker();
+    viewLinkerCollection->viewLinker = NULL;
 
     fileName = "";
 
@@ -475,10 +476,9 @@ void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
     allCases(cases);
 
     std::vector<RimView*> alreadyLinkedViews;
-    for (size_t i = 0; i < viewLinkerCollection->viewLinkers().size(); i++)
+    if (viewLinkerCollection->viewLinker())
     {
-        RimViewLinker* viewLinker = viewLinkerCollection->viewLinkers()[i];
-        viewLinker->allViews(alreadyLinkedViews);
+        viewLinkerCollection->viewLinker()->allViews(alreadyLinkedViews);
     }
 
     for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
@@ -938,7 +938,7 @@ void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptColle
 //--------------------------------------------------------------------------------------------------
 void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    if (viewLinkerCollection()->viewLinkers().size() > 0)
+    if (viewLinkerCollection()->viewLinker())
     {
         // Use object instead of field to avoid duplicate entries in the tree view
         uiTreeOrdering.add(viewLinkerCollection());
@@ -973,9 +973,9 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimProject::findViewLinkerFromView(RimView* view)
 {
-    for (size_t i = 0; i < viewLinkerCollection()->viewLinkers().size(); i++)
+    if (viewLinkerCollection()->viewLinker())
     {
-        RimViewLinker* group = viewLinkerCollection()->viewLinkers()[i];
+        RimViewLinker* group = viewLinkerCollection()->viewLinker();
         if (view == group->mainView()) return group;
 
         for (size_t j = 0; j < group->viewLinks.size(); j++)

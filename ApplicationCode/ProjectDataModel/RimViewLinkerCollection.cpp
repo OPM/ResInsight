@@ -38,8 +38,8 @@ RimViewLinkerCollection::RimViewLinkerCollection(void)
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&viewLinkers, "ViewLinkers", "View Linkers", "", "", "");
-    viewLinkers.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&viewLinker, "ViewLinkers", "View Linkers", "", "", "");
+    viewLinker.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ RimViewLinkerCollection::RimViewLinkerCollection(void)
 //--------------------------------------------------------------------------------------------------
 RimViewLinkerCollection::~RimViewLinkerCollection(void)
 {
-    viewLinkers.deleteAllChildObjects();
+    if (viewLinker()) delete viewLinker();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,16 +55,13 @@ RimViewLinkerCollection::~RimViewLinkerCollection(void)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinkerCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    for (size_t cIdx = 0; cIdx < viewLinkers.size(); ++cIdx)
+    RimViewLinker* childObject = viewLinker();
+    if (childObject)
     {
-        RimViewLinker* childObject = viewLinkers[cIdx];
-        if (childObject)
+        uiTreeOrdering.add(childObject);
+        for (size_t j = 0; j < childObject->viewLinks.size(); j++)
         {
-            uiTreeOrdering.add(childObject);
-            for (size_t j = 0; j < childObject->viewLinks.size(); j++)
-            {
-                uiTreeOrdering.add(childObject->viewLinks()[j]);
-            }
+            uiTreeOrdering.add(childObject->viewLinks()[j]);
         }
     }
 
@@ -80,16 +77,16 @@ void RimViewLinkerCollection::fieldChangedByUi(const caf::PdmFieldHandle* change
     {
         if (isActive)
         {
-            for (size_t cIdx = 0; cIdx < viewLinkers.size(); ++cIdx)
+            if (viewLinker())
             {
-                viewLinkers[cIdx]->applyAllOperations();
+                viewLinker()->applyAllOperations();
             }
         }
         else
         {
-            for (size_t cIdx = 0; cIdx < viewLinkers.size(); ++cIdx)
+            if (viewLinker())
             {
-                viewLinkers[cIdx]->removeOverrides();
+                viewLinker()->removeOverrides();
             }
         }
     }
