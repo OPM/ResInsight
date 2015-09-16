@@ -666,17 +666,16 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicNewViewFeature";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteGeoMechViewsFeature";
-            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
+            commandIds << "Separator";
         }
         else if (dynamic_cast<RimEclipseView*>(uiItem))
         {
             commandIds << "RicNewViewFeature";
-
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteEclipseViewsFeature";
-            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
+            commandIds << "Separator";
         }
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
@@ -685,9 +684,6 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
         {
-            //menu.addAction(QString("New View"), this, SLOT(slotAddView()));
-            //menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
-            //menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
             commandIds << "RicNewViewFeature";
             commandIds << "RicComputeStatisticsFeature";
             commandIds << "RicCloseCaseFeature";
@@ -828,6 +824,11 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         else if (dynamic_cast<RimWellLog*>(uiItem))
         {
             commandIds << "RicAddWellLogToPlotFeature";
+        }
+
+        if (dynamic_cast<RimView*>(uiItem))
+        {
+            commandIds << "RicSetMasterViewFeature";
         }
     }
     

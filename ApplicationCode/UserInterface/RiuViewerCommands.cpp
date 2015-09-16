@@ -207,6 +207,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         commandIds << "RicLinkViewFeature";
         commandIds << "RicUnLinkViewFeature";
         commandIds << "RicShowLinkOptionsFeature";
+        commandIds << "RicSetMasterViewFeature";
 
         bool firstLinkAction = true;
 
