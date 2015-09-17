@@ -308,13 +308,16 @@ void RimWellLogPlot::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::updateTraces()
 {
-    for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
+    if (m_showWindow)
     {
-        traces[tIdx]->loadDataAndUpdate();
-    }
+        for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
+        {
+            traces[tIdx]->loadDataAndUpdate();
+        }
 
-    updateAvailableDepthRange();
-    updateAxisRanges();
+        updateAvailableDepthRange();
+        updateAxisRanges();
+    }
 }
 
 
