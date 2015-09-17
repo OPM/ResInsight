@@ -209,14 +209,16 @@ void estimatedFemCellFromEclCell(const RigMainGrid* eclGrid, size_t reservoirCel
     if (NIPJNK) contributingNodeIndicesPrCellCorner[3].push_back((*NIPJNK)[5]);
     if (NINK  ) contributingNodeIndicesPrCellCorner[3].push_back((*NINK  )[6]);
 
+        // 4 <- NI[5] NINJ[6] NJ[7] PK[0] NIPK[1] NINJPK[2] NJPK[3]
+
     if (IJK   ) contributingNodeIndicesPrCellCorner[4].push_back((*IJK   )[4]);
-    if (NJ    ) contributingNodeIndicesPrCellCorner[4].push_back((*NJ    )[5]);
-    if (PINJ  ) contributingNodeIndicesPrCellCorner[4].push_back((*PINJ  )[6]);
-    if (PI    ) contributingNodeIndicesPrCellCorner[4].push_back((*PI    )[7]);
-    if (NK    ) contributingNodeIndicesPrCellCorner[4].push_back((*NK    )[0]);
-    if (NJNK  ) contributingNodeIndicesPrCellCorner[4].push_back((*NJNK  )[1]);
-    if (PINJNK) contributingNodeIndicesPrCellCorner[4].push_back((*PINJNK)[2]);
-    if (PINK  ) contributingNodeIndicesPrCellCorner[4].push_back((*PINK  )[3]);
+    if (NI    ) contributingNodeIndicesPrCellCorner[4].push_back((*NI    )[5]);
+    if (NINJ  ) contributingNodeIndicesPrCellCorner[4].push_back((*NINJ  )[6]);
+    if (NJ    ) contributingNodeIndicesPrCellCorner[4].push_back((*NJ    )[7]);
+    if (PK    ) contributingNodeIndicesPrCellCorner[4].push_back((*PK    )[0]);
+    if (NIPK  ) contributingNodeIndicesPrCellCorner[4].push_back((*NIPK  )[1]);
+    if (NINJPK) contributingNodeIndicesPrCellCorner[4].push_back((*NINJPK)[2]);
+    if (NJPK  ) contributingNodeIndicesPrCellCorner[4].push_back((*NJPK  )[3]);
 
     if (IJK   ) contributingNodeIndicesPrCellCorner[5].push_back((*IJK   )[5]);
     if (NJ    ) contributingNodeIndicesPrCellCorner[5].push_back((*NJ    )[6]);
@@ -226,15 +228,17 @@ void estimatedFemCellFromEclCell(const RigMainGrid* eclGrid, size_t reservoirCel
     if (NJPK  ) contributingNodeIndicesPrCellCorner[5].push_back((*NJPK  )[2]);
     if (PINJPK) contributingNodeIndicesPrCellCorner[5].push_back((*PINJPK)[3]);
     if (PIPK  ) contributingNodeIndicesPrCellCorner[5].push_back((*PIPK  )[0]);
+ 
+    // 6 <- PI[7] PIPJ[4] PJ[5] PK[2] PIPK[3] PIPJPK[0] PJPK[1]
 
     if (IJK   ) contributingNodeIndicesPrCellCorner[6].push_back((*IJK   )[6]);
-    if (PI    ) contributingNodeIndicesPrCellCorner[6].push_back((*PI    )[2]);
-    if (PIPJ  ) contributingNodeIndicesPrCellCorner[6].push_back((*PIPJ  )[3]);
-    if (PJ    ) contributingNodeIndicesPrCellCorner[6].push_back((*PJ    )[0]);
-    if (PK    ) contributingNodeIndicesPrCellCorner[6].push_back((*PK    )[5]);
-    if (PIPK  ) contributingNodeIndicesPrCellCorner[6].push_back((*PIPK  )[6]);
-    if (PIPJPK) contributingNodeIndicesPrCellCorner[6].push_back((*PIPJPK)[7]);
-    if (PJPK  ) contributingNodeIndicesPrCellCorner[6].push_back((*PJPK  )[4]);
+    if (PI    ) contributingNodeIndicesPrCellCorner[6].push_back((*PI    )[7]);
+    if (PIPJ  ) contributingNodeIndicesPrCellCorner[6].push_back((*PIPJ  )[4]);
+    if (PJ    ) contributingNodeIndicesPrCellCorner[6].push_back((*PJ    )[5]);
+    if (PK    ) contributingNodeIndicesPrCellCorner[6].push_back((*PK    )[2]);
+    if (PIPK  ) contributingNodeIndicesPrCellCorner[6].push_back((*PIPK  )[3]);
+    if (PIPJPK) contributingNodeIndicesPrCellCorner[6].push_back((*PIPJPK)[0]);
+    if (PJPK  ) contributingNodeIndicesPrCellCorner[6].push_back((*PJPK  )[1]);
 
     if (IJK   ) contributingNodeIndicesPrCellCorner[7].push_back((*IJK   )[7]);
     if (PJ    ) contributingNodeIndicesPrCellCorner[7].push_back((*PJ    )[4]);
@@ -264,7 +268,7 @@ void estimatedFemCellFromEclCell(const RigMainGrid* eclGrid, size_t reservoirCel
 
 void rotateQuad(cvf::Vec3d quad[4], int idxToNewStart)
 {
-    if (idxToNewStart = 0) return;
+    if (idxToNewStart == 0) return;
     cvf::Vec3d tmpQuad[4];
     tmpQuad[0] = quad[0];
     tmpQuad[1] = quad[1];
@@ -330,37 +334,37 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
     cvf::Vec3d gomConvertedEclCell[8];
     estimatedFemCellFromEclCell(eclGrid, reservoirCellIndex,  gomConvertedEclCell);
 
-    int femTopZFaceIdx = 4;
-    int femBotZFaceIdx = 5;
+    int femDeepZFaceIdx = 4;
+    int femShallowZFaceIdx = 5;
 
     {
         cvf::Vec3i mainAxisFaces = femPart->structGrid()->findMainIJKFaces(elmIdx);
-        femTopZFaceIdx = mainAxisFaces[2];
-        femBotZFaceIdx = RigFemTypes::oppositeFace(HEX8, femTopZFaceIdx);
+        femDeepZFaceIdx = mainAxisFaces[2];
+        femShallowZFaceIdx = RigFemTypes::oppositeFace(HEX8, femDeepZFaceIdx);
     }
 
-    cvf::Vec3d femTopZQuad[4];
-    cvf::Vec3d femBotZQuad[4];
+    cvf::Vec3d femDeepestQuad[4];
+    cvf::Vec3d femShallowQuad[4];
 
     {
         const int* cornerIndices = femPart->connectivities(elmIdx);
         const std::vector<cvf::Vec3f>& femNodes =  femPart->nodes().coordinates;
         int faceNodeCount;
-        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femTopZFaceIdx, &faceNodeCount);
-        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femBotZFaceIdx, &faceNodeCount);
+        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femDeepZFaceIdx, &faceNodeCount);
+        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femShallowZFaceIdx, &faceNodeCount);
 
-        femTopZQuad[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]]);
-        femTopZQuad[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]]);
-        femTopZQuad[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]]);
-        femTopZQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]]);
-        femBotZQuad[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]]);
-        femBotZQuad[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]]);
-        femBotZQuad[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]]);
-        femBotZQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]]);
+        femDeepestQuad[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]]);
+        femDeepestQuad[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]]);
+        femDeepestQuad[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]]);
+        femDeepestQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]]);
+        femShallowQuad[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]]);
+        femShallowQuad[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]]);
+        femShallowQuad[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]]);
+        femShallowQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]]);
     }
 
-    cvf::Vec3d eclTopZQuad[4];
-    cvf::Vec3d eclBotZQuad[4];
+    cvf::Vec3d eclDeepestQuad[4];
+    cvf::Vec3d eclShallowQuad[4];
 
     #if 0
     {
@@ -371,15 +375,15 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
         const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
         const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 5, &faceNodeCount);
 
-        eclTopZQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]];
-        eclTopZQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]];
-        eclTopZQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]];
-        eclTopZQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]];
+        eclDeepestQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]];
+        eclDeepestQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]];
+        eclDeepestQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]];
+        eclDeepestQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]];
 
-        eclBotZQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]];
-        eclBotZQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]];
-        eclBotZQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]];
-        eclBotZQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]];
+        eclShallowQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]];
+        eclShallowQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]];
+        eclShallowQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]];
+        eclShallowQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]];
     }
     #endif
     {
@@ -387,30 +391,30 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
         const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
         const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 5, &faceNodeCount);
 
-        eclTopZQuad[0] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[0]];
-        eclTopZQuad[1] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[1]];
-        eclTopZQuad[2] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[2]];
-        eclTopZQuad[3] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[3]];
+        eclDeepestQuad[0] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[0]];
+        eclDeepestQuad[1] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[1]];
+        eclDeepestQuad[2] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[2]];
+        eclDeepestQuad[3] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[3]];
 
-        eclBotZQuad[0] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[0]];
-        eclBotZQuad[1] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[1]];
-        eclBotZQuad[2] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[2]];
-        eclBotZQuad[3] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[3]];
+        eclShallowQuad[0] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[0]];
+        eclShallowQuad[1] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[1]];
+        eclShallowQuad[2] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[2]];
+        eclShallowQuad[3] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[3]];
     }
 
     // Now the top/bottom have opposite winding. To make the comparisons and index rotations simpler
     // flip the winding of the bottom face:
     
-    flipQuadWinding(eclBotZQuad);
-    flipQuadWinding(femBotZQuad);
+    flipQuadWinding(eclShallowQuad);
+    flipQuadWinding(femShallowQuad);
 
     // We now need to rotate the fem quads to be alligned with the ecl quads
     // Since the start point of the quad always is aligned with the opposite face-quad start
     // we can find the rotation for the top, and apply it to both top and bottom
 
-    int femQuadStartIdx = quadVxClosestToXYOfPoint(eclTopZQuad[0], femTopZQuad);
-    rotateQuad(femTopZQuad, femQuadStartIdx);
-    rotateQuad(femBotZQuad, femQuadStartIdx);
+    int femQuadStartIdx = quadVxClosestToXYOfPoint(eclDeepestQuad[0], femDeepestQuad);
+    rotateQuad(femDeepestQuad, femQuadStartIdx);
+    rotateQuad(femShallowQuad, femQuadStartIdx);
 
     // Now we should be able to compare vertex for vertex between the ecl and fem quads.
 
@@ -418,7 +422,7 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
 
     for (int i = 0; i < 4 ; ++i)
     {
-        cvf::Vec3d diff = femTopZQuad[i] - eclTopZQuad[i];
+        cvf::Vec3d diff = femDeepestQuad[i] - eclDeepestQuad[i];
 
         if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
         {
@@ -431,7 +435,7 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
     {
         for (int i = 0; i < 4 ; ++i)
         {
-            cvf::Vec3d diff = femBotZQuad[i] - eclBotZQuad[i];
+            cvf::Vec3d diff = femShallowQuad[i] - eclShallowQuad[i];
 
             if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
              {
@@ -492,6 +496,9 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
     for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
     {
         if (dependentFemPart->elementType(elmIdx) != HEX8) continue;
+
+        size_t i,j,k;
+        dependentFemPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
 
         const int* cornerIndices = dependentFemPart->connectivities(elmIdx);
 
