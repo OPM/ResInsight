@@ -45,6 +45,7 @@ public:
 
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event);
+    virtual void focusInEvent(QFocusEvent* event);
 
 private:
     void setDefaults();

@@ -22,6 +22,10 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
 
+#include "RiuMainWindow.h"
+
+#include "cafPdmUiTreeView.h"
+
 #include "qwt_plot_grid.h"
 #include "qwt_legend.h"
 #include "qwt_scale_engine.h"
@@ -49,7 +53,8 @@ RiuWellLogTracePlot::RiuWellLogTracePlot(RimWellLogPlotTrace* plotTraceDefinitio
 
     m_legend = new QwtLegend(this);
     insertLegend(m_legend, QwtPlot::TopLegend);
-    
+
+    setFocusPolicy(Qt::ClickFocus);
     setDefaults();
 }
 
@@ -188,4 +193,15 @@ bool RiuWellLogTracePlot::eventFilter(QObject* watched, QEvent* event)
     }
 
     return QwtPlot::eventFilter(watched, event);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTracePlot::focusInEvent(QFocusEvent* event)
+{
+    if (m_plotTraceDefinition)
+    {
+        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(m_plotTraceDefinition);
+    }
 }
