@@ -485,16 +485,34 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
             PdmUiObjectHandle* pdmUiObject = uiObj(uitreeOrdering->object());
             if (pdmUiObject)
             {
+                QVariant v;
                 if (pdmUiObject->userDescriptionField())
                 {
 					caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObject->userDescriptionField()->uiCapability();
                     if (uiFieldHandle)
                     {
-                        return uiFieldHandle->uiValue();
+                        v = uiFieldHandle->uiValue();
                     }
                 }
+                else
+                {
+                    v = pdmUiObject->uiName();
+                }
 
-                return pdmUiObject->uiName();
+                QString txt = v.toString();
+
+// Uncomment following to show class names of objects in property viewer
+//#define SHOW_CLASS_NAME_IN_TREE
+#ifdef SHOW_CLASS_NAME_IN_TREE
+                PdmObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
+                if (pdmObjHandle)
+                {
+                    txt += " - ";
+                    txt += typeid(*pdmObjHandle).name();
+                }
+#endif
+
+                return txt;
             }
             else
             {
