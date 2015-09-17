@@ -28,6 +28,7 @@ class RiuWellLogTracePlot;
 
 class QHBoxLayout;
 class QScrollBar;
+class QFocusEvent;
 
 //==================================================================================================
 //
@@ -47,6 +48,9 @@ public:
     void insertTracePlot(RiuWellLogTracePlot* tracePlot);
 
     void setDepthRangeAndReplot(double minDepth, double maxDepth);
+
+protected:
+    virtual void focusInEvent(QFocusEvent* event);
 
 private:
     void updateScrollBar(double minDepth, double maxDepth);

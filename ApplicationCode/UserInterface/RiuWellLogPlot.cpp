@@ -20,14 +20,17 @@
 #include "RiuWellLogPlot.h"
 
 #include "RiuWellLogTracePlot.h"
+#include "RiuMainWindow.h"
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
 
+#include "cafPdmUiTreeView.h"
 #include "cvfAssert.h"
 
 #include <QHBoxLayout>
 #include <QScrollBar>
+#include <QFocusEvent>
 
 #include <math.h>
 
@@ -50,6 +53,8 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
     m_layout->addWidget(m_scrollBar);
     
     connect(m_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(slotSetMinDepth(int)));
+
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,4 +130,16 @@ void RiuWellLogPlot::slotSetMinDepth(int value)
 RimWellLogPlot* RiuWellLogPlot::ownerPlotDefinition()
 {
     return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::focusInEvent(QFocusEvent* event)
+{
+    if (m_plotDefinition)
+    {
+        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(m_plotDefinition);
+        clearFocus();
+    }
 }

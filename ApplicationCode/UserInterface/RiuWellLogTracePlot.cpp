@@ -219,6 +219,7 @@ void RiuWellLogTracePlot::focusInEvent(QFocusEvent* event)
     if (m_plotTraceDefinition)
     {
         RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(m_plotTraceDefinition);
+        clearFocus();
     }
 }
 
