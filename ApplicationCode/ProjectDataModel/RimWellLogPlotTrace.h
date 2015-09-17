@@ -30,6 +30,8 @@
 class RimWellLogPlotCurve;
 class RiuWellLogTracePlot;
 
+class QwtPlotCurve;
+
 //==================================================================================================
 ///  
 ///  
@@ -53,6 +55,8 @@ public:
     void updateAxisRangesAndReplot();
 
     RiuWellLogTracePlot* viewer();
+    
+    RimWellLogPlotCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;
 
 protected:
 

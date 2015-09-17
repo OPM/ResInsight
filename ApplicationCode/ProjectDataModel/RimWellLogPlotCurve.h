@@ -47,6 +47,9 @@ public:
     
     void    setPlot(RiuWellLogTracePlot* plot);
     void    detachCurve();
+
+    QwtPlotCurve* plotCurve() const { return m_plotCurve; }
+    
     virtual void                 updatePlotData();
 
 protected:

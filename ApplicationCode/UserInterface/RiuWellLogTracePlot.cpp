@@ -21,6 +21,7 @@
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotCurve.h"
 
 #include "RiuMainWindow.h"
 
@@ -32,8 +33,10 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_draw.h"
 #include "qwt_text.h"
+#include "qwt_plot_curve.h"
 
 #include <QWheelEvent>
+#include <QMouseEvent>
 #include <QFont>
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
@@ -190,6 +193,17 @@ bool RiuWellLogTracePlot::eventFilter(QObject* watched, QEvent* event)
             event->accept();
             return true;
         }
+        else
+        {
+            QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+            if (mouseEvent)
+            {
+                if (mouseEvent->button() == Qt::LeftButton)
+                {
+                    selectClosestCurve(mouseEvent->pos());
+                }
+            }
+        }
     }
 
     return QwtPlot::eventFilter(watched, event);
@@ -203,5 +217,39 @@ void RiuWellLogTracePlot::focusInEvent(QFocusEvent* event)
     if (m_plotTraceDefinition)
     {
         RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(m_plotTraceDefinition);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTracePlot::selectClosestCurve(const QPoint& pos)
+{
+    QwtPlotCurve* closestCurve = NULL;
+    double distMin = DBL_MAX;
+
+    const QwtPlotItemList& itmList = itemList();
+    for (QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
+    {
+        if ((*it )->rtti() == QwtPlotItem::Rtti_PlotCurve )
+        {
+            QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
+            double dist;
+            int idx = candidateCurve->closestPoint(pos, &dist);
+            if (dist < distMin)
+            {
+                closestCurve = candidateCurve;
+                distMin = dist;
+            }
+        }
+    }
+
+    if (closestCurve)
+    {
+        RimWellLogPlotCurve* selectedCurve = m_plotTraceDefinition->curveDefinitionFromCurve(closestCurve);
+        if (selectedCurve)
+        {
+            RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(selectedCurve);
+        }
     }
 }

@@ -49,6 +49,7 @@ protected:
 
 private:
     void setDefaults();
+    void selectClosestCurve(const QPoint& pos);
 
 private:
     RimWellLogPlotTrace*    m_plotTraceDefinition;

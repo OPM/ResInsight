@@ -232,3 +232,19 @@ void RimWellLogPlotTrace::updateAxisRangesAndReplot()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlotCurve* RimWellLogPlotTrace::curveDefinitionFromCurve(const QwtPlotCurve* curve) const
+{
+    for (size_t idx = 0; idx < curves.size(); idx++)
+    {
+        if (curves[idx]->plotCurve() == curve)
+        {
+            return curves[idx];
+        }
+    }
+
+    return NULL;
+}
