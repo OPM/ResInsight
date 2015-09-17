@@ -121,13 +121,9 @@ RiuMainWindow::RiuMainWindow()
 
     sm_mainWindowInstance = this;
 
-    slotRefreshFileActions();
-    slotRefreshEditActions();
-
     m_dragDrop = new RiuDragDrop;
 
-    // Set pdm root so scripts are displayed
-    setPdmRoot(RiaApplication::instance()->project());
+    initializeGuiNewProjectLoaded();
 
     // Enabling the line below will activate the undo stack
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
@@ -553,8 +549,6 @@ void RiuMainWindow::createToolBars()
 
     refreshAnimationActions();
     refreshDrawStyleActions();
-
-    cmdFeatureMgr->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature");
 }
 
 
@@ -766,6 +760,8 @@ void RiuMainWindow::slotRefreshViewActions()
     m_viewFromBelow->setEnabled(enabled);
 
     updateScaleValue();
+
+    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature" << "RicTileWindowsFeature");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1165,7 +1161,7 @@ void RiuMainWindow::removeViewer(QWidget* viewer)
 {
     m_mdiArea->removeSubWindow( findMdiSubWindow(viewer));
 
-    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature");
+    slotRefreshViewActions();
 }
 
 
@@ -1176,6 +1172,11 @@ public:
     RiuMdiSubWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0)
         : QMdiSubWindow(parent, flags)
     {
+    }
+
+    ~RiuMdiSubWindow()
+    {
+        RiuMainWindow::instance()->slotRefreshViewActions();
     }
 
 protected:
@@ -1242,7 +1243,7 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
         }
     }
 
-    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature");
+    slotRefreshViewActions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2238,5 +2239,13 @@ std::vector<int> RiuMainWindow::windowGeometryForWidget(QWidget* widget)
 void RiuMainWindow::tileWindows()
 {
     m_mdiArea->tileSubWindows();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuMainWindow::isAnyMdiSubWindowVisible()
+{
+    return m_mdiArea->subWindowList().size() > 0;
 }
 

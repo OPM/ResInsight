@@ -113,6 +113,7 @@ public:
     std::vector<int>    windowGeometryForWidget(QWidget* widget);
 
     void            tileWindows();
+    bool            isAnyMdiSubWindowVisible();
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
@@ -207,6 +208,8 @@ private:
 
 // Menu and action slots
 private slots:
+
+    friend class RiuMdiSubWindow;
 
     // File slots
     void    slotImportGeoMechModel();

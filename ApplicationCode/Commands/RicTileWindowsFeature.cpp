@@ -30,7 +30,7 @@ CAF_CMD_SOURCE_INIT(RicTileWindowsFeature, "RicTileWindowsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandEnabled()
 {
-    return true;
+    return RiuMainWindow::instance()->isAnyMdiSubWindowVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
