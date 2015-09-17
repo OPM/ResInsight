@@ -402,6 +402,12 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
         eclShallowQuad[3] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[3]];
     }
 
+    if (!eclGrid->isFaceNormalsOutwards())
+    {
+        flipQuadWinding(femShallowQuad);
+        flipQuadWinding(femDeepestQuad);
+    }
+
     // Now the top/bottom have opposite winding. To make the comparisons and index rotations simpler
     // flip the winding of the bottom face:
     
@@ -488,8 +494,8 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
     double cellSizeI, cellSizeJ, cellSizeK;
     masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
     
-    double xyTolerance  = cellSizeI* 2;
-    double zTolerance   = cellSizeK* 2;
+    double xyTolerance  = cellSizeI* 0.1;
+    double zTolerance   = cellSizeK* 0.1;
 
     int elementCount = dependentFemPart->elementCount();
     cvf::Vec3d elmCorners[8];
