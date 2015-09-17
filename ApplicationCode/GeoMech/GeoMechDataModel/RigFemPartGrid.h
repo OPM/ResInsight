@@ -48,10 +48,10 @@ public:
     virtual cvf::Vec3d  gridPointCoordinate(size_t i, size_t j, size_t k) const;
 
  
+    cvf::Vec3i          findMainIJKFaces(int elementIndex) const;
  private:
     void                generateStructGridData();
 
-    cvf::Vec3i          findMainIJKFaces(int elementIndex);
 
     int                 findElmIdxForIJK000();
 

@@ -201,7 +201,7 @@ int RigFemPartGrid::findElmIdxForIJK000()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex)
+cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex) const
 {
     cvf::Vec3i ijkMainFaceIndices = cvf::Vec3i(-1, -1, -1);
 

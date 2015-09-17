@@ -20,132 +20,8 @@
 #include "RigCaseToCaseCellMapper.h"
 #include "RigFemPart.h"
 #include "RigMainGrid.h"
+#include "RigFemPartGrid.h"
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart)
-    : m_masterGrid(masterEclGrid),
-      m_dependentGrid(NULL),
-      m_masterFemPart(dependentFemPart),
-      m_dependentFemPart(NULL)
-{
-    m_masterCellOrIntervalIndex.resize(dependentFemPart->elementCount(), cvf::UNDEFINED_INT);
-    
-    #if 0
-    // First search K=1 diagonally for a seed cell; A cell without collapsings, and without faults
-
-
-    size_t minIJCount = masterEclGrid->cellCountI();
-    if (minIJCount > masterEclGrid->cellCountJ())
-        minIJCount =  masterEclGrid->cellCountJ();
-
-    for (size_t ij = 0; ij < minIJCount; ++ij )
-    {
-        size_t localCellIdx = masterEclGrid->cellIndexFromIJK(ij, ij, 0);
-        size_t reservoirCellIdx = masterEclGrid->reservoirCellIndex(localCellIdx);
-
-        cvf::Vec3d vertices[8];
-        masterEclGrid->cellCornerVertices(localCellIdx, vertices);
-        if (!isCellNormal(vertices))
-            continue;
-        
-        const RigFault* fault = masterEclGrid->findFaultFromCellIndexAndCellFace(reservoirCellIdx, cvf::StructGridInterface::POS_I);
-
-    }
-    #endif
-
-    // Brute force:
-    const std::vector<cvf::Vec3f>& nodeCoords =  dependentFemPart->nodes().coordinates;
-
-    double cellSizeI, cellSizeJ, cellSizeK;
-    masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
-    
-    double xyTolerance = cellSizeI* 0;
-    double zTolerance = cellSizeK* 0;
-
-    int elementCount = dependentFemPart->elementCount();
-    cvf::Vec3d elmCorners[8];
-    for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
-    {
-        if (dependentFemPart->elementType(elmIdx) != HEX8) continue;
-
-        const int* cornerIndices = dependentFemPart->connectivities(elmIdx);
-
-        elmCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
-        elmCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
-        elmCorners[2] = cvf::Vec3d(nodeCoords[cornerIndices[2]]);
-        elmCorners[3] = cvf::Vec3d(nodeCoords[cornerIndices[3]]);
-        elmCorners[4] = cvf::Vec3d(nodeCoords[cornerIndices[4]]);
-        elmCorners[5] = cvf::Vec3d(nodeCoords[cornerIndices[5]]);
-        elmCorners[6] = cvf::Vec3d(nodeCoords[cornerIndices[6]]);
-        elmCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
-
-        cvf::BoundingBox elmBBox;
-        for (int i = 0; i < 8 ; ++i) elmBBox.add(elmCorners[i]);
-
-        std::vector<size_t> closeCells;
-        masterEclGrid->findIntersectingCells(elmBBox, &closeCells);
-        std::vector<int> matchingCells;
-
-        for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
-        {
-            cvf::Vec3d cellCorners[8];
-            size_t localCellIdx = masterEclGrid->cells()[closeCells[ccIdx]].gridLocalCellIndex();
-            masterEclGrid->cellCornerVertices(localCellIdx, cellCorners);
-
-            bool isMatching = false;
-
-            #if 1 // Inside Bounding box test
-            cvf::BoundingBox cellBBox;
-            for (int i = 0; i < 8 ; ++i) cellBBox.add(elmCorners[i]);
-
-            cvf::Vec3d cs = cellBBox.min();
-            cvf::Vec3d cl = cellBBox.max();
-            cvf::Vec3d es = elmBBox.min();
-            cvf::Vec3d el = elmBBox.max();
-
-            if (   ( (cs.x() + xyTolerance) >= es.x() && (cl.x() - xyTolerance) <= el.x())
-                && ( (cs.y() + xyTolerance) >= es.y() && (cl.y() - xyTolerance) <= el.y())
-                && ( (cs.z() + zTolerance ) >= es.z() && (cl.z() - zTolerance ) <= el.z()) )
-            {
-                // Cell bb equal or inside Elm bb   
-                isMatching = true;
-            }
-
-            if (   ( (es.x() + xyTolerance)  >= cs.x() && (el.x() - xyTolerance) <= cl.x())
-                && ( (es.y() + xyTolerance)  >= cs.y() && (el.y() - xyTolerance) <= cl.y())
-                && ( (es.z() + zTolerance )  >= cs.z() && (el.z() - zTolerance ) <= cl.z()) )
-            {
-                // Elm bb equal or inside Cell bb   
-                isMatching = true;
-            }
-            #endif
-
-            if (isMatching)
-            {
-                matchingCells.push_back(static_cast<int>(closeCells[ccIdx]));
-            }
-            else
-            {
-                // Try fault corrections on the eclipse cell
-
-                // Try zero volume correction
-            }
-        }
-
-        if (matchingCells.size() == 1)
-        {
-            m_masterCellOrIntervalIndex[elmIdx] = matchingCells[0];
-        }
-        else if (matchingCells.size() > 1)
-        {
-            m_masterCellOrIntervalIndex[elmIdx] = -((int)(m_masterCellIndexSeries.size()));
-            m_masterCellIndexSeries.push_back(matchingCells);
-        }
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -210,16 +86,575 @@ const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseRese
     }
 }
 
-#if 0
+class RigNeighborCornerFinder
+{
+public:
+    RigNeighborCornerFinder(const RigMainGrid* mainGrid, size_t baseI, size_t baseJ, size_t baseK)
+        : m_mainGrid(mainGrid),
+        m_baseI(baseI),
+        m_baseJ(baseJ),
+        m_baseK(baseK)
+    {}
+
+    const caf::SizeTArray8* neighborIndices(int offsetI, int offsetJ, int offsetK)
+    {
+        if (offsetI < 0 && m_baseI == 0) return NULL;
+        if (offsetJ < 0 && m_baseJ == 0) return NULL;
+        if (offsetK < 0 && m_baseK == 0) return NULL;
+        if (offsetI > 0 && m_baseI == m_mainGrid->cellCountI()-1) return NULL;
+        if (offsetJ > 0 && m_baseJ == m_mainGrid->cellCountJ()-1) return NULL;
+        if (offsetK > 0 && m_baseK == m_mainGrid->cellCountK()-1) return NULL;
+
+        size_t gridLocalCellIndex = m_mainGrid->cellIndexFromIJK(m_baseI + offsetI, m_baseJ + offsetJ, m_baseK + offsetK);
+        const RigCell& cell = m_mainGrid->cells()[gridLocalCellIndex];
+        return &(cell.cornerIndices());
+    }
+
+private:
+    const RigMainGrid* m_mainGrid;
+    size_t m_baseI;
+    size_t m_baseJ; 
+    size_t m_baseK;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Average of neighbor corresponding nodes
+//--------------------------------------------------------------------------------------------------
+void estimatedFemCellFromEclCell(const RigMainGrid* eclGrid, size_t reservoirCellIndex,  cvf::Vec3d estimatedElmCorners[8])
+{
+    CVF_TIGHT_ASSERT(reservoirCellIndex < eclGrid->cellCount()); // Assume reservoirCellIdx == localGridCellIdx for maingrid
+    
+    const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
+    
+    size_t I,J,K;
+    eclGrid->ijkFromCellIndex(reservoirCellIndex, &I, &J, &K);
+    RigNeighborCornerFinder nbFinder(eclGrid, I,J,K);
+
+    // Cell corner Averaging mapping: Local cell index in neighbor matching specific corner of this cell
+    // N - Negative P - positive
+    // 0 <- NI[1] NINJ[2] NJ[3] NK[4] NINK[5] NINJNK[6] NJNK[7] 
+    // 1 <- NJ[2] PINJ[3] PI[0] NK[5] NJNK[6] PINJNK[7] PINK[4] 
+    // 2 <- PI[3] PIPJ[0] PJ[1] NK[6] PINK[7] PIPJNK[4] PJNK[5]
+    // 3 <- PJ[0] NIPJ[1] NI[2] NK[7] PJNK[4] NIPJNK[5] NINK[6]
+    // 4 <- NI[5] NINJ[6] NJ[7] PK[0] NIPK[1] NINJPK[2] NJPK[3]
+    // 5 <- NJ[6] PINJ[7] PI[4] PK[1] NJPK[2] PINJPK[3] PIPK[0]
+    // 6 <- PI[7] PIPJ[4] PJ[5] PK[2] PIPK[3] PIPJPK[0] PJPK[1]
+    // 7 <- PJ[4] NIPJ[5] NI[6] PK[3] PJPK[0] NIPJPK[1] NIPK[2]
+
+    const caf::SizeTArray8* IJK      = nbFinder.neighborIndices( 0, 0, 0);
+    const caf::SizeTArray8* NI       = nbFinder.neighborIndices(-1, 0, 0);
+    const caf::SizeTArray8* NJ       = nbFinder.neighborIndices( 0,-1, 0);
+    const caf::SizeTArray8* PI       = nbFinder.neighborIndices( 1, 0, 0);
+    const caf::SizeTArray8* PJ       = nbFinder.neighborIndices( 0, 1, 0);
+    const caf::SizeTArray8* NK       = nbFinder.neighborIndices( 0, 0,-1);
+    const caf::SizeTArray8* PK       = nbFinder.neighborIndices( 0, 0, 1);
+    const caf::SizeTArray8* NINJ     = nbFinder.neighborIndices(-1,-1, 0);
+    const caf::SizeTArray8* PINJ     = nbFinder.neighborIndices( 1,-1, 0);
+
+    const caf::SizeTArray8* PIPJ     = nbFinder.neighborIndices( 1, 1, 0);
+    const caf::SizeTArray8* NIPJ     = nbFinder.neighborIndices(-1, 1, 0);
+    const caf::SizeTArray8* NINK     = nbFinder.neighborIndices(-1, 0,-1);
+    const caf::SizeTArray8* NJNK     = nbFinder.neighborIndices( 0,-1,-1);
+    const caf::SizeTArray8* PINK     = nbFinder.neighborIndices( 1, 0,-1);
+    const caf::SizeTArray8* PJNK     = nbFinder.neighborIndices( 0, 1,-1);
+    const caf::SizeTArray8* NIPK     = nbFinder.neighborIndices(-1, 0, 1);
+    const caf::SizeTArray8* NJPK     = nbFinder.neighborIndices( 0,-1, 1);
+    const caf::SizeTArray8* PIPK     = nbFinder.neighborIndices( 1, 0, 1);
+
+    const caf::SizeTArray8* PJPK     = nbFinder.neighborIndices( 0, 1, 1);
+    const caf::SizeTArray8* NINJNK   = nbFinder.neighborIndices(-1,-1,-1);
+    const caf::SizeTArray8* PINJNK   = nbFinder.neighborIndices( 1,-1,-1);
+    const caf::SizeTArray8* PIPJNK   = nbFinder.neighborIndices( 1, 1,-1);
+    const caf::SizeTArray8* NIPJNK   = nbFinder.neighborIndices(-1, 1,-1);
+    const caf::SizeTArray8* NINJPK   = nbFinder.neighborIndices(-1,-1, 1);
+    const caf::SizeTArray8* PINJPK   = nbFinder.neighborIndices( 1,-1, 1);
+    const caf::SizeTArray8* PIPJPK   = nbFinder.neighborIndices( 1, 1, 1);
+    const caf::SizeTArray8* NIPJPK   = nbFinder.neighborIndices(-1, 1, 1);
+
+    std::vector<size_t> contributingNodeIndicesPrCellCorner[8];
+
+    if (IJK   ) contributingNodeIndicesPrCellCorner[0].push_back((*IJK   )[0]);
+    if (NI    ) contributingNodeIndicesPrCellCorner[0].push_back((*NI    )[1]);
+    if (NINJ  ) contributingNodeIndicesPrCellCorner[0].push_back((*NINJ  )[2]);
+    if (NJ    ) contributingNodeIndicesPrCellCorner[0].push_back((*NJ    )[3]);
+    if (NK    ) contributingNodeIndicesPrCellCorner[0].push_back((*NK    )[4]);
+    if (NINK  ) contributingNodeIndicesPrCellCorner[0].push_back((*NINK  )[5]);
+    if (NINJNK) contributingNodeIndicesPrCellCorner[0].push_back((*NINJNK)[6]);
+    if (NJNK  ) contributingNodeIndicesPrCellCorner[0].push_back((*NJNK  )[7]);
+
+    if (IJK   ) contributingNodeIndicesPrCellCorner[1].push_back((*IJK   )[1]);
+    if (NJ    ) contributingNodeIndicesPrCellCorner[1].push_back((*NJ    )[2]);
+    if (PINJ  ) contributingNodeIndicesPrCellCorner[1].push_back((*PINJ  )[3]);
+    if (PI    ) contributingNodeIndicesPrCellCorner[1].push_back((*PI    )[0]);
+    if (NK    ) contributingNodeIndicesPrCellCorner[1].push_back((*NK    )[5]);
+    if (NJNK  ) contributingNodeIndicesPrCellCorner[1].push_back((*NJNK  )[6]);
+    if (PINJNK) contributingNodeIndicesPrCellCorner[1].push_back((*PINJNK)[7]);
+    if (PINK  ) contributingNodeIndicesPrCellCorner[1].push_back((*PINK  )[4]);
+
+    if (IJK   ) contributingNodeIndicesPrCellCorner[2].push_back((*IJK   )[2]);
+    if (PI    ) contributingNodeIndicesPrCellCorner[2].push_back((*PI    )[3]);
+    if (PIPJ  ) contributingNodeIndicesPrCellCorner[2].push_back((*PIPJ  )[0]);
+    if (PJ    ) contributingNodeIndicesPrCellCorner[2].push_back((*PJ    )[1]);
+    if (NK    ) contributingNodeIndicesPrCellCorner[2].push_back((*NK    )[6]);
+    if (PINK  ) contributingNodeIndicesPrCellCorner[2].push_back((*PINK  )[7]);
+    if (PIPJNK) contributingNodeIndicesPrCellCorner[2].push_back((*PIPJNK)[4]);
+    if (PJNK  ) contributingNodeIndicesPrCellCorner[2].push_back((*PJNK  )[5]);
+
+    if (IJK   ) contributingNodeIndicesPrCellCorner[3].push_back((*IJK   )[3]);
+    if (PJ    ) contributingNodeIndicesPrCellCorner[3].push_back((*PJ    )[0]);
+    if (NIPJ  ) contributingNodeIndicesPrCellCorner[3].push_back((*NIPJ  )[1]);
+    if (NI    ) contributingNodeIndicesPrCellCorner[3].push_back((*NI    )[2]);
+    if (NK    ) contributingNodeIndicesPrCellCorner[3].push_back((*NK    )[7]);
+    if (PJNK  ) contributingNodeIndicesPrCellCorner[3].push_back((*PJNK  )[4]);
+    if (NIPJNK) contributingNodeIndicesPrCellCorner[3].push_back((*NIPJNK)[5]);
+    if (NINK  ) contributingNodeIndicesPrCellCorner[3].push_back((*NINK  )[6]);
+
+    if (IJK   ) contributingNodeIndicesPrCellCorner[4].push_back((*IJK   )[4]);
+    if (NJ    ) contributingNodeIndicesPrCellCorner[4].push_back((*NJ    )[5]);
+    if (PINJ  ) contributingNodeIndicesPrCellCorner[4].push_back((*PINJ  )[6]);
+    if (PI    ) contributingNodeIndicesPrCellCorner[4].push_back((*PI    )[7]);
+    if (NK    ) contributingNodeIndicesPrCellCorner[4].push_back((*NK    )[0]);
+    if (NJNK  ) contributingNodeIndicesPrCellCorner[4].push_back((*NJNK  )[1]);
+    if (PINJNK) contributingNodeIndicesPrCellCorner[4].push_back((*PINJNK)[2]);
+    if (PINK  ) contributingNodeIndicesPrCellCorner[4].push_back((*PINK  )[3]);
+
+    if (IJK   ) contributingNodeIndicesPrCellCorner[5].push_back((*IJK   )[5]);
+    if (NJ    ) contributingNodeIndicesPrCellCorner[5].push_back((*NJ    )[6]);
+    if (PINJ  ) contributingNodeIndicesPrCellCorner[5].push_back((*PINJ  )[7]);
+    if (PI    ) contributingNodeIndicesPrCellCorner[5].push_back((*PI    )[4]);
+    if (PK    ) contributingNodeIndicesPrCellCorner[5].push_back((*PK    )[1]);
+    if (NJPK  ) contributingNodeIndicesPrCellCorner[5].push_back((*NJPK  )[2]);
+    if (PINJPK) contributingNodeIndicesPrCellCorner[5].push_back((*PINJPK)[3]);
+    if (PIPK  ) contributingNodeIndicesPrCellCorner[5].push_back((*PIPK  )[0]);
+
+    if (IJK   ) contributingNodeIndicesPrCellCorner[6].push_back((*IJK   )[6]);
+    if (PI    ) contributingNodeIndicesPrCellCorner[6].push_back((*PI    )[2]);
+    if (PIPJ  ) contributingNodeIndicesPrCellCorner[6].push_back((*PIPJ  )[3]);
+    if (PJ    ) contributingNodeIndicesPrCellCorner[6].push_back((*PJ    )[0]);
+    if (PK    ) contributingNodeIndicesPrCellCorner[6].push_back((*PK    )[5]);
+    if (PIPK  ) contributingNodeIndicesPrCellCorner[6].push_back((*PIPK  )[6]);
+    if (PIPJPK) contributingNodeIndicesPrCellCorner[6].push_back((*PIPJPK)[7]);
+    if (PJPK  ) contributingNodeIndicesPrCellCorner[6].push_back((*PJPK  )[4]);
+
+    if (IJK   ) contributingNodeIndicesPrCellCorner[7].push_back((*IJK   )[7]);
+    if (PJ    ) contributingNodeIndicesPrCellCorner[7].push_back((*PJ    )[4]);
+    if (NIPJ  ) contributingNodeIndicesPrCellCorner[7].push_back((*NIPJ  )[5]);
+    if (NI    ) contributingNodeIndicesPrCellCorner[7].push_back((*NI    )[6]);
+    if (PK    ) contributingNodeIndicesPrCellCorner[7].push_back((*PK    )[3]);
+    if (PJPK  ) contributingNodeIndicesPrCellCorner[7].push_back((*PJPK  )[0]);
+    if (NIPJPK) contributingNodeIndicesPrCellCorner[7].push_back((*NIPJPK)[1]);
+    if (NIPK  ) contributingNodeIndicesPrCellCorner[7].push_back((*NIPK  )[2]);
+
+    // Average the nodes
+    for (size_t cornIdx = 0; cornIdx < 8; ++cornIdx)
+    {
+        estimatedElmCorners[cornIdx] = cvf::Vec3d::ZERO;
+        size_t contribCount = contributingNodeIndicesPrCellCorner[cornIdx].size();
+        for (size_t ctnIdx = 0; ctnIdx < contribCount; ++ctnIdx)
+        {
+            estimatedElmCorners[cornIdx] += eclNodes[contributingNodeIndicesPrCellCorner[cornIdx][ctnIdx]];
+        }
+        estimatedElmCorners[cornIdx] /= contribCount;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+void rotateQuad(cvf::Vec3d quad[4], int idxToNewStart)
+{
+    if (idxToNewStart = 0) return;
+    cvf::Vec3d tmpQuad[4];
+    tmpQuad[0] = quad[0];
+    tmpQuad[1] = quad[1];
+    tmpQuad[2] = quad[2];
+    tmpQuad[3] = quad[3];
+
+    quad[0] = tmpQuad[idxToNewStart];
+    ++idxToNewStart; if (idxToNewStart > 3) idxToNewStart = 0;
+    quad[1] = tmpQuad[idxToNewStart];
+    ++idxToNewStart; if (idxToNewStart > 3) idxToNewStart = 0;
+    quad[2] = tmpQuad[idxToNewStart];
+    ++idxToNewStart; if (idxToNewStart > 3) idxToNewStart = 0;
+    quad[3] = tmpQuad[idxToNewStart];
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+void flipQuadWinding(cvf::Vec3d quad[4])
+{
+    cvf::Vec3d temp = quad[1];
+    quad[1] = quad[3];
+    quad[3] = temp;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+int quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4])
+{
+    double minSqDist = HUGE_VAL;
+    int quadVxIdxClosestToPoint = cvf::UNDEFINED_INT;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        cvf::Vec3d diff = quad[i]- point;
+        diff[2] = 0.0;
+
+        double sqDist = diff.lengthSquared();
+        if (sqDist < minSqDist)
+        {
+            minSqDist = sqDist;
+            quadVxIdxClosestToPoint = i;
+        }
+    }
+    
+    return quadVxIdxClosestToPoint;
+}
+
+
 enum RigHexIntersectResult
 {
     MATCH, 
     UNRELATED
 };
 
-RigHexIntersectResult matchCells(const cvf::Vec3d hex1[8], const cvf::Vec3d hex2[8], double tolerance)
-{
-        
 
+//RigHexIntersectResult isEclFemCellsMatching(cvf::Vec3d eclCorners[8], cvf::Vec3d elmCorners[8])
+bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  RigFemPart* femPart, int elmIdx,
+                                            double xyTolerance, double zTolerance)
+{
+    cvf::Vec3d gomConvertedEclCell[8];
+    estimatedFemCellFromEclCell(eclGrid, reservoirCellIndex,  gomConvertedEclCell);
+
+    int femTopZFaceIdx = 4;
+    int femBotZFaceIdx = 5;
+
+    {
+        cvf::Vec3i mainAxisFaces = femPart->structGrid()->findMainIJKFaces(elmIdx);
+        femTopZFaceIdx = mainAxisFaces[2];
+        femBotZFaceIdx = RigFemTypes::oppositeFace(HEX8, femTopZFaceIdx);
+    }
+
+    cvf::Vec3d femTopZQuad[4];
+    cvf::Vec3d femBotZQuad[4];
+
+    {
+        const int* cornerIndices = femPart->connectivities(elmIdx);
+        const std::vector<cvf::Vec3f>& femNodes =  femPart->nodes().coordinates;
+        int faceNodeCount;
+        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femTopZFaceIdx, &faceNodeCount);
+        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femBotZFaceIdx, &faceNodeCount);
+
+        femTopZQuad[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]]);
+        femTopZQuad[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]]);
+        femTopZQuad[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]]);
+        femTopZQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]]);
+        femBotZQuad[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]]);
+        femBotZQuad[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]]);
+        femBotZQuad[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]]);
+        femBotZQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]]);
+    }
+
+    cvf::Vec3d eclTopZQuad[4];
+    cvf::Vec3d eclBotZQuad[4];
+
+    #if 0
+    {
+        const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
+        const RigCell& cell = eclGrid->cells()[reservoirCellIndex];
+        const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
+        int faceNodeCount;
+        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
+        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 5, &faceNodeCount);
+
+        eclTopZQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]];
+        eclTopZQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]];
+        eclTopZQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]];
+        eclTopZQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]];
+
+        eclBotZQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]];
+        eclBotZQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]];
+        eclBotZQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]];
+        eclBotZQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]];
+    }
+    #endif
+    {
+        int faceNodeCount;
+        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
+        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 5, &faceNodeCount);
+
+        eclTopZQuad[0] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[0]];
+        eclTopZQuad[1] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[1]];
+        eclTopZQuad[2] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[2]];
+        eclTopZQuad[3] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[3]];
+
+        eclBotZQuad[0] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[0]];
+        eclBotZQuad[1] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[1]];
+        eclBotZQuad[2] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[2]];
+        eclBotZQuad[3] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[3]];
+    }
+
+    // Now the top/bottom have opposite winding. To make the comparisons and index rotations simpler
+    // flip the winding of the bottom face:
+    
+    flipQuadWinding(eclBotZQuad);
+    flipQuadWinding(femBotZQuad);
+
+    // We now need to rotate the fem quads to be alligned with the ecl quads
+    // Since the start point of the quad always is aligned with the opposite face-quad start
+    // we can find the rotation for the top, and apply it to both top and bottom
+
+    int femQuadStartIdx = quadVxClosestToXYOfPoint(eclTopZQuad[0], femTopZQuad);
+    rotateQuad(femTopZQuad, femQuadStartIdx);
+    rotateQuad(femBotZQuad, femQuadStartIdx);
+
+    // Now we should be able to compare vertex for vertex between the ecl and fem quads.
+
+    bool isMatching = true;
+
+    for (int i = 0; i < 4 ; ++i)
+    {
+        cvf::Vec3d diff = femTopZQuad[i] - eclTopZQuad[i];
+
+        if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
+        {
+            isMatching = false;
+            break;
+        }
+    }
+
+    if (isMatching)
+    {
+        for (int i = 0; i < 4 ; ++i)
+        {
+            cvf::Vec3d diff = femBotZQuad[i] - eclBotZQuad[i];
+
+            if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
+             {
+                isMatching = false;
+                break;
+            }
+        }
+    }
+
+    return isMatching;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart)
+    : m_masterGrid(masterEclGrid),
+      m_dependentGrid(NULL),
+      m_masterFemPart(dependentFemPart),
+      m_dependentFemPart(NULL)
+{
+    m_masterCellOrIntervalIndex.resize(dependentFemPart->elementCount(), cvf::UNDEFINED_INT);
+    
+    #if 0
+    // First search K=1 diagonally for a seed cell; A cell without collapsings, and without faults
+
+    size_t minIJCount = masterEclGrid->cellCountI();
+    if (minIJCount > masterEclGrid->cellCountJ())
+        minIJCount =  masterEclGrid->cellCountJ();
+
+    for (size_t ij = 0; ij < minIJCount; ++ij )
+    {
+        size_t localCellIdx = masterEclGrid->cellIndexFromIJK(ij, ij, 0);
+        size_t reservoirCellIdx = masterEclGrid->reservoirCellIndex(localCellIdx);
+
+        cvf::Vec3d vertices[8];
+        masterEclGrid->cellCornerVertices(localCellIdx, vertices);
+        if (!isCellNormal(vertices))
+            continue;
+        
+        const RigFault* fault = masterEclGrid->findFaultFromCellIndexAndCellFace(reservoirCellIdx, cvf::StructGridInterface::POS_I);
+
+    }
+    #endif
+
+    // Brute force:
+    const std::vector<cvf::Vec3f>& nodeCoords =  dependentFemPart->nodes().coordinates;
+
+    double cellSizeI, cellSizeJ, cellSizeK;
+    masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
+    
+    double xyTolerance  = cellSizeI* 2;
+    double zTolerance   = cellSizeK* 2;
+
+    int elementCount = dependentFemPart->elementCount();
+    cvf::Vec3d elmCorners[8];
+    for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+    {
+        if (dependentFemPart->elementType(elmIdx) != HEX8) continue;
+
+        const int* cornerIndices = dependentFemPart->connectivities(elmIdx);
+
+        elmCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
+        elmCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
+        elmCorners[2] = cvf::Vec3d(nodeCoords[cornerIndices[2]]);
+        elmCorners[3] = cvf::Vec3d(nodeCoords[cornerIndices[3]]);
+        elmCorners[4] = cvf::Vec3d(nodeCoords[cornerIndices[4]]);
+        elmCorners[5] = cvf::Vec3d(nodeCoords[cornerIndices[5]]);
+        elmCorners[6] = cvf::Vec3d(nodeCoords[cornerIndices[6]]);
+        elmCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
+
+        cvf::BoundingBox elmBBox;
+        for (int i = 0; i < 8 ; ++i) elmBBox.add(elmCorners[i]);
+
+        std::vector<size_t> closeCells;
+        masterEclGrid->findIntersectingCells(elmBBox, &closeCells);
+        std::vector<int> matchingCells;
+
+        for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
+        {
+            cvf::Vec3d cellCorners[8];
+            size_t localCellIdx = masterEclGrid->cells()[closeCells[ccIdx]].gridLocalCellIndex();
+            masterEclGrid->cellCornerVertices(localCellIdx, cellCorners);
+
+            bool isMatching = false;
+
+            #if 0 // Inside Bounding box test
+            cvf::BoundingBox cellBBox;
+            for (int i = 0; i < 8 ; ++i) cellBBox.add(cellCorners[i]);
+
+            cvf::Vec3d cs = cellBBox.min();
+            cvf::Vec3d cl = cellBBox.max();
+            cvf::Vec3d es = elmBBox.min();
+            cvf::Vec3d el = elmBBox.max();
+
+            if (   ( (cs.x() + xyTolerance) >= es.x() && (cl.x() - xyTolerance) <= el.x())
+                && ( (cs.y() + xyTolerance) >= es.y() && (cl.y() - xyTolerance) <= el.y())
+                && ( (cs.z() + zTolerance ) >= es.z() && (cl.z() - zTolerance ) <= el.z()) )
+            {
+                // Cell bb equal or inside Elm bb   
+                isMatching = true;
+            }
+
+            if (   ( (es.x() + xyTolerance)  >= cs.x() && (el.x() - xyTolerance) <= cl.x())
+                && ( (es.y() + xyTolerance)  >= cs.y() && (el.y() - xyTolerance) <= cl.y())
+                && ( (es.z() + zTolerance )  >= cs.z() && (el.z() - zTolerance ) <= cl.z()) )
+            {
+                // Elm bb equal or inside Cell bb   
+                isMatching = true;
+            }
+            #else
+            #if 0
+
+            isMatching = true;
+
+            for (int i = 0; i < 8 ; ++i)
+            {
+                cvf::Vec3d diff = cellCorners[i] - elmCorners[i];
+
+                if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
+                {
+                    isMatching = false;
+                    break;
+                }
+
+            }
+            #else
+                        isMatching = isEclFemCellsMatching(masterEclGrid, closeCells[ccIdx], dependentFemPart, elmIdx, xyTolerance, zTolerance);
+            #endif
+            #endif
+
+            if (isMatching)
+            {
+                matchingCells.push_back(static_cast<int>(closeCells[ccIdx]));
+            }
+            else
+            {
+                // Try fault corrections on the eclipse cell
+
+                // Try zero volume correction
+            }
+        }
+
+        if (matchingCells.size() == 1)
+        {
+            m_masterCellOrIntervalIndex[elmIdx] = matchingCells[0];
+        }
+        else if (matchingCells.size() > 1)
+        {
+            m_masterCellOrIntervalIndex[elmIdx] = -((int)(m_masterCellIndexSeries.size()));
+            m_masterCellIndexSeries.push_back(matchingCells);
+        }
+    }
+}
+
+#if 0
+//--------------------------------------------------------------------------------------------------
+/// Follows the HEX8 type in both RigFemTypes and cvf::StructGridInterface
+/// Normals given in POSX, NEGX, POSY, NEGY, POSZ, NEGZ order. Same as face order in the above HEX-es
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3i findMainXYZFacesOfHex(const cvf::Vec3f normals[6] )
+{
+    cvf::Vec3i ijkMainFaceIndices = cvf::Vec3i(-1, -1, -1);
+
+    // Record three independent main direction vectors for the element, and what face they are created from
+
+    cvf::Vec3f mainElmDirections[3];
+    int mainElmDirOriginFaces[3];
+
+    mainElmDirections[0] = normals[0] - normals[1]; // To get a better "average" direction vector
+    mainElmDirections[1] = normals[2] - normals[3];
+    mainElmDirections[2] = normals[4] - normals[5];
+
+    mainElmDirOriginFaces[0] = 0;
+    mainElmDirOriginFaces[1] = 2;
+    mainElmDirOriginFaces[2] = 4;
+
+    
+    // Match the element main directions with best XYZ match (IJK respectively)
+    // Find the max component of a mainElmDirection. 
+    // Assign the index of that mainElmDirection to the mainElmDirectionIdxForIJK at the index of the max component.
+
+    int mainElmDirectionIdxForIJK[3] ={ -1, -1, -1 };
+    for (int dIdx = 0; dIdx < 3; ++dIdx)
+    {
+        double maxAbsComp = 0;
+        for (int cIdx = 2; cIdx >= 0 ; --cIdx)
+        {
+            float absComp = fabs(mainElmDirections[dIdx][cIdx]);
+            if (absComp > maxAbsComp)
+            {
+                maxAbsComp = absComp;
+                mainElmDirectionIdxForIJK[cIdx] = dIdx;
+            }
+        }
+    }
+
+    // make sure all the main directions are used
+
+    bool mainDirsUsed[3] ={ false, false, false };
+    mainDirsUsed[mainElmDirectionIdxForIJK[0]] = true;
+    mainDirsUsed[mainElmDirectionIdxForIJK[1]] = true;
+    mainDirsUsed[mainElmDirectionIdxForIJK[2]] = true;
+
+    int unusedDir = -1;
+    if (!mainDirsUsed[0]) unusedDir = 0;
+    if (!mainDirsUsed[1]) unusedDir = 1;
+    if (!mainDirsUsed[2]) unusedDir = 2;
+
+    if (unusedDir >= 0)
+    {
+        if (mainElmDirectionIdxForIJK[0] == mainElmDirectionIdxForIJK[1]) mainElmDirectionIdxForIJK[0] = unusedDir;
+        else if (mainElmDirectionIdxForIJK[1] == mainElmDirectionIdxForIJK[2]) mainElmDirectionIdxForIJK[1] = unusedDir;
+        else if (mainElmDirectionIdxForIJK[2] == mainElmDirectionIdxForIJK[0]) mainElmDirectionIdxForIJK[2] = unusedDir;
+    }
+
+    // Assign the correct face based on the main direction
+
+    ijkMainFaceIndices[0] = (mainElmDirections[mainElmDirectionIdxForIJK[0]] * cvf::Vec3f::X_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]:  RigFemTypes::oppositeFace(HEX8, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]);
+    ijkMainFaceIndices[1] = (mainElmDirections[mainElmDirectionIdxForIJK[1]] * cvf::Vec3f::Y_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]:  RigFemTypes::oppositeFace(HEX8, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]);
+    ijkMainFaceIndices[2] = (mainElmDirections[mainElmDirectionIdxForIJK[2]] * -cvf::Vec3f::Z_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]:  RigFemTypes::oppositeFace(HEX8, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]);
+
+    return ijkMainFaceIndices;
 }
 #endif
