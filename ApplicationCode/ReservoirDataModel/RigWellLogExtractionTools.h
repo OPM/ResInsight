@@ -108,9 +108,8 @@ struct WellPathDepthPoint
         {
             if (isEnteringCell == other.isEnteringCell)
             {
-                CVF_ASSERT(false); // For now
-
-                return false; // Completely equal
+                // Completely equal, probably hitting between two cells
+                return false;
             }
 
             if(!isEnteringCell) // Leaving this cell
