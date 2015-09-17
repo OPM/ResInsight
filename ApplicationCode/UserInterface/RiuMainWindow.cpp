@@ -1228,36 +1228,54 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
     subWin->setWidget(viewer);
 
+    QSize subWindowSize;
+    QPoint subWindowPos(-1, -1);
+    bool showMax = false;
+
     if (windowsGeometry.size() == 5)
     {
+        subWindowPos = QPoint(windowsGeometry[0], windowsGeometry[1]);
+        subWindowSize = QSize(windowsGeometry[2], windowsGeometry[3]);
+
         if (windowsGeometry[4] > 0)
         {
-            subWin->showMaximized();
+            showMax = true;
         }
-        else
-        {
-            subWin->show();
-        }
-
-        // Move and resize must be done after window is visible
-        // If not, the position and size of the window is different to specification (Windows 7)
-        // Might be a Qt bug, must be tested on Linux
-        subWin->move(QPoint(windowsGeometry[0], windowsGeometry[1]));
-        subWin->resize(QSize(windowsGeometry[2], windowsGeometry[3]));
     }
     else
     {
-        subWin->resize(400, 400);
-        
-        if (m_mdiArea->subWindowList().size() == 1)
+        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subWin->widget());
+        if (wellLogPlot)
         {
-            // Show first view maximized
-            subWin->showMaximized();
+            subWindowSize = QSize(200, m_mdiArea->height());
         }
         else
         {
-            subWin->show();
+            subWindowSize = QSize(400, 400);
         }
+
+        if (!wellLogPlot && m_mdiArea->subWindowList().size() < 1)
+        {
+            // Show first 3D view maximized
+            showMax = true;
+        }
+    }
+        
+    subWin->show();
+
+    // Move and resize must be done after window is visible
+    // If not, the position and size of the window is different to specification (Windows 7)
+    // Might be a Qt bug, must be tested on Linux
+    if (subWindowPos.x() > -1)
+    {
+        subWin->move(subWindowPos);
+    }
+    subWin->resize(subWindowSize);
+
+    if (showMax)
+    {
+        // Show first view maximized
+        subWin->showMaximized();
     }
 
     slotRefreshViewActions();
