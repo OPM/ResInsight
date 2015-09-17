@@ -94,6 +94,7 @@ public:
 
     void            hideAllDockWindows();
     void			loadWinGeoAndDockToolBarLayout();
+    void			showWindow();
 
     void            setCurrentObjectInTreeView(caf::PdmObject* object);
 

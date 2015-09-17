@@ -117,7 +117,6 @@ RiuMainWindow::RiuMainWindow()
 
     // Store the layout so we can offer reset option
     m_initialDockAndToolbarLayout = saveState(0);
-    loadWinGeoAndDockToolBarLayout();
 
     sm_mainWindowInstance = this;
 
@@ -673,8 +672,9 @@ void RiuMainWindow::saveWinGeoAndDockToolBarLayout()
 
     QByteArray layout = saveState(0);
     settings.setValue("dockAndToolBarLayout", layout);
-}
 
+    settings.setValue("isMaximized", isMaximized());
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -696,6 +696,23 @@ void RiuMainWindow::loadWinGeoAndDockToolBarLayout()
                 restoreState(layout.toByteArray(), 0);
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showWindow()
+{
+    // Company and appname set through QCoreApplication
+    QSettings settings;
+
+    showNormal();
+
+    QVariant isMax = settings.value("isMaximized", false);
+    if (isMax.toBool())
+    {
+        showMaximized();
     }
 }
 
