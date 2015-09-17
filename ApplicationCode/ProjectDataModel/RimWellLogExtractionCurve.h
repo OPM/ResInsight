@@ -53,14 +53,16 @@ protected:
 
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
-    void filterPlotValues(const std::vector<double>& depthValues, std::vector<double> &filteredDepths, 
-                          const std::vector<double> &values,      std::vector<double> &filteredValues );
-
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
     caf::PdmField<int>                              m_timeStep;
+
+private:
+    static void validCurvePointIntervals(const std::vector<double>& depthValues, const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals);
+    static void addValuesFromIntervals(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues);
+    static void filteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* fltrIntervals);
 };
 
 

@@ -29,12 +29,11 @@
 #include "RimWellLogPlot.h"
 
 #include "RiuWellLogTracePlot.h"
+#include "RiuWellLogPlotCurve.h"
 
 #include "RiaApplication.h"
 
 #include "cafPdmUiTreeOrdering.h"
-
-#include "qwt_plot_curve.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogFileCurve, "WellLogFileCurve");

@@ -20,7 +20,8 @@
 #include "RimWellLogPlotCurve.h"
 #include "RimWellLogPlot.h"
 #include "RiuWellLogTracePlot.h"
-#include "qwt_plot_curve.h"
+#include "RiuWellLogPlotCurve.h"
+
 #include "cvfAssert.h"
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlotCurve, "WellLogPlotCurve");
@@ -38,7 +39,7 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
-    m_plotCurve = new QwtPlotCurve;
+    m_plotCurve = new RiuWellLogPlotCurve;
     m_plotCurve->setXAxis(QwtPlot::xTop);
     m_plotCurve->setYAxis(QwtPlot::yLeft);
 }
@@ -170,5 +171,13 @@ void RimWellLogPlotCurve::setColor(const cvf::Color3f& color)
 void RimWellLogPlotCurve::detachCurve()
 {
     m_plotCurve->detach();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QwtPlotCurve* RimWellLogPlotCurve::plotCurve() const
+{
+    return m_plotCurve;
 }
 

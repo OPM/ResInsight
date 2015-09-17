@@ -26,6 +26,7 @@
 #include <vector>
 
 class RiuWellLogTracePlot;
+class RiuWellLogPlotCurve;
 class QwtPlotCurve;
 class QString;
 
@@ -48,7 +49,7 @@ public:
     void    setPlot(RiuWellLogTracePlot* plot);
     void    detachCurve();
 
-    QwtPlotCurve* plotCurve() const { return m_plotCurve; }
+    QwtPlotCurve* plotCurve() const;
     
     virtual void                 updatePlotData();
 
@@ -68,5 +69,5 @@ protected:
     // caf::PdmField<int>       m_lineWidth;
 
     RiuWellLogTracePlot*    m_plot;
-    QwtPlotCurve*           m_plotCurve;
+    RiuWellLogPlotCurve*    m_plotCurve;
 };

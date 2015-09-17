@@ -36,7 +36,8 @@
 #include "RimWellLogPlotTrace.h"
 
 #include "RiuWellLogTracePlot.h"
-#include "qwt_plot_curve.h"
+#include "RiuWellLogPlotCurve.h"
+
 #include "RimWellLogPlotCollection.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "RigGeoMechWellLogExtractor.h"
@@ -132,6 +133,7 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         std::vector<double> filteredValues;
         std::vector<double> filteredDepths;
+        std::vector< std::pair<size_t, size_t> > plotIntervals;
 
         if (eclExtractor.notNull())
         {
@@ -157,24 +159,34 @@ void RimWellLogExtractionCurve::updatePlotData()
                 eclExtractor->curveData(resAcc.p(), &values);
             }
 
-            filterPlotValues( depthValues,  filteredDepths, 
-                              values,       filteredValues );
-
+            if (values.size() == depthValues.size())
+            {
+                validCurvePointIntervals(depthValues, values, plotIntervals);
+                addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
+                addValuesFromIntervals(values, plotIntervals, &filteredValues);
+            }
         }
         else if (geomExtractor.notNull()) // geomExtractor
         {
             const std::vector<double>& depthValues = geomExtractor->measuredDepth();
             m_geomResultDefinition->loadResult();
             std::vector<double> values;
-            geomExtractor->curveData(m_geomResultDefinition->resultAddress() , m_timeStep, &values);
+            geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, &values);
             
-
-            filterPlotValues( depthValues,  filteredDepths, 
-                              values,       filteredValues );
-
+            if (values.size() == depthValues.size())
+            {
+                validCurvePointIntervals(depthValues, values, plotIntervals);
+                addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
+                addValuesFromIntervals(values, plotIntervals, &filteredValues);
+            }
         }
 
         m_plotCurve->setSamples(filteredValues.data(), filteredDepths.data(), (int)filteredValues.size());
+        
+        std::vector< std::pair<size_t, size_t> > fltrIntervals;
+        filteredIntervals(plotIntervals, &fltrIntervals);
+
+        m_plotCurve->setPlotIntervals(fltrIntervals);
 
         if (filteredValues.size())
         {
@@ -331,23 +343,97 @@ void RimWellLogExtractionCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::filterPlotValues(const std::vector<double>& depthValues, std::vector<double> &filteredDepths, 
-                                                 const std::vector<double> &values,      std::vector<double> &filteredValues  )
+void RimWellLogExtractionCurve::validCurvePointIntervals(const std::vector<double>& depthValues, const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
 {
-    // Remove values that are too difficult for Qwt to handle
+    const size_t valuesCount = values.size();
+    CVF_ASSERT(valuesCount == depthValues.size());
 
-    filteredValues.reserve(values.size());
-    filteredDepths.reserve(values.size());
-    for (size_t vIdx = 0; vIdx < values.size(); ++vIdx)
+    // !! TODO: Find a reasonable tolerance
+    const double depthDiffTolerance = 0.1;
+
+    // Find intervals containing valid depth values
+    std::vector< std::pair<size_t, size_t> > validDepthIntervals;
+    size_t validDepthStartIdx = 0;    
+    for (size_t vIdx = 1; vIdx < valuesCount - 1; vIdx += 2)
     {
-        if (values[vIdx] == HUGE_VAL || values[vIdx] == -HUGE_VAL || (values[vIdx] != values[vIdx]))
+        if (abs(depthValues[vIdx + 1] - depthValues[vIdx]) > depthDiffTolerance)
         {
-            continue;
+            validDepthIntervals.push_back(std::make_pair(validDepthStartIdx, vIdx));
+            validDepthStartIdx = vIdx + 1;
         }
+    }
 
-        filteredDepths.push_back(depthValues[vIdx]);
-        filteredValues.push_back(values[vIdx]);
+    if (validDepthStartIdx > 0 && validDepthStartIdx < valuesCount)
+    {
+        validDepthIntervals.push_back(std::make_pair(validDepthStartIdx, valuesCount - 1));
+    }
+
+    // Find intervals containing valid values within intervals of valid depth values
+    for (size_t intIdx = 0; intIdx < validDepthIntervals.size(); intIdx++)
+    {
+        size_t intervalIdx1 = validDepthIntervals[intIdx].first;
+        bool prevValueValid = false;
+        for (size_t vIdx = validDepthIntervals[intIdx].first; vIdx <= validDepthIntervals[intIdx].second; vIdx++)
+        {
+            double value = values[vIdx];
+            if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
+            {
+                if (prevValueValid && vIdx > intervalIdx1)
+                {
+                    intervals.push_back(std::make_pair(intervalIdx1, vIdx - 1));
+                }
+                else intervalIdx1 = vIdx + 1;
+
+                prevValueValid = false;
+            }
+            else
+            {
+                prevValueValid = true;
+            }
+        }
+        
+        if (intIdx == validDepthIntervals.size() - 1)
+        {
+            if (intervalIdx1 >= validDepthIntervals[intIdx].first && intervalIdx1 <= validDepthIntervals[intIdx].second)
+            {
+                intervals.push_back(std::make_pair(intervalIdx1, validDepthIntervals[intIdx].second));
+            }
+        }
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::addValuesFromIntervals(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues)
+{
+    CVF_ASSERT(filteredValues);
 
+    for (size_t intIdx = 0; intIdx < intervals.size(); intIdx++)
+    {
+        for (size_t vIdx = intervals[intIdx].first; vIdx <= intervals[intIdx].second; vIdx++)
+        {
+            filteredValues->push_back(values[vIdx]);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::filteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* fltrIntervals)
+{
+    CVF_ASSERT(fltrIntervals);
+
+    const size_t intervalCount = intervals.size();
+    if (intervalCount < 1) return;
+
+    size_t index = 0;
+    for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
+    {
+        size_t intervalSize = intervals[intIdx].second - intervals[intIdx].first + 1;
+        fltrIntervals->push_back(std::make_pair(index, index + intervalSize - 1));
+
+        index += intervalSize;
+    }
+}
