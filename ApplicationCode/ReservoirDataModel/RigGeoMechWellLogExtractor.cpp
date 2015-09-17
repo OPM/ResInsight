@@ -117,7 +117,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
     const std::vector<cvf::Vec3f>& nodeCoords =  femPart->nodes().coordinates;
 
-    double globalMeasuredDepth = 0; // Where do we start ? z - of first well path point ? 
+    //double globalMeasuredDepth = 0; // Where do we start ? z - of first well path point ? 
 
     for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
     {
@@ -156,10 +156,25 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         // map <WellPathDepthPoint, (CellIdx, intersectionPoint)>
         std::map<WellPathDepthPoint, HexIntersectionInfo > sortedIntersections;
 
+        double md1 = m_wellPath->m_measuredDepths[wpp];
+        double md2 = m_wellPath->m_measuredDepths[wpp+1];
+
         for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
         {
-            double lenghtAlongLineSegment = (intersections[intIdx].m_intersectionPoint - p1).length();
-            double measuredDepthOfPoint = globalMeasuredDepth + lenghtAlongLineSegment;
+            double lenghtAlongLineSegment1 = (intersections[intIdx].m_intersectionPoint - p1).length();
+            double lenghtAlongLineSegment2 = (p2 - intersections[intIdx].m_intersectionPoint).length();
+            double measuredDepthDiff = md2 - md1;
+            double lineLength = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
+            double measuredDepthOfPoint = 0.0;
+            if (lineLength > 0.00001)
+            {
+                measuredDepthOfPoint = md1 + measuredDepthDiff*lenghtAlongLineSegment1/(lineLength);
+            }
+            else
+            {
+                measuredDepthOfPoint = md1;
+            }
+
             sortedIntersections.insert(std::make_pair(WellPathDepthPoint(measuredDepthOfPoint, intersections[intIdx].m_isIntersectionEntering), intersections[intIdx]));
         }
 
@@ -176,9 +191,6 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
             m_intersectedCellFaces.push_back(it->second.m_face);
             ++it;
         }
-
-        // Increment the measured depth
-        globalMeasuredDepth += (p2-p1).length();
     }
 }
 
