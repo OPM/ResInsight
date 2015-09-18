@@ -17,12 +17,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCurve.h"
 
-#include "RiuWellLogTracePlot.h"
+#include "RiuWellLogTrackPlot.h"
 #include "RiuWellLogPlot.h"
 #include "RiuMainWindow.h"
 
@@ -31,36 +31,36 @@
 
 #include <math.h>
 
-#define RI_LOGPLOTTRACE_MINX_DEFAULT    -10.0
-#define RI_LOGPLOTTRACE_MAXX_DEFAULT    100.0
+#define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
+#define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
 
 
-CAF_PDM_SOURCE_INIT(RimWellLogPlotTrace, "WellLogPlotTrace");
+CAF_PDM_SOURCE_INIT(RimWellLogPlotTrack, "WellLogPlotTrack");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrace::RimWellLogPlotTrace()
+RimWellLogPlotTrack::RimWellLogPlotTrack()
 {
-    CAF_PDM_InitObject("Trace", "", "", "");
+    CAF_PDM_InitObject("Track", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_userName, "TrackDescription", "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&m_show, "Show", true, "Show trace", "", "", "");
+    CAF_PDM_InitField(&m_show, "Show", true, "Show track", "", "", "");
     m_show.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");
     curves.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACE_MINX_DEFAULT, "Min", "", "", "");
-    CAF_PDM_InitField(&m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACE_MAXX_DEFAULT, "Max", "", "", "");   
+    CAF_PDM_InitField(&m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "");
+    CAF_PDM_InitField(&m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "");   
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrace::~RimWellLogPlotTrace()
+RimWellLogPlotTrack::~RimWellLogPlotTrack()
 {
     delete m_viewer;
 }
@@ -68,7 +68,7 @@ RimWellLogPlotTrace::~RimWellLogPlotTrace()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::setDescription(const QString& description)
+void RimWellLogPlotTrack::setDescription(const QString& description)
 {
     m_userName = description;
 }
@@ -76,7 +76,7 @@ void RimWellLogPlotTrace::setDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellLogPlotTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_show)
     {
@@ -92,7 +92,7 @@ void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlotTrace::objectToggleField()
+caf::PdmFieldHandle* RimWellLogPlotTrack::objectToggleField()
 {
     return &m_show;
 }
@@ -100,7 +100,7 @@ caf::PdmFieldHandle* RimWellLogPlotTrace::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlotTrace::userDescriptionField()
+caf::PdmFieldHandle* RimWellLogPlotTrack::userDescriptionField()
 {
     return &m_userName;
 }
@@ -108,7 +108,7 @@ caf::PdmFieldHandle* RimWellLogPlotTrace::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::addCurve(RimWellLogPlotCurve* curve)
+void RimWellLogPlotTrack::addCurve(RimWellLogPlotCurve* curve)
 {
     curves.push_back(curve);
 
@@ -122,7 +122,7 @@ void RimWellLogPlotTrace::addCurve(RimWellLogPlotCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTracePlot* RimWellLogPlotTrace::viewer()
+RiuWellLogTrackPlot* RimWellLogPlotTrack::viewer()
 {
     return m_viewer;
 }
@@ -130,7 +130,7 @@ RiuWellLogTracePlot* RimWellLogPlotTrace::viewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotTrace::availableDepthRange(double* minimumDepth, double* maximumDepth)
+bool RimWellLogPlotTrack::availableDepthRange(double* minimumDepth, double* maximumDepth)
 {
     double minDepth = HUGE_VAL;
     double maxDepth = -HUGE_VAL;
@@ -176,7 +176,7 @@ bool RimWellLogPlotTrace::availableDepthRange(double* minimumDepth, double* maxi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::loadDataAndUpdate()
+void RimWellLogPlotTrack::loadDataAndUpdate()
 {
     CVF_ASSERT(m_viewer);
 
@@ -198,11 +198,11 @@ void RimWellLogPlotTrace::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::recreateViewer()
+void RimWellLogPlotTrack::recreateViewer()
 {
     CVF_ASSERT(m_viewer == NULL);
 
-    m_viewer = new RiuWellLogTracePlot(this);
+    m_viewer = new RiuWellLogTrackPlot(this);
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
         curves[cIdx]->setPlot(this->m_viewer);
@@ -212,7 +212,7 @@ void RimWellLogPlotTrace::recreateViewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::detachAllCurves()
+void RimWellLogPlotTrack::detachAllCurves()
 {
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
@@ -223,7 +223,7 @@ void RimWellLogPlotTrace::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::updateAxisRangesAndReplot()
+void RimWellLogPlotTrack::updateAxisRangesAndReplot()
 {
     bool rangesChanged = false;
 
@@ -243,7 +243,7 @@ void RimWellLogPlotTrace::updateAxisRangesAndReplot()
         // Assume auto-scaling on X-axis as long as curves exist, reset to default if not
         if (curves.size() < 1)
         {
-            m_viewer->setAxisScale(QwtPlot::xTop, RI_LOGPLOTTRACE_MINX_DEFAULT, RI_LOGPLOTTRACE_MAXX_DEFAULT);
+            m_viewer->setAxisScale(QwtPlot::xTop, RI_LOGPLOTTRACK_MINX_DEFAULT, RI_LOGPLOTTRACK_MAXX_DEFAULT);
             rangesChanged = true;
         }
 
@@ -257,7 +257,7 @@ void RimWellLogPlotTrace::updateAxisRangesAndReplot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::updateXAxisRangeFromCurves()
+void RimWellLogPlotTrack::updateXAxisRangeFromCurves()
 {
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
@@ -300,7 +300,7 @@ void RimWellLogPlotTrace::updateXAxisRangeFromCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotCurve* RimWellLogPlotTrace::curveDefinitionFromCurve(const QwtPlotCurve* curve) const
+RimWellLogPlotCurve* RimWellLogPlotTrack::curveDefinitionFromCurve(const QwtPlotCurve* curve) const
 {
     for (size_t idx = 0; idx < curves.size(); idx++)
     {
@@ -316,7 +316,7 @@ RimWellLogPlotCurve* RimWellLogPlotTrace::curveDefinitionFromCurve(const QwtPlot
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrace::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogPlotTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
 

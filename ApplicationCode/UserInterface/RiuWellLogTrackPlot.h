@@ -19,23 +19,43 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "qwt_plot.h"
 
-class RimWellLogPlot;
+class RimWellLogPlotTrack;
+class QwtPlotGrid;
+class QwtLegend;
+
+class QEvent;
 
 //==================================================================================================
-/// 
+//
+//
+//
 //==================================================================================================
-class RicNewWellLogPlotTraceFeature : public caf::CmdFeature
+class RiuWellLogTrackPlot : public QwtPlot
 {
-    CAF_CMD_HEADER_INIT;
+    Q_OBJECT
+
+public:
+    RiuWellLogTrackPlot(RimWellLogPlotTrack* plotTrackDefinition, QWidget* parent = NULL);
+    virtual ~RiuWellLogTrackPlot();
+
+    void setDepthRange(double minDepth, double maxDepth);
+    void setDepthTitle(const QString& title);
 
 protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool eventFilter(QObject* watched, QEvent* event);
+    virtual void focusInEvent(QFocusEvent* event);
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSizeHint() const;
 
 private:
-   RimWellLogPlot* selectedWellLogPlot();
+    void setDefaults();
+    void selectClosestCurve(const QPoint& pos);
+
+private:
+    RimWellLogPlotTrack*    m_plotTrackDefinition;
+    QwtPlotGrid*            m_grid;
+    QwtLegend*              m_legend;
 };
+

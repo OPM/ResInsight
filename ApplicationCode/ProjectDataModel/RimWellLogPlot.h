@@ -27,7 +27,7 @@
 #include <QPointer>
 
 class RiuWellLogPlot;
-class RimWellLogPlotTrace;
+class RimWellLogPlotTrack;
 
 
 //==================================================================================================
@@ -52,11 +52,11 @@ public:
     void setDescription(const QString& description);
     void updateViewerWidgetWindowTitle();
 
-    void    addTrace(RimWellLogPlotTrace* trace);
-    size_t  traceCount() { return traces.size();}
+    void    addTrack(RimWellLogPlotTrack* track);
+    size_t  trackCount() { return tracks.size();}
 
     void loadDataAndUpdate();
-    void updateTraces();
+    void updateTracks();
 
     RiuWellLogPlot* viewer();
 
@@ -89,7 +89,7 @@ protected:
 
 private:
     void updateViewerWidget();
-    void recreateTracePlots();
+    void recreateTrackPlots();
     void detachAllCurves();
     void handleViewerDeletion();
 
@@ -102,7 +102,7 @@ private:
     
     caf::PdmField<bool>                 m_showWindow;
 
-    caf::PdmChildArrayField<RimWellLogPlotTrace*> traces;
+    caf::PdmChildArrayField<RimWellLogPlotTrack*> tracks;
     
     caf::PdmField<QString>                          m_userName;
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >  m_depthType;

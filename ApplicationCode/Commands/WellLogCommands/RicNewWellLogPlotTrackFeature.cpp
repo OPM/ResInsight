@@ -17,10 +17,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellLogPlotTraceFeature.h"
+#include "RicNewWellLogPlotTrackFeature.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 
 #include "RiuMainWindow.h"
 
@@ -31,12 +31,12 @@
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicNewWellLogPlotTraceFeature, "RicNewWellLogPlotTraceFeature");
+CAF_CMD_SOURCE_INIT(RicNewWellLogPlotTrackFeature, "RicNewWellLogPlotTrackFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogPlotTraceFeature::isCommandEnabled()
+bool RicNewWellLogPlotTrackFeature::isCommandEnabled()
 {
     return selectedWellLogPlot() != NULL;
 }
@@ -44,32 +44,32 @@ bool RicNewWellLogPlotTraceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotTraceFeature::onActionTriggered(bool isChecked)
+void RicNewWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
 {
     RimWellLogPlot* wellLogPlot = selectedWellLogPlot();
     if (wellLogPlot)
     {
-         RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace;
-         wellLogPlot->addTrace(plotTrace);
-         plotTrace->setDescription(QString("Track %1").arg(wellLogPlot->traceCount()));
+         RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack;
+         wellLogPlot->addTrack(plotTrack);
+         plotTrack->setDescription(QString("Track %1").arg(wellLogPlot->trackCount()));
 
          wellLogPlot->updateConnectedEditors();
-         RicNewWellLogCurveExtractionFeature::addCurve(plotTrace);
+         RicNewWellLogCurveExtractionFeature::addCurve(plotTrack);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotTraceFeature::setupActionLook(QAction* actionToSetup)
+void RicNewWellLogPlotTrackFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Trace");
+    actionToSetup->setText("New Track");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RicNewWellLogPlotTraceFeature::selectedWellLogPlot()
+RimWellLogPlot* RicNewWellLogPlotTrackFeature::selectedWellLogPlot()
 {
     std::vector<RimWellLogPlot*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);

@@ -28,7 +28,7 @@
 #include <vector>
 
 class RimWellLogPlotCurve;
-class RiuWellLogTracePlot;
+class RiuWellLogTrackPlot;
 
 class QwtPlotCurve;
 
@@ -36,12 +36,12 @@ class QwtPlotCurve;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogPlotTrace : public caf::PdmObject
+class RimWellLogPlotTrack : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimWellLogPlotTrace();
-    virtual ~RimWellLogPlotTrace();
+    RimWellLogPlotTrack();
+    virtual ~RimWellLogPlotTrack();
 
     void setDescription(const QString& description);
 
@@ -57,7 +57,7 @@ public:
     void updateAxisRangesAndReplot();
     void updateXAxisRangeFromCurves();
 
-    RiuWellLogTracePlot* viewer();
+    RiuWellLogTrackPlot* viewer();
     
     RimWellLogPlotCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;
 
@@ -76,5 +76,5 @@ private:
     caf::PdmField<double> m_visibleXRangeMin;
     caf::PdmField<double> m_visibleXRangeMax;
 
-    QPointer<RiuWellLogTracePlot> m_viewer;
+    QPointer<RiuWellLogTrackPlot> m_viewer;
 };

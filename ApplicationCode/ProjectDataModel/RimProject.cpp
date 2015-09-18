@@ -625,7 +625,7 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 #include "RimWellLogPlotCurve.h"
 #include "RimWellLogFileChannel.h"
 #include <QMenu>
@@ -815,10 +815,10 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
-            commandIds << "RicNewWellLogPlotTraceFeature";
+            commandIds << "RicNewWellLogPlotTrackFeature";
             commandIds << "RicDeleteItemFeature";
         }
-        else if (dynamic_cast<RimWellLogPlotTrace*>(uiItem))
+        else if (dynamic_cast<RimWellLogPlotTrack*>(uiItem))
         {
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellLogCurveLasFeature";

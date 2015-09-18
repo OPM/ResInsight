@@ -10,7 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewWellLogCurveExtractionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogCurveLasFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeatureImpl.h
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotTraceFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotTrackFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellLogPlotCurveFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 )
@@ -21,7 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewWellLogCurveExtractionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogCurveLasFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeatureImpl.cpp
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotTraceFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotTrackFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellLogPlotCurveFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.cpp
 )

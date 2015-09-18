@@ -19,11 +19,11 @@
 
 #include "RiuWellLogPlot.h"
 
-#include "RiuWellLogTracePlot.h"
+#include "RiuWellLogTrackPlot.h"
 #include "RiuMainWindow.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 
 #include "cafPdmUiTreeView.h"
 #include "cvfAssert.h"
@@ -69,11 +69,11 @@ RiuWellLogPlot::~RiuWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::insertTracePlot(RiuWellLogTracePlot* tracePlot)
+void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot)
 {
     // Insert the plot to the left of the scroll bar
-    m_layout->insertWidget(m_layout->count() - 1, tracePlot);
-    m_tracePlots.append(tracePlot);  
+    m_layout->insertWidget(m_layout->count() - 1, trackPlot);
+    m_trackPlots.append(trackPlot);  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,10 +81,10 @@ void RiuWellLogPlot::insertTracePlot(RiuWellLogTracePlot* tracePlot)
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::setDepthRangeAndReplot(double minDepth, double maxDepth)
 {
-    for (int tpIdx = 0; tpIdx < m_tracePlots.count(); tpIdx++)
+    for (int tpIdx = 0; tpIdx < m_trackPlots.count(); tpIdx++)
     {
-        m_tracePlots[tpIdx]->setDepthRange(minDepth, maxDepth);
-        m_tracePlots[tpIdx]->replot();
+        m_trackPlots[tpIdx]->setDepthRange(minDepth, maxDepth);
+        m_trackPlots[tpIdx]->replot();
     }
 
     updateScrollBar(minDepth, maxDepth);

@@ -29,7 +29,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 #include "RimWellPathCollection.h"
 
 #include "cafNotificationCenter.h"
@@ -117,11 +117,11 @@ void RicDeleteItemExec::redo()
             wellLogPlot->updateAvailableDepthRange();
         }
 
-        RimWellLogPlotTrace* wellLogPlotTrace;
-        parentObj->firstAnchestorOrThisOfType(wellLogPlotTrace);
-        if (wellLogPlotTrace)
+        RimWellLogPlotTrack* wellLogPlotTrack;
+        parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        if (wellLogPlotTrack)
         {
-            wellLogPlotTrace->updateAxisRangesAndReplot();
+            wellLogPlotTrack->updateAxisRangesAndReplot();
         }
 
         RimWellLogPlotCollection* wellLogPlotCollection = NULL;

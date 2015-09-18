@@ -33,9 +33,9 @@
 #include "RigCaseData.h"
 #include "RimWellLogPlotCurve.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 
-#include "RiuWellLogTracePlot.h"
+#include "RiuWellLogTrackPlot.h"
 #include "RiuWellLogPlotCurve.h"
 
 #include "RimWellLogPlotCollection.h"
@@ -190,18 +190,18 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         if (filteredValues.size())
         {
-            RimWellLogPlotTrace* plotTrace;
-            firstAnchestorOrThisOfType(plotTrace);
+            RimWellLogPlotTrack* plotTrack;
+            firstAnchestorOrThisOfType(plotTrack);
 
-            if (plotTrace)
+            if (plotTrack)
             {
-                plotTrace->updateXAxisRangeFromCurves();
+                plotTrack->updateXAxisRangeFromCurves();
             }
 
             RimWellLogPlot* wellLogPlot;
             firstAnchestorOrThisOfType(wellLogPlot);
 
-            if (wellLogPlot && plotTrace)
+            if (wellLogPlot && plotTrack)
             {
                 bool setDepthRange = !wellLogPlot->hasAvailableDepthRange();
                 wellLogPlot->updateAvailableDepthRange();
@@ -210,9 +210,9 @@ void RimWellLogExtractionCurve::updatePlotData()
                 {
                     wellLogPlot->setVisibleDepthRangeFromContents();
                 }
-                else if (plotTrace->curveCount() == 1)
+                else if (plotTrack->curveCount() == 1)
                 {
-                    plotTrace->updateAxisRangesAndReplot();
+                    plotTrack->updateAxisRangesAndReplot();
                 }
             }
         }

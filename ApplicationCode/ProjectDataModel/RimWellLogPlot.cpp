@@ -19,10 +19,10 @@
 
 #include "RimWellLogPlot.h"
 
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 
 #include "RiuWellLogPlot.h"
-#include "RiuWellLogTracePlot.h"
+#include "RiuWellLogTrackPlot.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiTreeView.h"
@@ -69,8 +69,8 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
 
-    CAF_PDM_InitFieldNoDefault(&traces, "Traces", "",  "", "", "");
-    traces.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&tracks, "Tracks", "",  "", "", "");
+    tracks.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
     windowGeometry.uiCapability()->setUiHidden(true);
@@ -100,7 +100,7 @@ void RimWellLogPlot::updateViewerWidget()
         {
             m_viewer = new RiuWellLogPlot(this, RiuMainWindow::instance());
 
-            recreateTracePlots();
+            recreateTrackPlots();
 
             RiuMainWindow::instance()->addViewer(m_viewer, windowGeometry());
             RiuMainWindow::instance()->setActiveViewer(m_viewer);
@@ -149,7 +149,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     if (changedField == &m_depthType)
     {
-        updateTraces();
+        updateTracks();
     }
 }
 
@@ -164,13 +164,13 @@ caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::addTrace(RimWellLogPlotTrace* trace)
+void RimWellLogPlot::addTrack(RimWellLogPlotTrack* track)
 {
-    traces.push_back(trace);
+    tracks.push_back(track);
     if(m_viewer)
     {
-        trace->recreateViewer();
-        m_viewer->insertTracePlot(trace->viewer());
+        track->recreateViewer();
+        m_viewer->insertTrackPlot(track->viewer());
     }
 }
 
@@ -224,21 +224,21 @@ void RimWellLogPlot::updateAvailableDepthRange()
     double minDepth = HUGE_VAL;
     double maxDepth = -HUGE_VAL;
 
-    for (size_t tIdx = 0; tIdx < traces.size(); tIdx++)
+    for (size_t tIdx = 0; tIdx < tracks.size(); tIdx++)
     {
-        double minTraceDepth = HUGE_VAL;
-        double maxTraceDepth = -HUGE_VAL;
+        double minTrackDepth = HUGE_VAL;
+        double maxTrackDepth = -HUGE_VAL;
 
-        if (traces[tIdx]->availableDepthRange(&minTraceDepth, &maxTraceDepth))
+        if (tracks[tIdx]->availableDepthRange(&minTrackDepth, &maxTrackDepth))
         {
-            if (minTraceDepth < minDepth)
+            if (minTrackDepth < minDepth)
             {
-                minDepth = minTraceDepth;
+                minDepth = minTrackDepth;
             }
 
-            if (maxTraceDepth > maxDepth)
+            if (maxTrackDepth > maxDepth)
             {
-                maxDepth = maxTraceDepth;
+                maxDepth = maxTrackDepth;
             }
         }
     }
@@ -315,19 +315,19 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 void RimWellLogPlot::loadDataAndUpdate()
 {
     updateViewerWidget();
-    updateTraces();
+    updateTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateTraces()
+void RimWellLogPlot::updateTracks()
 {
     if (m_showWindow)
     {
-        for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
+        for (size_t tIdx = 0; tIdx < tracks.size(); ++tIdx)
         {
-            traces[tIdx]->loadDataAndUpdate();
+            tracks[tIdx]->loadDataAndUpdate();
         }
 
         updateAvailableDepthRange();
@@ -369,14 +369,14 @@ void RimWellLogPlot::setVisibleDepthRangeFromContents()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::recreateTracePlots()
+void RimWellLogPlot::recreateTrackPlots()
 {
     CVF_ASSERT(m_viewer);
 
-    for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
+    for (size_t tIdx = 0; tIdx < tracks.size(); ++tIdx)
     {
-        traces[tIdx]->recreateViewer();
-        m_viewer->insertTracePlot(traces[tIdx]->viewer());
+        tracks[tIdx]->recreateViewer();
+        m_viewer->insertTrackPlot(tracks[tIdx]->viewer());
     }
 }
 
@@ -385,9 +385,9 @@ void RimWellLogPlot::recreateTracePlots()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::detachAllCurves()
 {
-    for (size_t tIdx = 0; tIdx < traces.size(); ++tIdx)
+    for (size_t tIdx = 0; tIdx < tracks.size(); ++tIdx)
     {
-       traces[tIdx]->detachAllCurves();
+       tracks[tIdx]->detachAllCurves();
     }
 }
 

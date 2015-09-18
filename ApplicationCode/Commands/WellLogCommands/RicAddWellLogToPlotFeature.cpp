@@ -25,7 +25,7 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 #include "RimWellLogFileCurve.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
@@ -37,7 +37,7 @@
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
-#include "RiuWellLogTracePlot.h"
+#include "RiuWellLogTrackPlot.h"
 
 #include "cafSelectionManager.h"
 #include "cafPdmUiTreeView.h"
@@ -68,8 +68,8 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
     
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
-    RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace();
-    plot->addTrace(plotTrace);
+    RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
+    plot->addTrack(plotTrack);
 
     plot->loadDataAndUpdate();
 
@@ -86,10 +86,10 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         wellLog->firstAnchestorOrThisOfType(wellLogFile);
         if (wellLogFile)
         {
-            size_t curveIdx = plotTrace->curveCount();
+            size_t curveIdx = plotTrack->curveCount();
 
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
-            plotTrace->addCurve(curve);
+            plotTrack->addCurve(curve);
 
             cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIdx);
             curve->setColor(curveColor);
@@ -108,8 +108,8 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 
     plot->updateAvailableDepthRange();
     plot->setVisibleDepthRangeFromContents();
-    plotTrace->updateXAxisRangeFromCurves();
-    plotTrace->viewer()->replot();
+    plotTrack->updateXAxisRangeFromCurves();
+    plotTrack->viewer()->replot();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 

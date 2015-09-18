@@ -25,10 +25,10 @@
 #include "RimWellPath.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 #include "RimWellLogPlot.h"
 
-#include "RiuWellLogTracePlot.h"
+#include "RiuWellLogTrackPlot.h"
 #include "RiuWellLogPlotCurve.h"
 
 #include "RiaApplication.h"
@@ -122,8 +122,8 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     RimWellLogPlot* wellLoglot;
     firstAnchestorOrThisOfType(wellLoglot);
 
-    RimWellLogPlotTrace* wellLoglotTrace;
-    firstAnchestorOrThisOfType(wellLoglotTrace);
+    RimWellLogPlotTrack* wellLoglotTrack;
+    firstAnchestorOrThisOfType(wellLoglotTrack);
 
     if (changedField == &m_wellPath)
     {
@@ -135,9 +135,9 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             wellLoglot->setVisibleDepthRangeFromContents();
         }
 
-        if (wellLoglotTrace)
+        if (wellLoglotTrack)
         {
-            wellLoglotTrace->updateXAxisRangeFromCurves();
+            wellLoglotTrack->updateXAxisRangeFromCurves();
         }
     }
     else if (changedField == &m_wellLogChannnelName)
@@ -157,9 +157,9 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 wellLoglot->setVisibleDepthRangeFromContents();
             }
 
-            if (wellLoglotTrace)
+            if (wellLoglotTrack)
             {
-                wellLoglotTrace->updateXAxisRangeFromCurves();
+                wellLoglotTrack->updateXAxisRangeFromCurves();
             }
         }
     }

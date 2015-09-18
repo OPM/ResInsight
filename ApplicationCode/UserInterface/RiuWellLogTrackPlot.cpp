@@ -17,10 +17,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellLogTracePlot.h"
+#include "RiuWellLogTrackPlot.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 #include "RimWellLogPlotCurve.h"
 
 #include "RiuMainWindow.h"
@@ -47,11 +47,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTracePlot::RiuWellLogTracePlot(RimWellLogPlotTrace* plotTraceDefinition, QWidget* parent)
+RiuWellLogTrackPlot::RiuWellLogTrackPlot(RimWellLogPlotTrack* plotTrackDefinition, QWidget* parent)
     : QwtPlot(parent)
 {
-    Q_ASSERT(plotTraceDefinition);
-    m_plotTraceDefinition = plotTraceDefinition;
+    Q_ASSERT(plotTrackDefinition);
+    m_plotTrackDefinition = plotTrackDefinition;
 
     m_grid = new QwtPlotGrid();
     m_grid->attach(this);
@@ -66,7 +66,7 @@ RiuWellLogTracePlot::RiuWellLogTracePlot(RimWellLogPlotTrace* plotTraceDefinitio
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTracePlot::~RiuWellLogTracePlot()
+RiuWellLogTrackPlot::~RiuWellLogTrackPlot()
 {
     m_grid->detach();
     delete m_grid;
@@ -75,7 +75,7 @@ RiuWellLogTracePlot::~RiuWellLogTracePlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTracePlot::setDefaults()
+void RiuWellLogTrackPlot::setDefaults()
 {
     QPalette newPalette(palette());
     newPalette.setColor(QPalette::Background, Qt::white);
@@ -134,7 +134,7 @@ void RiuWellLogTracePlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTracePlot::setDepthRange(double minDepth, double maxDepth)
+void RiuWellLogTrackPlot::setDepthRange(double minDepth, double maxDepth)
 {
     // Note: Y-axis is inverted
     setAxisScale(QwtPlot::yLeft, maxDepth, minDepth);
@@ -144,7 +144,7 @@ void RiuWellLogTracePlot::setDepthRange(double minDepth, double maxDepth)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTracePlot::setDepthTitle(const QString& title)
+void RiuWellLogTrackPlot::setDepthTitle(const QString& title)
 {
     QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
     axisTitleY.setText(title);
@@ -154,20 +154,20 @@ void RiuWellLogTracePlot::setDepthTitle(const QString& title)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiuWellLogTracePlot::eventFilter(QObject* watched, QEvent* event)
+bool RiuWellLogTrackPlot::eventFilter(QObject* watched, QEvent* event)
 {
     if (watched == canvas())
     {
         QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>(event);
         if (wheelEvent)
         {
-            if (!m_plotTraceDefinition)
+            if (!m_plotTrackDefinition)
             {
                 return QwtPlot::eventFilter(watched, event);
             }
 
             RimWellLogPlot* plotDefinition;
-            m_plotTraceDefinition->firstAnchestorOrThisOfType(plotDefinition);
+            m_plotTrackDefinition->firstAnchestorOrThisOfType(plotDefinition);
             if (!plotDefinition)
             {
                 return QwtPlot::eventFilter(watched, event);
@@ -214,11 +214,11 @@ bool RiuWellLogTracePlot::eventFilter(QObject* watched, QEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTracePlot::focusInEvent(QFocusEvent* event)
+void RiuWellLogTrackPlot::focusInEvent(QFocusEvent* event)
 {
-    if (m_plotTraceDefinition)
+    if (m_plotTrackDefinition)
     {
-        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(m_plotTraceDefinition);
+        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(m_plotTrackDefinition);
         clearFocus();
     }
 }
@@ -226,7 +226,7 @@ void RiuWellLogTracePlot::focusInEvent(QFocusEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTracePlot::selectClosestCurve(const QPoint& pos)
+void RiuWellLogTrackPlot::selectClosestCurve(const QPoint& pos)
 {
     QwtPlotCurve* closestCurve = NULL;
     double distMin = DBL_MAX;
@@ -249,7 +249,7 @@ void RiuWellLogTracePlot::selectClosestCurve(const QPoint& pos)
 
     if (closestCurve)
     {
-        RimWellLogPlotCurve* selectedCurve = m_plotTraceDefinition->curveDefinitionFromCurve(closestCurve);
+        RimWellLogPlotCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve(closestCurve);
         if (selectedCurve)
         {
             RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(selectedCurve);
@@ -260,7 +260,7 @@ void RiuWellLogTracePlot::selectClosestCurve(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize RiuWellLogTracePlot::sizeHint() const
+QSize RiuWellLogTrackPlot::sizeHint() const
 {
     return QSize(0, 0);
 }
@@ -268,7 +268,7 @@ QSize RiuWellLogTracePlot::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize RiuWellLogTracePlot::minimumSizeHint() const
+QSize RiuWellLogTrackPlot::minimumSizeHint() const
 {
     return QSize(0, 0);
 }

@@ -21,7 +21,7 @@
 
 #include "RimWellLogPlot.h"
 
-#include "RiuWellLogTracePlot.h"
+#include "RiuWellLogTrackPlot.h"
 #include "RiuWellLogPlotCurve.h"
 
 #include "cvfAssert.h"
@@ -122,7 +122,7 @@ void RimWellLogPlotCurve::updatePlotData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::setPlot(RiuWellLogTracePlot* plot)
+void RimWellLogPlotCurve::setPlot(RiuWellLogTrackPlot* plot)
 {
     m_plot = plot;
     if (m_showCurve)

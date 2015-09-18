@@ -23,7 +23,7 @@
 
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrace.h"
+#include "RimWellLogPlotTrack.h"
 #include "RicNewWellLogCurveExtractionFeature.h"
 #include "RiaApplication.h"
 
@@ -49,15 +49,15 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
-    RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace();
-    plot->addTrace(plotTrace);
-    plotTrace->setDescription(QString("Track %1").arg(plot->traceCount()));
+    RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
+    plot->addTrack(plotTrack);
+    plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
 
     plot->loadDataAndUpdate();
     plot->updateConnectedEditors();
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    RicNewWellLogCurveExtractionFeature::addCurve(plotTrace);
+    RicNewWellLogCurveExtractionFeature::addCurve(plotTrack);
 }
 
 //--------------------------------------------------------------------------------------------------

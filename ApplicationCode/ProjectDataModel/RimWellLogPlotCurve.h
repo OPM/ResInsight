@@ -25,7 +25,7 @@
 
 #include <vector>
 
-class RiuWellLogTracePlot;
+class RiuWellLogTrackPlot;
 class RiuWellLogPlotCurve;
 class QwtPlotCurve;
 class QString;
@@ -47,7 +47,7 @@ public:
     bool    depthRange(double* minimumDepth, double* maximumDepth) const;
     bool    valueRange(double* minimumValue, double* maximumValue) const;
     
-    void    setPlot(RiuWellLogTracePlot* plot);
+    void    setPlot(RiuWellLogTrackPlot* plot);
     void    detachCurve();
 
     QwtPlotCurve* plotCurve() const;
@@ -69,6 +69,6 @@ protected:
     // caf::PdmField<Linestyle> m_lineStyle;
     // caf::PdmField<int>       m_lineWidth;
 
-    RiuWellLogTracePlot*    m_plot;
+    RiuWellLogTrackPlot*    m_plot;
     RiuWellLogPlotCurve*    m_plotCurve;
 };

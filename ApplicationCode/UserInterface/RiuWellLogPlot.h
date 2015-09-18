@@ -24,7 +24,7 @@
 #include "cafPdmPointer.h"
 
 class RimWellLogPlot;
-class RiuWellLogTracePlot;
+class RiuWellLogTrackPlot;
 
 class QHBoxLayout;
 class QScrollBar;
@@ -45,7 +45,7 @@ public:
 
     RimWellLogPlot* ownerPlotDefinition();
 
-    void insertTracePlot(RiuWellLogTracePlot* tracePlot);
+    void insertTrackPlot(RiuWellLogTrackPlot* trackPlot);
 
     void setDepthRangeAndReplot(double minDepth, double maxDepth);
 
@@ -58,7 +58,7 @@ private slots:
 private:
     QHBoxLayout*                    m_layout;
     QScrollBar*                     m_scrollBar;
-    QList<RiuWellLogTracePlot*>     m_tracePlots;
+    QList<RiuWellLogTrackPlot*>     m_trackPlots;
     caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
 };
 
