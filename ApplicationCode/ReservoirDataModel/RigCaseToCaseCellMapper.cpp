@@ -537,17 +537,27 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
             }
         }
 
-        if (matchingCells.size() == 1)
-        {
-            m_masterCellOrIntervalIndex[elmIdx] = matchingCells[0];
-        }
-        else if (matchingCells.size() > 1)
-        {
-            m_masterCellOrIntervalIndex[elmIdx] = -((int)(m_masterCellIndexSeries.size()));
-            m_masterCellIndexSeries.push_back(matchingCells);
-        }
+
+        storeMapping(elmIdx, matchingCells);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseToCaseCellMapper::storeMapping(int depCaseCellIdx, const std::vector<int>& masterCaseMatchingCells)
+{
+    if (masterCaseMatchingCells.size() == 1)
+    {
+        m_masterCellOrIntervalIndex[depCaseCellIdx] = masterCaseMatchingCells[0];
+    }
+    else if (masterCaseMatchingCells.size() > 1)
+    {
+        m_masterCellOrIntervalIndex[depCaseCellIdx] = -((int)(m_masterCellIndexSeries.size()));
+        m_masterCellIndexSeries.push_back(masterCaseMatchingCells);
+    }
+}
+
 
 #if 0
 //--------------------------------------------------------------------------------------------------
