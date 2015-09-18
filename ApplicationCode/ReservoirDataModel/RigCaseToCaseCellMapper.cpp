@@ -328,11 +328,12 @@ enum RigHexIntersectResult
 
 
 //RigHexIntersectResult isEclFemCellsMatching(cvf::Vec3d eclCorners[8], cvf::Vec3d elmCorners[8])
-bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  RigFemPart* femPart, int elmIdx,
-                                            double xyTolerance, double zTolerance)
+//bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  RigFemPart* femPart, int elmIdx,
+//                                            double xyTolerance, double zTolerance)
+bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFaceNormalsOutwards,  
+                           RigFemPart* femPart, int elmIdx,
+                           double xyTolerance, double zTolerance)
 {
-    cvf::Vec3d gomConvertedEclCell[8];
-    estimatedFemCellFromEclCell(eclGrid, reservoirCellIndex,  gomConvertedEclCell);
 
     // Find the element top and bottom 
     int femDeepZFaceIdx = 4;
@@ -384,7 +385,7 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
         eclShallowQuad[3] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[3]];
     }
 
-    if (!eclGrid->isFaceNormalsOutwards())
+    if (!isEclFaceNormalsOutwards)
     {
         flipQuadWinding(femShallowQuad);
         flipQuadWinding(femDeepestQuad);
@@ -499,6 +500,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
 
     int elementCount = dependentFemPart->elementCount();
     cvf::Vec3d elmCorners[8];
+
     for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
     {
         #ifdef _DEBUG
@@ -525,7 +527,12 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
             size_t localCellIdx = masterEclGrid->cells()[closeCells[ccIdx]].gridLocalCellIndex();
             masterEclGrid->cellCornerVertices(localCellIdx, cellCorners);
 
-            bool isMatching = isEclFemCellsMatching(masterEclGrid, closeCells[ccIdx], dependentFemPart, elmIdx, xyTolerance, zTolerance);
+            cvf::Vec3d gomConvertedEclCell[8];
+            estimatedFemCellFromEclCell(masterEclGrid, closeCells[ccIdx], gomConvertedEclCell);
+
+            bool isMatching = isEclFemCellsMatching(gomConvertedEclCell, masterEclGrid->isFaceNormalsOutwards(), 
+                                                    dependentFemPart, elmIdx, 
+                                                    xyTolerance, zTolerance);
 
             if (isMatching)
             {
