@@ -159,7 +159,7 @@ void RimWellLogExtractionCurve::updatePlotData()
                 eclExtractor->curveData(resAcc.p(), &values);
             }
 
-            if (values.size() == depthValues.size())
+            if (values.size() > 0 && values.size() == depthValues.size())
             {
                 validCurvePointIntervals(depthValues, values, plotIntervals);
                 addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
@@ -173,7 +173,7 @@ void RimWellLogExtractionCurve::updatePlotData()
             std::vector<double> values;
             geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, &values);
             
-            if (values.size() == depthValues.size())
+            if (values.size() > 0 && values.size() == depthValues.size())
             {
                 validCurvePointIntervals(depthValues, values, plotIntervals);
                 addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
