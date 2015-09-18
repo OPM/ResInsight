@@ -75,7 +75,18 @@ void RimWellLogFileCurve::updatePlotData()
             if (logFileInfo)
             {
                 RigWellLogFile* wellLogFile = logFileInfo->wellLogFile();
-                m_plotCurve->setSamples(wellLogFile->values(m_wellLogChannnelName).data(), wellLogFile->depthValues().data(), (int) wellLogFile->depthValues().size());
+
+                std::vector<double> values = wellLogFile->values(m_wellLogChannnelName);
+                std::vector<double> depthValues = wellLogFile->depthValues();
+
+                if (values.size() > 0 && depthValues.size() > 0)
+                {
+                    m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
+                }
+                else
+                {
+                    m_plotCurve->setSamples(NULL, NULL, 0);
+                }
             }
         }
         else
@@ -203,6 +214,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
                     optionList.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
                 }
             }
+        }
+
+        if (optionList.size() == 0)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo("None", "None"));
         }
     }
 

@@ -130,5 +130,11 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
     // TODO: Possibly handle discrete logs
 
     CVF_ASSERT(m_wellLogFile);
-    return m_wellLogFile->GetContLog(name.toStdString());
+
+    if (m_wellLogFile->HasContLog(name.toStdString()))
+    {
+        return m_wellLogFile->GetContLog(name.toStdString());
+    }
+
+    return std::vector<double>();
 }
