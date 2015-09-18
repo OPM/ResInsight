@@ -26,7 +26,7 @@ class RimWellLogPlotTrack;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellLogCurveLasFeature : public caf::CmdFeature
+class RicNewWellLogFileCurveFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

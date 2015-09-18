@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellLogCurveLasFeature.h"
+#include "RicNewWellLogFileCurveFeature.h"
 
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
@@ -33,12 +33,12 @@
 #include <vector>
 
 
-CAF_CMD_SOURCE_INIT(RicNewWellLogCurveLasFeature, "RicNewWellLogCurveLasFeature");
+CAF_CMD_SOURCE_INIT(RicNewWellLogFileCurveFeature, "RicNewWellLogFileCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogCurveLasFeature::isCommandEnabled()
+bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 {
     return selectedWellLogPlotTrack() != NULL;
 }
@@ -46,7 +46,7 @@ bool RicNewWellLogCurveLasFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogCurveLasFeature::onActionTriggered(bool isChecked)
+void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 {
     RimWellLogPlotTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
@@ -58,7 +58,7 @@ void RicNewWellLogCurveLasFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogCurveLasFeature::setupActionLook(QAction* actionToSetup)
+void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Well Log LAS Curve");
 }
@@ -66,7 +66,7 @@ void RicNewWellLogCurveLasFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrack* RicNewWellLogCurveLasFeature::selectedWellLogPlotTrack()
+RimWellLogPlotTrack* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrack()
 {
     std::vector<RimWellLogPlotTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -76,7 +76,7 @@ RimWellLogPlotTrack* RicNewWellLogCurveLasFeature::selectedWellLogPlotTrack()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogCurveLasFeature::addCurve(RimWellLogPlotTrack* plotTrack)
+void RicNewWellLogFileCurveFeature::addCurve(RimWellLogPlotTrack* plotTrack)
 {
     CVF_ASSERT(plotTrack);
 
