@@ -38,7 +38,7 @@
 #include "RimEclipseCase.h"
 #include "RigCaseData.h"
 #include "RimGeoMechCase.h"
-#include "RigGeomechCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigCaseToCaseCellMapper.h"
 
