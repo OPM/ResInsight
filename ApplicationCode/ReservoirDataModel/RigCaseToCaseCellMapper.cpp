@@ -328,37 +328,38 @@ bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFa
                            double xyTolerance, double zTolerance)
 {
 
-    // Find the element top and bottom 
+    // Find the element top 
     int femDeepZFaceIdx = 4;
-    int femShallowZFaceIdx = 5;
 
     {
         cvf::Vec3i mainAxisFaces = femPart->structGrid()->findMainIJKFaces(elmIdx);
         femDeepZFaceIdx = mainAxisFaces[2];
-        femShallowZFaceIdx = RigFemTypes::oppositeFace(HEX8, femDeepZFaceIdx);
     }
 
-    cvf::Vec3d femDeepestQuad[4];
-    cvf::Vec3d femShallowQuad[4];
+    int femShallowZFaceIdx = RigFemTypes::oppositeFace(HEX8, femDeepZFaceIdx);
+
+    cvf::Vec3d femCorners[8];
 
     {
         const int* cornerIndices = femPart->connectivities(elmIdx);
         const std::vector<cvf::Vec3f>& femNodes =  femPart->nodes().coordinates;
         int faceNodeCount;
-        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femDeepZFaceIdx, &faceNodeCount);
-        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femShallowZFaceIdx, &faceNodeCount);
+        const int*  localElmNodeIndicesForPOSKFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femDeepZFaceIdx, &faceNodeCount);
+        const int*  localElmNodeIndicesForNEGKFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femShallowZFaceIdx, &faceNodeCount);
 
-        femDeepestQuad[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]]);
-        femDeepestQuad[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]]);
-        femDeepestQuad[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]]);
-        femDeepestQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]]);
-        femShallowQuad[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]]);
-        femShallowQuad[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]]);
-        femShallowQuad[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]]);
-        femShallowQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]]);
+        femCorners[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForNEGKFace[0]]]);
+        femCorners[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForNEGKFace[1]]]);
+        femCorners[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForNEGKFace[2]]]);
+        femCorners[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForNEGKFace[3]]]);
+        femCorners[4] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForPOSKFace[0]]]);
+        femCorners[5] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForPOSKFace[1]]]);
+        femCorners[6] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForPOSKFace[2]]]);
+        femCorners[7] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForPOSKFace[3]]]);
     }
 
- 
+    cvf::Vec3d* femDeepestQuad = &(femCorners[4]);
+    cvf::Vec3d* femShallowQuad = &(femCorners[0]);
+
     // Now the top/bottom have opposite winding. To make the comparisons and index rotations simpler
     // flip the winding of the top or bottom face depending on whether the eclipse grid is inside-out
 
@@ -379,35 +380,18 @@ bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFa
     rotateQuad(femDeepestQuad, femQuadStartIdx);
     rotateQuad(femShallowQuad, femQuadStartIdx);
 
-    // Now we should be able to compare vertex for vertex between the ecl and fem quads.
-
-    const cvf::Vec3d* eclDeepestQuad = &(gomConvertedEclCell[4]);
-    const cvf::Vec3d* eclShallowQuad = &(gomConvertedEclCell[0]);
+    // Now we should be able to compare vertex for vertex between the ecl and fem cells.
 
     bool isMatching = true;
 
     for (int i = 0; i < 4 ; ++i)
     {
-        cvf::Vec3d diff = femDeepestQuad[i] - eclDeepestQuad[i];
+        cvf::Vec3d diff = femCorners[i] - gomConvertedEclCell[i];
 
         if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
         {
             isMatching = false;
             break;
-        }
-    }
-
-    if (isMatching)
-    {
-        for (int i = 0; i < 4 ; ++i)
-        {
-            cvf::Vec3d diff = femShallowQuad[i] - eclShallowQuad[i];
-
-            if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
-             {
-                isMatching = false;
-                break;
-            }
         }
     }
 
