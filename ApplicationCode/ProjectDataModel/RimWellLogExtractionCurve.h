@@ -42,7 +42,7 @@ public:
     virtual void updatePlotData();
 
 protected:
-    void updateCurveTitle();
+    virtual QString createCurveName();
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

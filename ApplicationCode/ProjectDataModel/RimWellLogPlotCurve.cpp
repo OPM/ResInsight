@@ -26,7 +26,8 @@
 
 #include "cvfAssert.h"
 
-CAF_PDM_SOURCE_INIT(RimWellLogPlotCurve, "WellLogPlotCurve");
+// NB! Special macro for pure virtual class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimWellLogPlotCurve, "WellLogPlotCurve");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -37,7 +38,14 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 
     CAF_PDM_InitField(&m_showCurve, "Show", true, "Show curve", "", "", "");
     m_showCurve.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault(&m_userName, "CurveDescription", "Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_customCurveName, "CurveDescription", "Name", "", "", "");
+    
+    CAF_PDM_InitFieldNoDefault(&m_generatedCurveName, "GeneratedCurveName", "Generated Curve Name", "", "", "");
+    m_generatedCurveName.uiCapability()->setUiReadOnly(true);
+    m_generatedCurveName.xmlCapability()->setIOReadable(false);
+    m_generatedCurveName.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitField(&m_useCustomCurveName, "UseCustomCurveName", false, "Custom Curve Name", "", "", "");
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
@@ -65,23 +73,24 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     if (changedField == &m_showCurve)
     {
        this->updateCurveVisibility();
-       m_plot->replot();
     }
 
-    if (m_showCurve())
+    if (changedField == &m_customCurveName)
     {
-        if (changedField == &m_userName)
-        {
-            m_plotCurve->setTitle(this->m_userName());
-            m_plot->replot();
-        }
-
-        if (&m_curveColor == changedField)
-        {
-            m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
-            m_plot->replot();
-        }
+        updatePlotTitle();
     }
+
+    if (&m_curveColor == changedField)
+    {
+        m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
+    }
+
+    if (changedField == &m_useCustomCurveName)
+    {
+        updatePlotTitle();
+    }
+
+    m_plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,11 +119,10 @@ void RimWellLogPlotCurve::updateCurveVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::updatePlotData()
+void RimWellLogPlotCurve::updatePlotConfiguration()
 {
     this->updateCurveVisibility();
 
-    m_plotCurve->setTitle(this->m_userName());
     m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
     // Todo: Rest of the curve setup controlled from this class
 }
@@ -137,7 +145,14 @@ void RimWellLogPlotCurve::setPlot(RiuWellLogTrackPlot* plot)
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellLogPlotCurve::userDescriptionField()
 {
-    return &m_userName;
+    if (m_useCustomCurveName)
+    {
+        return &m_customCurveName;
+    }
+    else
+    {
+        return &m_generatedCurveName;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,4 +216,39 @@ void RimWellLogPlotCurve::detachCurve()
 QwtPlotCurve* RimWellLogPlotCurve::plotCurve() const
 {
     return m_plotCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCurve::updatePlotTitle()
+{
+    if (m_useCustomCurveName)
+    {
+        m_plotCurve->setTitle(m_customCurveName);
+    }
+    else
+    {
+        m_generatedCurveName = this->createCurveName();
+        m_plotCurve->setTitle(m_generatedCurveName);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_customCurveName);
+    uiOrdering.add(&m_generatedCurveName);
+    uiOrdering.add(&m_useCustomCurveName);
+    uiOrdering.add(&m_curveColor);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlotCurve::isCurveVisibile()
+{
+    return m_showCurve;
 }

@@ -65,9 +65,9 @@ RimWellLogFileCurve::~RimWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::updatePlotData()
 {
-    RimWellLogPlotCurve::updatePlotData();
+    RimWellLogPlotCurve::updatePlotConfiguration();
 
-    if (m_showCurve)
+    if (isCurveVisibile())
     {
         if (m_wellPath)
         {
@@ -81,7 +81,7 @@ void RimWellLogFileCurve::updatePlotData()
 
                 if (values.size() > 0 && depthValues.size() > 0)
                 {
-                    m_plotCurve->setSamples(values.data(), depthValues.data(), (int) depthValues.size());
+                    m_plotCurve->setSamples(values.data(), depthValues.data(), (int)depthValues.size());
                 }
                 else
                 {
@@ -127,6 +127,7 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (changedField == &m_wellPath)
     {
+        this->updatePlotTitle();
         this->updatePlotData();
 
         if (wellLoglot)
@@ -142,11 +143,7 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     }
     else if (changedField == &m_wellLogChannnelName)
     {
-        if (oldValue.toString() == m_userName)
-        {
-            m_userName = m_wellLogChannnelName;
-        }
-
+        this->updatePlotTitle();
         this->updatePlotData();
 
         if (wellLoglot)
@@ -172,7 +169,8 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_userName);
+    RimWellLogPlotCurve::defineUiOrdering(uiConfigName, uiOrdering);
+    
     uiOrdering.add(&m_wellPath);
     uiOrdering.add(&m_wellLogChannnelName);
 }
@@ -235,5 +233,13 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
     }
 
     return optionList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogFileCurve::createCurveName()
+{
+    return "The method or operation is not implemented.";
 }
 

@@ -88,8 +88,7 @@ void RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogPlotTrack* plotTrac
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIndex);
     curve->setColor(curveColor);
 
-    curve->setDescription(QString("Curve %1").arg(plotTrack->curveCount()));
-
     plotTrack->updateConnectedEditors();
+
     RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
 }

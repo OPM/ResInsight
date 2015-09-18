@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
+#include "cafPdmObject.h"
 
 #include <vector>
 
@@ -41,7 +41,6 @@ public:
     RimWellLogPlotCurve();
     virtual ~RimWellLogPlotCurve();
 
-    void setDescription(QString description) {m_userName = description;}
     void    setColor(const cvf::Color3f& color);
 
     bool    depthRange(double* minimumDepth, double* maximumDepth) const;
@@ -50,25 +49,33 @@ public:
     void    setPlot(RiuWellLogTrackPlot* plot);
     void    detachCurve();
 
-    QwtPlotCurve* plotCurve() const;
+    bool    isCurveVisibile();
+
+    QwtPlotCurve*   plotCurve() const;
     
-    virtual void                 updatePlotData();
+    virtual void    updatePlotData() = 0;
 
 protected:
+    virtual QString createCurveName() = 0;
+
+    void updatePlotConfiguration();
     void updateCurveVisibility();
+    void updatePlotTitle();
 
     // Overridden PDM methods
-    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle* objectToggleField();
-    virtual caf::PdmFieldHandle* userDescriptionField();
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual caf::PdmFieldHandle*    objectToggleField();
+    virtual caf::PdmFieldHandle*    userDescriptionField();
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
-
-    caf::PdmField<bool>         m_showCurve;
-    caf::PdmField<QString>      m_userName;
-    caf::PdmField<cvf::Color3f> m_curveColor;
-    // caf::PdmField<Linestyle> m_lineStyle;
-    // caf::PdmField<int>       m_lineWidth;
 
     RiuWellLogTrackPlot*    m_plot;
     RiuWellLogPlotCurve*    m_plotCurve;
+
+private:
+    caf::PdmField<bool>         m_showCurve;
+    caf::PdmField<QString>      m_customCurveName;
+    caf::PdmField<QString>      m_generatedCurveName;
+    caf::PdmField<bool>         m_useCustomCurveName;
+    caf::PdmField<cvf::Color3f> m_curveColor;
 };

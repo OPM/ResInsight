@@ -40,13 +40,18 @@ class RimWellLogFileCurve : public RimWellLogPlotCurve
 public:
     RimWellLogFileCurve();
     virtual ~RimWellLogFileCurve();
-    
-    virtual void updatePlotData();
 
     void setWellPath(RimWellPath* wellPath);
     void setWellLogChannelName(const QString& name);
+    
+    // Overrides from RimWellLogPlotCurve
+    virtual void updatePlotData();
 
 protected:
+    // Overrides from RimWellLogPlotCurve
+    virtual QString createCurveName();
+
+    // Pdm overrrides
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");

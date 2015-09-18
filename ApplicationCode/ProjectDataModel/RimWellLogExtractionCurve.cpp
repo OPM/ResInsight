@@ -112,9 +112,9 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::updatePlotData()
 {
-    RimWellLogPlotCurve::updatePlotData();
+    RimWellLogPlotCurve::updatePlotConfiguration();
 
-    if (m_showCurve)
+    if (isCurveVisibile())
     {
         // Make sure we have set correct case data into the result definitions.
 
@@ -217,10 +217,9 @@ void RimWellLogExtractionCurve::updatePlotData()
             }
         }
 
-        updateCurveTitle();
+        updatePlotTitle();
         m_plot->replot();
     }
-   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,16 +276,17 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimWellLogPlotCurve::defineUiOrdering(uiConfigName, uiOrdering);
+
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-    uiOrdering.add(&m_userName);
+
     uiOrdering.add(&m_wellPath);
 
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
     group1->add(&m_case);
     if (eclipseCase)
     {
-
         group1->add(&(m_eclipseResultDefinition->m_resultTypeUiField));
         group1->add(&(m_eclipseResultDefinition->m_porosityModelUiField));
         group1->add(&(m_eclipseResultDefinition->m_resultVariableUiField));
@@ -308,33 +308,6 @@ void RimWellLogExtractionCurve::initAfterRead()
 
     m_eclipseResultDefinition->setEclipseCase(eclipseCase);
     m_geomResultDefinition->setGeoMechCase(geomCase);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::updateCurveTitle()
-{
-    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-    QString resVar;
-    if (eclipseCase)
-    {
-        resVar = m_eclipseResultDefinition->resultVariable();
-    }
-
-    if (geomCase)
-    {
-        QString resCompName = m_geomResultDefinition->resultComponentUiName();
-        if (resCompName.isEmpty())
-            resVar = m_geomResultDefinition->resultFieldUiName();
-        else
-            resVar = m_geomResultDefinition->resultFieldUiName() + "." + resCompName ;
-    }
-
-    m_userName = resVar;
-
-    m_plotCurve->setTitle(m_userName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,3 +415,29 @@ void RimWellLogExtractionCurve::filteredIntervals(const std::vector< std::pair<s
         index += intervalSize;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::createCurveName()
+{
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+    QString resVar;
+    if (eclipseCase)
+    {
+        resVar = m_eclipseResultDefinition->resultVariable();
+    }
+
+    if (geomCase)
+    {
+        QString resCompName = m_geomResultDefinition->resultComponentUiName();
+        if (resCompName.isEmpty())
+            resVar = m_geomResultDefinition->resultFieldUiName();
+        else
+            resVar = m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
+    }
+
+    return resVar;
+}
+
