@@ -114,7 +114,10 @@ void RimWellLogPlot::updateViewerWidget()
         {
             windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
 
+            RiuMainWindow::instance()->blockSubWindowActivatedSlot(true);
             RiuMainWindow::instance()->removeViewer(m_viewer);
+            RiuMainWindow::instance()->blockSubWindowActivatedSlot(false);
+
             detachAllCurves();
             delete m_viewer;
             m_viewer = NULL;

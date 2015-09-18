@@ -2284,3 +2284,11 @@ bool RiuMainWindow::isAnyMdiSubWindowVisible()
     return m_mdiArea->subWindowList().size() > 0;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::blockSubWindowActivatedSlot(bool block)
+{
+    m_blockSlotSubWindowActivated = block;
+}
+

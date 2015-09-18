@@ -116,6 +116,8 @@ public:
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
 
+    void            blockSubWindowActivatedSlot(bool block);
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 
