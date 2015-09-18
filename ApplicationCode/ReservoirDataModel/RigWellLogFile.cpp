@@ -25,6 +25,8 @@
 #include <QString>
 #include <QFileInfo>
 
+#define RIG_WELL_FOOTPERMETER 3.2808399
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -134,6 +136,21 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 
     if (m_wellLogFile->HasContLog(name.toStdString()))
     {
+        if (depthUnit().toUpper() == "FT")
+        {
+            std::vector<double> footValues = m_wellLogFile->GetContLog(name.toStdString());
+            
+            std::vector<double> meterValues;
+            meterValues.reserve(footValues.size());
+
+            for (size_t vIdx = 0; vIdx < footValues.size(); vIdx++)
+            {
+                meterValues.push_back(footValues[vIdx]/RIG_WELL_FOOTPERMETER);
+            }
+
+            return meterValues;
+        }
+
         return m_wellLogFile->GetContLog(name.toStdString());
     }
 
