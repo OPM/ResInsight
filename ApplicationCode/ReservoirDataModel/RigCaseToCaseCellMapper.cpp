@@ -105,6 +105,30 @@ void RigCaseToCaseCellMapper::storeMapping(int depCaseCellIdx, const std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigCaseToCaseCellMapper::addMapping(int depCaseCellIdx, int masterCaseMatchingCell)
+{
+    int mcOrSeriesIdx = m_masterCellOrIntervalIndex[depCaseCellIdx];
+    if (mcOrSeriesIdx == cvf::UNDEFINED_INT)
+    {
+        m_masterCellOrIntervalIndex[depCaseCellIdx] = masterCaseMatchingCell;
+    }
+    else if (mcOrSeriesIdx >= 0)
+    {
+        int newSeriesIdx = m_masterCellIndexSeries.size();
+        m_masterCellIndexSeries.push_back(std::vector<int>());
+        m_masterCellIndexSeries.back().push_back(mcOrSeriesIdx);
+        m_masterCellIndexSeries.back().push_back(masterCaseMatchingCell);
+    }
+    else if (mcOrSeriesIdx < 0)
+    {
+        m_masterCellIndexSeries[-mcOrSeriesIdx].push_back(masterCaseMatchingCell);
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RigNeighborCornerFinder
 {
 public:
@@ -521,7 +545,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
 
     int elementCount = dependentFemPart->elementCount();
     cvf::Vec3d elmCorners[8];
-
+    #if 0
     for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
     {
         #ifdef _DEBUG
@@ -561,6 +585,46 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
 
         storeMapping(elmIdx, matchingCells);
     }
+    #else
+    for (size_t cellIdx = 0; cellIdx < masterEclGrid->cellCount(); ++cellIdx)
+    {
+        #ifdef _DEBUG
+        { 
+            // For debugging 
+            size_t i, j, k;
+            masterEclGrid->ijkFromCellIndex(cellIdx, &i, &j, &k); // Will not work when LGR present
+        }
+        #endif  
+        cvf::Vec3d geoMechConvertedEclCell[8];
+        estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
+
+        cvf::BoundingBox elmBBox;
+        for (int i = 0; i < 8 ; ++i) elmBBox.add(geoMechConvertedEclCell[i]);
+
+        std::vector<size_t> closeElements;
+        dependentFemPart->findIntersectingCells(elmBBox, &closeElements);
+
+        std::vector<int> matchingCells;
+
+        for (size_t ccIdx = 0; ccIdx < closeElements.size(); ++ccIdx)
+        {
+            int elmIdx = closeElements[ccIdx];
+            cvf::Vec3d elmCorners[8];
+
+            elementCorners(dependentFemPart, elmIdx, elmCorners);
+
+            rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards , elmCorners);
+
+            bool isMatching = isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners, 
+                                                    xyTolerance, zTolerance);
+
+            if (isMatching)
+            {
+                addMapping(elmIdx, static_cast<int>(cellIdx));
+            }
+        }
+    }
+    #endif
 }
 
 

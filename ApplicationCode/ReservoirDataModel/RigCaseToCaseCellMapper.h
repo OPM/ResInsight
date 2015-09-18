@@ -51,6 +51,7 @@ public:
 private:
 
     void storeMapping(int depCaseCellIdx, const std::vector<int>& masterCaseMatchingCells);
+    void addMapping(int depCaseCellIdx, int masterCaseMatchingCell);
 
     std::vector<int>    m_masterCellOrIntervalIndex;
     std::vector<std::vector<int> > m_masterCellIndexSeries;
