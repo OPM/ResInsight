@@ -46,7 +46,7 @@ int RigFemTypes::elmentFaceCount(RigElementType elmType)
 /// 
 //--------------------------------------------------------------------------------------------------
 // HEX8
-//     7---------6               
+//     7---------6     Increased k -> Increased depth : 4 5 6 7 is the deepest quad
 //    /|        /|     |k        
 //   / |       / |     | /j      
 //  4---------5  |     |/        
