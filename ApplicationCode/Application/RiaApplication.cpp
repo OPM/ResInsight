@@ -1967,13 +1967,28 @@ void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdat
 void RiaApplication::slotUpdateScheduledDisplayModels()
 {
     // Compress to remove duplicates
-    std::set<RimView*> resViewsToUpdate;
+    // and update dependent views after independent views
+
+    std::set<RimView*> independent3DViewsToUpdate;
+    std::set<RimView*> dependent3DViewsToUpdate;
+
     for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
     {
-        resViewsToUpdate.insert(m_resViewsToUpdate[i]);
+        if (m_resViewsToUpdate[i]->controllingViewLink())
+            dependent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
+        else
+            independent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
+    }
+   
+    for (std::set<RimView*>::iterator it = independent3DViewsToUpdate.begin(); it != independent3DViewsToUpdate.end(); ++it )
+    {
+        if (*it)
+        {
+            (*it)->createDisplayModelAndRedraw();
+        }
     }
 
-    for (std::set<RimView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it )
+    for (std::set<RimView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end(); ++it)
     {
         if (*it)
         {
