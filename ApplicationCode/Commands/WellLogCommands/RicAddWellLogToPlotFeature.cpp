@@ -70,6 +70,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 
     RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
     plot->addTrack(plotTrack);
+    plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
 
     plot->loadDataAndUpdate();
 
