@@ -105,6 +105,7 @@ RiuMainWindow::RiuMainWindow()
     CVF_ASSERT(sm_mainWindowInstance == NULL);
 
     m_mdiArea = new QMdiArea;
+    m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 
@@ -1274,7 +1275,6 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
 
     if (showMax)
     {
-        // Show first view maximized
         subWin->showMaximized();
     }
 
