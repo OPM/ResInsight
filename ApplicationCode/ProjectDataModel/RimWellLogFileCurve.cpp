@@ -119,16 +119,25 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 {
     RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
+    RimWellLogPlot* wellLoglot;
+    firstAnchestorOrThisOfType(wellLoglot);
+
+    RimWellLogPlotTrace* wellLoglotTrace;
+    firstAnchestorOrThisOfType(wellLoglotTrace);
+
     if (changedField == &m_wellPath)
     {
         this->updatePlotData();
 
-        RimWellLogPlot* wellLoglot;
-        firstAnchestorOrThisOfType(wellLoglot);
         if (wellLoglot)
         {
             wellLoglot->updateAvailableDepthRange();
             wellLoglot->setVisibleDepthRangeFromContents();
+        }
+
+        if (wellLoglotTrace)
+        {
+            wellLoglotTrace->updateXAxisRangeFromCurves();
         }
     }
     else if (changedField == &m_wellLogChannnelName)
@@ -140,14 +149,17 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
         this->updatePlotData();
 
-        RimWellLogPlot* wellLoglot;
-        firstAnchestorOrThisOfType(wellLoglot);
         if (wellLoglot)
         {
             if (!wellLoglot->hasAvailableDepthRange())
             {
                 wellLoglot->updateAvailableDepthRange();
                 wellLoglot->setVisibleDepthRangeFromContents();
+            }
+
+            if (wellLoglotTrace)
+            {
+                wellLoglotTrace->updateXAxisRangeFromCurves();
             }
         }
     }

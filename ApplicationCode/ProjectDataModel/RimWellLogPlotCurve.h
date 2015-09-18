@@ -45,6 +45,7 @@ public:
     void    setColor(const cvf::Color3f& color);
 
     bool    depthRange(double* minimumDepth, double* maximumDepth) const;
+    bool    valueRange(double* minimumValue, double* maximumValue) const;
     
     void    setPlot(RiuWellLogTracePlot* plot);
     void    detachCurve();

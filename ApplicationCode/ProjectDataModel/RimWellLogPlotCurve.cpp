@@ -18,7 +18,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLogPlotCurve.h"
+
 #include "RimWellLogPlot.h"
+
 #include "RiuWellLogTracePlot.h"
 #include "RiuWellLogPlotCurve.h"
 
@@ -160,6 +162,26 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimWellLogPlotCurve::valueRange(double* minimumValue, double* maximumValue) const
+{
+    CVF_ASSERT(minimumValue && maximumValue);
+    CVF_ASSERT(m_plotCurve);
+
+    if (m_plotCurve->data()->size() < 1)
+    {
+        return false;
+    }
+
+    *minimumValue = m_plotCurve->minXValue();
+    *maximumValue = m_plotCurve->maxXValue();
+
+    return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCurve::setColor(const cvf::Color3f& color)
 {
     m_curveColor = color;
@@ -180,4 +202,3 @@ QwtPlotCurve* RimWellLogPlotCurve::plotCurve() const
 {
     return m_plotCurve;
 }
-

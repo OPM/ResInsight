@@ -108,6 +108,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 
     plot->updateAvailableDepthRange();
     plot->setVisibleDepthRangeFromContents();
+    plotTrace->updateXAxisRangeFromCurves();
     plotTrace->viewer()->replot();
 
     RiaApplication::instance()->project()->updateConnectedEditors();

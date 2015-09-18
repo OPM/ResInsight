@@ -193,6 +193,11 @@ void RimWellLogExtractionCurve::updatePlotData()
             RimWellLogPlotTrace* plotTrace;
             firstAnchestorOrThisOfType(plotTrace);
 
+            if (plotTrace)
+            {
+                plotTrace->updateXAxisRangeFromCurves();
+            }
+
             RimWellLogPlot* wellLogPlot;
             firstAnchestorOrThisOfType(wellLogPlot);
 

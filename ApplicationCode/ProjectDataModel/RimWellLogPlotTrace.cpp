@@ -172,6 +172,8 @@ void RimWellLogPlotTrace::loadDataAndUpdate()
     {
         curves[cIdx]->updatePlotData();
     }
+
+    updateXAxisRangeFromCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,6 +232,49 @@ void RimWellLogPlotTrace::updateAxisRangesAndReplot()
         {
             m_viewer->replot();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrace::updateXAxisRangeFromCurves()
+{
+    double minValue = HUGE_VAL;
+    double maxValue = -HUGE_VAL;
+
+    size_t curveCount = curves.size();
+    if (curveCount < 1) return;
+
+    bool rangeUpdated = false;
+
+    for (size_t cIdx = 0; cIdx < curveCount; cIdx++)
+    {
+        double minCurveValue = HUGE_VAL;
+        double maxCurveValue = -HUGE_VAL;
+
+        if (curves[cIdx]->valueRange(&minCurveValue, &maxCurveValue))
+        {
+            if (minCurveValue < minValue)
+            {
+                minValue = minCurveValue;
+                rangeUpdated = true;
+            }
+
+            if (maxCurveValue > maxValue)
+            {
+                maxValue = maxCurveValue;
+                rangeUpdated = true;
+            }
+        }
+    }
+
+    if (rangeUpdated)
+    {
+        m_minimumValue = minValue;
+        m_maximumValue = maxValue;
+
+        updateConnectedEditors();
     }
 }
 
