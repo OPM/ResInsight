@@ -49,6 +49,9 @@ public:
 
   void WriteToFile(const std::string              & filename,
                    const std::vector<std::string> & comment_header);
+
+  std::string depthUnit() const { return depth_unit_; };
+
 private:
   void ReadHeader(const std::string        & filename,
                   std::ifstream            & fin,

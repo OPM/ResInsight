@@ -48,6 +48,8 @@ public:
     std::vector<double> depthValues() const;
     std::vector<double> values(const QString& name) const;
 
+    QString depthUnit() const;
+
 private:
     void close();
 

@@ -20,6 +20,7 @@
 #include "RigWellLogFile.h"
 
 #include "well.hpp"
+#include "laswell.hpp"
 
 #include <QString>
 #include <QFileInfo>
@@ -137,4 +138,20 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
     }
 
     return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RigWellLogFile::depthUnit() const
+{
+    QString unit;
+
+    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>(m_wellLogFile);
+    if (lasWell)
+    {
+        unit = QString::fromStdString(lasWell->depthUnit());
+    }
+
+    return unit;
 }
