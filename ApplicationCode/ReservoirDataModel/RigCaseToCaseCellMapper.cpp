@@ -268,7 +268,6 @@ void estimatedFemCellFromEclCell(const RigMainGrid* eclGrid, size_t reservoirCel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 void rotateQuad(cvf::Vec3d quad[4], int idxToNewStart)
 {
     if (idxToNewStart == 0) return;
@@ -286,10 +285,10 @@ void rotateQuad(cvf::Vec3d quad[4], int idxToNewStart)
     ++idxToNewStart; if (idxToNewStart > 3) idxToNewStart = 0;
     quad[3] = tmpQuad[idxToNewStart];
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 void flipQuadWinding(cvf::Vec3d quad[4])
 {
     cvf::Vec3d temp = quad[1];
@@ -300,7 +299,6 @@ void flipQuadWinding(cvf::Vec3d quad[4])
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 int quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4])
 {
     double minSqDist = HUGE_VAL;
@@ -322,17 +320,9 @@ int quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4])
     return quadVxIdxClosestToPoint;
 }
 
-
-enum RigHexIntersectResult
-{
-    MATCH, 
-    UNRELATED
-};
-
-
-//RigHexIntersectResult isEclFemCellsMatching(cvf::Vec3d eclCorners[8], cvf::Vec3d elmCorners[8])
-//bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  RigFemPart* femPart, int elmIdx,
-//                                            double xyTolerance, double zTolerance)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFaceNormalsOutwards,  
                            RigFemPart* femPart, int elmIdx,
                            double xyTolerance, double zTolerance)
@@ -424,6 +414,9 @@ bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFa
     return isMatching;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
 {
     if (femPart->elementType(elmIdx) != HEX8) return false;
