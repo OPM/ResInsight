@@ -67,13 +67,14 @@ protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle* objectToggleField();
     virtual caf::PdmFieldHandle* userDescriptionField();
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;
     caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
-    caf::PdmField<double> m_minimumValue;
-    caf::PdmField<double> m_maximumValue;
+    caf::PdmField<double> m_visibleXRangeMin;
+    caf::PdmField<double> m_visibleXRangeMax;
 
     QPointer<RiuWellLogTracePlot> m_viewer;
 };

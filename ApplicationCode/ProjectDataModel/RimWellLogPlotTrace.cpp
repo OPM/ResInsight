@@ -45,6 +45,7 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
     CAF_PDM_InitObject("Trace", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_userName, "TrackDescription", "Name", "", "", "");
+    m_userName.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_show, "Show", true, "Show trace", "", "", "");
     m_show.uiCapability()->setUiHidden(true);
@@ -52,8 +53,8 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
     CAF_PDM_InitFieldNoDefault(&curves, "Curves", "",  "", "", "");
     curves.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_minimumValue, "MinimumValue", RI_LOGPLOTTRACE_MINX_DEFAULT, "Minimum value", "", "", "");
-    CAF_PDM_InitField(&m_maximumValue, "MaximumValue", RI_LOGPLOTTRACE_MAXX_DEFAULT, "Maximum value", "", "", "");   
+    CAF_PDM_InitField(&m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACE_MINX_DEFAULT, "Min", "", "", "");
+    CAF_PDM_InitField(&m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACE_MAXX_DEFAULT, "Max", "", "", "");   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,9 +82,9 @@ void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     {
         if (m_viewer) m_viewer->setVisible(m_show());
     }
-    else if (changedField == &m_minimumValue || changedField == &m_maximumValue)
+    else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
-        m_viewer->setAxisScale(QwtPlot::xTop, m_minimumValue, m_maximumValue);
+        m_viewer->setAxisScale(QwtPlot::xTop, m_visibleXRangeMin, m_visibleXRangeMax);
         m_viewer->replot();
     }
 }
@@ -289,8 +290,8 @@ void RimWellLogPlotTrace::updateXAxisRangeFromCurves()
 
     if (rangeUpdated)
     {
-        m_minimumValue = minValue;
-        m_maximumValue = maxValue;
+        m_visibleXRangeMin = minValue;
+        m_visibleXRangeMax = maxValue;
 
         updateConnectedEditors();
     }
@@ -310,4 +311,16 @@ RimWellLogPlotCurve* RimWellLogPlotTrace::curveDefinitionFromCurve(const QwtPlot
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrace::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_userName);
+
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
+    gridGroup->add(&m_visibleXRangeMin);
+    gridGroup->add(&m_visibleXRangeMax);
 }
