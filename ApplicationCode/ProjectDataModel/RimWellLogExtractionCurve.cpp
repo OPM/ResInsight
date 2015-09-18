@@ -18,36 +18,39 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLogExtractionCurve.h"
-#include "RimProject.h"
+
 #include "RiaApplication.h"
-#include "RimOilField.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPath.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseResultDefinition.h"
-#include "RimGeoMechResultDefinition.h"
-#include "RimGeoMechCase.h"
-#include "RigEclipseWellLogExtractor.h"
-#include "RigResultAccessorFactory.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RimWellLogPlotCurve.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
-
-#include "RiuWellLogTrackPlot.h"
-#include "RiuWellLogPlotCurve.h"
-
-#include "RimWellLogPlotCollection.h"
-#include "cafPdmUiTreeOrdering.h"
+#include "RigEclipseWellLogExtractor.h"
 #include "RigGeoMechWellLogExtractor.h"
+#include "RigResultAccessorFactory.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlotCurve.h"
+#include "RimWellLogPlotTrack.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
+#include "RiuWellLogPlotCurve.h"
+#include "RiuWellLogTrackPlot.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurve, "WellLogEclipseCurve");
+CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurve, "RimWellLogExtractionCurve");
 
 //--------------------------------------------------------------------------------------------------
 /// 

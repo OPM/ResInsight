@@ -20,13 +20,14 @@
 #pragma once
 
 #include "RimWellLogPlotCurve.h"
+
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
-class RimWellPath;
+class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
-class RimCase;
+class RimWellPath;
 
 //==================================================================================================
 ///  
