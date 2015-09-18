@@ -46,6 +46,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigFemPart* masterFemPart, RigM
       m_dependentFemPart(NULL)
 {
     m_masterCellOrIntervalIndex.resize(dependentEclGrid->cells().size(), cvf::UNDEFINED_INT);
+    this->calculateEclToGeomCellMapping(dependentEclGrid, masterFemPart, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,10 +115,11 @@ void RigCaseToCaseCellMapper::addMapping(int depCaseCellIdx, int masterCaseMatch
     }
     else if (mcOrSeriesIdx >= 0)
     {
-        int newSeriesIdx = m_masterCellIndexSeries.size();
+        int newSeriesIdx = static_cast<int>(m_masterCellIndexSeries.size());
         m_masterCellIndexSeries.push_back(std::vector<int>());
         m_masterCellIndexSeries.back().push_back(mcOrSeriesIdx);
         m_masterCellIndexSeries.back().push_back(masterCaseMatchingCell);
+        m_masterCellOrIntervalIndex[depCaseCellIdx] = -newSeriesIdx;
     }
     else if (mcOrSeriesIdx < 0)
     {
@@ -509,31 +511,15 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
       m_dependentFemPart(NULL)
 {
     m_masterCellOrIntervalIndex.resize(dependentFemPart->elementCount(), cvf::UNDEFINED_INT);
-    
-    #if 0
-    // First search K=1 diagonally for a seed cell; A cell without collapsings, and without faults
+    this->calculateEclToGeomCellMapping(masterEclGrid, dependentFemPart, true);
+}
 
-    size_t minIJCount = masterEclGrid->cellCountI();
-    if (minIJCount > masterEclGrid->cellCountJ())
-        minIJCount =  masterEclGrid->cellCountJ();
-
-    for (size_t ij = 0; ij < minIJCount; ++ij )
-    {
-        size_t localCellIdx = masterEclGrid->cellIndexFromIJK(ij, ij, 0);
-        size_t reservoirCellIdx = masterEclGrid->reservoirCellIndex(localCellIdx);
-
-        cvf::Vec3d vertices[8];
-        masterEclGrid->cellCornerVertices(localCellIdx, vertices);
-        if (!isCellNormal(vertices))
-            continue;
-        
-        const RigFault* fault = masterEclGrid->findFaultFromCellIndexAndCellFace(reservoirCellIdx, cvf::StructGridInterface::POS_I);
-
-    }
-    #endif
-
-    // Brute force:
-    const std::vector<cvf::Vec3f>& nodeCoords =  dependentFemPart->nodes().coordinates;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart, bool eclipseIsMaster)
+{
+    // Find tolerance
 
     double cellSizeI, cellSizeJ, cellSizeK;
     masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
@@ -543,50 +529,11 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
 
     bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
 
-    int elementCount = dependentFemPart->elementCount();
     cvf::Vec3d elmCorners[8];
-    #if 0
-    for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
-    {
-        #ifdef _DEBUG
-        { 
-            // For debugging 
-            size_t i, j, k;
-            dependentFemPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
-        }
-        #endif  
-          
-        if (!elementCorners(dependentFemPart, elmIdx, elmCorners)) continue;
 
-        cvf::BoundingBox elmBBox;
-        for (int i = 0; i < 8 ; ++i) elmBBox.add(elmCorners[i]);
+    size_t cellCount =  masterEclGrid->cellCount();
 
-        std::vector<size_t> closeCells;
-        masterEclGrid->findIntersectingCells(elmBBox, &closeCells);
-
-        std::vector<int> matchingCells;
-
-        for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
-        {
-            cvf::Vec3d geoMechConvertedEclCell[8];
-
-            estimatedFemCellFromEclCell(masterEclGrid, closeCells[ccIdx], geoMechConvertedEclCell);
-
-            rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, ccIdx ? 1:isEclFaceNormalsOutwards , elmCorners);
-
-            bool isMatching = isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners, 
-                                                    xyTolerance, zTolerance);
-
-            if (isMatching)
-            {
-                matchingCells.push_back(static_cast<int>(closeCells[ccIdx]));
-            }
-        }
-
-        storeMapping(elmIdx, matchingCells);
-    }
-    #else
-    for (size_t cellIdx = 0; cellIdx < masterEclGrid->cellCount(); ++cellIdx)
+    for (size_t cellIdx = 0; cellIdx < cellCount; ++cellIdx)
     {
         #ifdef _DEBUG
         { 
@@ -595,6 +542,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
             masterEclGrid->ijkFromCellIndex(cellIdx, &i, &j, &k); // Will not work when LGR present
         }
         #endif  
+
         cvf::Vec3d geoMechConvertedEclCell[8];
         estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
 
@@ -608,8 +556,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
 
         for (size_t ccIdx = 0; ccIdx < closeElements.size(); ++ccIdx)
         {
-            int elmIdx = closeElements[ccIdx];
-            cvf::Vec3d elmCorners[8];
+            int elmIdx = static_cast<int>(closeElements[ccIdx]);
 
             elementCorners(dependentFemPart, elmIdx, elmCorners);
 
@@ -620,13 +567,14 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
 
             if (isMatching)
             {
-                addMapping(elmIdx, static_cast<int>(cellIdx));
+                if (eclipseIsMaster)
+                    addMapping(elmIdx, static_cast<int>(cellIdx));
+                else
+                    addMapping(static_cast<int>(cellIdx), elmIdx);
             }
         }
     }
-    #endif
 }
-
 
 #if 0 // Inside Bounding box test
 cvf::BoundingBox cellBBox;
@@ -673,4 +621,26 @@ if (   ( (es.x() + xyTolerance)  >= cs.x() && (el.x() - xyTolerance) <= cl.x())
         eclShallowQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]];
         eclShallowQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]];
     }
+#endif
+
+#if 0
+// First search K=1 diagonally for a seed cell; A cell without collapsings, and without faults
+
+size_t minIJCount = masterEclGrid->cellCountI();
+if (minIJCount > masterEclGrid->cellCountJ())
+minIJCount =  masterEclGrid->cellCountJ();
+
+for (size_t ij = 0; ij < minIJCount; ++ij )
+{
+    size_t localCellIdx = masterEclGrid->cellIndexFromIJK(ij, ij, 0);
+    size_t reservoirCellIdx = masterEclGrid->reservoirCellIndex(localCellIdx);
+
+    cvf::Vec3d vertices[8];
+    masterEclGrid->cellCornerVertices(localCellIdx, vertices);
+    if (!isCellNormal(vertices))
+        continue;
+
+    const RigFault* fault = masterEclGrid->findFaultFromCellIndexAndCellFace(reservoirCellIdx, cvf::StructGridInterface::POS_I);
+
+}
 #endif
