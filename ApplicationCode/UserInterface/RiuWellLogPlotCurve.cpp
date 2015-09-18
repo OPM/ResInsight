@@ -36,7 +36,7 @@ RiuWellLogPlotCurve::~RiuWellLogPlotCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlotCurve::setPlotIntervals(const std::vector<std::pair<size_t, size_t>>& intervals)
+void RiuWellLogPlotCurve::setPlotIntervals(const std::vector<std::pair<size_t, size_t> >& intervals)
 {
     m_intervals = intervals;
 };

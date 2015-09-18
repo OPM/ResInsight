@@ -33,7 +33,7 @@ public:
     RiuWellLogPlotCurve();
     virtual ~RiuWellLogPlotCurve();
 
-    void setPlotIntervals(const std::vector<std::pair<size_t, size_t>>& intervals);
+    void setPlotIntervals(const std::vector<std::pair<size_t, size_t> >& intervals);
 
 protected:
 
