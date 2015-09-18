@@ -127,7 +127,6 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (changedField == &m_wellPath)
     {
-        this->updatePlotTitle();
         this->updatePlotData();
 
         if (wellLoglot)
@@ -143,7 +142,6 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     }
     else if (changedField == &m_wellLogChannnelName)
     {
-        this->updatePlotTitle();
         this->updatePlotData();
 
         if (wellLoglot)
@@ -240,6 +238,17 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogFileCurve::createCurveName()
 {
-    return "The method or operation is not implemented.";
+    if (m_wellPath())
+    {
+        QString txt;
+
+        txt += m_wellPath()->name();
+        txt += " : ";
+        txt += m_wellLogChannnelName;
+
+        return txt;
+    }
+    
+    return "Empty curve";
 }
 

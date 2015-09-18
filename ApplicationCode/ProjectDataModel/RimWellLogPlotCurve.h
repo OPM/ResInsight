@@ -53,6 +53,8 @@ public:
 
     QwtPlotCurve*   plotCurve() const;
     
+    void            updatePlotTitle();
+
     virtual void    updatePlotData() = 0;
 
 protected:
@@ -60,13 +62,14 @@ protected:
 
     void updatePlotConfiguration();
     void updateCurveVisibility();
-    void updatePlotTitle();
+    void updateOptionSensitivity();
 
     // Overridden PDM methods
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*    objectToggleField();
     virtual caf::PdmFieldHandle*    userDescriptionField();
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                    initAfterRead();
 
 
     RiuWellLogTrackPlot*    m_plot;

@@ -217,7 +217,6 @@ void RimWellLogExtractionCurve::updatePlotData()
             }
         }
 
-        updatePlotTitle();
         m_plot->replot();
     }
 }
