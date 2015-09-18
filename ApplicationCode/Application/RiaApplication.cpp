@@ -519,15 +519,13 @@ bool RiaApplication::saveProjectPromptForFileName()
     QString startPath;
     if (!m_project->fileName().isEmpty())
     {
-        QFileInfo fi(m_project->fileName());
-        startPath = fi.absolutePath();
+        startPath = m_project->fileName();
     }
     else
     {
         startPath = app->defaultFileDialogDirectory("BINARY_GRID");
+        startPath += "/ResInsightProject.rsp";
     }
-
-    startPath += "/ResInsightProject.rsp";
 
     QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Project Files (*.rsp);;All files(*.*)"));
     if (fileName.isEmpty())
