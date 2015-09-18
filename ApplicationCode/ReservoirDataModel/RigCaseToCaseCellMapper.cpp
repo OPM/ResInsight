@@ -334,6 +334,7 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
     cvf::Vec3d gomConvertedEclCell[8];
     estimatedFemCellFromEclCell(eclGrid, reservoirCellIndex,  gomConvertedEclCell);
 
+    // Find the element top and bottom 
     int femDeepZFaceIdx = 4;
     int femShallowZFaceIdx = 5;
 
@@ -366,26 +367,7 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
     cvf::Vec3d eclDeepestQuad[4];
     cvf::Vec3d eclShallowQuad[4];
 
-    #if 0
-    {
-        const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
-        const RigCell& cell = eclGrid->cells()[reservoirCellIndex];
-        const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
-        int faceNodeCount;
-        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
-        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 5, &faceNodeCount);
 
-        eclDeepestQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]];
-        eclDeepestQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]];
-        eclDeepestQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]];
-        eclDeepestQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]];
-
-        eclShallowQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]];
-        eclShallowQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]];
-        eclShallowQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]];
-        eclShallowQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]];
-    }
-    #endif
     {
         int faceNodeCount;
         const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
@@ -454,6 +436,24 @@ bool isEclFemCellsMatching(RigMainGrid* eclGrid, size_t reservoirCellIndex,  Rig
     return isMatching;
 }
 
+bool elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
+{
+    if (femPart->elementType(elmIdx) != HEX8) return false;
+
+    const std::vector<cvf::Vec3f>& nodeCoords =  femPart->nodes().coordinates;
+    const int* cornerIndices = femPart->connectivities(elmIdx);
+
+    elmCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
+    elmCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
+    elmCorners[2] = cvf::Vec3d(nodeCoords[cornerIndices[2]]);
+    elmCorners[3] = cvf::Vec3d(nodeCoords[cornerIndices[3]]);
+    elmCorners[4] = cvf::Vec3d(nodeCoords[cornerIndices[4]]);
+    elmCorners[5] = cvf::Vec3d(nodeCoords[cornerIndices[5]]);
+    elmCorners[6] = cvf::Vec3d(nodeCoords[cornerIndices[6]]);
+    elmCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
+
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -501,27 +501,22 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
     cvf::Vec3d elmCorners[8];
     for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
     {
-        if (dependentFemPart->elementType(elmIdx) != HEX8) continue;
-
-        size_t i,j,k;
-        dependentFemPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
-
-        const int* cornerIndices = dependentFemPart->connectivities(elmIdx);
-
-        elmCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
-        elmCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
-        elmCorners[2] = cvf::Vec3d(nodeCoords[cornerIndices[2]]);
-        elmCorners[3] = cvf::Vec3d(nodeCoords[cornerIndices[3]]);
-        elmCorners[4] = cvf::Vec3d(nodeCoords[cornerIndices[4]]);
-        elmCorners[5] = cvf::Vec3d(nodeCoords[cornerIndices[5]]);
-        elmCorners[6] = cvf::Vec3d(nodeCoords[cornerIndices[6]]);
-        elmCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
+        #ifdef _DEBUG
+        { 
+            // For debugging 
+            size_t i, j, k;
+            dependentFemPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
+        }
+        #endif  
+          
+        if (!elementCorners(dependentFemPart, elmIdx, elmCorners)) continue;
 
         cvf::BoundingBox elmBBox;
         for (int i = 0; i < 8 ; ++i) elmBBox.add(elmCorners[i]);
 
         std::vector<size_t> closeCells;
         masterEclGrid->findIntersectingCells(elmBBox, &closeCells);
+
         std::vector<int> matchingCells;
 
         for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
@@ -530,52 +525,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
             size_t localCellIdx = masterEclGrid->cells()[closeCells[ccIdx]].gridLocalCellIndex();
             masterEclGrid->cellCornerVertices(localCellIdx, cellCorners);
 
-            bool isMatching = false;
-
-            #if 0 // Inside Bounding box test
-            cvf::BoundingBox cellBBox;
-            for (int i = 0; i < 8 ; ++i) cellBBox.add(cellCorners[i]);
-
-            cvf::Vec3d cs = cellBBox.min();
-            cvf::Vec3d cl = cellBBox.max();
-            cvf::Vec3d es = elmBBox.min();
-            cvf::Vec3d el = elmBBox.max();
-
-            if (   ( (cs.x() + xyTolerance) >= es.x() && (cl.x() - xyTolerance) <= el.x())
-                && ( (cs.y() + xyTolerance) >= es.y() && (cl.y() - xyTolerance) <= el.y())
-                && ( (cs.z() + zTolerance ) >= es.z() && (cl.z() - zTolerance ) <= el.z()) )
-            {
-                // Cell bb equal or inside Elm bb   
-                isMatching = true;
-            }
-
-            if (   ( (es.x() + xyTolerance)  >= cs.x() && (el.x() - xyTolerance) <= cl.x())
-                && ( (es.y() + xyTolerance)  >= cs.y() && (el.y() - xyTolerance) <= cl.y())
-                && ( (es.z() + zTolerance )  >= cs.z() && (el.z() - zTolerance ) <= cl.z()) )
-            {
-                // Elm bb equal or inside Cell bb   
-                isMatching = true;
-            }
-            #else
-            #if 0
-
-            isMatching = true;
-
-            for (int i = 0; i < 8 ; ++i)
-            {
-                cvf::Vec3d diff = cellCorners[i] - elmCorners[i];
-
-                if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
-                {
-                    isMatching = false;
-                    break;
-                }
-
-            }
-            #else
-                        isMatching = isEclFemCellsMatching(masterEclGrid, closeCells[ccIdx], dependentFemPart, elmIdx, xyTolerance, zTolerance);
-            #endif
-            #endif
+            bool isMatching = isEclFemCellsMatching(masterEclGrid, closeCells[ccIdx], dependentFemPart, elmIdx, xyTolerance, zTolerance);
 
             if (isMatching)
             {
@@ -583,8 +533,6 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
             }
             else
             {
-                // Try fault corrections on the eclipse cell
-
                 // Try zero volume correction
             }
         }
@@ -670,4 +618,51 @@ cvf::Vec3i findMainXYZFacesOfHex(const cvf::Vec3f normals[6] )
 
     return ijkMainFaceIndices;
 }
+#endif
+
+#if 0 // Inside Bounding box test
+cvf::BoundingBox cellBBox;
+for (int i = 0; i < 8 ; ++i) cellBBox.add(cellCorners[i]);
+
+cvf::Vec3d cs = cellBBox.min();
+cvf::Vec3d cl = cellBBox.max();
+cvf::Vec3d es = elmBBox.min();
+cvf::Vec3d el = elmBBox.max();
+
+if (   ( (cs.x() + xyTolerance) >= es.x() && (cl.x() - xyTolerance) <= el.x())
+    && ( (cs.y() + xyTolerance) >= es.y() && (cl.y() - xyTolerance) <= el.y())
+    && ( (cs.z() + zTolerance ) >= es.z() && (cl.z() - zTolerance ) <= el.z()) )
+{
+    // Cell bb equal or inside Elm bb   
+    isMatching = true;
+}
+
+if (   ( (es.x() + xyTolerance)  >= cs.x() && (el.x() - xyTolerance) <= cl.x())
+    && ( (es.y() + xyTolerance)  >= cs.y() && (el.y() - xyTolerance) <= cl.y())
+    && ( (es.z() + zTolerance )  >= cs.z() && (el.z() - zTolerance ) <= cl.z()) )
+{
+    // Elm bb equal or inside Cell bb   
+    isMatching = true;
+}
+#endif
+
+#if 0
+    {
+        const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
+        const RigCell& cell = eclGrid->cells()[reservoirCellIndex];
+        const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
+        int faceNodeCount;
+        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
+        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 5, &faceNodeCount);
+
+        eclDeepestQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[0]]];
+        eclDeepestQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[1]]];
+        eclDeepestQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[2]]];
+        eclDeepestQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForTopZFace[3]]];
+
+        eclShallowQuad[0] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[0]]];
+        eclShallowQuad[1] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[1]]];
+        eclShallowQuad[2] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[2]]];
+        eclShallowQuad[3] = eclNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]];
+    }
 #endif
