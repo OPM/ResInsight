@@ -217,7 +217,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList(PdmObjectHand
 
                 if (index > -1)
                 {
-                    if (index >= childObjects.size() - 1)
+                    if (index > childObjects.size() - 1)
                     {
                         return NULL;
                     }
