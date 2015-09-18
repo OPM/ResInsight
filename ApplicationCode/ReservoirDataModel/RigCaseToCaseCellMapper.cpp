@@ -89,6 +89,22 @@ const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseRese
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigCaseToCaseCellMapper::storeMapping(int depCaseCellIdx, const std::vector<int>& masterCaseMatchingCells)
+{
+    if (masterCaseMatchingCells.size() == 1)
+    {
+        m_masterCellOrIntervalIndex[depCaseCellIdx] = masterCaseMatchingCells[0];
+    }
+    else if (masterCaseMatchingCells.size() > 1)
+    {
+        m_masterCellOrIntervalIndex[depCaseCellIdx] = -((int)(m_masterCellIndexSeries.size()));
+        m_masterCellIndexSeries.push_back(masterCaseMatchingCells);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RigNeighborCornerFinder
 {
 public:
@@ -378,23 +394,16 @@ void rotateCellTopologicallyToMatchBaseCell(const cvf::Vec3d * gomConvertedEclCe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFaceNormalsOutwards,  
-                           RigFemPart* femPart, int elmIdx,
+bool isEclFemCellsMatching(const cvf::Vec3d baseCell[8],
+                           cvf::Vec3d cell[8],
                            double xyTolerance, double zTolerance)
 {
-
-    cvf::Vec3d femCorners[8];
-    elementCorners(femPart, elmIdx, femCorners);
-
-    rotateCellTopologicallyToMatchBaseCell(gomConvertedEclCell, isEclFaceNormalsOutwards, femCorners);
-
-    // Now we should be able to compare vertex for vertex between the ecl and fem cells.
 
     bool isMatching = true;
 
     for (int i = 0; i < 4 ; ++i)
     {
-        cvf::Vec3d diff = femCorners[i] - gomConvertedEclCell[i];
+        cvf::Vec3d diff = cell[i] - baseCell[i];
 
         if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
         {
@@ -508,6 +517,8 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
     double xyTolerance  = cellSizeI* 0.1;
     double zTolerance   = cellSizeK* 0.1;
 
+    bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
+
     int elementCount = dependentFemPart->elementCount();
     cvf::Vec3d elmCorners[8];
 
@@ -533,119 +544,25 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
 
         for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
         {
-            cvf::Vec3d cellCorners[8];
-            size_t localCellIdx = masterEclGrid->cells()[closeCells[ccIdx]].gridLocalCellIndex();
-            masterEclGrid->cellCornerVertices(localCellIdx, cellCorners);
+            cvf::Vec3d geoMechConvertedEclCell[8];
 
-            cvf::Vec3d gomConvertedEclCell[8];
-            estimatedFemCellFromEclCell(masterEclGrid, closeCells[ccIdx], gomConvertedEclCell);
+            estimatedFemCellFromEclCell(masterEclGrid, closeCells[ccIdx], geoMechConvertedEclCell);
 
-            bool isMatching = isEclFemCellsMatching(gomConvertedEclCell, masterEclGrid->isFaceNormalsOutwards(), 
-                                                    dependentFemPart, elmIdx, 
+            rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, ccIdx ? 1:isEclFaceNormalsOutwards , elmCorners);
+
+            bool isMatching = isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners, 
                                                     xyTolerance, zTolerance);
 
             if (isMatching)
             {
                 matchingCells.push_back(static_cast<int>(closeCells[ccIdx]));
             }
-            else
-            {
-                // Try zero volume correction
-            }
         }
-
 
         storeMapping(elmIdx, matchingCells);
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigCaseToCaseCellMapper::storeMapping(int depCaseCellIdx, const std::vector<int>& masterCaseMatchingCells)
-{
-    if (masterCaseMatchingCells.size() == 1)
-    {
-        m_masterCellOrIntervalIndex[depCaseCellIdx] = masterCaseMatchingCells[0];
-    }
-    else if (masterCaseMatchingCells.size() > 1)
-    {
-        m_masterCellOrIntervalIndex[depCaseCellIdx] = -((int)(m_masterCellIndexSeries.size()));
-        m_masterCellIndexSeries.push_back(masterCaseMatchingCells);
-    }
-}
-
-
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// Follows the HEX8 type in both RigFemTypes and cvf::StructGridInterface
-/// Normals given in POSX, NEGX, POSY, NEGY, POSZ, NEGZ order. Same as face order in the above HEX-es
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3i findMainXYZFacesOfHex(const cvf::Vec3f normals[6] )
-{
-    cvf::Vec3i ijkMainFaceIndices = cvf::Vec3i(-1, -1, -1);
-
-    // Record three independent main direction vectors for the element, and what face they are created from
-
-    cvf::Vec3f mainElmDirections[3];
-    int mainElmDirOriginFaces[3];
-
-    mainElmDirections[0] = normals[0] - normals[1]; // To get a better "average" direction vector
-    mainElmDirections[1] = normals[2] - normals[3];
-    mainElmDirections[2] = normals[4] - normals[5];
-
-    mainElmDirOriginFaces[0] = 0;
-    mainElmDirOriginFaces[1] = 2;
-    mainElmDirOriginFaces[2] = 4;
-
-    
-    // Match the element main directions with best XYZ match (IJK respectively)
-    // Find the max component of a mainElmDirection. 
-    // Assign the index of that mainElmDirection to the mainElmDirectionIdxForIJK at the index of the max component.
-
-    int mainElmDirectionIdxForIJK[3] ={ -1, -1, -1 };
-    for (int dIdx = 0; dIdx < 3; ++dIdx)
-    {
-        double maxAbsComp = 0;
-        for (int cIdx = 2; cIdx >= 0 ; --cIdx)
-        {
-            float absComp = fabs(mainElmDirections[dIdx][cIdx]);
-            if (absComp > maxAbsComp)
-            {
-                maxAbsComp = absComp;
-                mainElmDirectionIdxForIJK[cIdx] = dIdx;
-            }
-        }
-    }
-
-    // make sure all the main directions are used
-
-    bool mainDirsUsed[3] ={ false, false, false };
-    mainDirsUsed[mainElmDirectionIdxForIJK[0]] = true;
-    mainDirsUsed[mainElmDirectionIdxForIJK[1]] = true;
-    mainDirsUsed[mainElmDirectionIdxForIJK[2]] = true;
-
-    int unusedDir = -1;
-    if (!mainDirsUsed[0]) unusedDir = 0;
-    if (!mainDirsUsed[1]) unusedDir = 1;
-    if (!mainDirsUsed[2]) unusedDir = 2;
-
-    if (unusedDir >= 0)
-    {
-        if (mainElmDirectionIdxForIJK[0] == mainElmDirectionIdxForIJK[1]) mainElmDirectionIdxForIJK[0] = unusedDir;
-        else if (mainElmDirectionIdxForIJK[1] == mainElmDirectionIdxForIJK[2]) mainElmDirectionIdxForIJK[1] = unusedDir;
-        else if (mainElmDirectionIdxForIJK[2] == mainElmDirectionIdxForIJK[0]) mainElmDirectionIdxForIJK[2] = unusedDir;
-    }
-
-    // Assign the correct face based on the main direction
-
-    ijkMainFaceIndices[0] = (mainElmDirections[mainElmDirectionIdxForIJK[0]] * cvf::Vec3f::X_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]:  RigFemTypes::oppositeFace(HEX8, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[0]]);
-    ijkMainFaceIndices[1] = (mainElmDirections[mainElmDirectionIdxForIJK[1]] * cvf::Vec3f::Y_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]:  RigFemTypes::oppositeFace(HEX8, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[1]]);
-    ijkMainFaceIndices[2] = (mainElmDirections[mainElmDirectionIdxForIJK[2]] * -cvf::Vec3f::Z_AXIS > 0) ? mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]:  RigFemTypes::oppositeFace(HEX8, mainElmDirOriginFaces[mainElmDirectionIdxForIJK[2]]);
-
-    return ijkMainFaceIndices;
-}
-#endif
 
 #if 0 // Inside Bounding box test
 cvf::BoundingBox cellBBox;
