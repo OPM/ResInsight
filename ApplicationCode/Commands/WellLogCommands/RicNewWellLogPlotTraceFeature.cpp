@@ -51,7 +51,7 @@ void RicNewWellLogPlotTraceFeature::onActionTriggered(bool isChecked)
     {
          RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace;
          wellLogPlot->addTrace(plotTrace);
-         plotTrace->setUiName(QString("Trace %1").arg(wellLogPlot->traceCount()));
+         plotTrace->setDescription(QString("Track %1").arg(wellLogPlot->traceCount()));
 
          wellLogPlot->updateConnectedEditors();
          RicNewWellLogCurveExtractionFeature::addCurve(plotTrace);

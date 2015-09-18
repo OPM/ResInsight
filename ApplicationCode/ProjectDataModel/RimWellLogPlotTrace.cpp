@@ -44,6 +44,8 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
 {
     CAF_PDM_InitObject("Trace", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_userName, "TrackDescription", "Name", "", "", "");
+
     CAF_PDM_InitField(&m_show, "Show", true, "Show trace", "", "", "");
     m_show.uiCapability()->setUiHidden(true);
 
@@ -60,6 +62,14 @@ RimWellLogPlotTrace::RimWellLogPlotTrace()
 RimWellLogPlotTrace::~RimWellLogPlotTrace()
 {
     delete m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrace::setDescription(const QString& description)
+{
+    m_userName = description;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,6 +94,14 @@ void RimWellLogPlotTrace::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 caf::PdmFieldHandle* RimWellLogPlotTrace::objectToggleField()
 {
     return &m_show;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellLogPlotTrace::userDescriptionField()
+{
+    return &m_userName;
 }
 
 //--------------------------------------------------------------------------------------------------

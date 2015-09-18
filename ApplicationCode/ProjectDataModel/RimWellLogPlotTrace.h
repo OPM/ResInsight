@@ -43,6 +43,8 @@ public:
     RimWellLogPlotTrace();
     virtual ~RimWellLogPlotTrace();
 
+    void setDescription(const QString& description);
+
     void addCurve(RimWellLogPlotCurve* curve);
     size_t curveCount() { return curves.size(); }
 
@@ -64,9 +66,11 @@ protected:
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle* objectToggleField();
+    virtual caf::PdmFieldHandle* userDescriptionField();
 
 private:
     caf::PdmField<bool> m_show;
+    caf::PdmField<QString> m_userName;
     caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
     caf::PdmField<double> m_minimumValue;
     caf::PdmField<double> m_maximumValue;

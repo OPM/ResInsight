@@ -51,6 +51,7 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 
     RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace();
     plot->addTrace(plotTrace);
+    plotTrace->setDescription(QString("Track %1").arg(plot->traceCount()));
 
     plot->loadDataAndUpdate();
     plot->updateConnectedEditors();
