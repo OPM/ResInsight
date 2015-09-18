@@ -627,7 +627,7 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
 #include "RimWellLogPlotCurve.h"
-#include "RimWellLog.h"
+#include "RimWellLogFileChannel.h"
 #include <QMenu>
 
 
@@ -650,7 +650,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         commandIds << "RicCopyReferencesToClipboardFeature";
 
         caf::PdmUiItem* uiItem = uiItems[0];
-        if (dynamic_cast<RimWellLog*>(uiItem))
+        if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
             commandIds << "RicAddWellLogToPlotFeature";
         }
@@ -828,7 +828,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         {
             commandIds << "RicDeleteItemFeature";
         }
-        else if (dynamic_cast<RimWellLog*>(uiItem))
+        else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
             commandIds << "RicAddWellLogToPlotFeature";
         }

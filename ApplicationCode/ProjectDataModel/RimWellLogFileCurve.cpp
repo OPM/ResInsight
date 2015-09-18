@@ -23,7 +23,7 @@
 #include "RimOilField.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPath.h"
-#include "RimWellLog.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotTrace.h"
 #include "RimWellLogPlot.h"
@@ -206,7 +206,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
             RimWellLogFile* wellLogFile = m_wellPath->m_wellLogFile();
             if (wellLogFile)
             {
-                const caf::PdmChildArrayField<RimWellLog*>* fileLogs = wellLogFile->wellLogChannelNames();
+                const caf::PdmChildArrayField<RimWellLogFileChannel*>* fileLogs = wellLogFile->wellLogChannelNames();
 
                 for (size_t i = 0; i < fileLogs->size(); i++)
                 {

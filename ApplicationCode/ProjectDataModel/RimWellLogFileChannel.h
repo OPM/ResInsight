@@ -28,12 +28,12 @@ class QString;
 ///  
 ///  
 //==================================================================================================
-class RimWellLog : public caf::PdmObject
+class RimWellLogFileChannel : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLog();
+    RimWellLogFileChannel();
     
     void    setName(const QString& name);
     QString name() const { return m_name; }

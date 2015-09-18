@@ -17,19 +17,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLog.h"
+#include "RimWellLogFileChannel.h"
 
 #include <QString>
 
 
-CAF_PDM_SOURCE_INIT(RimWellLog, "WellLog");
+CAF_PDM_SOURCE_INIT(RimWellLogFileChannel, "WellLogFileChannel");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLog::RimWellLog()
+RimWellLogFileChannel::RimWellLogFileChannel()
 {
-    CAF_PDM_InitObject("Well Log", "", "", "");
+    CAF_PDM_InitObject("Well Log File Channel", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_name, "Name", "",  "", "", "");
     m_name.uiCapability()->setUiHidden(true);
@@ -39,7 +39,7 @@ RimWellLog::RimWellLog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLog::setName(const QString& name)
+void RimWellLogFileChannel::setName(const QString& name)
 {
     m_name = name;
 }

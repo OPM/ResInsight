@@ -27,7 +27,7 @@
 
 #include "cvfBase.h"
 
-class RimWellLog;
+class RimWellLogFileChannel;
 
 class QString;
 
@@ -51,10 +51,10 @@ public:
 
     RigWellLogFile* wellLogFile() { return m_wellLogDataFile.p(); }
 
-    const caf::PdmChildArrayField<RimWellLog*>* wellLogChannelNames() const { return &m_wellLogChannelNames; }
+    const caf::PdmChildArrayField<RimWellLogFileChannel*>* wellLogChannelNames() const { return &m_wellLogChannelNames; }
 
 private:
-    caf::PdmChildArrayField<RimWellLog*>  m_wellLogChannelNames;
+    caf::PdmChildArrayField<RimWellLogFileChannel*>  m_wellLogChannelNames;
 
 private:
     cvf::ref<RigWellLogFile>    m_wellLogDataFile;

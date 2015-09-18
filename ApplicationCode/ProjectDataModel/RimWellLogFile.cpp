@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLogFile.h"
-#include "RimWellLog.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -50,7 +50,7 @@ RimWellLogFile::RimWellLogFile()
     m_name.uiCapability()->setUiHidden(true);
     m_name.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_wellLogChannelNames, "WellLogChannelNames", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellLogChannelNames, "WellLogFileChannels", "",  "", "", "");
     m_wellLogChannelNames.uiCapability()->setUiHidden(true);
     m_wellLogChannelNames.xmlCapability()->setIOWritable(false);
 
@@ -95,7 +95,7 @@ bool RimWellLogFile::readFile()
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for (int logIdx = 0; logIdx < wellLogNames.size(); logIdx++)
     {
-        RimWellLog* wellLog = new RimWellLog();
+        RimWellLogFileChannel* wellLog = new RimWellLogFileChannel();
         wellLog->setName(wellLogNames[logIdx]);
         m_wellLogChannelNames.push_back(wellLog);
     }

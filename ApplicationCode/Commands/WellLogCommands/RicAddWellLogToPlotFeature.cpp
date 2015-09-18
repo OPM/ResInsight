@@ -23,7 +23,7 @@
 #include "RicNewWellLogPlotFeatureImpl.h"
 
 #include "RimWellLogFile.h"
-#include "RimWellLog.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
 #include "RimWellLogFileCurve.h"
@@ -54,7 +54,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 bool RicAddWellLogToPlotFeature::isCommandEnabled()
 {
-    std::vector<RimWellLog*> selection = selectedWellLogs();
+    std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
     return selection.size() > 0;
 }
 
@@ -63,7 +63,7 @@ bool RicAddWellLogToPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellLog*> selection = selectedWellLogs();
+    std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
     if (selection.size() < 1) return;
     
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
@@ -77,7 +77,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 
     for (size_t wlIdx = 0; wlIdx < selection.size(); wlIdx++)
     {
-        RimWellLog* wellLog = selection[wlIdx];
+        RimWellLogFileChannel* wellLog = selection[wlIdx];
 
         RimWellPath* wellPath;
         wellLog->firstAnchestorOrThisOfType(wellPath);
@@ -129,9 +129,9 @@ void RicAddWellLogToPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLog*> RicAddWellLogToPlotFeature::selectedWellLogs()
+std::vector<RimWellLogFileChannel*> RicAddWellLogToPlotFeature::selectedWellLogs()
 {
-    std::vector<RimWellLog*> selection;
+    std::vector<RimWellLogFileChannel*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     return selection;
 }

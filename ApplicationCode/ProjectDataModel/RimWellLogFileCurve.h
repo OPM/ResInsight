@@ -27,7 +27,7 @@
 #include <vector>
 
 class RimWellPath;
-class RimWellLog;
+class RimWellLogFileChannel;
 
 //==================================================================================================
 ///  

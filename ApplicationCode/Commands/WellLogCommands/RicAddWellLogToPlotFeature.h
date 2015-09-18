@@ -26,7 +26,7 @@
 class RimMainPlotCollection;
 class RimWellLogPlotCollection;
 class RimWellLogPlot;
-class RimWellLog;
+class RimWellLogFileChannel;
 
 namespace caf 
 {
@@ -45,7 +45,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    std::vector<RimWellLog*> selectedWellLogs();
+    std::vector<RimWellLogFileChannel*> selectedWellLogs();
 };
 
 
