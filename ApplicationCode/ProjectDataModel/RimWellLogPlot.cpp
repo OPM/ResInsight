@@ -66,8 +66,8 @@ RimWellLogPlot::RimWellLogPlot()
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
     CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Depth type",   "", "", "");
 
-    CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Minimum depth", "", "", "");
-    CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Maximum depth", "", "", "");    
+    CAF_PDM_InitField(&m_minimumVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
+    CAF_PDM_InitField(&m_maximumVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
 
     CAF_PDM_InitFieldNoDefault(&traces, "Traces", "",  "", "", "");
     traces.uiCapability()->setUiHidden(true);
@@ -293,6 +293,21 @@ void RimWellLogPlot::setupBeforeSave()
         windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_userName);
+    uiOrdering.add(&m_depthType);
+
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
+    gridGroup->add(&m_minimumVisibleDepth);
+    gridGroup->add(&m_maximumVisibleDepth);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
