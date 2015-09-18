@@ -86,6 +86,9 @@ const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseRese
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RigNeighborCornerFinder
 {
 public:
@@ -370,33 +373,29 @@ bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFa
 
 
     {
-        int faceNodeCount;
-        const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
-        const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 5, &faceNodeCount);
+        eclDeepestQuad[0] = gomConvertedEclCell[4];
+        eclDeepestQuad[1] = gomConvertedEclCell[5];
+        eclDeepestQuad[2] = gomConvertedEclCell[6];
+        eclDeepestQuad[3] = gomConvertedEclCell[7];
 
-        eclDeepestQuad[0] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[0]];
-        eclDeepestQuad[1] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[1]];
-        eclDeepestQuad[2] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[2]];
-        eclDeepestQuad[3] = gomConvertedEclCell[localElmNodeIndicesForTopZFace[3]];
-
-        eclShallowQuad[0] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[0]];
-        eclShallowQuad[1] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[1]];
-        eclShallowQuad[2] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[2]];
-        eclShallowQuad[3] = gomConvertedEclCell[localElmNodeIndicesForBotZFace[3]];
-    }
-
-    if (!isEclFaceNormalsOutwards)
-    {
-        flipQuadWinding(femShallowQuad);
-        flipQuadWinding(femDeepestQuad);
+        eclShallowQuad[0] = gomConvertedEclCell[0];
+        eclShallowQuad[1] = gomConvertedEclCell[1];
+        eclShallowQuad[2] = gomConvertedEclCell[2];
+        eclShallowQuad[3] = gomConvertedEclCell[3];
     }
 
     // Now the top/bottom have opposite winding. To make the comparisons and index rotations simpler
-    // flip the winding of the bottom face:
-    
-    flipQuadWinding(eclShallowQuad);
-    flipQuadWinding(femShallowQuad);
+    // flip the winding of the top or bottom face depending on whether the eclipse grid is inside-out
 
+    if (isEclFaceNormalsOutwards)
+    {
+        flipQuadWinding(femShallowQuad);
+    }
+    else
+    {
+        flipQuadWinding(femDeepestQuad);
+    }
+    
     // We now need to rotate the fem quads to be alligned with the ecl quads
     // Since the start point of the quad always is aligned with the opposite face-quad start
     // we can find the rotation for the top, and apply it to both top and bottom
