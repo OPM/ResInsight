@@ -49,9 +49,6 @@ public:
 
     void setDepthRangeAndReplot(double minDepth, double maxDepth);
 
-protected:
-    virtual void focusInEvent(QFocusEvent* event);
-
 private:
     void updateScrollBar(double minDepth, double maxDepth);
 
