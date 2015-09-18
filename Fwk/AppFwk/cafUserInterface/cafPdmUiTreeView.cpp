@@ -195,5 +195,13 @@ void PdmUiTreeView::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
     m_treeViewEditor->setDragDropHandle(dragDropHandle);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::enableAppendOfClassNameToUiItemText(bool enable)
+{
+    m_treeViewEditor->enableAppendOfClassNameToUiItemText(enable);
+}
+
 } //End of namespace caf
 

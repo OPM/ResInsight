@@ -88,6 +88,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlot.h"
+#include "cafPdmUiTreeView.h"
 
 namespace caf
 {
@@ -1364,12 +1365,16 @@ void RiaApplication::applyPreferences()
         caf::EffectGenerator::setRenderingMode(caf::EffectGenerator::FIXED_FUNCTION);
     }
 
+    if (RiuMainWindow::instance() && RiuMainWindow::instance()->projectTreeView())
+    {
+        RiuMainWindow::instance()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
+    }
+
     if (this->project())
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
-        this->project()->scriptCollection()->updateConnectedEditors();
+        this->project()->updateConnectedEditors();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------

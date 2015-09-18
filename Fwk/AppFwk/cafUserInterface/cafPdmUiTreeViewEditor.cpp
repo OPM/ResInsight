@@ -63,6 +63,7 @@ PdmUiTreeViewEditor::PdmUiTreeViewEditor()
 {
     m_useDefaultContextMenu = false;
     m_updateSelectionManager = false;
+    m_appendClassNameToUiItemText = false;
 
 }
 
@@ -322,6 +323,22 @@ void PdmUiTreeViewEditor::updateSelectionManager()
 
         SelectionManager::instance()->setSelectedItems(items);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewEditor::enableAppendOfClassNameToUiItemText(bool enable)
+{
+    m_appendClassNameToUiItemText = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeViewEditor::isAppendOfClassNameToUiItemTextEnabled()
+{
+    return m_appendClassNameToUiItemText;
 }
 
 

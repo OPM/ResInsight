@@ -62,6 +62,7 @@ public: // Pdm Fields
 
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
+    caf::PdmField<bool>     appendClassNameToUiText;
 
     caf::PdmField<QString>  lastUsedProjectFileName;
 

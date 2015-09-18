@@ -501,16 +501,15 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
 
                 QString txt = v.toString();
 
-// Uncomment following to show class names of objects in property viewer
-//#define SHOW_CLASS_NAME_IN_TREE
-#ifdef SHOW_CLASS_NAME_IN_TREE
-                PdmObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
-                if (pdmObjHandle)
+                if (m_treeViewEditor->isAppendOfClassNameToUiItemTextEnabled())
                 {
-                    txt += " - ";
-                    txt += typeid(*pdmObjHandle).name();
+                    PdmObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
+                    if (pdmObjHandle)
+                    {
+                        txt += " - ";
+                        txt += typeid(*pdmObjHandle).name();
+                    }
                 }
-#endif
 
                 return txt;
             }

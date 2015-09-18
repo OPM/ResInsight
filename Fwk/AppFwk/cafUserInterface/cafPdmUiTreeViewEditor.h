@@ -85,6 +85,9 @@ public:
 
     void                enableDefaultContextMenu(bool enable);
     void                enableSelectionManagerUpdating(bool enable);
+    
+    void                enableAppendOfClassNameToUiItemText(bool enable);
+    bool                isAppendOfClassNameToUiItemTextEnabled();
 
     QTreeView*          treeView();
 
@@ -133,6 +136,7 @@ private:
 
     bool                m_useDefaultContextMenu;
     bool                m_updateSelectionManager;
+    bool                m_appendClassNameToUiItemText;
 };
 
 

@@ -66,6 +66,7 @@ public:
 
     void        enableDefaultContextMenu(bool enable);
     void        enableSelectionManagerUpdating(bool enable); // TODO: rename
+    void        enableAppendOfClassNameToUiItemText(bool enable);
 
     void        setUiConfigurationName(QString uiConfigName);
     void        setPdmItem(caf::PdmUiItem* object);
