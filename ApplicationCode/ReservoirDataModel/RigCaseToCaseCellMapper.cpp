@@ -319,85 +319,6 @@ int quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4])
     
     return quadVxIdxClosestToPoint;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFaceNormalsOutwards,  
-                           RigFemPart* femPart, int elmIdx,
-                           double xyTolerance, double zTolerance)
-{
-
-    // Find the element top 
-    int femDeepZFaceIdx = 4;
-
-    {
-        cvf::Vec3i mainAxisFaces = femPart->structGrid()->findMainIJKFaces(elmIdx);
-        femDeepZFaceIdx = mainAxisFaces[2];
-    }
-
-    int femShallowZFaceIdx = RigFemTypes::oppositeFace(HEX8, femDeepZFaceIdx);
-
-    cvf::Vec3d femCorners[8];
-
-    {
-        const int* cornerIndices = femPart->connectivities(elmIdx);
-        const std::vector<cvf::Vec3f>& femNodes =  femPart->nodes().coordinates;
-        int faceNodeCount;
-        const int*  localElmNodeIndicesForPOSKFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femDeepZFaceIdx, &faceNodeCount);
-        const int*  localElmNodeIndicesForNEGKFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femShallowZFaceIdx, &faceNodeCount);
-
-        femCorners[0] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForNEGKFace[0]]]);
-        femCorners[1] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForNEGKFace[1]]]);
-        femCorners[2] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForNEGKFace[2]]]);
-        femCorners[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForNEGKFace[3]]]);
-        femCorners[4] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForPOSKFace[0]]]);
-        femCorners[5] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForPOSKFace[1]]]);
-        femCorners[6] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForPOSKFace[2]]]);
-        femCorners[7] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForPOSKFace[3]]]);
-    }
-
-    cvf::Vec3d* femDeepestQuad = &(femCorners[4]);
-    cvf::Vec3d* femShallowQuad = &(femCorners[0]);
-
-    // Now the top/bottom have opposite winding. To make the comparisons and index rotations simpler
-    // flip the winding of the top or bottom face depending on whether the eclipse grid is inside-out
-
-    if (isEclFaceNormalsOutwards)
-    {
-        flipQuadWinding(femShallowQuad);
-    }
-    else
-    {
-        flipQuadWinding(femDeepestQuad);
-    }
-    
-    // We now need to rotate the fem quads to be alligned with the ecl quads
-    // Since the start point of the quad always is aligned with the opposite face-quad start
-    // we can find the rotation for the top, and apply it to both top and bottom
-
-    int femQuadStartIdx = quadVxClosestToXYOfPoint(gomConvertedEclCell[0], femShallowQuad);
-    rotateQuad(femDeepestQuad, femQuadStartIdx);
-    rotateQuad(femShallowQuad, femQuadStartIdx);
-
-    // Now we should be able to compare vertex for vertex between the ecl and fem cells.
-
-    bool isMatching = true;
-
-    for (int i = 0; i < 4 ; ++i)
-    {
-        cvf::Vec3d diff = femCorners[i] - gomConvertedEclCell[i];
-
-        if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
-        {
-            isMatching = false;
-            break;
-        }
-    }
-
-    return isMatching;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -419,6 +340,131 @@ bool elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
 
     return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int findMatchingPOSKFaceIdx(const cvf::Vec3d baseCell[8],bool isBaseCellNormalsOutwards,  const cvf::Vec3d c2[8])
+{
+    int faceNodeCount;
+    const int* posKFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, (int)(cvf::StructGridInterface::POS_K), &faceNodeCount);
+
+    double sign = isBaseCellNormalsOutwards ? 1.0 : -1.0;
+
+    cvf::Vec3d posKnormal = sign*(baseCell[posKFace[2]] - baseCell[posKFace[0]]) ^ (baseCell[posKFace[3]] - baseCell[posKFace[1]]);
+    posKnormal.normalize();
+
+    double minDiff = HUGE_VAL;
+    int bestFace = -1;
+    for (int faceIdx = 5; faceIdx >= 0; --faceIdx) // Backwards. might hit earlier more often
+    {
+        const int* face = RigFemTypes::localElmNodeIndicesForFace(HEX8, faceIdx, &faceNodeCount);
+        cvf::Vec3d normal = (c2[face[2]] - c2[face[0]]) ^ (c2[face[3]] - c2[face[1]]);
+        normal.normalize();
+        double sqDiff =  (posKnormal-normal).lengthSquared();
+        if (sqDiff < minDiff)
+        {
+            minDiff  = sqDiff;
+            bestFace = faceIdx;
+            if (minDiff < 0.1*0.1) break; // This must be the one. Do not search further
+        }
+    }
+
+    return bestFace;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFaceNormalsOutwards,  
+                           RigFemPart* femPart, int elmIdx,
+                           double xyTolerance, double zTolerance)
+{
+
+    // Find the element top 
+    //int femDeepZFaceIdx = 4;
+    //
+    //{
+    //    cvf::Vec3i mainAxisFaces = femPart->structGrid()->findMainIJKFaces(elmIdx);
+    //    femDeepZFaceIdx = mainAxisFaces[2];
+    //}
+
+    cvf::Vec3d femCorners[8];
+    elementCorners(femPart, elmIdx, femCorners);
+
+    int femDeepZFaceIdx = findMatchingPOSKFaceIdx(gomConvertedEclCell, isEclFaceNormalsOutwards, femCorners);
+
+    // Rotate the fem element
+    {
+        {
+            cvf::Vec3d tmpFemCorners[8];
+            tmpFemCorners[0] = femCorners[0];
+            tmpFemCorners[1] = femCorners[1];
+            tmpFemCorners[2] = femCorners[2];
+            tmpFemCorners[3] = femCorners[3];
+            tmpFemCorners[4] = femCorners[4];
+            tmpFemCorners[5] = femCorners[5];
+            tmpFemCorners[6] = femCorners[6];
+            tmpFemCorners[7] = femCorners[7];
+
+            int femShallowZFaceIdx = RigFemTypes::oppositeFace(HEX8, femDeepZFaceIdx);
+
+            int faceNodeCount;
+            const int*  localElmNodeIndicesForPOSKFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femDeepZFaceIdx, &faceNodeCount);
+            const int*  localElmNodeIndicesForNEGKFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, femShallowZFaceIdx, &faceNodeCount);
+
+            femCorners[0] = tmpFemCorners[localElmNodeIndicesForNEGKFace[0]];
+            femCorners[1] = tmpFemCorners[localElmNodeIndicesForNEGKFace[1]];
+            femCorners[2] = tmpFemCorners[localElmNodeIndicesForNEGKFace[2]];
+            femCorners[3] = tmpFemCorners[localElmNodeIndicesForNEGKFace[3]];
+            femCorners[4] = tmpFemCorners[localElmNodeIndicesForPOSKFace[0]];
+            femCorners[5] = tmpFemCorners[localElmNodeIndicesForPOSKFace[1]];
+            femCorners[6] = tmpFemCorners[localElmNodeIndicesForPOSKFace[2]];
+            femCorners[7] = tmpFemCorners[localElmNodeIndicesForPOSKFace[3]];
+        }
+
+        cvf::Vec3d* femDeepestQuad = &(femCorners[4]);
+        cvf::Vec3d* femShallowQuad = &(femCorners[0]);
+
+        // Now the top/bottom have opposite winding. To make the comparisons and index rotations simpler
+        // flip the winding of the top or bottom face depending on whether the eclipse grid is inside-out
+
+        if (isEclFaceNormalsOutwards)
+        {
+            flipQuadWinding(femShallowQuad);
+        }
+        else
+        {
+            flipQuadWinding(femDeepestQuad);
+        }
+
+        // We now need to rotate the fem quads to be alligned with the ecl quads
+        // Since the start point of the quad always is aligned with the opposite face-quad start
+        // we can find the rotation for the top, and apply it to both top and bottom
+
+        int femQuadStartIdx = quadVxClosestToXYOfPoint(gomConvertedEclCell[0], femShallowQuad);
+        rotateQuad(femDeepestQuad, femQuadStartIdx);
+        rotateQuad(femShallowQuad, femQuadStartIdx);
+    }
+
+    // Now we should be able to compare vertex for vertex between the ecl and fem cells.
+
+    bool isMatching = true;
+
+    for (int i = 0; i < 4 ; ++i)
+    {
+        cvf::Vec3d diff = femCorners[i] - gomConvertedEclCell[i];
+
+        if (!(fabs(diff.x()) < xyTolerance &&   fabs(diff.y()) < xyTolerance && fabs(diff.z()) < zTolerance))
+        {
+            isMatching = false;
+            break;
+        }
+    }
+
+    return isMatching;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
