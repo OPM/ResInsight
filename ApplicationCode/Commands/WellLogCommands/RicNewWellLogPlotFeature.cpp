@@ -24,7 +24,7 @@
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrace.h"
-#include "RicNewWellLogPlotCurveFeature.h"
+#include "RicNewWellLogCurveExtractionFeature.h"
 #include "RiaApplication.h"
 
 #include <QAction>
@@ -56,7 +56,7 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
     plot->updateConnectedEditors();
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    RicNewWellLogPlotCurveFeature::addCurve(plotTrace);
+    RicNewWellLogCurveExtractionFeature::addCurve(plotTrace);
 }
 
 //--------------------------------------------------------------------------------------------------

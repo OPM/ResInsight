@@ -1253,12 +1253,12 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
         else
         {
             subWindowSize = QSize(400, 400);
-        }
 
-        if (!wellLogPlot && m_mdiArea->subWindowList().size() < 1)
-        {
-            // Show first 3D view maximized
-            showMax = true;
+            if (m_mdiArea->subWindowList().size() < 1)
+            {
+                // Show first 3D view maximized
+                showMax = true;
+            }
         }
     }
         

@@ -17,61 +17,79 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellLogPlotTraceFeature.h"
+#include "RicNewWellLogCurveExtractionFeature.h"
 
-#include "RimWellLogPlot.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
+
 #include "RimWellLogPlotTrace.h"
+#include "RimWellLogExtractionCurve.h"
 
 #include "RiuMainWindow.h"
-
-#include "RicNewWellLogPlotCurveFeature.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
+#include <vector>
 
-CAF_CMD_SOURCE_INIT(RicNewWellLogPlotTraceFeature, "RicNewWellLogPlotTraceFeature");
+
+CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtractionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogPlotTraceFeature::isCommandEnabled()
+bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 {
-    return selectedWellLogPlot() != NULL;
+    return selectedWellLogPlotTrace() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotTraceFeature::onActionTriggered(bool isChecked)
+void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogPlot* wellLogPlot = selectedWellLogPlot();
-    if (wellLogPlot)
+    RimWellLogPlotTrace* wellLogPlotTrace = selectedWellLogPlotTrace();
+    if (wellLogPlotTrace)
     {
-         RimWellLogPlotTrace* plotTrace = new RimWellLogPlotTrace;
-         wellLogPlot->addTrace(plotTrace);
-         plotTrace->setUiName(QString("Trace %1").arg(wellLogPlot->traceCount()));
-
-         wellLogPlot->updateConnectedEditors();
-         RicNewWellLogPlotCurveFeature::addCurve(plotTrace);
+        addCurve(wellLogPlotTrace);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotTraceFeature::setupActionLook(QAction* actionToSetup)
+void RicNewWellLogCurveExtractionFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Trace");
+    actionToSetup->setText("New Well Log Extraction Curve");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RicNewWellLogPlotTraceFeature::selectedWellLogPlot()
+RimWellLogPlotTrace* RicNewWellLogCurveExtractionFeature::selectedWellLogPlotTrace()
 {
-    std::vector<RimWellLogPlot*> selection;
+    std::vector<RimWellLogPlotTrace*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     return selection.size() > 0 ? selection[0] : NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogPlotTrace* plotTrace)
+{
+    CVF_ASSERT(plotTrace);
+
+    size_t curveIndex = plotTrace->curveCount();
+
+    RimWellLogPlotCurve* curve = new RimWellLogExtractionCurve();
+    plotTrace->addCurve(curve);
+
+    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIndex);
+    curve->setColor(curveColor);
+
+    curve->setDescription(QString("Curve %1").arg(plotTrace->curveCount()));
+
+    plotTrace->updateConnectedEditors();
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
 }

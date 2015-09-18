@@ -21,9 +21,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicNewViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewPasteFeature.h
-#${CEE_CURRENT_LIST_DIR}RicGridModelsCreateCaseGroupFromFiles.h
-#${CEE_CURRENT_LIST_DIR}RicGridModelsImport.h
-#${CEE_CURRENT_LIST_DIR}RicGridModelsImportInput.h
 ${CEE_CURRENT_LIST_DIR}RicPropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterExecImpl.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertExec.h
@@ -43,12 +40,6 @@ ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.h
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeature.h
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotTraceFeature.h
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotCurveFeature.h
-${CEE_CURRENT_LIST_DIR}RicAddWellLogToPlotFeature.h
-${CEE_CURRENT_LIST_DIR}RicWellLogPlotCurveFeatureImpl.h
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeatureImpl.h
 
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.h
@@ -82,9 +73,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseViewPasteFeature.cpp
-#${CEE_CURRENT_LIST_DIR}RicGridModelsCreateCaseGroupFromFiles.cpp
-#${CEE_CURRENT_LIST_DIR}RicGridModelsImport.cpp
-#${CEE_CURRENT_LIST_DIR}RicGridModelsImportInput.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterExecImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertFeature.cpp
@@ -103,18 +91,10 @@ ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotTraceFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotCurveFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicAddWellLogToPlotFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicWellLogPlotCurveFeatureImpl.cpp
-${CEE_CURRENT_LIST_DIR}RicNewWellLogPlotFeatureImpl.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsDeleteAllFeature.cpp
-
-${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
 
