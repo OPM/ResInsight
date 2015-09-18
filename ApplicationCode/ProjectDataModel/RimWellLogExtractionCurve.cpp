@@ -363,7 +363,7 @@ void RimWellLogExtractionCurve::validCurvePointIntervals(const std::vector<doubl
         }
     }
 
-    if (validDepthStartIdx > 0 && validDepthStartIdx < valuesCount)
+    if (validDepthStartIdx >= 0 && validDepthStartIdx < valuesCount)
     {
         validDepthIntervals.push_back(std::make_pair(validDepthStartIdx, valuesCount - 1));
     }
