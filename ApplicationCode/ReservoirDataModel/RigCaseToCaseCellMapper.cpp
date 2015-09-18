@@ -368,22 +368,7 @@ bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFa
         femShallowQuad[3] = cvf::Vec3d(femNodes[cornerIndices[localElmNodeIndicesForBotZFace[3]]]);
     }
 
-    cvf::Vec3d eclDeepestQuad[4];
-    cvf::Vec3d eclShallowQuad[4];
-
-
-    {
-        eclDeepestQuad[0] = gomConvertedEclCell[4];
-        eclDeepestQuad[1] = gomConvertedEclCell[5];
-        eclDeepestQuad[2] = gomConvertedEclCell[6];
-        eclDeepestQuad[3] = gomConvertedEclCell[7];
-
-        eclShallowQuad[0] = gomConvertedEclCell[0];
-        eclShallowQuad[1] = gomConvertedEclCell[1];
-        eclShallowQuad[2] = gomConvertedEclCell[2];
-        eclShallowQuad[3] = gomConvertedEclCell[3];
-    }
-
+ 
     // Now the top/bottom have opposite winding. To make the comparisons and index rotations simpler
     // flip the winding of the top or bottom face depending on whether the eclipse grid is inside-out
 
@@ -400,11 +385,14 @@ bool isEclFemCellsMatching(const cvf::Vec3d gomConvertedEclCell[8], bool isEclFa
     // Since the start point of the quad always is aligned with the opposite face-quad start
     // we can find the rotation for the top, and apply it to both top and bottom
 
-    int femQuadStartIdx = quadVxClosestToXYOfPoint(eclDeepestQuad[0], femDeepestQuad);
+    int femQuadStartIdx = quadVxClosestToXYOfPoint(gomConvertedEclCell[0], femShallowQuad);
     rotateQuad(femDeepestQuad, femQuadStartIdx);
     rotateQuad(femShallowQuad, femQuadStartIdx);
 
     // Now we should be able to compare vertex for vertex between the ecl and fem quads.
+
+    const cvf::Vec3d* eclDeepestQuad = &(gomConvertedEclCell[4]);
+    const cvf::Vec3d* eclShallowQuad = &(gomConvertedEclCell[0]);
 
     bool isMatching = true;
 
