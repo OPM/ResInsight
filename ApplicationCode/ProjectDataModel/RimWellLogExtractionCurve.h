@@ -60,6 +60,11 @@ protected:
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
     caf::PdmField<int>                              m_timeStep;
 
+    caf::PdmField<bool>                             m_addCaseNameToCurveName;
+    caf::PdmField<bool>                             m_addPropertyToCurveName;
+    caf::PdmField<bool>                             m_addWellNameToCurveName;
+    caf::PdmField<bool>                             m_addTimestepToCurveName;
+
 private:
     static void validCurvePointIntervals(const std::vector<double>& depthValues, const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals);
     static void addValuesFromIntervals(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues);

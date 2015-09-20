@@ -24,6 +24,8 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
 #include "RigGeoMechWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
 
@@ -77,6 +79,11 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition = new RimGeoMechResultDefinition;
 
     CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0,"Time Step", "", "", "");
+
+    CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "Case Name", "", "", "");
+    CAF_PDM_InitField(&m_addPropertyToCurveName, "AddPropertyToCurveName", true, "Property", "", "", "");
+    CAF_PDM_InitField(&m_addWellNameToCurveName, "AddWellNameToCurveName", true, "WellName", "", "", "");
+    CAF_PDM_InitField(&m_addTimestepToCurveName, "AddTimestepToCurveName", true, "Timestep", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,6 +114,14 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
     if (changedField == &m_timeStep)
     {
         this->updatePlotData();
+    }
+
+    if (changedField == &m_addCaseNameToCurveName ||
+        changedField == &m_addPropertyToCurveName ||
+        changedField == &m_addWellNameToCurveName ||
+        changedField == &m_addTimestepToCurveName)
+    {
+        updatePlotTitle();
     }
 }
 
@@ -278,7 +293,19 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    RimWellLogPlotCurve::defineUiOrdering(uiConfigName, uiOrdering);
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Curve Display Name");
+    caf::PdmUiGroup* generatedGroup = group->addNewGroup("Generated Display Name");
+    generatedGroup->add(&m_generatedCurveName);
+    caf::PdmUiGroup* generatedNameConfig = generatedGroup->addNewGroup("Include in Display Name");
+    generatedNameConfig->add(&m_addCaseNameToCurveName);
+    generatedNameConfig->add(&m_addPropertyToCurveName);
+    generatedNameConfig->add(&m_addWellNameToCurveName);
+    generatedNameConfig->add(&m_addTimestepToCurveName);
+
+    group->add(&m_useCustomCurveName);
+    group->add(&m_customCurveName);
+
+    uiOrdering.add(&m_curveColor);
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
@@ -425,21 +452,67 @@ QString RimWellLogExtractionCurve::createCurveName()
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-    QString resVar;
+    QString generatedCurveName;
+
+    if (m_addWellNameToCurveName && m_wellPath)
+    {
+        generatedCurveName += m_wellPath->name();
+    }
+
     if (eclipseCase)
     {
-        resVar = m_eclipseResultDefinition->resultVariable();
+        if (m_addCaseNameToCurveName)
+        {
+            if (!generatedCurveName.isEmpty())
+            {
+                generatedCurveName += "|";
+            }
+            generatedCurveName += m_case->caseUserDescription();
+        }
+
+        if (m_addPropertyToCurveName)
+        {
+            if (!generatedCurveName.isEmpty())
+            {
+                generatedCurveName += "|";
+            }
+
+            generatedCurveName += m_eclipseResultDefinition->resultVariable();
+        }
     }
 
     if (geomCase)
     {
         QString resCompName = m_geomResultDefinition->resultComponentUiName();
         if (resCompName.isEmpty())
-            resVar = m_geomResultDefinition->resultFieldUiName();
+            generatedCurveName = m_geomResultDefinition->resultFieldUiName();
         else
-            resVar = m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
+            generatedCurveName = m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
     }
 
-    return resVar;
+    if (m_addTimestepToCurveName)
+    {
+        if (!generatedCurveName.isEmpty())
+        {
+            generatedCurveName += "|";
+        }
+
+        size_t maxTimeStep = 0;
+
+        if (eclipseCase)
+        {
+            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
+            maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
+        }
+        else if (geomCase)
+        {
+            maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
+        }
+
+
+        generatedCurveName += QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep);
+    }
+
+    return generatedCurveName;
 }
 

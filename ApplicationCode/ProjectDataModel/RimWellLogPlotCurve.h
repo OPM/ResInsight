@@ -75,7 +75,6 @@ protected:
     RiuWellLogTrackPlot*    m_plot;
     RiuWellLogPlotCurve*    m_plotCurve;
 
-private:
     caf::PdmField<bool>         m_showCurve;
     caf::PdmField<QString>      m_customCurveName;
     caf::PdmField<QString>      m_generatedCurveName;
