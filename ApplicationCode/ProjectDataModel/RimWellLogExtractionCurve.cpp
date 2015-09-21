@@ -264,9 +264,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
             }
         }
     }
-
-    
-    if (fieldNeedingOptions == &m_case)
+    else if (fieldNeedingOptions == &m_case)
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimCase*> cases;
@@ -281,6 +279,20 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
         if (optionList.size() > 0)
         {
             optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+        }
+    }
+    else if (fieldNeedingOptions == &m_timeStep)
+    {
+        QStringList timeStepNames;
+
+        if (m_case)
+        {
+            timeStepNames = m_case->timeStepStrings();
+        }
+
+        for (int i = 0; i < timeStepNames.size(); i++)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
         }
     }
 
@@ -319,11 +331,22 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
         group1->add(&(m_eclipseResultDefinition->m_resultTypeUiField));
         group1->add(&(m_eclipseResultDefinition->m_porosityModelUiField));
         group1->add(&(m_eclipseResultDefinition->m_resultVariableUiField));
+
+        if (m_eclipseResultDefinition->hasDynamicResult())
+        {
+            m_timeStep.uiCapability()->setUiHidden(false);
+        }
+        else
+        {
+            m_timeStep.uiCapability()->setUiHidden(true);
+        }
     }
     if (geomCase)
     {
         group1->add(&(m_geomResultDefinition->m_resultPositionTypeUiField));
         group1->add(&(m_geomResultDefinition->m_resultVariableUiField));
+
+        m_timeStep.uiCapability()->setUiHidden(false);
     }
 }
 
@@ -498,18 +521,27 @@ QString RimWellLogExtractionCurve::createCurveName()
         }
 
         size_t maxTimeStep = 0;
+        
+        QStringList timeStepNames;
 
         if (eclipseCase)
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
             maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
+
+            timeStepNames = eclipseCase->timeStepStrings();
         }
         else if (geomCase)
         {
             maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
+
+            timeStepNames = geomCase->timeStepStrings();
         }
 
-
+        if (m_timeStep < timeStepNames.size())
+        {
+            generatedCurveName += timeStepNames[m_timeStep];
+        }
         generatedCurveName += QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep);
     }
 
