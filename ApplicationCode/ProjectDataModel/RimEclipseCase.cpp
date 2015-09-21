@@ -408,3 +408,35 @@ std::vector<RimView*> RimEclipseCase::views()
     }
     return views;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCase::timeStepStrings()
+{
+    QStringList stringList;
+
+    std::vector<QDateTime> timeStepDates = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
+
+    bool showHoursAndMinutes = false;
+    for (size_t i = 0; i < timeStepDates.size(); i++)
+    {
+        if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+        {
+            showHoursAndMinutes = true;
+        }
+    }
+
+    QString formatString = "dd.MMM yyyy";
+    if (showHoursAndMinutes)
+    {
+        formatString += " - hh:mm";
+    }
+
+    for (size_t i = 0; i < timeStepDates.size(); i++)
+    {
+        stringList += timeStepDates[i].toString(formatString);
+    }
+
+    return stringList;
+}

@@ -56,6 +56,9 @@ public:
     virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
     virtual std::vector<RimView*>           views();
 
+    virtual QStringList                     timeStepStrings();
+
+
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 

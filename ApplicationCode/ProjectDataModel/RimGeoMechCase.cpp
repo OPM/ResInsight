@@ -23,6 +23,8 @@
 #include "RiaPreferences.h"
 #include "RifOdbReader.h"
 #include "RigGeoMechCaseData.h"
+#include "RigFemPartResultsCollection.h"
+
 #include <QFile>
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCase, "ResInsightGeoMechCase");
@@ -128,4 +130,20 @@ void RimGeoMechCase::initAfterRead()
         riv->setGeoMechCase(this);
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RimGeoMechCase::timeStepStrings()
+{
+    QStringList stringList;
+
+    std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
+    for (size_t i = 0; i < stepNames.size(); i++)
+    {
+        stringList += QString::fromStdString(stepNames[i]);
+    }
+
+    return stringList;
 }

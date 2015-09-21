@@ -85,7 +85,8 @@ public:
     RimIdenticalGridCaseGroup*                  parentGridCaseGroup();
                                                      
     virtual std::vector<RimView*>               views();
-                                                     
+    virtual QStringList                         timeStepStrings();
+
     // Overridden methods from PdmObject
 public:
 

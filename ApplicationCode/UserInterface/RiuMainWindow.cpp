@@ -799,12 +799,11 @@ void RiuMainWindow::refreshAnimationActions()
     m_animationToolBar->connectAnimationControl(animationControl);
 
     QStringList timeStepStrings;
+
     int currentTimeStepIndex = 0;
 
-    RiaApplication* app = RiaApplication::instance();
-
     bool enableAnimControls = false;
-    RimView * activeView = app->activeReservoirView();
+    RimView * activeView = RiaApplication::instance()->activeReservoirView();
     if (activeView && 
         activeView->viewer() &&
         activeView->viewer()->frameCount())
@@ -818,27 +817,7 @@ void RiuMainWindow::refreshAnimationActions()
             {
                 if (activeRiv->isTimeStepDependentDataVisible())
                 {
-                    std::vector<QDateTime> timeStepDates = activeRiv->currentGridCellResults()->cellResults()->timeStepDates(0);
-                    bool showHoursAndMinutes = false;
-                    for (size_t i = 0; i < timeStepDates.size(); i++)
-                    {
-                        if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
-                        {
-                            showHoursAndMinutes = true;
-                        }
-                    }
-
-                    QString formatString = "dd.MMM yyyy";
-                    if (showHoursAndMinutes)
-                    {
-                        formatString += " - hh:mm";
-                    }
-
-                    for (size_t i = 0; i < timeStepDates.size(); i++)
-                    {
-                        timeStepStrings += timeStepDates[i].toString(formatString);
-                    }
-                    currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
+                    timeStepStrings = activeRiv->eclipseCase()->timeStepStrings();
                 }
                 else
                 {
@@ -853,15 +832,12 @@ void RiuMainWindow::refreshAnimationActions()
             {
                 if (activeGmv->isTimeStepDependentDataVisible())
                 {
-                    std::vector<std::string> stepNames = activeGmv->geoMechCase()->geoMechData()->femPartResults()->stepNames();
-                    for (size_t i = 0; i < stepNames.size(); i++)
-                    {
-                        timeStepStrings += QString::fromStdString(stepNames[i]);
-                    }
-                    currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
+                    activeGmv->geoMechCase()->timeStepStrings();
                 }
             }
         }
+
+        currentTimeStepIndex = activeView->currentTimeStep();
 
         // Animation control is only relevant for more than one time step
 
@@ -870,7 +846,7 @@ void RiuMainWindow::refreshAnimationActions()
             enableAnimControls = false;
         }
 
-        m_animationToolBar->setFrameRate(app->activeReservoirView()->maximumFrameRate());
+        m_animationToolBar->setFrameRate(activeView->maximumFrameRate());
     }
 
     m_animationToolBar->setTimeStepStrings(timeStepStrings);
