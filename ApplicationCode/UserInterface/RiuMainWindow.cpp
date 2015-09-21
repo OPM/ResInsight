@@ -1180,7 +1180,9 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::removeViewer(QWidget* viewer)
 {
-    m_mdiArea->removeSubWindow( findMdiSubWindow(viewer));
+    m_blockSlotSubWindowActivated = true;
+    m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
+    m_blockSlotSubWindowActivated = false;
 
     slotRefreshViewActions();
 }
@@ -1578,8 +1580,12 @@ void RiuMainWindow::slotEditPreferences()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setActiveViewer(QWidget* viewer)
 {
-   QMdiSubWindow * swin = findMdiSubWindow(viewer); 
+   m_blockSlotSubWindowActivated = true;
+   
+   QMdiSubWindow * swin = findMdiSubWindow(viewer);
    if (swin) m_mdiArea->setActiveSubWindow(swin);
+   
+   m_blockSlotSubWindowActivated = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1680,9 +1686,7 @@ void RiuMainWindow::selectedObjectsChanged()
             // Set focus in MDI area to this window if it exists
             if (selectedReservoirView->viewer())
             {
-                m_blockSlotSubWindowActivated = true;
                 setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
-                m_blockSlotSubWindowActivated = false;
             }
             isActiveViewChanged = true;
         }
@@ -1698,9 +1702,7 @@ void RiuMainWindow::selectedObjectsChanged()
             {
                 if (selectedWellLogPlot->viewer())
                 {
-                    m_blockSlotSubWindowActivated = true;
                     setActiveViewer(selectedWellLogPlot->viewer());
-                    m_blockSlotSubWindowActivated = false;
 
                 }
                 isActiveViewChanged = true;
@@ -2285,13 +2287,5 @@ void RiuMainWindow::tileWindows()
 bool RiuMainWindow::isAnyMdiSubWindowVisible()
 {
     return m_mdiArea->subWindowList().size() > 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::blockSubWindowActivatedSlot(bool block)
-{
-    m_blockSlotSubWindowActivated = block;
 }
 
