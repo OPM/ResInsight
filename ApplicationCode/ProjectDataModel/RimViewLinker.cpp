@@ -349,6 +349,7 @@ void RimViewLinker::setMainView(RimView* view)
     m_mainView = view;
 
     setNameAndIcon();
+    updateUiIcon();
 }
 
 //--------------------------------------------------------------------------------------------------
