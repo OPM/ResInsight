@@ -301,7 +301,7 @@ namespace caf {
 
         if (!maxProgressStack().size())
         {
-            progressDialog()->setWindowModality(Qt::ApplicationModal);
+            //progressDialog()->setWindowModality(Qt::ApplicationModal);
             progressDialog()->setMinimum(0);
             progressDialog()->setWindowTitle(title);
             progressDialog()->setCancelButton(NULL);
@@ -318,7 +318,8 @@ namespace caf {
         progressDialog()->setValue(static_cast<int>(currentTotalProgress()));
         progressDialog()->setLabelText(currentComposedLabel());
 
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        //QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        if (progressDialog()) progressDialog()->repaint();
     }
 
 
@@ -332,7 +333,9 @@ namespace caf {
         descriptionStack().back() = description;
 
         progressDialog()->setLabelText(currentComposedLabel());
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        //QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        if (progressDialog()) progressDialog()->repaint();
+
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -358,7 +361,9 @@ namespace caf {
         progressDialog()->setMaximum(totalMaxProgress);
         progressDialog()->setValue(totalProgress);
 
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        //QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        if (progressDialog()) progressDialog()->repaint();
+
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -420,7 +425,9 @@ namespace caf {
         }
 
         // Make sure the Gui is repainted
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        //QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        if (progressDialog()) progressDialog()->repaint();
+
     }
 
 
