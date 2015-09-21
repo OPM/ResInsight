@@ -388,7 +388,8 @@ void RimGeoMechView::updateLegends()
     }
 
     if (!m_geomechCase || !m_viewer || !m_geomechCase->geoMechData()
-        ||  !this->isTimeStepDependentDataVisible() )
+        || !this->isTimeStepDependentDataVisible() 
+        || !(cellResult()->resultAddress().isValid()) )
     {
         return;
     }
