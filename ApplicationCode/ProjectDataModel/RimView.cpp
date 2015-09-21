@@ -234,6 +234,7 @@ void RimView::createDisplayModelAndRedraw()
         if (cameraPosition().isIdentity())
         {
             setDefaultView();
+            cameraPosition = m_viewer->mainCamera()->viewMatrix();
         }
     }
 
