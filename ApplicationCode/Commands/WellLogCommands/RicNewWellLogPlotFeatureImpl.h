@@ -22,6 +22,7 @@
 class RimMainPlotCollection;
 class RimWellLogPlotCollection;
 class RimWellLogPlot;
+class RimWellLogPlotTrack;
 
 //==================================================================================================
 /// 
@@ -33,4 +34,5 @@ public:
     static RimMainPlotCollection*      mainPlotCollection();
     static RimWellLogPlotCollection*   wellLogPlotCollection();
     static RimWellLogPlot*             createWellLogPlot();
+    static RimWellLogPlotTrack*        createWellLogPlotTrack();
 };

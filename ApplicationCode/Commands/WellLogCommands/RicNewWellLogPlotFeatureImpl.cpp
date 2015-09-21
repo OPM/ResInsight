@@ -23,6 +23,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotTrack.h"
 
 #include "RiaApplication.h"
 
@@ -77,4 +78,22 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot()
     plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
 
     return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlotTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack()
+{
+    RimWellLogPlot* plot = createWellLogPlot();
+
+    RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
+    plot->addTrack(plotTrack);
+    plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
+
+    plot->loadDataAndUpdate();
+    plot->updateConnectedEditors();
+    RiaApplication::instance()->project()->updateConnectedEditors();
+
+    return plotTrack;
 }

@@ -20,11 +20,14 @@
 #include "RicNewWellLogPlotFeature.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
+#include "RicNewWellLogFileCurveFeature.h"
+#include "RicNewWellLogCurveExtractionFeature.h"
 
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrack.h"
-#include "RicNewWellLogCurveExtractionFeature.h"
+#include "RimWellLogPlotCurve.h"
+
 #include "RiaApplication.h"
 
 #include <QAction>
@@ -47,16 +50,7 @@ bool RicNewWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
-
-    RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
-    plot->addTrack(plotTrack);
-    plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
-
-    plot->loadDataAndUpdate();
-    plot->updateConnectedEditors();
-    RiaApplication::instance()->project()->updateConnectedEditors();
-
+    RimWellLogPlotTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
     RicNewWellLogCurveExtractionFeature::addCurve(plotTrack);
 }
 

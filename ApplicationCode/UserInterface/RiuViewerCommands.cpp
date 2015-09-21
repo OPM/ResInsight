@@ -24,6 +24,7 @@
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
+#include "Commands/WellLogCommands/RicNewWellLogFileCurveFeature.h"
 
 #include "RigCaseData.h"
 #include "RigFemPartCollection.h"
@@ -49,6 +50,7 @@
 #include "RimView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellLogFile.h"
 
 #include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
@@ -63,6 +65,7 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
+#include "cafSelectionManager.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfHitItemCollection.h"
@@ -199,6 +202,28 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
         }
     }
+
+    if (firstHitPart && firstHitPart->sourceInfo())
+    {
+        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
+        if (wellPathSourceInfo)
+        {
+            RimWellPath* wellPath = wellPathSourceInfo->wellPath();
+            if (wellPath)
+            {
+                // TODO: Handle selection through mouse events outside this method, or after ray picking above
+                caf::SelectionManager::instance()->setSelectedItem(wellPath);
+                RiaApplication::instance()->project()->updateConnectedEditors();
+
+                RicNewWellLogFileCurveFeature* newWellLogFileCurveFeature = dynamic_cast<RicNewWellLogFileCurveFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogFileCurveFeature"));
+                CVF_ASSERT(newWellLogFileCurveFeature);
+                
+                menu.addAction(newWellLogFileCurveFeature->action());
+            }
+        }
+    }
+
+    if (firstHitPart)
 
     // View Link commands
     {
@@ -604,5 +629,3 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
         geomView->geoMechCase()->geoMechData()->femParts()->part(gridIdx)->structGrid()->ijkFromCellIndex(cellIndex, i, j, k);
     }
 }
-
-
