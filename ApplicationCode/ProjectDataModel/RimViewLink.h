@@ -60,7 +60,7 @@ public:
 
     // Overridden properties
     caf::PdmField<bool>         syncCellResult;
-    caf::PdmField<bool>         syncVisibleCells;
+    bool                        syncVisibleCells();
     caf::PdmField<bool>         syncRangeFilters;
     caf::PdmField<bool>         syncPropertyFilters;
 
@@ -85,11 +85,14 @@ private:
     void            doSyncTimeStep();
     void            doSyncCellResult();
 
+    bool            isVisibleCellsSyncPossible();
+
     RimEclipseView* managedEclipseView();
     RimGeoMechView* managedGeoView();
 
     caf::PdmPtrField<RimView*>  m_managedView;
     QIcon                       m_originalIcon;
     cvf::ref<RigCaseToCaseCellMapper> m_caseToCaseCellMapper;
+    caf::PdmField<bool>         m_syncVisibleCells;
 
 };

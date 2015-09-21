@@ -65,7 +65,7 @@ RimViewLink::RimViewLink(void)
     CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
     CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", false,    "Cell Result", "", "", "");
     
-    CAF_PDM_InitField(&syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
+    CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
     //syncVisibleCells.uiCapability()->setUiHidden(true); // For now
 
     CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
@@ -221,7 +221,7 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
         name.uiCapability()->updateConnectedEditors();
     }
-    else if (&syncVisibleCells == changedField)
+    else if (&m_syncVisibleCells == changedField)
     {
         updateOptionSensitivity();
         configureOverrides();
@@ -287,16 +287,12 @@ void RimViewLink::configureOverrides()
             if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
             if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
         }
-        else if (syncVisibleCells)
+        else if (syncVisibleCells())
         {
             m_managedView->setOverrideRangeFilterCollection(NULL);
             if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
             if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
 
-            // Todo: set up the managed view with the visible cell override.
-            // Create Cell-mapping if necessary
-            // Set VisibleCellsOverrider object on the managed view, 
-            // with master view and mapper object
         }
         else
         {
@@ -360,17 +356,17 @@ void RimViewLink::updateOptionSensitivity()
     RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(mainView);
     RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(mainView);
 
-    bool hideCapabilities = false;
+    bool isMasterAndDependentViewDifferentType = false;
     if (eclipseMasterView && !managedEclipseView())
     {
-        hideCapabilities = true;
+        isMasterAndDependentViewDifferentType = true;
     }
     if (geoMasterView && !managedGeoView())
     {
-        hideCapabilities = true;
+        isMasterAndDependentViewDifferentType = true;
     }
 
-    if (hideCapabilities)
+    if (isMasterAndDependentViewDifferentType)
     {
         this->syncCellResult.uiCapability()->setUiReadOnly(true);
         this->syncCellResult = false;
@@ -382,11 +378,12 @@ void RimViewLink::updateOptionSensitivity()
     else
     {
         this->syncCellResult.uiCapability()->setUiReadOnly(false);
-        bool filterSyncBlocked = syncVisibleCells();
         
-        this->syncRangeFilters.uiCapability()->setUiReadOnly(filterSyncBlocked);
-        this->syncPropertyFilters.uiCapability()->setUiReadOnly(filterSyncBlocked);
+        this->syncRangeFilters.uiCapability()->setUiReadOnly(false);
+        this->syncPropertyFilters.uiCapability()->setUiReadOnly(false);
     }
+
+    m_syncVisibleCells.uiCapability()->setUiReadOnly(!this->isVisibleCellsSyncPossible());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,6 +407,7 @@ void RimViewLink::setManagedView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimViewLink::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    updateOptionSensitivity();
     uiOrdering.add(&m_managedView);
 
     caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Link Options");
@@ -419,7 +417,7 @@ void RimViewLink::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     scriptGroup->add(&syncCellResult);
 
     caf::PdmUiGroup* visibleCells = uiOrdering.addNewGroup("Link Cell Filters");
-    visibleCells->add(&syncVisibleCells);
+    visibleCells->add(&m_syncVisibleCells);
     visibleCells->add(&syncRangeFilters);
     visibleCells->add(&syncPropertyFilters);
 }
@@ -601,5 +599,41 @@ const RigCaseToCaseCellMapper* RimViewLink::cellMapper()
 RimView* RimViewLink::masterView()
 {
     return ownerViewLinker()->mainView();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewLink::isVisibleCellsSyncPossible()
+{
+    RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(masterView());
+    RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(masterView());
+
+    bool isMasterAndDependentViewDifferentType = false;
+    if (eclipseMasterView && !managedEclipseView())
+    {
+        isMasterAndDependentViewDifferentType = true;
+    }
+    if (geoMasterView && !managedGeoView())
+    {
+        isMasterAndDependentViewDifferentType = true;
+    } 
+
+    return isMasterAndDependentViewDifferentType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewLink::syncVisibleCells()
+{
+    if (isVisibleCellsSyncPossible())
+    {
+        return m_syncVisibleCells();
+    }
+    else
+    {
+        return false;
+    }
 }
 
