@@ -87,7 +87,10 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
+
+
 private:
     QStringList getResultVariableListForCurrentUIFieldSettings();
+    static void removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
 };
 

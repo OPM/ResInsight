@@ -198,10 +198,13 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 {
     QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(false, fieldNeedingOptions, useOptionsOnly);
 
+    RimWellLogPlotCurve* curve = NULL;
+    this->firstAnchestorOrThisOfType(curve);
+
     RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
-    if (propFilter)
+    if (propFilter || curve)
     {
-        propFilter->removePerCellFaceOptionItems(optionItems);
+        removePerCellFaceOptionItems(optionItems);
     }
 
     return optionItems;
@@ -428,6 +431,31 @@ void RimEclipseResultDefinition::updateFieldVisibility()
         {
             m_porosityModelUiField.uiCapability()->setUiHidden(false);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems)
+{
+    std::vector<int> indicesToRemove;
+    for (int i = 0; i < optionItems.size(); i++)
+    {
+        QString text = optionItems[i].optionUiText;
+
+        if (RimDefines::isPerCellFaceResult(text))
+        {
+            indicesToRemove.push_back(i);
+        }
+    }
+
+    std::sort(indicesToRemove.begin(), indicesToRemove.end());
+
+    std::vector<int>::reverse_iterator rit;
+    for (rit = indicesToRemove.rbegin(); rit != indicesToRemove.rend(); ++rit)
+    {
+        optionItems.takeAt(*rit);
     }
 }
 

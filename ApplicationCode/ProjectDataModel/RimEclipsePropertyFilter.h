@@ -57,8 +57,6 @@ public:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            initAfterRead();
 
-    void                                    removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
-
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
