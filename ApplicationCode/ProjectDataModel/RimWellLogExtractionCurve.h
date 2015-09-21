@@ -41,6 +41,8 @@ public:
     virtual ~RimWellLogExtractionCurve();
     
     virtual void updatePlotData();
+    
+    void setWellPath(RimWellPath* wellPath);
 
 protected:
     virtual QString createCurveName();

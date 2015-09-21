@@ -21,7 +21,9 @@
 
 #include "cafCmdFeature.h"
 
+class RimWellLogExtractionCurve;
 class RimWellLogPlotTrack;
+class RimWellPath;
 
 //==================================================================================================
 /// 
@@ -31,7 +33,7 @@ class RicNewWellLogCurveExtractionFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addCurve(RimWellLogPlotTrack* plotTrack);
+    static RimWellLogExtractionCurve* addCurve(RimWellLogPlotTrack* plotTrack);
 
 
 protected:
@@ -41,5 +43,6 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-   RimWellLogPlotTrack* selectedWellLogPlotTrack();
+    RimWellLogPlotTrack* selectedWellLogPlotTrack();
+    RimWellPath*         selectedWellPath();
 };

@@ -25,6 +25,7 @@
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
 #include "Commands/WellLogCommands/RicNewWellLogFileCurveFeature.h"
+#include "Commands/WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
 
 #include "RigCaseData.h"
 #include "RigFemPartCollection.h"
@@ -219,6 +220,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 CVF_ASSERT(newWellLogFileCurveFeature);
                 
                 menu.addAction(newWellLogFileCurveFeature->action());
+
+                RicNewWellLogCurveExtractionFeature* newExtractionCurveFeature = dynamic_cast<RicNewWellLogCurveExtractionFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogCurveExtractionFeature"));
+                CVF_ASSERT(newExtractionCurveFeature);
+
+                menu.addAction(newExtractionCurveFeature->action());
             }
         }
     }
