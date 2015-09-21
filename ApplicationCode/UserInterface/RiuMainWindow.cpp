@@ -1212,7 +1212,7 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
 
     QSize subWindowSize;
     QPoint subWindowPos(-1, -1);
-    bool showMax = false;
+    bool initialStateMaximized = false;
 
     if (windowsGeometry.size() == 5)
     {
@@ -1221,7 +1221,7 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
 
         if (windowsGeometry[4] > 0)
         {
-            showMax = true;
+            initialStateMaximized = true;
         }
     }
     else
@@ -1238,9 +1238,14 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
             if (m_mdiArea->subWindowList().size() < 1)
             {
                 // Show first 3D view maximized
-                showMax = true;
+                initialStateMaximized = true;
             }
         }
+    }
+
+    if (m_mdiArea->currentSubWindow() && m_mdiArea->currentSubWindow()->isMaximized())
+    {
+        initialStateMaximized = true;
     }
         
     subWin->show();
@@ -1254,7 +1259,7 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
     }
     subWin->resize(subWindowSize);
 
-    if (showMax)
+    if (initialStateMaximized)
     {
         subWin->showMaximized();
     }
