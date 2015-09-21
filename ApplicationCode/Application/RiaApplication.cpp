@@ -1998,6 +1998,8 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
             (*it)->createDisplayModelAndRedraw();
         }
     }
+
+    m_resViewsToUpdate.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
