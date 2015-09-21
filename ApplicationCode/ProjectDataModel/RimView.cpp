@@ -230,6 +230,11 @@ void RimView::createDisplayModelAndRedraw()
 
         createDisplayModel();
         updateDisplayModelVisibility();
+
+        if (cameraPosition().isIdentity())
+        {
+            setDefaultView();
+        }
     }
 
     RiuMainWindow::instance()->refreshAnimationActions();

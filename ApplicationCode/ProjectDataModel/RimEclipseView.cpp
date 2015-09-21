@@ -701,10 +701,6 @@ void RimEclipseView::loadDataAndUpdate()
 
     this->scheduleCreateDisplayModelAndRedraw();
 
-    if (cameraPosition().isIdentity())
-    {
-        setDefaultView();
-    }
 }
 
 

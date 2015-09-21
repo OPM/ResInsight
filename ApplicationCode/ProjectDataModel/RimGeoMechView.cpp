@@ -157,12 +157,7 @@ void RimGeoMechView::loadDataAndUpdate()
     updateViewerWidget();
     this->propertyFilterCollection()->loadAndInitializePropertyFilters();
 
-    createDisplayModelAndRedraw();
-
-    if (cameraPosition().isIdentity())
-    {
-        setDefaultView();
-    }
+    this->scheduleCreateDisplayModelAndRedraw();
 
     progress.incrementProgress();
 }
