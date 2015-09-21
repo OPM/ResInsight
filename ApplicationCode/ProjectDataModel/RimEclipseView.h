@@ -150,7 +150,7 @@ private:
     virtual void                                    updateViewerWidgetWindowTitle();
 
     std::vector<RivCellSetEnum>                     visibleFaultGeometryTypes() const;
-    void                                            updateFaultForcedVisibility();
+    void                                            forceFaultVisibilityOn();
     void                                            updateFaultColors();
 
     void                                            syncronizeWellsWithResults();

@@ -392,9 +392,9 @@ void RimEclipseView::createDisplayModel()
         m_visibleGridParts = geometryTypesToAdd;
     }
 
-    if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters())
+    if (faultCollection()->showFaultsOutsideFilters() || !this->propertyFilterCollection()->hasActiveFilters() )
     {
-        updateFaultForcedVisibility();
+        forceFaultVisibilityOn();
 
         std::vector<RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
@@ -699,7 +699,7 @@ void RimEclipseView::loadDataAndUpdate()
 
     syncronizeWellsWithResults();
 
-    createDisplayModelAndRedraw();
+    this->scheduleCreateDisplayModelAndRedraw();
 
     if (cameraPosition().isIdentity())
     {
@@ -1292,8 +1292,14 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 ///     
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateFaultForcedVisibility()
+void RimEclipseView::forceFaultVisibilityOn()
 {
+    if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
+    {
+        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(OVERRIDDEN_CELL_VISIBILITY, true);
+        return;
+    }
+
     // Force visibility of faults based on application state
     // As fault geometry is visible in grid visualization mode, fault geometry must be forced visible
     // even if the fault item is disabled in project tree view
@@ -1316,7 +1322,17 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
     std::vector<RivCellSetEnum> faultParts;
     if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
     {
-            faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
+        faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
+        if (this->faultCollection()->showFaultsOutsideFilters())
+        {
+            faultParts.push_back(ACTIVE);
+            faultParts.push_back(ALL_WELL_CELLS);
+          
+            if (this->showInactiveCells())
+            {
+                faultParts.push_back(INACTIVE);
+            }
+        }
     }
     else if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
     {
