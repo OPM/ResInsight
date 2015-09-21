@@ -178,6 +178,18 @@ void RimWellLogPlot::addTrack(RimWellLogPlotTrack* track)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::removeTrack(RimWellLogPlotTrack* track)
+{
+    if (track)
+    {
+        m_viewer->removeTrackPlot(track->viewer());
+        tracks.removeChildObject(track);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RiuWellLogPlot* RimWellLogPlot::viewer()
 {
     return m_viewer;
@@ -457,3 +469,4 @@ QString RimWellLogPlot::depthPlotTitle() const
     depthTitle += " [m]";
     return depthTitle;
 }
+

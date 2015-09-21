@@ -19,47 +19,18 @@
 
 #pragma once
 
-#include <QWidget>
-#include <QList>
-#include "cafPdmPointer.h"
-
-class RimWellLogPlot;
-class RiuWellLogTrackPlot;
-
-class QHBoxLayout;
-class QScrollBar;
-class QFocusEvent;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
-//
-// RiuWellLogPlot
-//
+/// 
 //==================================================================================================
-class RiuWellLogPlot : public QWidget
+class RicDeleteWellLogPlotTrackFeature : public caf::CmdFeature
 {
-    Q_OBJECT
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuWellLogPlot();
-
-    RimWellLogPlot* ownerPlotDefinition();
-
-    void insertTrackPlot(RiuWellLogTrackPlot* trackPlot);
-    void removeTrackPlot(RiuWellLogTrackPlot* trackPlot);
-
-    void setDepthRangeAndReplot(double minDepth, double maxDepth);
-
-private:
-    void updateScrollBar(double minDepth, double maxDepth);
-
-private slots:
-    void slotSetMinDepth(int value);
-
-private:
-    QHBoxLayout*                    m_layout;
-    QScrollBar*                     m_scrollBar;
-    QList<RiuWellLogTrackPlot*>     m_trackPlots;
-    caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
 };
-

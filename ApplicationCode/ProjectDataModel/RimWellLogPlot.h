@@ -54,6 +54,7 @@ public:
 
     void    addTrack(RimWellLogPlotTrack* track);
     size_t  trackCount() { return tracks.size();}
+    void    removeTrack(RimWellLogPlotTrack* track);
 
     void loadDataAndUpdate();
     void updateTracks();

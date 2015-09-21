@@ -89,6 +89,15 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrackPlot* trackPlot)
+{
+    m_layout->removeWidget(trackPlot);
+    m_trackPlots.removeAll(trackPlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::setDepthRangeAndReplot(double minDepth, double maxDepth)
 {
     for (int tpIdx = 0; tpIdx < m_trackPlots.count(); tpIdx++)
@@ -139,3 +148,4 @@ RimWellLogPlot* RiuWellLogPlot::ownerPlotDefinition()
 {
     return m_plotDefinition;
 }
+

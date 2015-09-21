@@ -49,20 +49,6 @@ bool RicDeleteItemFeature::isCommandEnabled()
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(currentPdmObject->parentField());
     if (!childArrayFieldHandle) return false;
 
-    if (dynamic_cast<RimWellLogPlotTrack*>(currentPdmObject))
-    {
-        RimWellLogPlotTrack* plotTrack = dynamic_cast<RimWellLogPlotTrack*>(currentPdmObject);
-        RimWellLogPlot* wellLogPlot;
-        plotTrack->firstAnchestorOrThisOfType(wellLogPlot);
-        if (wellLogPlot)
-        {
-            if (wellLogPlot->trackCount() < 2)
-            {
-                return false;
-            }
-        }
-    }
-
     return true;
 }
 
