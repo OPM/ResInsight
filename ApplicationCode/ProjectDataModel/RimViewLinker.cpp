@@ -221,8 +221,7 @@ void RimViewLinker::updateRangeFilters()
 void RimViewLinker::updatePropertyFilters()
 {
     if (!isActive()) return;
-    this->scheduleGeometryRegenForDepViews(RANGE_FILTERED);
-    this->scheduleGeometryRegenForDepViews(RANGE_FILTERED_INACTIVE);
+    this->scheduleGeometryRegenForDepViews(PROPERTY_FILTERED);
     this->scheduleCreateDisplayModelAndRedrawForDependentViews();
 
 #if 0
