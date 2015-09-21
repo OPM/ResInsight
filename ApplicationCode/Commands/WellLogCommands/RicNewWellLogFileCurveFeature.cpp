@@ -44,7 +44,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogFileCurveFeature, "RicNewWellLogFileCurveFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 {
-    return selectedWellLogPlotTrack() != NULL || selectedWellLogPlotTrackWithLogFile() != NULL;
+    return selectedWellLogPlotTrack() != NULL || selectedWellPathWithLogFile() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
     }
     else
     {
-        RimWellPath* wellPath = selectedWellLogPlotTrackWithLogFile();
+        RimWellPath* wellPath = selectedWellPathWithLogFile();
         if (wellPath)
         {
             RimWellLogPlotTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
@@ -91,7 +91,7 @@ RimWellLogPlotTrack* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrack()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrackWithLogFile()
+RimWellPath* RicNewWellLogFileCurveFeature::selectedWellPathWithLogFile()
 {
     std::vector<RimWellPath*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);

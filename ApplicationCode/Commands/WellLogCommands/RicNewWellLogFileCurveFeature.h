@@ -44,5 +44,5 @@ protected:
 
 private:
    RimWellLogPlotTrack* selectedWellLogPlotTrack();
-   RimWellPath*         selectedWellLogPlotTrackWithLogFile();
+   RimWellPath*         selectedWellPathWithLogFile();
 };
