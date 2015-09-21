@@ -115,6 +115,7 @@ public:
 
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
+    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
@@ -129,8 +130,6 @@ private:
     bool            checkForDocumentModifications();
 
     void            updateRecentFileActions();
-
-    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 
     void            storeTreeViewState();
     void            restoreTreeViewState();

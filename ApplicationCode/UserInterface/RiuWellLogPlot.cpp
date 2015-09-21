@@ -31,6 +31,7 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 #include <QFocusEvent>
+#include <QMdiSubWindow>
 
 #include <math.h>
 
@@ -73,7 +74,16 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot)
 {
     // Insert the plot to the left of the scroll bar
     m_layout->insertWidget(m_layout->count() - 1, trackPlot);
-    m_trackPlots.append(trackPlot);  
+    m_trackPlots.append(trackPlot);
+
+    QMdiSubWindow* mdiWindow = RiuMainWindow::instance()->findMdiSubWindow(this);
+    if (mdiWindow)
+    {
+        QSize subWindowSize = mdiWindow->size();
+        subWindowSize.setWidth(subWindowSize.width() + trackPlot->width());
+
+        mdiWindow->resize(subWindowSize);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
