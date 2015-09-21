@@ -216,32 +216,32 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
     else if (changedField == &showInvalidCells)
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(INACTIVE);
-        m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+        this->scheduleGeometryRegen(INACTIVE);
+        this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
-        createDisplayModelAndRedraw();
+        scheduleCreateDisplayModelAndRedraw();
     }
     else if (changedField == &showInactiveCells)
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(INACTIVE);
-        m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+        this->scheduleGeometryRegen(INACTIVE);
+        this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
-        createDisplayModelAndRedraw();
+        scheduleCreateDisplayModelAndRedraw();
     }
     else if (changedField == &showMainGrid)
     {
-        createDisplayModelAndRedraw();
+        scheduleCreateDisplayModelAndRedraw();
     }
     else if (changedField == &m_rangeFilterCollection)
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED);
-        m_reservoirGridPartManager->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
+        this->scheduleGeometryRegen(RANGE_FILTERED);
+        this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
         scheduleCreateDisplayModelAndRedraw();
     }
     else if (changedField == &m_propertyFilterCollection)
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(PROPERTY_FILTERED);
+        this->scheduleGeometryRegen(PROPERTY_FILTERED);
 
         scheduleCreateDisplayModelAndRedraw();
     }
