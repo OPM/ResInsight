@@ -743,7 +743,7 @@ RimViewLinker* RimView::viewLinkerWithMyDepViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLink* RimView::controllingViewLink()
+RimViewLink* RimView::controllingViewLink() const
 {
     RimViewLink* viewLink = NULL;
     std::vector<caf::PdmObjectHandle*> reffingObjs;

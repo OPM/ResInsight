@@ -581,7 +581,11 @@ void RimEclipseView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RANGE_FILTERED);
         geometriesToRecolor.push_back(RANGE_FILTERED_WELL_CELLS);
     }
-    else 
+    else if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
+    {
+        geometriesToRecolor.push_back(OVERRIDDEN_CELL_VISIBILITY);
+    }
+    else
     {
         geometriesToRecolor.push_back(ACTIVE);
         geometriesToRecolor.push_back(ALL_WELL_CELLS);
@@ -1310,8 +1314,11 @@ void RimEclipseView::updateFaultForcedVisibility()
 std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
 {
     std::vector<RivCellSetEnum> faultParts;
-
-    if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
+    if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
+    {
+            faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
+    }
+    else if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
     {
         faultParts.push_back(PROPERTY_FILTERED);
         faultParts.push_back(PROPERTY_FILTERED_WELL_CELLS);

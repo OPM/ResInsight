@@ -127,7 +127,7 @@ public:
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
 
-    RimViewLink*                            controllingViewLink();
+    RimViewLink*                            controllingViewLink() const;
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
 public:
