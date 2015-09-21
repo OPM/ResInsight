@@ -115,6 +115,14 @@ void RimWellLogFileCurve::setWellLogChannelName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogFileCurve::setWellLogChannelUnit(const QString& name)
+{
+    m_wellLogChannnelUnit = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
@@ -245,6 +253,11 @@ QString RimWellLogFileCurve::createCurveName()
         txt += m_wellPath()->name();
         txt += " : ";
         txt += m_wellLogChannnelName;
+
+        if (!m_wellLogChannnelUnit().isEmpty())
+        {
+            txt += QString(" [%1]").arg(m_wellLogChannnelUnit);
+        }
 
         return txt;
     }

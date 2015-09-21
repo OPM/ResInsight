@@ -92,10 +92,14 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
             plotTrack->addCurve(curve);
 
+            RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFile();
+            CVF_ASSERT(wellLogDataFile);
+
             cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIdx);
             curve->setColor(curveColor);
             curve->setWellPath(wellPath);
             curve->setWellLogChannelName(wellLog->name());
+            curve->setWellLogChannelUnit(wellLogDataFile->wellLogChannelUnit(wellLog->name()));
 
             curve->updatePlotData();
 

@@ -50,7 +50,8 @@ public:
   void WriteToFile(const std::string              & filename,
                    const std::vector<std::string> & comment_header);
 
-  std::string depthUnit() const { return depth_unit_; };
+  std::string depthUnit() const;
+  std::string unitName(const std::string& logName) const;
 
 private:
   void ReadHeader(const std::string        & filename,
@@ -129,6 +130,8 @@ private:
   std::vector<std::string> well_info_;      //Unused well keywords, only read from file and rewritten.
   std::vector<std::string> parameter_info_; //Not used, only read from file and rewritten.
   std::vector<std::string> other_info_;     //Not used, only read from file and rewritten.
+
+  std::map<std::string, std::string> logUnitMap_; // Log name/unit map
 };
 
 }

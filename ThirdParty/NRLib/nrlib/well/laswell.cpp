@@ -335,6 +335,7 @@ LasWell::ParseCurveInformation(std::ifstream            & fin,
       else {
         log_name_.push_back(token);
         log_unit_.push_back(unit);
+        logUnitMap_[token] = unit;
         std::string comment = NRLib::Chomp(line.substr(start_pos+1));
         log_comment_.push_back(comment);
       }
@@ -533,3 +534,18 @@ void LasWell::WriteLasLine(std::ofstream     & file,
   file << mnemonic << " ." << units << " " << data << " : " << description << "\n";
 }
 
+std::string LasWell::depthUnit() const
+{
+    return depth_unit_;
+};
+
+std::string LasWell::unitName(const std::string& logName) const
+{
+    std::map<std::string, std::string >::const_iterator it = logUnitMap_.find(logName);
+    if (it != logUnitMap_.end())
+    {
+        return it->second;
+    }
+
+    return "";
+};

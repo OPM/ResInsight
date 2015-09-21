@@ -43,6 +43,7 @@ public:
 
     void setWellPath(RimWellPath* wellPath);
     void setWellLogChannelName(const QString& name);
+    void setWellLogChannelUnit(const QString& name);
     
     // Overrides from RimWellLogPlotCurve
     virtual void updatePlotData();
@@ -60,6 +61,7 @@ protected:
 protected:
     caf::PdmPtrField<RimWellPath*>  m_wellPath;
     caf::PdmField<QString>          m_wellLogChannnelName;
+    caf::PdmField<QString>          m_wellLogChannnelUnit;
 };
 
 

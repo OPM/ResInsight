@@ -49,6 +49,7 @@ public:
     std::vector<double> values(const QString& name) const;
 
     QString depthUnit() const;
+    QString wellLogChannelUnit(const QString& wellLogChannelName) const;
 
 private:
     void close();

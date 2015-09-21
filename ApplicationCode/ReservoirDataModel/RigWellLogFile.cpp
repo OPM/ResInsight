@@ -172,3 +172,25 @@ QString RigWellLogFile::depthUnit() const
 
     return unit;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RigWellLogFile::wellLogChannelUnit(const QString& wellLogChannelName) const
+{
+    QString unit;
+
+    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>(m_wellLogFile);
+    if (lasWell)
+    {
+        unit = QString::fromStdString(lasWell->unitName(wellLogChannelName.toStdString()));
+    }
+
+    // Special handling of depth unit - we convert depth to meter 
+    if (unit == depthUnit())
+    {
+        return "m";
+    }
+
+    return unit;
+}
