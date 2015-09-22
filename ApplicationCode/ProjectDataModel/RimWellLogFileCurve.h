@@ -43,7 +43,6 @@ public:
 
     void setWellPath(RimWellPath* wellPath);
     void setWellLogChannelName(const QString& name);
-    void setWellLogChannelUnit(const QString& name);
     
     // Overrides from RimWellLogPlotCurve
     virtual void updatePlotData();

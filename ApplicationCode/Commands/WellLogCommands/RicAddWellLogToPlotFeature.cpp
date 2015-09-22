@@ -99,7 +99,6 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             curve->setColor(curveColor);
             curve->setWellPath(wellPath);
             curve->setWellLogChannelName(wellLog->name());
-            curve->setWellLogChannelUnit(wellLogDataFile->wellLogChannelUnit(wellLog->name()));
 
             curve->updatePlotData();
 

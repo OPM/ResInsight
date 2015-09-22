@@ -87,6 +87,8 @@ void RimWellLogFileCurve::updatePlotData()
                 {
                     m_plotCurve->setSamples(NULL, NULL, 0);
                 }
+
+                m_plotCurve->setTitle(createCurveName());
             }
         }
         else
@@ -114,14 +116,6 @@ void RimWellLogFileCurve::setWellPath(RimWellPath* wellPath)
 void RimWellLogFileCurve::setWellLogChannelName(const QString& name)
 {
     m_wellLogChannnelName = name;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurve::setWellLogChannelUnit(const QString& name)
-{
-    m_wellLogChannnelUnit = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,7 +213,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogFileCurve::createCurveName()
 {
-    if (m_wellPath())
+    if (m_wellPath)
     {
         QString txt;
 
@@ -227,9 +221,15 @@ QString RimWellLogFileCurve::createCurveName()
         txt += " : ";
         txt += m_wellLogChannnelName;
 
-        if (!m_wellLogChannnelUnit().isEmpty())
+        RimWellLogFile* logFileInfo = m_wellPath->m_wellLogFile;
+        RigWellLogFile* wellLogFile = logFileInfo ? logFileInfo->wellLogFile() : NULL;
+        if (wellLogFile)
         {
-            txt += QString(" [%1]").arg(m_wellLogChannnelUnit);
+            QString unitName = wellLogFile->wellLogChannelUnit(m_wellLogChannnelName);
+            if (!unitName.isEmpty())
+            {
+                txt += QString(" [%1]").arg(wellLogFile->wellLogChannelUnit(m_wellLogChannnelName));
+            }
         }
 
         return txt;
