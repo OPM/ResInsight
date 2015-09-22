@@ -90,7 +90,10 @@ void RimWellLogFileCurve::updatePlotData()
                     m_plotCurve->setSamples(NULL, NULL, 0);
                 }
 
-                m_plotCurve->setTitle(createCurveName());
+                if (m_autoName)
+                {
+                    m_plotCurve->setTitle(createCurveName());
+                }
             }
         }
         else
@@ -234,7 +237,7 @@ QString RimWellLogFileCurve::createCurveName()
             QString unitName = wellLogFile->wellLogChannelUnit(m_wellLogChannnelName);
             if (!unitName.isEmpty())
             {
-                txt += QString(" [%1]").arg(wellLogFile->wellLogChannelUnit(m_wellLogChannnelName));
+                txt += QString(" [%1]").arg(unitName);
             }
         }
 
