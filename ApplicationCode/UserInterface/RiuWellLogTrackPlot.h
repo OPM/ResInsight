@@ -43,6 +43,9 @@ public:
     void setDepthRange(double minDepth, double maxDepth);
     void setDepthTitle(const QString& title);
 
+    void setXRange(double min, double max);
+
+
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event);
     virtual void focusInEvent(QFocusEvent* event);

@@ -287,18 +287,9 @@ void RimWellLogPlotCurve::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCurve::updateTrackAndPlotFromCurveData()
 {
-    RimWellLogPlotTrack* plotTrack;
-    firstAnchestorOrThisOfType(plotTrack);
-
-    if (plotTrack)
-    {
-        plotTrack->updateXAxisRangeFromCurves();
-    }
-
     RimWellLogPlot* wellLogPlot;
     firstAnchestorOrThisOfType(wellLogPlot);
-
-    if (wellLogPlot && plotTrack)
+    if (wellLogPlot)
     {
         bool setDepthRange = !wellLogPlot->hasAvailableDepthRange();
         wellLogPlot->updateAvailableDepthRange();
@@ -307,9 +298,12 @@ void RimWellLogPlotCurve::updateTrackAndPlotFromCurveData()
         {
             wellLogPlot->setVisibleDepthRangeFromContents();
         }
-        else if (plotTrack->curveCount() == 1)
-        {
-            plotTrack->updateAxisRangesAndReplot();
-        }
+    }
+
+    RimWellLogPlotTrack* plotTrack;
+    firstAnchestorOrThisOfType(plotTrack);
+    if (plotTrack)
+    {
+        plotTrack->updateAxisRangesAndReplot();
     }
 }

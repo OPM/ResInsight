@@ -55,7 +55,6 @@ public:
 
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
     void updateAxisRangesAndReplot();
-    void updateXAxisRangeFromCurves();
 
     RiuWellLogTrackPlot* viewer();
     
@@ -70,11 +69,14 @@ protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
+    void updateXAxisRangeFromCurves();
+
+private:
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;
     caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
     caf::PdmField<double> m_visibleXRangeMin;
     caf::PdmField<double> m_visibleXRangeMax;
 
-    QPointer<RiuWellLogTrackPlot> m_viewer;
+    QPointer<RiuWellLogTrackPlot> m_wellLogTrackPlotWidget;
 };

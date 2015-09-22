@@ -63,6 +63,7 @@ protected:
     void updatePlotConfiguration();
     void updateCurveVisibility();
     void updateOptionSensitivity();
+    void updateTrackAndPlotFromCurveData();
 
     // Overridden PDM methods
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

@@ -112,8 +112,6 @@ void RiuWellLogTrackPlot::setDefaults()
     setAxisScale(QwtPlot::yLeft, 1000, 0);
     setAxisScale(QwtPlot::xTop, -10, 100);
 
-    setAxisAutoScale(QwtPlot::xTop, true);
-
     QFont xAxisFont = axisFont(QwtPlot::xTop);
     xAxisFont.setPixelSize(9);
     setAxisFont(QwtPlot::xTop, xAxisFont);
@@ -138,7 +136,14 @@ void RiuWellLogTrackPlot::setDepthRange(double minDepth, double maxDepth)
 {
     // Note: Y-axis is inverted
     setAxisScale(QwtPlot::yLeft, maxDepth, minDepth);
-    //replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrackPlot::setXRange(double min, double max)
+{
+    setAxisScale(QwtPlot::xTop, min, max);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,3 +277,4 @@ QSize RiuWellLogTrackPlot::minimumSizeHint() const
 {
     return QSize(0, 0);
 }
+
