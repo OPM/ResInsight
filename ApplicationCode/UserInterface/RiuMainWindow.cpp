@@ -832,7 +832,7 @@ void RiuMainWindow::refreshAnimationActions()
             {
                 if (activeGmv->isTimeStepDependentDataVisible())
                 {
-                    activeGmv->geoMechCase()->timeStepStrings();
+                    timeStepStrings = activeGmv->geoMechCase()->timeStepStrings();
                 }
             }
         }
