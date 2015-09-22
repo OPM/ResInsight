@@ -226,6 +226,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     }
 
     // View Link commands
+    if (!firstHitPart)
     {
         QStringList commandIds;
 
