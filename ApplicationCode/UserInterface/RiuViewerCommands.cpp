@@ -204,16 +204,25 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     }
 
     // Well log curve creation commands
+    if (firstHitPart && firstHitPart->sourceInfo())
     {
-        RicNewWellLogFileCurveFeature* newWellLogFileCurveFeature = dynamic_cast<RicNewWellLogFileCurveFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogFileCurveFeature"));
-        CVF_ASSERT(newWellLogFileCurveFeature);
-                
-        menu.addAction(newWellLogFileCurveFeature->action());
+        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
+        if (wellPathSourceInfo)
+        {
+            RimWellPath* wellPath = wellPathSourceInfo->wellPath();
+            if (wellPath)
+            {
+                RicNewWellLogFileCurveFeature* newWellLogFileCurveFeature = dynamic_cast<RicNewWellLogFileCurveFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogFileCurveFeature"));
+                CVF_ASSERT(newWellLogFileCurveFeature);
 
-        RicNewWellLogCurveExtractionFeature* newExtractionCurveFeature = dynamic_cast<RicNewWellLogCurveExtractionFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogCurveExtractionFeature"));
-        CVF_ASSERT(newExtractionCurveFeature);
+                menu.addAction(newWellLogFileCurveFeature->action());
 
-        menu.addAction(newExtractionCurveFeature->action());
+                RicNewWellLogCurveExtractionFeature* newExtractionCurveFeature = dynamic_cast<RicNewWellLogCurveExtractionFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogCurveExtractionFeature"));
+                CVF_ASSERT(newExtractionCurveFeature);
+
+                menu.addAction(newExtractionCurveFeature->action());
+            }
+        }
     }
 
     // View Link commands
