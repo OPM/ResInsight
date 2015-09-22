@@ -21,8 +21,10 @@
 
 #include "RimWellLogPlot.h"
 
-#include "RiuWellLogTrackPlot.h"
+#include "RimWellLogPlotTrack.h"
+
 #include "RiuWellLogPlotCurve.h"
+#include "RiuWellLogTrackPlot.h"
 
 #include "cvfAssert.h"
 
@@ -278,4 +280,36 @@ void RimWellLogPlotCurve::initAfterRead()
 void RimWellLogPlotCurve::updateOptionSensitivity()
 {
     m_customCurveName.uiCapability()->setUiReadOnly(!m_useCustomCurveName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCurve::updateTrackAndPlotFromCurveData()
+{
+    RimWellLogPlotTrack* plotTrack;
+    firstAnchestorOrThisOfType(plotTrack);
+
+    if (plotTrack)
+    {
+        plotTrack->updateXAxisRangeFromCurves();
+    }
+
+    RimWellLogPlot* wellLogPlot;
+    firstAnchestorOrThisOfType(wellLogPlot);
+
+    if (wellLogPlot && plotTrack)
+    {
+        bool setDepthRange = !wellLogPlot->hasAvailableDepthRange();
+        wellLogPlot->updateAvailableDepthRange();
+
+        if (setDepthRange)
+        {
+            wellLogPlot->setVisibleDepthRangeFromContents();
+        }
+        else if (plotTrack->curveCount() == 1)
+        {
+            plotTrack->updateAxisRangesAndReplot();
+        }
+    }
 }

@@ -217,31 +217,7 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         if (filteredValues.size())
         {
-            RimWellLogPlotTrack* plotTrack;
-            firstAnchestorOrThisOfType(plotTrack);
-
-            if (plotTrack)
-            {
-                plotTrack->updateXAxisRangeFromCurves();
-            }
-
-            RimWellLogPlot* wellLogPlot;
-            firstAnchestorOrThisOfType(wellLogPlot);
-
-            if (wellLogPlot && plotTrack)
-            {
-                bool setDepthRange = !wellLogPlot->hasAvailableDepthRange();
-                wellLogPlot->updateAvailableDepthRange();
-
-                if (setDepthRange)
-                {
-                    wellLogPlot->setVisibleDepthRangeFromContents();
-                }
-                else if (plotTrack->curveCount() == 1)
-                {
-                    plotTrack->updateAxisRangesAndReplot();
-                }
-            }
+            updateTrackAndPlotFromCurveData();
         }
 
         m_plot->replot();

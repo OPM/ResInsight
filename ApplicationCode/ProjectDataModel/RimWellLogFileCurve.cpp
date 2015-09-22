@@ -93,6 +93,10 @@ void RimWellLogFileCurve::updatePlotData()
         {
             m_plotCurve->setSamples(NULL, NULL, 0);
         }
+
+        updateTrackAndPlotFromCurveData();
+
+        m_plot->replot();
     }
 }
 
