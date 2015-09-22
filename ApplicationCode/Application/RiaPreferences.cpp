@@ -50,6 +50,7 @@ RiaPreferences::RiaPreferences(void)
     octaveShowHeaderInfoWhenExecutingScripts.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&ssihubAddress,                   "ssihubAddress", QString("http://"), "ssihub Address", "", "", "");
+    ssihubAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitField(&defaultGridLines,                "defaultGridLines", true, "Gridlines", "", "", "");
     CAF_PDM_InitField(&defaultGridLineColors,           "defaultGridLineColors", cvf::Color3f(0.92f, 0.92f, 0.92f), "Mesh color", "", "", "");
@@ -61,8 +62,11 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
 
     CAF_PDM_InitField(&useShaders,                      "useShaders", true, "Use Shaders", "", "", "");
+    useShaders.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&showHud,                         "showHud", false, "Show 3D Information", "", "", "");
+    showHud.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&appendClassNameToUiText,         "appendClassNameToUiText", false, "[System] Show Class Names", "", "", "");
+    appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.uiCapability()->setUiHidden(true);
@@ -103,7 +107,10 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
     }
     else if (field == &octaveShowHeaderInfoWhenExecutingScripts ||
             field == &autocomputeDepthRelatedProperties ||
-            field == &loadAndShowSoil )
+            field == &loadAndShowSoil ||
+            field == &useShaders ||
+            field == &showHud ||
+            field == &appendClassNameToUiText)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
