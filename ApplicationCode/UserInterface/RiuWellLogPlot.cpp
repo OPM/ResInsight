@@ -76,14 +76,7 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot)
     m_layout->insertWidget(m_layout->count() - 1, trackPlot);
     m_trackPlots.append(trackPlot);
 
-    QMdiSubWindow* mdiWindow = RiuMainWindow::instance()->findMdiSubWindow(this);
-    if (mdiWindow)
-    {
-        QSize subWindowSize = mdiWindow->size();
-        subWindowSize.setWidth(subWindowSize.width() + trackPlot->width());
-
-        mdiWindow->resize(subWindowSize);
-    }
+    modifyWidthOfContainingMdiWindow(trackPlot->width());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,6 +86,39 @@ void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrackPlot* trackPlot)
 {
     m_layout->removeWidget(trackPlot);
     m_trackPlots.removeAll(trackPlot);
+
+    modifyWidthOfContainingMdiWindow(-trackPlot->width());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::modifyWidthOfContainingMdiWindow(int widthChange)
+{
+    QMdiSubWindow* mdiWindow = RiuMainWindow::instance()->findMdiSubWindow(this);
+    if (mdiWindow)
+    {
+        QSize subWindowSize = mdiWindow->size();
+
+        int newWidth = subWindowSize.width() + widthChange;
+        if (newWidth < 0) newWidth = 100;
+
+        subWindowSize.setWidth(newWidth);
+        mdiWindow->resize(subWindowSize);
+
+        if (mdiWindow->isMaximized())
+        {
+            // Set window temporarily to normal state and back to maximized
+            // to redo layout so the whole window canvas is filled
+            // Tried to activate layout, did not work as expected
+            // Tested code:
+            //   m_layout->activate();
+            //   mdiWindow->layout()->activate();
+
+            mdiWindow->showNormal();
+            mdiWindow->showMaximized();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

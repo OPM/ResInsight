@@ -52,6 +52,7 @@ public:
 
 private:
     void updateScrollBar(double minDepth, double maxDepth);
+    void modifyWidthOfContainingMdiWindow(int widthChange);
 
 private slots:
     void slotSetMinDepth(int value);
