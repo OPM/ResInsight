@@ -80,10 +80,11 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 
     CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0,"Time Step", "", "", "");
 
-    CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "Case Name", "", "", "");
-    CAF_PDM_InitField(&m_addPropertyToCurveName, "AddPropertyToCurveName", true, "Property", "", "", "");
-    CAF_PDM_InitField(&m_addWellNameToCurveName, "AddWellNameToCurveName", true, "WellName", "", "", "");
-    CAF_PDM_InitField(&m_addTimestepToCurveName, "AddTimestepToCurveName", true, "Timestep", "", "", "");
+    // Add some space before name to indicate these belong to the Auto Name field
+    CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name", "", "", "");
+    CAF_PDM_InitField(&m_addPropertyToCurveName, "AddPropertyToCurveName", true, "   Property", "", "", "");
+    CAF_PDM_InitField(&m_addWellNameToCurveName, "AddWellNameToCurveName", true, "   Well Name", "", "", "");
+    CAF_PDM_InitField(&m_addTimestepToCurveName, "AddTimestepToCurveName", true, "   Timestep", "", "", "");
 
     updateOptionSensitivity();
 }
@@ -325,11 +326,10 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     appearanceGroup->add(&m_autoName);
     if (m_autoName)
     {
-        caf::PdmUiGroup* autoGroup = appearanceGroup->addNewGroup("Auto Name Properties");
-        autoGroup->add(&m_addCaseNameToCurveName);
-        autoGroup->add(&m_addPropertyToCurveName);
-        autoGroup->add(&m_addWellNameToCurveName);
-        autoGroup->add(&m_addTimestepToCurveName);
+        appearanceGroup->add(&m_addCaseNameToCurveName);
+        appearanceGroup->add(&m_addPropertyToCurveName);
+        appearanceGroup->add(&m_addWellNameToCurveName);
+        appearanceGroup->add(&m_addTimestepToCurveName);
     }
 
     appearanceGroup->add(&m_curveColor);
