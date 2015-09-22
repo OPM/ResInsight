@@ -84,6 +84,8 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     CAF_PDM_InitField(&m_addPropertyToCurveName, "AddPropertyToCurveName", true, "Property", "", "", "");
     CAF_PDM_InitField(&m_addWellNameToCurveName, "AddWellNameToCurveName", true, "WellName", "", "", "");
     CAF_PDM_InitField(&m_addTimestepToCurveName, "AddTimestepToCurveName", true, "Timestep", "", "", "");
+
+    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,13 +116,11 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         this->updatePlotData();
     }    
-    
-    if (changedField == &m_wellPath)
+    else if (changedField == &m_wellPath)
     {
         this->updatePlotData();
     }
-
-    if (changedField == &m_timeStep)
+    else if (changedField == &m_timeStep)
     {
         this->updatePlotData();
     }
@@ -130,6 +130,8 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
         changedField == &m_addWellNameToCurveName ||
         changedField == &m_addTimestepToCurveName)
     {
+        this->uiCapability()->updateConnectedEditors();
+        updateCurveName();
         updatePlotTitle();
     }
 }
@@ -220,7 +222,7 @@ void RimWellLogExtractionCurve::updatePlotData()
             updateTrackAndPlotFromCurveData();
         }
 
-        m_plot->replot();
+        if (m_plot) m_plot->replot();
     }
 }
 
@@ -290,49 +292,49 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Curve Display Name");
-    caf::PdmUiGroup* generatedGroup = group->addNewGroup("Generated Display Name");
-    generatedGroup->add(&m_generatedCurveName);
-    caf::PdmUiGroup* generatedNameConfig = generatedGroup->addNewGroup("Include in Display Name");
-    generatedNameConfig->add(&m_addCaseNameToCurveName);
-    generatedNameConfig->add(&m_addPropertyToCurveName);
-    generatedNameConfig->add(&m_addWellNameToCurveName);
-    generatedNameConfig->add(&m_addTimestepToCurveName);
-
-    group->add(&m_useCustomCurveName);
-    group->add(&m_customCurveName);
-
-    uiOrdering.add(&m_curveColor);
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
+    curveDataGroup->add(&m_wellPath);
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 
-    uiOrdering.add(&m_wellPath);
+    curveDataGroup->add(&m_wellPath);
 
-    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    group1->add(&m_case);
+    curveDataGroup->add(&m_case);
     if (eclipseCase)
     {
-        group1->add(&(m_eclipseResultDefinition->m_resultTypeUiField));
-        group1->add(&(m_eclipseResultDefinition->m_porosityModelUiField));
-        group1->add(&(m_eclipseResultDefinition->m_resultVariableUiField));
+        curveDataGroup->add(&(m_eclipseResultDefinition->m_resultTypeUiField));
+        curveDataGroup->add(&(m_eclipseResultDefinition->m_porosityModelUiField));
+        curveDataGroup->add(&(m_eclipseResultDefinition->m_resultVariableUiField));
 
         if (m_eclipseResultDefinition->hasDynamicResult())
         {
-            m_timeStep.uiCapability()->setUiHidden(false);
-        }
-        else
-        {
-            m_timeStep.uiCapability()->setUiHidden(true);
+            curveDataGroup->add(&m_timeStep);
         }
     }
-    if (geomCase)
+    else if (geomCase)
     {
-        group1->add(&(m_geomResultDefinition->m_resultPositionTypeUiField));
-        group1->add(&(m_geomResultDefinition->m_resultVariableUiField));
+        curveDataGroup->add(&(m_geomResultDefinition->m_resultPositionTypeUiField));
+        curveDataGroup->add(&(m_geomResultDefinition->m_resultVariableUiField));
 
-        m_timeStep.uiCapability()->setUiHidden(false);
+        curveDataGroup->add(&m_timeStep);
     }
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&m_curveName);
+    appearanceGroup->add(&m_autoName);
+    if (m_autoName)
+    {
+        caf::PdmUiGroup* autoGroup = appearanceGroup->addNewGroup("Auto Name Properties");
+        autoGroup->add(&m_addCaseNameToCurveName);
+        autoGroup->add(&m_addPropertyToCurveName);
+        autoGroup->add(&m_addWellNameToCurveName);
+        autoGroup->add(&m_addTimestepToCurveName);
+    }
+
+    appearanceGroup->add(&m_curveColor);
+
+    uiOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -340,6 +342,8 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::initAfterRead()
 {
+    RimWellLogPlotCurve::initAfterRead();
+
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 

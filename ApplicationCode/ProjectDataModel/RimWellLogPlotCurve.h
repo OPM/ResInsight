@@ -53,6 +53,7 @@ public:
 
     QwtPlotCurve*   plotCurve() const;
     
+    void            updateCurveName();
     void            updatePlotTitle();
 
     virtual void    updatePlotData() = 0;
@@ -62,14 +63,13 @@ protected:
 
     void updatePlotConfiguration();
     void updateCurveVisibility();
-    void updateOptionSensitivity();
     void updateTrackAndPlotFromCurveData();
+    void updateOptionSensitivity();
 
     // Overridden PDM methods
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*    objectToggleField();
     virtual caf::PdmFieldHandle*    userDescriptionField();
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                    initAfterRead();
 
 
@@ -77,8 +77,9 @@ protected:
     RiuWellLogPlotCurve*    m_plotCurve;
 
     caf::PdmField<bool>         m_showCurve;
+    caf::PdmField<QString>      m_curveName;
     caf::PdmField<QString>      m_customCurveName;
-    caf::PdmField<QString>      m_generatedCurveName;
-    caf::PdmField<bool>         m_useCustomCurveName;
+
+    caf::PdmField<bool>         m_autoName;
     caf::PdmField<cvf::Color3f> m_curveColor;
 };

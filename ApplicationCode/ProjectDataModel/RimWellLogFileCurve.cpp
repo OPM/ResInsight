@@ -51,6 +51,8 @@ RimWellLogFileCurve::RimWellLogFileCurve()
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
 
     m_wellPath = NULL;
+
+    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +100,7 @@ void RimWellLogFileCurve::updatePlotData()
 
         updateTrackAndPlotFromCurveData();
 
-        m_plot->replot();
+        if (m_plot) m_plot->replot();
     }
 }
 
@@ -134,7 +136,7 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         this->updatePlotData();
     }
 
-    m_plot->replot();
+    if (m_plot) m_plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,10 +144,14 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    RimWellLogPlotCurve::defineUiOrdering(uiConfigName, uiOrdering);
-    
-    uiOrdering.add(&m_wellPath);
-    uiOrdering.add(&m_wellLogChannnelName);
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
+    curveDataGroup->add(&m_wellPath);
+    curveDataGroup->add(&m_wellLogChannnelName);
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&m_curveName);
+    appearanceGroup->add(&m_autoName);
+    appearanceGroup->add(&m_curveColor);
 }
 
 //--------------------------------------------------------------------------------------------------
