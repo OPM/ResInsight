@@ -25,6 +25,8 @@
 
 #include "RimProject.h"
 #include "RimView.h"
+#include "RimViewLinkerCollection.h"
+#include "RimViewLinker.h"
 
 #include "cafSelectionManager.h"
 
@@ -43,7 +45,18 @@ bool RicLinkViewFeature::isCommandEnabled()
     RimProject* proj = RiaApplication::instance()->project();
     if (!proj->findViewLinkerFromView(activeView))
     {
-        return true;
+        RimViewLinkerCollection* viewLinkerCollection = proj->viewLinkerCollection();
+        if (viewLinkerCollection)
+        {
+            RimViewLinker* viewLinker = viewLinkerCollection->viewLinker();
+            if (viewLinker)
+            {
+                if (viewLinker->viewLinks().size() > 0)
+                {
+                    return true;
+                }
+            }
+        }
     }
 
     return false;
