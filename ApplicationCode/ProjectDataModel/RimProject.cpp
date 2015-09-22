@@ -783,6 +783,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
+            commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
