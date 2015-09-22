@@ -19,8 +19,6 @@
 
 #include "RiuViewerCommands.h"
 
-#include "RiaApplication.h"
-
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
@@ -66,7 +64,7 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
-#include "cafSelectionManager.h"
+#include "cafPdmUiTreeView.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfHitItemCollection.h"
@@ -131,6 +129,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
     {
         extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &faceIndex, &nncFirstHitPart, NULL);
+        updateSelectionFromPickedPart(firstHitPart);
     }
 
     if (firstHitPart && faceIndex != cvf::UNDEFINED_UINT)
@@ -201,21 +200,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 }
             }
 
-        }
-    }
-
-    if (firstHitPart && firstHitPart->sourceInfo())
-    {
-        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
-        if (wellPathSourceInfo)
-        {
-            RimWellPath* wellPath = wellPathSourceInfo->wellPath();
-            if (wellPath)
-            {
-                // TODO: Handle selection through mouse events outside this method, or after ray picking above
-                caf::SelectionManager::instance()->setSelectedItem(wellPath);
-                RiaApplication::instance()->project()->updateConnectedEditors();
-            }
         }
     }
 
@@ -406,6 +390,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
         if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
         {
             extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &firstNncHitPart, &nncPartTriangleIndex);
+            updateSelectionFromPickedPart(firstHitPart);
         }
 
         if (firstHitPart && firstHitPart->sourceInfo())
@@ -432,7 +417,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
             }
             else if (wellPathSourceInfo)
             {
-                //wellPathIndex = wellPathSourceInfo->wellPathIndex();
                 wellPath = wellPathSourceInfo->wellPath();
             }
         }
@@ -634,5 +618,24 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
     if (geomView && geomView->geoMechCase())
     {
         geomView->geoMechCase()->geoMechData()->femParts()->part(gridIdx)->structGrid()->ijkFromCellIndex(cellIndex, i, j, k);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::updateSelectionFromPickedPart(cvf::Part* part)
+{
+    if (part && part->sourceInfo())
+    {
+        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
+        if (wellPathSourceInfo)
+        {
+            RimWellPath* wellPath = wellPathSourceInfo->wellPath();
+            if (wellPath)
+            {
+                RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(wellPath);
+            }
+        }
     }
 }
