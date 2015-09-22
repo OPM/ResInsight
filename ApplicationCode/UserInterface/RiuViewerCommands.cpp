@@ -215,18 +215,21 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 // TODO: Handle selection through mouse events outside this method, or after ray picking above
                 caf::SelectionManager::instance()->setSelectedItem(wellPath);
                 RiaApplication::instance()->project()->updateConnectedEditors();
-
-                RicNewWellLogFileCurveFeature* newWellLogFileCurveFeature = dynamic_cast<RicNewWellLogFileCurveFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogFileCurveFeature"));
-                CVF_ASSERT(newWellLogFileCurveFeature);
-                
-                menu.addAction(newWellLogFileCurveFeature->action());
-
-                RicNewWellLogCurveExtractionFeature* newExtractionCurveFeature = dynamic_cast<RicNewWellLogCurveExtractionFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogCurveExtractionFeature"));
-                CVF_ASSERT(newExtractionCurveFeature);
-
-                menu.addAction(newExtractionCurveFeature->action());
             }
         }
+    }
+
+    // Well log curve creation commands
+    {
+        RicNewWellLogFileCurveFeature* newWellLogFileCurveFeature = dynamic_cast<RicNewWellLogFileCurveFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogFileCurveFeature"));
+        CVF_ASSERT(newWellLogFileCurveFeature);
+                
+        menu.addAction(newWellLogFileCurveFeature->action());
+
+        RicNewWellLogCurveExtractionFeature* newExtractionCurveFeature = dynamic_cast<RicNewWellLogCurveExtractionFeature*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicNewWellLogCurveExtractionFeature"));
+        CVF_ASSERT(newExtractionCurveFeature);
+
+        menu.addAction(newExtractionCurveFeature->action());
     }
 
     // View Link commands
