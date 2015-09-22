@@ -699,7 +699,7 @@ void RimView::setScaleZAndUpdate(double scaleZ)
 {
     this->scaleZ = scaleZ;
     updateScaleTransform();
-    createDisplayModelAndRedraw();
+    this->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
