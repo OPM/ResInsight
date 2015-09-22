@@ -837,6 +837,10 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
 
         if (dynamic_cast<RimView*>(uiItem))
         {
+            commandIds << "RicLinkVisibleViewsFeature";
+            commandIds << "RicLinkViewFeature";
+            commandIds << "RicUnLinkViewFeature";
+            commandIds << "RicShowLinkOptionsFeature";
             commandIds << "RicSetMasterViewFeature";
         }
     }
