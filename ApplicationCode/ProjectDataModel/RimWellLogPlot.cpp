@@ -139,6 +139,8 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             updateViewerWidget();
         }
+
+        uiCapability()->updateUiIconFromToggleField();
     }
     else if (changedField == &m_minimumVisibleDepth || changedField == &m_maximumVisibleDepth)
     {
