@@ -150,6 +150,7 @@ void RimViewLinker::updateCellResult()
                         eclipeView->cellResult()->setPorosityModel(eclipseCellResultDefinition->porosityModel());
                         eclipeView->cellResult()->setResultType(eclipseCellResultDefinition->resultType());
                         eclipeView->cellResult()->setResultVariable(eclipseCellResultDefinition->resultVariable());
+                        eclipeView->scheduleCreateDisplayModelAndRedraw();
                     }
                 }
             }
