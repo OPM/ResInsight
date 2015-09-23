@@ -987,19 +987,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimProject::findViewLinkerFromView(RimView* view)
 {
-    if (viewLinkerCollection()->viewLinker())
-    {
-        RimViewLinker* group = viewLinkerCollection()->viewLinker();
-        if (view == group->mainView()) return group;
-
-        for (size_t j = 0; j < group->viewLinks.size(); j++)
-        {
-            RimViewLink* viewConfig = group->viewLinks[j];
-            if (viewConfig->managedView() == view) return group;
-        }
-    }
-
-    return NULL;
+    return RimViewLinker::viewLinkerForMainOrControlledView(view);
 }
 
 //--------------------------------------------------------------------------------------------------

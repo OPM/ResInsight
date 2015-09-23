@@ -80,12 +80,19 @@ RimViewLinker::~RimViewLinker(void)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 {
+    CVF_ASSERT(sourceView);
+
     if (!isActive()) return;
 
-    RimViewLink* sourceLinkedView = viewLinkFromView(sourceView);
-    if (sourceLinkedView && !sourceLinkedView->syncTimeStep())
+    if (mainView() != sourceView)
     {
-        return;
+        RimViewLink* sourceViewLink = viewLinkForView(sourceView);
+        CVF_ASSERT(sourceViewLink);
+
+        if (!sourceViewLink->isActive() || !sourceViewLink->syncTimeStep())
+        {
+            return;
+        }
     }
 
     if (m_mainView && m_mainView->viewer() && sourceView != m_mainView)
@@ -182,37 +189,6 @@ void RimViewLinker::updateRangeFilters()
     this->scheduleGeometryRegenForDepViews(RANGE_FILTERED);
     this->scheduleGeometryRegenForDepViews(RANGE_FILTERED_INACTIVE);
     this->scheduleCreateDisplayModelAndRedrawForDependentViews();
-
-    #if 0
-    for (size_t i = 0; i < viewLinks.size(); i++)
-    {
-        RimViewLink* managedViewConfig = viewLinks[i];
-        if (managedViewConfig->managedView())
-        {
-            if (managedViewConfig->syncRangeFilters())
-            {
-                RimView* rimView = managedViewConfig->managedView();
-                RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
-                if (eclipeView)
-                {
-                    eclipeView->scheduleGeometryRegen(RANGE_FILTERED);
-                    eclipeView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
-
-                    eclipeView->scheduleCreateDisplayModelAndRedraw();
-                }
-
-                RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
-                if (geoView)
-                {
-                    geoView->scheduleGeometryRegen(RANGE_FILTERED);
-                    geoView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
-
-                    geoView->scheduleCreateDisplayModelAndRedraw();
-                }
-            }
-        }
-    }
-    #endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,35 +199,6 @@ void RimViewLinker::updatePropertyFilters()
     if (!isActive()) return;
     this->scheduleGeometryRegenForDepViews(PROPERTY_FILTERED);
     this->scheduleCreateDisplayModelAndRedrawForDependentViews();
-
-#if 0
-    for (size_t i = 0; i < viewLinks.size(); i++)
-    {
-        RimViewLink* managedViewConfig = viewLinks[i];
-        if (managedViewConfig->managedView())
-        {
-            if (managedViewConfig->syncPropertyFilters())
-            {
-                RimView* rimView = managedViewConfig->managedView();
-                RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
-                if (eclipeView)
-                {
-                    eclipeView->scheduleGeometryRegen(PROPERTY_FILTERED);
-
-                    eclipeView->scheduleCreateDisplayModelAndRedraw();
-                }
-
-                RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
-                if (geoView)
-                {
-                    geoView->scheduleGeometryRegen(PROPERTY_FILTERED);
-
-                    geoView->scheduleCreateDisplayModelAndRedraw();
-                }
-            }
-        }
-    }
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,7 +249,7 @@ void RimViewLinker::applyAllOperations()
     configureOverrides();
 
     updateCellResult();
-    updateTimeStep(NULL, m_mainView->currentTimeStep());
+    updateTimeStep(m_mainView, m_mainView->currentTimeStep());
     updateRangeFilters();
     updatePropertyFilters();
     updateScaleZ(m_mainView, m_mainView->scaleZ());
@@ -326,19 +273,6 @@ QString RimViewLinker::displayNameForView(RimView* view)
     }
 
     return displayName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimViewLink* RimViewLinker::viewLinkFromView(RimView* view)
-{
-    for (size_t i = 0; i < viewLinks.size(); i++)
-    {
-        if (viewLinks[i]->managedView() == view) return viewLinks[i];
-    }
-
-    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -388,10 +322,23 @@ void RimViewLinker::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateScaleZ(RimView* source, double scaleZ)
+void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 {
+    if (!isActive()) return;
+
+    if (mainView() != sourceView)
+    {
+        RimViewLink* sourceViewLink = viewLinkForView(sourceView);
+        CVF_ASSERT(sourceViewLink);
+
+        if (!sourceViewLink->isActive() || !sourceViewLink->syncCamera())
+        {
+            return;
+        }
+    }
+
     std::vector<RimView*> views;
-    allViewsForCameraSync(source, views);
+    allViewsForCameraSync(sourceView, views);
 
     // Make sure scale factors are identical
     for (size_t i = 0; i < views.size(); i++)
@@ -538,5 +485,60 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
     {
         *icon = QIcon();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewLink* RimViewLinker::viewLinkForView(const RimView* view)
+{
+    RimViewLink* viewLink = NULL;
+    std::vector<caf::PdmObjectHandle*> reffingObjs;
+
+    view->objectsWithReferringPtrFields(reffingObjs);
+    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    {
+        viewLink = dynamic_cast<RimViewLink*>(reffingObjs[i]);
+        if (viewLink) break;
+    }
+
+    return viewLink;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return view linker if view is the main view (controlling) view
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* RimViewLinker::viewLinkerIfMainView(RimView* view)
+{
+    RimViewLinker* viewLinker = NULL;
+    std::vector<caf::PdmObjectHandle*> reffingObjs;
+
+    view->objectsWithReferringPtrFields(reffingObjs);
+
+    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    {
+        viewLinker = dynamic_cast<RimViewLinker*>(reffingObjs[i]);
+        if (viewLinker) break;
+    }
+
+    return viewLinker;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* RimViewLinker::viewLinkerForMainOrControlledView(RimView* view)
+{
+    RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(view);
+    if (!viewLinker)
+    {
+        RimViewLink* viewLink = RimViewLinker::viewLinkForView(view);
+        if (viewLink)
+        {
+            viewLinker = viewLink->ownerViewLinker();
+        }
+    }
+
+    return viewLinker;
 }
 

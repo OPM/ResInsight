@@ -512,7 +512,7 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_vizLogic->scheduleGeometryRegen(geometryType);
 
-    RimViewLinker* viewLinker = viewLinkerWithMyDepViews();
+    RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(this);
     if (viewLinker)
     {
         viewLinker->scheduleGeometryRegenForDepViews(geometryType);

@@ -191,7 +191,7 @@ void RimView::updateViewerWidget()
 void RimView::scheduleCreateDisplayModelAndRedraw()
 {
     RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
-    RimViewLinker* viewLinker = viewLinkerWithMyDepViews();
+    RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(this);
     if (viewLinker)
     {
         viewLinker->scheduleCreateDisplayModelAndRedrawForDependentViews();
@@ -448,16 +448,10 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
             updateScaleTransform();
             createDisplayModelAndRedraw();
 
-            RimProject* proj = NULL;
-            this->firstAnchestorOrThisOfType(proj);
-            RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
+            RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(this);
             if (viewLinker)
             {
-                RimViewLink* viewLink = viewLinker->viewLinkFromView(this);
-                if (this == viewLinker->mainView() || (viewLink && viewLink->isActive() && viewLink->syncCamera()))
-                {
-                    viewLinker->updateScaleZ(this, scaleZ);
-                }
+                viewLinker->updateScaleZ(this, scaleZ);
             }
 
             m_viewer->navigationPolicyUpdate();
@@ -486,16 +480,10 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         {
             m_viewer->update();
 
-            RimProject* proj = NULL;
-            this->firstAnchestorOrThisOfType(proj);
-            RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
+            RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(this);
             if (viewLinker)
             {
-                RimViewLink* viewLink = viewLinker->viewLinkFromView(this);
-                if (this == viewLinker->mainView() || (viewLink && viewLink->isActive() && viewLink->syncTimeStep()))
-                {
-                    viewLinker->updateTimeStep(this, m_currentTimeStep);
-                }
+                viewLinker->updateTimeStep(this, m_currentTimeStep);
             }
         }
     }
@@ -600,7 +588,7 @@ void RimView::notifyCameraHasChanged()
     RimViewLinker* viewLinker = proj->findViewLinkerFromView(this);
     if (viewLinker)
     {
-        RimViewLink* viewLink = viewLinker->viewLinkFromView(this);
+        RimViewLink* viewLink = viewLinker->viewLinkForView(this);
 
         if (this == viewLinker->mainView() || (viewLink && viewLink->isActive() && viewLink->syncCamera()))
         {
@@ -726,42 +714,13 @@ bool RimView::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB
     return false;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimViewLinker* RimView::viewLinkerWithMyDepViews()
-{
-    RimViewLinker* viewLinker = NULL;
-    std::vector<caf::PdmObjectHandle*> reffingObjs;
-
-    this->objectsWithReferringPtrFields(reffingObjs);
-
-    for (size_t i = 0; i < reffingObjs.size(); ++i)
-    {
-         viewLinker = dynamic_cast<RimViewLinker*>(reffingObjs[i]);
-         if (viewLinker ) break;
-    }
-
-    return viewLinker;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimViewLink* RimView::controllingViewLink() const
 {
-    RimViewLink* viewLink = NULL;
-    std::vector<caf::PdmObjectHandle*> reffingObjs;
-
-    this->objectsWithReferringPtrFields(reffingObjs);
-    for (size_t i = 0; i < reffingObjs.size(); ++i)
-    {
-        viewLink = dynamic_cast<RimViewLink*>(reffingObjs[i]);
-        if (viewLink) break;
-    }
-
-    return viewLink;
+    return RimViewLinker::viewLinkForView(this);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -74,7 +74,9 @@ public:
 
 public:
     static QString                          displayNameForView(RimView* view);
-    RimViewLink*                            viewLinkFromView(RimView* view);
+    static RimViewLink*                     viewLinkForView(const RimView* view);
+    static RimViewLinker*                   viewLinkerIfMainView(RimView* view);
+    static RimViewLinker*                   viewLinkerForMainOrControlledView(RimView* view);
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }

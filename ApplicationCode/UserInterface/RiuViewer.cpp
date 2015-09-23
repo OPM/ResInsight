@@ -260,16 +260,10 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
 
     if (m_reservoirView)
     {
-        RimProject* proj = NULL;
-        m_reservoirView->firstAnchestorOrThisOfType(proj);
-        RimViewLinker* viewLinker = proj->findViewLinkerFromView(m_reservoirView);
+        RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(m_reservoirView);
         if (viewLinker)
         {
-            RimViewLink* viewLink = viewLinker->viewLinkFromView(m_reservoirView);
-            if (m_reservoirView == viewLinker->mainView() || (viewLink && viewLink->isActive() && viewLink->syncTimeStep()))
-            {
-                viewLinker->updateTimeStep(m_reservoirView, frameIndex);
-            }
+            viewLinker->updateTimeStep(m_reservoirView, frameIndex);
         }
     }
 }

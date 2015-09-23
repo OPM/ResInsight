@@ -70,7 +70,7 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 
     RimView* previousMasterView = viewLinker->mainView();
 
-    RimViewLink* previousViewLink = viewLinker->viewLinkFromView(activeView);
+    RimViewLink* previousViewLink = RimViewLinker::viewLinkForView(activeView);
     if (previousViewLink)
     {
         size_t indexToErase = cvf::UNDEFINED_SIZE_T;

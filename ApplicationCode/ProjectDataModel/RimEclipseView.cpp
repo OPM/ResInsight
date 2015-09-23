@@ -846,7 +846,7 @@ void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_reservoirGridPartManager->scheduleGeometryRegen(geometryType);
 
-    RimViewLinker* viewLinker = viewLinkerWithMyDepViews();
+    RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(this);
     if (viewLinker)
     {
         viewLinker->scheduleGeometryRegenForDepViews(geometryType);
