@@ -1604,3 +1604,13 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::updateIconStateForFilterCollections()
+{
+    // NB - notice that it is the filter collection managed by this view that the icon update applies to
+    m_rangeFilterCollection()->updateIconState();
+    m_propertyFilterCollection()->updateIconState();
+}

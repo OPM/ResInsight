@@ -41,7 +41,7 @@ public:
     RimGeoMechView*       reservoirView();
 
     // Fields:
-    caf::PdmField<bool> active;
+    caf::PdmField<bool> isActive;
     caf::PdmChildArrayField<RimGeoMechPropertyFilter*> propertyFilters;
 
     // Methods
@@ -50,6 +50,7 @@ public:
 
     void                    loadAndInitializePropertyFilters();
     void                    updateDisplayModelNotifyManagedViews();
+    void                    updateIconState();
 
 protected:
     // Overridden methods

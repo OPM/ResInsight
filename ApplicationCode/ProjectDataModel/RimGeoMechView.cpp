@@ -554,3 +554,13 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
     m_vizLogic->calculateCurrentTotalCellVisibility(totalVisibility, m_currentTimeStep);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateIconStateForFilterCollections()
+{
+    // NB - notice that it is the filter collection managed by this view that the icon update applies to
+    m_rangeFilterCollection()->updateIconState();
+    m_propertyFilterCollection()->updateIconState();
+}
+

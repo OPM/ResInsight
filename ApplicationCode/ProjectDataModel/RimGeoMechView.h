@@ -72,6 +72,7 @@ public:
 
     virtual cvf::Transform*                             scaleTransform();
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
+    void                                                updateIconStateForFilterCollections();
 
 private:
     virtual void                                        createDisplayModel();

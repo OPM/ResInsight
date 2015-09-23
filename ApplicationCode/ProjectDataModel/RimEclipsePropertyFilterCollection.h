@@ -34,7 +34,7 @@ public:
     virtual ~RimEclipsePropertyFilterCollection();
 
     // Fields:
-    caf::PdmField<bool> active;
+    caf::PdmField<bool> isActive;
     caf::PdmChildArrayField<RimEclipsePropertyFilter*> propertyFilters;
 
     // Methods
@@ -46,6 +46,7 @@ public:
     void                    loadAndInitializePropertyFilters();
 
     void                    updateDisplayModelNotifyManagedViews();
+    void                    updateIconState();
 
 
     // Overridden methods

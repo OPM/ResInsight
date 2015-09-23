@@ -129,6 +129,8 @@ public:
 
     // Overridden PDM methods:
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                                            updateIconStateForFilterCollections();
+
 protected:
     virtual void                                    initAfterRead();
     virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );

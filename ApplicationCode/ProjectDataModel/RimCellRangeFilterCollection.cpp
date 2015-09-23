@@ -31,7 +31,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimProject.h"
+#include "RimViewLink.h"
 #include "RimViewLinker.h"
 
 #include "cafPdmUiEditorHandle.h"
@@ -138,7 +138,7 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    this->updateUiIconFromToggleField();
+    updateIconState();
     
     updateDisplayModeNotifyManagedViews();
 }
@@ -155,16 +155,6 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews()
     view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
     view->scheduleCreateDisplayModelAndRedraw();
-    /*
-    RimProject* proj = NULL;
-    view->firstAnchestorOrThisOfType(proj);
-
-    RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
-    if (viewLinker)
-    {
-        viewLinker->updateRangeFilters();
-    }
-    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,7 +176,7 @@ void RimCellRangeFilterCollection::initAfterRead()
         rangeFilter->updateIconState();
     }
 
-    this->updateUiIconFromToggleField();
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,5 +311,28 @@ RimView* RimCellRangeFilterCollection::baseView() const
     firstAnchestorOrThisOfType(rimView);
 
     return rimView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilterCollection::updateIconState()
+{
+    bool activeIcon = true;
+
+    RimViewLink* viewLink = RimViewLinker::viewLinkForView(baseView());
+    if (viewLink && viewLink->syncRangeFilters())
+    {
+        activeIcon = false;
+    }
+
+    if (!isActive)
+    {
+        activeIcon = false;
+    }
+
+    updateUiIconFromState(activeIcon);
+
+    uiCapability()->updateConnectedEditors();
 }
 

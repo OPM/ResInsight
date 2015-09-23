@@ -296,6 +296,16 @@ void RimViewLink::configureOverrides()
         RimEclipseView* manEclView = managedEclipseView();
         RimGeoMechView* manGeoView = managedGeoView();
 
+        if (manGeoView)
+        {
+            manGeoView->updateIconStateForFilterCollections();
+        }
+
+        if (manEclView)
+        {
+            manEclView->updateIconStateForFilterCollections();
+        }
+
         if (!isActive)
         {
             m_managedView->setOverrideRangeFilterCollection(NULL);

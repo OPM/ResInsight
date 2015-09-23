@@ -22,7 +22,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
-#include "RimProject.h"
+#include "RimViewLink.h"
 #include "RimViewLinker.h"
 
 #include "cvfAssert.h"
@@ -40,8 +40,8 @@ RimGeoMechPropertyFilterCollection::RimGeoMechPropertyFilterCollection()
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilters.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&active,                   "Active", true, "Active", "", "", "");
-    active.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&isActive,                   "Active", true, "Active", "", "", "");
+    isActive.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    this->updateUiIconFromToggleField();
+    updateIconState();
 
     updateDisplayModelNotifyManagedViews();
 }
@@ -101,7 +101,7 @@ void RimGeoMechPropertyFilterCollection::initAfterRead()
         propertyFilter->updateIconState();
     }
 
-    this->updateUiIconFromToggleField();
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ void RimGeoMechPropertyFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilterCollection::hasActiveFilters() const
 {
-    if (!active) return false;
+    if (!isActive) return false;
 
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
@@ -133,7 +133,7 @@ bool RimGeoMechPropertyFilterCollection::hasActiveDynamicFilters() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGeoMechPropertyFilterCollection::objectToggleField()
 {
-    return &active;
+    return &isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,15 +147,29 @@ void RimGeoMechPropertyFilterCollection::updateDisplayModelNotifyManagedViews()
 
     view->scheduleGeometryRegen(PROPERTY_FILTERED);
     view->scheduleCreateDisplayModelAndRedraw();
+}
 
-    RimProject* proj = NULL;
-    view->firstAnchestorOrThisOfType(proj);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilterCollection::updateIconState()
+{
+    bool activeIcon = true;
 
-    /*
-    RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
-    if (viewLinker)
+    RimGeoMechView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
+    RimViewLink* viewLink = RimViewLinker::viewLinkForView(view);
+    if (viewLink && viewLink->syncPropertyFilters())
     {
-        viewLinker->updatePropertyFilters();
+        activeIcon = false;
     }
-    */
+
+    if (!isActive)
+    {
+        activeIcon = false;
+    }
+
+    updateUiIconFromState(activeIcon);
+
+    uiCapability()->updateConnectedEditors();
 }

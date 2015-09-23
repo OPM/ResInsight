@@ -23,7 +23,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimProject.h"
+#include "RimViewLink.h"
 #include "RimViewLinker.h"
 
 #include "cafPdmUiEditorHandle.h"
@@ -41,8 +41,8 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilters.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&active,                  "Active", true, "Active", "", "", "");
-    active.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
+    isActive.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    this->updateUiIconFromToggleField();
+    updateIconState();
 
     updateDisplayModelNotifyManagedViews();
 }
@@ -91,7 +91,7 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::initAfterRead()
 {
-    this->updateUiIconFromToggleField();
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void RimEclipsePropertyFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
 {
-    if (!active) return false;
+    if (!isActive) return false;
 
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
@@ -115,7 +115,7 @@ bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 {
-    if (!active) return false;
+    if (!isActive) return false;
 
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
@@ -131,7 +131,7 @@ bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimEclipsePropertyFilterCollection::objectToggleField()
 {
-    return &active;
+    return &isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,15 +145,29 @@ void RimEclipsePropertyFilterCollection::updateDisplayModelNotifyManagedViews()
 
     view->scheduleGeometryRegen(PROPERTY_FILTERED);
     view->scheduleCreateDisplayModelAndRedraw();
+}
 
-    RimProject* proj = NULL;
-    view->firstAnchestorOrThisOfType(proj);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::updateIconState()
+{
+    bool activeIcon = true;
 
-    /*
-    RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
-    if (viewLinker)
+    RimEclipseView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
+    RimViewLink* viewLink = RimViewLinker::viewLinkForView(view);
+    if (viewLink && viewLink->syncPropertyFilters())
     {
-        viewLinker->updatePropertyFilters();
+        activeIcon = false;
     }
-    */
+
+    if (!isActive)
+    {
+        activeIcon = false;
+    }
+
+    updateUiIconFromState(activeIcon);
+
+    uiCapability()->updateConnectedEditors();
 }
