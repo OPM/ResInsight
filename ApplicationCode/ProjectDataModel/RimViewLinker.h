@@ -21,11 +21,17 @@
 
 #include "RimDefines.h"
 
+#include "RivCellSetEnum.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "RivCellSetEnum.h"
+
+namespace cvf
+{
+    class BoundingBox;
+}
 
 class RimViewLink;
 class RiuViewer;
@@ -50,8 +56,9 @@ public:
 
     void                                    applyAllOperations();
 
+    void                                    updateCamera(RimView* sourceView);
     void                                    updateTimeStep(RimView* sourceView, int timeStep);
-    void                                    updateScaleZ(RimView* source, double scaleZ);
+    void                                    updateScaleZ(RimView* sourceView, double scaleZ);
     void                                    allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
 
     void                                    updateCellResult();
@@ -84,6 +91,7 @@ protected:
 
 private:
     bool                                    isActive();
+    static bool                             isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 
 private:
     caf::PdmPtrField<RimView*>              m_mainView;

@@ -483,9 +483,15 @@ void RiuViewer::updateNavigationPolicy()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::navigationPolicyUpdate()
 {
+    update();
+
     if (m_reservoirView)
     {
-        m_reservoirView->notifyCameraHasChanged();
+        RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(m_reservoirView);
+        if (viewLinker)
+        {
+            viewLinker->updateCamera(m_reservoirView);
+        }
     }
 }
 

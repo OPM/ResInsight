@@ -177,16 +177,15 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
         if (m_managedView)
         {
-            RimViewLinker* linkedViews = NULL;
-            this->firstAnchestorOrThisOfType(linkedViews);
+            RimViewLinker* viewLinker = ownerViewLinker();
 
             if (syncCellResult())
             {
-                linkedViews->updateCellResult();
+                viewLinker->updateCellResult();
             }
             if (syncCamera())
             {
-                m_managedView->notifyCameraHasChanged();
+                viewLinker->updateCamera(m_managedView);
             }
 
             name = RimViewLinker::displayNameForView(m_managedView);

@@ -79,8 +79,6 @@ public:
     const RimCellRangeFilterCollection*     rangeFilterCollection() const;
     void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
 
-    void                                    notifyCameraHasChanged();
-
     caf::PdmField< std::vector<int> >       windowGeometry;
 
 
@@ -176,8 +174,6 @@ protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
-private:
-    static bool isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
