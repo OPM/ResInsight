@@ -18,8 +18,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechCellColors.h"
+
 #include "RimLegendConfig.h"
 #include "RimView.h"
+#include "RimViewLink.h"
+#include "RimViewLinker.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCellColors, "GeoMechResultSlot");
@@ -40,4 +43,33 @@ RimGeoMechCellColors::RimGeoMechCellColors(void)
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCellColors::~RimGeoMechCellColors(void)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCellColors::updateIconState()
+{
+    RimView* rimView = NULL;
+    this->firstAnchestorOrThisOfType(rimView);
+
+    RimViewLink* viewLink = RimViewLinker::viewLinkForView(rimView);
+    if (viewLink && viewLink->syncCellResult())
+    {
+        updateUiIconFromState(false);
+    }
+    else
+    {
+        updateUiIconFromState(true);
+    }
+
+    uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCellColors::initAfterRead()
+{
+    updateIconState();
 }

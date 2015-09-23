@@ -48,6 +48,9 @@ public:
     caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
 
     virtual void                                setResultVariable(const QString& resultName);
+    
+    void                                        updateIconState();
+
 protected:
     // Overridden methods
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

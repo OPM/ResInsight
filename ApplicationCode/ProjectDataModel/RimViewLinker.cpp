@@ -141,17 +141,19 @@ void RimViewLinker::updateCellResult()
 
             if (viewLink->managedView())
             {
-                if (viewLink->syncCellResult())
+                RimView* rimView = viewLink->managedView();
+                RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
+                if (eclipeView)
                 {
-                    RimView* rimView = viewLink->managedView();
-                    RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
-                    if (eclipeView)
+                    if (viewLink->syncCellResult())
                     {
                         eclipeView->cellResult()->setPorosityModel(eclipseCellResultDefinition->porosityModel());
                         eclipeView->cellResult()->setResultType(eclipseCellResultDefinition->resultType());
                         eclipeView->cellResult()->setResultVariable(eclipseCellResultDefinition->resultVariable());
                         eclipeView->scheduleCreateDisplayModelAndRedraw();
                     }
+                    
+                    eclipeView->cellResult()->updateIconState();
                 }
             }
         }
@@ -169,15 +171,17 @@ void RimViewLinker::updateCellResult()
 
             if (viewLink->managedView())
             {
-                if (viewLink->syncCellResult())
+                RimView* rimView = viewLink->managedView();
+                RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
+                if (geoView)
                 {
-                    RimView* rimView = viewLink->managedView();
-                    RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
-                    if (geoView)
+                    if (viewLink->syncCellResult())
                     {
                         geoView->cellResult()->setResultAddress(geoMechResultDefinition->resultAddress());
                         geoView->scheduleCreateDisplayModelAndRedraw();
                     }
+
+                    geoView->cellResult()->updateIconState();
                 }
             }
         }

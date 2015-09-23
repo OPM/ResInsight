@@ -21,10 +21,19 @@
 
 #include "RiaApplication.h"
 
+#include "RigCaseData.h"
+#include "RigCaseToCaseCellMapper.h"
+#include "RigFemPartCollection.h"
+#include "RigGeoMechCaseData.h"
+
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
@@ -35,13 +44,6 @@
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
-#include "RimEclipseCase.h"
-#include "RigCaseData.h"
-#include "RimGeoMechCase.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RigCaseToCaseCellMapper.h"
-
 
 CAF_PDM_SOURCE_INIT(RimViewLink, "RimViewLink");
 //--------------------------------------------------------------------------------------------------
@@ -159,9 +161,23 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     {
         doSyncTimeStep();
     }
-    else if (changedField == &syncCellResult && syncCellResult())
+    else if (changedField == &syncCellResult)
     {
-        doSyncCellResult();
+        if (syncCellResult())
+        {
+            doSyncCellResult();
+        }
+        else
+        {
+            if (managedEclipseView())
+            {
+                managedEclipseView()->cellResult()->updateIconState();
+            }
+            else if (managedGeoView())
+            {
+                managedGeoView()->cellResult()->updateIconState();
+            }
+        }
     }
     else if (changedField == &syncRangeFilters)
     {

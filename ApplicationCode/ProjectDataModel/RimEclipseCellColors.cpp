@@ -20,10 +20,13 @@
 
 #include "RimEclipseCellColors.h"
 
+#include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimTernaryLegendConfig.h"
+#include "RimViewLink.h"
+#include "RimViewLinker.h"
+
 #include "RiuMainWindow.h"
-#include "RimEclipseFaultColors.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
 
@@ -174,6 +177,8 @@ void RimEclipseCellColors::initAfterRead()
     }
 
     changeLegendConfig(this->resultVariable());
+
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,5 +222,23 @@ void RimEclipseCellColors::setResultVariable(const QString& val)
 RimLegendConfig* RimEclipseCellColors::legendConfig()
 {
     return m_legendConfigPtrField;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::updateIconState()
+{
+    RimViewLink* viewLink = RimViewLinker::viewLinkForView(m_reservoirView);
+    if (viewLink && viewLink->syncCellResult())
+    {
+        updateUiIconFromState(false);
+    }
+    else
+    {
+        updateUiIconFromState(true);
+    }
+
+    uiCapability()->updateConnectedEditors();
 }
 

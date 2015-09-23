@@ -40,4 +40,7 @@ public:
     virtual ~RimGeoMechCellColors(void);
 
     caf::PdmChildField<RimLegendConfig*> legendConfig;
+
+    void            updateIconState();
+    virtual void    initAfterRead();
 };
