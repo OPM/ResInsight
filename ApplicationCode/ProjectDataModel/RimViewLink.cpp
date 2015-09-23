@@ -464,11 +464,7 @@ void RimViewLink::doSyncCamera()
     RimViewLinker* viewLinker = NULL;
     this->firstAnchestorOrThisOfType(viewLinker);
     viewLinker->updateScaleZ(viewLinker->mainView(), viewLinker->mainView()->scaleZ());
-
-    if (m_managedView && m_managedView->viewer())
-    {
-        m_managedView->viewer()->navigationPolicyUpdate();
-    }
+    viewLinker->updateCamera(viewLinker->mainView());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -493,13 +489,8 @@ void RimViewLink::doSyncTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimViewLink::doSyncCellResult()
 {
-    RimViewLinkerCollection* viewLinkerColl = NULL;
-    this->firstAnchestorOrThisOfType(viewLinkerColl);
-    if (!viewLinkerColl->isActive()) return;
-
-    RimViewLinker* linkedViews = NULL;
-    this->firstAnchestorOrThisOfType(linkedViews);
-    linkedViews->updateCellResult();
+    RimViewLinker* viewLinker = ownerViewLinker();
+    viewLinker->updateCellResult();
 }
 
 //--------------------------------------------------------------------------------------------------

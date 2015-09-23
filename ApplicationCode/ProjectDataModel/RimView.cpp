@@ -448,13 +448,14 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
             updateScaleTransform();
             createDisplayModelAndRedraw();
 
+            m_viewer->update();
+
             RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(this);
             if (viewLinker)
             {
                 viewLinker->updateScaleZ(this, scaleZ);
+                viewLinker->updateCamera(this);
             }
-
-            m_viewer->navigationPolicyUpdate();
         }
 
         RiuMainWindow::instance()->updateScaleValue();

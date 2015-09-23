@@ -483,7 +483,7 @@ void RiuViewer::updateNavigationPolicy()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::navigationPolicyUpdate()
 {
-    update();
+    caf::Viewer::navigationPolicyUpdate();
 
     if (m_reservoirView)
     {
