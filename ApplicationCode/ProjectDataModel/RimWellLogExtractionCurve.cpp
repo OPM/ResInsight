@@ -364,60 +364,83 @@ void RimWellLogExtractionCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::validCurvePointIntervals(const std::vector<double>& depthValues, const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
 {
-    const size_t valuesCount = values.size();
-    CVF_ASSERT(valuesCount == depthValues.size());
+    std::vector< std::pair<size_t, size_t> > valuesIntervals;
+    validValuesIntervals(values, valuesIntervals);
+
+    size_t intervalsCount = valuesIntervals.size();
+    for (size_t intIdx = 0; intIdx < intervalsCount; intIdx++)
+    {
+        std::vector< std::pair<size_t, size_t> > depthValuesIntervals;
+        validDepthValuesIntervals(depthValues, valuesIntervals[intIdx].first, valuesIntervals[intIdx].second, depthValuesIntervals);
+
+        for (size_t dvintIdx = 0; dvintIdx < depthValuesIntervals.size(); dvintIdx++)
+        {
+            intervals.push_back(depthValuesIntervals[dvintIdx]);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::validValuesIntervals(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
+{
+    int startIdx = -1;
+    size_t vIdx = 0;
+
+    while (vIdx < values.size())
+    {
+        double value = values[vIdx];
+        if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
+        {
+            if (startIdx >= 0)
+            {
+                intervals.push_back(std::make_pair(startIdx, vIdx - 1));
+                startIdx = -1;
+            }
+        }
+        else if (startIdx < 0)
+        {
+            startIdx = (int) vIdx;
+        }
+
+        vIdx++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::validDepthValuesIntervals(const std::vector<double>& depthValues, size_t startIdx, size_t stopIdx, std::vector< std::pair<size_t, size_t> >& intervals)
+{
+    if (startIdx > stopIdx)
+    {
+        return;
+    }
+
+    if (startIdx == stopIdx || stopIdx - startIdx == 1)
+    {
+        intervals.push_back(std::make_pair(startIdx, stopIdx));
+        return;
+    }
 
     // !! TODO: Find a reasonable tolerance
     const double depthDiffTolerance = 0.1;
 
-    // Find intervals containing valid depth values
-    std::vector< std::pair<size_t, size_t> > validDepthIntervals;
-    size_t validDepthStartIdx = 0;    
-    for (size_t vIdx = 1; vIdx < valuesCount - 1; vIdx += 2)
+    // Find intervals containing depth values that should be connected
+    size_t intStartIdx = startIdx;    
+    for (size_t vIdx = startIdx + 1; vIdx < stopIdx; vIdx += 2)
     {
         if (abs(depthValues[vIdx + 1] - depthValues[vIdx]) > depthDiffTolerance)
         {
-            validDepthIntervals.push_back(std::make_pair(validDepthStartIdx, vIdx));
-            validDepthStartIdx = vIdx + 1;
+            intervals.push_back(std::make_pair(intStartIdx, vIdx));
+            intStartIdx = vIdx + 1;
         }
     }
 
-    if (validDepthStartIdx >= 0 && validDepthStartIdx < valuesCount)
+    if (intStartIdx <= stopIdx)
     {
-        validDepthIntervals.push_back(std::make_pair(validDepthStartIdx, valuesCount - 1));
-    }
-
-    // Find intervals containing valid values within intervals of valid depth values
-    for (size_t intIdx = 0; intIdx < validDepthIntervals.size(); intIdx++)
-    {
-        size_t intervalIdx1 = validDepthIntervals[intIdx].first;
-        bool prevValueValid = false;
-        for (size_t vIdx = validDepthIntervals[intIdx].first; vIdx <= validDepthIntervals[intIdx].second; vIdx++)
-        {
-            double value = values[vIdx];
-            if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
-            {
-                if (prevValueValid && vIdx > intervalIdx1)
-                {
-                    intervals.push_back(std::make_pair(intervalIdx1, vIdx - 1));
-                }
-                else intervalIdx1 = vIdx + 1;
-
-                prevValueValid = false;
-            }
-            else
-            {
-                prevValueValid = true;
-            }
-        }
-        
-        if (intIdx == validDepthIntervals.size() - 1)
-        {
-            if (intervalIdx1 >= validDepthIntervals[intIdx].first && intervalIdx1 <= validDepthIntervals[intIdx].second)
-            {
-                intervals.push_back(std::make_pair(intervalIdx1, validDepthIntervals[intIdx].second));
-            }
-        }
+        intervals.push_back(std::make_pair(intStartIdx, stopIdx));
     }
 }
 
