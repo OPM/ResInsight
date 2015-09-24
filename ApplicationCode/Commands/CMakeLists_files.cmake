@@ -8,7 +8,6 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.h
-${CEE_CURRENT_LIST_DIR}RicEclipseCasePasteFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.h
@@ -20,7 +19,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicNewViewFeature.h
-${CEE_CURRENT_LIST_DIR}RicEclipseViewPasteFeature.h
 ${CEE_CURRENT_LIST_DIR}RicPropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterExecImpl.h
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertExec.h
@@ -60,7 +58,6 @@ set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.cpp
-${CEE_CURRENT_LIST_DIR}RicEclipseCasePasteFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertExec.cpp
@@ -72,7 +69,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewViewFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicEclipseViewPasteFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterExecImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicRangeFilterInsertFeature.cpp
