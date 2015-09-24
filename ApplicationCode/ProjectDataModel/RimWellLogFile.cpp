@@ -75,7 +75,7 @@ void RimWellLogFile::setFileName(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogFile::readFile()
+bool RimWellLogFile::readFile(QString* errorMessage)
 {
     if (!m_wellLogDataFile.p())
     {
@@ -84,7 +84,7 @@ bool RimWellLogFile::readFile()
 
     m_name = QFileInfo(m_fileName).fileName();
 
-    if (!m_wellLogDataFile->open(m_fileName))
+    if (!m_wellLogDataFile->open(m_fileName, errorMessage))
     {
         m_wellLogDataFile = NULL;
         return false;

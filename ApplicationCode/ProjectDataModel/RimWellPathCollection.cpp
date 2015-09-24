@@ -138,13 +138,20 @@ void RimWellPathCollection::readWellPathFiles()
         RimWellLogFile* wellLogFile = wellPaths[wpIdx]->m_wellLogFile;
         if (wellLogFile)
         {
-            if (!wellLogFile->readFile())
+            QString errorMessage;
+            if (!wellLogFile->readFile(&errorMessage))
             {
-                QString errorMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
+                QString displayMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
+
+                if (!errorMessage.isEmpty())
+                {
+                    displayMessage += "\n\n";
+                    displayMessage += errorMessage;
+                }
 
                 QMessageBox::warning(RiuMainWindow::instance(), 
                     "File open error", 
-                    errorMessage);
+                    displayMessage);
             }
         }
 

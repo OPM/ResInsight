@@ -46,7 +46,7 @@ public:
     void    setFileName(const QString& fileName);
     QString fileName() const { return m_fileName; }
 
-    bool readFile();
+    bool readFile(QString* errorMessage);
     
     QString wellName() const;
     virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }

@@ -186,15 +186,22 @@ RimWellLogFile* RimWellPath::readWellLogFile(const QString& logFilePath)
 
     if (fi.suffix().compare("las") == 0)
     {
+        QString errorMessage;
         wellLogFile = new RimWellLogFile();
         wellLogFile->setFileName(logFilePath);
-        if (!wellLogFile->readFile())
+        if (!wellLogFile->readFile(&errorMessage))
         {
-            QString errorMessage = "Could not open the LAS file: \n" + logFilePath;
+            QString displayMessage = "Could not open the LAS file: \n" + logFilePath;
+
+            if (!errorMessage.isEmpty())
+            {
+                displayMessage += "\n\n";
+                displayMessage += errorMessage;
+            }
 
             QMessageBox::warning(RiuMainWindow::instance(), 
                 "File open error", 
-                errorMessage);
+                displayMessage);
 
             delete wellLogFile;
             wellLogFile = NULL;
