@@ -25,6 +25,8 @@
 #include <QString>
 #include <QFileInfo>
 
+#include <exception>
+
 #define RIG_WELL_FOOTPERMETER 3.2808399
 
 //--------------------------------------------------------------------------------------------------
@@ -48,15 +50,35 @@ RigWellLogFile::~RigWellLogFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::open(const QString& fileName)
+bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
 {
     close();
 
     int wellFormat = NRLib::Well::LAS;
-    NRLib::Well* well = NRLib::Well::ReadWell(fileName.toStdString(), wellFormat);
-    if (!well)
+    NRLib::Well* well = NULL;
+
+    try
     {
-        // TODO: Error handling
+        int wellFormat = NRLib::Well::LAS;
+        well = NRLib::Well::ReadWell(fileName.toStdString(), wellFormat);
+        if (!well)
+        {
+            return false;
+        }
+    }
+    catch (std::exception& e)
+    {
+        if (well)
+        {
+            delete well;
+        }
+
+        if (e.what())
+        {
+            CVF_ASSERT(errorMessage);
+            *errorMessage = e.what();
+        }
+
         return false;
     }
 

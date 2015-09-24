@@ -40,7 +40,7 @@ public:
     RigWellLogFile();
     virtual ~RigWellLogFile();
 
-    bool open(const QString& fileName);
+    bool open(const QString& fileName, QString* errorMessage);
 
     QString     wellName() const;
     QStringList wellLogChannelNames() const;
