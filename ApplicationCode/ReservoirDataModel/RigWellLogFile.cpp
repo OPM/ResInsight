@@ -164,7 +164,7 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 
     if (m_wellLogFile->HasContLog(name.toStdString()))
     {
-        if (name == m_depthLogName && depthUnit().toUpper() == "FT")
+        if (name == m_depthLogName && depthUnit().toUpper() == "F" || depthUnit().toUpper() == "FT")
         {
             std::vector<double> footValues = m_wellLogFile->GetContLog(name.toStdString());
             
