@@ -320,7 +320,7 @@ void RimCellRangeFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
-    RimViewLink* viewLink = RimViewLinker::viewLinkForView(baseView());
+    RimViewController* viewLink = RimViewLinker::viewLinkForView(baseView());
     if (viewLink && viewLink->syncRangeFilters())
     {
         activeIcon = false;

@@ -41,7 +41,7 @@ class RimCase;
 class RimCellRangeFilterCollection;
 class RiuViewer;
 class RimViewLinker;
-class RimViewLink;
+class RimViewController;
 
 namespace cvf
 {
@@ -125,7 +125,7 @@ public:
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
 
-    RimViewLink*                            controllingViewLink() const;
+    RimViewController*                            controllingViewLink() const;
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
 public:

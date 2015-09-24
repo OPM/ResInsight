@@ -797,7 +797,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicAddScriptPathFeature";
             commandIds << "RicDeleteScriptPathFeature";
         }
-        else if (dynamic_cast<RimViewLink*>(uiItem))
+        else if (dynamic_cast<RimViewController*>(uiItem))
         {
             commandIds << "RicShowAllLinkedViewsFeature";
             commandIds << "Separator";

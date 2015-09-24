@@ -586,7 +586,7 @@ void RimView::setScaleZAndUpdate(double scaleZ)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLink* RimView::controllingViewLink() const
+RimViewController* RimView::controllingViewLink() const
 {
     return RimViewLinker::viewLinkForView(this);
 }

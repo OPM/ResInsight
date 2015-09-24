@@ -45,7 +45,7 @@ void RicShowAllLinkedViewsFeature::onActionTriggered(bool isChecked)
     std::vector<RimViewLinker*> linkedViews;
     caf::SelectionManager::instance()->objectsByType(&linkedViews);
 
-    std::vector<RimViewLink*> managedViews;
+    std::vector<RimViewController*> managedViews;
     caf::SelectionManager::instance()->objectsByType(&managedViews);
     for (size_t i = 0; i < managedViews.size(); i++)
     {

@@ -45,11 +45,11 @@
 
 #include "cafPdmUiTreeOrdering.h"
 
-CAF_PDM_SOURCE_INIT(RimViewLink, "RimViewLink");
+CAF_PDM_SOURCE_INIT(RimViewController, "ViewController");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLink::RimViewLink(void)
+RimViewController::RimViewController(void)
 {
     CAF_PDM_InitObject("View Link", "", "", "");
 
@@ -77,7 +77,7 @@ RimViewLink::RimViewLink(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLink::~RimViewLink(void)
+RimViewController::~RimViewController(void)
 {
     this->removeOverrides();
 }
@@ -85,7 +85,7 @@ RimViewLink::~RimViewLink(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimViewLink::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> optionList;
 
@@ -106,7 +106,7 @@ QList<caf::PdmOptionItemInfo> RimViewLink::calculateValueOptions(const caf::PdmF
 
         for (size_t i = 0; i< views.size(); i++)
         {
-            if (views[i] != linkedViews->mainView())
+            if (views[i] != linkedViews->masterView())
             {
                 RimCase* rimCase = NULL;
                 views[i]->firstAnchestorOrThisOfType(rimCase);
@@ -135,7 +135,7 @@ QList<caf::PdmOptionItemInfo> RimViewLink::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimViewController::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.setForgetRemainingFields(true);
 }
@@ -143,7 +143,7 @@ void RimViewLink::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &isActive)
     {
@@ -224,10 +224,6 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
             {
                 geoView->setOverridePropertyFilterCollection(NULL);
             }
-
-            RimViewLinker* linkedViews = NULL;
-            this->firstAnchestorOrThisOfType(linkedViews);
-            linkedViews->configureOverrides(); // Should not be neccesary? JJS
         }
 
         updateOptionSensitivity();
@@ -246,7 +242,7 @@ void RimViewLink::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::initAfterRead()
+void RimViewController::initAfterRead()
 {
     configureOverrides();
     updateDisplayNameAndIcon();
@@ -257,7 +253,7 @@ void RimViewLink::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RimViewLink::managedEclipseView()
+RimEclipseView* RimViewController::managedEclipseView()
 {
     RimView* rimView = m_managedView;
 
@@ -267,7 +263,7 @@ RimEclipseView* RimViewLink::managedEclipseView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView* RimViewLink::managedGeoView()
+RimGeoMechView* RimViewController::managedGeoView()
 {
     RimView* rimView = m_managedView;
 
@@ -277,7 +273,7 @@ RimGeoMechView* RimViewLink::managedGeoView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::configureOverrides()
+void RimViewController::configureOverrides()
 {
     RimViewLinkerCollection* viewLinkerColl = NULL;
     this->firstAnchestorOrThisOfType(viewLinkerColl);
@@ -286,7 +282,7 @@ void RimViewLink::configureOverrides()
     RimViewLinker* viewLinker = NULL;
     this->firstAnchestorOrThisOfType(viewLinker);
 
-    RimView* masterView = viewLinker->mainView();
+    RimView* masterView = viewLinker->masterView();
     CVF_ASSERT(masterView);
     
     if (!masterView) return;
@@ -369,13 +365,13 @@ void RimViewLink::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::updateOptionSensitivity()
+void RimViewController::updateOptionSensitivity()
 {
     RimViewLinker* linkedViews = NULL;
     firstAnchestorOrThisOfType(linkedViews);
     CVF_ASSERT(linkedViews);
 
-    RimView* mainView = linkedViews->mainView();
+    RimView* mainView = linkedViews->masterView();
     CVF_ASSERT(mainView);
 
     RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(mainView);
@@ -414,7 +410,7 @@ void RimViewLink::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewLink::managedView()
+RimView* RimViewController::managedView()
 {
     return m_managedView;
 }
@@ -422,7 +418,7 @@ RimView* RimViewLink::managedView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::setManagedView(RimView* view)
+void RimViewController::setManagedView(RimView* view)
 {
     m_managedView = view;
 }
@@ -430,7 +426,7 @@ void RimViewLink::setManagedView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimViewController::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     updateOptionSensitivity();
     uiOrdering.add(&m_managedView);
@@ -450,7 +446,7 @@ void RimViewLink::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::removeOverrides()
+void RimViewController::removeOverrides()
 {
     if (m_managedView)
     {
@@ -465,7 +461,7 @@ void RimViewLink::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::updateUiIconFromActiveState()
+void RimViewController::updateUiIconFromActiveState()
 {
     RimViewLinker::applyIconEnabledState(this, m_originalIcon, !isActive());
 }
@@ -473,7 +469,7 @@ void RimViewLink::updateUiIconFromActiveState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::updateDisplayNameAndIcon()
+void RimViewController::updateDisplayNameAndIcon()
 {
     RimViewLinker::findNameAndIconFromView(&name.v(), &m_originalIcon, managedView());
 }
@@ -481,7 +477,7 @@ void RimViewLink::updateDisplayNameAndIcon()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::doSyncCamera()
+void RimViewController::doSyncCamera()
 {
     RimViewLinkerCollection* viewLinkerColl = NULL;
     this->firstAnchestorOrThisOfType(viewLinkerColl);
@@ -489,14 +485,14 @@ void RimViewLink::doSyncCamera()
 
     RimViewLinker* viewLinker = NULL;
     this->firstAnchestorOrThisOfType(viewLinker);
-    viewLinker->updateScaleZ(viewLinker->mainView(), viewLinker->mainView()->scaleZ());
-    viewLinker->updateCamera(viewLinker->mainView());
+    viewLinker->updateScaleZ(viewLinker->masterView(), viewLinker->masterView()->scaleZ());
+    viewLinker->updateCamera(viewLinker->masterView());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::doSyncTimeStep()
+void RimViewController::doSyncTimeStep()
 {
     RimViewLinkerCollection* viewLinkerColl = NULL;
     this->firstAnchestorOrThisOfType(viewLinkerColl);
@@ -513,7 +509,7 @@ void RimViewLink::doSyncTimeStep()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLink::doSyncCellResult()
+void RimViewController::doSyncCellResult()
 {
     RimViewLinker* viewLinker = ownerViewLinker();
     viewLinker->updateCellResult();
@@ -522,7 +518,7 @@ void RimViewLink::doSyncCellResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLinker* RimViewLink::ownerViewLinker()
+RimViewLinker* RimViewController::ownerViewLinker()
 {
     RimViewLinker* viewLinker = NULL;
     this->firstAnchestorOrThisOfType(viewLinker);
@@ -534,7 +530,7 @@ RimViewLinker* RimViewLink::ownerViewLinker()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigCaseToCaseCellMapper* RimViewLink::cellMapper()
+const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 {
     RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(masterView());
     RimEclipseView* dependEclipseView = managedEclipseView();
@@ -612,15 +608,15 @@ const RigCaseToCaseCellMapper* RimViewLink::cellMapper()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewLink::masterView()
+RimView* RimViewController::masterView()
 {
-    return ownerViewLinker()->mainView();
+    return ownerViewLinker()->masterView();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewLink::isVisibleCellsSyncPossible()
+bool RimViewController::isVisibleCellsSyncPossible()
 {
     RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(masterView());
     RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(masterView());
@@ -641,7 +637,7 @@ bool RimViewLink::isVisibleCellsSyncPossible()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewLink::syncVisibleCells()
+bool RimViewController::syncVisibleCells()
 {
     if (isVisibleCellsSyncPossible())
     {

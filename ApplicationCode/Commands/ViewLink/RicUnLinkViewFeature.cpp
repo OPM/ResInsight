@@ -44,7 +44,7 @@ bool RicUnLinkViewFeature::isCommandEnabled()
     RimViewLinker* viewLinker = proj->findViewLinkerFromView(activeView);
     if (viewLinker)
     {
-        if (viewLinker->mainView() == activeView)
+        if (viewLinker->masterView() == activeView)
         {
             return false;
         }
@@ -69,7 +69,7 @@ void RicUnLinkViewFeature::onActionTriggered(bool isChecked)
     {
         for (size_t i = 0; i < viewLinker->viewLinks.size(); i++)
         {
-            RimViewLink* viewLink = viewLinker->viewLinks[i];
+            RimViewController* viewLink = viewLinker->viewLinks[i];
             if (viewLink->managedView() == activeView)
             {
                 caf::SelectionManager::instance()->setSelectedItem(viewLink);

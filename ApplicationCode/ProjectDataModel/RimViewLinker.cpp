@@ -49,7 +49,7 @@
 
 
 
-CAF_PDM_SOURCE_INIT(RimViewLinker, "RimViewLinker");
+CAF_PDM_SOURCE_INIT(RimViewLinker, "ViewLinker");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -60,9 +60,9 @@ RimViewLinker::RimViewLinker(void)
     CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_mainView, "MainView", "Main View", "", "", "");
-    m_mainView.uiCapability()->setUiChildrenHidden(true);
-    m_mainView.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_masterView, "MainView", "Main View", "", "", "");
+    m_masterView.uiCapability()->setUiChildrenHidden(true);
+    m_masterView.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&viewLinks, "ManagedViews", "Managed Views", "", "", "");
     viewLinks.uiCapability()->setUiHidden(true);
@@ -88,9 +88,9 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 
     if (!isActive()) return;
 
-    if (mainView() != sourceView)
+    if (masterView() != sourceView)
     {
-        RimViewLink* sourceViewLink = viewLinkForView(sourceView);
+        RimViewController* sourceViewLink = viewLinkForView(sourceView);
         CVF_ASSERT(sourceViewLink);
 
         if (!sourceViewLink->isActive() || !sourceViewLink->syncTimeStep())
@@ -99,15 +99,15 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
         }
     }
 
-    if (m_mainView && m_mainView->viewer() && sourceView != m_mainView)
+    if (m_masterView && m_masterView->viewer() && sourceView != m_masterView)
     {
-        m_mainView->viewer()->setCurrentFrame(timeStep);
-        m_mainView->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
+        m_masterView->viewer()->setCurrentFrame(timeStep);
+        m_masterView->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
     }
 
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        RimViewLink* viewLink = viewLinks[i];
+        RimViewController* viewLink = viewLinks[i];
         if (!viewLink->isActive) continue;
 
         if (viewLink->managedView() && viewLink->managedView() != sourceView)
@@ -128,7 +128,7 @@ void RimViewLinker::updateCellResult()
 {
     if (!isActive()) return;
 
-    RimView* rimView = m_mainView;
+    RimView* rimView = m_masterView;
     RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (masterEclipseView && masterEclipseView->cellResult())
     {
@@ -136,7 +136,7 @@ void RimViewLinker::updateCellResult()
 
         for (size_t i = 0; i < viewLinks.size(); i++)
         {
-            RimViewLink* viewLink = viewLinks[i];
+            RimViewController* viewLink = viewLinks[i];
             if (!viewLink->isActive) continue;
 
             if (viewLink->managedView())
@@ -166,7 +166,7 @@ void RimViewLinker::updateCellResult()
 
         for (size_t i = 0; i < viewLinks.size(); i++)
         {
-            RimViewLink* viewLink = viewLinks[i];
+            RimViewController* viewLink = viewLinks[i];
             if (!viewLink->isActive) continue;
 
             if (viewLink->managedView())
@@ -217,7 +217,7 @@ void RimViewLinker::configureOverrides()
 {
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        RimViewLink* viewLink = viewLinks[i];
+        RimViewController* viewLink = viewLinks[i];
         if (viewLink->isActive)
         {
             viewLink->configureOverrides();
@@ -236,9 +236,9 @@ void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>
 {
     if (!isActive()) return;
 
-    if (source != m_mainView())
+    if (source != m_masterView())
     {
-        views.push_back(m_mainView());
+        views.push_back(m_masterView());
     }
 
     for (size_t i = 0; i < viewLinks.size(); i++)
@@ -258,11 +258,11 @@ void RimViewLinker::applyAllOperations()
     configureOverrides();
 
     updateCellResult();
-    updateTimeStep(m_mainView, m_mainView->currentTimeStep());
+    updateTimeStep(m_masterView, m_masterView->currentTimeStep());
     updateRangeFilters();
     updatePropertyFilters();
-    updateScaleZ(m_mainView, m_mainView->scaleZ());
-    updateCamera(m_mainView);
+    updateScaleZ(m_masterView, m_masterView->scaleZ());
+    updateCamera(m_masterView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,9 +286,9 @@ QString RimViewLinker::displayNameForView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::setMainView(RimView* view)
+void RimViewLinker::setMasterView(RimView* view)
 {
-    m_mainView = view;
+    m_masterView = view;
 
     setNameAndIcon();
     updateUiIcon();
@@ -297,9 +297,9 @@ void RimViewLinker::setMainView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewLinker::mainView()
+RimView* RimViewLinker::masterView()
 {
-    return m_mainView;
+    return m_masterView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +307,7 @@ RimView* RimViewLinker::mainView()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::allViews(std::vector<RimView*>& views)
 {
-    views.push_back(m_mainView());
+    views.push_back(m_masterView());
 
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
@@ -334,9 +334,9 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 {
     if (!isActive()) return;
 
-    if (mainView() != sourceView)
+    if (masterView() != sourceView)
     {
-        RimViewLink* sourceViewLink = viewLinkForView(sourceView);
+        RimViewController* sourceViewLink = viewLinkForView(sourceView);
         CVF_ASSERT(sourceViewLink);
 
         if (!sourceViewLink->isActive() || !sourceViewLink->syncCamera())
@@ -397,7 +397,7 @@ void RimViewLinker::updateUiIcon()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::setNameAndIcon()
 {
-    RimViewLinker::findNameAndIconFromView(&m_name.v(), &m_originalIcon, m_mainView);
+    RimViewLinker::findNameAndIconFromView(&m_name.v(), &m_originalIcon, m_masterView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,15 +498,15 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLink* RimViewLinker::viewLinkForView(const RimView* view)
+RimViewController* RimViewLinker::viewLinkForView(const RimView* view)
 {
-    RimViewLink* viewLink = NULL;
+    RimViewController* viewLink = NULL;
     std::vector<caf::PdmObjectHandle*> reffingObjs;
 
     view->objectsWithReferringPtrFields(reffingObjs);
     for (size_t i = 0; i < reffingObjs.size(); ++i)
     {
-        viewLink = dynamic_cast<RimViewLink*>(reffingObjs[i]);
+        viewLink = dynamic_cast<RimViewController*>(reffingObjs[i]);
         if (viewLink) break;
     }
 
@@ -540,7 +540,7 @@ RimViewLinker* RimViewLinker::viewLinkerForMainOrControlledView(RimView* view)
     RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(view);
     if (!viewLinker)
     {
-        RimViewLink* viewLink = RimViewLinker::viewLinkForView(view);
+        RimViewController* viewLink = RimViewLinker::viewLinkForView(view);
         if (viewLink)
         {
             viewLinker = viewLink->ownerViewLinker();
@@ -559,7 +559,7 @@ void RimViewLinker::updateCamera(RimView* sourceView)
     
     if (!isActive()) return;
 
-    RimViewLink* viewLink = RimViewLinker::viewLinkForView(sourceView);
+    RimViewController* viewLink = RimViewLinker::viewLinkForView(sourceView);
     if (viewLink)
     {
         if ((!viewLink->isActive() || !viewLink->syncCamera()))

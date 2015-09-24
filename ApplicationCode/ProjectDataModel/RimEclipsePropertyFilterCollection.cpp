@@ -156,7 +156,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 
     RimEclipseView* view = NULL;
     this->firstAnchestorOrThisOfType(view);
-    RimViewLink* viewLink = RimViewLinker::viewLinkForView(view);
+    RimViewController* viewLink = RimViewLinker::viewLinkForView(view);
     if (viewLink && viewLink->syncPropertyFilters())
     {
         activeIcon = false;

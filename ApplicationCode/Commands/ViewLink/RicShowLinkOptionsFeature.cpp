@@ -63,7 +63,7 @@ void RicShowLinkOptionsFeature::onActionTriggered(bool isChecked)
     RimViewLinker* viewLinker = proj->findViewLinkerFromView(activeView);
     if (viewLinker)
     {
-        if (viewLinker->mainView() == activeView)
+        if (viewLinker->masterView() == activeView)
         {
             RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(viewLinker);
 
@@ -72,7 +72,7 @@ void RicShowLinkOptionsFeature::onActionTriggered(bool isChecked)
 
         for (size_t i = 0; i < viewLinker->viewLinks.size(); i++)
         {
-            RimViewLink* viewLink = viewLinker->viewLinks[i];
+            RimViewController* viewLink = viewLinker->viewLinks[i];
             if (viewLink->managedView() == activeView)
             {
                 RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(viewLink);

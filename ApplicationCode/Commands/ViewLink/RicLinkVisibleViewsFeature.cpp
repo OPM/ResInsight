@@ -135,9 +135,9 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
         for (size_t i = 0; i < views.size(); i++)
         {
             RimView* rimView = views[i];
-            if (rimView == viewLinker->mainView()) continue;
+            if (rimView == viewLinker->masterView()) continue;
 
-            RimViewLink* viewLink = new RimViewLink;
+            RimViewController* viewLink = new RimViewController;
             viewLink->setManagedView(rimView);
 
             viewLinker->viewLinks.push_back(viewLink);
@@ -166,14 +166,14 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
         RimView* masterView = featureUi.masterView();
         viewLinker = new RimViewLinker;
         proj->viewLinkerCollection()->viewLinker = viewLinker;
-        viewLinker->setMainView(masterView);
+        viewLinker->setMasterView(masterView);
 
         for (size_t i = 0; i < views.size(); i++)
         {
             RimView* rimView = views[i];
             if (rimView == masterView) continue;
 
-            RimViewLink* viewLink = new RimViewLink;
+            RimViewController* viewLink = new RimViewController;
             viewLink->setManagedView(rimView);
 
             viewLinker->viewLinks.push_back(viewLink);

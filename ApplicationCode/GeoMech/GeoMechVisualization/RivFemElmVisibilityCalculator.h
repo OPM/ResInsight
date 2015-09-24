@@ -28,7 +28,7 @@ namespace cvf
 
 class RigFemPart;
 class RimGeoMechPropertyFilterCollection;
-class RimViewLink;
+class RimViewController;
 
 class RivFemElmVisibilityCalculator
 {
@@ -45,7 +45,7 @@ public:
 
     static void computeOverriddenCellVisibility(cvf::UByteArray* elmVisibilities, 
                                                 const RigFemPart* femPart , 
-                                                RimViewLink* masterViewLink);
+                                                RimViewController* masterViewLink);
 
 };
 

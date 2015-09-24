@@ -174,12 +174,12 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
 //--------------------------------------------------------------------------------------------------
 void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(cvf::UByteArray* elmVisibilities, 
                                                                     const RigFemPart* femPart, 
-                                                                    RimViewLink* masterViewLink)
+                                                                    RimViewController* masterViewLink)
 {
     CVF_ASSERT(elmVisibilities != NULL);
     CVF_ASSERT(femPart != NULL);
 
-    RimView* masterView = masterViewLink->ownerViewLinker()->mainView();
+    RimView* masterView = masterViewLink->ownerViewLinker()->masterView();
     cvf::ref<cvf::UByteArray> totCellVisibility =  masterView->currentTotalCellVisibility();
 
     int elmCount = femPart->elementCount();

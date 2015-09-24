@@ -33,7 +33,7 @@ namespace cvf
     class BoundingBox;
 }
 
-class RimViewLink;
+class RimViewController;
 class RiuViewer;
 class RimView;
 
@@ -49,17 +49,17 @@ public:
     RimViewLinker(void);
     virtual ~RimViewLinker(void);
 
-    void                                    setMainView(RimView* view);
-    RimView*                                mainView();
+    void                                    setMasterView(RimView* view);
+    RimView*                                masterView();
 
-    caf::PdmChildArrayField<RimViewLink*>   viewLinks;
+    caf::PdmChildArrayField<RimViewController*>   viewLinks;
 
     void                                    applyAllOperations();
+    void                                    removeOverrides();
 
     void                                    updateCamera(RimView* sourceView);
     void                                    updateTimeStep(RimView* sourceView, int timeStep);
     void                                    updateScaleZ(RimView* sourceView, double scaleZ);
-    void                                    allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
 
     void                                    updateCellResult();
     void                                    updateRangeFilters();
@@ -67,9 +67,6 @@ public:
 
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
-
-    void                                    configureOverrides();
-    void                                    removeOverrides();
 
     void                                    allViews(std::vector<RimView*>& views);
 
@@ -81,7 +78,9 @@ public:
 
 public:
     static QString                          displayNameForView(RimView* view);
-    static RimViewLink*                     viewLinkForView(const RimView* view);
+
+    // Move to RimView and make nonstatic
+    static RimViewController*               viewLinkForView(const RimView* view);
     static RimViewLinker*                   viewLinkerIfMainView(RimView* view);
     static RimViewLinker*                   viewLinkerForMainOrControlledView(RimView* view);
 
@@ -90,11 +89,14 @@ protected:
     virtual void                            initAfterRead();
 
 private:
+    void                                    allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
+    void                                    configureOverrides();
+
     bool                                    isActive();
     static bool                             isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 
 private:
-    caf::PdmPtrField<RimView*>              m_mainView;
+    caf::PdmPtrField<RimView*>              m_masterView;
     caf::PdmField<QString>                  m_name;
     QIcon                                   m_originalIcon;
 };

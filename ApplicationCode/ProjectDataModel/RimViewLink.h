@@ -36,13 +36,13 @@ class RigCaseToCaseCellMapper;
 ///  
 ///  
 //==================================================================================================
-class RimViewLink : public caf::PdmObject
+class RimViewController : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewLink(void);
-    virtual ~RimViewLink(void);
+    RimViewController(void);
+    virtual ~RimViewController(void);
 
     caf::PdmField<bool>         isActive;
     caf::PdmField<QString>      name;

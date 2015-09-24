@@ -44,7 +44,7 @@ bool RicSetMasterViewFeature::isCommandEnabled()
 
     RimProject* proj = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = proj->findViewLinkerFromView(activeView);
-    if (viewLinker && viewLinker->mainView() == activeView)
+    if (viewLinker && viewLinker->masterView() == activeView)
     {
         return false;
     }
@@ -68,9 +68,9 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
     RimProject* proj = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
 
-    RimView* previousMasterView = viewLinker->mainView();
+    RimView* previousMasterView = viewLinker->masterView();
 
-    RimViewLink* previousViewLink = RimViewLinker::viewLinkForView(activeView);
+    RimViewController* previousViewLink = RimViewLinker::viewLinkForView(activeView);
     if (previousViewLink)
     {
         size_t indexToErase = cvf::UNDEFINED_SIZE_T;
@@ -91,11 +91,11 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
     }
 
     viewLinker->removeOverrides();
-    viewLinker->setMainView(activeView);
+    viewLinker->setMasterView(activeView);
 
     if (previousMasterView)
     {
-        RimViewLink* viewLink = new RimViewLink;
+        RimViewController* viewLink = new RimViewController;
         viewLink->setManagedView(previousMasterView);
 
         viewLinker->viewLinks.push_back(viewLink);
