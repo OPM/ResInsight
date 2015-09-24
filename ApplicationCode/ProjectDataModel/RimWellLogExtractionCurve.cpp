@@ -506,7 +506,7 @@ QString RimWellLogExtractionCurve::createCurveName()
         {
             if (!generatedCurveName.isEmpty())
             {
-                generatedCurveName += "|";
+                generatedCurveName += ",";
             }
             generatedCurveName += m_case->caseUserDescription();
         }
@@ -515,7 +515,7 @@ QString RimWellLogExtractionCurve::createCurveName()
         {
             if (!generatedCurveName.isEmpty())
             {
-                generatedCurveName += "|";
+                generatedCurveName += ",";
             }
 
             generatedCurveName += m_eclipseResultDefinition->resultVariable();
@@ -535,7 +535,7 @@ QString RimWellLogExtractionCurve::createCurveName()
     {
         if (!generatedCurveName.isEmpty())
         {
-            generatedCurveName += "|";
+            generatedCurveName += ",";
         }
 
         size_t maxTimeStep = 0;
