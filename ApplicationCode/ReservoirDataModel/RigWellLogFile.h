@@ -56,4 +56,5 @@ private:
 
     NRLib::Well*    m_wellLogFile;
     QStringList     m_wellLogChannelNames;
+    QString         m_depthLogName;
 };

@@ -54,7 +54,6 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
 {
     close();
 
-    int wellFormat = NRLib::Well::LAS;
     NRLib::Well* well = NULL;
 
     try
@@ -89,7 +88,13 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
     std::map<std::string, std::vector<double> >::const_iterator itCL;
     for (itCL = contLogs.begin(); itCL != contLogs.end(); itCL++)
     {
-        wellLogNames.append(QString::fromStdString(itCL->first));
+        QString logName = QString::fromStdString(itCL->first);
+        wellLogNames.append(logName);
+
+        if (logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH")
+        {
+            m_depthLogName = logName;
+        }
     }
 
     // TODO: Possibly handle discrete logs
@@ -120,6 +125,7 @@ void RigWellLogFile::close()
     }
 
     m_wellLogChannelNames.clear();
+    m_depthLogName.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,7 +150,7 @@ QStringList RigWellLogFile::wellLogChannelNames() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogFile::depthValues() const
 {
-    return values("DEPT");
+    return values(m_depthLogName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,7 +164,7 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 
     if (m_wellLogFile->HasContLog(name.toStdString()))
     {
-        if (depthUnit().toUpper() == "FT")
+        if (name == m_depthLogName && depthUnit().toUpper() == "FT")
         {
             std::vector<double> footValues = m_wellLogFile->GetContLog(name.toStdString());
             
