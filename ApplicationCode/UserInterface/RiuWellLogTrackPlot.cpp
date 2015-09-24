@@ -205,7 +205,7 @@ bool RiuWellLogTrackPlot::eventFilter(QObject* watched, QEvent* event)
             QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
             if (mouseEvent)
             {
-                if (mouseEvent->button() == Qt::LeftButton)
+                if (mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonPress)
                 {
                     selectClosestCurve(mouseEvent->pos());
                 }
