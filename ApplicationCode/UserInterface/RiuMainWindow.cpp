@@ -2259,7 +2259,18 @@ std::vector<int> RiuMainWindow::windowGeometryForWidget(QWidget* widget)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::tileWindows()
 {
+    // Based on workaround described here
+    // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
+
+    QMdiSubWindow *a = m_mdiArea->activeSubWindow();
+    QList<QMdiSubWindow *> list = m_mdiArea->subWindowList(m_mdiArea->activationOrder());
+    for (int i = 0; i < list.count(); i++)
+    {
+        m_mdiArea->setActiveSubWindow(list[i]);
+    }
+
     m_mdiArea->tileSubWindows();
+    m_mdiArea->setActiveSubWindow(a);
 }
 
 //--------------------------------------------------------------------------------------------------
