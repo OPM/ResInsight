@@ -49,7 +49,7 @@ void RigFemPart::preAllocateElementStorage(int elementCount)
     m_elementTypes.reserve(elementCount);
     m_elementConnectivityStartIndices.reserve(elementCount);
 
-    m_allAlementConnectivities.reserve(elementCount*8);
+    m_allElementConnectivities.reserve(elementCount*8);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,12 +59,12 @@ void RigFemPart::appendElement(RigElementType elmType, int id, const int* connec
 {
     m_elementId.push_back(id);
     m_elementTypes.push_back(elmType);
-    m_elementConnectivityStartIndices.push_back(m_allAlementConnectivities.size());
+    m_elementConnectivityStartIndices.push_back(m_allElementConnectivities.size());
 
     int nodeCount = RigFemTypes::elmentNodeCount(elmType);
     for (int lnIdx = 0; lnIdx < nodeCount; ++lnIdx)
     {
-        m_allAlementConnectivities.push_back(connectivities[lnIdx]);
+        m_allElementConnectivities.push_back(connectivities[lnIdx]);
     }
 }
 

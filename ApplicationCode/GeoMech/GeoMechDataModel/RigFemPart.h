@@ -58,10 +58,10 @@ public:
     
     int                         elmId(size_t elementIdx) const             { return m_elementId[elementIdx]; }
     RigElementType              elementType(size_t elementIdx) const       { return m_elementTypes[elementIdx]; }
-    const int*                  connectivities(size_t elementIdx) const    { return &m_allAlementConnectivities[m_elementConnectivityStartIndices[elementIdx]];}
+    const int*                  connectivities(size_t elementIdx) const    { return &m_allElementConnectivities[m_elementConnectivityStartIndices[elementIdx]];}
 
     size_t                      elementNodeResultIdx(int elementIdx, int elmLocalNodeIdx) const { return m_elementConnectivityStartIndices[elementIdx] + elmLocalNodeIdx;}
-    int                         nodeIdxFromElementNodeResultIdx(size_t elmNodeResultIdx)  const { return m_allAlementConnectivities[elmNodeResultIdx]; }
+    int                         nodeIdxFromElementNodeResultIdx(size_t elmNodeResultIdx)  const { return m_allElementConnectivities[elmNodeResultIdx]; }
 
     RigFemPartNodes&            nodes()                                    {return m_nodes;}
     const RigFemPartNodes&      nodes() const                              {return m_nodes;}
@@ -91,7 +91,7 @@ private:
     std::vector<int>            m_elementId;
     std::vector<RigElementType> m_elementTypes;
     std::vector<size_t>         m_elementConnectivityStartIndices;
-    std::vector<int>            m_allAlementConnectivities;
+    std::vector<int>            m_allElementConnectivities;
 
     RigFemPartNodes             m_nodes;
 
