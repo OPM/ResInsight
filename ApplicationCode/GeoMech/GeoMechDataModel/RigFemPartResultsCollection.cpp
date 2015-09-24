@@ -354,28 +354,60 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             ||  resVarAddr.componentName == "S22"  
             ||  resVarAddr.componentName == "S33" ))
     {
-        RigFemScalarResultFrames * srcNSDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S", resVarAddr.componentName));
+        RigFemScalarResultFrames * srcSDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S", resVarAddr.componentName));
         RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR", ""));
 
         RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
         const RigFemPart * femPart = m_femParts->part(partIndex);
-        int frameCount = srcNSDataFrames->frameCount();
+        int frameCount = srcSDataFrames->frameCount();
+        
+        const float inf = std::numeric_limits<float>::infinity();
+
         for (int fIdx = 0; fIdx < frameCount; ++fIdx)
         {
-            const std::vector<float>& srcNSFrameData = srcNSDataFrames->frameData(fIdx);
+            const std::vector<float>& srcSFrameData = srcSDataFrames->frameData(fIdx);
             const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
             
             std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
 
-            size_t valCount = srcNSFrameData.size();
+            size_t valCount = srcSFrameData.size();
             dstFrameData.resize(valCount);
             int nodeIdx = 0;
-            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+
+            int elementCount = femPart->elementCount();
+            for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
             {
-                nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(vIdx);
-                float por = srcPORFrameData[nodeIdx];
-                if (por == std::numeric_limits<float>::infinity()) por = 0.0f;
-                dstFrameData[vIdx] = -srcNSFrameData[vIdx] + por;
+                int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
+                bool hasInfPor = false;
+                bool hasPor = false;
+
+                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                    nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+
+                    float por = srcPORFrameData[nodeIdx];
+                    if (por == inf) 
+                    {
+                        por = 0.0f;
+                        hasInfPor = true;
+                    }
+                    else
+                    {
+                       hasPor = true; 
+                    }
+                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
+                }
+
+                if (hasPor && hasInfPor) 
+                {   // We have both nodes with and without POR defined in element
+                    // Recalculate element results as if no POR was present
+                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                    {
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    }
+                }
             }
         }
         return dstDataFrames; 
