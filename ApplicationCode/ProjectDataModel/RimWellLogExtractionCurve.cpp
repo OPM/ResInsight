@@ -388,7 +388,8 @@ void RimWellLogExtractionCurve::validValuesIntervals(const std::vector<double>& 
     int startIdx = -1;
     size_t vIdx = 0;
 
-    while (vIdx < values.size())
+    size_t valueCount = values.size();
+    while (vIdx < valueCount)
     {
         double value = values[vIdx];
         if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
@@ -405,6 +406,11 @@ void RimWellLogExtractionCurve::validValuesIntervals(const std::vector<double>& 
         }
 
         vIdx++;
+    }
+
+    if (startIdx >= 0 && startIdx < valueCount)
+    {
+        intervals.push_back(std::make_pair(startIdx, valueCount - 1));
     }
 }
 
