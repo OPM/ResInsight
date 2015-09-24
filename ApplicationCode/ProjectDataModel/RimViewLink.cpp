@@ -151,7 +151,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         if (syncCamera())       doSyncCamera();
         if (syncTimeStep())     doSyncTimeStep();
         if (syncCellResult())   doSyncCellResult();
-        configureOverrides();
+        updateOverrides();
     }
     else if (changedField == &syncCamera && syncCamera())
     {
@@ -181,15 +181,15 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
     else if (changedField == &syncRangeFilters)
     {
-        configureOverrides();
+        updateOverrides();
     }
     else if (changedField == &syncPropertyFilters)
     {
-        configureOverrides();
+        updateOverrides();
     }
     else if (changedField == &m_managedView)
     {
-        configureOverrides();
+        updateOverrides();
 
         if (m_managedView)
         {
@@ -234,7 +234,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     else if (&m_syncVisibleCells == changedField)
     {
         updateOptionSensitivity();
-        configureOverrides();
+        updateOverrides();
     }
 }
 
@@ -243,7 +243,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimViewController::initAfterRead()
 {
-    configureOverrides();
+    updateOverrides();
     updateDisplayNameAndIcon();
     updateOptionSensitivity();
 }
@@ -271,20 +271,20 @@ RimGeoMechView* RimViewController::managedGeoView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::configureOverrides()
+void RimViewController::updateOverrides()
 {
-    RimViewLinkerCollection* viewLinkerColl = NULL;
-    this->firstAnchestorOrThisOfType(viewLinkerColl);
-    if (!viewLinkerColl->isActive()) return;
+    RimViewLinker* viewLinker = ownerViewLinker();
 
-    RimViewLinker* viewLinker = NULL;
-    this->firstAnchestorOrThisOfType(viewLinker);
-
+    if (!viewLinker->isActive() || !isActive) 
+    {
+        removeOverrides();
+        return;
+    }
+    
     RimView* masterView = viewLinker->masterView();
+
     CVF_ASSERT(masterView);
     
-    if (!masterView) return;
-
     if (m_managedView)
     {
         RimEclipseView* manEclView = managedEclipseView();
@@ -300,18 +300,12 @@ void RimViewController::configureOverrides()
             manEclView->updateIconStateForFilterCollections();
         }
 
-        if (!isActive)
+        if (syncVisibleCells())
         {
             m_managedView->setOverrideRangeFilterCollection(NULL);
             if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
             if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
-        }
-        else if (syncVisibleCells())
-        {
-            m_managedView->setOverrideRangeFilterCollection(NULL);
-            if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
-            if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
-
+            m_managedView->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
         }
         else
         {
@@ -363,6 +357,21 @@ void RimViewController::configureOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimViewController::removeOverrides()
+{
+    if (m_managedView)
+    {
+        RimEclipseView* manEclView = managedEclipseView();
+        RimGeoMechView* manGeoView = managedGeoView();
+        m_managedView->setOverrideRangeFilterCollection(NULL);
+        if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
+        if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimViewController::updateOptionSensitivity()
 {
     RimViewLinker* linkedViews = NULL;
@@ -402,7 +411,7 @@ void RimViewController::updateOptionSensitivity()
         this->syncPropertyFilters.uiCapability()->setUiReadOnly(false);
     }
 
-    m_syncVisibleCells.uiCapability()->setUiReadOnly(!this->isVisibleCellsSyncPossible());
+    m_syncVisibleCells.uiCapability()->setUiReadOnly(!this->isMasterAndDepViewDifferentType());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -419,6 +428,10 @@ RimView* RimViewController::managedView()
 void RimViewController::setManagedView(RimView* view)
 {
     m_managedView = view;
+
+    this->initAfterReadRecursively();
+    this->updateOptionSensitivity();
+    this->updateDisplayNameAndIcon();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,20 +454,6 @@ void RimViewController::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     visibleCells->add(&syncPropertyFilters);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimViewController::removeOverrides()
-{
-    if (m_managedView)
-    {
-        RimEclipseView* manEclView = managedEclipseView();
-        RimGeoMechView* manGeoView = managedGeoView();
-        m_managedView->setOverrideRangeFilterCollection(NULL);
-        if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
-        if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -607,7 +606,7 @@ RimView* RimViewController::masterView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isVisibleCellsSyncPossible()
+bool RimViewController::isMasterAndDepViewDifferentType()
 {
     RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(masterView());
     RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(masterView());
@@ -630,13 +629,63 @@ bool RimViewController::isVisibleCellsSyncPossible()
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::syncVisibleCells()
 {
-    if (isVisibleCellsSyncPossible())
+    if (isMasterAndDepViewDifferentType())
     {
-        return m_syncVisibleCells();
+        if (ownerViewLinker()->isActive() && this->isActive())
+        {
+            return m_syncVisibleCells();
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {
         return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView()
+{
+    if (!this->isActive) return;
+
+    if (this->syncVisibleCells()
+        || this->syncPropertyFilters()
+        || this->syncRangeFilters()
+        )
+    {
+        if (this->managedView())
+        {
+            this->managedView()->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType)
+{
+    if (!this->isActive) return;
+
+    if (this->syncVisibleCells()
+        || this->syncPropertyFilters()
+        || this->syncRangeFilters()
+        )
+    {
+        if (this->managedView())
+        {
+            if (this->syncVisibleCells()) {
+                this->managedView()->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
+            }
+            else{
+                this->managedView()->scheduleGeometryRegen(geometryType);
+            }
+        }
     }
 }
 

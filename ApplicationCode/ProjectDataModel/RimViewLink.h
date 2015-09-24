@@ -26,6 +26,8 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 
+#include "RivCellSetEnum.h"
+
 class RimView;
 class RimEclipseView;
 class RimGeoMechView;
@@ -44,54 +46,60 @@ public:
     RimViewController(void);
     virtual ~RimViewController(void);
 
-    caf::PdmField<bool>         isActive;
-    caf::PdmField<QString>      name;
+    caf::PdmField<bool>                     isActive;
 
-    RimView*                    managedView();
-    void                        setManagedView(RimView* view);
-    RimView*                    masterView();
-    RimViewLinker*              ownerViewLinker();
+    RimView*                                managedView();
+    void                                    setManagedView(RimView* view);
 
-    const RigCaseToCaseCellMapper* cellMapper();
+    RimView*                                masterView();
+    RimViewLinker*                          ownerViewLinker();
+
+    const RigCaseToCaseCellMapper*          cellMapper();
 
     // Linked (both ways) properties
-    caf::PdmField<bool>         syncCamera;
-    caf::PdmField<bool>         syncTimeStep;
+    caf::PdmField<bool>                     syncCamera;
+    caf::PdmField<bool>                     syncTimeStep;
 
     // Overridden properties
-    caf::PdmField<bool>         syncCellResult;
-    bool                        syncVisibleCells();
-    caf::PdmField<bool>         syncRangeFilters;
-    caf::PdmField<bool>         syncPropertyFilters;
+    caf::PdmField<bool>                     syncCellResult;
+    bool                                    syncVisibleCells();
+    caf::PdmField<bool>                     syncRangeFilters;
+    caf::PdmField<bool>                     syncPropertyFilters;
 
-    void                        configureOverrides();
-    void                        updateOptionSensitivity();
-    void                        removeOverrides();
+    void scheduleCreateDisplayModelAndRedrawForDependentView();
+    void scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
+    void                                    updateOverrides();
+    void                                    updateOptionSensitivity();
+    void                                    removeOverrides();
 
-    void                        updateDisplayNameAndIcon();
+    void                                    updateDisplayNameAndIcon();
 
-protected:
+protected:  // Pdm overridden methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    virtual void                            initAfterRead();
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
+    virtual void                            initAfterRead();
+    
+    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
     virtual caf::PdmFieldHandle*            objectToggleField()     { return &isActive; }
 
 private:
-    void            doSyncCamera();
-    void            doSyncTimeStep();
-    void            doSyncCellResult();
+    void                                    doSyncCamera();
+    void                                    doSyncTimeStep();
+    void                                    doSyncCellResult();
 
-    bool            isVisibleCellsSyncPossible();
+    bool                                    isMasterAndDepViewDifferentType();
 
-    RimEclipseView* managedEclipseView();
-    RimGeoMechView* managedGeoView();
+    RimEclipseView*                         managedEclipseView();
+    RimGeoMechView*                         managedGeoView();
 
-    caf::PdmPtrField<RimView*>  m_managedView;
-    QIcon                       m_originalIcon;
-    cvf::ref<RigCaseToCaseCellMapper> m_caseToCaseCellMapper;
-    caf::PdmField<bool>         m_syncVisibleCells;
+private:
+    caf::PdmField<QString>                  name;
+    caf::PdmPtrField<RimView*>              m_managedView;
+    caf::PdmField<bool>                     m_syncVisibleCells;
 
+    QIcon                                   m_originalIcon;
+    cvf::ref<RigCaseToCaseCellMapper>       m_caseToCaseCellMapper;
 };

@@ -90,7 +90,7 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 
     if (masterView() != sourceView)
     {
-        RimViewController* sourceViewLink = viewLinkForView(sourceView);
+        RimViewController* sourceViewLink = sourceView->controllingViewLink();
         CVF_ASSERT(sourceViewLink);
 
         if (!sourceViewLink->isActive() || !sourceViewLink->syncTimeStep())
@@ -201,7 +201,7 @@ void RimViewLinker::updateOverrides()
         RimViewController* viewLink = viewLinks[i];
         if (isViewlinkerActive && viewLink->isActive)
         {
-            viewLink->configureOverrides();
+            viewLink->updateOverrides();
         }
         else
         {
@@ -238,9 +238,12 @@ void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>
 
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        if (viewLinks[i]->isActive() && viewLinks[i]->syncCamera && viewLinks[i]->managedView() && source != viewLinks[i]->managedView())
+        if (viewLinks[i]->managedView() && source != viewLinks[i]->managedView())
         {
-            views.push_back(viewLinks[i]->managedView());
+            if (viewLinks[i]->isActive() && viewLinks[i]->syncCamera())
+            {
+                views.push_back(viewLinks[i]->managedView());
+            }
         }
     }
 }
@@ -404,22 +407,7 @@ void RimViewLinker::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType
 {
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        if (!viewLinks[i]->isActive) continue;
-
-        if (  viewLinks[i]->syncVisibleCells() 
-           || viewLinks[i]->syncPropertyFilters() 
-           || viewLinks[i]->syncRangeFilters() 
-           )
-        {
-            if (viewLinks[i]->managedView())
-            {
-                if (viewLinks[i]->syncVisibleCells()) {
-                    viewLinks[i]->managedView()->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
-                }else{
-                    viewLinks[i]->managedView()->scheduleGeometryRegen(geometryType);
-                }
-            }
-        }
+        viewLinks[i]->scheduleGeometryRegenForDepViews(geometryType);
     }
 }
 
@@ -430,18 +418,7 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 {
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
-        if (!viewLinks[i]->isActive) continue;
-
-        if (viewLinks[i]->syncVisibleCells()
-            || viewLinks[i]->syncPropertyFilters()
-            || viewLinks[i]->syncRangeFilters()
-            )
-        {
-            if (viewLinks[i]->managedView())
-            {
-                viewLinks[i]->managedView()->scheduleCreateDisplayModelAndRedraw();
-            }
-        }
+        viewLinks[i]->scheduleCreateDisplayModelAndRedrawForDependentView();
     }
 }
 
@@ -675,9 +652,7 @@ void RimViewLinker::addDependentView(RimView* view)
 
     viewLink->setManagedView(view);
 
-    viewLink->initAfterReadRecursively();
-    viewLink->updateOptionSensitivity();
-    viewLink->updateDisplayNameAndIcon();
+
 }
 
 //--------------------------------------------------------------------------------------------------

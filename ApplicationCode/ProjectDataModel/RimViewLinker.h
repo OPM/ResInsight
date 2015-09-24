@@ -48,6 +48,8 @@ class RimViewLinker : public caf::PdmObject
 public:
     RimViewLinker(void);
     virtual ~RimViewLinker(void);
+    
+    bool                                    isActive();
 
     void                                    setMasterView(RimView* view);
     RimView*                                masterView();
@@ -91,7 +93,6 @@ private:
     void                                    updateOverrides();
     void                                    removeOverrides();
 
-    bool                                    isActive();
     static bool                             isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 
 private:
