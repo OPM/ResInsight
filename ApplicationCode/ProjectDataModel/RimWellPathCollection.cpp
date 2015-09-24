@@ -27,11 +27,14 @@
 #include "RimWellLogFile.h"
 #include "RivWellPathCollectionPartMgr.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafPdmUiEditorHandle.h"
 #include "cafProgressInfo.h"
 
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
 
 #include <fstream>
 #include <cmath>
@@ -132,9 +135,17 @@ void RimWellPathCollection::readWellPathFiles()
             wellPaths[wpIdx]->readWellPathFile();
         }
 
-        if (wellPaths[wpIdx]->m_wellLogFile)
+        RimWellLogFile* wellLogFile = wellPaths[wpIdx]->m_wellLogFile;
+        if (wellLogFile)
         {
-            wellPaths[wpIdx]->m_wellLogFile->readFile();
+            if (!wellLogFile->readFile())
+            {
+                QString errorMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
+
+                QMessageBox::warning(RiuMainWindow::instance(), 
+                    "File open error", 
+                    errorMessage);
+            }
         }
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name));

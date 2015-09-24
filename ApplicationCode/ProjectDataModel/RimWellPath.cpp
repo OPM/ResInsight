@@ -27,8 +27,11 @@
 #include "RimWellPathCollection.h"
 #include "RivWellPathPartMgr.h"
 
+#include "RiuMainWindow.h"
+
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 
@@ -187,6 +190,12 @@ RimWellLogFile* RimWellPath::readWellLogFile(const QString& logFilePath)
         wellLogFile->setFileName(logFilePath);
         if (!wellLogFile->readFile())
         {
+            QString errorMessage = "Could not open the LAS file: \n" + logFilePath;
+
+            QMessageBox::warning(RiuMainWindow::instance(), 
+                "File open error", 
+                errorMessage);
+
             delete wellLogFile;
             wellLogFile = NULL;
         }

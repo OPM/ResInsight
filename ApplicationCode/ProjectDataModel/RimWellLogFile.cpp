@@ -82,13 +82,15 @@ bool RimWellLogFile::readFile()
         m_wellLogDataFile = new RigWellLogFile;
     }
 
+    m_name = QFileInfo(m_fileName).fileName();
+
     if (!m_wellLogDataFile->open(m_fileName))
     {
+        m_wellLogDataFile = NULL;
         return false;
     }
 
     m_wellName = m_wellLogDataFile->wellName();
-    m_name = QFileInfo(m_fileName).fileName();
 
     m_wellLogChannelNames.deleteAllChildObjects();
 
