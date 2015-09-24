@@ -647,8 +647,6 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
     }
     else if (uiItems.size() > 1)
     {
-        commandIds << "RicCopyReferencesToClipboardFeature";
-
         caf::PdmUiItem* uiItem = uiItems[0];
         if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
