@@ -68,7 +68,6 @@ public:
     void                        updateOptionSensitivity();
     void                        removeOverrides();
 
-    void                        updateUiIconFromActiveState();
     void                        updateDisplayNameAndIcon();
 
 protected:

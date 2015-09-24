@@ -59,10 +59,7 @@ void RimViewLinkerCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTre
     if (childObject)
     {
         uiTreeOrdering.add(childObject);
-        for (size_t j = 0; j < childObject->viewLinks.size(); j++)
-        {
-            uiTreeOrdering.add(childObject->viewLinks()[j]);
-        }
+        childObject->addViewControllers(uiTreeOrdering);
     }
 
     uiTreeOrdering.setForgetRemainingFields(true);
@@ -75,19 +72,9 @@ void RimViewLinkerCollection::fieldChangedByUi(const caf::PdmFieldHandle* change
 {
     if (&isActive == changedField)
     {
-        if (isActive)
+        if (viewLinker())
         {
-            if (viewLinker())
-            {
-                viewLinker()->applyAllOperations();
-            }
-        }
-        else
-        {
-            if (viewLinker())
-            {
-                viewLinker()->removeOverrides();
-            }
+            viewLinker()->updateDependentViews();
         }
     }
 

@@ -147,7 +147,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (changedField == &isActive)
     {
-        updateUiIconFromActiveState();
+        updateDisplayNameAndIcon();
         if (syncCamera())       doSyncCamera();
         if (syncTimeStep())     doSyncTimeStep();
         if (syncCellResult())   doSyncCellResult();
@@ -228,7 +228,6 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 
         updateOptionSensitivity();
         updateDisplayNameAndIcon();
-        updateUiIconFromActiveState();
 
         name.uiCapability()->updateConnectedEditors();
     }
@@ -246,7 +245,6 @@ void RimViewController::initAfterRead()
 {
     configureOverrides();
     updateDisplayNameAndIcon();
-    updateUiIconFromActiveState();
     updateOptionSensitivity();
 }
 
@@ -461,17 +459,10 @@ void RimViewController::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::updateUiIconFromActiveState()
-{
-    RimViewLinker::applyIconEnabledState(this, m_originalIcon, !isActive());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimViewController::updateDisplayNameAndIcon()
 {
     RimViewLinker::findNameAndIconFromView(&name.v(), &m_originalIcon, managedView());
+    RimViewLinker::applyIconEnabledState(this, m_originalIcon, !isActive());
 }
 
 //--------------------------------------------------------------------------------------------------

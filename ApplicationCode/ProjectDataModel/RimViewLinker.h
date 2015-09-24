@@ -52,26 +52,23 @@ public:
     void                                    setMasterView(RimView* view);
     RimView*                                masterView();
 
-    caf::PdmChildArrayField<RimViewController*>   viewLinks;
-
-    void                                    applyAllOperations();
-    void                                    removeOverrides();
+    void                                    addDependentView(RimView* view);
+    void                                    updateDependentViews();
 
     void                                    updateCamera(RimView* sourceView);
     void                                    updateTimeStep(RimView* sourceView, int timeStep);
     void                                    updateScaleZ(RimView* sourceView, double scaleZ);
 
     void                                    updateCellResult();
-    void                                    updateRangeFilters();
-    void                                    updatePropertyFilters();
 
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
 
     void                                    allViews(std::vector<RimView*>& views);
 
-    void                                    updateUiIcon();
-    void                                    setNameAndIcon();
+    void                                    updateUiNameAndIcon();
+
+    void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering);
 
     static void                             applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable);
     static void                             findNameAndIconFromView(QString* name, QIcon* icon, RimView* view);
@@ -90,13 +87,16 @@ protected:
 
 private:
     void                                    allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
-    void                                    configureOverrides();
+    
+    void                                    updateOverrides();
+    void                                    removeOverrides();
 
     bool                                    isActive();
     static bool                             isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 
 private:
-    caf::PdmPtrField<RimView*>              m_masterView;
-    caf::PdmField<QString>                  m_name;
-    QIcon                                   m_originalIcon;
+    caf::PdmChildArrayField<RimViewController*>   viewLinks;
+    caf::PdmPtrField<RimView*>                    m_masterView;
+    caf::PdmField<QString>                        m_name;
+    QIcon                                         m_originalIcon;
 };

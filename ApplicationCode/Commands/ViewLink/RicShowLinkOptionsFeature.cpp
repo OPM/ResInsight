@@ -42,8 +42,9 @@ bool RicShowLinkOptionsFeature::isCommandEnabled()
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->findViewLinkerFromView(activeView))
+    RimViewController* viewController = activeView->controllingViewLink();
+   
+    if (viewController)
     {
         return true;
     }
@@ -59,28 +60,9 @@ void RicShowLinkOptionsFeature::onActionTriggered(bool isChecked)
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimViewLinker* viewLinker = proj->findViewLinkerFromView(activeView);
-    if (viewLinker)
-    {
-        if (viewLinker->masterView() == activeView)
-        {
-            RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(viewLinker);
+    RimViewController* viewController = activeView->controllingViewLink();
 
-            return;
-        }
-
-        for (size_t i = 0; i < viewLinker->viewLinks.size(); i++)
-        {
-            RimViewController* viewLink = viewLinker->viewLinks[i];
-            if (viewLink->managedView() == activeView)
-            {
-                RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(viewLink);
-
-                return;
-            }
-        }
-    }
+    RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(viewController);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,24 +42,24 @@ bool RicLinkViewFeature::isCommandEnabled()
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    if (!proj->findViewLinkerFromView(activeView))
+    RimViewController* viewController = activeView->controllingViewLink();
+    
+    if(viewController)
     {
-        RimViewLinkerCollection* viewLinkerCollection = proj->viewLinkerCollection();
-        if (viewLinkerCollection)
+        return false;
+    }
+    else
+    {
+        RimViewLinker* vLinker = RimViewLinker::viewLinkerIfMainView(activeView);
+        if (!vLinker)
         {
-            RimViewLinker* viewLinker = viewLinkerCollection->viewLinker();
-            if (viewLinker)
-            {
-                if (viewLinker->viewLinks().size() > 0)
-                {
-                    return true;
-                }
-            }
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

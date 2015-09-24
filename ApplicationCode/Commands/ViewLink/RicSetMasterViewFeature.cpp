@@ -70,51 +70,18 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 
     RimView* previousMasterView = viewLinker->masterView();
 
-    RimViewController* previousViewLink = RimViewLinker::viewLinkForView(activeView);
-    if (previousViewLink)
-    {
-        size_t indexToErase = cvf::UNDEFINED_SIZE_T;
-        for (size_t i = 0; i < viewLinker->viewLinks.size(); i++)
-        {
-            if (viewLinker->viewLinks()[i] == previousViewLink)
-            {
-                indexToErase = i;
-            }
-        }
-
-        if (indexToErase != cvf::UNDEFINED_SIZE_T)
-        {
-            viewLinker->viewLinks().erase(indexToErase);
-        }
-
-        delete previousViewLink;
-    }
-
-    viewLinker->removeOverrides();
     viewLinker->setMasterView(activeView);
+    viewLinker->addDependentView(previousMasterView);
+ 
+    viewLinker->updateDependentViews();
 
-    if (previousMasterView)
-    {
-        RimViewController* viewLink = new RimViewController;
-        viewLink->setManagedView(previousMasterView);
-
-        viewLinker->viewLinks.push_back(viewLink);
-
-        viewLink->initAfterReadRecursively();
-        viewLink->updateOptionSensitivity();
-        viewLink->updateUiIconFromActiveState();
-    }
-
-    viewLinker->applyAllOperations();
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->updateConnectedEditors();
 
     // Set managed view collection to selected and expanded in project tree
     caf::PdmUiTreeView* projTreeView = RiuMainWindow::instance()->projectTreeView();
-    QModelIndex modIndex = projTreeView->findModelIndex(viewLinker);
-    projTreeView->treeView()->setCurrentIndex(modIndex);
-
-    projTreeView->treeView()->setExpanded(modIndex, true);
+    projTreeView->selectAsCurrentItem(viewLinker);
+    projTreeView->setExpanded(viewLinker, true);
 }
 
 //--------------------------------------------------------------------------------------------------

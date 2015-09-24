@@ -125,29 +125,9 @@ void RicLinkVisibleViewsFeature::findNotLinkedVisibleViews(std::vector<RimView*>
 void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
 {
     RimProject* proj = RiaApplication::instance()->project();
-    RimViewLinker* viewLinker = NULL;
+    RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
 
-    if (proj->viewLinkerCollection->viewLinker())
-    {
-        // We have a view linker, add not already linked views
-        viewLinker = proj->viewLinkerCollection->viewLinker();
-
-        for (size_t i = 0; i < views.size(); i++)
-        {
-            RimView* rimView = views[i];
-            if (rimView == viewLinker->masterView()) continue;
-
-            RimViewController* viewLink = new RimViewController;
-            viewLink->setManagedView(rimView);
-
-            viewLinker->viewLinks.push_back(viewLink);
-
-            viewLink->initAfterReadRecursively();
-            viewLink->updateOptionSensitivity();
-            viewLink->updateUiIconFromActiveState();
-        }
-    }
-    else
+    if (!viewLinker)
     {
         // Create a new view linker
 
@@ -167,35 +147,23 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
         viewLinker = new RimViewLinker;
         proj->viewLinkerCollection()->viewLinker = viewLinker;
         viewLinker->setMasterView(masterView);
-
-        for (size_t i = 0; i < views.size(); i++)
-        {
-            RimView* rimView = views[i];
-            if (rimView == masterView) continue;
-
-            RimViewController* viewLink = new RimViewController;
-            viewLink->setManagedView(rimView);
-
-            viewLinker->viewLinks.push_back(viewLink);
-
-            viewLink->initAfterReadRecursively();
-            viewLink->updateOptionSensitivity();
-            viewLink->updateUiIconFromActiveState();
-        }
-
-        viewLinker->updateUiIcon();
-
     }
 
-    viewLinker->applyAllOperations();
+    for (size_t i = 0; i < views.size(); i++)
+    {
+        RimView* rimView = views[i];
+        if (rimView == viewLinker->masterView()) continue;
+
+        viewLinker->addDependentView(rimView);
+    }
+
+    viewLinker->updateUiNameAndIcon();
+
+    viewLinker->updateDependentViews();
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->updateConnectedEditors();
 
-    // Set managed view collection to selected and expanded in project tree
-    caf::PdmUiTreeView* projTreeView = RiuMainWindow::instance()->projectTreeView();
-    QModelIndex modIndex = projTreeView->findModelIndex(viewLinker);
-    projTreeView->treeView()->setCurrentIndex(modIndex);
+    RiuMainWindow::instance()->projectTreeView()->setExpanded(viewLinker, true);
 
-    projTreeView->treeView()->setExpanded(modIndex, true);
 }
 

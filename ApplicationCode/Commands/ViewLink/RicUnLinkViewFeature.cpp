@@ -39,20 +39,16 @@ bool RicUnLinkViewFeature::isCommandEnabled()
 {
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
-
-    RimProject* proj = RiaApplication::instance()->project();
-    RimViewLinker* viewLinker = proj->findViewLinkerFromView(activeView);
-    if (viewLinker)
+    
+    RimViewController* viewController = activeView->controllingViewLink();
+   
+    if (viewController)
     {
-        if (viewLinker->masterView() == activeView)
-        {
-            return false;
-        }
-
         return true;
     }
 
     return false;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,27 +58,16 @@ void RicUnLinkViewFeature::onActionTriggered(bool isChecked)
 {
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
+    
+    RimViewController* viewController = activeView->controllingViewLink();
+    caf::SelectionManager::instance()->setSelectedItem(viewController);
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimViewLinker* viewLinker = proj->findViewLinkerFromView(activeView);
-    if (viewLinker)
+    caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteItemFeature");
+    if (feature)
     {
-        for (size_t i = 0; i < viewLinker->viewLinks.size(); i++)
-        {
-            RimViewController* viewLink = viewLinker->viewLinks[i];
-            if (viewLink->managedView() == activeView)
-            {
-                caf::SelectionManager::instance()->setSelectedItem(viewLink);
+        feature->action()->trigger();
 
-                caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteItemFeature");
-                if (feature)
-                {
-                    feature->action()->trigger();
-
-                    return;
-                }
-            }
-        }
+        return;
     }
 }
 
