@@ -181,7 +181,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 
             for (size_t i = 0; i < wellPaths.size(); i++)
             {
-                optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
+                if (wellPaths[i]->m_wellLogFile())
+                {
+                    optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
+                }
             }
 
             if (optionList.size() > 0)
