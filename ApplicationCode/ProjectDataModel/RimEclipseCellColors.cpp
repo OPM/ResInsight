@@ -229,8 +229,8 @@ RimLegendConfig* RimEclipseCellColors::legendConfig()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateIconState()
 {
-    RimViewController* viewLink = RimViewLinker::viewLinkForView(m_reservoirView);
-    if (viewLink && viewLink->isResultColorControlled())
+    RimViewController* viewController = m_reservoirView->viewController();
+    if (viewController && viewController->isResultColorControlled())
     {
         updateUiIconFromState(false);
     }

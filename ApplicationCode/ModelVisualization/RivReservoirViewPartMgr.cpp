@@ -597,7 +597,7 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
 void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid)
 {
 
-    RimViewController* masterViewLink = m_reservoirView->controllingViewLink();
+    RimViewController* masterViewLink = m_reservoirView->viewController();
     
     CVF_ASSERT(masterViewLink);
 

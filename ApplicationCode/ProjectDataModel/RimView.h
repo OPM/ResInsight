@@ -125,7 +125,10 @@ public:
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
 
-    RimViewController*                            controllingViewLink() const;
+    RimViewController*                      viewController() const;
+    bool                                    isMasterView() const;
+    RimViewLinker*                          assosiatedViewLinker() const;
+
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
 public:
@@ -174,6 +177,9 @@ protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
+
+private:
+    RimViewLinker*                          viewLinkerIfMasterView() const;
 
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;

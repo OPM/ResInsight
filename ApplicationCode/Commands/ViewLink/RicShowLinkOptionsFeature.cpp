@@ -42,7 +42,7 @@ bool RicShowLinkOptionsFeature::isCommandEnabled()
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
 
-    RimViewController* viewController = activeView->controllingViewLink();
+    RimViewController* viewController = activeView->viewController();
    
     if (viewController)
     {
@@ -60,7 +60,7 @@ void RicShowLinkOptionsFeature::onActionTriggered(bool isChecked)
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
-    RimViewController* viewController = activeView->controllingViewLink();
+    RimViewController* viewController = activeView->viewController();
 
     RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(viewController);
 }

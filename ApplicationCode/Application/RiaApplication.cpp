@@ -1977,7 +1977,7 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
 
     for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
     {
-        if (m_resViewsToUpdate[i]->controllingViewLink())
+        if (m_resViewsToUpdate[i]->viewController())
             dependent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
         else
             independent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);

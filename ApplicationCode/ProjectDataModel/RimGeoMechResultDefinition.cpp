@@ -30,11 +30,8 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
-#include "RimProject.h"
 #include "RimViewLinker.h"
 #include "RimWellLogPlotCurve.h"
-
-#include "RiuMainWindow.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -192,10 +189,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             {
                 if (view)
                 {
-                    RimProject* proj = NULL;
-                    view->firstAnchestorOrThisOfType(proj);
-
-                    RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
+                    RimViewLinker* viewLinker = view->assosiatedViewLinker();
                     if (viewLinker)
                     {
                         viewLinker->updateCellResult();

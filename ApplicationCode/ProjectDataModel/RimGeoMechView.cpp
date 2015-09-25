@@ -512,10 +512,13 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_vizLogic->scheduleGeometryRegen(geometryType);
 
-    RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(this);
-    if (viewLinker)
+    if (this->isMasterView())
     {
-        viewLinker->scheduleGeometryRegenForDepViews(geometryType);
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->scheduleGeometryRegenForDepViews(geometryType);
+        }
     }
     m_currentReservoirCellVisibility = NULL;
 }

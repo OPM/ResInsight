@@ -260,7 +260,7 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
 
     if (m_reservoirView)
     {
-        RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(m_reservoirView);
+        RimViewLinker* viewLinker = m_reservoirView->assosiatedViewLinker();
         if (viewLinker)
         {
             viewLinker->updateTimeStep(m_reservoirView, frameIndex);
@@ -487,7 +487,7 @@ void RiuViewer::navigationPolicyUpdate()
 
     if (m_reservoirView)
     {
-        RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(m_reservoirView);
+        RimViewLinker* viewLinker = m_reservoirView->assosiatedViewLinker();
         if (viewLinker)
         {
             viewLinker->updateCamera(m_reservoirView);

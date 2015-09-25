@@ -90,7 +90,7 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 
     if (masterView() != sourceView)
     {
-        RimViewController* sourceViewLink = sourceView->controllingViewLink();
+        RimViewController* sourceViewLink = sourceView->viewController();
         CVF_ASSERT(sourceViewLink);
 
         if (!sourceViewLink->isActive() || !sourceViewLink->isTimeStepLinked())
@@ -285,13 +285,13 @@ QString RimViewLinker::displayNameForView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::setMasterView(RimView* view)
 {
-    RimViewController* previousViewLink = RimViewLinker::viewLinkForView(view);
+    RimViewController* previousViewController = view->viewController();
 
     // Remove the view as dependent view
-    if (previousViewLink)
+    if (previousViewController)
     {
-        this->viewLinks.removeChildObject(previousViewLink);
-        delete previousViewLink;
+        this->viewLinks.removeChildObject(previousViewController);
+        delete previousViewController;
     }
 
     this->removeOverrides();
@@ -342,7 +342,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 
     if (masterView() != sourceView)
     {
-        RimViewController* sourceViewLink = viewLinkForView(sourceView);
+        RimViewController* sourceViewLink = sourceView->viewController();
         CVF_ASSERT(sourceViewLink);
 
         if (!sourceViewLink->isActive() || !sourceViewLink->isCameraLinked())
@@ -459,68 +459,13 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewController* RimViewLinker::viewLinkForView(const RimView* view)
-{
-    RimViewController* viewLink = NULL;
-    std::vector<caf::PdmObjectHandle*> reffingObjs;
-
-    view->objectsWithReferringPtrFields(reffingObjs);
-    for (size_t i = 0; i < reffingObjs.size(); ++i)
-    {
-        viewLink = dynamic_cast<RimViewController*>(reffingObjs[i]);
-        if (viewLink) break;
-    }
-
-    return viewLink;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return view linker if view is the main view (controlling) view
-//--------------------------------------------------------------------------------------------------
-RimViewLinker* RimViewLinker::viewLinkerIfMainView(RimView* view)
-{
-    RimViewLinker* viewLinker = NULL;
-    std::vector<caf::PdmObjectHandle*> reffingObjs;
-
-    view->objectsWithReferringPtrFields(reffingObjs);
-
-    for (size_t i = 0; i < reffingObjs.size(); ++i)
-    {
-        viewLinker = dynamic_cast<RimViewLinker*>(reffingObjs[i]);
-        if (viewLinker) break;
-    }
-
-    return viewLinker;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimViewLinker* RimViewLinker::viewLinkerForMainOrControlledView(RimView* view)
-{
-    RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(view);
-    if (!viewLinker)
-    {
-        RimViewController* viewLink = RimViewLinker::viewLinkForView(view);
-        if (viewLink)
-        {
-            viewLinker = viewLink->ownerViewLinker();
-        }
-    }
-
-    return viewLinker;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCamera(RimView* sourceView)
 {
     if (!sourceView->viewer()) return;
     
     if (!isActive()) return;
 
-    RimViewController* viewLink = sourceView->controllingViewLink();
+    RimViewController* viewLink = sourceView->viewController();
     if (viewLink)
     {
         if ((!viewLink->isActive() || !viewLink->isCameraLinked()))

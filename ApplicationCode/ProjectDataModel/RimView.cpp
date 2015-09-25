@@ -191,10 +191,13 @@ void RimView::updateViewerWidget()
 void RimView::scheduleCreateDisplayModelAndRedraw()
 {
     RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
-    RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(this);
-    if (viewLinker)
+    if (this->isMasterView())
     {
-        viewLinker->scheduleCreateDisplayModelAndRedrawForDependentViews();
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->scheduleCreateDisplayModelAndRedrawForDependentViews();
+        }
     }
 }
 
@@ -450,7 +453,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 
             m_viewer->update();
 
-            RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(this);
+            RimViewLinker* viewLinker = this->assosiatedViewLinker();
             if (viewLinker)
             {
                 viewLinker->updateScaleZ(this, scaleZ);
@@ -481,7 +484,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         {
             m_viewer->update();
 
-            RimViewLinker* viewLinker = RimViewLinker::viewLinkerForMainOrControlledView(this);
+            RimViewLinker* viewLinker = this->assosiatedViewLinker();
             if (viewLinker)
             {
                 viewLinker->updateTimeStep(this, m_currentTimeStep);
@@ -586,9 +589,56 @@ void RimView::setScaleZAndUpdate(double scaleZ)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewController* RimView::controllingViewLink() const
+RimViewController* RimView::viewController() const
 {
-    return RimViewLinker::viewLinkForView(this);
+    RimViewController* viewController = NULL;
+    std::vector<caf::PdmObjectHandle*> reffingObjs;
+
+    this->objectsWithReferringPtrFields(reffingObjs);
+    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    {
+        viewController = dynamic_cast<RimViewController*>(reffingObjs[i]);
+        if (viewController) break;
+    }
+
+    return viewController;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* RimView::viewLinkerIfMasterView() const
+{
+    RimViewLinker* viewLinker = NULL;
+    std::vector<caf::PdmObjectHandle*> reffingObjs;
+
+    this->objectsWithReferringPtrFields(reffingObjs);
+
+    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    {
+        viewLinker = dynamic_cast<RimViewLinker*>(reffingObjs[i]);
+        if (viewLinker) break;
+    }
+
+    return viewLinker;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* RimView::assosiatedViewLinker() const
+{
+    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
+    if (!viewLinker)
+    {
+        RimViewController* viewController = this->viewController();
+        if (viewController)
+        {
+            viewLinker = viewController->ownerViewLinker();
+        }
+    }
+
+    return viewLinker;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,3 +655,16 @@ cvf::ref<cvf::UByteArray> RimView::currentTotalCellVisibility()
     return m_currentReservoirCellVisibility;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimView::isMasterView() const
+{
+    RimViewLinker* viewLinker = this->assosiatedViewLinker();
+    if (viewLinker && this == viewLinker->masterView())
+    {
+        return true;
+    }
+
+    return false;
+}

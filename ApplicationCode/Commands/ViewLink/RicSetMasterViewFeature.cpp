@@ -43,7 +43,7 @@ bool RicSetMasterViewFeature::isCommandEnabled()
     if (!activeView) return false;
 
     RimProject* proj = RiaApplication::instance()->project();
-    RimViewLinker* viewLinker = proj->findViewLinkerFromView(activeView);
+    RimViewLinker* viewLinker = activeView->assosiatedViewLinker();
     if (viewLinker && viewLinker->masterView() == activeView)
     {
         return false;

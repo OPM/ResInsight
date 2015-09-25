@@ -331,12 +331,12 @@ void RimEclipseView::createDisplayModel()
     // For property filtered geometry : just set all the models as empty scenes 
     // updateCurrentTimeStep requests the actual parts
 
-    if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden() 
+    if (this->viewController() && this->viewController()->isVisibleCellsOveridden()
         || !this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;
 
-        if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden())
+        if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
         {
             geometryTypesToAdd.push_back(OVERRIDDEN_CELL_VISIBILITY);
 
@@ -581,7 +581,7 @@ void RimEclipseView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RANGE_FILTERED);
         geometriesToRecolor.push_back(RANGE_FILTERED_WELL_CELLS);
     }
-    else if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden())
+    else if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
         geometriesToRecolor.push_back(OVERRIDDEN_CELL_VISIBILITY);
     }
@@ -846,10 +846,13 @@ void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_reservoirGridPartManager->scheduleGeometryRegen(geometryType);
 
-    RimViewLinker* viewLinker = RimViewLinker::viewLinkerIfMainView(this);
-    if (viewLinker)
+    if (this->isMasterView())
     {
-        viewLinker->scheduleGeometryRegenForDepViews(geometryType);
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->scheduleGeometryRegenForDepViews(geometryType);
+        }
     }
 
     m_currentReservoirCellVisibility = NULL;
@@ -1290,7 +1293,7 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::forceFaultVisibilityOn()
 {
-    if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden())
+    if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
         m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(OVERRIDDEN_CELL_VISIBILITY, true);
         return;
@@ -1316,7 +1319,7 @@ void RimEclipseView::forceFaultVisibilityOn()
 std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
 {
     std::vector<RivCellSetEnum> faultParts;
-    if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden())
+    if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
         faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
         if (this->faultCollection()->showFaultsOutsideFilters())

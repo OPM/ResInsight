@@ -78,11 +78,6 @@ public:
 public:
     static QString                          displayNameForView(RimView* view);
 
-    // Move to RimView and make nonstatic
-    static RimViewController*               viewLinkForView(const RimView* view);
-    static RimViewLinker*                   viewLinkerIfMainView(RimView* view);
-    static RimViewLinker*                   viewLinkerForMainOrControlledView(RimView* view);
-
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
     virtual void                            initAfterRead();

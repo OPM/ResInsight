@@ -30,7 +30,6 @@
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
-#include "RimProject.h"
 #include "RimViewLinker.h"
 #include "RimWellLogPlotCurve.h"
 
@@ -156,10 +155,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             if (view)
             {
-                RimProject* proj = NULL;
-                view->firstAnchestorOrThisOfType(proj);
-
-                RimViewLinker* viewLinker = proj->findViewLinkerFromView(view);
+                RimViewLinker* viewLinker = view->assosiatedViewLinker();
                 if (viewLinker)
                 {
                     viewLinker->updateCellResult();

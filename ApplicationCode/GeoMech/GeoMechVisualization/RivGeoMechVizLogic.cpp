@@ -140,7 +140,7 @@ void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry(RivCellSetEnum
 std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMgrs(int timeStepIndex)
 {
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs;
-    if (m_geomechView->controllingViewLink() && m_geomechView->controllingViewLink()->isVisibleCellsOveridden())
+    if (m_geomechView->viewController() && m_geomechView->viewController()->isVisibleCellsOveridden())
     {
         visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(OVERRIDDEN_CELL_VISIBILITY, -1));
     }
@@ -216,7 +216,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
         {
             RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(elmVisibility.p(), 
                                                                            caseData->femParts()->part(femPartIdx),
-                                                                           m_geomechView->controllingViewLink());
+                                                                           m_geomechView->viewController());
         }
 
         else if (pMgrKey.geometryType() == ALL_CELLS)

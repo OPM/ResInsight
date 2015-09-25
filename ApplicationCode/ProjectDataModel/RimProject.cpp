@@ -983,14 +983,6 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLinker* RimProject::findViewLinkerFromView(RimView* view)
-{
-    return RimViewLinker::viewLinkerForMainOrControlledView(view);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimProject::recreateMainPlotCollection()
 {
     if (!mainPlotCollection())

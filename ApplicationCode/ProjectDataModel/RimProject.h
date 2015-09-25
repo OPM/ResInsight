@@ -93,7 +93,6 @@ public:
 
     void            actionsBasedOnSelection(QMenu& contextMenu);
 
-    RimViewLinker*  findViewLinkerFromView(RimView* view);
     void            recreateMainPlotCollection();
 
 protected:

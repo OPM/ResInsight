@@ -42,7 +42,7 @@ bool RicLinkViewFeature::isCommandEnabled()
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
 
-    RimViewController* viewController = activeView->controllingViewLink();
+    RimViewController* viewController = activeView->viewController();
     
     if(viewController)
     {
@@ -50,8 +50,7 @@ bool RicLinkViewFeature::isCommandEnabled()
     }
     else
     {
-        RimViewLinker* vLinker = RimViewLinker::viewLinkerIfMainView(activeView);
-        if (!vLinker)
+        if (!activeView->isMasterView())
         {
             return true;
         }
