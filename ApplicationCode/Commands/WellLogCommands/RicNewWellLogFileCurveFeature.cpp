@@ -27,8 +27,11 @@
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimProject.h"
+#include "RimOilField.h"
 
 #include "RiuMainWindow.h"
+#include "RiaApplication.h"
 
 #include "cafSelectionManager.h"
 
@@ -44,7 +47,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogFileCurveFeature, "RicNewWellLogFileCurveFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 {
-    return selectedWellLogPlotTrack() != NULL || selectedWellPathWithLogFile() != NULL;
+    return (selectedWellLogPlotTrack() != NULL && wellLogFilesAvailable()) || selectedWellPathWithLogFile() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +84,7 @@ void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrack* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrack()
+RimWellLogPlotTrack* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrack() const
 {
     std::vector<RimWellLogPlotTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -91,7 +94,7 @@ RimWellLogPlotTrack* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrack()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicNewWellLogFileCurveFeature::selectedWellPathWithLogFile()
+RimWellPath* RicNewWellLogFileCurveFeature::selectedWellPathWithLogFile() const
 {
     std::vector<RimWellPath*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -106,7 +109,32 @@ RimWellPath* RicNewWellLogFileCurveFeature::selectedWellPathWithLogFile()
 
     return NULL;
 }
- 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable() const
+{
+    RimProject* project = RiaApplication::instance()->project();
+    if (project->activeOilField()->wellPathCollection())
+    {
+        caf::PdmChildArrayField<RimWellPath*>& wellPaths = project->activeOilField()->wellPathCollection()->wellPaths;
+
+        for (size_t i = 0; i < wellPaths.size(); i++)
+        {
+            if (wellPaths[i]->m_wellLogFile())
+            {
+                if (wellPaths[i]->m_wellLogFile()->wellLogFile())
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
