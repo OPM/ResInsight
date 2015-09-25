@@ -331,7 +331,7 @@ void RimEclipseView::createDisplayModel()
     // For property filtered geometry : just set all the models as empty scenes 
     // updateCurrentTimeStep requests the actual parts
 
-    if (this->viewController() && this->viewController()->isVisibleCellsOveridden()
+    if ((this->viewController() && this->viewController()->isVisibleCellsOveridden())
         || !this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;

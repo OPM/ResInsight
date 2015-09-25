@@ -46,7 +46,7 @@ public:
     RimViewController(void);
     virtual ~RimViewController(void);
 
-    caf::PdmField<bool>                     isActive;
+    bool                                    isActive();
 
     RimView*                                managedView();
     void                                    setManagedView(RimView* view);
@@ -82,12 +82,12 @@ protected:  // Pdm overridden methods
     virtual void                            initAfterRead();
     
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual caf::PdmFieldHandle*            objectToggleField()     { return &isActive; }
+    virtual caf::PdmFieldHandle*            objectToggleField()     { return &m_isActive; }
 
 private:
-    void                                    doSyncCamera();
-    void                                    doSyncTimeStep();
-    void                                    doSyncCellResult();
+    void                                    updateCameraLink();
+    void                                    updateTimeStepLink();
+    void                                    updateResultColorsControl();
 
     bool                                    isMasterAndDepViewDifferentType();
 
@@ -98,6 +98,7 @@ private:
     caf::PdmField<QString>                  m_name;
     caf::PdmPtrField<RimView*>              m_managedView;
 
+    caf::PdmField<bool>                     m_isActive;
     caf::PdmField<bool>                     m_syncCamera;
     caf::PdmField<bool>                     m_syncTimeStep;
 
