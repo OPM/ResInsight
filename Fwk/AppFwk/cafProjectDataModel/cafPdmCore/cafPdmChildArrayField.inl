@@ -134,11 +134,12 @@ void PdmChildArrayField<DataType*>::deleteAllChildObjects()
 template<typename DataType>
 void PdmChildArrayField<DataType*>::erase(size_t index)
 {
-    PdmObjectHandle* obj = m_pointers[index].rawPtr();
-    if (obj)
+    if (m_pointers[index].rawPtr())
     {
-        removeChildObject(obj);
+        m_pointers[index].rawPtr()->removeAsParentField(this);
     }
+
+    m_pointers.erase(m_pointers.begin() + index);
 }
 
 

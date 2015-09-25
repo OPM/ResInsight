@@ -121,7 +121,7 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrderi
 
                     for (size_t cIdx = 0; cIdx < children.size(); cIdx++)
                     {
-                        if (!uiTreeOrdering->containsObject(children[cIdx]))
+                        if (children[cIdx] && !uiTreeOrdering->containsObject(children[cIdx]))
                         {
                             uiTreeOrdering->add(children[cIdx]);
                         }
