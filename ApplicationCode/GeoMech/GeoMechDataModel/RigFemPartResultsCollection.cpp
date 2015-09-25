@@ -425,15 +425,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         int frameCount = srcSDataFrames->frameCount();
         for (int fIdx = 0; fIdx < frameCount; ++fIdx)
         {
-            const std::vector<float>& srcNSFrameData = srcSDataFrames->frameData(fIdx);
+            const std::vector<float>& srcSFrameData = srcSDataFrames->frameData(fIdx);
             std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
 
-            size_t valCount = srcNSFrameData.size();
+            size_t valCount = srcSFrameData.size();
             dstFrameData.resize(valCount);
             int nodeIdx = 0;
             for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
             {
-                dstFrameData[vIdx] = -srcNSFrameData[vIdx];
+                dstFrameData[vIdx] = -srcSFrameData[vIdx];
             }
         }
         return dstDataFrames; 

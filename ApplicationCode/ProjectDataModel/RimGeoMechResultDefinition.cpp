@@ -98,9 +98,6 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
 
     if (m_geomCase)
     {
-
-       
-
         if (&m_resultVariableUiField == fieldNeedingOptions)
         {
             std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
