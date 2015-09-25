@@ -276,23 +276,38 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         int frameCount = srcDataFrames->frameCount();
         for (int fIdx = 0; fIdx < frameCount; ++fIdx)
         {
-            const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
+            const std::vector<float>& srcSFrameData = srcDataFrames->frameData(fIdx);
             std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
-            size_t valCount = srcFrameData.size();
+            size_t valCount = srcSFrameData.size();
             dstFrameData.resize(valCount);
 
             const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
 
-            int nodeIdx = 0;
-            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
+           int elementCount = femPart->elementCount();
+            for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
             {
-                nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(vIdx);
-                float por = srcPORFrameData[nodeIdx];
+                RigElementType elmType = femPart->elementType(elmIdx);
 
-                if (por == inf) 
-                    dstFrameData[vIdx] = inf;
-                else
-                    dstFrameData[vIdx] = -srcFrameData[vIdx];
+                int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
+
+                if (elmType == HEX8P)
+                {
+                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                    {
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                        // Todo: Verify that we do not need to check for POR == inf when we have a HEX8P elm
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    }
+                }
+                else 
+                {
+                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                    {
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+
+                        dstFrameData[elmNodResIdx] = inf;
+                    }
+                }
             }
         }
 
@@ -372,36 +387,29 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
             size_t valCount = srcSFrameData.size();
             dstFrameData.resize(valCount);
-            int nodeIdx = 0;
 
             int elementCount = femPart->elementCount();
             for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
             {
+                RigElementType elmType = femPart->elementType(elmIdx);
+
                 int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
-                bool hasInfPor = false;
-                bool hasPor = false;
 
-                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                if (elmType == HEX8P)
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                    {
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
 
-                    float por = srcPORFrameData[nodeIdx];
-                    if (por == inf) 
-                    {
-                        por = 0.0f;
-                        hasInfPor = true;
+                        float por = srcPORFrameData[nodeIdx];
+                        if (por == inf)  por = 0.0f;
+
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
                     }
-                    else
-                    {
-                       hasPor = true; 
-                    }
-                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
                 }
-
-                if (hasPor && hasInfPor) 
-                {   // We have both nodes with and without POR defined in element
-                    // Recalculate element results as if no POR was present
+                else 
+                {
                     for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                     {
                         size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
@@ -487,16 +495,37 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
             size_t valCount = srcSTFrameData.size();
             dstFrameData.resize(valCount);
-            int nodeIdx = 0;
-            for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
-            {
-                nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(vIdx);
-                float por = srcPORFrameData[nodeIdx];
 
-                if (por == inf || abs(por) < 0.01e6) 
-                    dstFrameData[vIdx] = inf;
+            int elementCount = femPart->elementCount();
+            for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+            {
+                RigElementType elmType = femPart->elementType(elmIdx);
+
+                int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
+
+                if (elmType == HEX8P)
+                {
+                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                    {
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+
+                        float por = srcPORFrameData[nodeIdx];
+
+                        if (por == inf || abs(por) < 0.01e6)
+                            dstFrameData[elmNodResIdx] = inf;
+                        else
+                            dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx]/por;
+                    }
+                }
                 else 
-                    dstFrameData[vIdx] = srcSTFrameData[vIdx]/por;
+                {
+                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                    {
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                        dstFrameData[elmNodResIdx] = inf;
+                    }
+                }
             }
         }
         return dstDataFrames; 
