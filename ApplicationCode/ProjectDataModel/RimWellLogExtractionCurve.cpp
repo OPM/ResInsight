@@ -328,9 +328,9 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     appearanceGroup->add(&m_autoName);
     if (m_autoName)
     {
+        appearanceGroup->add(&m_addWellNameToCurveName);
         appearanceGroup->add(&m_addCaseNameToCurveName);
         appearanceGroup->add(&m_addPropertyToCurveName);
-        appearanceGroup->add(&m_addWellNameToCurveName);
         appearanceGroup->add(&m_addDateToCurveName);
         appearanceGroup->add(&m_addTimestepToCurveName);
     }
