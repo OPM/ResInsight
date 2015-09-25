@@ -140,7 +140,7 @@ void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry(RivCellSetEnum
 std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMgrs(int timeStepIndex)
 {
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs;
-    if (m_geomechView->controllingViewLink() && m_geomechView->controllingViewLink()->syncVisibleCells())
+    if (m_geomechView->controllingViewLink() && m_geomechView->controllingViewLink()->isVisibleCellsOveridden())
     {
         visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(OVERRIDDEN_CELL_VISIBILITY, -1));
     }

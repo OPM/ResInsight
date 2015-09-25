@@ -54,7 +54,7 @@ void RimGeoMechCellColors::updateIconState()
     this->firstAnchestorOrThisOfType(rimView);
 
     RimViewController* viewLink = RimViewLinker::viewLinkForView(rimView);
-    if (viewLink && viewLink->syncCellResult())
+    if (viewLink && viewLink->isResultColorControlled())
     {
         updateUiIconFromState(false);
     }

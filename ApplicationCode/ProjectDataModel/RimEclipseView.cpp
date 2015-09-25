@@ -331,12 +331,12 @@ void RimEclipseView::createDisplayModel()
     // For property filtered geometry : just set all the models as empty scenes 
     // updateCurrentTimeStep requests the actual parts
 
-    if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells() 
+    if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden() 
         || !this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;
 
-        if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
+        if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden())
         {
             geometryTypesToAdd.push_back(OVERRIDDEN_CELL_VISIBILITY);
 
@@ -581,7 +581,7 @@ void RimEclipseView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RANGE_FILTERED);
         geometriesToRecolor.push_back(RANGE_FILTERED_WELL_CELLS);
     }
-    else if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
+    else if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden())
     {
         geometriesToRecolor.push_back(OVERRIDDEN_CELL_VISIBILITY);
     }
@@ -1290,7 +1290,7 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::forceFaultVisibilityOn()
 {
-    if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
+    if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden())
     {
         m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(OVERRIDDEN_CELL_VISIBILITY, true);
         return;
@@ -1316,7 +1316,7 @@ void RimEclipseView::forceFaultVisibilityOn()
 std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
 {
     std::vector<RivCellSetEnum> faultParts;
-    if (this->controllingViewLink() && this->controllingViewLink()->syncVisibleCells())
+    if (this->controllingViewLink() && this->controllingViewLink()->isVisibleCellsOveridden())
     {
         faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
         if (this->faultCollection()->showFaultsOutsideFilters())

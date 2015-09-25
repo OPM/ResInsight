@@ -159,7 +159,7 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
     RimGeoMechView* view = NULL;
     this->firstAnchestorOrThisOfType(view);
     RimViewController* viewLink = RimViewLinker::viewLinkForView(view);
-    if (viewLink && viewLink->syncPropertyFilters())
+    if (viewLink && viewLink->isPropertyFilterOveridden())
     {
         activeIcon = false;
     }

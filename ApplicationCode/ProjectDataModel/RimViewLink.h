@@ -55,19 +55,18 @@ public:
     RimViewLinker*                          ownerViewLinker();
 
     const RigCaseToCaseCellMapper*          cellMapper();
+    
+    bool                                    isCameraLinked();
+    bool                                    isTimeStepLinked();
 
-    // Linked (both ways) properties
-    caf::PdmField<bool>                     syncCamera;
-    caf::PdmField<bool>                     syncTimeStep;
+    bool                                    isResultColorControlled();
+    
+    bool                                    isVisibleCellsOveridden();
+    bool                                    isRangeFilterOveridden();
+    bool                                    isPropertyFilterOveridden();
 
-    // Overridden properties
-    caf::PdmField<bool>                     syncCellResult;
-    bool                                    syncVisibleCells();
-    caf::PdmField<bool>                     syncRangeFilters;
-    caf::PdmField<bool>                     syncPropertyFilters;
-
-    void scheduleCreateDisplayModelAndRedrawForDependentView();
-    void scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
+    void                                    scheduleCreateDisplayModelAndRedrawForDependentView();
+    void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    updateOverrides();
     void                                    updateOptionSensitivity();
     void                                    removeOverrides();
@@ -82,7 +81,7 @@ protected:  // Pdm overridden methods
 
     virtual void                            initAfterRead();
     
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
+    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
     virtual caf::PdmFieldHandle*            objectToggleField()     { return &isActive; }
 
 private:
@@ -96,9 +95,18 @@ private:
     RimGeoMechView*                         managedGeoView();
 
 private:
-    caf::PdmField<QString>                  name;
+    caf::PdmField<QString>                  m_name;
     caf::PdmPtrField<RimView*>              m_managedView;
+
+    caf::PdmField<bool>                     m_syncCamera;
+    caf::PdmField<bool>                     m_syncTimeStep;
+
+    // Overridden properties
+    caf::PdmField<bool>                     m_syncCellResult;
+    
+    caf::PdmField<bool>                     m_syncRangeFilters;
     caf::PdmField<bool>                     m_syncVisibleCells;
+    caf::PdmField<bool>                     m_syncPropertyFilters;
 
     QIcon                                   m_originalIcon;
     cvf::ref<RigCaseToCaseCellMapper>       m_caseToCaseCellMapper;

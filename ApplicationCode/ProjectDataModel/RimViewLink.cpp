@@ -57,21 +57,21 @@ RimViewController::RimViewController(void)
     isActive.uiCapability()->setUiHidden(true);
 
     QString defaultName = "View Config: Empty view";
-    CAF_PDM_InitField(&name, "Name", defaultName, "Managed View Name", "", "", "");
-    name.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_name, "Name", defaultName, "Managed View Name", "", "", "");
+    m_name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View", "", "", "");
     m_managedView.uiCapability()->setUiChildrenHidden(true);
 
-    CAF_PDM_InitField(&syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
-    CAF_PDM_InitField(&syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
-    CAF_PDM_InitField(&syncCellResult,      "SyncCellResult", false,    "Cell Result", "", "", "");
+    CAF_PDM_InitField(&m_syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
+    CAF_PDM_InitField(&m_syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
+    CAF_PDM_InitField(&m_syncCellResult,      "SyncCellResult", false,    "Cell Result", "", "", "");
     
     CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
     //syncVisibleCells.uiCapability()->setUiHidden(true); // For now
 
-    CAF_PDM_InitField(&syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
-    CAF_PDM_InitField(&syncPropertyFilters, "SyncPropertyFilters", true,"Property Filters", "", "", "");
+    CAF_PDM_InitField(&m_syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
+    CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", true,"Property Filters", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,22 +148,22 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     if (changedField == &isActive)
     {
         updateDisplayNameAndIcon();
-        if (syncCamera())       doSyncCamera();
-        if (syncTimeStep())     doSyncTimeStep();
-        if (syncCellResult())   doSyncCellResult();
+        if (m_syncCamera())       doSyncCamera();
+        if (m_syncTimeStep())     doSyncTimeStep();
+        if (m_syncCellResult())   doSyncCellResult();
         updateOverrides();
     }
-    else if (changedField == &syncCamera && syncCamera())
+    else if (changedField == &m_syncCamera && m_syncCamera())
     {
         doSyncCamera();
     }
-    else if (changedField == &syncTimeStep && syncTimeStep())
+    else if (changedField == &m_syncTimeStep && m_syncTimeStep())
     {
         doSyncTimeStep();
     }
-    else if (changedField == &syncCellResult)
+    else if (changedField == &m_syncCellResult)
     {
-        if (syncCellResult())
+        if (m_syncCellResult())
         {
             doSyncCellResult();
         }
@@ -179,11 +179,11 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
             }
         }
     }
-    else if (changedField == &syncRangeFilters)
+    else if (changedField == &m_syncRangeFilters)
     {
         updateOverrides();
     }
-    else if (changedField == &syncPropertyFilters)
+    else if (changedField == &m_syncPropertyFilters)
     {
         updateOverrides();
     }
@@ -195,16 +195,16 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         {
             RimViewLinker* viewLinker = ownerViewLinker();
 
-            if (syncCellResult())
+            if (m_syncCellResult())
             {
                 viewLinker->updateCellResult();
             }
-            if (syncCamera())
+            if (m_syncCamera())
             {
                 viewLinker->updateCamera(m_managedView);
             }
 
-            name = RimViewLinker::displayNameForView(m_managedView);
+            m_name = RimViewLinker::displayNameForView(m_managedView);
         }
 
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
@@ -229,7 +229,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         updateOptionSensitivity();
         updateDisplayNameAndIcon();
 
-        name.uiCapability()->updateConnectedEditors();
+        m_name.uiCapability()->updateConnectedEditors();
     }
     else if (&m_syncVisibleCells == changedField)
     {
@@ -300,7 +300,7 @@ void RimViewController::updateOverrides()
             manEclView->updateIconStateForFilterCollections();
         }
 
-        if (syncVisibleCells())
+        if (isVisibleCellsOveridden())
         {
             m_managedView->setOverrideRangeFilterCollection(NULL);
             if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
@@ -309,7 +309,7 @@ void RimViewController::updateOverrides()
         }
         else
         {
-            if (syncRangeFilters)
+            if (m_syncRangeFilters)
             {
                 m_managedView->setOverrideRangeFilterCollection(masterView->rangeFilterCollection());
             }
@@ -324,7 +324,7 @@ void RimViewController::updateOverrides()
 
                 if (manEclView)
                 {
-                    if (syncPropertyFilters)
+                    if (m_syncPropertyFilters)
                     {
                         manEclView->setOverridePropertyFilterCollection(masterEclipseView->propertyFilterCollection());
                     }
@@ -340,7 +340,7 @@ void RimViewController::updateOverrides()
             {
                 if (manGeoView)
                 {
-                    if (syncPropertyFilters)
+                    if (m_syncPropertyFilters)
                     {
                         manGeoView->setOverridePropertyFilterCollection(masterGeoView->propertyFilterCollection());
                     }
@@ -396,19 +396,19 @@ void RimViewController::updateOptionSensitivity()
 
     if (isMasterAndDependentViewDifferentType)
     {
-        this->syncCellResult.uiCapability()->setUiReadOnly(true);
-        this->syncCellResult = false;
-        this->syncRangeFilters.uiCapability()->setUiReadOnly(true);
-        this->syncRangeFilters = false;
-        this->syncPropertyFilters.uiCapability()->setUiReadOnly(true);
-        this->syncPropertyFilters = false;
+        this->m_syncCellResult.uiCapability()->setUiReadOnly(true);
+        this->m_syncCellResult = false;
+        this->m_syncRangeFilters.uiCapability()->setUiReadOnly(true);
+        this->m_syncRangeFilters = false;
+        this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(true);
+        this->m_syncPropertyFilters = false;
     }
     else
     {
-        this->syncCellResult.uiCapability()->setUiReadOnly(false);
+        this->m_syncCellResult.uiCapability()->setUiReadOnly(false);
         
-        this->syncRangeFilters.uiCapability()->setUiReadOnly(false);
-        this->syncPropertyFilters.uiCapability()->setUiReadOnly(false);
+        this->m_syncRangeFilters.uiCapability()->setUiReadOnly(false);
+        this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(false);
     }
 
     m_syncVisibleCells.uiCapability()->setUiReadOnly(!this->isMasterAndDepViewDifferentType());
@@ -444,14 +444,14 @@ void RimViewController::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 
     caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Link Options");
 
-    scriptGroup->add(&syncCamera);
-    scriptGroup->add(&syncTimeStep);
-    scriptGroup->add(&syncCellResult);
+    scriptGroup->add(&m_syncCamera);
+    scriptGroup->add(&m_syncTimeStep);
+    scriptGroup->add(&m_syncCellResult);
 
     caf::PdmUiGroup* visibleCells = uiOrdering.addNewGroup("Link Cell Filters");
     visibleCells->add(&m_syncVisibleCells);
-    visibleCells->add(&syncRangeFilters);
-    visibleCells->add(&syncPropertyFilters);
+    visibleCells->add(&m_syncRangeFilters);
+    visibleCells->add(&m_syncPropertyFilters);
 }
 
 
@@ -460,7 +460,7 @@ void RimViewController::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateDisplayNameAndIcon()
 {
-    RimViewLinker::findNameAndIconFromView(&name.v(), &m_originalIcon, managedView());
+    RimViewLinker::findNameAndIconFromView(&m_name.v(), &m_originalIcon, managedView());
     RimViewLinker::applyIconEnabledState(this, m_originalIcon, !isActive());
 }
 
@@ -623,11 +623,98 @@ bool RimViewController::isMasterAndDepViewDifferentType()
 
     return isMasterAndDependentViewDifferentType;
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView()
+{
+    if (!this->isActive) return;
+
+    if (this->isVisibleCellsOveridden()
+        || this->m_syncPropertyFilters()
+        || this->m_syncRangeFilters()
+        )
+    {
+        if (this->managedView())
+        {
+            this->managedView()->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::syncVisibleCells()
+void RimViewController::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType)
+{
+    if (!this->isActive) return;
+
+    if (this->isVisibleCellsOveridden()
+        || this->m_syncPropertyFilters()
+        || this->m_syncRangeFilters()
+        )
+    {
+        if (this->managedView())
+        {
+            if (this->isVisibleCellsOveridden()) {
+                this->managedView()->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
+            }
+            else{
+                this->managedView()->scheduleGeometryRegen(geometryType);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isCameraLinked()
+{
+    if (ownerViewLinker()->isActive() && this->isActive())
+    {
+        return m_syncCamera;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isTimeStepLinked()
+{
+    if (ownerViewLinker()->isActive() && this->isActive())
+    {
+        return m_syncTimeStep;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isResultColorControlled()
+{
+   if (ownerViewLinker()->isActive() && this->isActive())
+    {
+        return m_syncCellResult;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isVisibleCellsOveridden()
 {
     if (isMasterAndDepViewDifferentType())
     {
@@ -646,46 +733,34 @@ bool RimViewController::syncVisibleCells()
     }
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView()
+bool RimViewController::isRangeFilterOveridden()
 {
-    if (!this->isActive) return;
-
-    if (this->syncVisibleCells()
-        || this->syncPropertyFilters()
-        || this->syncRangeFilters()
-        )
+    if (ownerViewLinker()->isActive() && this->isActive())
     {
-        if (this->managedView())
-        {
-            this->managedView()->scheduleCreateDisplayModelAndRedraw();
-        }
+        return m_syncRangeFilters;
+    }
+    else
+    {
+        return false;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType)
+bool RimViewController::isPropertyFilterOveridden()
 {
-    if (!this->isActive) return;
-
-    if (this->syncVisibleCells()
-        || this->syncPropertyFilters()
-        || this->syncRangeFilters()
-        )
+   if (ownerViewLinker()->isActive() && this->isActive())
     {
-        if (this->managedView())
-        {
-            if (this->syncVisibleCells()) {
-                this->managedView()->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
-            }
-            else{
-                this->managedView()->scheduleGeometryRegen(geometryType);
-            }
-        }
+        return m_syncPropertyFilters;
+    }
+    else
+    {
+        return false;
     }
 }
 

@@ -230,7 +230,7 @@ RimLegendConfig* RimEclipseCellColors::legendConfig()
 void RimEclipseCellColors::updateIconState()
 {
     RimViewController* viewLink = RimViewLinker::viewLinkForView(m_reservoirView);
-    if (viewLink && viewLink->syncCellResult())
+    if (viewLink && viewLink->isResultColorControlled())
     {
         updateUiIconFromState(false);
     }

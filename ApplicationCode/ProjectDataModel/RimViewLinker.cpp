@@ -93,7 +93,7 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
         RimViewController* sourceViewLink = sourceView->controllingViewLink();
         CVF_ASSERT(sourceViewLink);
 
-        if (!sourceViewLink->isActive() || !sourceViewLink->syncTimeStep())
+        if (!sourceViewLink->isActive() || !sourceViewLink->isTimeStepLinked())
         {
             return;
         }
@@ -112,7 +112,7 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 
         if (viewLink->managedView() && viewLink->managedView() != sourceView)
         {
-            if (viewLink->syncTimeStep() && viewLink->managedView()->viewer())
+            if (viewLink->isTimeStepLinked() && viewLink->managedView()->viewer())
             {
                 viewLink->managedView()->viewer()->setCurrentFrame(timeStep);
                 viewLink->managedView()->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
@@ -145,7 +145,7 @@ void RimViewLinker::updateCellResult()
                 RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
                 if (eclipeView)
                 {
-                    if (viewLink->syncCellResult())
+                    if (viewLink->isResultColorControlled())
                     {
                         eclipeView->cellResult()->setPorosityModel(eclipseCellResultDefinition->porosityModel());
                         eclipeView->cellResult()->setResultType(eclipseCellResultDefinition->resultType());
@@ -175,7 +175,7 @@ void RimViewLinker::updateCellResult()
                 RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
                 if (geoView)
                 {
-                    if (viewLink->syncCellResult())
+                    if (viewLink->isResultColorControlled())
                     {
                         geoView->cellResult()->setResultAddress(geoMechResultDefinition->resultAddress());
                         geoView->scheduleCreateDisplayModelAndRedraw();
@@ -240,7 +240,7 @@ void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>
     {
         if (viewLinks[i]->managedView() && source != viewLinks[i]->managedView())
         {
-            if (viewLinks[i]->isActive() && viewLinks[i]->syncCamera())
+            if (viewLinks[i]->isActive() && viewLinks[i]->isCameraLinked())
             {
                 views.push_back(viewLinks[i]->managedView());
             }
@@ -345,7 +345,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
         RimViewController* sourceViewLink = viewLinkForView(sourceView);
         CVF_ASSERT(sourceViewLink);
 
-        if (!sourceViewLink->isActive() || !sourceViewLink->syncCamera())
+        if (!sourceViewLink->isActive() || !sourceViewLink->isCameraLinked())
         {
             return;
         }
@@ -523,7 +523,7 @@ void RimViewLinker::updateCamera(RimView* sourceView)
     RimViewController* viewLink = sourceView->controllingViewLink();
     if (viewLink)
     {
-        if ((!viewLink->isActive() || !viewLink->syncCamera()))
+        if ((!viewLink->isActive() || !viewLink->isCameraLinked()))
         {
             return;
         }
