@@ -230,7 +230,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     {
         QStringList commandIds;
 
-        commandIds << "RicLinkVisibleViewsFeature";
         commandIds << "RicLinkViewFeature";
         commandIds << "RicUnLinkViewFeature";
         commandIds << "RicShowLinkOptionsFeature";

@@ -47,10 +47,17 @@ CAF_CMD_SOURCE_INIT(RicLinkVisibleViewsFeature, "RicLinkVisibleViewsFeature");
 bool RicLinkVisibleViewsFeature::isCommandEnabled()
 {
     RimProject* proj = RiaApplication::instance()->project();
-    std::vector<RimView*> views;
-    proj->allVisibleViews(views);
+    std::vector<RimView*> visibleViews;
+    std::vector<RimView*> linkedviews;
 
-    if (views.size() > 1) return true;
+    proj->allVisibleViews(visibleViews);
+    if (proj->viewLinkerCollection() && proj->viewLinkerCollection()->viewLinker()) 
+    {
+        proj->viewLinkerCollection()->viewLinker()->allViews(linkedviews);
+    }
+
+
+    if (visibleViews.size() >= 2 && (linkedviews.size() < visibleViews.size())) return true;
 
     return false;
 }
