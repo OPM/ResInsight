@@ -157,7 +157,8 @@ void RimEclipsePropertyFilterCollection::updateIconState()
     RimEclipseView* view = NULL;
     this->firstAnchestorOrThisOfType(view);
     RimViewController* viewController = view->viewController();
-    if (viewController && viewController->isPropertyFilterOveridden())
+    if (viewController && (viewController->isPropertyFilterOveridden() 
+                           || viewController->isVisibleCellsOveridden()))
     {
         activeIcon = false;
     }

@@ -321,7 +321,8 @@ void RimCellRangeFilterCollection::updateIconState()
     bool activeIcon = true;
 
     RimViewController* viewController = baseView()->viewController();
-    if (viewController && viewController->isRangeFilterOveridden())
+    if (viewController && ( viewController->isRangeFilterOveridden() 
+                         || viewController->isVisibleCellsOveridden()) )
     {
         activeIcon = false;
     }
