@@ -72,9 +72,9 @@ void RicDeleteItemExec::redo()
             m_commandData->m_deletedObjectAsXml = xmlObj(obj)->writeObjectToXmlString();
         }
 
-        listField->erase(m_commandData->m_indexToObject);
-
         delete obj;
+
+        listField->erase(m_commandData->m_indexToObject);
 
         caf::PdmObjectHandle* parentObj = listField->ownerObject();
         parentObj->uiCapability()->updateConnectedEditors();

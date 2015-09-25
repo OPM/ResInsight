@@ -285,8 +285,8 @@ void RimViewLinker::setMasterView(RimView* view)
     // Remove the view as dependent view
     if (previousViewController)
     {
-        this->viewLinks.removeChildObject(previousViewController);
         delete previousViewController;
+        this->viewLinks.removeChildObject(NULL);
     }
 
     this->removeOverrides();
