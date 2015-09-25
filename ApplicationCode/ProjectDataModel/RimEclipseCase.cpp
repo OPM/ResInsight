@@ -44,9 +44,7 @@
 #include <QDebug>
 
 
-#include "cafPdmAbstractClassSourceInit.h"
-
-CAF_PDM_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir"); 
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
 
 //------------------------------------------------------------------------------------------------
 /// 
