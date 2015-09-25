@@ -27,6 +27,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimView.h"
+#include "RimProject.h"
 
 #include "RiuMainWindow.h"
 #include "RiaApplication.h"
@@ -105,8 +106,10 @@ RimWellPath* RicNewWellLogCurveExtractionFeature::selectedWellPath() const
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogCurveExtractionFeature::caseAvailable() const
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
-    return view ? view->ownerCase() != NULL : false;
+    std::vector<RimCase*> cases;
+    RiaApplication::instance()->project()->allCases(cases);
+
+    return cases.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
