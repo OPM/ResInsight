@@ -26,6 +26,7 @@
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimView.h"
 
 #include "RiuMainWindow.h"
 #include "RiaApplication.h"
@@ -44,7 +45,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtr
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 {
-    return selectedWellLogPlotTrack() != NULL || selectedWellPath() != NULL;
+    return (selectedWellLogPlotTrack() != NULL || selectedWellPath() != NULL) && caseAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +83,7 @@ void RicNewWellLogCurveExtractionFeature::setupActionLook(QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrack* RicNewWellLogCurveExtractionFeature::selectedWellLogPlotTrack()
+RimWellLogPlotTrack* RicNewWellLogCurveExtractionFeature::selectedWellLogPlotTrack() const
 {
     std::vector<RimWellLogPlotTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -92,11 +93,20 @@ RimWellLogPlotTrack* RicNewWellLogCurveExtractionFeature::selectedWellLogPlotTra
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicNewWellLogCurveExtractionFeature::selectedWellPath()
+RimWellPath* RicNewWellLogCurveExtractionFeature::selectedWellPath() const
 {
     std::vector<RimWellPath*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     return selection.size() > 0 ? selection[0] : NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicNewWellLogCurveExtractionFeature::caseAvailable() const
+{
+    RimView* view = RiaApplication::instance()->activeReservoirView();
+    return view ? view->ownerCase() != NULL : false;
 }
 
 //--------------------------------------------------------------------------------------------------

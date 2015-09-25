@@ -44,6 +44,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    RimWellLogPlotTrack* selectedWellLogPlotTrack();
-    RimWellPath*         selectedWellPath();
+    RimWellLogPlotTrack*    selectedWellLogPlotTrack() const;
+    RimWellPath*            selectedWellPath() const;
+    bool                    caseAvailable() const;
 };
