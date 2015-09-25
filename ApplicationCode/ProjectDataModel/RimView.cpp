@@ -475,6 +475,20 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     else if (changedField == &name)
     {
         updateViewerWidgetWindowTitle();
+
+        if (viewController())
+        {
+            viewController()->updateDisplayNameAndIcon();
+            viewController()->updateConnectedEditors();
+        }
+        else
+        {
+            if (isMasterView())
+            {
+                assosiatedViewLinker()->updateUiNameAndIcon();
+                assosiatedViewLinker()->updateConnectedEditors();
+            }
+        }
     }
     else if (changedField == &m_currentTimeStep)
     {
