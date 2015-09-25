@@ -18,8 +18,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RivReservoirViewPartMgr.h"
 
 #include "RigCaseCellResultsData.h"

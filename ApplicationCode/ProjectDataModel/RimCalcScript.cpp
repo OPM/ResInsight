@@ -16,9 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
-
 #include "cafPdmField.h"
 #include "RimCalcScript.h"
 #include "cafPdmUiFilePathEditor.h"

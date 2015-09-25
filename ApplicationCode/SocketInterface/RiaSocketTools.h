@@ -20,7 +20,11 @@
 
 class RimCase;
 class RiaSocketServer;
+class RimEclipseCase;
 class QTcpSocket;
+
+#include <QList>
+#include <QByteArray>
 
 #define PMonLog( MessageString ) RiuMainWindow::instance()->processMonitor()->addStringToLog( MessageString );
 

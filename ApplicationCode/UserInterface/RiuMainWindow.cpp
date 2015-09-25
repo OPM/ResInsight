@@ -18,8 +18,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RiuMainWindow.h"
 
 #include "RiaApplication.h"
@@ -45,22 +43,25 @@
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechView.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPathImport.h"
+#include "RimTreeViewStateSerializer.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimMainPlotCollection.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathImport.h"
 
+#include "RiuDragDrop.h"
 #include "RiuMultiCaseImportDialog.h"
 #include "RiuProcessMonitor.h"
+#include "RiuProjectPropertyView.h"
 #include "RiuResultInfoPanel.h"
+#include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
-#include "RiuDragDrop.h"
 #include "RiuWellLogPlot.h"
 
 #include "cafAboutDialog.h"
@@ -75,11 +76,27 @@
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
-
 #include "cvfTimer.h"
-#include "RimTreeViewStateSerializer.h"
-#include "RiuTreeViewEventFilter.h"
-#include "RiuProjectPropertyView.h"
+
+#include <QAction>
+#include <QCloseEvent>
+#include <QDesktopServices>
+#include <QDockWidget>
+#include <QErrorMessage>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QLabel>
+#include <QLayout>
+#include <QMdiArea>
+#include <QMdiSubWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QSpinBox>
+#include <QStyle>
+#include <QToolTip>
+#include <QTreeView>
+#include <QUndoStack>
+
 
 
 //==================================================================================================

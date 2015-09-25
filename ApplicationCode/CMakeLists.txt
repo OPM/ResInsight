@@ -51,7 +51,6 @@ file( GLOB_RECURSE HEADER_FILES *.h )
 
 set( APPLICATION_FILES 
     RiaMain.cpp
-    RiaStdInclude.cpp
         
     Application/RiaApplication.cpp
     Application/RiaPreferences.cpp

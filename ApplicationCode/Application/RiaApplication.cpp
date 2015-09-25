@@ -18,77 +18,77 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RiaApplication.h"
 
-#include "cafEffectCache.h"
-#include "cafUtils.h"
-#include "cafAppEnum.h"
-#include "cafPdmSettings.h"
-
-#include "RiaVersionInfo.h"
 #include "RiaBaseDefs.h"
-//
-#include "RiuMainWindow.h"
-#include "RiuViewer.h"
-#include "RiuProcessMonitor.h"
-#include "RiaPreferences.h"
-//
-#include "RimEclipseResultCase.h"
-#include "RimEclipseInputCase.h"
-#include "RimEclipseView.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimOilField.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseFaultColors.h"
-
-#include "RiaSocketServer.h"
-#include "cafUiProcess.h"
-//
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
+#include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
-#include "cafProgressInfo.h"
+#include "RiaSocketServer.h"
+#include "RiaVersionInfo.h"
+
 #include "RigGridManager.h"
 
-#include "RimProject.h"
-
-#include "RimEclipseCellColors.h"
-
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimEclipseInputPropertyCollection.h"
-
-#include "RimDefines.h"
-#include "RimScriptCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
 #include "RimCaseCollection.h"
-
-////////////
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimEclipseWellCollection.h"
-#include "RimEclipseStatisticsCase.h"
-#include "cafCeetronPlusNavigation.h"
-
-#include "cvfProgramOptions.h"
-#include "cvfqtUtils.h"
 #include "RimCommandObject.h"
+#include "RimDefines.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultCase.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechCellColors.h"
+#include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
-#include "RimWellLogPlotCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimScriptCollection.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
+#include "RiuMainWindow.h"
+#include "RiuProcessMonitor.h"
+#include "RiuViewer.h"
+
+#include "cafAppEnum.h"
+#include "cafCeetronPlusNavigation.h"
+#include "cafEffectCache.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmSettings.h"
 #include "cafPdmUiTreeView.h"
+#include "cafProgressInfo.h"
+#include "cafUiProcess.h"
+#include "cafUtils.h"
+#include "cvfFixedAtlasFont.h"
+#include "cvfProgramOptions.h"
+#include "cvfqtUtils.h"
+
+#include <QClipboard>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QDir>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QTimer>
+#include <QUrl>
+
 
 namespace caf
 {

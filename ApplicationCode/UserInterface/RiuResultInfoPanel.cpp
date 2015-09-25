@@ -16,10 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
 #include "RiuResultInfoPanel.h"
 
-
+#include <QDockWidget>
+#include <QTextEdit>
+#include <QVBoxLayout>
+#include <QWidget>
 
 //==================================================================================================
 ///

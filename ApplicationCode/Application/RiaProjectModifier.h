@@ -18,6 +18,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "cvfObject.h"
+
+#include <QString>
+
+#include <vector>
+
 class RimProject;
 
 

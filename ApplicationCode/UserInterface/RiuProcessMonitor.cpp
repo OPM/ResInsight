@@ -16,11 +16,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
+#include "RiaApplication.h"
 
 #include "RiuProcessMonitor.h"
+
 #include "cafUiProcess.h"
-#include "RiaApplication.h"
+
+#include <QWidget>
+#include <QLabel>
+#include <QDockWidget>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QPlainTextEdit>
 
 //--------------------------------------------------------------------------------------------------
 /// 

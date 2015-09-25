@@ -20,8 +20,13 @@
 
 #include "RimEclipseWellCollection.h"
 
-
 #include "cvfCollection.h"
+
+namespace cvf
+{
+    class Transform;
+    class ModelBasicList;
+}
 
 class RimEclipseView;
 class RivWellPipesPartMgr;
@@ -36,7 +41,7 @@ public:
     void clearGeometryCache();
     void scheduleGeometryRegen();
 
-    void setScaleTransform(cvf::Transform * scaleTransform);
+    void setScaleTransform(cvf::Transform* scaleTransform);
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     void updatePipeResultColor(size_t frameIndex);

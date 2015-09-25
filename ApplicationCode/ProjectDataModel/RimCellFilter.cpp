@@ -16,12 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
-
-#include "cafAppEnum.h"
 #include "RimCellFilter.h"
 
+#include "cafAppEnum.h"
+
+#include <QPainter>
 
 namespace caf
 {

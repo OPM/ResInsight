@@ -17,8 +17,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RiaProjectModifier.h"
 
 #include "RimProject.h"
@@ -39,6 +37,9 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
+
+#include <QFileInfo>
+#include <QDir>
 
 
 
