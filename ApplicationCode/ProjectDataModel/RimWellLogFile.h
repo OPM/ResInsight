@@ -43,6 +43,9 @@ public:
     RimWellLogFile();
     virtual ~RimWellLogFile();
 
+    static RimWellLogFile* readWellLogFile(const QString& logFilePath);
+
+
     void    setFileName(const QString& fileName);
     QString fileName() const { return m_fileName; }
 

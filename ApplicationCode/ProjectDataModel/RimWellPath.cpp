@@ -176,42 +176,6 @@ void RimWellPath::readWellPathFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogFile* RimWellPath::readWellLogFile(const QString& logFilePath)
-{
-    QFileInfo fi(logFilePath);
-
-    RimWellLogFile* wellLogFile = NULL;
-
-    if (fi.suffix().toUpper().compare("LAS") == 0)
-    {
-        QString errorMessage;
-        wellLogFile = new RimWellLogFile();
-        wellLogFile->setFileName(logFilePath);
-        if (!wellLogFile->readFile(&errorMessage))
-        {
-            QString displayMessage = "Could not open the LAS file: \n" + logFilePath;
-
-            if (!errorMessage.isEmpty())
-            {
-                displayMessage += "\n\n";
-                displayMessage += errorMessage;
-            }
-
-            QMessageBox::warning(RiuMainWindow::instance(), 
-                "File open error", 
-                displayMessage);
-
-            delete wellLogFile;
-            wellLogFile = NULL;
-        }
-    }
-
-    return wellLogFile;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Read JSON file containing well path data
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::readJsonWellPathFile()

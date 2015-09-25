@@ -262,7 +262,7 @@ void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
 {
     foreach (QString filePath, filePaths)
     {
-        RimWellLogFile* logFileInfo = RimWellPath::readWellLogFile(filePath);
+        RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile(filePath);
         if (logFileInfo)
         {
             RimWellPath* wellPath = wellPathByName(logFileInfo->wellName());

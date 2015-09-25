@@ -74,7 +74,6 @@ public:
     RivWellPathPartMgr*                 partMgr();
 
     void                                readWellPathFile();
-    static RimWellLogFile*              readWellLogFile(const QString& logFilePath);
     void                                updateFilePathsFromProjectPath();
 
 
