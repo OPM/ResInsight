@@ -184,7 +184,7 @@ RimWellLogFile* RimWellPath::readWellLogFile(const QString& logFilePath)
 
     RimWellLogFile* wellLogFile = NULL;
 
-    if (fi.suffix().compare("las") == 0)
+    if (fi.suffix().toUpper().compare("LAS") == 0)
     {
         QString errorMessage;
         wellLogFile = new RimWellLogFile();
