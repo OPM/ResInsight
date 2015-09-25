@@ -41,6 +41,10 @@
 #include "RimWellLogPlotTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCellColors.h"
 
 #include "RiuWellLogPlotCurve.h"
 #include "RiuWellLogTrackPlot.h"
@@ -106,6 +110,33 @@ void RimWellLogExtractionCurve::setWellPath(RimWellPath* wellPath)
 {
     m_wellPath = wellPath;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
+{
+    m_case = view ? view->ownerCase() : NULL;
+
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+    m_eclipseResultDefinition->setEclipseCase(eclipseCase);
+    m_geomResultDefinition->setGeoMechCase(geomCase);
+
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+    if (eclipseView)
+    {
+        m_eclipseResultDefinition->setResultType(eclipseView->cellResult()->resultType());
+        m_eclipseResultDefinition->setResultVariable(eclipseView->cellResult()->resultVariable());
+    }
+
+    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
+    if (geoMechView)
+    {
+        m_geomResultDefinition->setResultAddress(geoMechView->cellResult()->resultAddress());
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

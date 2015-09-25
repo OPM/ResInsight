@@ -28,6 +28,7 @@ class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
 class RimWellPath;
+class RimView;
 
 //==================================================================================================
 ///  
@@ -43,6 +44,7 @@ public:
     virtual void updatePlotData();
     
     void setWellPath(RimWellPath* wellPath);
+    void setPropertiesFromView(RimView* view);
 
 protected:
     virtual QString createCurveName();

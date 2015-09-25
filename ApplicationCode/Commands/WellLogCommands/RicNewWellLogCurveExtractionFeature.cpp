@@ -28,6 +28,7 @@
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
+#include "RiaApplication.h"
 
 #include "cafSelectionManager.h"
 
@@ -54,7 +55,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
     RimWellLogPlotTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
     {
-        addCurve(wellLogPlotTrack);
+        addCurve(wellLogPlotTrack, NULL, NULL);
     }
     else
     {
@@ -62,8 +63,9 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
         if (wellPath)
         {
             RimWellLogPlotTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogExtractionCurve* plotCurve = addCurve(wellLogPlotTrack);
-            plotCurve->setWellPath(wellPath);
+            RimWellLogExtractionCurve* plotCurve = addCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath);
+ 
+            plotCurve->updatePlotData();
             plotCurve->updateConnectedEditors();
         }
     }
@@ -100,7 +102,7 @@ RimWellPath* RicNewWellLogCurveExtractionFeature::selectedWellPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogPlotTrack* plotTrack)
+RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogPlotTrack* plotTrack, RimView* view, RimWellPath* wellPath)
 {
     CVF_ASSERT(plotTrack);
 
@@ -111,9 +113,10 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIndex);
     curve->setColor(curveColor);
+    curve->setWellPath(wellPath);
+    curve->setPropertiesFromView(view);
 
     plotTrack->updateConnectedEditors();
-
     RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
 
     return curve;
