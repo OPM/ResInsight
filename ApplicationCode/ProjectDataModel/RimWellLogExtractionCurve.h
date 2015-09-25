@@ -66,6 +66,7 @@ protected:
     caf::PdmField<bool>                             m_addPropertyToCurveName;
     caf::PdmField<bool>                             m_addWellNameToCurveName;
     caf::PdmField<bool>                             m_addTimestepToCurveName;
+    caf::PdmField<bool>                             m_addDateToCurveName;
 
 private:
     static void validValuesIntervals(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals);

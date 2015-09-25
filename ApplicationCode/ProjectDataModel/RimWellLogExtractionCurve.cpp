@@ -84,7 +84,8 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name", "", "", "");
     CAF_PDM_InitField(&m_addPropertyToCurveName, "AddPropertyToCurveName", true, "   Property", "", "", "");
     CAF_PDM_InitField(&m_addWellNameToCurveName, "AddWellNameToCurveName", true, "   Well Name", "", "", "");
-    CAF_PDM_InitField(&m_addTimestepToCurveName, "AddTimestepToCurveName", true, "   Timestep", "", "", "");
+    CAF_PDM_InitField(&m_addTimestepToCurveName, "AddTimestepToCurveName", false, "   Timestep", "", "", "");
+    CAF_PDM_InitField(&m_addDateToCurveName, "AddDateToCurveName", true, "   Date", "", "", "");
 
     updateOptionSensitivity();
 }
@@ -129,7 +130,8 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
     if (changedField == &m_addCaseNameToCurveName ||
         changedField == &m_addPropertyToCurveName ||
         changedField == &m_addWellNameToCurveName ||
-        changedField == &m_addTimestepToCurveName)
+        changedField == &m_addTimestepToCurveName ||
+        changedField == &m_addDateToCurveName)
     {
         this->uiCapability()->updateConnectedEditors();
         updateCurveName();
@@ -329,6 +331,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
         appearanceGroup->add(&m_addCaseNameToCurveName);
         appearanceGroup->add(&m_addPropertyToCurveName);
         appearanceGroup->add(&m_addWellNameToCurveName);
+        appearanceGroup->add(&m_addDateToCurveName);
         appearanceGroup->add(&m_addTimestepToCurveName);
     }
 
@@ -531,13 +534,8 @@ QString RimWellLogExtractionCurve::createCurveName()
             generatedCurveName = m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
     }
 
-    if (m_addTimestepToCurveName)
+    if (m_addTimestepToCurveName || m_addDateToCurveName)
     {
-        if (!generatedCurveName.isEmpty())
-        {
-            generatedCurveName += ",";
-        }
-
         size_t maxTimeStep = 0;
         
         QStringList timeStepNames;
@@ -556,11 +554,25 @@ QString RimWellLogExtractionCurve::createCurveName()
             timeStepNames = geomCase->timeStepStrings();
         }
 
-        if (m_timeStep < timeStepNames.size())
+        if (m_addDateToCurveName && m_timeStep < timeStepNames.size())
         {
+            if (!generatedCurveName.isEmpty())
+            {
+                generatedCurveName += ",";
+            }
+
             generatedCurveName += timeStepNames[m_timeStep];
         }
-        generatedCurveName += QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep);
+
+        if (m_addTimestepToCurveName)
+        {
+            if (!generatedCurveName.isEmpty())
+            {
+                generatedCurveName += ",";
+            }
+
+            generatedCurveName += QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep);
+        }
     }
 
     return generatedCurveName;
