@@ -157,9 +157,10 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
         viewLinker->addDependentView(rimView);
     }
 
+    viewLinker->updateDependentViews();
+
     viewLinker->updateUiNameAndIcon();
 
-    viewLinker->updateDependentViews();
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->updateConnectedEditors();
 

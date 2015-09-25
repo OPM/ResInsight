@@ -183,45 +183,11 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
     else if (changedField == &m_managedView)
     {
-        updateOverrides();
-
-        if (m_managedView)
-        {
-            RimViewLinker* viewLinker = ownerViewLinker();
-
-            if (m_syncCellResult())
-            {
-                viewLinker->updateCellResult();
-            }
-            if (m_syncCamera())
-            {
-                viewLinker->updateCamera(m_managedView);
-            }
-
-            m_name = RimViewLinker::displayNameForView(m_managedView);
-        }
-
         PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle> >().rawPtr();
-        if (prevValue)
-        {
-            RimView* rimView = dynamic_cast<RimView*>(prevValue);
-            rimView->setOverrideRangeFilterCollection(NULL);
+        RimView* previousManagedView = dynamic_cast<RimView*>(prevValue);
+        RimViewController::removeOverrides(previousManagedView);
 
-            RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(rimView);
-            if (rimEclipseView)
-            {
-                rimEclipseView->setOverridePropertyFilterCollection(NULL);
-            }
-
-            RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
-            if (geoView)
-            {
-                geoView->setOverridePropertyFilterCollection(NULL);
-            }
-        }
-
-        updateOptionSensitivity();
-        updateDisplayNameAndIcon();
+        setManagedView(m_managedView());
 
         m_name.uiCapability()->updateConnectedEditors();
     }
@@ -268,12 +234,6 @@ RimGeoMechView* RimViewController::managedGeoView()
 void RimViewController::updateOverrides()
 {
     RimViewLinker* viewLinker = ownerViewLinker();
-
-    if (!this->isActive() ) 
-    {
-        removeOverrides();
-        return;
-    }
     
     RimView* masterView = viewLinker->masterView();
 
@@ -284,26 +244,17 @@ void RimViewController::updateOverrides()
         RimEclipseView* manEclView = managedEclipseView();
         RimGeoMechView* manGeoView = managedGeoView();
 
-        if (manGeoView)
-        {
-            manGeoView->updateIconStateForFilterCollections();
-        }
-
-        if (manEclView)
-        {
-            manEclView->updateIconStateForFilterCollections();
-        }
-
         if (isVisibleCellsOveridden())
         {
             m_managedView->setOverrideRangeFilterCollection(NULL);
             if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
             if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
             m_managedView->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
+            m_managedView->scheduleCreateDisplayModelAndRedraw();
         }
         else
         {
-            if (m_syncRangeFilters)
+            if (isRangeFilterOveridden())
             {
                 m_managedView->setOverrideRangeFilterCollection(masterView->rangeFilterCollection());
             }
@@ -318,7 +269,7 @@ void RimViewController::updateOverrides()
 
                 if (manEclView)
                 {
-                    if (m_syncPropertyFilters)
+                    if (isPropertyFilterOveridden())
                     {
                         manEclView->setOverridePropertyFilterCollection(masterEclipseView->propertyFilterCollection());
                     }
@@ -334,7 +285,7 @@ void RimViewController::updateOverrides()
             {
                 if (manGeoView)
                 {
-                    if (m_syncPropertyFilters)
+                    if (isPropertyFilterOveridden())
                     {
                         manGeoView->setOverridePropertyFilterCollection(masterGeoView->propertyFilterCollection());
                     }
@@ -345,6 +296,16 @@ void RimViewController::updateOverrides()
                 }
             }
         }
+        
+        if (manGeoView)
+        {
+            manGeoView->updateIconStateForFilterCollections();
+        }
+
+        if (manEclView)
+        {
+            manEclView->updateIconStateForFilterCollections();
+        }
     }
 }
 
@@ -353,11 +314,19 @@ void RimViewController::updateOverrides()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::removeOverrides()
 {
-    if (m_managedView)
+    removeOverrides(m_managedView);
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::removeOverrides(RimView* view)
+{
+    if (view)
     {
-        RimEclipseView* manEclView = managedEclipseView();
-        RimGeoMechView* manGeoView = managedGeoView();
-        m_managedView->setOverrideRangeFilterCollection(NULL);
+        RimEclipseView* manEclView = dynamic_cast<RimEclipseView*>(view);
+        RimGeoMechView* manGeoView = dynamic_cast<RimGeoMechView*>(view);
+
+        view->setOverrideRangeFilterCollection(NULL);
         if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
         if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
     }
@@ -422,10 +391,12 @@ RimView* RimViewController::managedView()
 void RimViewController::setManagedView(RimView* view)
 {
     m_managedView = view;
-
-    this->updateOverrides();
-    this->updateOptionSensitivity();
-    this->updateDisplayNameAndIcon();
+    updateCameraLink();
+    updateTimeStepLink();
+    updateResultColorsControl();
+    updateOverrides();
+    updateOptionSensitivity();
+    updateDisplayNameAndIcon();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,11 +435,13 @@ void RimViewController::updateDisplayNameAndIcon()
 void RimViewController::updateCameraLink()
 {
     if (!this->isCameraLinked()) return;
-     
-    RimViewLinker* viewLinker = NULL;
-    this->firstAnchestorOrThisOfType(viewLinker);
-    viewLinker->updateScaleZ(viewLinker->masterView(), viewLinker->masterView()->scaleZ());
-    viewLinker->updateCamera(viewLinker->masterView());
+    if (m_managedView)
+    {
+        RimViewLinker* viewLinker = this->ownerViewLinker();
+
+        viewLinker->updateScaleZ(viewLinker->masterView(), viewLinker->masterView()->scaleZ());
+        viewLinker->updateCamera(viewLinker->masterView());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -480,9 +453,9 @@ void RimViewController::updateTimeStepLink()
 
     if (m_managedView)
     {
-        RimViewLinker* linkedViews = NULL;
-        this->firstAnchestorOrThisOfType(linkedViews);
-        linkedViews->updateTimeStep(m_managedView, m_managedView->currentTimeStep());
+        RimViewLinker* viewLinker  = this->ownerViewLinker();
+
+        viewLinker->updateTimeStep(viewLinker->masterView(), viewLinker->masterView()->currentTimeStep());
     }
 }
 
@@ -615,6 +588,7 @@ bool RimViewController::isMasterAndDepViewDifferentType()
 
     return isMasterAndDependentViewDifferentType;
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

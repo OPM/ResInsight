@@ -70,7 +70,6 @@ public:
     void                                    updateOverrides();
     void                                    updateOptionSensitivity();
     void                                    removeOverrides();
-
     void                                    updateDisplayNameAndIcon();
 
 protected:  // Pdm overridden methods
@@ -93,6 +92,7 @@ private:
 
     RimEclipseView*                         managedEclipseView();
     RimGeoMechView*                         managedGeoView();
+    static void                             removeOverrides(RimView* view);
 
 private:
     caf::PdmField<QString>                  m_name;
