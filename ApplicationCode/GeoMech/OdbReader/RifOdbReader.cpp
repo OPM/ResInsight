@@ -104,7 +104,7 @@ std::map<std::string, RigElementType> initFemTypeMap()
     std::map<std::string, RigElementType> typeMap;
     typeMap["C3D8R"] = HEX8;
     typeMap["C3D8"]  = HEX8;
-    typeMap["C3D8P"] = HEX8;
+    typeMap["C3D8P"] = HEX8P;
     typeMap["CAX4"] = CAX4;
 
     return typeMap;
@@ -141,6 +141,7 @@ const int* localElmNodeToIntegrationPointMapping(RigElementType elmType)
     switch (elmType)
     {
         case HEX8:
+        case HEX8P:
             return HEX8_Mapping;
             break;
         case CAX4:

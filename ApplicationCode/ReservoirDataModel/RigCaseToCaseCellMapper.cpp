@@ -366,7 +366,8 @@ int quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4])
 //--------------------------------------------------------------------------------------------------
 bool elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
 {
-    if (femPart->elementType(elmIdx) != HEX8) return false;
+    RigElementType elmType = femPart->elementType(elmIdx);
+    if (!(elmType == HEX8 || elmType == HEX8P)) return false;
 
     const std::vector<cvf::Vec3f>& nodeCoords =  femPart->nodes().coordinates;
     const int* cornerIndices = femPart->connectivities(elmIdx);

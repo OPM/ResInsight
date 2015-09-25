@@ -216,7 +216,7 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex) const
     // Record three independent main direction vectors for the element, and what face they are created from
     cvf::Vec3f mainElmDirections[3];
     int mainElmDirOriginFaces[3];
-    if (eType == HEX8)
+    if (eType == HEX8 || eType == HEX8P)
     {
         mainElmDirections[0] = normals[0] - normals[1]; // To get a better "average" direction vector
         mainElmDirections[1] = normals[2] - normals[3];

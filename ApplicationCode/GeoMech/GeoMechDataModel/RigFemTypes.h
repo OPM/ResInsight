@@ -23,6 +23,7 @@
 enum RigElementType
 {
     HEX8,
+    HEX8P,
     CAX4,
     UNKNOWN_ELM_TYPE
 };

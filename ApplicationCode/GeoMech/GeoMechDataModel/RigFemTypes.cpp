@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 int RigFemTypes::elmentNodeCount(RigElementType elmType)
 {
-    static int elementTypeCounts[2] ={ 8, 4 };
+    static int elementTypeCounts[3] ={ 8, 8, 4 };
 
     return elementTypeCounts[elmType];
 }
@@ -37,7 +37,7 @@ int RigFemTypes::elmentNodeCount(RigElementType elmType)
 //--------------------------------------------------------------------------------------------------
 int RigFemTypes::elmentFaceCount(RigElementType elmType)
 {
-    const static int elementFaceCounts[2] ={ 6, 1 };
+    const static int elementFaceCounts[3] ={ 6, 6, 1 };
 
     return elementFaceCounts[elmType];
 }
@@ -63,6 +63,7 @@ const int* RigFemTypes::localElmNodeIndicesForFace(RigElementType elmType, int f
     switch (elmType)
     {
         case HEX8:
+        case HEX8P:
             (*faceNodeCount) = 4;
             return HEX8_Faces[faceIdx];
             break;
@@ -85,6 +86,7 @@ int RigFemTypes::oppositeFace(RigElementType elmType, int faceIdx)
     switch (elmType)
     {
         case HEX8:
+        case HEX8P:
             return HEX8_OppositeFaces[faceIdx];
             break;
         case CAX4:

@@ -59,7 +59,7 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
         size_t elmIdx = m_intersectedCells[cpIdx];
         RigElementType elmType = femPart->elementType(elmIdx);
 
-        if (elmType != HEX8) continue;
+        if (!(elmType == HEX8  || elmType == HEX8P)) continue;
 
         cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
 
@@ -134,7 +134,8 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         cvf::Vec3d hexCorners[8];
         for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
         {
-            if (femPart->elementType(closeCells[ccIdx]) != HEX8) continue;
+            RigElementType elmType = femPart->elementType(closeCells[ccIdx]);
+            if (!(elmType == HEX8 || elmType == HEX8P)) continue;
 
             const int* cornerIndices = femPart->connectivities(closeCells[ccIdx]);
 
