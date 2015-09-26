@@ -550,7 +550,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
                         float por = srcPORFrameData[nodeIdx];
 
-                        if (por == inf || abs(por) < 0.01e6)
+                        if (por == inf || abs(por) < 0.01e6*1.0e-5)
                             dstFrameData[elmNodResIdx] = inf;
                         else
                             dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx]/por;
