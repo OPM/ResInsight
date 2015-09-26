@@ -411,9 +411,21 @@ void RimGeoMechView::updateLegends()
 
     m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
 
-    cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(
+    cvf::String legendTitle = cvfqt::Utils::toString(
         caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
-        + cellResult->resultFieldUiName() + ", " + cellResult->resultComponentUiName()));
+        + cellResult->resultFieldUiName());
+
+    if (!cellResult->resultComponentUiName().isEmpty())
+    {
+        legendTitle += ", " + cvfqt::Utils::toString(cellResult->resultComponentUiName());
+    }
+
+    if (cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar")
+    {
+        legendTitle += " [Bar]";
+    }
+
+    cellResult()->legendConfig->legend()->setTitle(legendTitle);
 }
 
 //--------------------------------------------------------------------------------------------------
