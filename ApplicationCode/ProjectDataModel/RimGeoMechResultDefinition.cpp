@@ -135,9 +135,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames);
 
         if (m_resultPositionTypeUiField() == m_resultPositionType()
-            && varNames.contains(composeUiVarString(m_resultFieldName(), m_resultComponentName())))
+            && varNames.contains(composeFieldCompString(m_resultFieldName(), m_resultComponentName())))
         {
-            m_resultVariableUiField = composeUiVarString(m_resultFieldName(), m_resultComponentName());
+            m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
         }
         else
         {
@@ -244,7 +244,7 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* u
     {
         QString resultFieldName = QString::fromStdString(fieldIt->first);
 
-        if (resultFieldName == "E" || resultFieldName == "S") continue; // We will not show the native Stress and Strain
+        if (resultFieldName == "E" || resultFieldName == "S" || resultFieldName == "POR") continue; // We will not show the native POR, Stress and Strain
 
         QString resultFieldUiName = convertToUiResultFieldName(resultFieldName);
 
@@ -255,8 +255,8 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* u
         for (compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
         {
             QString resultCompName = QString::fromStdString(*compIt);
-            uiNames->push_back("   " + resultCompName);
-            variableNames->push_back(composeUiVarString(resultFieldName, resultCompName));
+            uiNames->push_back("   " + convertToUIComponentName(resultCompName));
+            variableNames->push_back(composeFieldCompString(resultFieldName, resultCompName));
         }
     }
 }
@@ -265,9 +265,12 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* u
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechResultDefinition::composeUiVarString(const QString& resultFieldName, const QString& resultComponentName)
+QString RimGeoMechResultDefinition::composeFieldCompString(const QString& resultFieldName, const QString& resultComponentName)
 {
-    return resultFieldName + " " + resultComponentName;
+    if (resultComponentName.isEmpty())
+        return resultFieldName;
+    else
+        return resultFieldName + " " + resultComponentName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,7 +279,7 @@ QString RimGeoMechResultDefinition::composeUiVarString(const QString& resultFiel
 void RimGeoMechResultDefinition::initAfterRead()
 {
     m_resultPositionTypeUiField = m_resultPositionType;
-    m_resultVariableUiField = composeUiVarString(m_resultFieldName(), m_resultComponentName());
+    m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
 
 }
 
@@ -324,7 +327,7 @@ QString RimGeoMechResultDefinition::resultFieldUiName()
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::resultComponentUiName()
 {
-    return m_resultComponentName();
+    return convertToUIComponentName(m_resultComponentName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,10 +338,18 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName(QString resultFie
     if (resultFieldName == "E") return "NativeAbaqus Strain";
     if (resultFieldName == "S") return "NativeAbaqus Stress";
     if (resultFieldName == "NE") return "E"; // Make NE and NS appear as E and SE
+    if (resultFieldName == "POR-Bar") return "POR"; // POR-Bar appear as POR
 
     return resultFieldName;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::convertToUIComponentName(QString resultComponentName)
+{
+    return resultComponentName;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -350,5 +361,5 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
     m_resultComponentName   = QString::fromStdString(resultAddress.componentName);
 
     m_resultPositionTypeUiField = m_resultPositionType;
-    m_resultVariableUiField = composeUiVarString(m_resultFieldName(), m_resultComponentName());
+    m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
 }

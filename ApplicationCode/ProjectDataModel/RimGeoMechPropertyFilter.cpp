@@ -197,7 +197,11 @@ void RimGeoMechPropertyFilter::updateFilterName()
         case RIG_INTEGRATION_POINT: posName = "IP"; break;
     }
 
-    newFiltername =  posName + ", " + QString::fromStdString(resultAddress.fieldName + ", " + resultAddress.componentName) + " ("
+    QString fieldUiName = resultDefinition->resultFieldUiName();
+    QString compoUiName = resultDefinition->resultComponentUiName();
+
+
+    newFiltername =  posName + ", " + fieldUiName + ", " + compoUiName + " ("
      + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
     this->name = newFiltername;
 

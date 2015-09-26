@@ -70,7 +70,7 @@ private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     static void getUiAndResultVariableStringList(QStringList* uiNames, QStringList* variableNames, 
                                                  const std::map<std::string, std::vector<std::string> >& fieldCompNames);
-    static QString     composeUiVarString(const QString& resultFieldName, const QString& resultComponentName);
+    static QString     composeFieldCompString(const QString& resultFieldName, const QString& resultComponentName);
 
     virtual void initAfterRead();
 
@@ -87,4 +87,5 @@ private:
     caf::PdmPointer<RimGeoMechCase>                  m_geomCase;
 
     static QString convertToUiResultFieldName(QString resultFieldName);
+    static QString convertToUIComponentName(QString resultComponentName);
 };
