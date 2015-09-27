@@ -308,9 +308,7 @@ RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::hasResult()
 {
-    RigFemResultAddress resAddr = this->resultAddress();
-
-    return (resAddr.isValid() && resAddr.fieldName != "None");
+    return ownerCaseData()->femPartResults()->assertResultsLoaded(this->resultAddress());
 }
 
 
