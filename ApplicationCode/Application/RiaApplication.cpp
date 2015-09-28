@@ -369,34 +369,34 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // Add all "native" cases in the project
     std::vector<RimCase*> casesToLoad;
     m_project->allCases(casesToLoad);
-    
-    caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
-    
-    for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
-        RimCase* cas = casesToLoad[cIdx];
-        CVF_ASSERT(cas);
+        caf::ProgressInfo caseProgress(casesToLoad.size(), "Reading Cases");
 
-        caseProgress.setProgressDescription(cas->caseUserDescription());
-        std::vector<RimView*> views = cas->views();
-        caf::ProgressInfo viewProgress(views.size() , "Creating Views");
-
-        size_t j;
-        for (j = 0; j < views.size(); j++)
+        for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
         {
-            RimView* riv = views[j];
-            CVF_ASSERT(riv);
+            RimCase* cas = casesToLoad[cIdx];
+            CVF_ASSERT(cas);
 
-            viewProgress.setProgressDescription(riv->name());
+            caseProgress.setProgressDescription(cas->caseUserDescription());
+            std::vector<RimView*> views = cas->views();
+            caf::ProgressInfo viewProgress(views.size(), "Creating Views");
 
-            riv->loadDataAndUpdate();
-            this->setActiveReservoirView(riv);
-            viewProgress.incrementProgress();
+            size_t j;
+            for (j = 0; j < views.size(); j++)
+            {
+                RimView* riv = views[j];
+                CVF_ASSERT(riv);
+
+                viewProgress.setProgressDescription(riv->name());
+
+                riv->loadDataAndUpdate();
+                this->setActiveReservoirView(riv);
+                viewProgress.incrementProgress();
+            }
+
+            caseProgress.incrementProgress();
         }
-
-        caseProgress.incrementProgress();
     }
-    
     {
         if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
         {
