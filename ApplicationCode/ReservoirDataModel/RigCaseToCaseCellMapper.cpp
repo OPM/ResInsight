@@ -525,8 +525,8 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterE
     double cellSizeI, cellSizeJ, cellSizeK;
     masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
     
-    double xyTolerance  = cellSizeI* 0.1;
-    double zTolerance   = cellSizeK* 0.1;
+    double xyTolerance  = cellSizeI* 0.4;
+    double zTolerance   = cellSizeK* 0.4;
 
     bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
 
