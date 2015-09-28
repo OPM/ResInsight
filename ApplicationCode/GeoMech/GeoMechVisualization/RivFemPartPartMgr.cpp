@@ -234,16 +234,19 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
 
         RigFemResultAddress resVarAddress = cellResultColors->resultAddress();
 
+        // Do a "Hack" to show elm nodal and not nodal POR results
+        if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+
         const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
 
         const std::vector<size_t>* vxToResultMapping = NULL;
 
-        if (cellResultColors->resultPositionType() == RIG_NODAL)
+        if (resVarAddress.resultPosType == RIG_NODAL)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToNodeIdxMapping());
         }
-        else if (   cellResultColors->resultPositionType() == RIG_ELEMENT_NODAL 
-                 || cellResultColors->resultPositionType() == RIG_INTEGRATION_POINT)
+        else if (   resVarAddress.resultPosType == RIG_ELEMENT_NODAL 
+                 || resVarAddress.resultPosType == RIG_INTEGRATION_POINT)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmNodeIdx());
         }

@@ -61,6 +61,7 @@ public:
     const int*                  connectivities(size_t elementIdx) const    { return &m_allElementConnectivities[m_elementConnectivityStartIndices[elementIdx]];}
 
     size_t                      elementNodeResultIdx(int elementIdx, int elmLocalNodeIdx) const { return m_elementConnectivityStartIndices[elementIdx] + elmLocalNodeIdx;}
+    size_t                      elementNodeResultCount() const;
     int                         nodeIdxFromElementNodeResultIdx(size_t elmNodeResultIdx)  const { return m_allElementConnectivities[elmNodeResultIdx]; }
 
     RigFemPartNodes&            nodes()                                    {return m_nodes;}

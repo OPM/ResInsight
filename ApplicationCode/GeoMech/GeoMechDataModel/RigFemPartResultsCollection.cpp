@@ -265,6 +265,50 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResu
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Convert POR NODAL result to POR-Bar Elment Nodal result
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult(int partIndex, const RigFemResultAddress &convertedResultAddr)
+{
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR", ""));
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(convertedResultAddr);
+
+    const RigFemPart * femPart = m_femParts->part(partIndex);
+    float inf = std::numeric_limits<float>::infinity();
+
+    int frameCount = srcDataFrames->frameCount();
+    for (int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        
+        if (!srcFrameData.size()) continue; // Create empty results if we have no POR result.
+
+        size_t valCount = femPart->elementNodeResultCount();
+        dstFrameData.resize(valCount, inf);
+
+        int elementCount = femPart->elementCount();
+        for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+        {
+            RigElementType elmType = femPart->elementType(elmIdx);
+
+            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+
+            if (elmType == HEX8P)
+            {
+                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                    int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+                    dstFrameData[elmNodResIdx] = 1.0e-5*srcFrameData[nodeIdx];
+                }
+            }
+        }
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
@@ -276,7 +320,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
     if (resVarAddr.fieldName == "POR-Bar")
     {
-        return calculateBarConvertedResult(partIndex, resVarAddr, "POR");
+        if (resVarAddr.resultPosType == RIG_NODAL)
+            return calculateBarConvertedResult(partIndex, resVarAddr, "POR");
+        else
+            return calculateEnIpPorBarResult(partIndex, resVarAddr);
     }
 
     if (resVarAddr.fieldName == "NE")
@@ -333,7 +380,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
                     for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                     {
                         size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                        // Todo: Verify that we do not need to check for POR == inf when we have a HEX8P elm
                         dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
                     }
                 }

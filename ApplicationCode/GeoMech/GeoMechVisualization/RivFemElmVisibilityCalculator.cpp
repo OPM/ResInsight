@@ -115,6 +115,9 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                 const double upperBound = propertyFilter->upperBound();
 
                 RigFemResultAddress resVarAddress = propertyFilter->resultDefinition->resultAddress();
+ 
+                // Do a "Hack" to use elm nodal and not nodal POR results
+                if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
                 size_t adjustedTimeStepIndex = timeStepIndex;
 

@@ -374,3 +374,17 @@ void RigFemPart::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vec
     m_elementSearchTree->findIntersections(inputBB, elementIndices);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPart::elementNodeResultCount() const
+{
+    int lastElmIdx = this->elementCount() - 1;
+    if (lastElmIdx < 0) return 0;
+    RigElementType elmType = this->elementType(lastElmIdx);
+    int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+    size_t lastElmResultIdx = this->elementNodeResultIdx(lastElmIdx, elmNodeCount -1);
+
+    return lastElmResultIdx + 1;
+}
+
