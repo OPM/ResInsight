@@ -242,7 +242,8 @@ void RimGeoMechView::createDisplayModel()
 
    if (isTimeStepDependentDataVisible())
    {
-        m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
+        m_viewer->animationControl()->setCurrentFrameOnly(m_currentTimeStep);
+        m_viewer->setCurrentFrame(m_currentTimeStep);
    }
    else
    {
