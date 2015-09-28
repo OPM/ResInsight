@@ -488,7 +488,11 @@ void RimEclipseView::updateCurrentTimeStep()
 
     std::vector<RivCellSetEnum> geometriesToRecolor;
 
-    if (this->propertyFilterCollection()->hasActiveFilters())
+    if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
+    {
+        geometriesToRecolor.push_back(OVERRIDDEN_CELL_VISIBILITY);
+    }
+    else if (this->propertyFilterCollection()->hasActiveFilters())
     {
         cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
 
@@ -581,11 +585,7 @@ void RimEclipseView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RANGE_FILTERED);
         geometriesToRecolor.push_back(RANGE_FILTERED_WELL_CELLS);
     }
-    else if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
-    {
-        geometriesToRecolor.push_back(OVERRIDDEN_CELL_VISIBILITY);
-    }
-    else
+    else 
     {
         geometriesToRecolor.push_back(ACTIVE);
         geometriesToRecolor.push_back(ALL_WELL_CELLS);
@@ -1321,7 +1321,6 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
     std::vector<RivCellSetEnum> faultParts;
     if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
-        faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
         if (this->faultCollection()->showFaultsOutsideFilters())
         {
             faultParts.push_back(ACTIVE);
@@ -1331,6 +1330,10 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
             {
                 faultParts.push_back(INACTIVE);
             }
+        }
+        else
+        {
+            faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
         }
     }
     else if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
@@ -1348,15 +1351,19 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
     {
         faultParts.push_back(ACTIVE);
         faultParts.push_back(ALL_WELL_CELLS);
+        /// Why are these added ? JJS -->
         faultParts.push_back(RANGE_FILTERED);
         faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
         faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
         faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+        /// <-- JJS
 
         if (this->showInactiveCells())
         {
             faultParts.push_back(INACTIVE);
+            /// Why is this added ? JJS -->
             faultParts.push_back(RANGE_FILTERED_INACTIVE);
+            /// <-- JJS
         }
     }
     else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
