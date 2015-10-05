@@ -19,7 +19,11 @@
 
 #include "RimWellLogExtractionCurveImpl.h"
 
+#include "cvfBase.h"
+#include "cvfMath.h"
 #include "cvfAssert.h"
+
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -99,7 +103,7 @@ void RimWellLogExtractionCurveImpl::validDepthValuesIntervals(const std::vector<
     size_t intStartIdx = startIdx;
     for (size_t vIdx = startIdx + 1; vIdx < stopIdx; vIdx += 2)
     {
-        if (abs(depthValues[vIdx + 1] - depthValues[vIdx]) > depthDiffTolerance)
+        if (cvf::Math::abs(depthValues[vIdx + 1] - depthValues[vIdx]) > depthDiffTolerance)
         {
             intervals.push_back(std::make_pair(intStartIdx, vIdx));
             intStartIdx = vIdx + 1;
