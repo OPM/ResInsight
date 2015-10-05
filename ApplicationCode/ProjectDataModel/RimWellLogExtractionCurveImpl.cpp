@@ -33,6 +33,14 @@ void RimWellLogExtractionCurveImpl::validCurvePointIntervals(const std::vector<d
     std::vector< std::pair<size_t, size_t> > valuesIntervals;
     validValuesIntervals(values, valuesIntervals);
 
+    intervals = valuesIntervals;
+
+    // TODO: The following code does not work as expected
+    // See issue #459 (original issue) and bugs #557 #560 and #561
+    // Suggestion: Remove code related to filtering out depth values,
+    // because we want to see the value difference at element borders
+
+/*
     size_t intervalsCount = valuesIntervals.size();
     for (size_t intIdx = 0; intIdx < intervalsCount; intIdx++)
     {
@@ -44,6 +52,7 @@ void RimWellLogExtractionCurveImpl::validCurvePointIntervals(const std::vector<d
             intervals.push_back(depthValuesIntervals[dvintIdx]);
         }
     }
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
