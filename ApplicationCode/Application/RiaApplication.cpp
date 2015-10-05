@@ -89,6 +89,11 @@
 #include <QTimer>
 #include <QUrl>
 
+#include "gtest/gtest.h"
+
+#ifdef WIN32
+#include <fcntl.h>
+#endif
 
 namespace caf
 {
@@ -940,6 +945,7 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("?",                         "",                                 "Displays help text.");
     progOpt.registerOption("regressiontest",            "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("unittest",                  "",                                 "Execute unit tests");
 
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
@@ -1117,10 +1123,82 @@ bool RiaApplication::parseArguments()
         return false;
     }
 
+    // Unit testing
+    // --------------------------------------------------------
+    if (cvf::Option o = progOpt.option("unittest"))
+    {
+        launchUnitTests();
+    }
 
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::launchUnitTests()
+{
+    cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
+
+    int argc = QCoreApplication::argc();
+    testing::InitGoogleTest(&argc, QCoreApplication::argv());
+
+    int result = RUN_ALL_TESTS();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::launchUnitTestsWithConsole()
+{
+    // Following code is taken from cvfAssert.cpp
+#ifdef WIN32
+    {
+        // Allocate a new console for this app
+        // Only one console can be associated with an app, so should fail if a console is already present.
+        AllocConsole();
+
+        bool redirStdOut = true;
+        bool redirStdErr = true;
+        bool redirStdIn = false;
+
+        if (redirStdOut)
+        {
+            HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+            FILE* fp = _fdopen(fileDescriptor, "w");
+
+            *stdout = *fp;
+            setvbuf(stdout, NULL, _IONBF, 0);
+        }
+
+        if (redirStdErr)
+        {
+            HANDLE stdHandle = GetStdHandle(STD_ERROR_HANDLE);
+            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+            FILE* fp = _fdopen(fileDescriptor, "w");
+
+            *stderr = *fp;
+            setvbuf(stderr, NULL, _IONBF, 0);
+        }
+
+        if (redirStdIn)
+        {
+            HANDLE stdHandle = GetStdHandle(STD_INPUT_HANDLE);
+            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+            FILE* fp = _fdopen(fileDescriptor, "r");
+
+            *stdin = *fp;
+            setvbuf(stdin, NULL, _IONBF, 0);
+        }
+
+        // Make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
+        std::ios::sync_with_stdio();
+    }
+#endif
+
+    launchUnitTests();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

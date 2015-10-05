@@ -489,6 +489,7 @@ void RiuMainWindow::createMenus()
     testMenu->addSeparator();
     testMenu->addAction(m_showRegressionTestDialog);
     testMenu->addAction(m_executePaintEventPerformanceTest);
+    testMenu->addAction(cmdFeatureMgr->action("RicLaunchUnitTestsFeature"));
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu("&Windows");

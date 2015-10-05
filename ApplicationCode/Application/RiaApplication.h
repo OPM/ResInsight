@@ -159,6 +159,9 @@ public:
 
     bool                isRunningRegressionTests() const;
 
+    void                launchUnitTests();
+    void                launchUnitTestsWithConsole();
+
 private:
     enum ProjectLoadAction
     {

@@ -22,6 +22,8 @@ include_directories(
     ${cafPdmCvf_SOURCE_DIR}
     ${CommonCode_SOURCE_DIR}
 
+	${ResInsight_SOURCE_DIR}/ThirdParty
+
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
@@ -58,6 +60,8 @@ set( APPLICATION_FILES
     Application/RiaImageCompareReporter.cpp
     Application/RiaProjectModifier.cpp
     Application/RiaRegressionTest.cpp
+    
+    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc	
 )
 
 set( USER_INTERFACE_FILES
@@ -99,11 +103,16 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketDataTransfer.cpp
 )
 
+set( UNIT_TEST_FILES
+    ProjectDataModel/ProjectDataModel_UnitTests/RimWellLogExtractionCurveImpl-Test.cpp 
+)
+
 
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
      ${USER_INTERFACE_FILES}
      ${SOCKET_INTERFACE_FILES}
+     ${UNIT_TEST_FILES}
 )
 
 
@@ -265,6 +274,7 @@ source_group( "Application"         FILES ${APPLICATION_FILES} )
 source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
 source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
+source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
 
 #############################################################################
