@@ -99,11 +99,17 @@ void CmdAddItemExec::redo()
             m_commandData->m_createdItemIndex = m_commandData->m_indexAfter;
         }
 
+        if (m_notificationCenter) m_notificationCenter->notifyObserversOfDataChange(obj);
+
         listField->uiCapability()->updateConnectedEditors();
 
         if (listField->ownerObject())
         {
-            listField->ownerObject()->uiCapability()->updateConnectedEditors();
+            caf::PdmUiObjectHandle* ownerUiObject = uiObj(listField->ownerObject());
+            if (ownerUiObject)
+            {
+                ownerUiObject->fieldChangedByUi(listField, QVariant(), QVariant());
+            }
         }
     }
 }
@@ -126,12 +132,17 @@ void CmdAddItemExec::undo()
         caf::SelectionManager::instance()->removeObjectFromAllSelections(obj);
 
         listField->erase(m_commandData->m_createdItemIndex);
-
         listField->uiCapability()->updateConnectedEditors();
+
+        if (m_notificationCenter) m_notificationCenter->notifyObservers();
 
         if (listField->ownerObject())
         {
-            listField->ownerObject()->uiCapability()->updateConnectedEditors();
+            caf::PdmUiObjectHandle* ownerUiObject = uiObj(listField->ownerObject());
+            if (ownerUiObject)
+            {
+                ownerUiObject->fieldChangedByUi(listField, QVariant(), QVariant());
+            }
         }
 
         delete obj;
