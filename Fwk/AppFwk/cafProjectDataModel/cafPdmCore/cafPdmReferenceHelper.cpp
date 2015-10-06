@@ -54,12 +54,13 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 QString PdmReferenceHelper::referenceFromRootToObject(PdmObjectHandle* root, PdmObjectHandle* obj)
 {
-   QStringList objectNames = referenceFromRootToObjectAsStringList(root, obj);
+    if (obj == NULL || root == NULL) return QString();
+
+    QStringList objectNames = referenceFromRootToObjectAsStringList(root, obj);
     
     QString completeReference = objectNames.join(" ");
     return completeReference;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -80,7 +81,6 @@ QString PdmReferenceHelper::referenceFromRootToField(PdmObjectHandle* root, PdmF
     QString completeReference = refFromRootToField.join(" ");
     return completeReference;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -130,7 +130,11 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList(PdmObjectH
         while (continueParsing)
         {
             caf::PdmFieldHandle* parentField = currentObject->parentField();
-            assert(parentField);
+            if (!parentField)
+            {
+                // Could not find a path from obj to root, obj and root are unrelated objects
+                return QStringList();
+            }
 
             std::vector<PdmObjectHandle*> childObjects;
             parentField->childObjects(&childObjects);
@@ -157,7 +161,11 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList(PdmObjectH
             }
 
             PdmObjectHandle* ownerObject = parentField->ownerObject();
-            assert(ownerObject);
+            if (!ownerObject)
+            {
+                // Could not find a path from obj to root, obj and root are unrelated objects
+                return QStringList();
+            }
 
             if (ownerObject == root)
             {
@@ -172,13 +180,13 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList(PdmObjectH
     return objectNames;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmFieldHandle* PdmReferenceHelper::fieldFromReference(PdmObjectHandle* root, const QString& reference)
 {
     QStringList decodedReference = reference.split(" ");
+    if (decodedReference.size() == 0) return NULL;
 
     QString fieldKeyword = decodedReference[0];
     decodedReference.pop_front();
@@ -192,6 +200,9 @@ PdmFieldHandle* PdmReferenceHelper::fieldFromReference(PdmObjectHandle* root, co
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList(PdmObjectHandle* root, const QStringList& reference)
 {
+    if (!root) return NULL;
+    if (reference.size() == 0) return NULL;
+
     PdmObjectHandle* currentObject = root;
 
     int i = 0;
@@ -199,47 +210,42 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList(PdmObjectHand
     {
         QString fieldKeyword = reference.at(i++);
 
-        PdmFieldHandle* field = findField(currentObject, fieldKeyword);
-        if (field)
+        PdmFieldHandle* fieldHandle = findField(currentObject, fieldKeyword);
+        if (!fieldHandle)
         {
-            std::vector<PdmObjectHandle*> childObjects;
-            field->childObjects(&childObjects);
-
-            if (childObjects.size() > 0)
-            {
-                QString fieldIndex = reference.at(i++);
-                bool conversionOk = true;
-                int index = fieldIndex.toInt(&conversionOk);
-                if (!conversionOk)
-                {
-                    index = -1;
-                }
-
-                if (index > -1)
-                {
-                    if (index > childObjects.size() - 1)
-                    {
-                        return NULL;
-                    }
-
-                    PdmObjectHandle* listObject = childObjects[index];
-                    currentObject = listObject;
-                }
-                else
-                {
-                    return NULL;
-                }
-            }
-            else
-            {
-                return NULL;
-            }
+            return NULL;
         }
+
+        std::vector<PdmObjectHandle*> childObjects;
+        fieldHandle->childObjects(&childObjects);
+
+        if (childObjects.size() == 0)
+        {
+            return NULL;
+        }
+
+        QString fieldIndex = reference.at(i++);
+        bool conversionOk = true;
+        int index = fieldIndex.toInt(&conversionOk);
+        if (!conversionOk)
+        {
+            return NULL;
+        }
+
+        if (index > childObjects.size() - 1)
+        {
+            return NULL;
+        }
+
+        currentObject = childObjects[index];
     }
 
     return currentObject;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<PdmObjectHandle*> findPathToObjectFromRoot(PdmObjectHandle* obj)
 {
     std::vector<PdmObjectHandle*> objPath;
@@ -262,17 +268,21 @@ std::vector<PdmObjectHandle*> findPathToObjectFromRoot(PdmObjectHandle* obj)
     return objPath;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString PdmReferenceHelper::referenceFromFieldToObject(PdmFieldHandle* fromField, PdmObjectHandle* toObj)
 {
-   assert(fromField);
-   if (toObj == NULL) return "";
+    if (!fromField || !toObj) return "";
 
    PdmObjectHandle* fromObj = fromField->ownerObject();
+   if (!fromObj) return "";
+
    std::vector<PdmObjectHandle*> fromObjPath = findPathToObjectFromRoot(fromObj);
    std::vector<PdmObjectHandle*> toObjPath = findPathToObjectFromRoot(toObj);
 
    // Make sure the objects actually have at least one common ancestor
-   assert(fromObjPath.front() == toObjPath.front());
+   if (fromObjPath.front() != toObjPath.front()) return NULL;
 
    bool anchestorIsEqual = true;
    size_t idxToLastCommonAnchestor = 0;
@@ -304,10 +314,13 @@ QString PdmReferenceHelper::referenceFromFieldToObject(PdmFieldHandle* fromField
    return completeReference;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference(PdmFieldHandle* fromField, const QString& reference)
 {
+    if (!fromField) return NULL;
     if (reference.isEmpty()) return NULL;
-    assert(fromField);
 
     QStringList decodedReference = reference.split(" ");
     PdmObjectHandle* lastCommonAnchestor = fromField->ownerObject();

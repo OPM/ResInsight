@@ -17,6 +17,7 @@ set( PROJECT_FILES
 	gtest/gtest-all.cpp
 
 	cafPdmCoreBasicTest.cpp
+    cafPdmReferenceHelperTest.cpp
 
 	Child.cpp
 	Child.h
