@@ -201,7 +201,6 @@ PdmFieldHandle* PdmReferenceHelper::fieldFromReference(PdmObjectHandle* root, co
 PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList(PdmObjectHandle* root, const QStringList& reference)
 {
     if (!root) return NULL;
-    if (reference.size() == 0) return NULL;
 
     PdmObjectHandle* currentObject = root;
 
