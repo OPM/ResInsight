@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "../RimWellLogExtractionCurveImpl.h"
+#include "../RimWellLogCurveImpl.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
@@ -19,7 +19,7 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffInvalidValAtEndsOfVector)
     values.push_back(HUGE_VAL);
 
     std::vector< std::pair<size_t, size_t> > valuesIntervals;
-    RimWellLogExtractionCurveImpl::calculateIntervalsOfValidValues(values, valuesIntervals);
+    RimWellLogCurveImpl::calculateIntervalsOfValidValues(values, valuesIntervals);
 
     EXPECT_EQ(1, valuesIntervals.size());
     EXPECT_EQ(2, valuesIntervals[0].first);
@@ -43,7 +43,7 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffHugeValAtEndsAndInteriorOfVector
     values.push_back(HUGE_VAL);
 
     std::vector< std::pair<size_t, size_t> > valuesIntervals;
-    RimWellLogExtractionCurveImpl::calculateIntervalsOfValidValues(values, valuesIntervals);
+    RimWellLogCurveImpl::calculateIntervalsOfValidValues(values, valuesIntervals);
 
     EXPECT_EQ(2, valuesIntervals.size());
     EXPECT_EQ(2, valuesIntervals[0].first);

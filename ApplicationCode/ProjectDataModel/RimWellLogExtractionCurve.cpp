@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogExtractionCurveImpl.h"
+#include "RimWellLogCurveImpl.h"
 
 #include "RiaApplication.h"
 
@@ -225,9 +225,9 @@ void RimWellLogExtractionCurve::updatePlotData()
 
             if (values.size() > 0 && values.size() == depthValues.size())
             {
-                RimWellLogExtractionCurveImpl::validCurvePointIntervals(depthValues, values, plotIntervals);
-                RimWellLogExtractionCurveImpl::addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
-                RimWellLogExtractionCurveImpl::addValuesFromIntervals(values, plotIntervals, &filteredValues);
+                RimWellLogCurveImpl::validCurvePointIntervals(depthValues, values, plotIntervals);
+                RimWellLogCurveImpl::addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
+                RimWellLogCurveImpl::addValuesFromIntervals(values, plotIntervals, &filteredValues);
             }
         }
         else if (geomExtractor.notNull()) // geomExtractor
@@ -244,16 +244,16 @@ void RimWellLogExtractionCurve::updatePlotData()
             
             if (values.size() > 0 && values.size() == depthValues.size())
             {
-                RimWellLogExtractionCurveImpl::validCurvePointIntervals(depthValues, values, plotIntervals);
-                RimWellLogExtractionCurveImpl::addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
-                RimWellLogExtractionCurveImpl::addValuesFromIntervals(values, plotIntervals, &filteredValues);
+                RimWellLogCurveImpl::validCurvePointIntervals(depthValues, values, plotIntervals);
+                RimWellLogCurveImpl::addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
+                RimWellLogCurveImpl::addValuesFromIntervals(values, plotIntervals, &filteredValues);
             }
         }
 
         m_plotCurve->setSamples(filteredValues.data(), filteredDepths.data(), (int)filteredValues.size());
         
         std::vector< std::pair<size_t, size_t> > fltrIntervals;
-        RimWellLogExtractionCurveImpl::filteredIntervals(plotIntervals, &fltrIntervals);
+        RimWellLogCurveImpl::filteredIntervals(plotIntervals, &fltrIntervals);
 
         m_plotCurve->setPlotIntervals(fltrIntervals);
 

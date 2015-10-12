@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogExtractionCurveImpl.h"
+#include "RimWellLogCurveImpl.h"
 
 #include "cvfBase.h"
 #include "cvfMath.h"
@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveImpl::validCurvePointIntervals(const std::vector<double>& depthValues, const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
+void RimWellLogCurveImpl::validCurvePointIntervals(const std::vector<double>& depthValues, const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
 {
     std::vector< std::pair<size_t, size_t> > valuesIntervals;
     calculateIntervalsOfValidValues(values, valuesIntervals);
@@ -58,7 +58,7 @@ void RimWellLogExtractionCurveImpl::validCurvePointIntervals(const std::vector<d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveImpl::calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
+void RimWellLogCurveImpl::calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
 {
     int startIdx = -1;
     size_t vIdx = 0;
@@ -92,7 +92,7 @@ void RimWellLogExtractionCurveImpl::calculateIntervalsOfValidValues(const std::v
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveImpl::validDepthValuesIntervals(const std::vector<double>& depthValues, size_t startIdx, size_t stopIdx, std::vector< std::pair<size_t, size_t> >& intervals)
+void RimWellLogCurveImpl::validDepthValuesIntervals(const std::vector<double>& depthValues, size_t startIdx, size_t stopIdx, std::vector< std::pair<size_t, size_t> >& intervals)
 {
     if (startIdx > stopIdx)
     {
@@ -128,7 +128,7 @@ void RimWellLogExtractionCurveImpl::validDepthValuesIntervals(const std::vector<
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveImpl::addValuesFromIntervals(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues)
+void RimWellLogCurveImpl::addValuesFromIntervals(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues)
 {
     CVF_ASSERT(filteredValues);
 
@@ -144,7 +144,7 @@ void RimWellLogExtractionCurveImpl::addValuesFromIntervals(const std::vector<dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveImpl::filteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* fltrIntervals)
+void RimWellLogCurveImpl::filteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* fltrIntervals)
 {
     CVF_ASSERT(fltrIntervals);
 

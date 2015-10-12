@@ -27,7 +27,7 @@
 ///  
 ///  
 //==================================================================================================
-class RimWellLogExtractionCurveImpl
+class RimWellLogCurveImpl
 {
 public:
     static void calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals);
