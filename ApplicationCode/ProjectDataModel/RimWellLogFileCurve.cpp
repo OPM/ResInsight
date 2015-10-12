@@ -27,6 +27,7 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotTrack.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogExtractionCurveImpl.h"
 
 #include "RiuWellLogTrackPlot.h"
 #include "RiuWellLogPlotCurve.h"
@@ -83,8 +84,20 @@ void RimWellLogFileCurve::updatePlotData()
                     std::vector<double> depthValues = wellLogFile->depthValues();
 
                     if (values.size() > 0 && depthValues.size() > 0)
-                    {
-                        m_plotCurve->setSamples(values.data(), depthValues.data(), (int)depthValues.size());
+                    {   
+                        std::vector< std::pair<size_t, size_t> > valuesIntervals;
+                        RimWellLogExtractionCurveImpl::validValuesIntervals(values, valuesIntervals);
+
+                        std::vector<double> filteredValues;
+                        std::vector<double> filteredDepths;
+                        RimWellLogExtractionCurveImpl::addValuesFromIntervals(values, valuesIntervals, &filteredValues);
+                        RimWellLogExtractionCurveImpl::addValuesFromIntervals(depthValues, valuesIntervals, &filteredDepths);
+
+                        std::vector< std::pair<size_t, size_t> > fltrIntervals;
+                        RimWellLogExtractionCurveImpl::filteredIntervals(valuesIntervals, &fltrIntervals);
+
+                        m_plotCurve->setSamples(filteredValues.data(), filteredDepths.data(), (int)filteredDepths.size());
+                        m_plotCurve->setPlotIntervals(fltrIntervals);
                     }
                     else
                     {

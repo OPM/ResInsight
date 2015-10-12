@@ -26,6 +26,7 @@
 #include <QFileInfo>
 
 #include <exception>
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 #define RIG_WELL_FOOTPERMETER 3.2808399
 
@@ -164,7 +165,7 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 
     if (m_wellLogFile->HasContLog(name.toStdString()))
     {
-        if (name == m_depthLogName && depthUnit().toUpper() == "F" || depthUnit().toUpper() == "FT")
+        if (name == m_depthLogName && (depthUnit().toUpper() == "F" || depthUnit().toUpper() == "FT"))
         {
             std::vector<double> footValues = m_wellLogFile->GetContLog(name.toStdString());
             
@@ -179,7 +180,18 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
             return meterValues;
         }
 
-        return m_wellLogFile->GetContLog(name.toStdString());
+        std::vector<double> values = m_wellLogFile->GetContLog(name.toStdString());
+        
+        for (size_t vIdx = 0; vIdx < values.size(); vIdx++)
+        {
+            if (m_wellLogFile->IsMissing(values[vIdx]))
+            {
+                // Convert missing ("NULL") values to HUGE_VAL
+                values[vIdx] = HUGE_VAL;
+            }
+        }
+
+        return values;
     }
 
     return std::vector<double>();
