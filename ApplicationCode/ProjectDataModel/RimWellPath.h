@@ -73,7 +73,7 @@ public:
     RigWellPath*                        wellPathGeometry() { return m_wellPath.p(); }
     RivWellPathPartMgr*                 partMgr();
 
-    void                                readWellPathFile();
+    bool                                readWellPathFile(QString * errorMessage);
     void                                updateFilePathsFromProjectPath();
 
 

@@ -158,21 +158,31 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
 
 
 //--------------------------------------------------------------------------------------------------
-/// Read JSON file containing well path data
+/// Read JSON or ascii file containing well path data
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::readWellPathFile()
+bool RimWellPath::readWellPathFile(QString* errorMessage)
 {
-    QFileInfo fi(filepath());
+    QFileInfo fileInf(filepath());
 
-    if (fi.suffix().compare("json") == 0)
+    if (fileInf.isFile() && fileInf.exists())
     {
-        this->readJsonWellPathFile();
+        if (fileInf.suffix().compare("json") == 0)
+        {
+            this->readJsonWellPathFile();
+        }
+        else
+        {
+            this->readAsciiWellPathFile();
+        }
+
+        return true;
     }
     else
     {
-        this->readAsciiWellPathFile();
-    }
+        if (errorMessage) (*errorMessage) = "Could not find the well path file: " + filepath();
 
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,12 +283,18 @@ QString RimWellPath::getCacheDirectoryPath()
 //--------------------------------------------------------------------------------------------------
 QString RimWellPath::getCacheFileName()
 {
+    if (filepath().isEmpty())
+    {
+        return "";
+    }
+
     QString cacheFileName;
 
     // Make the path correct related to the possibly new project filename
     QString newCacheDirPath = getCacheDirectoryPath();
     QFileInfo oldCacheFile(filepath);
 
+   
     cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
 
     return cacheFileName;
@@ -291,6 +307,11 @@ void RimWellPath::setupBeforeSave()
 {
     // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
     if (!isStoredInCache())
+    {
+        return;
+    }
+
+    if (filepath().isEmpty())
     {
         return;
     }

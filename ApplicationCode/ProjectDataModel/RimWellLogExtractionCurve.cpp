@@ -454,15 +454,21 @@ QString RimWellLogExtractionCurve::createCurveName()
         if (eclipseCase)
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-            maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
+            if(eclipseCase->reservoirData())
+            {
+                maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
+                timeStepNames = eclipseCase->timeStepStrings();
+            }
 
-            timeStepNames = eclipseCase->timeStepStrings();
         }
         else if (geomCase)
         {
-            maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
+            if (geomCase->geoMechData())
+            {
+                maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
+                timeStepNames = geomCase->timeStepStrings();
+            }
 
-            timeStepNames = geomCase->timeStepStrings();
         }
 
         if (m_addDateToCurveName && m_timeStep < timeStepNames.size())

@@ -77,17 +77,19 @@ void RimWellLogFileCurve::updatePlotData()
             if (logFileInfo)
             {
                 RigWellLogFile* wellLogFile = logFileInfo->wellLogFile();
-
-                std::vector<double> values = wellLogFile->values(m_wellLogChannnelName);
-                std::vector<double> depthValues = wellLogFile->depthValues();
-
-                if (values.size() > 0 && depthValues.size() > 0)
+                if (wellLogFile)
                 {
-                    m_plotCurve->setSamples(values.data(), depthValues.data(), (int)depthValues.size());
-                }
-                else
-                {
-                    m_plotCurve->setSamples(NULL, NULL, 0);
+                    std::vector<double> values = wellLogFile->values(m_wellLogChannnelName);
+                    std::vector<double> depthValues = wellLogFile->depthValues();
+
+                    if (values.size() > 0 && depthValues.size() > 0)
+                    {
+                        m_plotCurve->setSamples(values.data(), depthValues.data(), (int)depthValues.size());
+                    }
+                    else
+                    {
+                        m_plotCurve->setSamples(NULL, NULL, 0);
+                    }
                 }
 
                 if (m_autoName)

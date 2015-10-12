@@ -132,7 +132,13 @@ void RimWellPathCollection::readWellPathFiles()
     {
         if (!wellPaths[wpIdx]->filepath().isEmpty())
         {
-            wellPaths[wpIdx]->readWellPathFile();
+            QString errorMessage;
+            if (!wellPaths[wpIdx]->readWellPathFile(&errorMessage))
+            {
+                QMessageBox::warning(RiuMainWindow::instance(),
+                                     "File open error",
+                                     errorMessage);
+            }
         }
 
         RimWellLogFile* wellLogFile = wellPaths[wpIdx]->m_wellLogFile;
@@ -231,7 +237,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimWellPath* wellPath = wellPathArray[wpIdx];
-        wellPath->readWellPathFile();
+        wellPath->readWellPathFile(NULL);
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name));
 
@@ -241,7 +247,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         {
             existingWellPath->filepath = wellPath->filepath;
             existingWellPath->wellPathIndexInFile = wellPath->wellPathIndexInFile;
-            existingWellPath->readWellPathFile();
+            existingWellPath->readWellPathFile(NULL);
 
             delete wellPath;
         }
