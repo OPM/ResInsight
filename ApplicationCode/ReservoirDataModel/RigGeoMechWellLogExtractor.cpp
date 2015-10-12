@@ -186,7 +186,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         while (it != sortedIntersections.end())
         {
             m_measuredDepth.push_back(it->first.measuredDepth);
-            m_trueVerticalDepth.push_back(it->second.m_intersectionPoint[2]);
+            m_trueVerticalDepth.push_back(abs(it->second.m_intersectionPoint[2]));
             m_intersections.push_back(it->second.m_intersectionPoint);
             m_intersectedCells.push_back(it->second.m_hexIndex);
             m_intersectedCellFaces.push_back(it->second.m_face);
