@@ -232,8 +232,13 @@ void RimWellLogExtractionCurve::updatePlotData()
         }
         else if (geomExtractor.notNull()) // geomExtractor
         {
-            const std::vector<double>& depthValues = geomExtractor->measuredDepth();
+            RimWellLogPlot* wellLogPlot;
+            firstAnchestorOrThisOfType(wellLogPlot);
+            CVF_ASSERT(wellLogPlot);
+
+            const std::vector<double>& depthValues = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? geomExtractor->measuredDepth() : geomExtractor->trueVerticalDepth();
             m_geomResultDefinition->loadResult();
+
             std::vector<double> values;
             geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, &values);
             
