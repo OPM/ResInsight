@@ -31,7 +31,7 @@
 void RimWellLogExtractionCurveImpl::validCurvePointIntervals(const std::vector<double>& depthValues, const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
 {
     std::vector< std::pair<size_t, size_t> > valuesIntervals;
-    validValuesIntervals(values, valuesIntervals);
+    calculateIntervalsOfValidValues(values, valuesIntervals);
 
     intervals = valuesIntervals;
 
@@ -58,7 +58,7 @@ void RimWellLogExtractionCurveImpl::validCurvePointIntervals(const std::vector<d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveImpl::validValuesIntervals(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
+void RimWellLogExtractionCurveImpl::calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >& intervals)
 {
     int startIdx = -1;
     size_t vIdx = 0;

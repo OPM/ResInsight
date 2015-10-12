@@ -86,7 +86,7 @@ void RimWellLogFileCurve::updatePlotData()
                     if (values.size() > 0 && depthValues.size() > 0)
                     {   
                         std::vector< std::pair<size_t, size_t> > valuesIntervals;
-                        RimWellLogExtractionCurveImpl::validValuesIntervals(values, valuesIntervals);
+                        RimWellLogExtractionCurveImpl::calculateIntervalsOfValidValues(values, valuesIntervals);
 
                         std::vector<double> filteredValues;
                         std::vector<double> filteredDepths;

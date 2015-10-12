@@ -19,7 +19,7 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffInvalidValAtEndsOfVector)
     values.push_back(HUGE_VAL);
 
     std::vector< std::pair<size_t, size_t> > valuesIntervals;
-    RimWellLogExtractionCurveImpl::validValuesIntervals(values, valuesIntervals);
+    RimWellLogExtractionCurveImpl::calculateIntervalsOfValidValues(values, valuesIntervals);
 
     EXPECT_EQ(1, valuesIntervals.size());
     EXPECT_EQ(2, valuesIntervals[0].first);
@@ -43,7 +43,7 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffHugeValAtEndsAndInteriorOfVector
     values.push_back(HUGE_VAL);
 
     std::vector< std::pair<size_t, size_t> > valuesIntervals;
-    RimWellLogExtractionCurveImpl::validValuesIntervals(values, valuesIntervals);
+    RimWellLogExtractionCurveImpl::calculateIntervalsOfValidValues(values, valuesIntervals);
 
     EXPECT_EQ(2, valuesIntervals.size());
     EXPECT_EQ(2, valuesIntervals[0].first);
