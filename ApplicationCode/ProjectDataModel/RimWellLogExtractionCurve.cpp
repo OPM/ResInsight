@@ -414,35 +414,42 @@ QString RimWellLogExtractionCurve::createCurveName()
         generatedCurveName += m_wellPath->name();
     }
 
-    if (eclipseCase)
+    if (m_addCaseNameToCurveName && m_case())
     {
-        if (m_addCaseNameToCurveName)
+        if (!generatedCurveName.isEmpty())
         {
-            if (!generatedCurveName.isEmpty())
-            {
-                generatedCurveName += ",";
-            }
-            generatedCurveName += m_case->caseUserDescription();
+            generatedCurveName += ",";
         }
 
-        if (m_addPropertyToCurveName)
-        {
-            if (!generatedCurveName.isEmpty())
-            {
-                generatedCurveName += ",";
-            }
-
-            generatedCurveName += m_eclipseResultDefinition->resultVariable();
-        }
+        generatedCurveName += m_case->caseUserDescription();
     }
 
-    if (geomCase)
+    if (m_addPropertyToCurveName && eclipseCase)
     {
+        if (!generatedCurveName.isEmpty())
+        {
+            generatedCurveName += ",";
+        }
+
+        generatedCurveName += m_eclipseResultDefinition->resultVariable();
+    }
+
+    if (m_addPropertyToCurveName && geomCase)
+    {
+        QString geoMechResultName;
+
         QString resCompName = m_geomResultDefinition->resultComponentUiName();
         if (resCompName.isEmpty())
-            generatedCurveName = m_geomResultDefinition->resultFieldUiName();
+            geoMechResultName = m_geomResultDefinition->resultFieldUiName();
         else
-            generatedCurveName = m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
+            geoMechResultName += m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
+
+        if (!generatedCurveName.isEmpty())
+        {
+            generatedCurveName += ",";
+        }
+
+        generatedCurveName += geoMechResultName;
     }
 
     if (m_addTimestepToCurveName || m_addDateToCurveName)
@@ -459,7 +466,6 @@ QString RimWellLogExtractionCurve::createCurveName()
                 maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
                 timeStepNames = eclipseCase->timeStepStrings();
             }
-
         }
         else if (geomCase)
         {
@@ -468,7 +474,6 @@ QString RimWellLogExtractionCurve::createCurveName()
                 maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
                 timeStepNames = geomCase->timeStepStrings();
             }
-
         }
 
         if (m_addDateToCurveName && m_timeStep < timeStepNames.size())
