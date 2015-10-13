@@ -35,7 +35,7 @@
 #include "RigFemPartResultsCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimView.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

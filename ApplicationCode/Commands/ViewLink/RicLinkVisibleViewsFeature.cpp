@@ -23,7 +23,7 @@
 
 #include "RicLinkVisibleViewsFeatureUi.h"
 
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewLinker.h"

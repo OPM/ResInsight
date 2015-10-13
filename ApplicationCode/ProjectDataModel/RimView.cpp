@@ -9,7 +9,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"

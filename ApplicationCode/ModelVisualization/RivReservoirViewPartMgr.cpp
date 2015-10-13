@@ -38,7 +38,7 @@
 #include "RimEclipseWellCollection.h"
 
 #include "RivGridPartMgr.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RigCaseToCaseCellMapper.h"
 

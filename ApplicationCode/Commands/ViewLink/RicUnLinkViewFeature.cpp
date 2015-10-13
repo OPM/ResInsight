@@ -19,7 +19,7 @@
 
 #include "RicUnLinkViewFeature.h"
 
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
 

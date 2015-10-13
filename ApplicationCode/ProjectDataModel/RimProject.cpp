@@ -40,7 +40,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"

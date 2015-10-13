@@ -31,7 +31,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 
 #include "cafPdmUiEditorHandle.h"

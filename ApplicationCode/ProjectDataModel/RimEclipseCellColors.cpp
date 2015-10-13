@@ -23,7 +23,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 
 #include "RiuMainWindow.h"

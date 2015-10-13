@@ -62,7 +62,7 @@
 
 #include <limits.h>
 #include "RimViewLinker.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 
 
 

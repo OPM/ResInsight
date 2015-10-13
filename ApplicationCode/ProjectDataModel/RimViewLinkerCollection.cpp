@@ -20,7 +20,7 @@
 #include "RimViewLinkerCollection.h"
 
 #include "RimViewLinker.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 
 #include "cafPdmUiTreeOrdering.h"
 

@@ -21,7 +21,7 @@
 
 #include "RimLegendConfig.h"
 #include "RimView.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 
 

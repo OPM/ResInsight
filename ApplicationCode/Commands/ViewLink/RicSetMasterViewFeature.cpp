@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 #include "RimProject.h"
 #include "RimView.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RiuMainWindow.h"

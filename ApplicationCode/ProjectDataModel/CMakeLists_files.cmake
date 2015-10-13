@@ -59,7 +59,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
 ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.h
-${CEE_CURRENT_LIST_DIR}RimViewLink.h
+${CEE_CURRENT_LIST_DIR}RimViewController.h
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.h
@@ -129,7 +129,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.cpp
-${CEE_CURRENT_LIST_DIR}RimViewLink.cpp
+${CEE_CURRENT_LIST_DIR}RimViewController.cpp
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.cpp

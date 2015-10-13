@@ -22,7 +22,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 
 #include "cvfAssert.h"

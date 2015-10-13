@@ -23,7 +23,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 
 #include "cafPdmUiEditorHandle.h"

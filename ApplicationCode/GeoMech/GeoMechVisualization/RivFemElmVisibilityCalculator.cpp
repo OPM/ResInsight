@@ -32,7 +32,7 @@
 
 #include "RigGeoMechCaseData.h"
 #include "RigFemPartResultsCollection.h"
-#include "RimViewLink.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RigCaseToCaseCellMapper.h"
 
