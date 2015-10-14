@@ -46,6 +46,10 @@ public:
     const RigWellPath*          wellPathData()      { return m_wellPath.p();}
 
 protected:
+    void insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections, 
+                                  cvf::Vec3d p1, double md1, cvf::Vec3d p2, double md2, 
+                                  std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > *uniqueIntersections);
+
     void populateReturnArrays(std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > &uniqueIntersections);
 
     std::vector<double>         m_measuredDepth;

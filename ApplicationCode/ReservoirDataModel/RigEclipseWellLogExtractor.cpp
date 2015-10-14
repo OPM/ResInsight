@@ -46,25 +46,26 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 {
     std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > uniqueIntersections;
 
-    {
+    
         const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
-
         bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
 
         if (!m_wellPath->m_wellPathPoints.size()) return ;
 
-
         for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
         {
-            cvf::BoundingBox bb;
+            std::vector<HexIntersectionInfo> intersections;
             cvf::Vec3d p1 = m_wellPath->m_wellPathPoints[wpp];
             cvf::Vec3d p2 = m_wellPath->m_wellPathPoints[wpp+1];
+
+            
+            cvf::BoundingBox bb;
 
             bb.add(p1);
             bb.add(p2);
 
             std::vector<size_t> closeCells = findCloseCells(bb);
-            std::vector<HexIntersectionInfo> intersections;
+           
 
             cvf::Vec3d hexCorners[8];
             for (size_t cIdx = 0; cIdx < closeCells.size(); ++cIdx)
@@ -91,7 +92,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                     intersections[intIdx].m_isIntersectionEntering = !intersections[intIdx].m_isIntersectionEntering ;
                 }
             }
-
+            
             // Now, with all the intersections of this piece of line, we need to 
             // sort them in order, and set the measured depth and corresponding cell index
 
@@ -101,30 +102,12 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             double md1 = m_wellPath->m_measuredDepths[wpp];
             double md2 = m_wellPath->m_measuredDepths[wpp+1];
 
-            for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
-            {
-                double lenghtAlongLineSegment1 = (intersections[intIdx].m_intersectionPoint - p1).length();
-                double lenghtAlongLineSegment2 = (p2 - intersections[intIdx].m_intersectionPoint).length();
-                double measuredDepthDiff       = md2 - md1;
-                double lineLength              = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
-                double measuredDepthOfPoint    = 0.0;
+            insertIntersectionsInMap(intersections, 
+                                     p1,  md1, p2, md2, 
+                                     &uniqueIntersections);
 
-                if (lineLength > 0.00001)
-                {
-                    measuredDepthOfPoint = md1 + measuredDepthDiff*lenghtAlongLineSegment1/(lineLength);
-                }
-                else
-                {
-                    measuredDepthOfPoint = md1;
-                }
-
-                uniqueIntersections.insert(std::make_pair(RigMDCellIdxEnterLeaveIntersectionSorterKey(measuredDepthOfPoint,
-                                                                                                      intersections[intIdx].m_hexIndex,
-                                                                                                      intersections[intIdx].m_isIntersectionEntering),
-                                                          intersections[intIdx]));
-            }
         }
-    }
+    
 
     this->populateReturnArrays(uniqueIntersections);
 
@@ -156,4 +139,5 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::Boundi
     m_caseData->mainGrid()->findIntersectingCells(bb, &closeCells);
     return closeCells;
 }
+
 

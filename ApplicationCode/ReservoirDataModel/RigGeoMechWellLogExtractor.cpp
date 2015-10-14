@@ -123,15 +123,16 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
 
     for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
     {
-        cvf::BoundingBox bb;
+        std::vector<HexIntersectionInfo> intersections;
         cvf::Vec3d p1 = m_wellPath->m_wellPathPoints[wpp];
         cvf::Vec3d p2 = m_wellPath->m_wellPathPoints[wpp+1];
+
+        cvf::BoundingBox bb;
 
         bb.add(p1);
         bb.add(p2);
 
         std::vector<size_t> closeCells = findCloseCells(bb);
-        std::vector<HexIntersectionInfo> intersections;
 
         cvf::Vec3d hexCorners[8];
         for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
@@ -156,31 +157,15 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         // Now, with all the intersections of this piece of line, we need to 
         // sort them in order, and set the measured depth and corresponding cell index
 
+        // Inserting the intersections in this map will remove identical intersections
+        // and sort them according to MD, CellIdx, Leave/enter
+
         double md1 = m_wellPath->m_measuredDepths[wpp];
         double md2 = m_wellPath->m_measuredDepths[wpp+1];
 
-        for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
-        {
-            double lenghtAlongLineSegment1 = (intersections[intIdx].m_intersectionPoint - p1).length();
-            double lenghtAlongLineSegment2 = (p2 - intersections[intIdx].m_intersectionPoint).length();
-            double measuredDepthDiff       = md2 - md1;
-            double lineLength              = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
-            double measuredDepthOfPoint    = 0.0;
-
-            if (lineLength > 0.00001)
-            {
-                measuredDepthOfPoint = md1 + measuredDepthDiff*lenghtAlongLineSegment1/(lineLength);
-            }
-            else
-            {
-                measuredDepthOfPoint = md1;
-            }
-
-            uniqueIntersections.insert(std::make_pair(RigMDCellIdxEnterLeaveIntersectionSorterKey(measuredDepthOfPoint, 
-                                                                                                  intersections[intIdx].m_hexIndex,
-                                                                                                  intersections[intIdx].m_isIntersectionEntering), 
-                                                      intersections[intIdx]));
-        }
+        insertIntersectionsInMap(intersections,
+                                     p1,  md1, p2, md2, 
+                                     &uniqueIntersections);
     }
        
     }

@@ -36,6 +36,35 @@ RigWellLogExtractor::~RigWellLogExtractor()
 {
 
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigWellLogExtractor::insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections, cvf::Vec3d p1, double md1, cvf::Vec3d p2, double md2, 
+                                                          std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > *uniqueIntersections)
+{
+    for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
+    {
+        double lenghtAlongLineSegment1 = (intersections[intIdx].m_intersectionPoint - p1).length();
+        double lenghtAlongLineSegment2 = (p2 - intersections[intIdx].m_intersectionPoint).length();
+        double measuredDepthDiff       = md2 - md1;
+        double lineLength              = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
+        double measuredDepthOfPoint    = 0.0;
+
+        if (lineLength > 0.00001)
+        {
+            measuredDepthOfPoint = md1 + measuredDepthDiff*lenghtAlongLineSegment1/(lineLength);
+        }
+        else
+        {
+            measuredDepthOfPoint = md1;
+        }
+
+        uniqueIntersections->insert(std::make_pair(RigMDCellIdxEnterLeaveIntersectionSorterKey(measuredDepthOfPoint,
+            intersections[intIdx].m_hexIndex,
+            intersections[intIdx].m_isIntersectionEntering),
+            intersections[intIdx]));
+    }
+}
 
 
 //--------------------------------------------------------------------------------------------------
