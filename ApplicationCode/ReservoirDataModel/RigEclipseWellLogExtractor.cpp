@@ -84,6 +84,14 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                 int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
             }
 
+            if (!isCellFaceNormalsOut)
+            {
+                for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
+                {
+                    intersections[intIdx].m_isIntersectionEntering = !intersections[intIdx].m_isIntersectionEntering ;
+                }
+            }
+
             // Now, with all the intersections of this piece of line, we need to 
             // sort them in order, and set the measured depth and corresponding cell index
 
@@ -95,8 +103,6 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
             for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
             {
-                if (!isCellFaceNormalsOut) intersections[intIdx].m_isIntersectionEntering = !intersections[intIdx].m_isIntersectionEntering ;
-
                 double lenghtAlongLineSegment1 = (intersections[intIdx].m_intersectionPoint - p1).length();
                 double lenghtAlongLineSegment2 = (p2 - intersections[intIdx].m_intersectionPoint).length();
                 double measuredDepthDiff       = md2 - md1;
