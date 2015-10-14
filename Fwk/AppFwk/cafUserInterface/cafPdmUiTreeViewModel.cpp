@@ -180,7 +180,11 @@ void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
     existingSubTreeRoot->debugDump(0);
 #endif
 
+    this->layoutAboutToBeChanged();
+
     updateSubTreeRecursive(existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp);
+
+    emit (this->layoutChanged());
 
     delete newTreeRootTmp;
 
@@ -195,99 +199,116 @@ void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
 #endif	
 }
 
+class RecursiveUpdateData
+{
+public:
+    RecursiveUpdateData(QModelIndex mi, PdmUiTreeOrdering* existingChild, PdmUiTreeOrdering* sourceChild)
+        : m_modelIndex(mi),
+        m_existingChild(existingChild),
+        m_sourceChild(sourceChild)
+    {
+    };
+
+    QModelIndex         m_modelIndex;
+    PdmUiTreeOrdering*  m_existingChild;
+    PdmUiTreeOrdering*  m_sourceChild;
+};
+
 //--------------------------------------------------------------------------------------------------
-/// Makes the destinationSubTreeRoot tree become identical to the tree in sourceSubTreeRoot, 
+/// Makes the existingSubTreeRoot tree become identical to the tree in sourceSubTreeRoot, 
 /// calling begin..() end..() to make the UI update accordingly.
 /// This assumes that all the items have a pointer an unique PdmObject 
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTreeRootModIdx, PdmUiTreeOrdering* existingSubTreeRoot, PdmUiTreeOrdering* sourceSubTreeRoot)
 {
-    // First loop over children in the old ui tree, deleting the ones not present in 
-    // the newUiTree
+    std::vector<RecursiveUpdateData> recursiveUpdateData;
 
-    for (int cIdx = 0; cIdx < existingSubTreeRoot->childCount() ; ++cIdx)
+    // Build map for source items
+    std::map<caf::PdmUiItem*, int> sourceTreeMap;
+    for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
     {
-        PdmUiTreeOrdering* oldChild = existingSubTreeRoot->child(cIdx);
+        PdmUiTreeOrdering* child = sourceSubTreeRoot->child(i);
 
-        int childIndex = findChildItemIndex(sourceSubTreeRoot, oldChild->activeItem());
-
-        if (childIndex == -1) // Not found
+        if (child && child->activeItem())
         {
-            this->beginRemoveRows(existingSubTreeRootModIdx, cIdx, cIdx);
-            existingSubTreeRoot->removeChildren(cIdx, 1);
-            this->endRemoveRows();
-            cIdx--;
+            sourceTreeMap[child->activeItem()] = i;
         }
     }
 
-    // Then loop over the children in the new ui tree, finding the corresponding items in the old tree. 
-    // If they are found, we move them to the correct position. 
-    // If not found, we pull the item out of the old ui tree, inserting it 
-    // into the new tree.
-
-    int sourceChildCount = sourceSubTreeRoot->childCount();
-    int source_cIdx = 0;
-
-    for (int cIdx = 0; cIdx < sourceChildCount; ++cIdx, ++source_cIdx)
+    // Build map for existing items
+    // Detect items to be deleted from existing tree
+    std::vector<int> indicesToRemoveFromExisting;
+    std::map<caf::PdmUiItem*, int> existingTreeMap;
+    for (int i = 0; i < existingSubTreeRoot->childCount() ; ++i)
     {
-        PdmUiTreeOrdering* newChild = sourceSubTreeRoot->child(source_cIdx);
+        PdmUiTreeOrdering* child = existingSubTreeRoot->child(i);
 
-        int existing_cIdx = findChildItemIndex(existingSubTreeRoot, newChild->activeItem());
-
-        if (existing_cIdx == -1) // Not found, move from source to existing
+        if (child && child->activeItem())
         {
-            this->beginInsertRows(existingSubTreeRootModIdx, cIdx, cIdx);
-            existingSubTreeRoot->insertChild(cIdx, newChild);
-            this->endInsertRows();
-
-            sourceSubTreeRoot->removeChildrenNoDelete(source_cIdx, 1);
-            source_cIdx--;
+            existingTreeMap[child->activeItem()] = i;
         }
-        else if (existing_cIdx != cIdx) // Found, but must be moved
+
+        std::map<caf::PdmUiItem*, int>::iterator it = sourceTreeMap.find(child->activeItem());
+        if (it == sourceTreeMap.end())
         {
-            assert(existing_cIdx > cIdx);
-
-            PdmUiTreeOrdering* oldChild = existingSubTreeRoot->child(existing_cIdx);
-
-            this->beginMoveRows(existingSubTreeRootModIdx, existing_cIdx, existing_cIdx, existingSubTreeRootModIdx, cIdx);
-            existingSubTreeRoot->removeChildrenNoDelete(existing_cIdx, 1);
-            existingSubTreeRoot->insertChild(cIdx, oldChild);
-            this->endMoveRows();
-
-            updateSubTreeRecursive( index(cIdx, 0, existingSubTreeRootModIdx), oldChild, newChild);
-        }
-        else // Found the corresponding item in the right place.
-        {
-            PdmUiTreeOrdering* oldChild = existingSubTreeRoot->child(existing_cIdx);
-
-            updateSubTreeRecursive( index(cIdx, 0, existingSubTreeRootModIdx), oldChild, newChild);
+            indicesToRemoveFromExisting.push_back(i);
         }
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-/// Returns the index of the first child with activeItem() == pdmItemToFindInChildren. 
-//  -1 if not found or pdmItemToFindInChildren == NULL
-//--------------------------------------------------------------------------------------------------
-int PdmUiTreeViewModel::findChildItemIndex(const PdmUiTreeOrdering * parent, const PdmUiItem* pdmItemToFindInChildren)
-{
-    if (pdmItemToFindInChildren == NULL) return -1;
+    PdmUiTreeOrdering newOrdering("dummy", "dummy");
 
-    for (int i = 0; i < parent->childCount(); ++i)
+    // Detect items to be moved from source to existing
+    // Build the correct ordering of items in newOrdering
+    std::vector<int> indicesToRemoveFromSource;
+    for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
     {
-        PdmUiTreeOrdering* child = parent->child(i);
-        if (child->activeItem() == pdmItemToFindInChildren)
-        {
-            return i;
-        }
-        else if (child->isDisplayItemOnly())
-        {
-            // Todo, possibly. Find a way to check for equality based on content
-            // until done, the display items will always be regenerated with all their children
-        }
+        PdmUiTreeOrdering* sourceChild = sourceSubTreeRoot->child(i);
 
+        std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find(sourceChild->activeItem());
+        if (it != existingTreeMap.end())
+        {
+            newOrdering.appendChild(existingSubTreeRoot->child(it->second));
+
+            recursiveUpdateData.push_back(RecursiveUpdateData(index(newOrdering.childCount() - 1, 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(it->second), sourceChild));
+        }
+        else
+        {
+            newOrdering.appendChild(sourceChild);
+
+            indicesToRemoveFromSource.push_back(i);
+        }
     }
-    return -1;
+
+    // Delete items with largest index first from existing
+    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); it++)
+    {
+        this->beginRemoveRows(existingSubTreeRootModIdx, *it, *it);
+        existingSubTreeRoot->removeChildren(*it, 1);
+        this->endRemoveRows();
+    }
+
+    // Delete items with largest index first from source
+    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); it++)
+    {
+        // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
+        sourceSubTreeRoot->removeChildrenNoDelete(*it, 1);
+    }
+
+    // Delete all items from existingSubTreeRoot, as the complete list is present in newOrdering
+    existingSubTreeRoot->removeChildrenNoDelete(0, existingSubTreeRoot->childCount());
+
+    // Move all items into existingSubTreeRoot
+    for (int i = 0; i < newOrdering.childCount(); i++)
+    {
+        existingSubTreeRoot->appendChild(newOrdering.child(i));
+    }
+   
+    newOrdering.removeChildrenNoDelete(0, newOrdering.childCount());
+
+    for (size_t i = 0; i < recursiveUpdateData.size(); i++)
+    {
+        updateSubTreeRecursive(recursiveUpdateData[i].m_modelIndex, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -40,7 +40,6 @@
 
 #include <QAbstractItemModel>
 #include <QStringList>
-#include "cafPdmUiTreeOrdering.h"
 
 namespace caf
 {
@@ -85,7 +84,6 @@ private:
     void                    resetTree(PdmUiTreeOrdering* root);
     void                    emitDataChanged(const QModelIndex& index);
     void                    updateEditorsForSubTree(PdmUiTreeOrdering* root);
-    static int              findChildItemIndex(const PdmUiTreeOrdering * parent, const PdmUiItem* pdmItemToFindInChildren);
 
     PdmUiTreeOrdering*      m_treeOrderingRoot;
     QStringList             m_columnHeaders;

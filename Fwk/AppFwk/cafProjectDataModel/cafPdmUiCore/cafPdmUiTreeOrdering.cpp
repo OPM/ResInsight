@@ -108,7 +108,7 @@ bool PdmUiTreeOrdering::containsObject(const PdmObjectHandle* object)
     assert (object);
     for (int cIdx = 0; cIdx < this->childCount(); ++cIdx)
     {
-        PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>(this->child(cIdx)); // What again ???
+        PdmUiTreeOrdering* child = this->child(cIdx);
 
         if (child->isRepresentingObject() && child->object() == object)
         {
