@@ -116,8 +116,6 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
 
     std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > uniqueIntersections;
 
-    {
-       
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
     const std::vector<cvf::Vec3f>& nodeCoords =  femPart->nodes().coordinates;
 
@@ -164,10 +162,8 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         double md2 = m_wellPath->m_measuredDepths[wpp+1];
 
         insertIntersectionsInMap(intersections,
-                                     p1,  md1, p2, md2, 
-                                     &uniqueIntersections);
-    }
-       
+                                 p1, md1, p2, md2,
+                                 &uniqueIntersections);
     }
 
     this->populateReturnArrays(uniqueIntersections);
