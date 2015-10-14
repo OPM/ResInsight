@@ -21,9 +21,9 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffInvalidValAtEndsOfVector)
     std::vector< std::pair<size_t, size_t> > valuesIntervals;
     RimWellLogCurveImpl::calculateIntervalsOfValidValues(values, valuesIntervals);
 
-    EXPECT_EQ(1, valuesIntervals.size());
-    EXPECT_EQ(2, valuesIntervals[0].first);
-    EXPECT_EQ(4, valuesIntervals[0].second);
+    EXPECT_EQ(1, static_cast<int>(valuesIntervals.size()));
+    EXPECT_EQ(2, static_cast<int>(valuesIntervals[0].first));
+    EXPECT_EQ(4, static_cast<int>(valuesIntervals[0].second));
 }
 
 

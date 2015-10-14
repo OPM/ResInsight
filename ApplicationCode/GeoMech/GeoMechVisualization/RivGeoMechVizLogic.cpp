@@ -246,7 +246,7 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility(cvf::UByteArray* to
     if (gridCount == 0) return;
 
     RigFemPart* part = m_geomechView->geoMechCase()->geoMechData()->femParts()->part(0);
-    size_t elmCount = part->elementCount();
+    int elmCount = part->elementCount();
 
     totalVisibility->resize(elmCount);
     totalVisibility->setAll(false);

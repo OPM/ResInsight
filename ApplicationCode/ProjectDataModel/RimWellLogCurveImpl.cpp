@@ -83,7 +83,7 @@ void RimWellLogCurveImpl::calculateIntervalsOfValidValues(const std::vector<doub
         vIdx++;
     }
 
-    if (startIdx >= 0 && startIdx < valueCount)
+    if (startIdx >= 0 && startIdx < ((int)valueCount))
     {
         intervals.push_back(std::make_pair(startIdx, valueCount - 1));
     }

@@ -79,7 +79,7 @@ QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOption
 
     if (fieldNeedingOptions == &m_masterView)
     {
-        for (int i = 0; i < m_allViews.size(); i++)
+        for (size_t i = 0; i < m_allViews.size(); i++)
         {
             RimCase* rimCase = NULL;
             m_allViews[i]->firstAnchestorOrThisOfType(rimCase);

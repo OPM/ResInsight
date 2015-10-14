@@ -155,7 +155,7 @@ namespace NRLib {
 
     virtual const std::map<int, std::string> GetDiscNames(const std::string& log_name) const;
 
-    const unsigned int GetNumberOfNonMissingData()  const {return n_data_nonmissing_ ;}
+    unsigned int GetNumberOfNonMissingData()  const {return n_data_nonmissing_ ;}
 
     void SetUseForBackgroundTrend(int use_for_background_trend)         { use_for_background_trend_     = use_for_background_trend     ;}
     void SetUseForFiltering(int use_for_filtering)                      { use_for_filtering_            = use_for_filtering            ;}
