@@ -44,7 +44,7 @@ RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigCaseData* aCase,
 //--------------------------------------------------------------------------------------------------
 void RigEclipseWellLogExtractor::calculateIntersection()
 {
-    std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > uniqueIntersections;
+    std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > uniqueIntersections;
 
     const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
     bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();

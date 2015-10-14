@@ -119,7 +119,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
 {
     CVF_ASSERT(m_caseData->femParts()->partCount() == 1);
 
-    std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > uniqueIntersections;
+    std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > uniqueIntersections;
 
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
     const std::vector<cvf::Vec3f>& nodeCoords =  femPart->nodes().coordinates;

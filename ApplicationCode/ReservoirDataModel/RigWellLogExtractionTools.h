@@ -104,9 +104,9 @@ struct RigHexIntersector
 ///  Class used to sort the intersections along the wellpath
 //==================================================================================================
 
-struct RigMDEnterLeaveIntersectionSorterKey
+struct RigMDEnterLeaveKey
 {
-    RigMDEnterLeaveIntersectionSorterKey(double md, bool entering): measuredDepth(md), isEnteringCell(entering){}
+    RigMDEnterLeaveKey(double md, bool entering): measuredDepth(md), isEnteringCell(entering){}
 
     double measuredDepth;
     bool   isEnteringCell; // As opposed to leaving.
@@ -114,7 +114,7 @@ struct RigMDEnterLeaveIntersectionSorterKey
 
     // Sorting according to MD first, then Leaving before entering cell
 
-    bool operator < (const RigMDEnterLeaveIntersectionSorterKey& other) const 
+    bool operator < (const RigMDEnterLeaveKey& other) const 
     {
         double depthDiff = other.measuredDepth - measuredDepth;
 
@@ -142,16 +142,16 @@ struct RigMDEnterLeaveIntersectionSorterKey
 /// Sorting according to MD first, then Cell Idx, then Leaving before entering cell
 //==================================================================================================
 
-struct RigMDCellIdxEnterLeaveIntersectionSorterKey
+struct RigMDCellIdxEnterLeaveKey
 {
-    RigMDCellIdxEnterLeaveIntersectionSorterKey(double md, size_t cellIdx, bool entering): measuredDepth(md), hexIndex(cellIdx), isEnteringCell(entering){}
+    RigMDCellIdxEnterLeaveKey(double md, size_t cellIdx, bool entering): measuredDepth(md), hexIndex(cellIdx), isEnteringCell(entering){}
 
     double measuredDepth;
     size_t hexIndex;
     bool   isEnteringCell; // As opposed to leaving.
     bool   isLeavingCell() const { return !isEnteringCell;}
 
-    bool operator < (const RigMDCellIdxEnterLeaveIntersectionSorterKey& other) const 
+    bool operator < (const RigMDCellIdxEnterLeaveKey& other) const 
     {
         if (RigHexIntersector::isEqualDepth(measuredDepth, other.measuredDepth))
         {
@@ -182,16 +182,16 @@ struct RigMDCellIdxEnterLeaveIntersectionSorterKey
 /// Sorting according to MD first,then Leaving before entering cell, then Cell Idx, 
 //==================================================================================================
 
-struct RigMDEnterLeaveCellIdxIntersectionSorterKey
+struct RigMDEnterLeaveCellIdxKey
 {
-    RigMDEnterLeaveCellIdxIntersectionSorterKey(double md, bool entering, size_t cellIdx ): measuredDepth(md), hexIndex(cellIdx), isEnteringCell(entering){}
+    RigMDEnterLeaveCellIdxKey(double md, bool entering, size_t cellIdx ): measuredDepth(md), hexIndex(cellIdx), isEnteringCell(entering){}
 
     double measuredDepth;
     bool   isEnteringCell; // As opposed to leaving.
     bool   isLeavingCell() const { return !isEnteringCell;}
     size_t hexIndex;
 
-    bool operator < (const RigMDEnterLeaveCellIdxIntersectionSorterKey& other) const
+    bool operator < (const RigMDEnterLeaveCellIdxKey& other) const
     {
         if (RigHexIntersector::isEqualDepth(measuredDepth, other.measuredDepth))
         {
@@ -214,7 +214,7 @@ struct RigMDEnterLeaveCellIdxIntersectionSorterKey
         return (measuredDepth < other.measuredDepth);
     }
 
-    static bool isProperPair(const RigMDEnterLeaveCellIdxIntersectionSorterKey& key1, const RigMDEnterLeaveCellIdxIntersectionSorterKey& key2 )
+    static bool isProperPair(const RigMDEnterLeaveCellIdxKey& key1, const RigMDEnterLeaveCellIdxKey& key2 )
     {
         return ( key1.hexIndex == key2.hexIndex 
                 && key1.isEnteringCell && key2.isLeavingCell()
