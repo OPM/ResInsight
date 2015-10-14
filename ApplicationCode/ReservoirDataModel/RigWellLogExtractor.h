@@ -27,6 +27,8 @@
 #include <vector>
 #include "cvfStructGrid.h"
 
+#include "RigWellLogExtractionTools.h"
+
 class RigWellPath;
 
 //==================================================================================================
@@ -44,6 +46,8 @@ public:
     const RigWellPath*          wellPathData()      { return m_wellPath.p();}
 
 protected:
+    void populateReturnArrays(std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > &uniqueIntersections);
+
     std::vector<double>         m_measuredDepth;
     std::vector<double>         m_trueVerticalDepth;
     
