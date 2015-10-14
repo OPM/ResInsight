@@ -43,7 +43,7 @@ namespace cvf {
 class RigEclipseWellLogExtractor : public RigWellLogExtractor
 {
 public:
-    RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath);
+    RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
 
     void                        curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
     const RigCaseData*          caseData()     { return m_caseData.p();}

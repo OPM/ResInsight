@@ -43,7 +43,7 @@ namespace cvf {
 class RigGeoMechWellLogExtractor : public RigWellLogExtractor
 {
 public:
-    RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase, const RigWellPath* wellpath);
+    RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
 
     void                         curveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
     const RigGeoMechCaseData*    caseData()     { return m_caseData.p();}

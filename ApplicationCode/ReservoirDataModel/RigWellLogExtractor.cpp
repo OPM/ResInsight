@@ -24,7 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigWellLogExtractor::RigWellLogExtractor(const RigWellPath* wellpath) : m_wellPath(wellpath)
+RigWellLogExtractor::RigWellLogExtractor(const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName) : m_wellPath(wellpath), m_wellCaseErrorMsgName(wellCaseErrorMsgName)
 {
 
 }
@@ -130,7 +130,7 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
             HexIntersectionInfo firstLeavingPoint = it->second;
             firstLeavingPoint.m_intersectionPoint =  m_wellPath->m_wellPathPoints[0];
 
-            sortedUniqueIntersections.insert(std::make_pair(RigMDEnterLeaveCellIdxKey(m_wellPath->m_measuredDepths[0], firstLeavingPoint.m_hexIndex, true),
+            sortedUniqueIntersections.insert(std::make_pair(RigMDEnterLeaveCellIdxKey(m_wellPath->m_measuredDepths[0], true, firstLeavingPoint.m_hexIndex),
                 firstLeavingPoint));
         }
 
@@ -141,18 +141,18 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
             // Needs wellpath end point at end
             HexIntersectionInfo lastEnterPoint = rit->second;
             lastEnterPoint.m_intersectionPoint =  m_wellPath->m_wellPathPoints.back();
+            lastEnterPoint.m_isIntersectionEntering = false;
 
-            sortedUniqueIntersections.insert(std::make_pair(RigMDEnterLeaveCellIdxKey(m_wellPath->m_measuredDepths.back(), lastEnterPoint.m_hexIndex, false),
+            sortedUniqueIntersections.insert(std::make_pair(RigMDEnterLeaveCellIdxKey(m_wellPath->m_measuredDepths.back(), false, lastEnterPoint.m_hexIndex),
                 lastEnterPoint));
         }
     }
-
-    std::map<RigMDEnterLeaveKey, HexIntersectionInfo > filteredSortedIntersections;
 
     {
         std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo >::iterator it1 = sortedUniqueIntersections.begin();
         std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo >::iterator it2;
 
+        // 1-2 3 
         while (it1 != sortedUniqueIntersections.end())
         {
             it2 = it1;
@@ -160,37 +160,78 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
 
             if (it2 == sortedUniqueIntersections.end()) break;
 
-            // If we have a proper pair, insert in the filtered list and continue
-            if (!RigMDEnterLeaveCellIdxKey::isProperPair(it1->first, it2->first))
+            if (RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair(it1->first, it2->first))
             {
-                //CVF_ASSERT(false);
-                cvf::Trace::show(cvf::String("Well log curve is inaccurate around MD:  ") + cvf::String::number((double)(it1->first.measuredDepth)) + ", " + cvf::String::number((double)(it2->first.measuredDepth)));
-            }
-            {
-                filteredSortedIntersections.insert(std::make_pair(RigMDEnterLeaveKey(it1->first.measuredDepth, it1->first.isEnteringCell),
-                    it1->second));
+                appendIntersectionToArrays(it1->first.measuredDepth, it1->second);
                 ++it1;
-                filteredSortedIntersections.insert(std::make_pair(RigMDEnterLeaveKey(it1->first.measuredDepth, it1->first.isEnteringCell),
-                    it1->second));
+                appendIntersectionToArrays(it1->first.measuredDepth, it1->second);
                 ++it1;
             }
+            else
+            {
+
+                // If we haven't a proper pair, try our best to recover these variants:
+                // 1-2 3 4 5 6 7 8 9 10 11-12
+                //     +---+
+                //       +---+
+                //             +---+ 
+
+                std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo >::iterator it11 = it1;
+                std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo >::iterator it21 = it2;
+                
+                // Check if we have overlapping cells (typically at a fault)
+                ++it21;
+                if (it21 != sortedUniqueIntersections.end() 
+                    && RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair(it11->first, it21->first))
+                { 
+                    // Found 3 to 5 connection
+                    appendIntersectionToArrays(it11->first.measuredDepth, it11->second);
+                    appendIntersectionToArrays(it21->first.measuredDepth, it21->second);
+
+                    ++it11; ++it21;
+                    if (it21 != sortedUniqueIntersections.end() 
+                        &&  RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair(it11->first, it21->first))
+                    {
+                        // Found a 4 to 6 connection
+                        appendIntersectionToArrays(it11->first.measuredDepth, it11->second);
+                        appendIntersectionToArrays(it21->first.measuredDepth, it21->second);
+
+                        it1 = it21;
+                        ++it1;
+                        continue;
+                    }
+                    else
+                    {
+                        cvf::Trace::show(cvf::String("Well log from :") + m_wellCaseErrorMsgName + (" Discards a point at MD:  ") + cvf::String::number((double)(it1->first.measuredDepth)));
+
+                        // Found that 8 to 10 is not connected, after finding 7 to 9
+                        it1 = it21; // Discard 8 by Jumping to 10
+                        continue;
+                    }
+                }
+                else
+                {
+                    cvf::Trace::show(cvf::String("Well log from :") + m_wellCaseErrorMsgName + (" Discards a point at MD:  ") + cvf::String::number((double)(it1->first.measuredDepth)));
+
+                    // Found that 10 to 11 is not connected, and not 10 to 12 either
+                    it1++; // Discard 10 and jump to 11 and hope that recovers us 
+                    continue;
+                }
+
+                CVF_ASSERT(false); // Should not come here
+            }
+
+
         }
     }
-
-    {
-        // Now populate the return arrays
-        std::map<RigMDEnterLeaveKey, HexIntersectionInfo >::iterator it;
-
-        it = filteredSortedIntersections.begin();
-        while (it != filteredSortedIntersections.end())
-        {
-            m_measuredDepth.push_back(it->first.measuredDepth);
-            m_trueVerticalDepth.push_back(abs(it->second.m_intersectionPoint[2]));
-            m_intersections.push_back(it->second.m_intersectionPoint);
-            m_intersectedCells.push_back(it->second.m_hexIndex);
-            m_intersectedCellFaces.push_back(it->second.m_face);
-            ++it;
-        }
-    }
+   
 }
 
+void RigWellLogExtractor::appendIntersectionToArrays(double measuredDepth, const HexIntersectionInfo& intersection)
+{
+    m_measuredDepth.push_back       (measuredDepth);
+    m_trueVerticalDepth.push_back   (abs(intersection.m_intersectionPoint[2]));
+    m_intersections.push_back       (intersection.m_intersectionPoint);
+    m_intersectedCells.push_back    (intersection.m_hexIndex);
+    m_intersectedCellFaces.push_back(intersection.m_face);
+}

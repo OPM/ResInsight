@@ -214,7 +214,7 @@ struct RigMDEnterLeaveCellIdxKey
         return (measuredDepth < other.measuredDepth);
     }
 
-    static bool isProperPair(const RigMDEnterLeaveCellIdxKey& key1, const RigMDEnterLeaveCellIdxKey& key2 )
+    static bool isProperCellEnterLeavePair(const RigMDEnterLeaveCellIdxKey& key1, const RigMDEnterLeaveCellIdxKey& key2 )
     {
         return ( key1.hexIndex == key2.hexIndex 
                 && key1.isEnteringCell && key2.isLeavingCell()

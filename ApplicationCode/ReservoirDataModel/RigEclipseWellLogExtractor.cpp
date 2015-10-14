@@ -32,8 +32,8 @@
 /// 
 //==================================================================================================
 
-RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath)
-    : m_caseData(aCase), RigWellLogExtractor(wellpath)
+RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName)
+    : m_caseData(aCase), RigWellLogExtractor(wellpath, wellCaseErrorMsgName)
 {
     calculateIntersection();
 }

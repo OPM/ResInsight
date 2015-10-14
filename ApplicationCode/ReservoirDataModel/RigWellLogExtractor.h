@@ -37,7 +37,7 @@ class RigWellPath;
 class RigWellLogExtractor : public cvf::Object
 {
 public:
-    RigWellLogExtractor(const RigWellPath* wellpath);
+    RigWellLogExtractor(const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
     virtual ~RigWellLogExtractor();
 
     const std::vector<double>&  measuredDepth()     { return m_measuredDepth; }
@@ -51,6 +51,7 @@ protected:
                                   std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > *uniqueIntersections);
 
     void populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > &uniqueIntersections);
+    void appendIntersectionToArrays(double measuredDepth, const HexIntersectionInfo& intersection);
 
     std::vector<double>         m_measuredDepth;
     std::vector<double>         m_trueVerticalDepth;
@@ -61,6 +62,8 @@ protected:
                                 m_intersectedCellFaces;
 
     cvf::cref<RigWellPath>      m_wellPath;
+
+    std::string                 m_wellCaseErrorMsgName;
 };
 
 
