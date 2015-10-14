@@ -46,13 +46,20 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
     
     if (!resAddr.isValid()) return ;
 
+    RigFemResultAddress convResAddr = resAddr;
+
+    // When showing POR results, always use the element nodal result, 
+    // to get correct handling of elements without POR results
+     
+    if (convResAddr.fieldName == "POR-Bar") convResAddr.resultPosType = RIG_ELEMENT_NODAL;
+
     const RigFemPart* femPart                 = m_caseData->femParts()->part(0);
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
-    const std::vector<float>& resultValues    = m_caseData->femPartResults()->resultValues(resAddr, 0, frameIndex);
+    const std::vector<float>& resultValues    = m_caseData->femPartResults()->resultValues(convResAddr, 0, frameIndex);
 
     if (!resultValues.size()) return;
 
-    values->resize(m_intersections.size());// + 1); // Plus one for the end of the wellpath stopping inside a cell
+    values->resize(m_intersections.size());
 
     for (size_t cpIdx = 0; cpIdx < m_intersections.size(); ++cpIdx)
     {
@@ -77,7 +84,7 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
         size_t resIdx2 = cvf::UNDEFINED_SIZE_T;
         size_t resIdx3 = cvf::UNDEFINED_SIZE_T;
 
-        if (resAddr.resultPosType ==  RIG_NODAL)
+        if (convResAddr.resultPosType ==  RIG_NODAL)
         {
             resIdx0 = elmNodeIndices[faceLocalIndices[0]];
             resIdx1 = elmNodeIndices[faceLocalIndices[1]];
@@ -102,9 +109,7 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 
         (*values)[cpIdx] = interpolatedValue;
     }
-
-    // What do we do with the endpoint of the wellpath ?
-    // Ignore it for now ...
+  
 }
 
 //--------------------------------------------------------------------------------------------------
