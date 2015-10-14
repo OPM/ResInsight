@@ -119,11 +119,31 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrderi
                     std::vector<PdmObjectHandle*> children;
                     fields[fIdx]->childObjects(&children);
 
+                    std::set<PdmObjectHandle*> objectsAddedByApplication;
+                    for (int i = 0; i < uiTreeOrdering->childCount(); i++)
+                    {
+                        if (uiTreeOrdering->child(i)->isRepresentingObject())
+                        {
+                            objectsAddedByApplication.insert(uiTreeOrdering->child(i)->object());
+                        }
+                    }
+
                     for (size_t cIdx = 0; cIdx < children.size(); cIdx++)
                     {
-                        if (children[cIdx] && !uiTreeOrdering->containsObject(children[cIdx]))
+                        if (children[cIdx])
                         {
-                            uiTreeOrdering->add(children[cIdx]);
+                            bool isAlreadyAdded = false;
+                            std::set<PdmObjectHandle*>::iterator it = objectsAddedByApplication.find(children[cIdx]);
+                            if (it != objectsAddedByApplication.end())
+                            {
+                                isAlreadyAdded = true;
+                                break;
+                            }
+                            
+                            if (!isAlreadyAdded)
+                            {
+                               uiTreeOrdering->add(children[cIdx]);
+                            }
                         }
                     }
                 }
