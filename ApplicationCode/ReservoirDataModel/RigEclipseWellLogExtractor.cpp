@@ -44,76 +44,79 @@ RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigCaseData* aCase,
 //--------------------------------------------------------------------------------------------------
 void RigEclipseWellLogExtractor::calculateIntersection()
 {
-    const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
-
-    bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
-
-    if (!m_wellPath->m_wellPathPoints.size()) return ;
-
     std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > uniqueIntersections;
 
-    for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
     {
-        cvf::BoundingBox bb;
-        cvf::Vec3d p1 = m_wellPath->m_wellPathPoints[wpp];
-        cvf::Vec3d p2 = m_wellPath->m_wellPathPoints[wpp+1];
+        const std::vector<cvf::Vec3d>& nodeCoords =  m_caseData->mainGrid()->nodes();
 
-        bb.add(p1);
-        bb.add(p2);
+        bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
 
-        std::vector<size_t> closeCells = findCloseCells(bb);
-        std::vector<HexIntersectionInfo> intersections;
+        if (!m_wellPath->m_wellPathPoints.size()) return ;
 
-        cvf::Vec3d hexCorners[8];
-        for (size_t cIdx = 0; cIdx < closeCells.size(); ++cIdx)
+
+        for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
         {
-            const RigCell& cell = m_caseData->mainGrid()->cells()[closeCells[cIdx]];
-            const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
+            cvf::BoundingBox bb;
+            cvf::Vec3d p1 = m_wellPath->m_wellPathPoints[wpp];
+            cvf::Vec3d p2 = m_wellPath->m_wellPathPoints[wpp+1];
 
-            hexCorners[0] = nodeCoords[cornerIndices[0]];
-            hexCorners[1] = nodeCoords[cornerIndices[1]];
-            hexCorners[2] = nodeCoords[cornerIndices[2]];
-            hexCorners[3] = nodeCoords[cornerIndices[3]];
-            hexCorners[4] = nodeCoords[cornerIndices[4]];
-            hexCorners[5] = nodeCoords[cornerIndices[5]];
-            hexCorners[6] = nodeCoords[cornerIndices[6]];
-            hexCorners[7] = nodeCoords[cornerIndices[7]];
+            bb.add(p1);
+            bb.add(p2);
 
-            int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
-        }
+            std::vector<size_t> closeCells = findCloseCells(bb);
+            std::vector<HexIntersectionInfo> intersections;
 
-        // Now, with all the intersections of this piece of line, we need to 
-        // sort them in order, and set the measured depth and corresponding cell index
-        
-        // Inserting the intersections in this map will remove identical intersections
-        // and sort them according to MD, CellIdx, Leave/enter
-
-        double md1 = m_wellPath->m_measuredDepths[wpp];
-        double md2 = m_wellPath->m_measuredDepths[wpp+1];
-
-        for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
-        {
-            if (!isCellFaceNormalsOut) intersections[intIdx].m_isIntersectionEntering = !intersections[intIdx].m_isIntersectionEntering ;
-
-            double lenghtAlongLineSegment1 = (intersections[intIdx].m_intersectionPoint - p1).length();
-            double lenghtAlongLineSegment2 = (p2 - intersections[intIdx].m_intersectionPoint).length();
-            double measuredDepthDiff       = md2 - md1;
-            double lineLength              = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
-            double measuredDepthOfPoint    = 0.0;
-
-            if (lineLength > 0.00001)
+            cvf::Vec3d hexCorners[8];
+            for (size_t cIdx = 0; cIdx < closeCells.size(); ++cIdx)
             {
-                measuredDepthOfPoint = md1 + measuredDepthDiff*lenghtAlongLineSegment1/(lineLength);
-            }
-            else
-            {
-                measuredDepthOfPoint = md1;
+                const RigCell& cell = m_caseData->mainGrid()->cells()[closeCells[cIdx]];
+                const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
+
+                hexCorners[0] = nodeCoords[cornerIndices[0]];
+                hexCorners[1] = nodeCoords[cornerIndices[1]];
+                hexCorners[2] = nodeCoords[cornerIndices[2]];
+                hexCorners[3] = nodeCoords[cornerIndices[3]];
+                hexCorners[4] = nodeCoords[cornerIndices[4]];
+                hexCorners[5] = nodeCoords[cornerIndices[5]];
+                hexCorners[6] = nodeCoords[cornerIndices[6]];
+                hexCorners[7] = nodeCoords[cornerIndices[7]];
+
+                int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
             }
 
-            uniqueIntersections.insert(std::make_pair(RigMDCellIdxEnterLeaveIntersectionSorterKey(measuredDepthOfPoint, 
-                                                                                                  intersections[intIdx].m_hexIndex, 
-                                                                                                  intersections[intIdx].m_isIntersectionEntering),  
-                                                            intersections[intIdx]));  
+            // Now, with all the intersections of this piece of line, we need to 
+            // sort them in order, and set the measured depth and corresponding cell index
+
+            // Inserting the intersections in this map will remove identical intersections
+            // and sort them according to MD, CellIdx, Leave/enter
+
+            double md1 = m_wellPath->m_measuredDepths[wpp];
+            double md2 = m_wellPath->m_measuredDepths[wpp+1];
+
+            for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
+            {
+                if (!isCellFaceNormalsOut) intersections[intIdx].m_isIntersectionEntering = !intersections[intIdx].m_isIntersectionEntering ;
+
+                double lenghtAlongLineSegment1 = (intersections[intIdx].m_intersectionPoint - p1).length();
+                double lenghtAlongLineSegment2 = (p2 - intersections[intIdx].m_intersectionPoint).length();
+                double measuredDepthDiff       = md2 - md1;
+                double lineLength              = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
+                double measuredDepthOfPoint    = 0.0;
+
+                if (lineLength > 0.00001)
+                {
+                    measuredDepthOfPoint = md1 + measuredDepthDiff*lenghtAlongLineSegment1/(lineLength);
+                }
+                else
+                {
+                    measuredDepthOfPoint = md1;
+                }
+
+                uniqueIntersections.insert(std::make_pair(RigMDCellIdxEnterLeaveIntersectionSorterKey(measuredDepthOfPoint,
+                                                                                                      intersections[intIdx].m_hexIndex,
+                                                                                                      intersections[intIdx].m_isIntersectionEntering),
+                                                          intersections[intIdx]));
+            }
         }
     }
 
