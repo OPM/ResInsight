@@ -101,42 +101,6 @@ struct RigHexIntersector
 };
 
 //==================================================================================================
-///  Class used to sort the intersections along the wellpath
-//==================================================================================================
-
-struct RigMDEnterLeaveKey
-{
-    RigMDEnterLeaveKey(double md, bool entering): measuredDepth(md), isEnteringCell(entering){}
-
-    double measuredDepth;
-    bool   isEnteringCell; // As opposed to leaving.
-    bool   isLeavingCell() { return !isEnteringCell;}
-
-    // Sorting according to MD first, then Leaving before entering cell
-
-    bool operator < (const RigMDEnterLeaveKey& other) const 
-    {
-        double depthDiff = other.measuredDepth - measuredDepth;
-
-        if (RigHexIntersector::isEqualDepth(measuredDepth,  other.measuredDepth) )
-        {
-            if (isEnteringCell == other.isEnteringCell)
-            {
-                // Completely equal, probably hitting between two cells
-                return false;
-            }
-
-            return !isEnteringCell; // Sort Leaving cell before (less than) entering cell
-        }
-
-        // The depths are not equal
-
-        return  (measuredDepth < other.measuredDepth);
-    }
-};
-
-
-//==================================================================================================
 ///  Class used to sort the intersections along the wellpath,
 ///  Use as key in a map
 /// Sorting according to MD first, then Cell Idx, then Leaving before entering cell

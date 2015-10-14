@@ -72,9 +72,8 @@ void RigWellLogExtractor::insertIntersectionsInMap(const std::vector<HexIntersec
 //--------------------------------------------------------------------------------------------------
 void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > &uniqueIntersections)
 {
+    // For same MD and same cell, remove enter/leave pairs, as they only touches the wellpath, and should not contribute.
     {
-        // For same MD and same cell, remove enter/leave pairs, as they only touches the wellpath, and should not contribute.
-
         std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo >::iterator it1 = uniqueIntersections.begin();
         std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo >::iterator it2 = uniqueIntersections.begin();
 
@@ -108,6 +107,7 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
     }
 
     // Copy the map into a different sorting regime, with enter leave more significant than cell index
+
     std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo > sortedUniqueIntersections;
     {
         std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo >::iterator it = uniqueIntersections.begin();
@@ -119,8 +119,7 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
         }
     }
 
-
-    // Make sure we have sensible pairs of intersections. One pair for each in/out of a cell
+    // Add points for the endpoint of the wellpath, if it starts/ends inside a cell
     {
         // Add an intersection for the well startpoint that is inside the first cell
         std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo >::iterator it = sortedUniqueIntersections.begin();
@@ -148,11 +147,12 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
         }
     }
 
+    // Filter and store the intersections pairwise as cell enter-leave pairs 
+    // Discard points that does not have a match .
     {
         std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo >::iterator it1 = sortedUniqueIntersections.begin();
         std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo >::iterator it2;
 
-        // 1-2 3 
         while (it1 != sortedUniqueIntersections.end())
         {
             it2 = it1;
@@ -218,13 +218,10 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
                     continue;
                 }
 
-                CVF_ASSERT(false); // Should not come here
+                CVF_ASSERT(false); // Should never end here
             }
-
-
         }
     }
-   
 }
 
 void RigWellLogExtractor::appendIntersectionToArrays(double measuredDepth, const HexIntersectionInfo& intersection)
