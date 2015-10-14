@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "RigWellLogExtractor.h"
-
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfMath.h"
@@ -29,28 +27,33 @@
 #include <vector>
 #include "cvfStructGrid.h"
 
-class RigCaseData;
 class RigWellPath;
-class RigResultAccessor;
-
-namespace cvf {
-    class BoundingBox;
-}
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigEclipseWellLogExtractor : public RigWellLogExtractor
+class RigWellLogExtractor : public cvf::Object
 {
 public:
-    RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath);
+    RigWellLogExtractor(const RigWellPath* wellpath);
+    virtual ~RigWellLogExtractor();
 
-    void                        curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
-    const RigCaseData*          caseData()     { return m_caseData.p();}
+    const std::vector<double>&  measuredDepth()     { return m_measuredDepth; }
+    const std::vector<double>&  trueVerticalDepth() {return m_trueVerticalDepth;}
+
+    const RigWellPath*          wellPathData()      { return m_wellPath.p();}
 
 protected:
-    void                        calculateIntersection();
-    std::vector<size_t>         findCloseCells(const cvf::BoundingBox& bb);
+    std::vector<double>         m_measuredDepth;
+    std::vector<double>         m_trueVerticalDepth;
+    
+    std::vector<cvf::Vec3d>     m_intersections;
+    std::vector<size_t>         m_intersectedCells;
+    std::vector<cvf::StructGridInterface::FaceType> 
+                                m_intersectedCellFaces;
 
-    cvf::cref<RigCaseData>      m_caseData;
+    cvf::cref<RigWellPath>      m_wellPath;
 };
+
+
+

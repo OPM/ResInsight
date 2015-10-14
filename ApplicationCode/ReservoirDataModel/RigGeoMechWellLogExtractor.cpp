@@ -32,7 +32,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase, const RigWellPath* wellpath)
-    :m_caseData(aCase), m_wellPath(wellpath)
+    :m_caseData(aCase), RigWellLogExtractor(wellpath)
 {
     calculateIntersection();
 }
@@ -155,7 +155,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         // sort them in order, and set the measured depth and corresponding cell index
 
         // map <WellPathDepthPoint, (CellIdx, intersectionPoint)>
-        std::map<WellPathDepthPoint, HexIntersectionInfo > sortedIntersections;
+        std::map<RigMDEnterLeaveIntersectionSorterKey, HexIntersectionInfo > sortedIntersections;
 
         double md1 = m_wellPath->m_measuredDepths[wpp];
         double md2 = m_wellPath->m_measuredDepths[wpp+1];
@@ -176,12 +176,12 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
                 measuredDepthOfPoint = md1;
             }
 
-            sortedIntersections.insert(std::make_pair(WellPathDepthPoint(measuredDepthOfPoint, intersections[intIdx].m_isIntersectionEntering), intersections[intIdx]));
+            sortedIntersections.insert(std::make_pair(RigMDEnterLeaveIntersectionSorterKey(measuredDepthOfPoint, intersections[intIdx].m_isIntersectionEntering), intersections[intIdx]));
         }
 
         // Now populate the return arrays
 
-        std::map<WellPathDepthPoint, HexIntersectionInfo >::iterator it;
+        std::map<RigMDEnterLeaveIntersectionSorterKey, HexIntersectionInfo >::iterator it;
         it = sortedIntersections.begin();
         while (it != sortedIntersections.end())
         {

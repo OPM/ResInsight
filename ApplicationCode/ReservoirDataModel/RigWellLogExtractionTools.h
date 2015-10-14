@@ -72,18 +72,31 @@ struct RigHexIntersector
                 int next = i < 3 ? i+1 : 0;
 
                 int intsStatus = cvf::GeometryTools::intersectLineSegmentTriangle(p1, p2,
-                                                                                  hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter,
+                                                                                  hexCorners[faceVertexIndices[i]], 
+                                                                                  hexCorners[faceVertexIndices[next]], 
+                                                                                  faceCenter,
                                                                                   &intersection,
                                                                                   &isEntering);
                 if (intsStatus == 1)
                 {
                     intersectionCount++;
-                    intersections->push_back(HexIntersectionInfo(intersection, isEntering, static_cast<cvf::StructGridInterface::FaceType>(face), hexIndex));
+                    intersections->push_back(HexIntersectionInfo(intersection, 
+                                                                 isEntering, 
+                                                                 static_cast<cvf::StructGridInterface::FaceType>(face), hexIndex));
                 }
             }
         }
 
         return intersectionCount;
+    }
+
+    static bool isEqualDepth(double d1, double d2) 
+    { 
+        double depthDiff = d1 - d2;
+
+        const double tolerance = 0.1;// Meters To handle inaccuracies across faults
+
+        return (fabs(depthDiff) < tolerance); // Equal depth
     }
 };
 
@@ -91,20 +104,21 @@ struct RigHexIntersector
 ///  Class used to sort the intersections along the wellpath
 //==================================================================================================
 
-struct WellPathDepthPoint
+struct RigMDEnterLeaveIntersectionSorterKey
 {
-    WellPathDepthPoint(double md, bool entering): measuredDepth(md), isEnteringCell(entering){}
+    RigMDEnterLeaveIntersectionSorterKey(double md, bool entering): measuredDepth(md), isEnteringCell(entering){}
 
     double measuredDepth;
     bool   isEnteringCell; // As opposed to leaving.
+    bool   isLeavingCell() { return !isEnteringCell;}
 
-    bool operator < (const WellPathDepthPoint& other) const 
+    // Sorting according to MD first, then Leaving before entering cell
+
+    bool operator < (const RigMDEnterLeaveIntersectionSorterKey& other) const 
     {
         double depthDiff = other.measuredDepth - measuredDepth;
 
-        const double tolerance = 1e-6;
-
-        if (fabs(depthDiff) < tolerance) // Equal depth
+        if (RigHexIntersector::isEqualDepth(measuredDepth,  other.measuredDepth) )
         {
             if (isEnteringCell == other.isEnteringCell)
             {
@@ -112,29 +126,99 @@ struct WellPathDepthPoint
                 return false;
             }
 
-            if(!isEnteringCell) // Leaving this cell
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return !isEnteringCell; // Sort Leaving cell before (less than) entering cell
         }
 
         // The depths are not equal
 
-        if (measuredDepth < other.measuredDepth)
+        return  (measuredDepth < other.measuredDepth);
+    }
+};
+
+
+//==================================================================================================
+///  Class used to sort the intersections along the wellpath,
+///  Use as key in a map
+/// Sorting according to MD first, then Cell Idx, then Leaving before entering cell
+//==================================================================================================
+
+struct RigMDCellIdxEnterLeaveIntersectionSorterKey
+{
+    RigMDCellIdxEnterLeaveIntersectionSorterKey(double md, size_t cellIdx, bool entering): measuredDepth(md), hexIndex(cellIdx), isEnteringCell(entering){}
+
+    double measuredDepth;
+    size_t hexIndex;
+    bool   isEnteringCell; // As opposed to leaving.
+    bool   isLeavingCell() const { return !isEnteringCell;}
+
+    bool operator < (const RigMDCellIdxEnterLeaveIntersectionSorterKey& other) const 
+    {
+        if (RigHexIntersector::isEqualDepth(measuredDepth, other.measuredDepth))
         {
-            return true;
-        }
-        else if (measuredDepth > other.measuredDepth)
-        {
-            return false;
+            if (hexIndex == other.hexIndex)
+            {
+                if (isEnteringCell == other.isEnteringCell)
+                {
+                    // Completely equal: intersections at cell edges or corners or edges of the face triangles
+                    return false;
+                }
+
+                return !isEnteringCell; // Sort Leaving cell before (less than) entering cell
+            }
+
+            return (hexIndex < other.hexIndex);
         }
 
-        CVF_ASSERT(false);
-        return false;
+        // The depths are not equal
+
+        return (measuredDepth < other.measuredDepth);
+    }
+};
+
+
+//==================================================================================================
+///  Class used to sort the intersections along the wellpath,
+///  Use as key in a map
+/// Sorting according to MD first,then Leaving before entering cell, then Cell Idx, 
+//==================================================================================================
+
+struct RigMDEnterLeaveCellIdxIntersectionSorterKey
+{
+    RigMDEnterLeaveCellIdxIntersectionSorterKey(double md, bool entering, size_t cellIdx ): measuredDepth(md), hexIndex(cellIdx), isEnteringCell(entering){}
+
+    double measuredDepth;
+    bool   isEnteringCell; // As opposed to leaving.
+    bool   isLeavingCell() const { return !isEnteringCell;}
+    size_t hexIndex;
+
+    bool operator < (const RigMDEnterLeaveCellIdxIntersectionSorterKey& other) const
+    {
+        if (RigHexIntersector::isEqualDepth(measuredDepth, other.measuredDepth))
+        {
+            if (isEnteringCell == other.isEnteringCell)
+            {
+                if (hexIndex == other.hexIndex)
+                {
+                    // Completely equal: intersections at cell edges or corners or edges of the face triangles
+                    return false;
+                }
+
+                return (hexIndex < other.hexIndex);
+            }
+
+            return isLeavingCell(); // Sort Leaving cell before (less than) entering cell
+        }
+
+        // The depths are not equal
+
+        return (measuredDepth < other.measuredDepth);
+    }
+
+    static bool isProperPair(const RigMDEnterLeaveCellIdxIntersectionSorterKey& key1, const RigMDEnterLeaveCellIdxIntersectionSorterKey& key2 )
+    {
+        return ( key1.hexIndex == key2.hexIndex 
+                && key1.isEnteringCell && key2.isLeavingCell()
+                && !RigHexIntersector::isEqualDepth(key1.measuredDepth, key2.measuredDepth));
     }
 };
 
