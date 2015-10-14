@@ -113,11 +113,13 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 void RigGeoMechWellLogExtractor::calculateIntersection()
 {
     CVF_ASSERT(m_caseData->femParts()->partCount() == 1);
-    
+
+    std::map<RigMDCellIdxEnterLeaveIntersectionSorterKey, HexIntersectionInfo > uniqueIntersections;
+
+    {
+       
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
     const std::vector<cvf::Vec3f>& nodeCoords =  femPart->nodes().coordinates;
-
-    //double globalMeasuredDepth = 0; // Where do we start ? z - of first well path point ? 
 
     for (size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp)
     {
@@ -154,9 +156,6 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         // Now, with all the intersections of this piece of line, we need to 
         // sort them in order, and set the measured depth and corresponding cell index
 
-        // map <WellPathDepthPoint, (CellIdx, intersectionPoint)>
-        std::map<RigMDEnterLeaveIntersectionSorterKey, HexIntersectionInfo > sortedIntersections;
-
         double md1 = m_wellPath->m_measuredDepths[wpp];
         double md2 = m_wellPath->m_measuredDepths[wpp+1];
 
@@ -164,9 +163,10 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         {
             double lenghtAlongLineSegment1 = (intersections[intIdx].m_intersectionPoint - p1).length();
             double lenghtAlongLineSegment2 = (p2 - intersections[intIdx].m_intersectionPoint).length();
-            double measuredDepthDiff = md2 - md1;
-            double lineLength = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
-            double measuredDepthOfPoint = 0.0;
+            double measuredDepthDiff       = md2 - md1;
+            double lineLength              = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
+            double measuredDepthOfPoint    = 0.0;
+
             if (lineLength > 0.00001)
             {
                 measuredDepthOfPoint = md1 + measuredDepthDiff*lenghtAlongLineSegment1/(lineLength);
@@ -176,23 +176,16 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
                 measuredDepthOfPoint = md1;
             }
 
-            sortedIntersections.insert(std::make_pair(RigMDEnterLeaveIntersectionSorterKey(measuredDepthOfPoint, intersections[intIdx].m_isIntersectionEntering), intersections[intIdx]));
-        }
-
-        // Now populate the return arrays
-
-        std::map<RigMDEnterLeaveIntersectionSorterKey, HexIntersectionInfo >::iterator it;
-        it = sortedIntersections.begin();
-        while (it != sortedIntersections.end())
-        {
-            m_measuredDepth.push_back(it->first.measuredDepth);
-            m_trueVerticalDepth.push_back(abs(it->second.m_intersectionPoint[2]));
-            m_intersections.push_back(it->second.m_intersectionPoint);
-            m_intersectedCells.push_back(it->second.m_hexIndex);
-            m_intersectedCellFaces.push_back(it->second.m_face);
-            ++it;
+            uniqueIntersections.insert(std::make_pair(RigMDCellIdxEnterLeaveIntersectionSorterKey(measuredDepthOfPoint, 
+                                                                                                  intersections[intIdx].m_hexIndex,
+                                                                                                  intersections[intIdx].m_isIntersectionEntering), 
+                                                      intersections[intIdx]));
         }
     }
+       
+    }
+
+    this->populateReturnArrays(uniqueIntersections);
 }
 
 //--------------------------------------------------------------------------------------------------
