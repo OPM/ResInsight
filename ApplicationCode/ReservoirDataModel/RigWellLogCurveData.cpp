@@ -276,9 +276,9 @@ bool RigWellLogCurveData::depthRange(double* minimumDepth, double* maximumDepth)
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
-    for (size_t vIdx = 0; vIdx < m_yValues.size(); vIdx++)
+    for (size_t vIdx = 0; vIdx < m_measuredDepths.size(); vIdx++)
     {
-        double value = m_yValues[vIdx];
+        double value = m_measuredDepths[vIdx];
 
         if (value < minValue)
         {
