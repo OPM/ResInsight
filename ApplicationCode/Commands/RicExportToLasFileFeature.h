@@ -19,45 +19,27 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "cafCmdFeature.h"
 
-#include <QStringList>
 #include <vector>
-
-namespace NRLib
-{
-    class Well;
-}
 
 class RimWellLogPlotCurve;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigWellLogFile : public cvf::Object
+class RicExportToLasFileFeature : public caf::CmdFeature
 {
-public:
-    RigWellLogFile();
-    virtual ~RigWellLogFile();
+    CAF_CMD_HEADER_INIT;
 
-    bool open(const QString& fileName, QString* errorMessage);
-
-    QString     wellName() const;
-    QStringList wellLogChannelNames() const;
-
-    std::vector<double> depthValues() const;
-    std::vector<double> values(const QString& name) const;
-
-    QString depthUnit() const;
-    QString wellLogChannelUnit(const QString& wellLogChannelName) const;
-
-    static bool exportToLasFile(const RimWellLogPlotCurve* curve, const QString& fileName);
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    void close();
-
-    NRLib::Well*    m_wellLogFile;
-    QStringList     m_wellLogChannelNames;
-    QString         m_depthLogName;
+    RimWellLogPlotCurve* selectedWellLogPlotCurve() const;
 };
+
+

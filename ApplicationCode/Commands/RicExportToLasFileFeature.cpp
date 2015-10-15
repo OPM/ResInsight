@@ -17,53 +17,64 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellLogPlotCurve.h"
+#include "RicExportToLasFileFeature.h"
 
-#include "RigWellLogCurveData.h"
+#include "RimWellLogPlotCurve.h"
+#include "RigWellLogFile.h"
 
+#include "RiuMainWindow.h"
+
+#include "cafSelectionManager.h"
+  
+#include <QAction>
+#include <QFileDialog>
+
+CAF_CMD_SOURCE_INIT(RicExportToLasFileFeature, "RicExportToLasFileFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlotCurve::RiuWellLogPlotCurve()
+bool RicExportToLasFileFeature::isCommandEnabled()
 {
+    return selectedWellLogPlotCurve() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlotCurve::~RiuWellLogPlotCurve()
+void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogPlotCurve::drawCurve(QPainter* p, int style,
-    const QwtScaleMap& xMap, const QwtScaleMap& yMap,
-    const QRectF& canvasRect, int from, int to) const
-{
-    size_t intervalCount = m_intervals.size();
-    if (intervalCount > 0)
+    RimWellLogPlotCurve* curve = selectedWellLogPlotCurve();
+    if (curve)
     {
-        for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
+        QString fileName = QFileDialog::getSaveFileName(RiuMainWindow::instance(), tr("Export Curve Data To LAS File"), "", tr("LAS Files (*.las);;All files(*.*)"));
+        if (!fileName.isEmpty())
         {
-            QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, (int) m_intervals[intIdx].first, (int) m_intervals[intIdx].second);
+            RigWellLogFile::exportToLasFile(curve, fileName);
         }
     }
-    else QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, from, to);
-};
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlotCurve::setCurveData(const RigWellLogCurveData* curveData)
+void RicExportToLasFileFeature::setupActionLook(QAction* actionToSetup)
 {
-    CVF_ASSERT(curveData);
+    actionToSetup->setText("Export To LAS File...");
+}
 
-    std::vector<double> validXValues = curveData->validXValues();
-    std::vector<double> validYValues = curveData->validYValues();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlotCurve* RicExportToLasFileFeature::selectedWellLogPlotCurve() const
+{
+    std::vector<RimWellLogPlotCurve*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
 
-    setSamples(validXValues.data(), validYValues.data(), (int) validXValues.size());
-    m_intervals = curveData->validPointsIntervals();
+    if (selection.size() > 0)
+    {
+        return selection[0];
+    }
+
+    return NULL;
 }

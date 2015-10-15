@@ -23,8 +23,11 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmObject.h"
 
+#include "RigWellLogCurveData.h"
+
 #include <vector>
 
+class RigWellLogCurveData;
 class RiuWellLogTrackPlot;
 class RiuWellLogPlotCurve;
 class QwtPlotCurve;
@@ -51,8 +54,10 @@ public:
 
     bool    isCurveVisibile();
 
-    QwtPlotCurve*   plotCurve() const;
+    QwtPlotCurve*               plotCurve() const;
+    const RigWellLogCurveData*  curveData() const;
     
+    QString         name() const { return m_curveName; }
     void            updateCurveName();
     void            updatePlotTitle();
 
@@ -73,8 +78,9 @@ protected:
     virtual void                    initAfterRead();
 
 
-    RiuWellLogTrackPlot*    m_plot;
-    RiuWellLogPlotCurve*    m_plotCurve;
+    RiuWellLogTrackPlot*            m_plot;
+    RiuWellLogPlotCurve*            m_plotCurve;
+    cvf::ref<RigWellLogCurveData>   m_curveData;
 
     caf::PdmField<bool>         m_showCurve;
     caf::PdmField<QString>      m_curveName;

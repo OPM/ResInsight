@@ -195,9 +195,8 @@ void RimWellLogExtractionCurve::updatePlotData()
         cvf::ref<RigEclipseWellLogExtractor> eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
         cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
 
-        std::vector<double> filteredValues;
-        std::vector<double> filteredDepths;
-        std::vector< std::pair<size_t, size_t> > plotIntervals;
+        std::vector<double> values;
+        std::vector<double> depthValues;
 
         if (eclExtractor.notNull())
         {
@@ -205,7 +204,7 @@ void RimWellLogExtractionCurve::updatePlotData()
             firstAnchestorOrThisOfType(wellLogPlot);
             CVF_ASSERT(wellLogPlot);
 
-            const std::vector<double>& depthValues = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? eclExtractor->measuredDepth() : eclExtractor->trueVerticalDepth();
+            depthValues = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? eclExtractor->measuredDepth() : eclExtractor->trueVerticalDepth();
 
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
             m_eclipseResultDefinition->loadResult();
@@ -216,18 +215,9 @@ void RimWellLogExtractionCurve::updatePlotData()
                 m_timeStep,
                 m_eclipseResultDefinition->resultVariable());
 
-            std::vector<double> values;
-
             if (resAcc.notNull())
             {
                 eclExtractor->curveData(resAcc.p(), &values);
-            }
-
-            if (values.size() > 0 && values.size() == depthValues.size())
-            {
-                RimWellLogCurveImpl::validCurvePointIntervals(depthValues, values, plotIntervals);
-                RimWellLogCurveImpl::addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
-                RimWellLogCurveImpl::addValuesFromIntervals(values, plotIntervals, &filteredValues);
             }
         }
         else if (geomExtractor.notNull()) // geomExtractor
@@ -236,31 +226,21 @@ void RimWellLogExtractionCurve::updatePlotData()
             firstAnchestorOrThisOfType(wellLogPlot);
             CVF_ASSERT(wellLogPlot);
 
-            const std::vector<double>& depthValues = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? geomExtractor->measuredDepth() : geomExtractor->trueVerticalDepth();
+            depthValues = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? geomExtractor->measuredDepth() : geomExtractor->trueVerticalDepth();
             m_geomResultDefinition->loadResult();
 
-            std::vector<double> values;
             geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, &values);
-            
-            if (values.size() > 0 && values.size() == depthValues.size())
-            {
-                RimWellLogCurveImpl::validCurvePointIntervals(depthValues, values, plotIntervals);
-                RimWellLogCurveImpl::addValuesFromIntervals(depthValues, plotIntervals, &filteredDepths);
-                RimWellLogCurveImpl::addValuesFromIntervals(values, plotIntervals, &filteredValues);
-            }
         }
 
-        m_plotCurve->setSamples(filteredValues.data(), filteredDepths.data(), (int)filteredValues.size());
+        m_curveData = new RigWellLogCurveData;
         
-        std::vector< std::pair<size_t, size_t> > fltrIntervals;
-        RimWellLogCurveImpl::filteredIntervals(plotIntervals, &fltrIntervals);
-
-        m_plotCurve->setPlotIntervals(fltrIntervals);
-
-        if (filteredValues.size())
+        if (values.size() == depthValues.size())
         {
-            updateTrackAndPlotFromCurveData();
+            m_curveData->setPoints(values, depthValues);
         }
+
+        m_plotCurve->setCurveData(m_curveData.p());
+        updateTrackAndPlotFromCurveData();
 
         if (m_plot) m_plot->replot();
     }

@@ -826,6 +826,7 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
         }
         else if (dynamic_cast<RimWellLogPlotCurve*>(uiItem))
         {
+            commandIds << "RicExportToLasFileFeature";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))

@@ -19,6 +19,8 @@
 
 #include "RigWellLogFile.h"
 
+#include "RimWellLogPlotCurve.h"
+
 #include "well.hpp"
 #include "laswell.hpp"
 
@@ -233,4 +235,44 @@ QString RigWellLogFile::wellLogChannelUnit(const QString& wellLogChannelName) co
     }
 
     return unit;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QString& fileName)
+{
+    CVF_ASSERT(curve);
+
+    const RigWellLogCurveData* curveData = curve->curveData();
+    if (!curveData)
+    {
+        return false;
+    }
+
+    double minX, maxX;
+    curve->valueRange(&minX, &maxX);
+
+    // Might want to use a different way to find an absent/"null" value, maybe use the default if possible
+    double absentValue = ((size_t) maxX) + 1000;
+
+    std::vector<double> wellLogValues = curveData->xValues();
+    for (size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++)
+    {
+        double value = wellLogValues[vIdx];
+        if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
+        {
+            wellLogValues[vIdx] = absentValue;
+        }
+    }
+
+    NRLib::LasWell lasFile;
+    lasFile.AddLog("DEPTH", "m", "Depth [m]", curveData->yValues());
+    lasFile.AddLog(curve->name().trimmed().toStdString(), "NO_UNIT", "PARAMETERINFO", wellLogValues);
+    lasFile.SetMissing(absentValue);
+
+    std::vector<std::string> commentHeader;
+    lasFile.WriteToFile(fileName.toStdString(), commentHeader);
+
+    return true;
 }

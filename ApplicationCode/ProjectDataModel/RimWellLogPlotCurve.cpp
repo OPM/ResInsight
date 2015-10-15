@@ -291,3 +291,11 @@ void RimWellLogPlotCurve::updateOptionSensitivity()
 {
     m_curveName.uiCapability()->setUiReadOnly(m_autoName);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigWellLogCurveData* RimWellLogPlotCurve::curveData() const
+{
+    return m_curveData.p();
+}

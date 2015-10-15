@@ -23,6 +23,8 @@
 
 #include <vector>
 
+class RigWellLogCurveData;
+
 //==================================================================================================
 ///  
 ///  
@@ -30,10 +32,11 @@
 class RiuWellLogPlotCurve : public QwtPlotCurve
 {
 public:
+
     RiuWellLogPlotCurve();
     virtual ~RiuWellLogPlotCurve();
 
-    void setPlotIntervals(const std::vector<std::pair<size_t, size_t> >& intervals);
+    void setCurveData(const RigWellLogCurveData* curveData);
 
 protected:
 
@@ -42,5 +45,5 @@ protected:
                             const QRectF& canvasRect, int from, int to) const;
  
 private:
-    std::vector< std::pair<size_t, size_t> > m_intervals;
+    std::vector< std::pair<size_t, size_t> >    m_intervals;
 };
