@@ -235,9 +235,28 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
         }
     }
 
-    // Build map for existing items
     // Detect items to be deleted from existing tree
     std::vector<int> indicesToRemoveFromExisting;
+    for (int i = 0; i < existingSubTreeRoot->childCount() ; ++i)
+    {
+        PdmUiTreeOrdering* child = existingSubTreeRoot->child(i);
+
+        std::map<caf::PdmUiItem*, int>::iterator it = sourceTreeMap.find(child->activeItem());
+        if (it == sourceTreeMap.end())
+        {
+            indicesToRemoveFromExisting.push_back(i);
+        }
+    }
+
+    // Delete items with largest index first from existing
+    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); it++)
+    {
+        this->beginRemoveRows(existingSubTreeRootModIdx, *it, *it);
+        existingSubTreeRoot->removeChildren(*it, 1);
+        this->endRemoveRows();
+    }
+
+    // Build map for existing items, now without the deleted items
     std::map<caf::PdmUiItem*, int> existingTreeMap;
     for (int i = 0; i < existingSubTreeRoot->childCount() ; ++i)
     {
@@ -246,12 +265,6 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
         if (child && child->activeItem())
         {
             existingTreeMap[child->activeItem()] = i;
-        }
-
-        std::map<caf::PdmUiItem*, int>::iterator it = sourceTreeMap.find(child->activeItem());
-        if (it == sourceTreeMap.end())
-        {
-            indicesToRemoveFromExisting.push_back(i);
         }
     }
 
@@ -281,13 +294,6 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
         }
     }
 
-    // Delete items with largest index first from existing
-    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); it++)
-    {
-        this->beginRemoveRows(existingSubTreeRootModIdx, *it, *it);
-        existingSubTreeRoot->removeChildren(*it, 1);
-        this->endRemoveRows();
-    }
 
     // Delete items with largest index first from source
     for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); it++)
