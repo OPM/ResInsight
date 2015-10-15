@@ -397,7 +397,7 @@ QString RimWellLogExtractionCurve::createCurveName()
     {
         if (!generatedCurveName.isEmpty())
         {
-            generatedCurveName += ",";
+            generatedCurveName += ", ";
         }
 
         generatedCurveName += m_case->caseUserDescription();
@@ -407,7 +407,7 @@ QString RimWellLogExtractionCurve::createCurveName()
     {
         if (!generatedCurveName.isEmpty())
         {
-            generatedCurveName += ",";
+            generatedCurveName += ", ";
         }
 
         generatedCurveName += m_eclipseResultDefinition->resultVariable();
@@ -425,7 +425,7 @@ QString RimWellLogExtractionCurve::createCurveName()
 
         if (!generatedCurveName.isEmpty())
         {
-            generatedCurveName += ",";
+            generatedCurveName += ", ";
         }
 
         generatedCurveName += geoMechResultName;
@@ -459,7 +459,7 @@ QString RimWellLogExtractionCurve::createCurveName()
         {
             if (!generatedCurveName.isEmpty())
             {
-                generatedCurveName += ",";
+                generatedCurveName += ", ";
             }
 
             generatedCurveName += timeStepNames[m_timeStep];
@@ -469,7 +469,7 @@ QString RimWellLogExtractionCurve::createCurveName()
         {
             if (!generatedCurveName.isEmpty())
             {
-                generatedCurveName += ",";
+                generatedCurveName += ", ";
             }
 
             generatedCurveName += QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep);
