@@ -57,7 +57,7 @@ private:
     std::vector<double>                         m_yValues;
     std::vector< std::pair<size_t, size_t> >    m_validXValuesIntervals;
 
-friend RigWellLogCurveDataTestInterface;
+friend class RigWellLogCurveDataTestInterface;
 };
 
 //==================================================================================================
