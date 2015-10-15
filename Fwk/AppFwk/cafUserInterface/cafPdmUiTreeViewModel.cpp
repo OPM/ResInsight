@@ -267,9 +267,11 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
         std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find(sourceChild->activeItem());
         if (it != existingTreeMap.end())
         {
-            newOrdering.appendChild(existingSubTreeRoot->child(it->second));
-
+            // NB! Must be pushed into recursiveUpdateData before moved into newOrdering to make sure parent relationship is correct for update
+            // appendChild() changes ownership
             recursiveUpdateData.push_back(RecursiveUpdateData(index(newOrdering.childCount() - 1, 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(it->second), sourceChild));
+
+            newOrdering.appendChild(existingSubTreeRoot->child(it->second));
         }
         else
         {
