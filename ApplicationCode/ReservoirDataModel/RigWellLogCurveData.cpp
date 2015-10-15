@@ -45,7 +45,7 @@ void RigWellLogCurveData::setPoints(const std::vector<double>& xValues, const st
     m_xValues = xValues;
     m_yValues = yValues;
     
-    calculateValidPointIntervals();
+    calculateValidXValuesIntervals();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,9 +67,9 @@ const std::vector<double>& RigWellLogCurveData::yValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::pair<size_t, size_t> >& RigWellLogCurveData::intervals() const
+const std::vector< std::pair<size_t, size_t> >& RigWellLogCurveData::filteredIntervals() const
 {
-    return m_validPointIntervals;
+    return m_validXValuesIntervals;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ const std::vector< std::pair<size_t, size_t> >& RigWellLogCurveData::intervals()
 std::vector<double> RigWellLogCurveData::validXValues() const
 {
     std::vector<double> filteredValues;
-    addValuesFromIntervals(m_xValues, m_validPointIntervals, &filteredValues);
+    pickValuesFromIntervals(m_xValues, m_validXValuesIntervals, &filteredValues);
 
     return filteredValues;
 }
@@ -89,7 +89,7 @@ std::vector<double> RigWellLogCurveData::validXValues() const
 std::vector<double> RigWellLogCurveData::validYValues() const
 {
     std::vector<double> filteredValues;
-    addValuesFromIntervals(m_yValues, m_validPointIntervals, &filteredValues);
+    pickValuesFromIntervals(m_yValues, m_validXValuesIntervals, &filteredValues);
 
     return filteredValues;
 }
@@ -100,7 +100,7 @@ std::vector<double> RigWellLogCurveData::validYValues() const
 std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::validPointsIntervals() const
 {
     std::vector< std::pair<size_t, size_t> > intervals;
-    filteredIntervals(m_validPointIntervals, &intervals);
+    computeFilteredIntervals(m_validXValuesIntervals, &intervals);
 
     return intervals;
 }
@@ -109,9 +109,9 @@ std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::validPointsInterva
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::calculateValidPointIntervals()
+void RigWellLogCurveData::calculateValidXValuesIntervals()
 {
-    calculateIntervalsOfValidValues(m_xValues, &m_validPointIntervals);
+    calculateIntervalsOfValidValues(m_xValues, &m_validXValuesIntervals);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ void RigWellLogCurveData::calculateIntervalsOfValidValues(const std::vector<doub
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::addValuesFromIntervals(const std::vector<double>& values, const std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues)
+void RigWellLogCurveData::pickValuesFromIntervals(const std::vector<double>& values, const std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues)
 {
     CVF_ASSERT(filteredValues);
 
@@ -170,7 +170,7 @@ void RigWellLogCurveData::addValuesFromIntervals(const std::vector<double>& valu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::filteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* fltrIntervals)
+void RigWellLogCurveData::computeFilteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* fltrIntervals)
 {
     CVF_ASSERT(fltrIntervals);
 

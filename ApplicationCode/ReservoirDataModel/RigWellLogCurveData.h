@@ -37,21 +37,21 @@ public:
 
     const std::vector<double>&                      xValues() const;
     const std::vector<double>&                      yValues() const;
-    const std::vector< std::pair<size_t, size_t> >& intervals() const;
+    const std::vector< std::pair<size_t, size_t> >& filteredIntervals() const;
 
     std::vector<double>                             validXValues() const;
     std::vector<double>                             validYValues() const;
     std::vector< std::pair<size_t, size_t> >        validPointsIntervals() const;
 
 private:
-    void        calculateValidPointIntervals();
+    void        calculateValidXValuesIntervals();
 
     static void calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals);
-    static void addValuesFromIntervals(const std::vector<double>& values, const std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues);
-    static void filteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* fltrIntervals);
+    static void pickValuesFromIntervals(const std::vector<double>& values, const std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues);
+    static void computeFilteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* filteredIntervals);
 
 private:
     std::vector<double>                         m_xValues;
     std::vector<double>                         m_yValues;
-    std::vector< std::pair<size_t, size_t> >    m_validPointIntervals;
+    std::vector< std::pair<size_t, size_t> >    m_validXValuesIntervals;
 };
