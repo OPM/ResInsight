@@ -36,7 +36,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimWellLogPlotCurve, "WellLogPlotCurve");
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCurve::RimWellLogPlotCurve()
 {
-    CAF_PDM_InitObject("Curve", "", "", "");
+    CAF_PDM_InitObject("Curve", ":/WellLogCurve16x16.png", "", "");
 
     CAF_PDM_InitField(&m_showCurve, "Show", true, "Show curve", "", "", "");
     m_showCurve.uiCapability()->setUiHidden(true);

@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT(RimWellLogPlotCollection, "WellLogPlotCollection");
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection::RimWellLogPlotCollection()
 {
-    CAF_PDM_InitObject("Well Log Plots", "", "", "");
+    CAF_PDM_InitObject("Well Log Plots", ":/WellLogPlots16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wellLogPlots, "WellLogPlots", "",  "", "", "");
     wellLogPlots.uiCapability()->setUiHidden(true);

@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT(RimWellLogPlotTrack, "WellLogPlotTrack");
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotTrack::RimWellLogPlotTrack()
 {
-    CAF_PDM_InitObject("Track", "", "", "");
+    CAF_PDM_InitObject("Track", ":/WellLogTrack16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_userName, "TrackDescription", "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);

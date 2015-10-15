@@ -34,8 +34,8 @@
 		<file>draw_style_meshoutlines_24x24.png</file>
 		<file>draw_style_outlines_24x24.png</file>
 		<file>draw_style_surface_24x24.png</file>
-    <file>disable_lighting_24x24.png</file>
-      <file>SnapShot.png</file>
+		<file>disable_lighting_24x24.png</file>
+		<file>SnapShot.png</file>
 		<file>SnapShotSave.png</file>
 		<file>SnapShotSaveViews.png</file>
 		<file>draw_style_faults_24x24.png</file>
@@ -49,6 +49,11 @@
         <file>GeoMechCases48x48.png</file>
         <file>chain.png</file>
         <file>view-page-multi-24.png</file>
+		<file>LasFile16x16.png</file>
+		<file>WellLogTrack16x16.png</file>
+		<file>WellLogPlot16x16.png</file>
+		<file>WellLogPlots16x16.png</file>
+		<file>WellLogCurve16x16.png</file>
 	</qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

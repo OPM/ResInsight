@@ -54,7 +54,7 @@ CAF_PDM_SOURCE_INIT(RimWellLogPlot, "WellLogPlot");
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::RimWellLogPlot()
 {
-    CAF_PDM_InitObject("Well Log Plot", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("Well Log Plot", ":/WellLogPlot16x16.png", "", "");
 
     m_viewer = NULL;
 

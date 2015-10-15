@@ -90,7 +90,7 @@ RimProject::RimProject(void)
     wellPathImport.uiCapability()->setUiHidden(true);
     wellPathImport.uiCapability()->setUiChildrenHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&mainPlotCollection, "MainPlotCollection", "Plots", ":/Default.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&mainPlotCollection, "MainPlotCollection", "Plots", "", "", "");
     mainPlotCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&viewLinkerCollection, "LinkedViews", "Linked Views (field in RimProject", ":/chain.png", "", "");
