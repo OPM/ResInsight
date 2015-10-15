@@ -266,9 +266,12 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
         }
     }
 
+    QString wellLogChannelName = curve->wellLogChannelName();
+    wellLogChannelName.replace(".", "_");
+
     NRLib::LasWell lasFile;
     lasFile.AddLog("DEPTH", "m", "Depth [m]", curveData->yValues());
-    lasFile.AddLog(curve->name().trimmed().toStdString(), "NO_UNIT", "PARAMETERINFO", wellLogValues);
+    lasFile.AddLog(wellLogChannelName.toStdString(), "NO_UNIT", "PARAMETERINFO", wellLogValues);
     lasFile.SetMissing(absentValue);
 
     std::vector<std::string> commentHeader;

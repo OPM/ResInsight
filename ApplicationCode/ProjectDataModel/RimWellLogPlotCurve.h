@@ -61,6 +61,7 @@ public:
     void            updateCurveName();
     void            updatePlotTitle();
 
+    virtual QString wellLogChannelName() const = 0;
     virtual void    updatePlotData() = 0;
 
 protected:

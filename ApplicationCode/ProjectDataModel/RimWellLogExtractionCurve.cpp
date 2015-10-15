@@ -403,32 +403,14 @@ QString RimWellLogExtractionCurve::createCurveName()
         generatedCurveName += m_case->caseUserDescription();
     }
 
-    if (m_addPropertyToCurveName && eclipseCase)
+    if (m_addPropertyToCurveName)
     {
         if (!generatedCurveName.isEmpty())
         {
-            generatedCurveName += ", ";
+            generatedCurveName += ",";
         }
 
-        generatedCurveName += m_eclipseResultDefinition->resultVariable();
-    }
-
-    if (m_addPropertyToCurveName && geomCase)
-    {
-        QString geoMechResultName;
-
-        QString resCompName = m_geomResultDefinition->resultComponentUiName();
-        if (resCompName.isEmpty())
-            geoMechResultName = m_geomResultDefinition->resultFieldUiName();
-        else
-            geoMechResultName += m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
-
-        if (!generatedCurveName.isEmpty())
-        {
-            generatedCurveName += ", ";
-        }
-
-        generatedCurveName += geoMechResultName;
+        generatedCurveName += wellLogChannelName();
     }
 
     if (m_addTimestepToCurveName || m_addDateToCurveName)
@@ -477,4 +459,33 @@ QString RimWellLogExtractionCurve::createCurveName()
     }
 
     return generatedCurveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::wellLogChannelName() const
+{
+    RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+
+    QString name;
+    if (eclipseCase)
+    {
+        name = m_eclipseResultDefinition->resultVariable();
+    }
+    else if (geoMechCase)
+    {
+        QString resCompName = m_geomResultDefinition->resultComponentUiName();
+        if (resCompName.isEmpty())
+        {
+            name = m_geomResultDefinition->resultFieldUiName();
+        }
+        else
+        {
+            name = m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
+        }
+    }
+
+    return name;
 }

@@ -248,3 +248,11 @@ QString RimWellLogFileCurve::createCurveName()
     return "Empty curve";
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogFileCurve::wellLogChannelName() const
+{
+    return m_wellLogChannnelName;
+}
+

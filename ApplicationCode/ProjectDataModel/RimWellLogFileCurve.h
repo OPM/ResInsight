@@ -46,6 +46,7 @@ public:
     
     // Overrides from RimWellLogPlotCurve
     virtual void updatePlotData();
+    virtual QString wellLogChannelName() const;
 
 protected:
     // Overrides from RimWellLogPlotCurve
