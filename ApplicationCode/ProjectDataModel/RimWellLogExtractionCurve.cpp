@@ -18,7 +18,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogCurveImpl.h"
 
 #include "RiaApplication.h"
 

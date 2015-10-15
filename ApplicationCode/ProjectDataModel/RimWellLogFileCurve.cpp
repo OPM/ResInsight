@@ -27,7 +27,6 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotTrack.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogCurveImpl.h"
 
 #include "RiuWellLogTrackPlot.h"
 #include "RiuWellLogPlotCurve.h"

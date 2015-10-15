@@ -46,16 +46,17 @@ public:
     std::vector< std::pair<size_t, size_t> >        validPointsIntervals() const;
 
 private:
-    void        calculateValidXValuesIntervals();
+    void        calculateValidPointsIntervals();
 
     static void calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals);
-    static void pickValuesFromIntervals(const std::vector<double>& values, const std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues);
+    static void calculateIntervalsOfValidDepthValues(const std::vector<double>& depthValues, size_t startIdx, size_t stopIdx, std::vector< std::pair<size_t, size_t> >* intervals);
+    static void getValuesByIntervals(const std::vector<double>& values, const std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues);
     static void computeFilteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* filteredIntervals);
 
 private:
     std::vector<double>                         m_xValues;
     std::vector<double>                         m_yValues;
-    std::vector< std::pair<size_t, size_t> >    m_validXValuesIntervals;
+    std::vector< std::pair<size_t, size_t> >    m_validPointsIntervals;
 
 friend class RigWellLogCurveDataTestInterface;
 };
