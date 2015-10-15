@@ -244,3 +244,39 @@ void RigWellLogCurveData::computeFilteredIntervals(const std::vector< std::pair<
         index += intervalSize;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigWellLogCurveData::depthRange(double* minimumDepth, double* maximumDepth) const
+{
+    CVF_ASSERT(minimumDepth && maximumDepth);
+
+    double minValue = HUGE_VAL;
+    double maxValue = -HUGE_VAL;
+
+    for (size_t vIdx = 0; vIdx < m_yValues.size(); vIdx++)
+    {
+        double value = m_yValues[vIdx];
+
+        if (value < minValue)
+        {
+            minValue = value;
+        }
+
+        if (value > maxValue)
+        {
+            maxValue = value;
+        }
+    }
+
+    if (maxValue >= minValue)
+    {
+        *minimumDepth = minValue;
+        *maximumDepth = maxValue;
+
+        return true;
+    }
+
+    return false;
+}

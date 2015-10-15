@@ -274,8 +274,9 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
     lasFile.AddLog(wellLogChannelName.toStdString(), "NO_UNIT", "", wellLogValues);
     lasFile.SetMissing(absentValue);
 
-    double minDepth, maxDepth;
-    curve->depthRange(&minDepth, &maxDepth);
+    double minDepth = 0.0;
+    double maxDepth = 0.0;
+    curveData->depthRange(&minDepth, &maxDepth);
 
     lasFile.setStartDepth(minDepth);
     lasFile.setStopDepth(maxDepth);

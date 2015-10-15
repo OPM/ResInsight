@@ -36,6 +36,7 @@ public:
     virtual ~RigWellLogCurveData();
 
     void setPoints(const std::vector<double>& xValues, const std::vector<double>& yValues);
+    bool depthRange(double* minimumDepth, double* maximumDepth) const;
 
     const std::vector<double>&                      xValues() const;
     const std::vector<double>&                      yValues() const;
