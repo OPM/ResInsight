@@ -544,6 +544,11 @@ void LasWell::WriteLasLine(std::ofstream     & file,
   file << mnemonic << " ." << units << " " << data << " : " << description << "\n";
 }
 
+void LasWell::setDepthUnit(const std::string& depthUnit)
+{
+    depth_unit_ = depthUnit;
+};
+
 std::string LasWell::depthUnit() const
 {
     return depth_unit_;
@@ -559,3 +564,18 @@ std::string LasWell::unitName(const std::string& logName) const
 
     return "";
 };
+
+void NRLib::LasWell::setVersionInfo(const std::string& versionInfo)
+{
+    version_ = versionInfo;
+}
+
+void NRLib::LasWell::setStartDepth(double startDepth)
+{
+    start_depth_ = startDepth;
+}
+
+void NRLib::LasWell::setStopDepth(double stopDepth)
+{
+    stop_depth_ = stopDepth;
+}

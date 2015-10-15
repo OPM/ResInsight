@@ -53,8 +53,14 @@ public:
   void WriteToFile(const std::string              & filename,
                    const std::vector<std::string> & comment_header);
 
+  void setDepthUnit(const std::string& depthUnit);
   std::string depthUnit() const;
+
   std::string unitName(const std::string& logName) const;
+
+  void setVersionInfo(const std::string& logName);
+  void setStartDepth(double startDepth);
+  void setStopDepth(double stopDepth);
 
 private:
   void ReadHeader(const std::string        & filename,
