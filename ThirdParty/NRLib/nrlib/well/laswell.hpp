@@ -39,6 +39,9 @@ public:
     Time
   };
 
+  // Default constructor added to be able to export from scratch
+  LasWell();
+
   /// Constructor with relevant parameters.
   LasWell(const std::string & filename);
 

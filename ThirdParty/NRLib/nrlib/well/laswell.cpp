@@ -32,6 +32,16 @@
 
 using namespace NRLib;
 
+LasWell::LasWell() :
+  version_("Unknown"),
+  wrap_(false),
+  comma_delimited_(false),
+  depth_unit_("Unknown"),
+  start_depth_(0),
+  stop_depth_(0),
+  depth_increment_(0)
+{
+}
 
 LasWell::LasWell(const std::string & filename) :
   version_("Unknown"),
@@ -171,11 +181,11 @@ LasWell::ParseInformation(std::vector<std::string>               & info,
       getline (fin,line);
       line = NRLib::Chomp(line);
 
-      if (line[0] == '~') {
-        end_of_section = true;
-        continue;
+      if (line.size() == 0 || line[0] == '#') {
+          continue;
       }
-      else if (line[0] == '#') {
+      else if (line[0] == '~') {
+        end_of_section = true;
         continue;
       }
       else {
@@ -480,7 +490,7 @@ void LasWell::WriteToFile(const std::string              & filename,
 
   //Parameter information. Only what is read from file; may add Set-functions.
   file << "~Parameter information\n";
-  for(size_t i=0;i<version_info_.size();i++)
+  for(size_t i=0;i<parameter_info_.size();i++)
     file << parameter_info_[i] << "\n";
   file << "\n";
 
