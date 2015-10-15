@@ -270,9 +270,18 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
     wellLogChannelName.replace(".", "_");
 
     NRLib::LasWell lasFile;
-    lasFile.AddLog("DEPTH", "m", "Depth [m]", curveData->yValues());
-    lasFile.AddLog(wellLogChannelName.toStdString(), "NO_UNIT", "PARAMETERINFO", wellLogValues);
+    lasFile.AddLog("DEPTH", "M", "Depth [M]", curveData->yValues());
+    lasFile.AddLog(wellLogChannelName.toStdString(), "NO_UNIT", "", wellLogValues);
     lasFile.SetMissing(absentValue);
+
+    double minDepth, maxDepth;
+    curve->depthRange(&minDepth, &maxDepth);
+
+    lasFile.setStartDepth(minDepth);
+    lasFile.setStopDepth(maxDepth);
+    lasFile.setDepthUnit("M");
+
+    lasFile.setVersionInfo("2.0");
 
     std::vector<std::string> commentHeader;
     lasFile.WriteToFile(fileName.toStdString(), commentHeader);
