@@ -23,6 +23,7 @@
 #include "RigWellLogFile.h"
 
 #include "RiuMainWindow.h"
+#include "RiaApplication.h"
 
 #include "cafSelectionManager.h"
   
@@ -47,7 +48,15 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     RimWellLogPlotCurve* curve = selectedWellLogPlotCurve();
     if (curve)
     {
-        QString fileName = QFileDialog::getSaveFileName(RiuMainWindow::instance(), tr("Export Curve Data To LAS File"), "", tr("LAS Files (*.las);;All files(*.*)"));
+        QString defaultDir = RiaApplication::instance()->defaultFileDialogDirectory("WELL_LOGS_DIR");
+ 
+        QString defaultFileName = curve->name().trimmed();
+        defaultFileName.replace(".", "_");
+        defaultFileName.replace(",", "_");
+        defaultFileName.replace(" ", "_");
+        defaultFileName.append(".las");
+
+        QString fileName = QFileDialog::getSaveFileName(RiuMainWindow::instance(), tr("Export Curve Data To LAS File"), QDir(defaultDir).absoluteFilePath(defaultFileName), tr("LAS Files (*.las);;All files(*.*)"));
         if (!fileName.isEmpty())
         {
             RigWellLogFile::exportToLasFile(curve, fileName);
