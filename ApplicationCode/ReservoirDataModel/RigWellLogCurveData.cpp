@@ -41,14 +41,32 @@ RigWellLogCurveData::~RigWellLogCurveData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::setPoints(const std::vector<double>& xValues, const std::vector<double>& yValues)
+void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues, 
+                                         const std::vector<double>& measuredDepths)
 {
-    CVF_ASSERT(xValues.size() == yValues.size());
+    CVF_ASSERT(xValues.size() == measuredDepths.size());
 
     m_xValues = xValues;
-    m_yValues = yValues;
-    
-    calculateValidPointsIntervals();
+    m_measuredDepths = measuredDepths;
+    m_tvDepths.clear();
+
+    calculateIntervalsOfContinousValidValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigWellLogCurveData::setValuesWithTVD(const std::vector<double>& xValues, 
+                                           const std::vector<double>& measuredDepths, 
+                                           const std::vector<double>& tvDepths)
+{
+    CVF_ASSERT(xValues.size() == measuredDepths.size());
+
+    m_xValues = xValues;
+    m_measuredDepths = measuredDepths;
+    m_tvDepths = tvDepths;
+
+    calculateIntervalsOfContinousValidValues(); 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,26 +80,19 @@ const std::vector<double>& RigWellLogCurveData::xValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigWellLogCurveData::yValues() const
+const std::vector<double>& RigWellLogCurveData::measuredDepths() const
 {
-    return m_yValues;
+    return m_measuredDepths;
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::pair<size_t, size_t> >& RigWellLogCurveData::filteredIntervals() const
-{
-    return m_validPointsIntervals;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::validXValues() const
+std::vector<double> RigWellLogCurveData::xPlotValues() const
 {
     std::vector<double> filteredValues;
-    getValuesByIntervals(m_xValues, m_validPointsIntervals, &filteredValues);
+    getValuesByIntervals(m_xValues, m_intervalsOfContinousValidValues, &filteredValues);
 
     return filteredValues;
 }
@@ -89,10 +100,17 @@ std::vector<double> RigWellLogCurveData::validXValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::validYValues() const
+std::vector<double> RigWellLogCurveData::depthPlotValues() const
 {
     std::vector<double> filteredValues;
-    getValuesByIntervals(m_yValues, m_validPointsIntervals, &filteredValues);
+    if (m_tvDepths.size())
+    {
+        getValuesByIntervals(m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues);
+    }
+    else
+    {
+        getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
+    }
 
     return filteredValues;
 }
@@ -100,38 +118,38 @@ std::vector<double> RigWellLogCurveData::validYValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::validPointsIntervals() const
+std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::polylineStartStopIndices() const
 {
-    std::vector< std::pair<size_t, size_t> > intervals;
-    computeFilteredIntervals(m_validPointsIntervals, &intervals);
+    std::vector< std::pair<size_t, size_t> > lineStartStopIndices;
+    computePolyLineStartStopIndices(m_intervalsOfContinousValidValues, &lineStartStopIndices);
 
-    return intervals;
+    return lineStartStopIndices;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::calculateValidPointsIntervals()
+void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 {
-    std::vector< std::pair<size_t, size_t> > valuesIntervals;
-    calculateIntervalsOfValidValues(m_xValues, &valuesIntervals);
+    std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
+    calculateIntervalsOfValidValues(m_xValues, &intervalsOfValidValues);
 
-    std::vector< std::pair<size_t, size_t> > pointsIntervals;
+    m_intervalsOfContinousValidValues.clear();
 
-    size_t intervalsCount = valuesIntervals.size();
+    size_t intervalsCount = intervalsOfValidValues.size();
     for (size_t intIdx = 0; intIdx < intervalsCount; intIdx++)
     {
         std::vector< std::pair<size_t, size_t> > depthValuesIntervals;
-        calculateIntervalsOfValidDepthValues(m_yValues, valuesIntervals[intIdx].first, valuesIntervals[intIdx].second, &depthValuesIntervals);
+        splitIntervalAtEmptySpace(m_measuredDepths, 
+                                  intervalsOfValidValues[intIdx].first, intervalsOfValidValues[intIdx].second, 
+                                  &depthValuesIntervals);
 
         for (size_t dvintIdx = 0; dvintIdx < depthValuesIntervals.size(); dvintIdx++)
         {
-            pointsIntervals.push_back(depthValuesIntervals[dvintIdx]);
+            m_intervalsOfContinousValidValues.push_back(depthValuesIntervals[dvintIdx]);
         }
     }
-
-    m_validPointsIntervals = pointsIntervals;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,18 +189,18 @@ void RigWellLogCurveData::calculateIntervalsOfValidValues(const std::vector<doub
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Splits the start stop interval between cells that are not close enough. 
+/// The depth values are expected to contain pair of depths: Depth at cell enter, and cell leave  
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::calculateIntervalsOfValidDepthValues(const std::vector<double>& depthValues, size_t startIdx, size_t stopIdx, std::vector< std::pair<size_t, size_t> >* intervals)
+void RigWellLogCurveData::splitIntervalAtEmptySpace(const std::vector<double>& depthValues, 
+                                                               size_t startIdx, size_t stopIdx, 
+                                                               std::vector< std::pair<size_t, size_t> >* intervals)
 {
     CVF_ASSERT(intervals);
 
-    if (startIdx > stopIdx)
-    {
-        return;
-    }
+    CVF_ASSERT(startIdx < stopIdx);
 
-    if (startIdx == stopIdx || stopIdx - startIdx == 1)
+    if (stopIdx - startIdx == 1)
     {
         intervals->push_back(std::make_pair(startIdx, stopIdx));
         return;
@@ -212,7 +230,9 @@ void RigWellLogCurveData::calculateIntervalsOfValidDepthValues(const std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::getValuesByIntervals(const std::vector<double>& values, const std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues)
+void RigWellLogCurveData::getValuesByIntervals(const std::vector<double>& values, 
+                                               const std::vector< std::pair<size_t, size_t> >& intervals, 
+                                               std::vector<double>* filteredValues)
 {
     CVF_ASSERT(filteredValues);
 
@@ -228,7 +248,8 @@ void RigWellLogCurveData::getValuesByIntervals(const std::vector<double>& values
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::computeFilteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* fltrIntervals)
+void RigWellLogCurveData::computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
+                                                          std::vector< std::pair<size_t, size_t> >* fltrIntervals)
 {
     CVF_ASSERT(fltrIntervals);
 

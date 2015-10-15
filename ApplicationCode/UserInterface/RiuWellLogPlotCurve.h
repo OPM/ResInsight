@@ -45,5 +45,5 @@ protected:
                             const QRectF& canvasRect, int from, int to) const;
  
 private:
-    std::vector< std::pair<size_t, size_t> >    m_intervals;
+    std::vector< std::pair<size_t, size_t> >    m_polyLineStartStopIndices;
 };

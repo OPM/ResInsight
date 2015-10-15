@@ -195,7 +195,8 @@ void RimWellLogExtractionCurve::updatePlotData()
         cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
 
         std::vector<double> values;
-        std::vector<double> depthValues;
+        std::vector<double> measuredDepthValues;
+        std::vector<double> tvDepthValues;
 
         if (eclExtractor.notNull())
         {
@@ -203,7 +204,11 @@ void RimWellLogExtractionCurve::updatePlotData()
             firstAnchestorOrThisOfType(wellLogPlot);
             CVF_ASSERT(wellLogPlot);
 
-            depthValues = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? eclExtractor->measuredDepth() : eclExtractor->trueVerticalDepth();
+            measuredDepthValues = eclExtractor->measuredDepth();
+            if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+            {
+                tvDepthValues = eclExtractor->trueVerticalDepth();
+            }
 
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
             m_eclipseResultDefinition->loadResult();
@@ -225,7 +230,12 @@ void RimWellLogExtractionCurve::updatePlotData()
             firstAnchestorOrThisOfType(wellLogPlot);
             CVF_ASSERT(wellLogPlot);
 
-            depthValues = wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH ? geomExtractor->measuredDepth() : geomExtractor->trueVerticalDepth();
+            measuredDepthValues =  geomExtractor->measuredDepth();
+            if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+            {
+                tvDepthValues = geomExtractor->trueVerticalDepth();
+            }
+
             m_geomResultDefinition->loadResult();
 
             geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, &values);
@@ -233,9 +243,13 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         m_curveData = new RigWellLogCurveData;
         
-        if (values.size() == depthValues.size())
+        if (!tvDepthValues.size())
         {
-            m_curveData->setPoints(values, depthValues);
+            m_curveData->setValuesAndMD(values, measuredDepthValues);
+        }
+        else
+        {
+            m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues);
         }
 
         m_plotCurve->setCurveData(m_curveData.p());

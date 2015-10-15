@@ -43,12 +43,12 @@ void RiuWellLogPlotCurve::drawCurve(QPainter* p, int style,
     const QwtScaleMap& xMap, const QwtScaleMap& yMap,
     const QRectF& canvasRect, int from, int to) const
 {
-    size_t intervalCount = m_intervals.size();
+    size_t intervalCount = m_polyLineStartStopIndices.size();
     if (intervalCount > 0)
     {
         for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
         {
-            QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, (int) m_intervals[intIdx].first, (int) m_intervals[intIdx].second);
+            QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, (int) m_polyLineStartStopIndices[intIdx].first, (int) m_polyLineStartStopIndices[intIdx].second);
         }
     }
     else QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, from, to);
@@ -61,9 +61,9 @@ void RiuWellLogPlotCurve::setCurveData(const RigWellLogCurveData* curveData)
 {
     CVF_ASSERT(curveData);
 
-    std::vector<double> validXValues = curveData->validXValues();
-    std::vector<double> validYValues = curveData->validYValues();
+    std::vector<double> validXValues = curveData->xPlotValues();
+    std::vector<double> validYValues = curveData->depthPlotValues();
 
     setSamples(validXValues.data(), validYValues.data(), (int) validXValues.size());
-    m_intervals = curveData->validPointsIntervals();
+    m_polyLineStartStopIndices = curveData->polylineStartStopIndices();
 }

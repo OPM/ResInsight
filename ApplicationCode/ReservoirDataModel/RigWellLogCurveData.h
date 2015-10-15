@@ -35,31 +35,41 @@ public:
     RigWellLogCurveData();
     virtual ~RigWellLogCurveData();
 
-    void setPoints(const std::vector<double>& xValues, const std::vector<double>& yValues);
+    void setValuesAndMD(const std::vector<double>& xValues, const std::vector<double>& measuredDepths);
+    void setValuesWithTVD(const std::vector<double>& xValues, const std::vector<double>& measuredDepths, 
+                          const std::vector<double>& tvDepths );
     bool depthRange(double* minimumDepth, double* maximumDepth) const;
 
     const std::vector<double>&                      xValues() const;
-    const std::vector<double>&                      yValues() const;
-    const std::vector< std::pair<size_t, size_t> >& filteredIntervals() const;
+    const std::vector<double>&                      measuredDepths() const;
 
-    std::vector<double>                             validXValues() const;
-    std::vector<double>                             validYValues() const;
-    std::vector< std::pair<size_t, size_t> >        validPointsIntervals() const;
+    std::vector<double>                             xPlotValues() const;
+    std::vector<double>                             depthPlotValues() const;
+    std::vector< std::pair<size_t, size_t> >        polylineStartStopIndices() const;
 
 private:
-    void        calculateValidPointsIntervals();
+    void        calculateIntervalsOfContinousValidValues();
 
-    static void calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals);
-    static void calculateIntervalsOfValidDepthValues(const std::vector<double>& depthValues, size_t startIdx, size_t stopIdx, std::vector< std::pair<size_t, size_t> >* intervals);
-    static void getValuesByIntervals(const std::vector<double>& values, const std::vector< std::pair<size_t, size_t> >& intervals, std::vector<double>* filteredValues);
-    static void computeFilteredIntervals(const std::vector< std::pair<size_t, size_t> >& intervals, std::vector< std::pair<size_t, size_t> >* filteredIntervals);
+    static void calculateIntervalsOfValidValues(const std::vector<double>& values, 
+                                                std::vector< std::pair<size_t, size_t> >* intervals);
+    static void splitIntervalAtEmptySpace(const std::vector<double>& depthValues, 
+                                          size_t startIdx, size_t stopIdx, 
+                                          std::vector< std::pair<size_t, size_t> >* intervals);
+
+    static void getValuesByIntervals(const std::vector<double>& values, 
+                                     const std::vector< std::pair<size_t, size_t> >& intervals, 
+                                     std::vector<double>* filteredValues);
+    static void computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
+                                                std::vector< std::pair<size_t, size_t> >* filteredIntervals);
 
 private:
     std::vector<double>                         m_xValues;
-    std::vector<double>                         m_yValues;
-    std::vector< std::pair<size_t, size_t> >    m_validPointsIntervals;
+    std::vector<double>                         m_measuredDepths;
+    std::vector<double>                         m_tvDepths;
 
-friend class RigWellLogCurveDataTestInterface;
+    std::vector< std::pair<size_t, size_t> >    m_intervalsOfContinousValidValues;
+
+    friend class RigWellLogCurveDataTestInterface;
 };
 
 //==================================================================================================
