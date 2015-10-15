@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT(RimWellLogFile, "WellLogFile");
 //--------------------------------------------------------------------------------------------------
 RimWellLogFile::RimWellLogFile()
 {
-    CAF_PDM_InitObject("Well LAS File Info", "", "", "");
+    CAF_PDM_InitObject("Well LAS File Info", ":/LasFile16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "",  "", "", "");
     m_wellName.uiCapability()->setUiReadOnly(true);
