@@ -479,8 +479,8 @@ void LasWell::WriteToFile(const std::string              & filename,
   WriteLasLine(file, "STOP", depth_unit_, stop_depth_, "");
   WriteLasLine(file, "STEP", depth_unit_, depth_increment_, "");
   WriteLasLine(file, "NULL", "", GetContMissing(), "");
-  for(size_t i=0;i<version_info_.size();i++)
-    file << version_info_[i] << "\n";
+  for(size_t i=0;i<well_info_.size();i++)
+    file << well_info_[i] << "\n";
   file << "\n";
 
   if (GetNContLog() == 0) {
