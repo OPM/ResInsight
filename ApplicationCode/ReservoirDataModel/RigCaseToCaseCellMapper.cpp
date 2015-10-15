@@ -65,6 +65,19 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigFemPart* masterFemPart, RigF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart)
+    : m_masterGrid(masterEclGrid),
+      m_dependentGrid(NULL),
+      m_masterFemPart(dependentFemPart),
+      m_dependentFemPart(NULL)
+{
+    m_masterCellOrIntervalIndex.resize(dependentFemPart->elementCount(), cvf::UNDEFINED_INT);
+    this->calculateEclToGeomCellMapping(masterEclGrid, dependentFemPart, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount) const
 {
     int seriesIndex = m_masterCellOrIntervalIndex[dependentCaseReservoirCellIndex];
@@ -128,9 +141,10 @@ void RigCaseToCaseCellMapper::addMapping(int depCaseCellIdx, int masterCaseMatch
 
 }
 
-//--------------------------------------------------------------------------------------------------
+//==================================================================================================
 /// 
-//--------------------------------------------------------------------------------------------------
+//==================================================================================================
+
 class RigNeighborCornerFinder
 {
 public:
@@ -162,10 +176,14 @@ private:
     size_t m_baseK;
 };
 
+//==================================================================================================
+/// 
+//==================================================================================================
+
 //--------------------------------------------------------------------------------------------------
 /// Average of neighbor corresponding nodes
 //--------------------------------------------------------------------------------------------------
-void estimatedFemCellFromEclCell(const RigMainGrid* eclGrid, size_t reservoirCellIndex,  cvf::Vec3d estimatedElmCorners[8])
+void RigCaseToCaseMapperTools::estimatedFemCellFromEclCell(const RigMainGrid* eclGrid, size_t reservoirCellIndex,  cvf::Vec3d estimatedElmCorners[8])
 {
     CVF_TIGHT_ASSERT(reservoirCellIndex < eclGrid->cellCount()); // Assume reservoirCellIdx == localGridCellIdx for maingrid
     
@@ -310,7 +328,7 @@ void estimatedFemCellFromEclCell(const RigMainGrid* eclGrid, size_t reservoirCel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void rotateQuad(cvf::Vec3d quad[4], int idxToNewStart)
+void RigCaseToCaseMapperTools::rotateQuad(cvf::Vec3d quad[4], int idxToNewStart)
 {
     if (idxToNewStart == 0) return;
     cvf::Vec3d tmpQuad[4];
@@ -331,7 +349,7 @@ void rotateQuad(cvf::Vec3d quad[4], int idxToNewStart)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void flipQuadWinding(cvf::Vec3d quad[4])
+void RigCaseToCaseMapperTools::flipQuadWinding(cvf::Vec3d quad[4])
 {
     cvf::Vec3d temp = quad[1];
     quad[1] = quad[3];
@@ -341,7 +359,7 @@ void flipQuadWinding(cvf::Vec3d quad[4])
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4])
+int RigCaseToCaseMapperTools::quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4])
 {
     double minSqDist = HUGE_VAL;
     int quadVxIdxClosestToPoint = cvf::UNDEFINED_INT;
@@ -364,7 +382,7 @@ int quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4])
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
+bool RigCaseToCaseMapperTools::elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
 {
     RigElementType elmType = femPart->elementType(elmIdx);
     if (!(elmType == HEX8 || elmType == HEX8P)) return false;
@@ -387,7 +405,7 @@ bool elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int findMatchingPOSKFaceIdx(const cvf::Vec3d baseCell[8],bool isBaseCellNormalsOutwards,  const cvf::Vec3d c2[8])
+int RigCaseToCaseMapperTools::findMatchingPOSKFaceIdx(const cvf::Vec3d baseCell[8],bool isBaseCellNormalsOutwards,  const cvf::Vec3d c2[8])
 {
     int faceNodeCount;
     const int* posKFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, (int)(cvf::StructGridInterface::POS_K), &faceNodeCount);
@@ -416,14 +434,12 @@ int findMatchingPOSKFaceIdx(const cvf::Vec3d baseCell[8],bool isBaseCellNormalsO
     return bestFace;
 }
 
-void rotateCellTopologicallyToMatchBaseCell(const cvf::Vec3d * gomConvertedEclCell, bool isEclFaceNormalsOutwards, cvf::Vec3d * femCorners);
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool isEclFemCellsMatching(const cvf::Vec3d baseCell[8],
-                           cvf::Vec3d cell[8],
-                           double xyTolerance, double zTolerance)
+bool RigCaseToCaseMapperTools::isEclFemCellsMatching(const cvf::Vec3d baseCell[8],
+                                                     cvf::Vec3d cell[8],
+                                                     double xyTolerance, double zTolerance)
 {
 
     bool isMatching = true;
@@ -445,7 +461,7 @@ bool isEclFemCellsMatching(const cvf::Vec3d baseCell[8],
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void rotateCellTopologicallyToMatchBaseCell(const cvf::Vec3d * baseCell, bool baseCellFaceNormalsIsOutwards, cvf::Vec3d * cell)
+void RigCaseToCaseMapperTools::rotateCellTopologicallyToMatchBaseCell(const cvf::Vec3d * baseCell, bool baseCellFaceNormalsIsOutwards, cvf::Vec3d * cell)
 {
     int femDeepZFaceIdx = findMatchingPOSKFaceIdx(baseCell, baseCellFaceNormalsIsOutwards, cell);
 
@@ -505,19 +521,6 @@ void rotateCellTopologicallyToMatchBaseCell(const cvf::Vec3d * baseCell, bool ba
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart)
-    : m_masterGrid(masterEclGrid),
-      m_dependentGrid(NULL),
-      m_masterFemPart(dependentFemPart),
-      m_dependentFemPart(NULL)
-{
-    m_masterCellOrIntervalIndex.resize(dependentFemPart->elementCount(), cvf::UNDEFINED_INT);
-    this->calculateEclToGeomCellMapping(masterEclGrid, dependentFemPart, true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart, bool eclipseIsMaster)
 {
     // Find tolerance
@@ -545,7 +548,7 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterE
         #endif  
 
         cvf::Vec3d geoMechConvertedEclCell[8];
-        estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
+        RigCaseToCaseMapperTools::estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
 
         cvf::BoundingBox elmBBox;
         for (int i = 0; i < 8 ; ++i) elmBBox.add(geoMechConvertedEclCell[i]);
@@ -559,11 +562,11 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterE
         {
             int elmIdx = static_cast<int>(closeElements[ccIdx]);
 
-            elementCorners(dependentFemPart, elmIdx, elmCorners);
+            RigCaseToCaseMapperTools::elementCorners(dependentFemPart, elmIdx, elmCorners);
 
-            rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards , elmCorners);
+            RigCaseToCaseMapperTools::rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards , elmCorners);
 
-            bool isMatching = isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners, 
+            bool isMatching = RigCaseToCaseMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners, 
                                                     xyTolerance, zTolerance);
 
             if (isMatching)
@@ -572,6 +575,8 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterE
                     addMapping(elmIdx, static_cast<int>(cellIdx));
                 else
                     addMapping(static_cast<int>(cellIdx), elmIdx);
+
+                break;
             }
         }
     }
@@ -645,3 +650,55 @@ for (size_t ij = 0; ij < minIJCount; ++ij )
 
 }
 #endif
+
+class RigCaseToCaseSingleCellMapper
+{
+public:
+    static void findBestFemCellFromEclCell(RigMainGrid* masterEclGrid, int ei, int ej, int ek,
+                                           RigFemPart* dependentFemPart, int* fi, int * fj, int* fk)
+    {
+        // Find tolerance
+
+        double cellSizeI, cellSizeJ, cellSizeK;
+        masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
+
+        double xyTolerance  = cellSizeI* 0.4;
+        double zTolerance   = cellSizeK* 0.4;
+
+        bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
+
+        cvf::Vec3d elmCorners[8];
+
+        size_t cellIdx =  masterEclGrid->cellIndexFromIJK( ei,  ej,  ek);
+
+        cvf::Vec3d geoMechConvertedEclCell[8];
+        RigCaseToCaseMapperTools::estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
+
+        cvf::BoundingBox elmBBox;
+        for (int i = 0; i < 8 ; ++i) elmBBox.add(geoMechConvertedEclCell[i]);
+
+        std::vector<size_t> closeElements;
+        dependentFemPart->findIntersectingCells(elmBBox, &closeElements);
+
+        std::vector<int> matchingCells;
+
+        for (size_t ccIdx = 0; ccIdx < closeElements.size(); ++ccIdx)
+        {
+            int elmIdx = static_cast<int>(closeElements[ccIdx]);
+
+            RigCaseToCaseMapperTools::elementCorners(dependentFemPart, elmIdx, elmCorners);
+
+            RigCaseToCaseMapperTools::rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards, elmCorners);
+
+            bool isMatching = RigCaseToCaseMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners,
+                                                                              xyTolerance, zTolerance);
+
+            if (isMatching)
+            {
+               
+            }
+        }
+
+    }
+
+};
