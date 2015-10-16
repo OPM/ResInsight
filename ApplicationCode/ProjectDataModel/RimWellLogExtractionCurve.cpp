@@ -431,15 +431,12 @@ QString RimWellLogExtractionCurve::createCurveName()
     {
         size_t maxTimeStep = 0;
         
-        QStringList timeStepNames;
-
         if (eclipseCase)
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-            if(eclipseCase->reservoirData())
+            if (eclipseCase->reservoirData())
             {
                 maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
-                timeStepNames = eclipseCase->timeStepStrings();
             }
         }
         else if (geomCase)
@@ -447,18 +444,21 @@ QString RimWellLogExtractionCurve::createCurveName()
             if (geomCase->geoMechData())
             {
                 maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
-                timeStepNames = geomCase->timeStepStrings();
             }
         }
 
-        if (m_addDateToCurveName && m_timeStep < timeStepNames.size())
+        if (m_addDateToCurveName)
         {
-            if (!generatedCurveName.isEmpty())
+            QString dateString = wellDate();
+            if (!dateString.isEmpty())
             {
-                generatedCurveName += ", ";
-            }
+                if (!generatedCurveName.isEmpty())
+                {
+                    generatedCurveName += ", ";
+                }
 
-            generatedCurveName += timeStepNames[m_timeStep];
+                generatedCurveName += dateString;
+            }
         }
 
         if (m_addTimestepToCurveName)
@@ -510,4 +510,36 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
 QString RimWellLogExtractionCurve::wellName() const
 {
     return m_wellPath->name();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::wellDate() const
+{
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+
+    QStringList timeStepNames;
+    size_t maxTimeStep = 0;
+
+    if (eclipseCase)
+    {
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
+        if (eclipseCase->reservoirData())
+        {
+            maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
+            timeStepNames = eclipseCase->timeStepStrings();
+        }
+    }
+    else if (geomCase)
+    {
+        if (geomCase->geoMechData())
+        {
+            maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
+            timeStepNames = geomCase->timeStepStrings();
+        }
+    }
+
+    return (m_timeStep < timeStepNames.size()) ? timeStepNames[m_timeStep] : "";
 }

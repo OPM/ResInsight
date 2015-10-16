@@ -63,6 +63,7 @@ public:
 
     virtual QString wellName() const = 0;
     virtual QString wellLogChannelName() const = 0;
+    virtual QString wellDate() const  { return ""; };
     virtual void    updatePlotData() = 0;
 
 protected:

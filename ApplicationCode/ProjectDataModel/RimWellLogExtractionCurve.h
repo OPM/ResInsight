@@ -48,6 +48,7 @@ public:
 
     virtual QString wellName() const;
     virtual QString wellLogChannelName() const;
+    virtual QString wellDate() const;
 
 protected:
     virtual QString createCurveName();
