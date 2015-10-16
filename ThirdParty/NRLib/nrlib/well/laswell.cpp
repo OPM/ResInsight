@@ -579,3 +579,8 @@ void NRLib::LasWell::setStopDepth(double stopDepth)
 {
     stop_depth_ = stopDepth;
 }
+
+void NRLib::LasWell::addWellInfo(const std::string& wellInfo)
+{
+    well_info_.push_back(wellInfo);
+}
