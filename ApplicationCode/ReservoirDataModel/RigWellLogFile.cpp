@@ -32,6 +32,24 @@
 
 #define RIG_WELL_FOOTPERMETER 3.2808399
 
+
+//--------------------------------------------------------------------------------------------------
+/// Find the largest possible "ususal" value to use for absent data (-999.25, -9999.25, etc.)
+//--------------------------------------------------------------------------------------------------
+static double sg_createAbsentValue(double lowestDataValue)
+{
+    double absentValue = -999.0;
+
+    while (absentValue > lowestDataValue)
+    {
+        absentValue *= 10;
+        absentValue -= 9;
+    }
+
+    return absentValue - 0.25;
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -252,9 +270,7 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
 
     double minX, maxX;
     curve->valueRange(&minX, &maxX);
-
-    // Might want to use a different way to find an absent/"null" value, maybe use the default if possible
-    double absentValue = ((size_t) maxX) + 1000;
+    double absentValue = sg_createAbsentValue(minX);
 
     std::vector<double> wellLogValues = curveData->xValues();
     for (size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++)
