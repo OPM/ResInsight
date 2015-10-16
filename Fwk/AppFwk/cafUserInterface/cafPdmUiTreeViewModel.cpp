@@ -292,12 +292,12 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
     else
     {
         std::vector<RecursiveUpdateData> recursiveUpdateData;
-        std::vector<PdmUiTreeOrdering*> newOrdering;
+        std::vector<PdmUiTreeOrdering*> newMergedOrdering;
 
         emit layoutAboutToBeChanged();
         {
             // Detect items to be moved from source to existing
-            // Build the correct ordering of items in newOrdering
+            // Merge items from existing and source into newMergedOrdering using order in sourceSubTreeRoot
             std::vector<int> indicesToRemoveFromSource;
             for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
             {
@@ -305,35 +305,35 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
                 std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find(sourceChild->activeItem());
                 if (it != existingTreeMap.end())
                 {
-                    newOrdering.push_back(existingSubTreeRoot->child(it->second));
+                    newMergedOrdering.push_back(existingSubTreeRoot->child(it->second));
 
-                    recursiveUpdateData.push_back(RecursiveUpdateData(index(static_cast<int>(newOrdering.size() - 1), 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(it->second), sourceChild));
+                    recursiveUpdateData.push_back(RecursiveUpdateData(index(static_cast<int>(newMergedOrdering.size() - 1), 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(it->second), sourceChild));
                 }
                 else
                 {
-                    newOrdering.push_back(sourceChild);
+                    newMergedOrdering.push_back(sourceChild);
 
                     indicesToRemoveFromSource.push_back(i);
                 }
             }
 
-            // Delete items with largest index first from source
+            // Delete new items from source because they have been moved into newMergedOrdering
             for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); it++)
             {
                 // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
                 sourceSubTreeRoot->removeChildrenNoDelete(*it, 1);
             }
 
-            // Delete all items from existingSubTreeRoot, as the complete list is present in newOrdering
+            // Delete all items from existingSubTreeRoot, as the complete list is present in newMergedOrdering
             existingSubTreeRoot->removeChildrenNoDelete(0, existingSubTreeRoot->childCount());
 
             // First, reorder all items in existing tree, as this operation is valid when later emitting the signal layoutChanged()
             // Insert of new items before issuing this signal causes the tree items below the inserted item to collapse
-            for (size_t i = 0; i < newOrdering.size(); i++)
+            for (size_t i = 0; i < newMergedOrdering.size(); i++)
             {
-                if (existingTreeMap.find(newOrdering[i]->activeItem()) != existingTreeMap.end())
+                if (existingTreeMap.find(newMergedOrdering[i]->activeItem()) != existingTreeMap.end())
                 {
-                    existingSubTreeRoot->appendChild(newOrdering[i]);
+                    existingSubTreeRoot->appendChild(newMergedOrdering[i]);
                 }
             }
         }
@@ -341,12 +341,12 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
         emit layoutChanged();
 
         // Insert new items into existingSubTreeRoot
-        for (size_t i = 0; i < newOrdering.size(); i++)
+        for (size_t i = 0; i < newMergedOrdering.size(); i++)
         {
-            if (existingTreeMap.find(newOrdering[i]->activeItem()) == existingTreeMap.end())
+            if (existingTreeMap.find(newMergedOrdering[i]->activeItem()) == existingTreeMap.end())
             {
                 this->beginInsertRows(existingSubTreeRootModIdx, static_cast<int>(i), static_cast<int>(i));
-                existingSubTreeRoot->insertChild(static_cast<int>(i), newOrdering[i]);
+                existingSubTreeRoot->insertChild(static_cast<int>(i), newMergedOrdering[i]);
                 this->endInsertRows();
             }
         }
