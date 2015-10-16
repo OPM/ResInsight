@@ -171,7 +171,7 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->updateConnectedEditors();
 
-    RiuMainWindow::instance()->projectTreeView()->setExpanded(viewLinker, true);
+    RiuMainWindow::instance()->projectTreeView()->setExpanded(proj->viewLinkerCollection(), true);
 
 }
 
