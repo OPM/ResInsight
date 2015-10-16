@@ -118,16 +118,6 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
         }
     }
 
-    // TODO: Possibly handle discrete logs
-
-//     const std::map<std::string, std::vector<int> >& discLogs = well->GetDiscLog();
-//     std::vector<std::string> discLogNames;
-//     std::map<std::string, std::vector<int> >::const_iterator itDL;
-//     for (itDL = discLogs.begin(); itDL != discLogs.end(); itDL++)
-//     {
-//         wellLogNames.append(QString::fromStdString(itDL->first));
-//     }
-
     m_wellLogChannelNames = wellLogNames;
     m_wellLogFile = well;
 
@@ -179,8 +169,6 @@ std::vector<double> RigWellLogFile::depthValues() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogFile::values(const QString& name) const
 {
-    // TODO: Possibly handle discrete logs
-
     CVF_ASSERT(m_wellLogFile);
 
     if (m_wellLogFile->HasContLog(name.toStdString()))
