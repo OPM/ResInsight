@@ -21,12 +21,15 @@
 
 #include "OperationsUsingObjReferences/RicPasteEclipseCasesFeature.h"
 #include "RicCloseCaseFeature.h"
+#include "WellLogCommands/RicNewWellLogFileCurveFeature.h"
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
+#include "RimWellLogFileChannel.h"
+#include "RimWellLogPlotTrack.h"
 
 #include "RiuMainWindow.h"
 
@@ -69,11 +72,13 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
         caf::PdmUiItem* uiItem = uiTreeView->uiItemFromModelIndex(index);
 
         if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem) ||
-            dynamic_cast<RimCaseCollection*>(uiItem))
+            dynamic_cast<RimCaseCollection*>(uiItem) ||
+            dynamic_cast<RimWellLogPlotTrack*>(uiItem))
         {
             return Qt::ItemIsDropEnabled;
         }
-        else if (dynamic_cast<RimEclipseCase*>(uiItem))
+        else if (dynamic_cast<RimEclipseCase*>(uiItem) ||
+            dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
             // TODO: Remember to handle reservoir holding the main grid
             return Qt::ItemIsDragEnabled;
@@ -90,46 +95,44 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
     caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
-    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-    
+    caf::PdmUiItem* dropTarget = uiTreeView->uiItemFromModelIndex(parent);
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(dropTarget);
+    if (objHandle)
     {
-        caf::PdmUiItem* dropTarget = uiTreeView->uiItemFromModelIndex(parent);
-        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(dropTarget);
-        if (objHandle)
+        caf::PdmObjectGroup objectGroup;
+        const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(data);
+        if (myMimeData && parent.isValid())
         {
-            objHandle->firstAnchestorOrThisOfType(gridCaseGroup);
-        }
-    }
-
-    if (!gridCaseGroup) return false;
-
-    const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(data);
-    if (myMimeData && parent.isValid())
-    {
-        caf::PdmObjectGroup pog;
-
-        for (int i = 0; i < myMimeData->indexes().size(); i++)
-        {
-            QModelIndex mi = myMimeData->indexes().at(i);
-            caf::PdmUiItem* currentItem = uiTreeView->uiItemFromModelIndex(mi);
-            caf::PdmObjectHandle* pdmObj = dynamic_cast<caf::PdmObjectHandle*>(currentItem);
-
-            if (pdmObj)
+            for (int i = 0; i < myMimeData->indexes().size(); i++)
             {
-                pog.objects.push_back(pdmObj);
+                QModelIndex mi = myMimeData->indexes().at(i);
+                caf::PdmUiItem* currentItem = uiTreeView->uiItemFromModelIndex(mi);
+                caf::PdmObjectHandle* pdmObj = dynamic_cast<caf::PdmObjectHandle*>(currentItem);
+
+                if (pdmObj)
+                {
+                    objectGroup.objects.push_back(pdmObj);
+                }
             }
         }
-
-        if (action == Qt::CopyAction)
+        else
         {
-            caf::RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(pog, gridCaseGroup);
-        }
-        else if (action == Qt::MoveAction)
-        {
-            moveCasesToGridGroup(pog, gridCaseGroup);
+            return false;
         }
 
-        return true;
+        RimIdenticalGridCaseGroup* gridCaseGroup;
+        objHandle->firstAnchestorOrThisOfType(gridCaseGroup);
+        if (gridCaseGroup)
+        {
+            return handleGridCaseGroupDrop(action, objectGroup, gridCaseGroup);
+        }
+
+        RimWellLogPlotTrack* wellLogPlotTrack;
+        objHandle->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        if (wellLogPlotTrack)
+        {
+            return handleWellLogPlotTrackDrop(action, objectGroup, wellLogPlotTrack);
+        }
     }
 
     return false;
@@ -179,5 +182,48 @@ void RiuDragDrop::moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIden
             RicCloseCaseFeature::deleteEclipseCase(casesToBeDeleted[i]);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuDragDrop::handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
+{
+    if (action == Qt::CopyAction)
+    {
+        caf::RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
+    }
+    else if (action == Qt::MoveAction)
+    {
+        moveCasesToGridGroup(objectGroup, gridCaseGroup);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotTrack* wellLogPlotTrack)
+{
+    std::vector<caf::PdmPointer<RimWellLogFileChannel> > typedObjects;
+    objectGroup.objectsByType(&typedObjects);
+
+    std::vector<RimWellLogFileChannel*> wellLogFileChannels;
+    for (size_t cIdx = 0; cIdx < typedObjects.size(); cIdx++)
+    {
+        wellLogFileChannels.push_back(typedObjects[cIdx]);
+    }
+
+    if (wellLogFileChannels.size() > 0)
+    {
+        if (action == Qt::CopyAction)
+        {
+            RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(wellLogPlotTrack, wellLogFileChannels);
+            return true;
+        }
+    }
+
+    return false;
 }
 

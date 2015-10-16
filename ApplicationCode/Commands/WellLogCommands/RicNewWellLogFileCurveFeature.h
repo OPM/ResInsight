@@ -21,9 +21,13 @@
 
 #include "cafCmdFeature.h"
 
+#include <vector>
+
 class RimWellLogPlotTrack;
 class RimWellLogFileCurve;
 class RimWellPath;
+class RimWellLogFileChannel;
+
 
 //==================================================================================================
 /// 
@@ -35,6 +39,7 @@ class RicNewWellLogFileCurveFeature : public caf::CmdFeature
 public:
     static RimWellLogFileCurve* addCurve(RimWellLogPlotTrack* plotTrack);
 
+    static void addWellLogChannelsToPlotTrack(RimWellLogPlotTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels);
 
 protected:
     // Overrides

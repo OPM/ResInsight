@@ -25,6 +25,7 @@
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlotTrack.h"
 #include "RimWellLogFile.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimProject.h"
@@ -156,4 +157,25 @@ RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogPlotTrack
     RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
 
     return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(RimWellLogPlotTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels)
+{
+    for (size_t cIdx = 0; cIdx < wellLogFileChannels.size(); cIdx++)
+    {
+        RimWellLogFileCurve* plotCurve = addCurve(plotTrack);
+    
+        RimWellPath* wellPath;
+        wellLogFileChannels[cIdx]->firstAnchestorOrThisOfType(wellPath);
+        if (wellPath)
+        {
+            plotCurve->setWellPath(wellPath);
+            plotCurve->setWellLogChannelName(wellLogFileChannels[cIdx]->name());
+            plotCurve->updatePlotData();
+            plotCurve->updateConnectedEditors();
+        }
+    }
 }
