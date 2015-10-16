@@ -180,11 +180,7 @@ void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
     existingSubTreeRoot->debugDump(0);
 #endif
 
-    this->layoutAboutToBeChanged();
-
     updateSubTreeRecursive(existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp);
-
-    emit (this->layoutChanged());
 
     delete newTreeRootTmp;
 
@@ -221,8 +217,6 @@ public:
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTreeRootModIdx, PdmUiTreeOrdering* existingSubTreeRoot, PdmUiTreeOrdering* sourceSubTreeRoot)
 {
-    std::vector<RecursiveUpdateData> recursiveUpdateData;
-
     // Build map for source items
     std::map<caf::PdmUiItem*, int> sourceTreeMap;
     for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
@@ -256,7 +250,7 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
         this->endRemoveRows();
     }
 
-    // Build map for existing items, now without the deleted items
+    // Build map for existing items without the deleted items
     std::map<caf::PdmUiItem*, int> existingTreeMap;
     for (int i = 0; i < existingSubTreeRoot->childCount() ; ++i)
     {
@@ -268,54 +262,99 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
         }
     }
 
-    PdmUiTreeOrdering newOrdering("dummy", "dummy");
-
-    // Detect items to be moved from source to existing
-    // Build the correct ordering of items in newOrdering
-    std::vector<int> indicesToRemoveFromSource;
-    for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
+    // Check if there are any changes between existing and source
+    // If no changes, update the subtree recursively
+    bool anyChanges = false;
+    if (existingSubTreeRoot->childCount() == sourceSubTreeRoot->childCount())
     {
-        PdmUiTreeOrdering* sourceChild = sourceSubTreeRoot->child(i);
-
-        std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find(sourceChild->activeItem());
-        if (it != existingTreeMap.end())
+        for (int i = 0; i < existingSubTreeRoot->childCount(); ++i)
         {
-            // NB! Must be pushed into recursiveUpdateData before moved into newOrdering to make sure parent relationship is correct for update
-            // appendChild() changes ownership
-            recursiveUpdateData.push_back(RecursiveUpdateData(index(newOrdering.childCount() - 1, 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(it->second), sourceChild));
-
-            newOrdering.appendChild(existingSubTreeRoot->child(it->second));
-        }
-        else
-        {
-            newOrdering.appendChild(sourceChild);
-
-            indicesToRemoveFromSource.push_back(i);
+            if (existingSubTreeRoot->child(i)->activeItem() != sourceSubTreeRoot->child(i)->activeItem())
+            {
+                anyChanges = true;
+                break;
+            }
         }
     }
-
-
-    // Delete items with largest index first from source
-    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); it++)
+    else
     {
-        // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
-        sourceSubTreeRoot->removeChildrenNoDelete(*it, 1);
+        anyChanges = true;
     }
 
-    // Delete all items from existingSubTreeRoot, as the complete list is present in newOrdering
-    existingSubTreeRoot->removeChildrenNoDelete(0, existingSubTreeRoot->childCount());
-
-    // Move all items into existingSubTreeRoot
-    for (int i = 0; i < newOrdering.childCount(); i++)
+    if (!anyChanges)
     {
-        existingSubTreeRoot->appendChild(newOrdering.child(i));
+        // No changes to list of children at this level, call update on all children
+        for (int i = 0; i < existingSubTreeRoot->childCount(); ++i)
+        {
+            updateSubTreeRecursive( index(i, 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(i), sourceSubTreeRoot->child(i));
+        }
     }
-   
-    newOrdering.removeChildrenNoDelete(0, newOrdering.childCount());
-
-    for (size_t i = 0; i < recursiveUpdateData.size(); i++)
+    else
     {
-        updateSubTreeRecursive(recursiveUpdateData[i].m_modelIndex, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild);
+        std::vector<RecursiveUpdateData> recursiveUpdateData;
+        std::vector<PdmUiTreeOrdering*> newOrdering;
+
+        emit layoutAboutToBeChanged();
+        {
+            // Detect items to be moved from source to existing
+            // Build the correct ordering of items in newOrdering
+            std::vector<int> indicesToRemoveFromSource;
+            for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
+            {
+                PdmUiTreeOrdering* sourceChild = sourceSubTreeRoot->child(i);
+                std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find(sourceChild->activeItem());
+                if (it != existingTreeMap.end())
+                {
+                    newOrdering.push_back(existingSubTreeRoot->child(it->second));
+
+                    recursiveUpdateData.push_back(RecursiveUpdateData(index(static_cast<int>(newOrdering.size() - 1), 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(it->second), sourceChild));
+                }
+                else
+                {
+                    newOrdering.push_back(sourceChild);
+
+                    indicesToRemoveFromSource.push_back(i);
+                }
+            }
+
+            // Delete items with largest index first from source
+            for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); it++)
+            {
+                // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
+                sourceSubTreeRoot->removeChildrenNoDelete(*it, 1);
+            }
+
+            // Delete all items from existingSubTreeRoot, as the complete list is present in newOrdering
+            existingSubTreeRoot->removeChildrenNoDelete(0, existingSubTreeRoot->childCount());
+
+            // First, reorder all items in existing tree, as this operation is valid when later emitting the signal layoutChanged()
+            // Insert of new items before issuing this signal causes the tree items below the inserted item to collapse
+            for (size_t i = 0; i < newOrdering.size(); i++)
+            {
+                if (existingTreeMap.find(newOrdering[i]->activeItem()) != existingTreeMap.end())
+                {
+                    existingSubTreeRoot->appendChild(newOrdering[i]);
+                }
+            }
+        }
+
+        emit layoutChanged();
+
+        // Insert new items into existingSubTreeRoot
+        for (size_t i = 0; i < newOrdering.size(); i++)
+        {
+            if (existingTreeMap.find(newOrdering[i]->activeItem()) == existingTreeMap.end())
+            {
+                this->beginInsertRows(existingSubTreeRootModIdx, static_cast<int>(i), static_cast<int>(i));
+                existingSubTreeRoot->insertChild(static_cast<int>(i), newOrdering[i]);
+                this->endInsertRows();
+            }
+        }
+
+        for (size_t i = 0; i < recursiveUpdateData.size(); i++)
+        {
+            updateSubTreeRecursive(recursiveUpdateData[i].m_modelIndex, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild);
+        }
     }
 }
 
