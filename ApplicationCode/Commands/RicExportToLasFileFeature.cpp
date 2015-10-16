@@ -29,6 +29,7 @@
   
 #include <QAction>
 #include <QFileDialog>
+#include <QRegExp>
 
 CAF_CMD_SOURCE_INIT(RicExportToLasFileFeature, "RicExportToLasFileFeature");
 
@@ -54,6 +55,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
         defaultFileName.replace(".", "_");
         defaultFileName.replace(",", "_");
         defaultFileName.replace(" ", "_");
+        defaultFileName.replace(QRegExp("_+"), "_");
         defaultFileName.append(".las");
 
         QString fileName = QFileDialog::getSaveFileName(RiuMainWindow::instance(), tr("Export Curve Data To LAS File"), QDir(defaultDir).absoluteFilePath(defaultFileName), tr("LAS Files (*.las);;All files(*.*)"));
