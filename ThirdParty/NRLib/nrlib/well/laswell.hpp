@@ -61,7 +61,8 @@ public:
   void setVersionInfo(const std::string& logName);
   void setStartDepth(double startDepth);
   void setStopDepth(double stopDepth);
-  void addWellInfo(const std::string& wellInfo);
+  
+  void addWellInfo(const std::string& parameter, const std::string& value);
 
 private:
   void ReadHeader(const std::string        & filename,
