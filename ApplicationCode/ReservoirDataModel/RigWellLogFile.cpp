@@ -266,13 +266,18 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
         }
     }
 
-    QString wellLogChannelName = curve->wellLogChannelName();
+    QString wellLogChannelName = curve->wellLogChannelName().trimmed();
     wellLogChannelName.replace(".", "_");
 
+    QString wellLogDate = curve->wellDate().trimmed();
+    wellLogDate.replace(".", "_");
+    wellLogDate.replace(" ", "_");
+
     NRLib::LasWell lasFile;
-    lasFile.addWellInfo(QString("WELL .%1 :").arg(curve->wellName()).toStdString());
+    lasFile.addWellInfo("WELL", curve->wellName().trimmed().toStdString());
+    lasFile.addWellInfo("DATE", wellLogDate.toStdString());
     lasFile.AddLog("DEPTH", "M", "Depth in meters", curveData->measuredDepths());
-    lasFile.AddLog(wellLogChannelName.toStdString(), "NO_UNIT", "", wellLogValues);
+    lasFile.AddLog(wellLogChannelName.trimmed().toStdString(), "NO_UNIT", "", wellLogValues);
     lasFile.SetMissing(absentValue);
 
     double minDepth = 0.0;
