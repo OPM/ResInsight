@@ -270,6 +270,7 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
     wellLogChannelName.replace(".", "_");
 
     NRLib::LasWell lasFile;
+    lasFile.addWellInfo(QString("WELL .%1 :").arg(curve->wellName()).toStdString());
     lasFile.AddLog("DEPTH", "M", "Depth in meters", curveData->measuredDepths());
     lasFile.AddLog(wellLogChannelName.toStdString(), "NO_UNIT", "", wellLogValues);
     lasFile.SetMissing(absentValue);

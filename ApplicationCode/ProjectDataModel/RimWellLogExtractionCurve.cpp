@@ -404,7 +404,7 @@ QString RimWellLogExtractionCurve::createCurveName()
 
     if (m_addWellNameToCurveName && m_wellPath)
     {
-        generatedCurveName += m_wellPath->name();
+        generatedCurveName += wellName();
     }
 
     if (m_addCaseNameToCurveName && m_case())
@@ -502,4 +502,12 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
     }
 
     return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::wellName() const
+{
+    return m_wellPath->name();
 }

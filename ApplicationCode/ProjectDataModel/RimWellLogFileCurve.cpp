@@ -227,7 +227,7 @@ QString RimWellLogFileCurve::createCurveName()
     {
         QString txt;
 
-        txt += m_wellPath()->name();
+        txt += wellName();
         txt += " : ";
         txt += m_wellLogChannnelName;
 
@@ -256,3 +256,10 @@ QString RimWellLogFileCurve::wellLogChannelName() const
     return m_wellLogChannnelName;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogFileCurve::wellName() const
+{
+    return m_wellPath->name();
+}

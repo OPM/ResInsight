@@ -46,6 +46,7 @@ public:
     void setWellPath(RimWellPath* wellPath);
     void setPropertiesFromView(RimView* view);
 
+    virtual QString wellName() const;
     virtual QString wellLogChannelName() const;
 
 protected:
