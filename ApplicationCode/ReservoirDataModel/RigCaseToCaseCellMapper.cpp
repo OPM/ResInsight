@@ -674,39 +674,109 @@ class RigCaseToCaseRangeFilterMapper
 public:
    
 
-    static void convertRangeFilter(RimCellRangeFilter* srcFilter, const RigMainGrid* srcEclGrid,
-                                   RimCellRangeFilter* dstFilter, const RigFemPart*  dstFemPart)
+    static void convertRangeFilterEclToFem(RimCellRangeFilter* srcFilter, const RigMainGrid* srcEclGrid,
+                                           RimCellRangeFilter* dstFilter, const RigFemPart*  dstFemPart)
     {
         CVF_ASSERT(srcFilter && srcEclGrid && dstFilter && dstFemPart);
         CVF_ASSERT(srcFilter->gridIndex() == 0); // LGR not supported yet
         
+        struct RangeFilterCorner { RangeFilterCorner(): isExactMatch(false){} cvf::Vec3st ijk; bool isExactMatch; };
 
-        size_t startFi, startFj, startFk;
-        bool isStartExactMatch  = findBestFemCellFromEclCell(srcEclGrid, 
-                                   srcFilter->startIndexI() -1, 
-                                   srcFilter->startIndexJ() -1, 
-                                   srcFilter->startIndexK() -1 ,
-                                   dstFemPart, &startFi, &startFj, &startFk);
+        RangeFilterCorner rangeFilterMatches[8]; 
 
- 
-        size_t endFi, endFj, endFk;
-        bool isEndExactMatch  = findBestFemCellFromEclCell(srcEclGrid,
-                                   srcFilter->startIndexI() -1 + srcFilter->cellCountI(),
-                                   srcFilter->startIndexJ() -1 + srcFilter->cellCountJ(),
-                                   srcFilter->startIndexK() -1 + srcFilter->cellCountK(),
-                                   dstFemPart, &endFi, &endFj, &endFk);
+        size_t srcStartI = srcFilter->startIndexI() - 1;
+        size_t srcStartJ = srcFilter->startIndexJ() - 1;
+        size_t srcStartK = srcFilter->startIndexK() - 1;
+        size_t srcEndI = srcStartI + srcFilter->cellCountI();
+        size_t srcEndJ = srcStartJ + srcFilter->cellCountJ();
+        size_t srcEndK = srcStartK + srcFilter->cellCountK();
 
-        if (   (startFi != cvf::UNDEFINED_SIZE_T && startFj != cvf::UNDEFINED_SIZE_T && startFk != cvf::UNDEFINED_SIZE_T)
-            && (endFi   != cvf::UNDEFINED_SIZE_T && endFj   != cvf::UNDEFINED_SIZE_T && endFk   != cvf::UNDEFINED_SIZE_T))
+        cvf::Vec3st srcRangeCube[8];
+        srcRangeCube[0] = cvf::Vec3st(srcStartI, srcStartJ, srcStartK);
+        srcRangeCube[1] = cvf::Vec3st(srcEndI,   srcStartJ, srcStartK);
+        srcRangeCube[2] = cvf::Vec3st(srcEndI,   srcEndJ,   srcStartK);
+        srcRangeCube[3] = cvf::Vec3st(srcStartI, srcEndJ,   srcStartK);
+        srcRangeCube[4] = cvf::Vec3st(srcStartI, srcStartJ, srcEndK);
+        srcRangeCube[5] = cvf::Vec3st(srcEndI,   srcStartJ, srcEndK);
+        srcRangeCube[6] = cvf::Vec3st(srcEndI,   srcEndJ,   srcEndK);
+        srcRangeCube[7] = cvf::Vec3st(srcStartI, srcEndJ,   srcEndK);
+        
+
+        size_t dstStartI  = cvf::UNDEFINED_SIZE_T;
+        size_t dstStartJ  = cvf::UNDEFINED_SIZE_T;
+        size_t dstStartK  = cvf::UNDEFINED_SIZE_T;
+        size_t dstEndI    = cvf::UNDEFINED_SIZE_T;
+        size_t dstEndJ    = cvf::UNDEFINED_SIZE_T;
+        size_t dstEndK    = cvf::UNDEFINED_SIZE_T;
+
+        bool foundExactMatch = false;
+        int cornerIdx = 0;
+        int diagIdx = 6;// Index to diagonal corner
+
+        for (cornerIdx = 0; cornerIdx < 4; ++cornerIdx)
         {
-            dstFilter->startIndexJ = static_cast<int>(startFj + 1);
-            dstFilter->startIndexK = static_cast<int>(startFk + 1);
-            dstFilter->startIndexI = static_cast<int>(startFi + 1);
+            diagIdx = (cornerIdx < 2) ?  cornerIdx + 6 : cornerIdx + 2; 
 
-            dstFilter->cellCountI = static_cast<int>(endFi - (startFi-1));
-            dstFilter->cellCountJ = static_cast<int>(endFj - (startFj-1));
-            dstFilter->cellCountK = static_cast<int>(endFk - (startFk-1));
-            dstFilter->computeAndSetValidValues();
+            rangeFilterMatches[cornerIdx].isExactMatch  = findBestFemCellFromEclCell(srcEclGrid,
+                                                                                srcRangeCube[cornerIdx][0],
+                                                                                srcRangeCube[cornerIdx][1],
+                                                                                srcRangeCube[cornerIdx][2],
+                                                                                dstFemPart, 
+                                                                                &(rangeFilterMatches[cornerIdx].ijk[0]), 
+                                                                                &(rangeFilterMatches[cornerIdx].ijk[1]),
+                                                                                &(rangeFilterMatches[cornerIdx].ijk[2]));
+             
+            rangeFilterMatches[diagIdx].isExactMatch  = findBestFemCellFromEclCell(srcEclGrid,
+                                                                                srcRangeCube[diagIdx][0],
+                                                                                srcRangeCube[diagIdx][1],
+                                                                                srcRangeCube[diagIdx][2],
+                                                                                dstFemPart, 
+                                                                                &(rangeFilterMatches[diagIdx].ijk[0]), 
+                                                                                &(rangeFilterMatches[diagIdx].ijk[1]),
+                                                                                &(rangeFilterMatches[diagIdx].ijk[2]));
+
+            if (rangeFilterMatches[cornerIdx].isExactMatch && rangeFilterMatches[diagIdx].isExactMatch)
+            {
+                foundExactMatch = true;
+                break;
+            }
+        }
+
+        // Get the start and end IJK from the matched corners
+        if (foundExactMatch)
+        {
+            // Populate dst range filter from the diagonal that matches exact
+            dstStartI = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0]);
+            dstStartJ = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1]);
+            dstStartK = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2]);
+            dstEndI   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0]);
+            dstEndJ   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1]);
+            dstEndK   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2]);
+        }
+        else
+        {
+            // Todo: be even smarter, and use possible matching corners to add up an as best solution as possible. 
+            // For now we just take the first diagonal.
+            dstStartI = rangeFilterMatches[0].ijk[0];
+            dstStartJ = rangeFilterMatches[0].ijk[1];
+            dstStartK = rangeFilterMatches[0].ijk[2];
+            dstEndI   = rangeFilterMatches[6].ijk[0];
+            dstEndJ   = rangeFilterMatches[6].ijk[1];
+            dstEndK   = rangeFilterMatches[6].ijk[2];
+        }
+
+        // Populate the dst range filter with new data
+
+        if (   (dstStartI != cvf::UNDEFINED_SIZE_T && dstStartJ != cvf::UNDEFINED_SIZE_T && dstStartK != cvf::UNDEFINED_SIZE_T)
+            && (dstEndI   != cvf::UNDEFINED_SIZE_T && dstEndJ   != cvf::UNDEFINED_SIZE_T && dstEndK   != cvf::UNDEFINED_SIZE_T))
+        {
+            dstFilter->startIndexJ = static_cast<int>(dstStartI + 1);
+            dstFilter->startIndexK = static_cast<int>(dstStartJ + 1);
+            dstFilter->startIndexI = static_cast<int>(dstStartK + 1);
+
+            dstFilter->cellCountI = static_cast<int>(dstEndI - (dstStartI-1));
+            dstFilter->cellCountJ = static_cast<int>(dstEndJ - (dstStartJ-1));
+            dstFilter->cellCountK = static_cast<int>(dstEndK - (dstStartK-1));
         }
         else
         {
@@ -719,6 +789,7 @@ public:
             dstFilter->cellCountK = 0;
             dstFilter->computeAndSetValidValues();
         }
+
     }
 
     static bool findBestFemCellFromEclCell(const RigMainGrid* masterEclGrid, size_t ei, size_t ej, size_t ek,
