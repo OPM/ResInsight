@@ -27,10 +27,11 @@ class RigFemPart;
 class RigFemPartGrid : public cvf::StructGridInterface
 {
 public:
-    RigFemPartGrid(RigFemPart* femPart);
+    RigFemPartGrid(const RigFemPart* femPart);
     virtual ~RigFemPartGrid();
 
     virtual bool        ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const;
+    virtual size_t      cellIndexFromIJK(size_t i, size_t j, size_t k) const;
 
     virtual size_t      gridPointCountI() const;
     virtual size_t      gridPointCountJ() const;
@@ -43,7 +44,7 @@ public:
     int                 findElmIdxForIJK000();
     int                 perpendicularFaceInDirection(cvf::Vec3f direction, int perpFaceIdx, int elmIdx);
 
-    RigFemPart*         m_femPart;
+    const RigFemPart*  m_femPart;
 
     std::vector<cvf::Vec3i> m_ijkPrElement;
     cvf::Vec3st         m_elmentIJKCounts;
@@ -53,7 +54,6 @@ private: // Unused, Not implemented
     virtual cvf::Vec3d  minCoordinate() const;
     virtual cvf::Vec3d  maxCoordinate() const;
     virtual bool        cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex) const;
-    virtual size_t      cellIndexFromIJK(size_t i, size_t j, size_t k) const;
 
 
     virtual bool        cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k) const;
@@ -62,6 +62,37 @@ private: // Unused, Not implemented
     virtual void        cellMinMaxCordinates(size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate) const;
     virtual size_t      gridPointIndexFromIJK(size_t i, size_t j, size_t k) const;
     virtual cvf::Vec3d  gridPointCoordinate(size_t i, size_t j, size_t k) const;
+
+    class IJKArray
+    {
+    public:
+        IJKArray(): m_iCount(0), m_jCount(0){}
+
+        void resize(size_t iCount, size_t jCount, size_t kCount)
+        {
+            data.resize(iCount*jCount*kCount, cvf::UNDEFINED_SIZE_T);
+            m_iCount = iCount;
+            m_jCount = jCount;
+        }
+
+        size_t& at(size_t i, size_t j, size_t k)
+        {
+            return data[i + j* m_iCount + k * m_iCount*m_jCount];
+        }
+        
+        size_t at(size_t i, size_t j, size_t k) const
+        {
+            return data[i + j* m_iCount + k * m_iCount*m_jCount];
+        }
+
+    private:
+        size_t m_iCount;
+        size_t m_jCount;
+
+        std::vector< size_t > data;
+    };
+
+    IJKArray m_elmIdxPrIJK; 
 
 };
 

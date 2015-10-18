@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemPartGrid::RigFemPartGrid(RigFemPart* femPart)
+RigFemPartGrid::RigFemPartGrid(const RigFemPart* femPart)
 {
     m_femPart = femPart;
     generateStructGridData();
@@ -171,6 +171,16 @@ void RigFemPartGrid::generateStructGridData()
         }
 
         if (kCoord > static_cast<int>(m_elmentIJKCounts[2])) m_elmentIJKCounts[2] = kCoord;
+    }
+
+
+    
+    m_elmIdxPrIJK.resize(m_elmentIJKCounts[0], m_elmentIJKCounts[1],m_elmentIJKCounts[2]);
+    
+    for (int elmIdx = 0; elmIdx < m_femPart->elementCount(); ++elmIdx)
+    {
+        cvf::Vec3i ijk = m_ijkPrElement[elmIdx];
+        m_elmIdxPrIJK.at(ijk[0], ijk[1],  ijk[2]) = elmIdx;
     }
 }
 
@@ -380,8 +390,7 @@ bool RigFemPartGrid::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::cellIndexFromIJK(size_t i, size_t j, size_t k) const
 {
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
+    return m_elmIdxPrIJK.at(i,j,k);
 }
 
 //--------------------------------------------------------------------------------------------------

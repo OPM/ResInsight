@@ -382,7 +382,7 @@ int RigCaseToCaseMapperTools::quadVxClosestToXYOfPoint( const cvf::Vec3d point, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigCaseToCaseMapperTools::elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
+bool RigCaseToCaseMapperTools::elementCorners(const RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8])
 {
     RigElementType elmType = femPart->elementType(elmIdx);
     if (!(elmType == HEX8 || elmType == HEX8P)) return false;
@@ -556,8 +556,6 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping(RigMainGrid* masterE
         std::vector<size_t> closeElements;
         dependentFemPart->findIntersectingCells(elmBBox, &closeElements);
 
-        std::vector<int> matchingCells;
-
         for (size_t ccIdx = 0; ccIdx < closeElements.size(); ++ccIdx)
         {
             int elmIdx = static_cast<int>(closeElements[ccIdx]);
@@ -651,11 +649,80 @@ for (size_t ij = 0; ij < minIJCount; ++ij )
 }
 #endif
 
-class RigCaseToCaseSingleCellMapper
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigCaseToCaseMapperTools::calculateCellCenter(cvf::Vec3d elmCorners[8])
+{
+    cvf::Vec3d avg(cvf::Vec3d::ZERO);
+
+    size_t i;
+    for (i = 0; i < 8; i++)
+    {
+        avg += elmCorners[i];
+    }
+
+    avg /= 8.0;
+
+    return avg;
+}
+
+#include "RimCellRangeFilter.h"
+
+class RigCaseToCaseRangeFilterMapper
 {
 public:
-    static void findBestFemCellFromEclCell(RigMainGrid* masterEclGrid, int ei, int ej, int ek,
-                                           RigFemPart* dependentFemPart, int* fi, int * fj, int* fk)
+   
+
+    static void convertRangeFilter(RimCellRangeFilter* srcFilter, const RigMainGrid* srcEclGrid,
+                                   RimCellRangeFilter* dstFilter, const RigFemPart*  dstFemPart)
+    {
+        CVF_ASSERT(srcFilter && srcEclGrid && dstFilter && dstFemPart);
+        CVF_ASSERT(srcFilter->gridIndex() == 0); // LGR not supported yet
+        
+
+        size_t startFi, startFj, startFk;
+        bool isStartExactMatch  = findBestFemCellFromEclCell(srcEclGrid, 
+                                   srcFilter->startIndexI() -1, 
+                                   srcFilter->startIndexJ() -1, 
+                                   srcFilter->startIndexK() -1 ,
+                                   dstFemPart, &startFi, &startFj, &startFk);
+
+ 
+        size_t endFi, endFj, endFk;
+        bool isEndExactMatch  = findBestFemCellFromEclCell(srcEclGrid,
+                                   srcFilter->startIndexI() -1 + srcFilter->cellCountI(),
+                                   srcFilter->startIndexJ() -1 + srcFilter->cellCountJ(),
+                                   srcFilter->startIndexK() -1 + srcFilter->cellCountK(),
+                                   dstFemPart, &endFi, &endFj, &endFk);
+
+        if (   (startFi != cvf::UNDEFINED_SIZE_T && startFj != cvf::UNDEFINED_SIZE_T && startFk != cvf::UNDEFINED_SIZE_T)
+            && (endFi   != cvf::UNDEFINED_SIZE_T && endFj   != cvf::UNDEFINED_SIZE_T && endFk   != cvf::UNDEFINED_SIZE_T))
+        {
+            dstFilter->startIndexJ = static_cast<int>(startFj + 1);
+            dstFilter->startIndexK = static_cast<int>(startFk + 1);
+            dstFilter->startIndexI = static_cast<int>(startFi + 1);
+
+            dstFilter->cellCountI = static_cast<int>(endFi - (startFi-1));
+            dstFilter->cellCountJ = static_cast<int>(endFj - (startFj-1));
+            dstFilter->cellCountK = static_cast<int>(endFk - (startFk-1));
+            dstFilter->computeAndSetValidValues();
+        }
+        else
+        {
+            dstFilter->startIndexI = 1;
+            dstFilter->startIndexJ = 1;
+            dstFilter->startIndexK = 1;
+
+            dstFilter->cellCountI = 0;
+            dstFilter->cellCountJ = 0;
+            dstFilter->cellCountK = 0;
+            dstFilter->computeAndSetValidValues();
+        }
+    }
+
+    static bool findBestFemCellFromEclCell(const RigMainGrid* masterEclGrid, size_t ei, size_t ej, size_t ek,
+                                           const RigFemPart* dependentFemPart, size_t* fi, size_t * fj, size_t* fk)
     {
         // Find tolerance
 
@@ -666,8 +733,6 @@ public:
         double zTolerance   = cellSizeK* 0.4;
 
         bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
-
-        cvf::Vec3d elmCorners[8];
 
         size_t cellIdx =  masterEclGrid->cellIndexFromIJK( ei,  ej,  ek);
 
@@ -680,25 +745,124 @@ public:
         std::vector<size_t> closeElements;
         dependentFemPart->findIntersectingCells(elmBBox, &closeElements);
 
-        std::vector<int> matchingCells;
+        cvf::Vec3d elmCorners[8];
+        int elmIdxToBestMatch = -1;
+        double sqDistToClosestElmCenter = HUGE_VAL;
+        cvf::Vec3d convEclCellCenter = RigCaseToCaseMapperTools::calculateCellCenter(geoMechConvertedEclCell);
+
+        bool foundExactMatch = false;
 
         for (size_t ccIdx = 0; ccIdx < closeElements.size(); ++ccIdx)
         {
             int elmIdx = static_cast<int>(closeElements[ccIdx]);
 
             RigCaseToCaseMapperTools::elementCorners(dependentFemPart, elmIdx, elmCorners);
+            
+            cvf::Vec3d cellCenter = RigCaseToCaseMapperTools::calculateCellCenter(elmCorners);
+            double sqDist = (cellCenter - convEclCellCenter).lengthSquared();
+            if (sqDist < sqDistToClosestElmCenter) 
+            {
+                elmIdxToBestMatch = elmIdx;
+                sqDistToClosestElmCenter = sqDist;
+            }
 
             RigCaseToCaseMapperTools::rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards, elmCorners);
 
-            bool isMatching = RigCaseToCaseMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners,
+            foundExactMatch = RigCaseToCaseMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners,
                                                                               xyTolerance, zTolerance);
 
-            if (isMatching)
+            if (foundExactMatch)
             {
-               
+                elmIdxToBestMatch = elmIdx;
+                break;
             }
         }
 
+        if (elmIdxToBestMatch != -1)
+        {
+            dependentFemPart->structGrid()->ijkFromCellIndex(elmIdxToBestMatch, fi, fj, fk);
+        }
+        else
+        {
+            (*fi) = cvf::UNDEFINED_SIZE_T;
+            (*fj) = cvf::UNDEFINED_SIZE_T;
+            (*fk) = cvf::UNDEFINED_SIZE_T;
+        }
+
+        return foundExactMatch;
+
+    }
+
+
+    static bool findBestEclCellFromFemCell(const RigFemPart* dependentFemPart, size_t fi, size_t fj, size_t fk,
+                                           const RigMainGrid* masterEclGrid, size_t* ei, size_t* ej, size_t* ek)
+    {
+        // Find tolerance
+
+        double cellSizeI, cellSizeJ, cellSizeK;
+        masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
+
+        double xyTolerance  = cellSizeI* 0.4;
+        double zTolerance   = cellSizeK* 0.4;
+
+        bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
+
+        int elementIdx =  static_cast<int>(dependentFemPart->structGrid()->cellIndexFromIJK( fi,  fj,  fk));
+
+        cvf::Vec3d elmCorners[8];
+        RigCaseToCaseMapperTools::elementCorners(dependentFemPart, elementIdx, elmCorners);
+
+        cvf::BoundingBox elmBBox;
+        for (int i = 0; i < 8 ; ++i) elmBBox.add(elmCorners[i]);
+
+        std::vector<size_t> closeCells;
+        masterEclGrid->findIntersectingCells(elmBBox, &closeCells); // This might actually miss the exact one, but we have no other alternative yet.
+       
+        size_t globCellIdxToBestMatch = cvf::UNDEFINED_SIZE_T;
+        double sqDistToClosestCellCenter = HUGE_VAL;
+        cvf::Vec3d elmCenter = RigCaseToCaseMapperTools::calculateCellCenter(elmCorners);
+
+        bool foundExactMatch = false;
+
+        for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
+        {
+            size_t cellIdx = closeCells[ccIdx];
+            cvf::Vec3d geoMechConvertedEclCell[8];
+            RigCaseToCaseMapperTools::estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
+            
+            cvf::Vec3d cellCenter = RigCaseToCaseMapperTools::calculateCellCenter(geoMechConvertedEclCell);
+            double sqDist = (cellCenter - elmCenter).lengthSquared();
+            if (sqDist < sqDistToClosestCellCenter) 
+            {
+                globCellIdxToBestMatch = cellIdx;
+                sqDistToClosestCellCenter = sqDist;
+            }
+
+            RigCaseToCaseMapperTools::rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards, elmCorners);
+
+            foundExactMatch = RigCaseToCaseMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners,
+                                                                              xyTolerance, zTolerance);
+
+            if (foundExactMatch)
+            {
+                globCellIdxToBestMatch = cellIdx;
+                break;
+            }
+        }
+
+        if (globCellIdxToBestMatch != cvf::UNDEFINED_SIZE_T)
+        {
+            masterEclGrid->ijkFromCellIndex(globCellIdxToBestMatch, ei, ej, ek);
+        }
+        else
+        {
+            (*ei) = cvf::UNDEFINED_SIZE_T;
+            (*ej) = cvf::UNDEFINED_SIZE_T;
+            (*ek) = cvf::UNDEFINED_SIZE_T;
+        }
+
+        return foundExactMatch;
+       
     }
 
 };

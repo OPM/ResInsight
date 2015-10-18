@@ -71,7 +71,7 @@ void RigFemPart::appendElement(RigElementType elmType, int id, const int* connec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigFemPartGrid* RigFemPart::structGrid()
+const RigFemPartGrid* RigFemPart::structGrid() const
 {
     if (m_structGrid.isNull())
     {
@@ -250,7 +250,7 @@ void RigFemPart::calculateElmNeighbors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx)
+cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx) const
 {
     const std::vector<cvf::Vec3f>& nodeCoordinates = this->nodes().coordinates;
 

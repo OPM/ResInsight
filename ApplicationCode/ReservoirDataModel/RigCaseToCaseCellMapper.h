@@ -53,6 +53,7 @@ private:
     void storeMapping(int depCaseCellIdx, const std::vector<int>& masterCaseMatchingCells);
     void addMapping(int depCaseCellIdx, int masterCaseMatchingCell);
     void calculateEclToGeomCellMapping(RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart, bool eclipseIsMaster);
+
     std::vector<int>    m_masterCellOrIntervalIndex;
     std::vector<std::vector<int> > m_masterCellIndexSeries;
 
@@ -75,8 +76,9 @@ public:
     static void rotateQuad(cvf::Vec3d quad[4], int idxToNewStart);
     static void flipQuadWinding(cvf::Vec3d quad[4]);
     static int  quadVxClosestToXYOfPoint(const cvf::Vec3d point, const cvf::Vec3d quad[4]);
-    static bool elementCorners(RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8]);
+    static bool elementCorners(const RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8]);
     static int  findMatchingPOSKFaceIdx(const cvf::Vec3d baseCell[8], bool isBaseCellNormalsOutwards, const cvf::Vec3d c2[8]);
     static bool isEclFemCellsMatching(const cvf::Vec3d baseCell[8], cvf::Vec3d cell[8], double xyTolerance, double zTolerance);
     static void rotateCellTopologicallyToMatchBaseCell(const cvf::Vec3d * baseCell, bool baseCellFaceNormalsIsOutwards, cvf::Vec3d * cell);
+    static cvf::Vec3d calculateCellCenter(cvf::Vec3d elmCorners[8]);
 };

@@ -82,9 +82,9 @@ public:
     const std::vector<int>&     possibleGridCornerElements() const { return m_possibleGridCornerElements; }
     void                        findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const;
 
-    cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex);
+    cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex) const;
 
-    const RigFemPartGrid*       structGrid();   
+    const RigFemPartGrid*       structGrid() const;   
 
 private:
     int                         m_elementPartId;
@@ -96,7 +96,7 @@ private:
 
     RigFemPartNodes             m_nodes;
 
-    cvf::ref<RigFemPartGrid>    m_structGrid;
+    mutable cvf::ref<RigFemPartGrid>    m_structGrid;
 
     void calculateNodeToElmRefs();
     std::vector<std::vector<int> > m_nodeToElmRefs; // Needs a more memory friendly structure
