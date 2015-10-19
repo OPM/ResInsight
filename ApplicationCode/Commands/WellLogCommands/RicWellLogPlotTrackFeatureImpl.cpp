@@ -58,19 +58,28 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* wel
 {
     CVF_ASSERT(wellLogPlot);
 
+    RimWellLogPlotTrack* wellLogPlotTrack = NULL;
+
     for (size_t tIdx = 0; tIdx < tracks.size(); tIdx++)
     {
+        wellLogPlotTrack = tracks[tIdx];
+
         RimWellLogPlot* oldPlot;
-        tracks[tIdx]->firstAnchestorOrThisOfType(oldPlot);
+        wellLogPlotTrack->firstAnchestorOrThisOfType(oldPlot);
         if (oldPlot)
         {
-            oldPlot->removeTrack(tracks[tIdx]);
+            oldPlot->removeTrack(wellLogPlotTrack);
             oldPlot->updateConnectedEditors();
         }
 
-        wellLogPlot->addTrack(tracks[tIdx]);
-        wellLogPlot->updateTracks();
-        wellLogPlot->updateConnectedEditors();
-        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(tracks[tIdx]);
+        wellLogPlot->addTrack(wellLogPlotTrack);
+    }
+
+    wellLogPlot->updateTracks();
+    wellLogPlot->updateConnectedEditors();
+    
+    if (wellLogPlotTrack)
+    {
+        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(wellLogPlotTrack);
     }
 }
