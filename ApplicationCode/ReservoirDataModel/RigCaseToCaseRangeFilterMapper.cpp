@@ -32,10 +32,30 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
-void RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem(RimCellRangeFilter* srcFilter, const RigMainGrid* srcEclGrid, RimCellRangeFilter* dstFilter, const RigFemPart* dstFemPart)
+void RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem(RimCellRangeFilter* srcFilter, const RigMainGrid* srcEclGrid, 
+                                                        RimCellRangeFilter* dstFilter, const RigFemPart* dstFemPart)
 {
-    CVF_ASSERT(srcFilter && srcEclGrid && dstFilter && dstFemPart);
+   convertRangeFilter(srcFilter, dstFilter, srcEclGrid, dstFemPart, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl(RimCellRangeFilter* srcFilter, const RigFemPart* srcFemPart, 
+                                                                RimCellRangeFilter* dstFilter, const RigMainGrid* dstEclGrid)
+{
+   convertRangeFilter(srcFilter, dstFilter, dstEclGrid, srcFemPart, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+void RigCaseToCaseRangeFilterMapper::convertRangeFilter(RimCellRangeFilter* srcFilter, RimCellRangeFilter* dstFilter, 
+                                                        const RigMainGrid* eclGrid, const RigFemPart* femPart, 
+                                                        bool femIsDestination)
+{
+    CVF_ASSERT(srcFilter && eclGrid && dstFilter && femPart);
     CVF_ASSERT(srcFilter->gridIndex() == 0); // LGR not supported yet
 
     struct RangeFilterCorner { RangeFilterCorner() : isExactMatch(false){} cvf::Vec3st ijk; bool isExactMatch; };
@@ -75,24 +95,47 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem(RimCellRangeFilt
     {
         diagIdx = (cornerIdx < 2) ?  cornerIdx + 6 : cornerIdx + 2;
 
-        rangeFilterMatches[cornerIdx].isExactMatch  = findBestFemCellFromEclCell(srcEclGrid,
-                                                                                 srcRangeCube[cornerIdx][0],
-                                                                                 srcRangeCube[cornerIdx][1],
-                                                                                 srcRangeCube[cornerIdx][2],
-                                                                                 dstFemPart,
-                                                                                 &(rangeFilterMatches[cornerIdx].ijk[0]),
-                                                                                 &(rangeFilterMatches[cornerIdx].ijk[1]),
-                                                                                 &(rangeFilterMatches[cornerIdx].ijk[2]));
+        if (femIsDestination)
+        {
+            rangeFilterMatches[cornerIdx].isExactMatch  = findBestFemCellFromEclCell(eclGrid,
+                                                                                     srcRangeCube[cornerIdx][0],
+                                                                                     srcRangeCube[cornerIdx][1],
+                                                                                     srcRangeCube[cornerIdx][2],
+                                                                                     femPart,
+                                                                                     &(rangeFilterMatches[cornerIdx].ijk[0]),
+                                                                                     &(rangeFilterMatches[cornerIdx].ijk[1]),
+                                                                                     &(rangeFilterMatches[cornerIdx].ijk[2]));
 
-        rangeFilterMatches[diagIdx].isExactMatch  = findBestFemCellFromEclCell(srcEclGrid,
-                                                                               srcRangeCube[diagIdx][0],
-                                                                               srcRangeCube[diagIdx][1],
-                                                                               srcRangeCube[diagIdx][2],
-                                                                               dstFemPart,
-                                                                               &(rangeFilterMatches[diagIdx].ijk[0]),
-                                                                               &(rangeFilterMatches[diagIdx].ijk[1]),
-                                                                               &(rangeFilterMatches[diagIdx].ijk[2]));
+            rangeFilterMatches[diagIdx].isExactMatch  = findBestFemCellFromEclCell(eclGrid,
+                                                                                   srcRangeCube[diagIdx][0],
+                                                                                   srcRangeCube[diagIdx][1],
+                                                                                   srcRangeCube[diagIdx][2],
+                                                                                   femPart,
+                                                                                   &(rangeFilterMatches[diagIdx].ijk[0]),
+                                                                                   &(rangeFilterMatches[diagIdx].ijk[1]),
+                                                                                   &(rangeFilterMatches[diagIdx].ijk[2]));
+        }
+        else
+        {
+            rangeFilterMatches[cornerIdx].isExactMatch  = findBestEclCellFromFemCell(femPart,
+                                                                                     srcRangeCube[cornerIdx][0],
+                                                                                     srcRangeCube[cornerIdx][1],
+                                                                                     srcRangeCube[cornerIdx][2],
+                                                                                     eclGrid,
+                                                                                     &(rangeFilterMatches[cornerIdx].ijk[0]),
+                                                                                     &(rangeFilterMatches[cornerIdx].ijk[1]),
+                                                                                     &(rangeFilterMatches[cornerIdx].ijk[2]));
 
+            rangeFilterMatches[diagIdx].isExactMatch  = findBestEclCellFromFemCell(femPart,
+                                                                                   srcRangeCube[diagIdx][0],
+                                                                                   srcRangeCube[diagIdx][1],
+                                                                                   srcRangeCube[diagIdx][2],
+                                                                                   eclGrid,
+                                                                                   &(rangeFilterMatches[diagIdx].ijk[0]),
+                                                                                   &(rangeFilterMatches[diagIdx].ijk[1]),
+                                                                                   &(rangeFilterMatches[diagIdx].ijk[2]));
+        }
+        
         if (rangeFilterMatches[cornerIdx].isExactMatch && rangeFilterMatches[diagIdx].isExactMatch)
         {
             foundExactMatch = true;
@@ -293,3 +336,4 @@ bool RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart
 
     return foundExactMatch;
 }
+

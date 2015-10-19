@@ -27,8 +27,16 @@ class RigCaseToCaseRangeFilterMapper
 public:
     static void convertRangeFilterEclToFem(RimCellRangeFilter* srcFilter, const RigMainGrid* srcEclGrid,
                                            RimCellRangeFilter* dstFilter, const RigFemPart*  dstFemPart);
+    static void convertRangeFilterFemToEcl(RimCellRangeFilter* srcFilter, const RigFemPart* srcFemPart, 
+                                           RimCellRangeFilter* dstFilter, const RigMainGrid* dstEclGrid);
 
 private:
+
+    static void convertRangeFilter(RimCellRangeFilter* srcFilter, RimCellRangeFilter* dstFilter, 
+                                   const RigMainGrid* eclGrid, const RigFemPart*  femPart, 
+                                   bool femIsDestination);
+    
+
     static bool findBestFemCellFromEclCell(const RigMainGrid* masterEclGrid, size_t ei, size_t ej, size_t ek,
                                            const RigFemPart* dependentFemPart, size_t* fi, size_t * fj, size_t* fk);
 
