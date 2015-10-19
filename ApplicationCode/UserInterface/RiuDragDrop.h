@@ -23,6 +23,7 @@
 
 class RimIdenticalGridCaseGroup;
 class RimWellLogPlotTrack;
+class RimWellLogPlot;
 
 namespace caf
 {
@@ -48,5 +49,6 @@ private:
     void moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
     bool handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
     bool handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotTrack* wellLogPlotTrack);
+    bool handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot);
 };
 

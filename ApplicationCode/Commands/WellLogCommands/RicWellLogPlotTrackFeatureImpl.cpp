@@ -19,8 +19,13 @@
 
 #include "RicWellLogPlotTrackFeatureImpl.h"
 
+#include "RimWellLogPlot.h"
 #include "RimWellLogPlotTrack.h"
 #include "RimWellLogPlotCurve.h"
+
+#include "RiuMainWindow.h"
+
+#include "cafPdmUiTreeView.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -42,5 +47,29 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
         wellLogPlotTrack->addCurve(curves[cIdx]);
         wellLogPlotTrack->updateAxisRangesAndReplot();
         wellLogPlotTrack->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* wellLogPlot, const std::vector<RimWellLogPlotTrack*>& tracks)
+{
+    CVF_ASSERT(wellLogPlot);
+
+    for (size_t tIdx = 0; tIdx < tracks.size(); tIdx++)
+    {
+        RimWellLogPlot* oldPlot;
+        tracks[tIdx]->firstAnchestorOrThisOfType(oldPlot);
+        if (oldPlot)
+        {
+            oldPlot->removeTrack(tracks[tIdx]);
+            oldPlot->updateConnectedEditors();
+        }
+
+        wellLogPlot->addTrack(tracks[tIdx]);
+        wellLogPlot->updateTracks();
+        wellLogPlot->updateConnectedEditors();
+        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(tracks[tIdx]);
     }
 }

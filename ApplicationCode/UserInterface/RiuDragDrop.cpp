@@ -32,6 +32,7 @@
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlotTrack.h"
 #include "RimWellLogPlotCurve.h"
+#include "RimWellLogPlot.h"
 
 #include "RimWellLogPlotTrack.h"
 #include "RiuMainWindow.h"
@@ -69,6 +70,8 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
 //--------------------------------------------------------------------------------------------------
 Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 {
+    Qt::ItemFlags itemflags = 0;
+
     if (index.isValid())
     {
         caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
@@ -76,20 +79,22 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 
         if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem) ||
             dynamic_cast<RimCaseCollection*>(uiItem) ||
+            dynamic_cast<RimWellLogPlot*>(uiItem) ||
             dynamic_cast<RimWellLogPlotTrack*>(uiItem))
         {
-            return Qt::ItemIsDropEnabled;
+            itemflags |= Qt::ItemIsDropEnabled;
         }
-        else if (dynamic_cast<RimEclipseCase*>(uiItem) ||
+
+        if (dynamic_cast<RimEclipseCase*>(uiItem) ||
             dynamic_cast<RimWellLogPlotCurve*>(uiItem) ||
+            dynamic_cast<RimWellLogPlotTrack*>(uiItem) ||
             dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
             // TODO: Remember to handle reservoir holding the main grid
-            return Qt::ItemIsDragEnabled;
+            itemflags |= Qt::ItemIsDragEnabled;
         }
     }
 
-    Qt::ItemFlags itemflags;
     return itemflags;
 }
 
@@ -136,6 +141,13 @@ bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int
         if (wellLogPlotTrack)
         {
             return handleWellLogPlotTrackDrop(action, objectGroup, wellLogPlotTrack);
+        }
+
+        RimWellLogPlot* wellLogPlot;
+        objHandle->firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+            return handleWellLogPlotDrop(action, objectGroup, wellLogPlot);
         }
     }
 
@@ -252,7 +264,34 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
                 }
             }
         }
+    }
 
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot)
+{
+    std::vector<caf::PdmPointer<RimWellLogPlotTrack> > typedObjects;
+    objectGroup.objectsByType(&typedObjects);
+    if (typedObjects.size() > 0)
+    {
+        std::vector<RimWellLogPlotTrack*> wellLogPlotTracks;
+        for (size_t cIdx = 0; cIdx < typedObjects.size(); cIdx++)
+        {
+            wellLogPlotTracks.push_back(typedObjects[cIdx]);
+        }
+
+        if (wellLogPlotTracks.size() > 0)
+        {
+            if (action == Qt::CopyAction)
+            {
+                RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlot, wellLogPlotTracks);
+                return true;
+            }
+        }
     }
 
     return false;

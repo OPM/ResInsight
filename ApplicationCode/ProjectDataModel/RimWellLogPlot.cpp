@@ -170,10 +170,15 @@ caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 void RimWellLogPlot::addTrack(RimWellLogPlotTrack* track)
 {
     tracks.push_back(track);
-    if(m_viewer)
+    if (m_viewer)
     {
         track->recreateViewer();
         m_viewer->insertTrackPlot(track->viewer());
+    }
+
+    for (size_t tIdx = 0; tIdx < tracks.size(); tIdx++)
+    {
+        tracks[tIdx]->setDescription(QString("Track %1").arg(tIdx + 1));
     }
 }
 

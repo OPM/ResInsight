@@ -211,12 +211,14 @@ void RimWellLogPlotTrack::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotTrack::recreateViewer()
 {
-    CVF_ASSERT(m_wellLogTrackPlotWidget == NULL);
-
-    m_wellLogTrackPlotWidget = new RiuWellLogTrackPlot(this);
-    for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+    if (m_wellLogTrackPlotWidget == NULL)
     {
-        curves[cIdx]->setPlot(this->m_wellLogTrackPlotWidget);
+        m_wellLogTrackPlotWidget = new RiuWellLogTrackPlot(this);
+
+        for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+        {
+            curves[cIdx]->setPlot(this->m_wellLogTrackPlotWidget);
+        }
     }
 }
 
