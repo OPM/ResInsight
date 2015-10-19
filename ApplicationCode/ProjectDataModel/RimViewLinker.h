@@ -36,6 +36,7 @@ namespace cvf
 class RimViewController;
 class RiuViewer;
 class RimView;
+class RimCellRangeFilter;
 
 //==================================================================================================
 ///  
@@ -62,6 +63,7 @@ public:
     void                                    updateScaleZ(RimView* sourceView, double scaleZ);
 
     void                                    updateCellResult();
+    void                                    updateRangeFilters(RimCellRangeFilter* changedRangeFilter);
 
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();

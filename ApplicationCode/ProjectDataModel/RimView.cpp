@@ -104,6 +104,16 @@ RimView::RimView(void)
     CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
     windowGeometry.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
+    m_rangeFilterCollection = new RimCellRangeFilterCollection();
+    m_rangeFilterCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_overrideRangeFilterCollection, "RangeFiltersControlled", "Range Filters (controlled)", "", "", "");
+    m_overrideRangeFilterCollection = new RimCellRangeFilterCollection();
+    m_overrideRangeFilterCollection.uiCapability()->setUiHidden(true);
+    m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
+    m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
+
     m_previousGridModeMeshLinesWasFaults = false;
 }
 
@@ -120,6 +130,9 @@ RimView::~RimView(void)
     }
 
     delete m_viewer;
+
+    delete m_rangeFilterCollection;
+    delete m_overrideRangeFilterCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -551,7 +564,7 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection* RimView::rangeFilterCollection()
 {
-    if (m_overrideRangeFilterCollection)
+    if (this->viewController() && this->viewController()->isRangeFiltersControlled())
     {
         return m_overrideRangeFilterCollection;
     }
@@ -566,7 +579,7 @@ RimCellRangeFilterCollection* RimView::rangeFilterCollection()
 //--------------------------------------------------------------------------------------------------
 const RimCellRangeFilterCollection* RimView::rangeFilterCollection() const
 {
-    if (m_overrideRangeFilterCollection)
+    if (this->viewController() && this->viewController()->isRangeFiltersControlled())
     {
         return m_overrideRangeFilterCollection;
     }
@@ -680,3 +693,12 @@ bool RimView::isMasterView() const
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCellRangeFilterCollection* RimView::rangeFilterCollectionCopy()
+{
+    return m_overrideRangeFilterCollection();
+}
+

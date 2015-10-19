@@ -33,6 +33,7 @@ class RimEclipseView;
 class RimGeoMechView;
 class RimViewLinker;
 class RigCaseToCaseCellMapper;
+class RimCellRangeFilter;
 
 //==================================================================================================
 ///  
@@ -60,9 +61,9 @@ public:
     bool                                    isTimeStepLinked();
 
     bool                                    isResultColorControlled();
+    bool                                    isRangeFiltersControlled();
     
     bool                                    isVisibleCellsOveridden();
-    bool                                    isRangeFilterOveridden();
     bool                                    isPropertyFilterOveridden();
 
     void                                    scheduleCreateDisplayModelAndRedrawForDependentView();
@@ -71,6 +72,8 @@ public:
     void                                    updateOptionSensitivity();
     void                                    removeOverrides();
     void                                    updateDisplayNameAndIcon();
+
+    void                                    updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter);
 
 protected:  // Pdm overridden methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -87,8 +90,13 @@ private:
     void                                    updateCameraLink();
     void                                    updateTimeStepLink();
     void                                    updateResultColorsControl();
+    void                                    updateRangeFiltersControl();
 
     bool                                    isMasterAndDepViewDifferentType();
+    bool                                    isRangeFilterControlPossible();
+
+    void                                    updateRangeFilterCollectionOverride(RimView* sourceView, RimCellRangeFilter* changedRangeFilter);
+
 
     RimEclipseView*                         managedEclipseView();
     RimGeoMechView*                         managedGeoView();

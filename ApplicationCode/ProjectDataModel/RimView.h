@@ -38,6 +38,7 @@
 
 class Rim3dOverlayInfoConfig;
 class RimCase;
+class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
 class RiuViewer;
 class RimViewLinker;
@@ -77,7 +78,8 @@ public:
 
     RimCellRangeFilterCollection*           rangeFilterCollection();
     const RimCellRangeFilterCollection*     rangeFilterCollection() const;
-    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
+
+    RimCellRangeFilterCollection*           rangeFilterCollectionCopy();
 
     caf::PdmField< std::vector<int> >       windowGeometry;
 
@@ -169,7 +171,7 @@ protected:
     caf::PdmChildField<Rim3dOverlayInfoConfig*>         m_overlayInfoConfig;
 
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_rangeFilterCollection;
-    caf::PdmPointer<RimCellRangeFilterCollection>       m_overrideRangeFilterCollection;
+    caf::PdmChildField<RimCellRangeFilterCollection*>   m_overrideRangeFilterCollection;
 
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
@@ -180,6 +182,7 @@ protected:
 
 private:
     RimViewLinker*                          viewLinkerIfMasterView() const;
+    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
 
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;

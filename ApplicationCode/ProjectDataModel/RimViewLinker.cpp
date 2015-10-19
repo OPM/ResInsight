@@ -184,13 +184,23 @@ void RimViewLinker::updateCellResult()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateRangeFilters(RimCellRangeFilter* changedRangeFilter)
+{
+    for (size_t i = 0; i < viewLinks.size(); i++)
+    {
+        RimViewController* viewLink = viewLinks[i];
+        viewLink->updateRangeFilterOverrides(changedRangeFilter);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateOverrides()
 {
-
     for (size_t i = 0; i < viewLinks.size(); i++)
     {
         RimViewController* viewLink = viewLinks[i];
@@ -249,6 +259,7 @@ void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>
 void RimViewLinker::updateDependentViews()
 {
     updateOverrides();
+    updateRangeFilters(NULL);
 
     updateCellResult();
     updateTimeStep(m_masterView, m_masterView->currentTimeStep());

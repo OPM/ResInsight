@@ -140,16 +140,27 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 {
     updateIconState();
     
-    updateDisplayModeNotifyManagedViews();
+    updateDisplayModeNotifyManagedViews(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews()
+void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter)
 {
     RimView* view = NULL;
     firstAnchestorOrThisOfType(view);
+
+    if (view->isMasterView())
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            // Update data for range filter
+            // Update of display model is handled by view->scheduleGeometryRegen, also for managed views
+            viewLinker->updateRangeFilters(changedRangeFilter);
+        }
+    }
 
     view->scheduleGeometryRegen(RANGE_FILTERED);
     view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
@@ -321,7 +332,7 @@ void RimCellRangeFilterCollection::updateIconState()
     bool activeIcon = true;
 
     RimViewController* viewController = baseView()->viewController();
-    if (viewController && ( viewController->isRangeFilterOveridden() 
+    if (viewController && ( viewController->isRangeFiltersControlled() 
                          || viewController->isVisibleCellsOveridden()) )
     {
         activeIcon = false;

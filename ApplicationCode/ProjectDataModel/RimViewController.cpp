@@ -175,7 +175,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
     else if (changedField == &m_syncRangeFilters)
     {
-        updateOverrides();
+        updateRangeFiltersControl();
     }
     else if (changedField == &m_syncPropertyFilters)
     {
@@ -246,7 +246,6 @@ void RimViewController::updateOverrides()
 
         if (isVisibleCellsOveridden())
         {
-            m_managedView->setOverrideRangeFilterCollection(NULL);
             if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
             if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
             m_managedView->scheduleGeometryRegen(OVERRIDDEN_CELL_VISIBILITY);
@@ -254,15 +253,6 @@ void RimViewController::updateOverrides()
         }
         else
         {
-            if (isRangeFilterOveridden())
-            {
-                m_managedView->setOverrideRangeFilterCollection(masterView->rangeFilterCollection());
-            }
-            else
-            {
-                m_managedView->setOverrideRangeFilterCollection(NULL);
-            }
-
             RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(masterView);
             if (masterEclipseView)
             {
@@ -326,7 +316,6 @@ void RimViewController::removeOverrides(RimView* view)
         RimEclipseView* manEclView = dynamic_cast<RimEclipseView*>(view);
         RimGeoMechView* manGeoView = dynamic_cast<RimGeoMechView*>(view);
 
-        view->setOverrideRangeFilterCollection(NULL);
         if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
         if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
     }
@@ -361,17 +350,23 @@ void RimViewController::updateOptionSensitivity()
     {
         this->m_syncCellResult.uiCapability()->setUiReadOnly(true);
         this->m_syncCellResult = false;
-        this->m_syncRangeFilters.uiCapability()->setUiReadOnly(true);
-        this->m_syncRangeFilters = false;
         this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(true);
         this->m_syncPropertyFilters = false;
     }
     else
     {
         this->m_syncCellResult.uiCapability()->setUiReadOnly(false);
-        
-        this->m_syncRangeFilters.uiCapability()->setUiReadOnly(false);
         this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(false);
+    }
+
+    if (isRangeFilterControlPossible())
+    {
+        this->m_syncRangeFilters.uiCapability()->setUiReadOnly(false);
+    }
+    else
+    {
+        this->m_syncRangeFilters.uiCapability()->setUiReadOnly(true);
+        this->m_syncRangeFilters = false;
     }
 
     m_syncVisibleCells.uiCapability()->setUiReadOnly(!this->isMasterAndDepViewDifferentType());
@@ -468,6 +463,17 @@ void RimViewController::updateResultColorsControl()
 
     RimViewLinker* viewLinker = ownerViewLinker();
     viewLinker->updateCellResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::updateRangeFiltersControl()
+{
+    if (!this->isRangeFiltersControlled()) return;
+
+    RimViewLinker* viewLinker = ownerViewLinker();
+    viewLinker->updateRangeFilters(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,7 +603,7 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView()
     if (!this->isActive()) return;
 
     if (this->isVisibleCellsOveridden()
-        || this->isRangeFilterOveridden()
+        || this->isRangeFiltersControlled()
         || this->isPropertyFilterOveridden()
         ||  this->isResultColorControlled()
         )
@@ -617,7 +623,7 @@ void RimViewController::scheduleGeometryRegenForDepViews(RivCellSetEnum geometry
     if (!this->isActive()) return;
 
     if (   this->isVisibleCellsOveridden()
-        || this->isRangeFilterOveridden()
+        || this->isRangeFiltersControlled()
         || this->isPropertyFilterOveridden()
         || this->isResultColorControlled()
         )
@@ -709,12 +715,21 @@ bool RimViewController::isVisibleCellsOveridden()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isRangeFilterControlPossible()
+{
+    return !isMasterAndDepViewDifferentType();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFilterOveridden()
+bool RimViewController::isRangeFiltersControlled()
 {
+    if (!isRangeFilterControlPossible()) return false;
+
     if (ownerViewLinker()->isActive() && this->m_isActive())
     {
         return m_syncRangeFilters;
@@ -737,6 +752,63 @@ bool RimViewController::isPropertyFilterOveridden()
     else
     {
         return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::updateRangeFilterCollectionOverride(RimView* sourceView, RimCellRangeFilter* changedRangeFilter)
+{
+    RimCellRangeFilterCollection* filterCollectionCopy = managedView()->rangeFilterCollectionCopy();
+
+    if (!sourceView)
+    {
+        filterCollectionCopy->rangeFilters.deleteAllChildObjects();
+
+        managedView()->rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+
+        return;
+    }
+
+    RimCellRangeFilterCollection* sourceFilterCollection = sourceView->rangeFilterCollection();
+
+    // TODO: Convert ijk values in source to correct ijk values in our range filter collection
+
+    filterCollectionCopy->rangeFilters.deleteAllChildObjects();
+
+    // Filter copy if ijk-ranges are identical
+    for (size_t i = 0; i < sourceFilterCollection->rangeFilters.size(); i++)
+    {
+        RimCellRangeFilter* sourceFilter = sourceFilterCollection->rangeFilters[i];
+
+        RimCellRangeFilter* filter = new RimCellRangeFilter;
+        filter->startIndexI = sourceFilter->startIndexI;
+        filter->startIndexJ = sourceFilter->startIndexJ;
+        filter->startIndexK = sourceFilter->startIndexK;
+
+        filter->cellCountI = sourceFilter->cellCountI;
+        filter->cellCountJ = sourceFilter->cellCountJ;
+        filter->cellCountK = sourceFilter->cellCountK;
+
+        filterCollectionCopy->rangeFilters.push_back(filter);
+    }
+
+    managedView()->rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter)
+{
+    if (isRangeFiltersControlled())
+    {
+        updateRangeFilterCollectionOverride(masterView(), changedRangeFilter);
+    }
+    else
+    {
+        updateRangeFilterCollectionOverride(NULL, NULL);
     }
 }
 

@@ -53,7 +53,7 @@ public:
 
     RigActiveCellInfo*              activeCellInfo() const;
 
-    void                            updateDisplayModeNotifyManagedViews();
+    void                            updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter);
     void                            updateIconState();
 
     // Overridden methods

@@ -134,6 +134,7 @@ public:
 protected:
     virtual void                                    initAfterRead();
     virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
     void                                            createDisplayModel();

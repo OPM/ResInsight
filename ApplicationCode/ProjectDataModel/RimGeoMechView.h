@@ -74,6 +74,10 @@ public:
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
     void                                                updateIconStateForFilterCollections();
 
+protected:
+    virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+
+
 private:
     virtual void                                        createDisplayModel();
     virtual void                                        updateDisplayModelVisibility();

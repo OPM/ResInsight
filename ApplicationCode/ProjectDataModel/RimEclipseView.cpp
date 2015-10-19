@@ -63,6 +63,7 @@
 #include <limits.h>
 #include "RimViewLinker.h"
 #include "RimViewController.h"
+#include "cafPdmUiTreeOrdering.h"
 
 
 
@@ -99,10 +100,6 @@ RimEclipseView::RimEclipseView()
     faultCollection = new RimFaultCollection;
     faultCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
-    m_rangeFilterCollection = new RimCellRangeFilterCollection();
-    m_rangeFilterCollection.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
@@ -135,7 +132,6 @@ RimEclipseView::~RimEclipseView()
     delete this->cellResult();
     delete this->cellEdgeResult();
 
-    delete m_rangeFilterCollection;
     delete m_propertyFilterCollection;
     delete wellCollection();
     delete faultCollection();
@@ -1318,6 +1314,26 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(m_overlayInfoConfig());
+
+    uiTreeOrdering.add(cellResult());
+    uiTreeOrdering.add(cellEdgeResult());
+    uiTreeOrdering.add(faultResultSettings());
+
+    uiTreeOrdering.add(wellCollection());
+    uiTreeOrdering.add(faultCollection());
+    
+    uiTreeOrdering.add(m_rangeFilterCollection());
+    uiTreeOrdering.add(m_propertyFilterCollection());
+
+    uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
 ///     
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::forceFaultVisibilityOn()
@@ -1649,7 +1665,8 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateIconStateForFilterCollections()
 {
-    // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_rangeFilterCollection()->updateIconState();
+
+    // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_propertyFilterCollection()->updateIconState();
 }

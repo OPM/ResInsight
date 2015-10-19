@@ -82,7 +82,7 @@ void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     {
         computeAndSetValidValues();
     
-        parentContainer()->updateDisplayModeNotifyManagedViews();
+        parentContainer()->updateDisplayModeNotifyManagedViews(this);
     }
 }
 

@@ -55,6 +55,7 @@
 
 #include <QMessageBox>
 #include "RimViewLinker.h"
+#include "cafPdmUiTreeOrdering.h"
 
 
 
@@ -73,10 +74,6 @@ RimGeoMechView::RimGeoMechView(void)
     CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
     cellResult = new RimGeoMechCellColors();
     cellResult.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
-    m_rangeFilterCollection = new RimCellRangeFilterCollection();
-    m_rangeFilterCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
@@ -575,8 +572,24 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateIconStateForFilterCollections()
 {
-    // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_rangeFilterCollection()->updateIconState();
+
+    // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_propertyFilterCollection()->updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(m_overlayInfoConfig());
+
+    uiTreeOrdering.add(cellResult());
+    
+    uiTreeOrdering.add(m_rangeFilterCollection());
+    uiTreeOrdering.add(m_propertyFilterCollection());
+    
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
