@@ -46,6 +46,7 @@ public:
     void setDescription(const QString& description);
 
     void addCurve(RimWellLogPlotCurve* curve);
+    void removeCurve(RimWellLogPlotCurve* curve);
     size_t curveCount() { return curves.size(); }
 
     void recreateViewer();
