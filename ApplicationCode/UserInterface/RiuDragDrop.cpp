@@ -50,12 +50,12 @@ template <typename T>
 class RiuTypedObjectsFromObjectGroupGetter
 {
 public:
-    RiuTypedObjectsFromObjectGroupGetter(caf::PdmObjectGroup& objectGroup)
+    RiuTypedObjectsFromObjectGroupGetter(const caf::PdmObjectGroup& objectGroup)
     {
         objectGroup.objectsByType(&m_typedObjects);
     }
 
-    static std::vector<T*> typedObjectsFromGroup(caf::PdmObjectGroup& objectGroup)
+    static std::vector<T*> typedObjectsFromGroup(const caf::PdmObjectGroup& objectGroup)
     {
         RiuTypedObjectsFromObjectGroupGetter<T> typedObjectsGetter(objectGroup);
         return typedObjectsGetter.typedObjects();
