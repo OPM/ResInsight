@@ -45,9 +45,10 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
         }
 
         wellLogPlotTrack->addCurve(curves[cIdx]);
-        wellLogPlotTrack->updateAxisRangesAndReplot();
-        wellLogPlotTrack->updateConnectedEditors();
     }
+
+    wellLogPlotTrack->updateAxisRangesAndReplot();
+    wellLogPlotTrack->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
