@@ -214,15 +214,7 @@ QStringList RiuDragDrop::mimeTypes() const
 //--------------------------------------------------------------------------------------------------
 void RiuDragDrop::moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
 {
-    std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
-    objectGroup.objectsByType(&typedObjects);
-
-    std::vector<RimEclipseCase*> casesToBeDeleted;
-    for (size_t i = 0; i < typedObjects.size(); i++)
-    {
-        RimEclipseCase* eclipseCase = typedObjects[i];
-        casesToBeDeleted.push_back(eclipseCase);
-    }
+    std::vector<RimEclipseCase*> casesToBeDeleted = RiuTypedObjectsFromObjectGroupGetter<RimEclipseCase>::typedObjectsFromGroup(objectGroup);
 
     if (RicCloseCaseFeature::userConfirmedGridCaseGroupChange(casesToBeDeleted))
     {
