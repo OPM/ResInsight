@@ -126,7 +126,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicAddWellLogToPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Add To Plot");
+    actionToSetup->setText("Add To New Plot");
 }
 
 //--------------------------------------------------------------------------------------------------
