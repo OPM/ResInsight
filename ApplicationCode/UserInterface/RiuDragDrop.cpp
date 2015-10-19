@@ -46,6 +46,41 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+template <typename T>
+class RiuTypedObjectsFromObjectGroupGetter
+{
+public:
+    RiuTypedObjectsFromObjectGroupGetter(caf::PdmObjectGroup& objectGroup)
+    {
+        objectGroup.objectsByType(&m_typedObjects);
+    }
+
+    static std::vector<T*> typedObjectsFromGroup(caf::PdmObjectGroup& objectGroup)
+    {
+        RiuTypedObjectsFromObjectGroupGetter<T> typedObjectsGetter(objectGroup);
+        return typedObjectsGetter.typedObjects();
+    }
+
+private:
+    std::vector<T*> typedObjects()
+    {
+        std::vector<T*> typedObjectsVec;
+        for (size_t i = 0; i < m_typedObjects.size(); i++)
+        {
+            typedObjectsVec.push_back(m_typedObjects[i].p());
+        }
+
+        return typedObjectsVec;
+    }
+
+private:
+    std::vector<caf::PdmPointer<T> > m_typedObjects;
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RiuDragDrop::RiuDragDrop()
 {
 }
@@ -222,47 +257,23 @@ bool RiuDragDrop::handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectG
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotTrack* wellLogPlotTrack)
 {
+    std::vector<RimWellLogFileChannel*> wellLogFileChannels = RiuTypedObjectsFromObjectGroupGetter<RimWellLogFileChannel>::typedObjectsFromGroup(objectGroup);
+    if (wellLogFileChannels.size() > 0)
     {
-        std::vector<caf::PdmPointer<RimWellLogFileChannel> > typedObjects;
-        objectGroup.objectsByType(&typedObjects);
-        if (typedObjects.size() > 0)
+        if (action == Qt::CopyAction)
         {
-            std::vector<RimWellLogFileChannel*> wellLogFileChannels;
-            for (size_t cIdx = 0; cIdx < typedObjects.size(); cIdx++)
-            {
-                wellLogFileChannels.push_back(typedObjects[cIdx]);
-            }
-
-            if (wellLogFileChannels.size() > 0)
-            {
-                if (action == Qt::CopyAction)
-                {
-                    RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(wellLogPlotTrack, wellLogFileChannels);
-                    return true;
-                }
-            }
+            RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(wellLogPlotTrack, wellLogFileChannels);
+            return true;
         }
     }
 
+    std::vector<RimWellLogPlotCurve*> wellLogPlotCurves = RiuTypedObjectsFromObjectGroupGetter<RimWellLogPlotCurve>::typedObjectsFromGroup(objectGroup);
+    if (wellLogPlotCurves.size() > 0)
     {
-        std::vector<caf::PdmPointer<RimWellLogPlotCurve> > typedObjects;
-        objectGroup.objectsByType(&typedObjects);
-        if (typedObjects.size() > 0)
+        if (action == Qt::CopyAction)
         {
-            std::vector<RimWellLogPlotCurve*> wellLogPlotCurves;
-            for (size_t cIdx = 0; cIdx < typedObjects.size(); cIdx++)
-            {
-                wellLogPlotCurves.push_back(typedObjects[cIdx]);
-            }
-
-            if (wellLogPlotCurves.size() > 0)
-            {
-                if (action == Qt::CopyAction)
-                {
-                    RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves);
-                    return true;
-                }
-            }
+            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves);
+            return true;
         }
     }
 
@@ -274,23 +285,13 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot)
 {
-    std::vector<caf::PdmPointer<RimWellLogPlotTrack> > typedObjects;
-    objectGroup.objectsByType(&typedObjects);
-    if (typedObjects.size() > 0)
+    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedObjectsFromObjectGroupGetter<RimWellLogPlotTrack>::typedObjectsFromGroup(objectGroup);
+    if (wellLogPlotTracks.size() > 0)
     {
-        std::vector<RimWellLogPlotTrack*> wellLogPlotTracks;
-        for (size_t cIdx = 0; cIdx < typedObjects.size(); cIdx++)
+        if (action == Qt::CopyAction)
         {
-            wellLogPlotTracks.push_back(typedObjects[cIdx]);
-        }
-
-        if (wellLogPlotTracks.size() > 0)
-        {
-            if (action == Qt::CopyAction)
-            {
-                RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlot, wellLogPlotTracks);
-                return true;
-            }
+            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlot, wellLogPlotTracks);
+            return true;
         }
     }
 
