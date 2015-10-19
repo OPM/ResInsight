@@ -7,12 +7,16 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
     ${CEE_CURRENT_LIST_DIR}RigGeoMechWellLogExtractor.h
     ${CEE_CURRENT_LIST_DIR}RigCaseToCaseCellMapper.h
+    ${CEE_CURRENT_LIST_DIR}RigCaseToCaseCellMapperTools.h
+    ${CEE_CURRENT_LIST_DIR}RigCaseToCaseRangeFilterMapper.h
     ${CEE_CURRENT_LIST_DIR}RigWellLogFile.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
     ${CEE_CURRENT_LIST_DIR}RigGeoMechWellLogExtractor.cpp
     ${CEE_CURRENT_LIST_DIR}RigCaseToCaseCellMapper.cpp
+    ${CEE_CURRENT_LIST_DIR}RigCaseToCaseCellMapperTools.cpp
+    ${CEE_CURRENT_LIST_DIR}RigCaseToCaseRangeFilterMapper.cpp
     ${CEE_CURRENT_LIST_DIR}RigWellLogFile.cpp
 )
 
