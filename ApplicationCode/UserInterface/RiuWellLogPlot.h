@@ -45,7 +45,8 @@ public:
 
     RimWellLogPlot* ownerPlotDefinition();
 
-    void insertTrackPlot(RiuWellLogTrackPlot* trackPlot);
+    void addTrackPlot(RiuWellLogTrackPlot* trackPlot);
+    void insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index);
     void removeTrackPlot(RiuWellLogTrackPlot* trackPlot);
 
     void setDepthRangeAndReplot(double minDepth, double maxDepth);

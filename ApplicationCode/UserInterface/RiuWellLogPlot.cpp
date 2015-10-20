@@ -70,11 +70,19 @@ RiuWellLogPlot::~RiuWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot)
+void RiuWellLogPlot::addTrackPlot(RiuWellLogTrackPlot* trackPlot)
 {
     // Insert the plot to the left of the scroll bar
-    m_layout->insertWidget(m_layout->count() - 1, trackPlot);
-    m_trackPlots.append(trackPlot);
+    insertTrackPlot(trackPlot, m_layout->count() - 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index)
+{
+    m_layout->insertWidget(index, trackPlot);
+    m_trackPlots.append(trackPlot); // insert?
 
     modifyWidthOfContainingMdiWindow(trackPlot->width());
 }

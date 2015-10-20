@@ -53,11 +53,14 @@ public:
     void updateViewerWidgetWindowTitle();
 
     void    addTrack(RimWellLogPlotTrack* track);
+    void    insertTrack(RimWellLogPlotTrack* track, size_t index);
     size_t  trackCount() { return tracks.size();}
     void    removeTrack(RimWellLogPlotTrack* track);
+    void    moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracks);
 
     void loadDataAndUpdate();
     void updateTracks();
+    void updateTrackNames();
 
     RiuWellLogPlot* viewer();
 

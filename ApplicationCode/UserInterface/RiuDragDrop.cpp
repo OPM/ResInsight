@@ -105,8 +105,6 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
 //--------------------------------------------------------------------------------------------------
 Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags itemflags = 0;
-
     if (index.isValid())
     {
         caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
@@ -114,22 +112,25 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 
         if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem) ||
             dynamic_cast<RimCaseCollection*>(uiItem) ||
-            dynamic_cast<RimWellLogPlot*>(uiItem) ||
-            dynamic_cast<RimWellLogPlotTrack*>(uiItem))
+            dynamic_cast<RimWellLogPlot*>(uiItem))
         {
-            itemflags |= Qt::ItemIsDropEnabled;
+            return Qt::ItemIsDropEnabled;
+            //cvf::Trace::show("");
         }
-
-        if (dynamic_cast<RimEclipseCase*>(uiItem) ||
-            dynamic_cast<RimWellLogPlotCurve*>(uiItem) ||
-            dynamic_cast<RimWellLogPlotTrack*>(uiItem) ||
+        else if (dynamic_cast<RimEclipseCase*>(uiItem) ||
             dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
             // TODO: Remember to handle reservoir holding the main grid
-            itemflags |= Qt::ItemIsDragEnabled;
+            return Qt::ItemIsDragEnabled;
+        }
+        else if (dynamic_cast<RimWellLogPlotCurve*>(uiItem) ||
+            dynamic_cast<RimWellLogPlotTrack*>(uiItem))
+        {
+            return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         }
     }
 
+    Qt::ItemFlags itemflags = 0;
     return itemflags;
 }
 
@@ -265,6 +266,16 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
         if (action == Qt::MoveAction)
         {
             RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves);
+            return true;
+        }
+    }
+
+    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedObjectsFromObjectGroupGetter<RimWellLogPlotTrack>::typedObjectsFromGroup(objectGroup);
+    if (wellLogPlotTracks.size() > 0)
+    {
+        if (action == Qt::MoveAction)
+        {
+            RicWellLogPlotTrackFeatureImpl::moveTracks(wellLogPlotTrack, wellLogPlotTracks);
             return true;
         }
     }

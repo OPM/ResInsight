@@ -83,3 +83,19 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* wel
         RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(wellLogPlotTrack);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellLogPlotTrackFeatureImpl::moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracks)
+{
+    CVF_ASSERT(insertAfterTrack);
+
+    RimWellLogPlot* wellLogPlot;
+    insertAfterTrack->firstAnchestorOrThisOfType(wellLogPlot);
+    if (wellLogPlot)
+    {
+        wellLogPlot->moveTracks(insertAfterTrack, tracks);
+        wellLogPlot->updateConnectedEditors();
+    }
+}

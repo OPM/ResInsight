@@ -173,13 +173,26 @@ void RimWellLogPlot::addTrack(RimWellLogPlotTrack* track)
     if (m_viewer)
     {
         track->recreateViewer();
-        m_viewer->insertTrackPlot(track->viewer());
+        m_viewer->addTrackPlot(track->viewer());
     }
 
-    for (size_t tIdx = 0; tIdx < tracks.size(); tIdx++)
+    updateTrackNames();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::insertTrack(RimWellLogPlotTrack* track, size_t index)
+{
+    tracks.insert(index, track);
+
+    if (m_viewer)
     {
-        tracks[tIdx]->setDescription(QString("Track %1").arg(tIdx + 1));
+        track->recreateViewer();
+        m_viewer->insertTrackPlot(track->viewer(), index);
     }
+
+    updateTrackNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,6 +205,35 @@ void RimWellLogPlot::removeTrack(RimWellLogPlotTrack* track)
         m_viewer->removeTrackPlot(track->viewer());
         tracks.removeChildObject(track);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracksToMove)
+{
+    for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
+    {
+        RimWellLogPlotTrack* track = tracksToMove[tIdx];
+
+        RimWellLogPlot* wellLogPlot;
+        track->firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+            wellLogPlot->removeTrack(track);
+            wellLogPlot->updateTrackNames();
+            wellLogPlot->updateConnectedEditors();
+        }
+    }
+
+    size_t index = tracks.index(insertAfterTrack) + 1;
+
+    for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
+    {
+        insertTrack(tracksToMove[tIdx], index + tIdx);
+    }
+
+    updateTrackNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,6 +397,16 @@ void RimWellLogPlot::updateTracks()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateTrackNames()
+{
+    for (size_t tIdx = 0; tIdx < tracks.size(); tIdx++)
+    {
+        tracks[tIdx]->setDescription(QString("Track %1").arg(tIdx + 1));
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -396,7 +448,7 @@ void RimWellLogPlot::recreateTrackPlots()
     for (size_t tIdx = 0; tIdx < tracks.size(); ++tIdx)
     {
         tracks[tIdx]->recreateViewer();
-        m_viewer->insertTrackPlot(tracks[tIdx]->viewer());
+        m_viewer->addTrackPlot(tracks[tIdx]->viewer());
     }
 }
 
