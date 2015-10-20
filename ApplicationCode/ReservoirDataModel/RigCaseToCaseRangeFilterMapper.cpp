@@ -65,19 +65,42 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter(RimCellRangeFilter* srcF
     size_t srcStartI = srcFilter->startIndexI() - 1;
     size_t srcStartJ = srcFilter->startIndexJ() - 1;
     size_t srcStartK = srcFilter->startIndexK() - 1;
-    size_t srcEndI = srcStartI + srcFilter->cellCountI();
-    size_t srcEndJ = srcStartJ + srcFilter->cellCountJ();
-    size_t srcEndK = srcStartK + srcFilter->cellCountK();
+
+    // Needs to subtract one more to have the end idx beeing the last cell in the selection, not the first outside
+    size_t srcEndI = srcStartI + srcFilter->cellCountI() - 1; 
+    size_t srcEndJ = srcStartJ + srcFilter->cellCountJ() - 1;
+    size_t srcEndK = srcStartK + srcFilter->cellCountK() - 1;
+
+    size_t maxIIndex;
+    size_t maxJIndex;
+    size_t maxKIndex;
+
+    // Clamp end 
+    if (femIsDestination)
+    {
+        maxIIndex = eclGrid->cellCountI()- 1;
+        maxJIndex = eclGrid->cellCountJ()- 1;
+        maxKIndex = eclGrid->cellCountK()- 1;
+    }
+    else
+    {
+        maxIIndex = femPart->structGrid()->cellCountI()- 1;
+        maxJIndex = femPart->structGrid()->cellCountJ()- 1;
+        maxKIndex = femPart->structGrid()->cellCountK()- 1;
+    }
+    srcEndI = CVF_MIN(srcEndI, maxIIndex);
+    srcEndJ = CVF_MIN(srcEndJ, maxJIndex);
+    srcEndK = CVF_MIN(srcEndK, maxKIndex);
 
     cvf::Vec3st srcRangeCube[8];
     srcRangeCube[0] = cvf::Vec3st(srcStartI, srcStartJ, srcStartK);
-    srcRangeCube[1] = cvf::Vec3st(srcEndI, srcStartJ, srcStartK);
-    srcRangeCube[2] = cvf::Vec3st(srcEndI, srcEndJ, srcStartK);
-    srcRangeCube[3] = cvf::Vec3st(srcStartI, srcEndJ, srcStartK);
+    srcRangeCube[1] = cvf::Vec3st(srcEndI,   srcStartJ, srcStartK);
+    srcRangeCube[2] = cvf::Vec3st(srcEndI,   srcEndJ,   srcStartK);
+    srcRangeCube[3] = cvf::Vec3st(srcStartI, srcEndJ,   srcStartK);
     srcRangeCube[4] = cvf::Vec3st(srcStartI, srcStartJ, srcEndK);
-    srcRangeCube[5] = cvf::Vec3st(srcEndI, srcStartJ, srcEndK);
-    srcRangeCube[6] = cvf::Vec3st(srcEndI, srcEndJ, srcEndK);
-    srcRangeCube[7] = cvf::Vec3st(srcStartI, srcEndJ, srcEndK);
+    srcRangeCube[5] = cvf::Vec3st(srcEndI,   srcStartJ, srcEndK);
+    srcRangeCube[6] = cvf::Vec3st(srcEndI,   srcEndJ,   srcEndK);
+    srcRangeCube[7] = cvf::Vec3st(srcStartI, srcEndJ,   srcEndK);
 
 
     size_t dstStartI  = cvf::UNDEFINED_SIZE_T;
@@ -171,9 +194,9 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter(RimCellRangeFilter* srcF
     if ((dstStartI != cvf::UNDEFINED_SIZE_T && dstStartJ != cvf::UNDEFINED_SIZE_T && dstStartK != cvf::UNDEFINED_SIZE_T)
         && (dstEndI   != cvf::UNDEFINED_SIZE_T && dstEndJ   != cvf::UNDEFINED_SIZE_T && dstEndK   != cvf::UNDEFINED_SIZE_T))
     {
-        dstFilter->startIndexJ = static_cast<int>(dstStartI + 1);
-        dstFilter->startIndexK = static_cast<int>(dstStartJ + 1);
-        dstFilter->startIndexI = static_cast<int>(dstStartK + 1);
+        dstFilter->startIndexI = static_cast<int>(dstStartI + 1);
+        dstFilter->startIndexJ = static_cast<int>(dstStartJ + 1);
+        dstFilter->startIndexK = static_cast<int>(dstStartK + 1);
 
         dstFilter->cellCountI = static_cast<int>(dstEndI - (dstStartI-1));
         dstFilter->cellCountJ = static_cast<int>(dstEndJ - (dstStartJ-1));
@@ -188,7 +211,6 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter(RimCellRangeFilter* srcF
         dstFilter->cellCountI = 0;
         dstFilter->cellCountJ = 0;
         dstFilter->cellCountK = 0;
-        dstFilter->computeAndSetValidValues();
     }
 }
 
