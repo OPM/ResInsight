@@ -71,9 +71,10 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
     RimView* previousMasterView = viewLinker->masterView();
 
     viewLinker->setMasterView(activeView);
+    viewLinker->updateDependentViews();
+
     viewLinker->addDependentView(previousMasterView);
  
-    viewLinker->updateDependentViews();
 
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->updateConnectedEditors();

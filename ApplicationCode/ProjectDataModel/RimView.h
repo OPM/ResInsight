@@ -79,7 +79,8 @@ public:
     RimCellRangeFilterCollection*           rangeFilterCollection();
     const RimCellRangeFilterCollection*     rangeFilterCollection() const;
 
-    RimCellRangeFilterCollection*           rangeFilterCollectionCopy();
+    RimCellRangeFilterCollection*           overrideRangeFilterCollection();
+    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
 
     caf::PdmField< std::vector<int> >       windowGeometry;
 
@@ -182,7 +183,6 @@ protected:
 
 private:
     RimViewLinker*                          viewLinkerIfMasterView() const;
-    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
 
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;

@@ -147,11 +147,11 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (changedField == &m_isActive)
     {
-        updateCameraLink();
-        updateTimeStepLink();
-        updateResultColorsControl();
         updateOverrides();
+        updateResultColorsControl();
+        updateCameraLink();
         updateDisplayNameAndIcon();
+        updateTimeStepLink();
     }
     else if (changedField == &m_syncCamera)
     {
@@ -175,7 +175,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
     else if (changedField == &m_syncRangeFilters)
     {
-        updateRangeFiltersControl();
+        updateOverrides();
     }
     else if (changedField == &m_syncPropertyFilters)
     {
@@ -203,9 +203,9 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimViewController::initAfterRead()
 {
+    updateOptionSensitivity();
     updateOverrides();
     updateDisplayNameAndIcon();
-    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,6 +286,8 @@ void RimViewController::updateOverrides()
                 }
             }
         }
+
+        this->updateRangeFilterOverrides(NULL);
         
         if (manGeoView)
         {
@@ -318,6 +320,8 @@ void RimViewController::removeOverrides(RimView* view)
 
         if (manEclView) manEclView->setOverridePropertyFilterCollection(NULL);
         if (manGeoView) manGeoView->setOverridePropertyFilterCollection(NULL);
+        
+        view->setOverrideRangeFilterCollection(NULL);
     }
 }
 
@@ -386,12 +390,13 @@ RimView* RimViewController::managedView()
 void RimViewController::setManagedView(RimView* view)
 {
     m_managedView = view;
-    updateCameraLink();
-    updateTimeStepLink();
-    updateResultColorsControl();
-    updateOverrides();
+
     updateOptionSensitivity();
+    updateOverrides();
+    updateResultColorsControl();
+    updateCameraLink();
     updateDisplayNameAndIcon();
+    updateTimeStepLink();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -463,17 +468,6 @@ void RimViewController::updateResultColorsControl()
 
     RimViewLinker* viewLinker = ownerViewLinker();
     viewLinker->updateCellResult();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimViewController::updateRangeFiltersControl()
-{
-    if (!this->isRangeFiltersControlled()) return;
-
-    RimViewLinker* viewLinker = ownerViewLinker();
-    viewLinker->updateRangeFilters(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -758,57 +752,24 @@ bool RimViewController::isPropertyFilterOveridden()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::updateRangeFilterCollectionOverride(RimView* sourceView, RimCellRangeFilter* changedRangeFilter)
+void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter)
 {
-    RimCellRangeFilterCollection* filterCollectionCopy = managedView()->rangeFilterCollectionCopy();
-
-    if (!sourceView)
+    if (!isRangeFiltersControlled())
     {
-        filterCollectionCopy->rangeFilters.deleteAllChildObjects();
-
-        managedView()->rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+        managedView()->setOverrideRangeFilterCollection(NULL);
 
         return;
     }
 
-    RimCellRangeFilterCollection* sourceFilterCollection = sourceView->rangeFilterCollection();
+    RimCellRangeFilterCollection* sourceFilterCollection = masterView()->rangeFilterCollection();
+    QString xmlRangeFilterCollCopy = sourceFilterCollection->writeObjectToXmlString(); 
+
+    PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xmlRangeFilterCollCopy, caf::PdmDefaultObjectFactory::instance());
+
+    RimCellRangeFilterCollection* overrideRangeFilter = dynamic_cast<RimCellRangeFilterCollection*>(objectCopy);
+    managedView()->setOverrideRangeFilterCollection(overrideRangeFilter);
 
     // TODO: Convert ijk values in source to correct ijk values in our range filter collection
 
-    filterCollectionCopy->rangeFilters.deleteAllChildObjects();
-
-    // Filter copy if ijk-ranges are identical
-    for (size_t i = 0; i < sourceFilterCollection->rangeFilters.size(); i++)
-    {
-        RimCellRangeFilter* sourceFilter = sourceFilterCollection->rangeFilters[i];
-
-        RimCellRangeFilter* filter = new RimCellRangeFilter;
-        filter->startIndexI = sourceFilter->startIndexI;
-        filter->startIndexJ = sourceFilter->startIndexJ;
-        filter->startIndexK = sourceFilter->startIndexK;
-
-        filter->cellCountI = sourceFilter->cellCountI;
-        filter->cellCountJ = sourceFilter->cellCountJ;
-        filter->cellCountK = sourceFilter->cellCountK;
-
-        filterCollectionCopy->rangeFilters.push_back(filter);
-    }
-
-    managedView()->rangeFilterCollection()->uiCapability()->updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter)
-{
-    if (isRangeFiltersControlled())
-    {
-        updateRangeFilterCollectionOverride(masterView(), changedRangeFilter);
-    }
-    else
-    {
-        updateRangeFilterCollectionOverride(NULL, NULL);
-    }
 }
 

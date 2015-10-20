@@ -90,13 +90,9 @@ private:
     void                                    updateCameraLink();
     void                                    updateTimeStepLink();
     void                                    updateResultColorsControl();
-    void                                    updateRangeFiltersControl();
 
     bool                                    isMasterAndDepViewDifferentType();
     bool                                    isRangeFilterControlPossible();
-
-    void                                    updateRangeFilterCollectionOverride(RimView* sourceView, RimCellRangeFilter* changedRangeFilter);
-
 
     RimEclipseView*                         managedEclipseView();
     RimGeoMechView*                         managedGeoView();

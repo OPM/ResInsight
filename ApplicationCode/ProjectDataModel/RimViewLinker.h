@@ -93,7 +93,7 @@ private:
     static bool                             isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 
 private:
-    caf::PdmChildArrayField<RimViewController*>   viewLinks;
+    caf::PdmChildArrayField<RimViewController*>   m_viewControllers;
     caf::PdmPtrField<RimView*>                    m_masterView;
     caf::PdmField<QString>                        m_name;
     QIcon                                         m_originalIcon;

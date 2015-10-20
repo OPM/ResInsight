@@ -105,7 +105,6 @@ RimView::RimView(void)
     windowGeometry.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
-    m_rangeFilterCollection = new RimCellRangeFilterCollection();
     m_rangeFilterCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_overrideRangeFilterCollection, "RangeFiltersControlled", "Range Filters (controlled)", "", "", "");
@@ -566,6 +565,7 @@ RimCellRangeFilterCollection* RimView::rangeFilterCollection()
 {
     if (this->viewController() && this->viewController()->isRangeFiltersControlled())
     {
+        CVF_ASSERT(m_overrideRangeFilterCollection());
         return m_overrideRangeFilterCollection;
     }
     else
@@ -581,6 +581,7 @@ const RimCellRangeFilterCollection* RimView::rangeFilterCollection() const
 {
     if (this->viewController() && this->viewController()->isRangeFiltersControlled())
     {
+        CVF_ASSERT(m_overrideRangeFilterCollection());
         return m_overrideRangeFilterCollection;
     }
     else
@@ -594,6 +595,8 @@ const RimCellRangeFilterCollection* RimView::rangeFilterCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimView::setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc)
 {
+    if (m_overrideRangeFilterCollection()) delete m_overrideRangeFilterCollection();
+
     m_overrideRangeFilterCollection = rfc;
     this->scheduleGeometryRegen(RANGE_FILTERED);
     this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
@@ -697,7 +700,7 @@ bool RimView::isMasterView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilterCollection* RimView::rangeFilterCollectionCopy()
+RimCellRangeFilterCollection* RimView::overrideRangeFilterCollection()
 {
     return m_overrideRangeFilterCollection();
 }
