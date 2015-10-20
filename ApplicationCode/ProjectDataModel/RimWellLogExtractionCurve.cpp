@@ -242,14 +242,16 @@ void RimWellLogExtractionCurve::updatePlotData()
         }
 
         m_curveData = new RigWellLogCurveData;
-        
-        if (!tvDepthValues.size())
+        if (values.size() && measuredDepthValues.size())
         {
-            m_curveData->setValuesAndMD(values, measuredDepthValues);
-        }
-        else
-        {
-            m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues);
+            if (!tvDepthValues.size())
+            {
+                m_curveData->setValuesAndMD(values, measuredDepthValues);
+            }
+            else
+            {
+                m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues);
+            }
         }
 
         m_plotCurve->setCurveData(m_curveData.p());
