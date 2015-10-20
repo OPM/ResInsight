@@ -115,7 +115,6 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
             dynamic_cast<RimWellLogPlot*>(uiItem))
         {
             return Qt::ItemIsDropEnabled;
-            //cvf::Trace::show("");
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem) ||
             dynamic_cast<RimWellLogFileChannel*>(uiItem))
