@@ -124,7 +124,7 @@ void RimWellLogPlotTrack::addCurve(RimWellLogPlotCurve* curve)
 void RimWellLogPlotTrack::removeCurve(RimWellLogPlotCurve* curve)
 {
     size_t index = curves.index(curve);
-    if (index >= 0 && index < curves.size())
+    if ( index < curves.size())
     {
         curves[index]->detachCurve();
         curves.removeChildObject(curve);

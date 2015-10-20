@@ -18,6 +18,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <stddef.h>
+
 class RimCellRangeFilter;
 class RigMainGrid;
 class RigFemPart;
