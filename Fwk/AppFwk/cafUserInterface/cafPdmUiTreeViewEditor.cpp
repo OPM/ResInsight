@@ -86,7 +86,7 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
     m_mainWidget->setLayout(m_layout);
 
     m_treeViewModel = new caf::PdmUiTreeViewModel(this);
-    m_treeView = new QTreeView(m_mainWidget);
+    m_treeView = new PdmUiTreeViewWidget(m_mainWidget);
     m_treeView->setModel(m_treeViewModel);
     m_treeView->installEventFilter(this);
 

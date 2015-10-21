@@ -74,7 +74,8 @@ public:
     QModelIndex             findModelIndex(const PdmUiItem* object) const;
 
     void                    setDragDropHandle(PdmUiDragDropHandle* dragDropHandle);
-
+    void                    endDrag();
+    
 private:
     void                    updateSubTreeRecursive(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);
 

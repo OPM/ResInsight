@@ -39,11 +39,13 @@
 
 #include "cafPdmUiTreeEditorHandle.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiTreeViewModel.h"
 
 #include <QAbstractItemModel>
 #include <QPointer>
 #include <QWidget>
 #include <QItemSelectionModel>
+#include <QTreeView>
 
 
 class MySortFilterProxyModel;
@@ -75,7 +77,29 @@ public:
     QStringList columnHeaders;
 };
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiTreeViewWidget : public QTreeView
+{
+public:
+    PdmUiTreeViewWidget(QWidget* parent = 0) : QTreeView(parent) {};
+    virtual ~PdmUiTreeViewWidget() {};
 
+protected:
+    virtual void dragLeaveEvent(QDragLeaveEvent* event)
+    {
+        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
+        if (treeViewModel)
+        {
+            treeViewModel->endDrag();
+        }
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
 {
     Q_OBJECT
@@ -126,17 +150,17 @@ private:
     virtual bool        eventFilter(QObject *obj, QEvent *event);
 
 private:
-    QPointer<QWidget>   m_mainWidget;
-    QVBoxLayout*        m_layout;
+    QPointer<QWidget>               m_mainWidget;
+    QVBoxLayout*                    m_layout;
 
-    QTreeView*          m_treeView;
-    PdmUiTreeViewModel* m_treeViewModel;
+    PdmUiTreeViewWidget*            m_treeView;
+    PdmUiTreeViewModel*             m_treeViewModel;
 
-    PdmUiTreeViewEditorAttribute m_editorAttributes;
+    PdmUiTreeViewEditorAttribute    m_editorAttributes;
 
-    bool                m_useDefaultContextMenu;
-    bool                m_updateSelectionManager;
-    bool                m_appendClassNameToUiItemText;
+    bool                            m_useDefaultContextMenu;
+    bool                            m_updateSelectionManager;
+    bool                            m_appendClassNameToUiItemText;
 };
 
 

@@ -797,6 +797,17 @@ void PdmUiTreeViewModel::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewModel::endDrag()
+{
+    if (m_dragDropHandle)
+    {
+        m_dragDropHandle->endDrag();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QStringList PdmUiTreeViewModel::mimeTypes() const
 {
     if (m_dragDropHandle)
