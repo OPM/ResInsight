@@ -20,15 +20,19 @@
 #pragma once
 
 #include "cafPdmUiDragDropHandle.h"
+#include "cafPdmPointer.h"
+#include "cafPdmObjectGroup.h"
+
+#include <vector>
+
+namespace caf
+{
+    class PdmObjectHandle;
+}
 
 class RimIdenticalGridCaseGroup;
 class RimWellLogPlotTrack;
 class RimWellLogPlot;
-
-namespace caf
-{
-    class PdmObjectGroup;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -44,11 +48,18 @@ public:
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
     virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
     virtual QStringList mimeTypes() const;
+    virtual void endDrag();
 
 private:
     void moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
     bool handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
     bool handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotTrack* wellLogPlotTrack);
     bool handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot);
+
+    static void objectGroupFromModelIndexes(caf::PdmObjectGroup* objectGroup, const QModelIndexList &indexes);
+    static std::vector<caf::PdmPointer<caf::PdmObjectHandle> > objectHandles(const QModelIndexList &indexes);
+
+private:
+    mutable std::vector<caf::PdmPointer<caf::PdmObjectHandle> > m_dragItems;
 };
 

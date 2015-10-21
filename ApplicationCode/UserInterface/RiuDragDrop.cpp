@@ -37,7 +37,6 @@
 #include "RimWellLogPlotTrack.h"
 #include "RiuMainWindow.h"
 
-#include "cafPdmObjectGroup.h"
 #include "cafPdmUiTreeView.h"
 
 #include <QAbstractItemModel>
@@ -47,18 +46,39 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-class RiuTypedObjectsFromObjectGroupGetter
+class RiuTypedPdmObjects
 {
 public:
-    RiuTypedObjectsFromObjectGroupGetter(const caf::PdmObjectGroup& objectGroup)
+    RiuTypedPdmObjects(const caf::PdmObjectGroup& objectGroup)
     {
         objectGroup.objectsByType(&m_typedObjects);
     }
 
+    RiuTypedPdmObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle> >& objectHandles)
+    {
+        for (size_t i = 0; i < objectHandles.size(); i++)
+        {
+            T* obj = dynamic_cast<T*>(objectHandles[i].p());
+            if (obj) m_typedObjects.push_back(obj);
+        }
+    }
+
     static std::vector<T*> typedObjectsFromGroup(const caf::PdmObjectGroup& objectGroup)
     {
-        RiuTypedObjectsFromObjectGroupGetter<T> typedObjectsGetter(objectGroup);
+        RiuTypedPdmObjects<T> typedObjectsGetter(objectGroup);
         return typedObjectsGetter.typedObjects();
+    }
+
+    static bool containsTypedObjects(const caf::PdmObjectGroup& objectGroup)
+    {
+        RiuTypedPdmObjects<T> typedObjectsGetter(objectGroup);
+        return typedObjectsGetter.typedObjects().size() > 0;
+    }
+
+    static bool containsTypedObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle> >& objectHandles)
+    {
+        RiuTypedPdmObjects<T> typedObjectsGetter(objectHandles);
+        return typedObjectsGetter.typedObjects().size() > 0;
     }
 
 private:
@@ -97,6 +117,17 @@ RiuDragDrop::~RiuDragDrop()
 //--------------------------------------------------------------------------------------------------
 Qt::DropActions RiuDragDrop::supportedDropActions() const
 {
+//     if (RiuTypedObjectsFromObjectGroupGetter<RimEclipseCase>::containsTypedObjects(m_dragItems))
+//     {
+//         return Qt::CopyAction | Qt::MoveAction;
+//     }
+//     else if (RiuTypedObjectsFromObjectGroupGetter<RimWellLogFileChannel>::containsTypedObjects(m_dragItems))
+//     {
+//         return Qt::CopyAction;
+//     }
+// 
+//     return Qt::MoveAction;
+
     return Qt::CopyAction | Qt::MoveAction;
 }
 
@@ -105,31 +136,64 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
 //--------------------------------------------------------------------------------------------------
 Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 {
+    Qt::ItemFlags itemflags = 0;
+
     if (index.isValid())
     {
         caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
         caf::PdmUiItem* uiItem = uiTreeView->uiItemFromModelIndex(index);
 
-        if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem) ||
-            dynamic_cast<RimCaseCollection*>(uiItem) ||
-            dynamic_cast<RimWellLogPlot*>(uiItem))
-        {
-            return Qt::ItemIsDropEnabled;
-        }
-        else if (dynamic_cast<RimEclipseCase*>(uiItem) ||
-            dynamic_cast<RimWellLogFileChannel*>(uiItem))
-        {
-            // TODO: Remember to handle reservoir holding the main grid
-            return Qt::ItemIsDragEnabled;
-        }
-        else if (dynamic_cast<RimWellLogPlotCurve*>(uiItem) ||
+        if (dynamic_cast<RimEclipseCase*>(uiItem) ||
+            dynamic_cast<RimWellLogPlotCurve*>(uiItem) ||
+            dynamic_cast<RimWellLogFileChannel*>(uiItem) || 
             dynamic_cast<RimWellLogPlotTrack*>(uiItem))
         {
-            return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+            // TODO: Remember to handle reservoir holding the main grid
+            itemflags |= Qt::ItemIsDragEnabled;
+        }
+
+        if (dynamic_cast<RimEclipseCase*>(uiItem) || dynamic_cast<RimCaseCollection*>(uiItem))
+        {
+            if (RiuTypedPdmObjects<RimEclipseCase>::containsTypedObjects(m_dragItems))
+            {
+                itemflags |= Qt::ItemIsDropEnabled;
+            }
+        }
+        else if (dynamic_cast<RimWellLogPlot*>(uiItem))
+        {
+            if (RiuTypedPdmObjects<RimWellLogPlotTrack>::containsTypedObjects(m_dragItems))
+            {
+                itemflags |= Qt::ItemIsDropEnabled;
+            }
+        }
+        else if (dynamic_cast<RimWellLogPlotTrack*>(uiItem))
+        {
+            if (RiuTypedPdmObjects<RimWellLogPlotCurve>::containsTypedObjects(m_dragItems))
+            {
+                itemflags |= Qt::ItemIsDropEnabled;
+            }
+            else if (RiuTypedPdmObjects<RimWellLogFileChannel>::containsTypedObjects(m_dragItems))
+            {
+                itemflags |= Qt::ItemIsDropEnabled;
+            }
+            else if (RiuTypedPdmObjects<RimWellLogPlotTrack>::containsTypedObjects(m_dragItems))
+            {
+                itemflags |= Qt::ItemIsDropEnabled;
+            }
+        }
+        else if (dynamic_cast<RimWellLogPlotCurve*>(uiItem))
+        {
+            if (RiuTypedPdmObjects<RimWellLogPlotCurve>::containsTypedObjects(m_dragItems))
+            {
+                itemflags |= Qt::ItemIsDropEnabled;
+            }
+            else if (RiuTypedPdmObjects<RimWellLogFileChannel>::containsTypedObjects(m_dragItems))
+            {
+                itemflags |= Qt::ItemIsDropEnabled;
+            }
         }
     }
 
-    Qt::ItemFlags itemflags = 0;
     return itemflags;
 }
 
@@ -147,17 +211,7 @@ bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int
         const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(data);
         if (myMimeData && parent.isValid())
         {
-            for (int i = 0; i < myMimeData->indexes().size(); i++)
-            {
-                QModelIndex mi = myMimeData->indexes().at(i);
-                caf::PdmUiItem* currentItem = uiTreeView->uiItemFromModelIndex(mi);
-                caf::PdmObjectHandle* pdmObj = dynamic_cast<caf::PdmObjectHandle*>(currentItem);
-
-                if (pdmObj)
-                {
-                    objectGroup.objects.push_back(pdmObj);
-                }
-            }
+            objectGroupFromModelIndexes(&objectGroup, myMimeData->indexes());
         }
         else
         {
@@ -196,6 +250,10 @@ QMimeData* RiuDragDrop::mimeData(const QModelIndexList &indexes) const
 {
     MimeDataWithIndexes* myObj = new MimeDataWithIndexes();
     myObj->setIndexes(indexes);
+    
+    // Keep drag items so that we can determine allowed actions while dragging    
+    m_dragItems = objectHandles(indexes);
+    
     return myObj;
 }
 
@@ -212,9 +270,17 @@ QStringList RiuDragDrop::mimeTypes() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuDragDrop::endDrag()
+{
+    m_dragItems.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuDragDrop::moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
 {
-    std::vector<RimEclipseCase*> casesToBeDeleted = RiuTypedObjectsFromObjectGroupGetter<RimEclipseCase>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimEclipseCase*> casesToBeDeleted = RiuTypedPdmObjects<RimEclipseCase>::typedObjectsFromGroup(objectGroup);
 
     if (RicCloseCaseFeature::userConfirmedGridCaseGroupChange(casesToBeDeleted))
     {
@@ -249,7 +315,7 @@ bool RiuDragDrop::handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectG
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotTrack* wellLogPlotTrack)
 {
-    std::vector<RimWellLogFileChannel*> wellLogFileChannels = RiuTypedObjectsFromObjectGroupGetter<RimWellLogFileChannel>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogFileChannel*> wellLogFileChannels = RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup(objectGroup);
     if (wellLogFileChannels.size() > 0)
     {
         if (action == Qt::CopyAction)
@@ -259,7 +325,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
         }
     }
 
-    std::vector<RimWellLogPlotCurve*> wellLogPlotCurves = RiuTypedObjectsFromObjectGroupGetter<RimWellLogPlotCurve>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogPlotCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogPlotCurve>::typedObjectsFromGroup(objectGroup);
     if (wellLogPlotCurves.size() > 0)
     {
         if (action == Qt::MoveAction)
@@ -269,7 +335,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
         }
     }
 
-    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedObjectsFromObjectGroupGetter<RimWellLogPlotTrack>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogPlotTrack>::typedObjectsFromGroup(objectGroup);
     if (wellLogPlotTracks.size() > 0)
     {
         if (action == Qt::MoveAction)
@@ -287,7 +353,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot)
 {
-    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedObjectsFromObjectGroupGetter<RimWellLogPlotTrack>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogPlotTrack>::typedObjectsFromGroup(objectGroup);
     if (wellLogPlotTracks.size() > 0)
     {
         if (action == Qt::MoveAction)
@@ -300,3 +366,44 @@ bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGro
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuDragDrop::objectGroupFromModelIndexes(caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes)
+{
+    CVF_ASSERT(objectGroup);
+
+    objectGroup->objects.clear();
+    caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
+
+    for (int i = 0; i < indexes.size(); i++)
+    {
+        caf::PdmUiItem* uiItem = uiTreeView->uiItemFromModelIndex(indexes[i]);
+        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(uiItem);
+        if (objHandle)
+        {
+            objectGroup->objects.push_back(objHandle);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmPointer<caf::PdmObjectHandle> > RiuDragDrop::objectHandles(const QModelIndexList& indexes)
+{
+    std::vector<caf::PdmPointer<caf::PdmObjectHandle> > objectHandlesVec;
+    caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
+
+    for (int i = 0; i < indexes.size(); i++)
+    {
+        caf::PdmUiItem* uiItem = uiTreeView->uiItemFromModelIndex(indexes[i]);
+        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(uiItem);
+        if (objHandle)
+        {
+            objectHandlesVec.push_back(objHandle);
+        }
+    }
+
+    return objectHandlesVec;
+}
