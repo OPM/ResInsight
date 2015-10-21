@@ -60,8 +60,9 @@ void RicUnLinkViewFeature::onActionTriggered(bool isChecked)
     if (!activeView) return;
     
     RimViewController* viewController = activeView->viewController();
-    caf::SelectionManager::instance()->setSelectedItem(viewController);
+    viewController->applyRangeFilterCollectionByUserChoice();
 
+    caf::SelectionManager::instance()->setSelectedItem(viewController);
     caf::CmdFeature* feature = caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteItemFeature");
     if (feature)
     {

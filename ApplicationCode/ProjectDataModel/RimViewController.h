@@ -74,6 +74,8 @@ public:
     void                                    updateDisplayNameAndIcon();
 
     void                                    updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter);
+    void                                    applyRangeFilterCollectionByUserChoice();
+
 
 protected:  // Pdm overridden methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -97,6 +99,8 @@ private:
     RimEclipseView*                         managedEclipseView();
     RimGeoMechView*                         managedGeoView();
     static void                             removeOverrides(RimView* view);
+
+    static bool                             askUserToRestoreOriginalRangeFilterCollection(const QString& viewName);
 
 private:
     caf::PdmField<QString>                  m_name;

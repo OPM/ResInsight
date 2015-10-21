@@ -81,6 +81,7 @@ public:
 
     RimCellRangeFilterCollection*           overrideRangeFilterCollection();
     void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
+    void                                    replaceRangeFilterCollectionWithOverride();
 
     caf::PdmField< std::vector<int> >       windowGeometry;
 

@@ -57,6 +57,7 @@ public:
 
     void                                    addDependentView(RimView* view);
     void                                    updateDependentViews();
+    void                                    removeViewController(RimViewController* viewController);
 
     void                                    updateCamera(RimView* sourceView);
     void                                    updateTimeStep(RimView* sourceView, int timeStep);
@@ -64,6 +65,7 @@ public:
 
     void                                    updateCellResult();
     void                                    updateRangeFilters(RimCellRangeFilter* changedRangeFilter);
+    void                                    applyRangeFilterCollectionByUserChoice();
 
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();

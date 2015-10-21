@@ -42,11 +42,17 @@ bool RicDeleteAllLinkedViewsFeature::isCommandEnabled()
 void RicDeleteAllLinkedViewsFeature::onActionTriggered(bool isChecked)
 {
     RimProject* proj = RiaApplication::instance()->project();
-    if (proj->viewLinkerCollection()->viewLinker())
-    {
-        delete proj->viewLinkerCollection()->viewLinker();
 
-        proj->viewLinkerCollection()->viewLinker = NULL;
+    RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
+    if (viewLinker)
+    {
+        // Remove the view linker object from the view linker collection
+        // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
+        proj->viewLinkerCollection->viewLinker.removeChildObject(viewLinker);
+
+        viewLinker->applyRangeFilterCollectionByUserChoice();
+
+        delete viewLinker;
 
         proj->uiCapability()->updateConnectedEditors();
     }

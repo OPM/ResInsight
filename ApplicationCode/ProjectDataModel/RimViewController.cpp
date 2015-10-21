@@ -46,6 +46,8 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "RigCaseToCaseRangeFilterMapper.h"
 
+#include <QMessageBox>
+
 CAF_PDM_SOURCE_INIT(RimViewController, "ViewController");
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -148,6 +150,11 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (changedField == &m_isActive)
     {
+        if (!m_isActive)
+        {
+            applyRangeFilterCollectionByUserChoice();
+        }
+
         updateOverrides();
         updateResultColorsControl();
         updateCameraLink();
@@ -176,6 +183,10 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
     else if (changedField == &m_syncRangeFilters)
     {
+        if (!m_syncRangeFilters)
+        {
+            applyRangeFilterCollectionByUserChoice();
+        }
         updateOverrides();
     }
     else if (changedField == &m_syncPropertyFilters)
@@ -478,7 +489,6 @@ RimViewLinker* RimViewController::ownerViewLinker()
 {
     RimViewLinker* viewLinker = NULL;
     this->firstAnchestorOrThisOfType(viewLinker);
-    CVF_ASSERT(viewLinker);
 
     return viewLinker;
 }
@@ -810,5 +820,54 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
         
     }
  
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::applyRangeFilterCollectionByUserChoice()
+{
+    if (!m_managedView->overrideRangeFilterCollection())
+    {
+        return;
+    }
+
+    bool restoreOriginal = askUserToRestoreOriginalRangeFilterCollection(m_managedView->name);
+    if (restoreOriginal)
+    {
+        m_managedView->setOverrideRangeFilterCollection(NULL);
+    }
+    else
+    {
+        m_managedView->replaceRangeFilterCollectionWithOverride();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::askUserToRestoreOriginalRangeFilterCollection(const QString& viewName)
+{
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+
+    QMessageBox msgBox(activeView->viewer()->layoutWidget());
+    msgBox.setIcon(QMessageBox::Question);
+
+    QString questionText;
+    questionText = QString("The linked view named \"%1\" is about to be unlinked. The range filters can either restore the original or keep the current range filters based on the master view.").arg(viewName);
+
+    msgBox.setText(questionText);
+    msgBox.setInformativeText("Do you want to restore the original range filters?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+    int ret = msgBox.exec();
+    if (ret == QMessageBox::Yes)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 

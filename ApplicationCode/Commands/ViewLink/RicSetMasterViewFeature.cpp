@@ -68,13 +68,14 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
     RimProject* proj = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
 
+    viewLinker->applyRangeFilterCollectionByUserChoice();
+
     RimView* previousMasterView = viewLinker->masterView();
 
     viewLinker->setMasterView(activeView);
     viewLinker->updateDependentViews();
 
     viewLinker->addDependentView(previousMasterView);
- 
 
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->updateConnectedEditors();

@@ -705,3 +705,26 @@ RimCellRangeFilterCollection* RimView::overrideRangeFilterCollection()
     return m_overrideRangeFilterCollection();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::replaceRangeFilterCollectionWithOverride()
+{
+    RimCellRangeFilterCollection* overrideRfc = m_overrideRangeFilterCollection;
+    CVF_ASSERT(overrideRfc);
+
+    RimCellRangeFilterCollection* currentRfc = m_rangeFilterCollection;
+    if (currentRfc)
+    {
+        delete currentRfc;
+    }
+
+    // Must call removeChildObject() to make sure the object has no parent
+    // No parent is required when assigning a object into a field
+    m_overrideRangeFilterCollection.removeChildObject(overrideRfc);
+
+    m_rangeFilterCollection = overrideRfc;
+
+    this->uiCapability()->updateConnectedEditors();
+}
+

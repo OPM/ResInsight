@@ -372,6 +372,14 @@ bool RimViewLinker::isActive()
     RimViewLinkerCollection* viewLinkerCollection = NULL;
     this->firstAnchestorOrThisOfType(viewLinkerCollection);
     
+    if (!viewLinkerCollection)
+    {
+        // This will happen when the all linked views are about to be deleted
+        // The viewLinker is taken out of the viewLinkerCollection, and no parent can be found
+        // See RicDeleteAllLinkedViewsFeature
+        return false;
+    }
+
     return viewLinkerCollection->isActive();
 }
 
@@ -612,5 +620,24 @@ void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering)
     {
         uiTreeOrdering.add(m_viewControllers()[j]);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::applyRangeFilterCollectionByUserChoice()
+{
+    for (size_t j = 0; j < m_viewControllers.size(); j++)
+    {
+        m_viewControllers[j]->applyRangeFilterCollectionByUserChoice();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::removeViewController(RimViewController* viewController)
+{
+    m_viewControllers.removeChildObject(viewController);
 }
 
