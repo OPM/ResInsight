@@ -223,6 +223,29 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    bool isFilterOverride = false;
+    if (rimView->overrideRangeFilterCollection())
+    {
+        isFilterOverride = true;
+    }
+
+    std::vector<caf::PdmFieldHandle*> objFields;
+    this->fields(objFields);
+    for (size_t i = 0; i < objFields.size(); i ++)
+    {
+        objFields[i]->uiCapability()->setUiReadOnly(isFilterOverride);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
