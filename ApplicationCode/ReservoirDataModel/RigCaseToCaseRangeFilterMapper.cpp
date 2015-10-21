@@ -271,12 +271,53 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
         {
             // Todo: be even smarter, and use possible matching corners to add up an as best solution as possible. 
             // For now we just take the first diagonal.
-            dst.StartI = rangeFilterMatches[0].ijk[0];
-            dst.StartJ = rangeFilterMatches[0].ijk[1];
-            dst.StartK = rangeFilterMatches[0].ijk[2];
-            dst.EndI   = rangeFilterMatches[6].ijk[0];
-            dst.EndJ   = rangeFilterMatches[6].ijk[1];
-            dst.EndK   = rangeFilterMatches[6].ijk[2];
+
+            size_t faceIJKs[6] = {cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T,cvf::UNDEFINED_SIZE_T,cvf::UNDEFINED_SIZE_T,cvf::UNDEFINED_SIZE_T,cvf::UNDEFINED_SIZE_T};
+            for (int faceIdx = 0; faceIdx < 6; ++faceIdx)
+            {
+                int ijOrk = 0;
+                if (faceIdx == cvf::StructGridInterface::POS_I || faceIdx == cvf::StructGridInterface::NEG_I) ijOrk = 0;
+                if (faceIdx == cvf::StructGridInterface::POS_J || faceIdx == cvf::StructGridInterface::NEG_J) ijOrk = 1;
+                if (faceIdx == cvf::StructGridInterface::POS_K || faceIdx == cvf::StructGridInterface::NEG_K) ijOrk = 2;
+
+                cvf::ubyte surfCorners[4];
+                cvf::StructGridInterface::cellFaceVertexIndices((cvf::StructGridInterface::FaceType) faceIdx ,  surfCorners);
+                bool foundExactMatch = false;
+                std::vector<size_t> candidates;
+                for (int cIdx = 0; cIdx < 4; ++cIdx)
+                {
+                    if (rangeFilterMatches[surfCorners[cIdx]].isExactMatch)
+                    {
+                        foundExactMatch = true;
+
+                        faceIJKs[faceIdx] = rangeFilterMatches[surfCorners[cIdx]].ijk[ijOrk];
+                        break;
+                    }
+                    else
+                    {
+                        candidates.push_back(rangeFilterMatches[surfCorners[cIdx]].ijk[ijOrk]);
+                    }
+                }
+
+                if (!foundExactMatch)
+                {
+                    // Todo: Select the most common, or the max or the min or something clever.
+                    CVF_TIGHT_ASSERT(candidates.size() == 4);
+                    faceIJKs[faceIdx] =  candidates[0];
+                }
+            }
+
+            #ifdef DEBUG
+            for (int faceIdx = 0; faceIdx <6; ++faceIdx) {CVF_TIGHT_ASSERT(faceIJKs[faceIdx] != cvf::UNDEFINED_SIZE_T);}
+            #endif            
+
+            dst.EndI   = faceIJKs[cvf::StructGridInterface::POS_I];
+            dst.StartI = faceIJKs[cvf::StructGridInterface::NEG_I];
+            dst.EndJ   = faceIJKs[cvf::StructGridInterface::POS_J];
+            dst.StartJ = faceIJKs[cvf::StructGridInterface::NEG_J];
+            dst.EndK   = faceIJKs[cvf::StructGridInterface::POS_K];
+            dst.StartK = faceIJKs[cvf::StructGridInterface::NEG_K];
+
         }
     }
 }
@@ -292,8 +333,8 @@ bool RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGri
     double cellSizeI, cellSizeJ, cellSizeK;
     masterEclGrid->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
 
-    double xyTolerance  = cellSizeI* 0.4;
-    double zTolerance   = cellSizeK* 0.4;
+    double xyTolerance  = cellSizeI* 0.01;
+    double zTolerance   = cellSizeK* 0.01;
 
     bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
 
