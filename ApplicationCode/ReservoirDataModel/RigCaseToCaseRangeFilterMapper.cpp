@@ -47,6 +47,25 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl(RimCellRangeFilt
    convertRangeFilter(srcFilter, dstFilter, dstEclGrid, srcFemPart, false);
 }
 
+struct RigRangeEndPoints
+{
+    RigRangeEndPoints()
+      : StartI(cvf::UNDEFINED_SIZE_T),
+        StartJ(cvf::UNDEFINED_SIZE_T),
+        StartK(cvf::UNDEFINED_SIZE_T),
+        EndI(cvf::UNDEFINED_SIZE_T),
+        EndJ(cvf::UNDEFINED_SIZE_T),
+        EndK(cvf::UNDEFINED_SIZE_T)
+    {}
+
+    size_t StartI;
+    size_t StartJ;
+    size_t StartK;
+    size_t EndI  ;
+    size_t EndJ  ;
+    size_t EndK  ;
+};
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -58,57 +77,63 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter(RimCellRangeFilter* srcF
     CVF_ASSERT(srcFilter && eclGrid && dstFilter && femPart);
     CVF_ASSERT(srcFilter->gridIndex() == 0); // LGR not supported yet
 
+    RigRangeEndPoints src;
+    src.StartI = srcFilter->startIndexI() - 1;
+    src.StartJ = srcFilter->startIndexJ() - 1;
+    src.StartK = srcFilter->startIndexK() - 1;
+
+    // Needs to subtract one more to have the end idx beeing the last cell in the selection, not the first outside
+    src.EndI = src.StartI + srcFilter->cellCountI() - 1; 
+    src.EndJ = src.StartJ + srcFilter->cellCountJ() - 1;
+    src.EndK = src.StartK + srcFilter->cellCountK() - 1;
+
+    {
+        size_t maxIIndex;
+        size_t maxJIndex;
+        size_t maxKIndex;
+
+        // Clamp end 
+        if (femIsDestination)
+        {
+            maxIIndex = eclGrid->cellCountI()- 1;
+            maxJIndex = eclGrid->cellCountJ()- 1;
+            maxKIndex = eclGrid->cellCountK()- 1;
+        }
+        else
+        {
+            // When using femPart as source we need to clamp the fem srcRange filter
+            // to the extents of the ecl grid within the fem part before 
+            // doing the mapping. If not, the range filter corners will most likely be outside 
+            // the ecl grid, resulting in an undefined conversion.
+
+            maxIIndex = femPart->structGrid()->cellCountI()- 1;
+            maxJIndex = femPart->structGrid()->cellCountJ()- 1;
+            maxKIndex = femPart->structGrid()->cellCountK()- 1;
+
+        }
+        src.EndI = CVF_MIN(src.EndI, maxIIndex);
+        src.EndJ = CVF_MIN(src.EndJ, maxJIndex);
+        src.EndK = CVF_MIN(src.EndK, maxKIndex);
+    }
+
+    RigRangeEndPoints dst;
+
+    {
     struct RangeFilterCorner { RangeFilterCorner() : isExactMatch(false){} cvf::Vec3st ijk; bool isExactMatch; };
 
     RangeFilterCorner rangeFilterMatches[8];
 
-    size_t srcStartI = srcFilter->startIndexI() - 1;
-    size_t srcStartJ = srcFilter->startIndexJ() - 1;
-    size_t srcStartK = srcFilter->startIndexK() - 1;
-
-    // Needs to subtract one more to have the end idx beeing the last cell in the selection, not the first outside
-    size_t srcEndI = srcStartI + srcFilter->cellCountI() - 1; 
-    size_t srcEndJ = srcStartJ + srcFilter->cellCountJ() - 1;
-    size_t srcEndK = srcStartK + srcFilter->cellCountK() - 1;
-
-    size_t maxIIndex;
-    size_t maxJIndex;
-    size_t maxKIndex;
-
-    // Clamp end 
-    if (femIsDestination)
-    {
-        maxIIndex = eclGrid->cellCountI()- 1;
-        maxJIndex = eclGrid->cellCountJ()- 1;
-        maxKIndex = eclGrid->cellCountK()- 1;
-    }
-    else
-    {
-        maxIIndex = femPart->structGrid()->cellCountI()- 1;
-        maxJIndex = femPart->structGrid()->cellCountJ()- 1;
-        maxKIndex = femPart->structGrid()->cellCountK()- 1;
-    }
-    srcEndI = CVF_MIN(srcEndI, maxIIndex);
-    srcEndJ = CVF_MIN(srcEndJ, maxJIndex);
-    srcEndK = CVF_MIN(srcEndK, maxKIndex);
-
     cvf::Vec3st srcRangeCube[8];
-    srcRangeCube[0] = cvf::Vec3st(srcStartI, srcStartJ, srcStartK);
-    srcRangeCube[1] = cvf::Vec3st(srcEndI,   srcStartJ, srcStartK);
-    srcRangeCube[2] = cvf::Vec3st(srcEndI,   srcEndJ,   srcStartK);
-    srcRangeCube[3] = cvf::Vec3st(srcStartI, srcEndJ,   srcStartK);
-    srcRangeCube[4] = cvf::Vec3st(srcStartI, srcStartJ, srcEndK);
-    srcRangeCube[5] = cvf::Vec3st(srcEndI,   srcStartJ, srcEndK);
-    srcRangeCube[6] = cvf::Vec3st(srcEndI,   srcEndJ,   srcEndK);
-    srcRangeCube[7] = cvf::Vec3st(srcStartI, srcEndJ,   srcEndK);
+    srcRangeCube[0] = cvf::Vec3st(src.StartI, src.StartJ, src.StartK);
+    srcRangeCube[1] = cvf::Vec3st(src.EndI,   src.StartJ, src.StartK);
+    srcRangeCube[2] = cvf::Vec3st(src.EndI,   src.EndJ,   src.StartK);
+    srcRangeCube[3] = cvf::Vec3st(src.StartI, src.EndJ,   src.StartK);
+    srcRangeCube[4] = cvf::Vec3st(src.StartI, src.StartJ, src.EndK);
+    srcRangeCube[5] = cvf::Vec3st(src.EndI,   src.StartJ, src.EndK);
+    srcRangeCube[6] = cvf::Vec3st(src.EndI,   src.EndJ,   src.EndK);
+    srcRangeCube[7] = cvf::Vec3st(src.StartI, src.EndJ,   src.EndK);
 
 
-    size_t dstStartI  = cvf::UNDEFINED_SIZE_T;
-    size_t dstStartJ  = cvf::UNDEFINED_SIZE_T;
-    size_t dstStartK  = cvf::UNDEFINED_SIZE_T;
-    size_t dstEndI    = cvf::UNDEFINED_SIZE_T;
-    size_t dstEndJ    = cvf::UNDEFINED_SIZE_T;
-    size_t dstEndK    = cvf::UNDEFINED_SIZE_T;
 
     bool foundExactMatch = false;
     int cornerIdx = 0;
@@ -170,37 +195,41 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter(RimCellRangeFilter* srcF
     if (foundExactMatch)
     {
         // Populate dst range filter from the diagonal that matches exact
-        dstStartI = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0]);
-        dstStartJ = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1]);
-        dstStartK = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2]);
-        dstEndI   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0]);
-        dstEndJ   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1]);
-        dstEndK   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2]);
+        dst.StartI = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0]);
+        dst.StartJ = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1]);
+        dst.StartK = CVF_MIN(rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2]);
+        dst.EndI   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0]);
+        dst.EndJ   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1]);
+        dst.EndK   = CVF_MAX(rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2]);
     }
     else
     {
         // Todo: be even smarter, and use possible matching corners to add up an as best solution as possible. 
         // For now we just take the first diagonal.
-        dstStartI = rangeFilterMatches[0].ijk[0];
-        dstStartJ = rangeFilterMatches[0].ijk[1];
-        dstStartK = rangeFilterMatches[0].ijk[2];
-        dstEndI   = rangeFilterMatches[6].ijk[0];
-        dstEndJ   = rangeFilterMatches[6].ijk[1];
-        dstEndK   = rangeFilterMatches[6].ijk[2];
+        dst.StartI = rangeFilterMatches[0].ijk[0];
+        dst.StartJ = rangeFilterMatches[0].ijk[1];
+        dst.StartK = rangeFilterMatches[0].ijk[2];
+        dst.EndI   = rangeFilterMatches[6].ijk[0];
+        dst.EndJ   = rangeFilterMatches[6].ijk[1];
+        dst.EndK   = rangeFilterMatches[6].ijk[2];
     }
-
+    }
     // Populate the dst range filter with new data
 
-    if ((dstStartI != cvf::UNDEFINED_SIZE_T && dstStartJ != cvf::UNDEFINED_SIZE_T && dstStartK != cvf::UNDEFINED_SIZE_T)
-        && (dstEndI   != cvf::UNDEFINED_SIZE_T && dstEndJ   != cvf::UNDEFINED_SIZE_T && dstEndK   != cvf::UNDEFINED_SIZE_T))
+    if (   dst.StartI != cvf::UNDEFINED_SIZE_T 
+        && dst.StartJ != cvf::UNDEFINED_SIZE_T 
+        && dst.StartK != cvf::UNDEFINED_SIZE_T
+        && dst.EndI   != cvf::UNDEFINED_SIZE_T 
+        && dst.EndJ   != cvf::UNDEFINED_SIZE_T 
+        && dst.EndK   != cvf::UNDEFINED_SIZE_T)
     {
-        dstFilter->startIndexI = static_cast<int>(dstStartI + 1);
-        dstFilter->startIndexJ = static_cast<int>(dstStartJ + 1);
-        dstFilter->startIndexK = static_cast<int>(dstStartK + 1);
+        dstFilter->startIndexI = static_cast<int>(dst.StartI + 1);
+        dstFilter->startIndexJ = static_cast<int>(dst.StartJ + 1);
+        dstFilter->startIndexK = static_cast<int>(dst.StartK + 1);
 
-        dstFilter->cellCountI = static_cast<int>(dstEndI - (dstStartI-1));
-        dstFilter->cellCountJ = static_cast<int>(dstEndJ - (dstStartJ-1));
-        dstFilter->cellCountK = static_cast<int>(dstEndK - (dstStartK-1));
+        dstFilter->cellCountI = static_cast<int>(dst.EndI - (dst.StartI-1));
+        dstFilter->cellCountJ = static_cast<int>(dst.EndJ - (dst.StartJ-1));
+        dstFilter->cellCountK = static_cast<int>(dst.EndK - (dst.StartK-1));
     }
     else
     {
