@@ -16,7 +16,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#pragma once
 
 #include "RigCaseToCaseRangeFilterMapper.h"
 #include "RigCaseToCaseCellMapper.h"

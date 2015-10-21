@@ -81,7 +81,7 @@ void RiuWellLogPlot::addTrackPlot(RiuWellLogTrackPlot* trackPlot)
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index)
 {
-    m_layout->insertWidget(index, trackPlot);
+    m_layout->insertWidget(static_cast<int>(index), trackPlot);
     m_trackPlots.append(trackPlot); // insert?
 
     modifyWidthOfContainingMdiWindow(trackPlot->width());
