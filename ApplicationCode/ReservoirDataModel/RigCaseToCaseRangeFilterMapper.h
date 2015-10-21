@@ -23,6 +23,7 @@
 class RimCellRangeFilter;
 class RigMainGrid;
 class RigFemPart;
+struct RigRangeEndPoints;
 
 class RigCaseToCaseRangeFilterMapper
 {
@@ -34,10 +35,16 @@ public:
 
 private:
 
-    static void convertRangeFilter(RimCellRangeFilter* srcFilter, RimCellRangeFilter* dstFilter, 
+    static void convertRangeFilter(const RimCellRangeFilter* srcFilter, RimCellRangeFilter* dstFilter, 
                                    const RigMainGrid* eclGrid, const RigFemPart*  femPart, 
                                    bool femIsDestination);
-    
+
+    static void convertRangeFilterEndPoints(const RigRangeEndPoints &src,
+                                            RigRangeEndPoints &dst,
+                                            const RigMainGrid* eclGrid,
+                                            const RigFemPart* femPart,
+                                            bool femIsDestination);
+
 
     static bool findBestFemCellFromEclCell(const RigMainGrid* masterEclGrid, size_t ei, size_t ej, size_t ek,
                                            const RigFemPart* dependentFemPart, size_t* fi, size_t * fj, size_t* fk);
