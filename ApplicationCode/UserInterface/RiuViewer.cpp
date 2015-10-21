@@ -152,6 +152,12 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
         m_animationProgress->setFont(regTestFont);
         m_histogramWidget->setFont(regTestFont);
     }
+
+    // When a context menu is created in the viewer is, and the action triggered is displaying a dialog,
+    // the context menu of QMainWindow is displayed after the action has finished
+    // Setting this policy will make sure the handling is not deferred to the widget's parent,
+    // which solves the problem
+    setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
 
