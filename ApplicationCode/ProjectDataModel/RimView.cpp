@@ -106,9 +106,9 @@ RimView::RimView(void)
 
     CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
     m_rangeFilterCollection.uiCapability()->setUiHidden(true);
+    m_rangeFilterCollection = new RimCellRangeFilterCollection();
 
     CAF_PDM_InitFieldNoDefault(&m_overrideRangeFilterCollection, "RangeFiltersControlled", "Range Filters (controlled)", "", "", "");
-    m_overrideRangeFilterCollection = new RimCellRangeFilterCollection();
     m_overrideRangeFilterCollection.uiCapability()->setUiHidden(true);
     m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
     m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
