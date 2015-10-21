@@ -19,16 +19,18 @@
 
 #include "RicUnLinkViewFeature.h"
 
-#include "RimViewController.h"
+#include "RiaApplication.h"
+
+#include "RimProject.h"
 #include "RimView.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include "RiaApplication.h"
-#include "RimProject.h"
-#include "cafCmdFeatureManager.h"
+
 
 CAF_CMD_SOURCE_INIT(RicUnLinkViewFeature, "RicUnLinkViewFeature");
 

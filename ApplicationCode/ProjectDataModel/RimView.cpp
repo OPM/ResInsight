@@ -563,9 +563,8 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection* RimView::rangeFilterCollection()
 {
-    if (this->viewController() && this->viewController()->isRangeFiltersControlled())
+    if (this->viewController() && this->viewController()->isRangeFiltersControlled() && m_overrideRangeFilterCollection)
     {
-        CVF_ASSERT(m_overrideRangeFilterCollection());
         return m_overrideRangeFilterCollection;
     }
     else
@@ -579,9 +578,8 @@ RimCellRangeFilterCollection* RimView::rangeFilterCollection()
 //--------------------------------------------------------------------------------------------------
 const RimCellRangeFilterCollection* RimView::rangeFilterCollection() const
 {
-    if (this->viewController() && this->viewController()->isRangeFiltersControlled())
+    if (this->viewController() && this->viewController()->isRangeFiltersControlled() && m_overrideRangeFilterCollection)
     {
-        CVF_ASSERT(m_overrideRangeFilterCollection());
         return m_overrideRangeFilterCollection;
     }
     else

@@ -266,14 +266,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     if (menu.actions().size() > 0)
     {
-//        event->accept();
-        QAction* act = menu.exec(event->globalPos());
-/*
-        if (act)
-        {
-            cvf::Trace::show("Jadda");
-        }
-*/
+        menu.exec(event->globalPos());
     }
 }
 

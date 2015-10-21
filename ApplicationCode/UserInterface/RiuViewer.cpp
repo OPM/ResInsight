@@ -237,7 +237,6 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
             return;
         }
 
-        event->accept();
         m_viewerCommands->displayContextMenu(event);
         return;
     }
