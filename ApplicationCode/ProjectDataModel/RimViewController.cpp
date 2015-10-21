@@ -789,26 +789,32 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
 
         if (eclipseMasterView && depGeomView)
         {
-            for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
+            if (eclipseMasterView->eclipseCase()->reservoirData())
             {
-                RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
-                RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
                 RigMainGrid* srcEclGrid = eclipseMasterView->eclipseCase()->reservoirData()->mainGrid();
                 RigFemPart* dstFemPart = depGeomView->geoMechCase()->geoMechData()->femParts()->part(0);
-                RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem( srcRFilter, srcEclGrid, 
-                                                                            dstRFilter, dstFemPart);
+                for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
+                {
+                    RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
+                    RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
+                    RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem(srcRFilter, srcEclGrid,
+                                                                               dstRFilter, dstFemPart);
+                }
             }
         }
         else if (geoMasterView && depEclView)
         {
-            for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
+            if (depEclView->eclipseCase()->reservoirData())
             {
-                RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
-                RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
                 RigFemPart* srcFemPart = geoMasterView->geoMechCase()->geoMechData()->femParts()->part(0);
                 RigMainGrid* dstEclGrid = depEclView->eclipseCase()->reservoirData()->mainGrid();
-                RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl( srcRFilter, srcFemPart, 
-                                                                            dstRFilter, dstEclGrid);
+                for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
+                {
+                    RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
+                    RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
+                    RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl(srcRFilter, srcFemPart,
+                                                                               dstRFilter, dstEclGrid);
+                }
             }
         }
 
