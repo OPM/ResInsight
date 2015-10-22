@@ -45,11 +45,11 @@ private:
                                             const RigFemPart* femPart,
                                             bool femIsDestination);
 
-
-    static bool findBestFemCellFromEclCell(const RigMainGrid* masterEclGrid, size_t ei, size_t ej, size_t ek,
+    enum CellMatchType {APPROX_ON_COLLAPSED, APPROX, EXACT };
+    static CellMatchType findBestFemCellFromEclCell(const RigMainGrid* masterEclGrid, size_t ei, size_t ej, size_t ek,
                                            const RigFemPart* dependentFemPart, size_t* fi, size_t * fj, size_t* fk);
 
-    static bool findBestEclCellFromFemCell(const RigFemPart* dependentFemPart, size_t fi, size_t fj, size_t fk,
+    static CellMatchType findBestEclCellFromFemCell(const RigFemPart* dependentFemPart, size_t fi, size_t fj, size_t fk,
                                            const RigMainGrid* masterEclGrid, size_t* ei, size_t* ej, size_t* ek);
 };
 

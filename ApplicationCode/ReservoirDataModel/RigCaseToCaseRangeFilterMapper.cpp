@@ -186,7 +186,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
                                                                  bool femIsDestination) 
 {
     {
-        struct RangeFilterCorner { RangeFilterCorner() : isExactMatch(false){} cvf::Vec3st ijk; bool isExactMatch; };
+        struct RangeFilterCorner { RangeFilterCorner() : cellMatchType(APPROX_ON_COLLAPSED){} cvf::Vec3st ijk; CellMatchType cellMatchType; };
 
         RangeFilterCorner rangeFilterMatches[8];
 
@@ -210,7 +210,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
 
             if (femIsDestination)
             {
-                rangeFilterMatches[cornerIdx].isExactMatch  = findBestFemCellFromEclCell(eclGrid,
+                rangeFilterMatches[cornerIdx].cellMatchType  = findBestFemCellFromEclCell(eclGrid,
                                                                                          srcRangeCube[cornerIdx][0],
                                                                                          srcRangeCube[cornerIdx][1],
                                                                                          srcRangeCube[cornerIdx][2],
@@ -219,7 +219,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
                                                                                          &(rangeFilterMatches[cornerIdx].ijk[1]),
                                                                                          &(rangeFilterMatches[cornerIdx].ijk[2]));
 
-                rangeFilterMatches[diagIdx].isExactMatch  = findBestFemCellFromEclCell(eclGrid,
+                rangeFilterMatches[diagIdx].cellMatchType  = findBestFemCellFromEclCell(eclGrid,
                                                                                        srcRangeCube[diagIdx][0],
                                                                                        srcRangeCube[diagIdx][1],
                                                                                        srcRangeCube[diagIdx][2],
@@ -230,7 +230,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
             }
             else
             {
-                rangeFilterMatches[cornerIdx].isExactMatch  = findBestEclCellFromFemCell(femPart,
+                rangeFilterMatches[cornerIdx].cellMatchType  = findBestEclCellFromFemCell(femPart,
                                                                                          srcRangeCube[cornerIdx][0],
                                                                                          srcRangeCube[cornerIdx][1],
                                                                                          srcRangeCube[cornerIdx][2],
@@ -239,7 +239,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
                                                                                          &(rangeFilterMatches[cornerIdx].ijk[1]),
                                                                                          &(rangeFilterMatches[cornerIdx].ijk[2]));
 
-                rangeFilterMatches[diagIdx].isExactMatch  = findBestEclCellFromFemCell(femPart,
+                rangeFilterMatches[diagIdx].cellMatchType  = findBestEclCellFromFemCell(femPart,
                                                                                        srcRangeCube[diagIdx][0],
                                                                                        srcRangeCube[diagIdx][1],
                                                                                        srcRangeCube[diagIdx][2],
@@ -249,7 +249,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
                                                                                        &(rangeFilterMatches[diagIdx].ijk[2]));
             }
 
-            if (rangeFilterMatches[cornerIdx].isExactMatch && rangeFilterMatches[diagIdx].isExactMatch)
+            if (rangeFilterMatches[cornerIdx].cellMatchType == EXACT && rangeFilterMatches[diagIdx].cellMatchType == EXACT)
             {
                 foundExactMatch = true;
                 break;
@@ -269,9 +269,8 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
         }
         else
         {
-            // Todo: be even smarter, and use possible matching corners to add up an as best solution as possible. 
-            // For now we just take the first diagonal.
-
+            // Look at the matches for each "face" of the range filter cube, 
+            // and use first exact match to determine the position of that "face"
             size_t faceIJKs[6] = {cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T,cvf::UNDEFINED_SIZE_T,cvf::UNDEFINED_SIZE_T,cvf::UNDEFINED_SIZE_T,cvf::UNDEFINED_SIZE_T};
             for (int faceIdx = 0; faceIdx < 6; ++faceIdx)
             {
@@ -282,28 +281,40 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
 
                 cvf::ubyte surfCorners[4];
                 cvf::StructGridInterface::cellFaceVertexIndices((cvf::StructGridInterface::FaceType) faceIdx ,  surfCorners);
-                bool foundExactMatch = false;
-                std::vector<size_t> candidates;
+                bool foundAcceptedMatch = false;
                 for (int cIdx = 0; cIdx < 4; ++cIdx)
                 {
-                    if (rangeFilterMatches[surfCorners[cIdx]].isExactMatch)
+                    if (rangeFilterMatches[surfCorners[cIdx]].cellMatchType == EXACT)
                     {
-                        foundExactMatch = true;
+                        foundAcceptedMatch = true;
 
                         faceIJKs[faceIdx] = rangeFilterMatches[surfCorners[cIdx]].ijk[ijOrk];
                         break;
                     }
-                    else
-                    {
-                        candidates.push_back(rangeFilterMatches[surfCorners[cIdx]].ijk[ijOrk]);
-                    }
                 }
 
-                if (!foundExactMatch)
+                if (!foundAcceptedMatch)
                 {
-                    // Todo: Select the most common, or the max or the min or something clever.
-                    CVF_TIGHT_ASSERT(candidates.size() == 4);
-                    faceIJKs[faceIdx] =  candidates[0];
+                    // Take first match that is not related to a collapsed eclipse cell
+                    for (int cIdx = 0; cIdx < 4; ++cIdx)
+                    {
+                        if (rangeFilterMatches[surfCorners[cIdx]].cellMatchType == APPROX)
+                        {
+                            foundAcceptedMatch = true;
+
+                            faceIJKs[faceIdx] = rangeFilterMatches[surfCorners[cIdx]].ijk[ijOrk];
+                            break;
+                        }
+                    }
+
+                    
+                    if (!foundAcceptedMatch)
+                    {
+                        // Only collapsed cell hits in this "face"
+                        // Todo: then use opposite face - range filter thickness
+                        // For now, just select the first
+                        faceIJKs[faceIdx] = rangeFilterMatches[surfCorners[0]].ijk[ijOrk];
+                    }
                 }
             }
 
@@ -324,9 +335,10 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints(const RigRangeE
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Return 0 for collapsed cell 1 for 
 //--------------------------------------------------------------------------------------------------
-bool RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGrid* masterEclGrid, size_t ei, size_t ej, size_t ek, const RigFemPart* dependentFemPart, size_t* fi, size_t * fj, size_t* fk)
+RigCaseToCaseRangeFilterMapper::CellMatchType 
+RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGrid* masterEclGrid, size_t ei, size_t ej, size_t ek, const RigFemPart* dependentFemPart, size_t* fi, size_t * fj, size_t* fk)
 {
     // Find tolerance
 
@@ -339,6 +351,8 @@ bool RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGri
     bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
 
     size_t cellIdx =  masterEclGrid->cellIndexFromIJK(ei, ej, ek);
+
+    bool isCollapsedCell =  masterEclGrid->cells()[cellIdx].isCollapsedCell();
 
     cvf::Vec3d geoMechConvertedEclCell[8];
     RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
@@ -393,13 +407,16 @@ bool RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGri
         (*fk) = cvf::UNDEFINED_SIZE_T;
     }
 
-    return foundExactMatch;
+    if (foundExactMatch) return EXACT;
+    if (isCollapsedCell) return APPROX_ON_COLLAPSED;
+    return APPROX;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart* dependentFemPart, size_t fi, size_t fj, size_t fk, const RigMainGrid* masterEclGrid, size_t* ei, size_t* ej, size_t* ek)
+RigCaseToCaseRangeFilterMapper::CellMatchType 
+RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart* dependentFemPart, size_t fi, size_t fj, size_t fk, const RigMainGrid* masterEclGrid, size_t* ei, size_t* ej, size_t* ek)
 {
     // Find tolerance
 
@@ -454,9 +471,11 @@ bool RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart
         }
     }
 
+    bool isCollapsedCell = false;
     if (globCellIdxToBestMatch != cvf::UNDEFINED_SIZE_T)
     {
         masterEclGrid->ijkFromCellIndex(globCellIdxToBestMatch, ei, ej, ek);
+        isCollapsedCell =  masterEclGrid->cells()[globCellIdxToBestMatch].isCollapsedCell();
     }
     else
     {
@@ -465,5 +484,7 @@ bool RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart
         (*ek) = cvf::UNDEFINED_SIZE_T;
     }
 
-    return foundExactMatch;
+    if (foundExactMatch) return EXACT;
+    if (isCollapsedCell) return APPROX_ON_COLLAPSED;
+    return APPROX;
 }
