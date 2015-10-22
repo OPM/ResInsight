@@ -94,6 +94,8 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
+#include "RimViewLinkerCollection.h"
+#include "RimViewLinker.h"
 
 namespace caf
 {
@@ -402,6 +404,11 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
             caseProgress.incrementProgress();
         }
     }
+
+    {
+        m_project->viewLinkerCollection()->viewLinker()->updateOverrides();
+    }
+
     {
         if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
         {

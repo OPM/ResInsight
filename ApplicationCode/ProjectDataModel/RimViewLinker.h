@@ -59,6 +59,8 @@ public:
     void                                    updateDependentViews();
     void                                    removeViewController(RimViewController* viewController);
 
+    void                                    updateOverrides();
+
     void                                    updateCamera(RimView* sourceView);
     void                                    updateTimeStep(RimView* sourceView, int timeStep);
     void                                    updateScaleZ(RimView* sourceView, double scaleZ);
@@ -89,7 +91,6 @@ protected:
 private:
     void                                    allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
     
-    void                                    updateOverrides();
     void                                    removeOverrides();
 
     static bool                             isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);

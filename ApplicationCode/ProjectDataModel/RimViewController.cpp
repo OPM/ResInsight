@@ -71,7 +71,10 @@ RimViewController::RimViewController(void)
     CAF_PDM_InitField(&m_syncCellResult,      "SyncCellResult", false,    "Cell Result", "", "", "");
     
     CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
-    //syncVisibleCells.uiCapability()->setUiHidden(true); // For now
+    /// We do not support this. Consider to remove sometime
+    m_syncVisibleCells.uiCapability()->setUiHidden(true);
+    m_syncVisibleCells.xmlCapability()->setIOWritable(false);
+    m_syncVisibleCells.xmlCapability()->setIOReadable(false);
 
     CAF_PDM_InitField(&m_syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
     CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", true,"Property Filters", "", "", "");
@@ -216,8 +219,9 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 void RimViewController::initAfterRead()
 {
     updateOptionSensitivity();
-    updateOverrides();
     updateDisplayNameAndIcon();
+
+    // Update overrides is now done on load project in Application
 }
 
 //--------------------------------------------------------------------------------------------------
