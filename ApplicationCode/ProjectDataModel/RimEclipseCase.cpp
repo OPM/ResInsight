@@ -34,6 +34,9 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimProject.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -90,6 +93,19 @@ RimEclipseCase::~RimEclipseCase()
 
     delete m_matrixModelResults();
     delete m_fractureModelResults();
+
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                plotCollection->removeExtractors(this->reservoirData());
+            }
+        }
+    }
 
     if (this->reservoirData())
     {

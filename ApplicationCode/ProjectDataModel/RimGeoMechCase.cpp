@@ -24,6 +24,9 @@
 #include "RifOdbReader.h"
 #include "RigGeoMechCaseData.h"
 #include "RigFemPartResultsCollection.h"
+#include "RimProject.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 
 #include <QFile>
 
@@ -47,6 +50,25 @@ RimGeoMechCase::RimGeoMechCase(void)
 RimGeoMechCase::~RimGeoMechCase(void)
 {
     geoMechViews.deleteAllChildObjects();
+
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                plotCollection->removeExtractors(this->geoMechData());
+            }
+        }
+    }
+
+    if (this->geoMechData())
+    {
+        // At this point, we assume that memory should be released
+        CVF_ASSERT(this->geoMechData()->refCount() == 1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
