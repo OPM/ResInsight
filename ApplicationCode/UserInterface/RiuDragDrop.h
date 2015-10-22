@@ -49,6 +49,7 @@ public:
     virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
     virtual QStringList mimeTypes() const;
     virtual void endDrag();
+    virtual void setProposedAction(Qt::DropAction action);
 
 private:
     void moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
@@ -57,9 +58,10 @@ private:
     bool handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot);
 
     static void objectGroupFromModelIndexes(caf::PdmObjectGroup* objectGroup, const QModelIndexList &indexes);
-    static std::vector<caf::PdmPointer<caf::PdmObjectHandle> > objectHandles(const QModelIndexList &indexes);
+    static std::vector<caf::PdmPointer<caf::PdmObjectHandle> > objectHandlesFromSelection();
 
 private:
     mutable std::vector<caf::PdmPointer<caf::PdmObjectHandle> > m_dragItems;
+    Qt::DropAction m_proposedAction;
 };
 
