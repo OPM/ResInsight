@@ -30,6 +30,8 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -159,6 +161,19 @@ void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
         removeCaseFromAllGroups(eclipseCase);
     }
 
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                plotCollection->removeExtractors(eclipseCase->reservoirData());
+            }
+        }
+    }
+
     delete eclipseCase;
 }
 
@@ -176,6 +191,19 @@ void RicCloseCaseFeature::deleteGeoMechCase(RimGeoMechCase* geoMechCase)
     {
         models->cases.removeChildObject(geoMechCase);
         models->updateConnectedEditors();
+    }
+
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                plotCollection->removeExtractors(geoMechCase->geoMechData());
+            }
+        }
     }
 
     delete geoMechCase;

@@ -28,6 +28,9 @@ class RimWellLogPlot;
 class RigEclipseWellLogExtractor;
 class RigGeoMechWellLogExtractor;
 class RimGeoMechCase;
+class RigCaseData;
+class RigGeoMechCaseData;
+class RigWellPath;
 class RimWellPath;
 class RimEclipseCase;
 class RiuWellLogPlot;
@@ -45,6 +48,10 @@ public:
     
     RigEclipseWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase);
     RigGeoMechWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* eclCase);
+
+    void removeExtractors(const RigWellPath* wellPath);
+    void removeExtractors(const RigCaseData* caseData);
+    void removeExtractors(const RigGeoMechCaseData* caseData);
 
     RimWellLogPlot* wellLogPlotFromViewer(RiuWellLogPlot* viewer) const;
 

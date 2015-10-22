@@ -25,6 +25,9 @@
 #include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellPathCollection.h"
+#include "RimProject.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 #include "RivWellPathPartMgr.h"
 
 #include "RiuMainWindow.h"
@@ -102,6 +105,21 @@ RimWellPath::~RimWellPath()
     {
         delete m_wellLogFile;
     }
+
+    RimProject* project;
+    firstAnchestorOrThisOfType(project);
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                plotCollection->removeExtractors(m_wellPath.p());
+            }
+        }
+    }
+
 }
 
 

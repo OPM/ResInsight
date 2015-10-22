@@ -23,6 +23,7 @@
 
 #include "cafPdmUiTreeView.h"
 #include "RigCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include "RimWellPath.h"
 #include "RimEclipseCase.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -124,4 +125,54 @@ RimWellLogPlot* RimWellLogPlotCollection::wellLogPlotFromViewer(RiuWellLogPlot* 
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::removeExtractors(const RigWellPath* wellPath)
+{
+    for (int eIdx = (int) m_extractors.size() - 1; eIdx >= 0; eIdx--)
+    {
+        if (m_extractors[eIdx]->wellPathData() == wellPath)
+        {
+            m_extractors.eraseAt(eIdx);
+        }
+    }
+
+    for (int eIdx = (int) m_geomExtractors.size() - 1; eIdx >= 0; eIdx--)
+    {
+        if (m_geomExtractors[eIdx]->wellPathData() == wellPath)
+        {
+            m_geomExtractors.eraseAt(eIdx);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::removeExtractors(const RigCaseData* caseData)
+{
+    for (int eIdx = (int) m_extractors.size() - 1; eIdx >= 0; eIdx--)
+    {
+        if (m_extractors[eIdx]->caseData() == caseData)
+        {
+            m_extractors.eraseAt(eIdx);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::removeExtractors(const RigGeoMechCaseData* caseData)
+{
+    for (int eIdx = (int) m_geomExtractors.size() - 1; eIdx >= 0; eIdx--)
+    {
+        if (m_geomExtractors[eIdx]->caseData() == caseData)
+        {
+            m_geomExtractors.eraseAt(eIdx);
+        }
+    }
 }
