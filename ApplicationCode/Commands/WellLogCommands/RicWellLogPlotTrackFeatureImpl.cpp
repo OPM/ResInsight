@@ -72,7 +72,7 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* wel
             oldPlot->updateConnectedEditors();
         }
 
-        wellLogPlot->addTrack(wellLogPlotTrack);
+        wellLogPlot->insertTrack(wellLogPlotTrack, tIdx);
     }
 
     wellLogPlot->updateTracks();
