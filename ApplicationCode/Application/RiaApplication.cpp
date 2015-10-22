@@ -405,6 +405,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         }
     }
 
+    if (m_project->viewLinkerCollection() && m_project->viewLinkerCollection()->viewLinker())
     {
         m_project->viewLinkerCollection()->viewLinker()->updateOverrides();
     }
