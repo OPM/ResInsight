@@ -9,10 +9,11 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimViewController.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -121,6 +122,26 @@ RimView::RimView(void)
 //--------------------------------------------------------------------------------------------------
 RimView::~RimView(void)
 {
+    RimProject* proj = RiaApplication::instance()->project();
+
+    if (proj && this->isMasterView())
+    {
+        delete proj->viewLinkerCollection->viewLinker();
+        proj->viewLinkerCollection->viewLinker = NULL;
+
+        proj->uiCapability()->updateConnectedEditors();
+    }
+
+    RimViewController* vController = this->viewController();
+    if (proj && vController)
+    {
+        vController->setManagedView(NULL);
+        vController->ownerViewLinker()->removeViewController(vController);
+        delete vController;
+
+        proj->uiCapability()->updateConnectedEditors();
+    }
+
     delete this->m_overlayInfoConfig();
 
     if (m_viewer)
