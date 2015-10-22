@@ -197,9 +197,7 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
             if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
             {
                 cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-                if ((*cellVisibility).size() > 0 && 
-                    (*cellVisibility).size() - 1 < gridCellIndex &&
-                    (*cellVisibility)[gridCellIndex])
+                if ((*cellVisibility)[gridCellIndex])
                 {
                     return true;
                 }
@@ -219,9 +217,7 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
                         gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
 
                         cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-                        if ((*cellVisibility).size() > 0 &&
-                            (*cellVisibility).size() - 1 < gridCellIndex &&
-                            (*cellVisibility)[gridCellIndex])
+                        if ((*cellVisibility)[gridCellIndex])
                         {
                             return true;
                         }
