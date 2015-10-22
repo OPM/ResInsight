@@ -87,6 +87,16 @@ public:
     virtual ~PdmUiTreeViewWidget() {};
 
 protected:
+    virtual void dragMoveEvent(QDragMoveEvent* event)
+    {
+        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
+        if (treeViewModel)
+        {
+            treeViewModel->updateDragDropHandleFromEvent(event);
+        }
+
+        QTreeView::dragMoveEvent(event);
+    }
     virtual void dragLeaveEvent(QDragLeaveEvent* event)
     {
         caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
@@ -94,6 +104,8 @@ protected:
         {
             treeViewModel->endDrag();
         }
+
+        QTreeView::dragLeaveEvent(event);
     }
 };
 

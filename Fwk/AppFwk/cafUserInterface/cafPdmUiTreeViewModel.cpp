@@ -45,6 +45,7 @@
 #include "cafPdmUiTreeViewEditor.h"
 
 #include <QTreeView>
+#include <QDragMoveEvent>
 
 namespace caf
 {
@@ -792,6 +793,17 @@ PdmUiItem* PdmUiTreeViewModel::uiItemFromModelIndex(const QModelIndex& index) co
 void PdmUiTreeViewModel::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
 {
     m_dragDropHandle = dragDropHandle;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewModel::updateDragDropHandleFromEvent(const QDragMoveEvent* event)
+{
+    if (m_dragDropHandle && event)
+    {
+        m_dragDropHandle->setProposedAction(event->proposedAction());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

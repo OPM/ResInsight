@@ -58,6 +58,7 @@ public:
     virtual QMimeData*          mimeData(const QModelIndexList &indexes) const = 0;
     virtual QStringList         mimeTypes() const = 0;
     virtual void                endDrag() = 0;
+    virtual void                setProposedAction(Qt::DropAction action) = 0;
 };
 
 inline PdmUiDragDropHandle::~PdmUiDragDropHandle() { }

@@ -41,6 +41,8 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
+class QDragMoveEvent;
+
 namespace caf
 {
 
@@ -74,6 +76,7 @@ public:
     QModelIndex             findModelIndex(const PdmUiItem* object) const;
 
     void                    setDragDropHandle(PdmUiDragDropHandle* dragDropHandle);
+    void                    updateDragDropHandleFromEvent(const QDragMoveEvent* event);
     void                    endDrag();
     
 private:
