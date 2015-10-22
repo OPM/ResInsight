@@ -69,6 +69,7 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* wel
         if (oldPlot)
         {
             oldPlot->removeTrack(wellLogPlotTrack);
+            oldPlot->updateTrackNames();
             oldPlot->updateConnectedEditors();
         }
 
