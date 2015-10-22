@@ -46,7 +46,9 @@ public:
     void setDescription(const QString& description);
 
     void addCurve(RimWellLogPlotCurve* curve);
+    void insertCurve(RimWellLogPlotCurve* curve, size_t index);
     void removeCurve(RimWellLogPlotCurve* curve);
+    void moveCurves(RimWellLogPlotCurve* insertAfterCurve, const std::vector<RimWellLogPlotCurve*>& curvesToMove);
     size_t curveCount() { return curves.size(); }
 
     void recreateViewer();

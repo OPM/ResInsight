@@ -44,9 +44,21 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
             oldPlotTrack->updateConnectedEditors();
         }
 
-        wellLogPlotTrack->addCurve(curves[cIdx]);
+        wellLogPlotTrack->insertCurve(curves[cIdx], cIdx);
     }
 
+    wellLogPlotTrack->updateAxisRangesAndReplot();
+    wellLogPlotTrack->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlotTrack* wellLogPlotTrack, const std::vector<RimWellLogPlotCurve*>& curves, RimWellLogPlotCurve* insertAfterCurve)
+{
+    CVF_ASSERT(wellLogPlotTrack && insertAfterCurve);
+
+    wellLogPlotTrack->moveCurves(insertAfterCurve, curves);
     wellLogPlotTrack->updateAxisRangesAndReplot();
     wellLogPlotTrack->updateConnectedEditors();
 }

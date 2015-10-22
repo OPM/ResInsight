@@ -121,6 +121,19 @@ void RimWellLogPlotTrack::addCurve(RimWellLogPlotCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrack::insertCurve(RimWellLogPlotCurve* curve, size_t index)
+{
+    curves.insert(index, curve);
+
+    if (m_wellLogTrackPlotWidget)
+    {
+        curve->setPlot(m_wellLogTrackPlotWidget);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotTrack::removeCurve(RimWellLogPlotCurve* curve)
 {
     size_t index = curves.index(curve);
@@ -131,6 +144,31 @@ void RimWellLogPlotTrack::removeCurve(RimWellLogPlotCurve* curve)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrack::moveCurves(RimWellLogPlotCurve* insertAfterCurve, const std::vector<RimWellLogPlotCurve*>& curvesToMove)
+{
+    for (size_t cIdx = 0; cIdx < curvesToMove.size(); cIdx++)
+    {
+        RimWellLogPlotCurve* curve = curvesToMove[cIdx];
+
+        RimWellLogPlotTrack* wellLogPlotTrack;
+        curve->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        if (wellLogPlotTrack)
+        {
+            wellLogPlotTrack->removeCurve(curve);
+            wellLogPlotTrack->updateConnectedEditors();
+        }
+    }
+
+    size_t index = curves.index(insertAfterCurve) + 1;
+
+    for (size_t cIdx = 0; cIdx < curvesToMove.size(); cIdx++)
+    {
+        insertCurve(curvesToMove[cIdx], index + cIdx);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
