@@ -128,12 +128,14 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
     {
         m_eclipseResultDefinition->setResultType(eclipseView->cellResult()->resultType());
         m_eclipseResultDefinition->setResultVariable(eclipseView->cellResult()->resultVariable());
+        m_timeStep = eclipseView->currentTimeStep();
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
     if (geoMechView)
     {
         m_geomResultDefinition->setResultAddress(geoMechView->cellResult()->resultAddress());
+        m_timeStep = geoMechView->currentTimeStep();
     }
 }
 
