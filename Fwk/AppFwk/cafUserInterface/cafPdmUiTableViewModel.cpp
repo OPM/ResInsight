@@ -194,14 +194,13 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
             QList<PdmOptionItemInfo> valueOptions = uiFieldHandle->valueOptions(&fromMenuOnly);
             if (!valueOptions.isEmpty())
             {
-                QStringList uiTexts = PdmOptionItemInfo::extractUiTexts(valueOptions);
                 int listIndex = uiFieldHandle->uiValue().toInt();
                 if (listIndex == -1)
                 {
                     return "";
                 }
 
-                return uiTexts.at(listIndex);
+                return valueOptions[listIndex].optionUiText;
             }
 
             QVariant val;
@@ -280,15 +279,9 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 
     PdmUiOrdering config;
 
-    std::vector<PdmObjectHandle*> listObjects;
-    if (listField)
+    if (m_pdmList && m_pdmList->size() > 0)
     {
-        listField->childObjects(&listObjects);
-    }
-
-    if (listObjects.size() > 0)
-    {
-        PdmObjectHandle* firstObject = listObjects[0];
+        PdmObjectHandle* firstObject = m_pdmList->at(0);
 
         PdmUiObjectHandle* uiObject = uiObj(firstObject);
         if (uiObject)
@@ -406,15 +399,9 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 //--------------------------------------------------------------------------------------------------
 PdmFieldHandle* PdmUiTableViewModel::getField(const QModelIndex &index) const
 {
-    std::vector<PdmObjectHandle*> listObjects;
-    if (m_pdmList)
+    if (m_pdmList && index.row() < static_cast<int>(m_pdmList->size()))
     {
-        m_pdmList->childObjects(&listObjects);
-    }
-
-    if (index.row() < static_cast<int>(listObjects.size()))
-    {
-        PdmObjectHandle* pdmObject = listObjects[index.row()];
+        PdmObjectHandle* pdmObject = m_pdmList->at(index.row());
         if (pdmObject)
         {
             std::vector<PdmFieldHandle*> fields;
@@ -506,16 +493,13 @@ void PdmUiTableViewModel::recreateTableItemEditors()
     }
     m_tableItemEditors.clear();
 
-    std::vector<PdmObjectHandle*> listObjects;
     if (m_pdmList)
     {
-        m_pdmList->childObjects(&listObjects);
-    }
-
-    for (size_t i = 0; i < listObjects.size(); i++)
-    {
-        PdmObjectHandle* pdmObject = listObjects[i];
-        m_tableItemEditors.push_back(new PdmUiTableItemEditor(this, pdmObject, static_cast<int>(i)));
+        for (size_t i = 0; i < m_pdmList->size(); i++)
+        {
+            PdmObjectHandle* pdmObject = m_pdmList->at(i);
+            m_tableItemEditors.push_back(new PdmUiTableItemEditor(this, pdmObject, static_cast<int>(i)));
+        }
     }
 }
 
@@ -524,15 +508,9 @@ void PdmUiTableViewModel::recreateTableItemEditors()
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiTableViewModel::pdmObjectForRow(int row) const
 {
-    std::vector<PdmObjectHandle*> listObjects;
-    if (m_pdmList)
+    if (m_pdmList && row < m_pdmList->size())
     {
-        m_pdmList->childObjects(&listObjects);
-    }
-
-    if (row < static_cast<int>(listObjects.size()))
-    {
-        return listObjects[row];
+        return m_pdmList->at(row);
     }
 
     return NULL;
@@ -580,15 +558,9 @@ QItemSelection PdmUiTableViewModel::modelIndexFromPdmObject(PdmObjectHandle* pdm
 //--------------------------------------------------------------------------------------------------
 int PdmUiTableViewModel::getFieldIndex(PdmFieldHandle* field) const
 {
-    std::vector<PdmObjectHandle*> listObjects;
-    if (m_pdmList)
+    if (m_pdmList && m_pdmList->size() > 0)
     {
-        m_pdmList->childObjects(&listObjects);
-    }
-
-    if (listObjects.size() > 0)
-    {
-        PdmObjectHandle* pdmObject = listObjects[0];
+        PdmObjectHandle* pdmObject = m_pdmList->at(0);
         if (pdmObject)
         {
             std::vector<PdmFieldHandle*> fields;
