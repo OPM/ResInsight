@@ -247,6 +247,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, Polygo
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
     m_enableDepthWrite = true;
+    m_enableLighting = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,6 +259,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, Polygo
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
     m_enableDepthWrite = true;
+    m_enableLighting = true;
 }
 
 
@@ -269,8 +271,16 @@ void SurfaceEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) 
     cvf::ShaderProgramGenerator gen("SurfaceEffectGenerator", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
     gen.addFragmentCode(cvf::ShaderSourceRepository::src_Color);
-    gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
-    gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+
+    if (m_enableLighting)
+    {
+        gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+    }
+    else
+    {
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Unlit);
+    }
 
     cvf::ref<cvf::ShaderProgram> shaderProg = gen.generate();
 
@@ -296,6 +306,7 @@ void SurfaceEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect
 
     cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
     lighting->enableTwoSided(true);
+    lighting->enable(m_enableLighting);
     eff->setRenderState(lighting.p());
 
     this->updateCommonEffect(effect);
@@ -361,6 +372,7 @@ bool SurfaceEffectGenerator::isEqual(const EffectGenerator* other) const
         if (m_color == otherSurfaceEffect->m_color 
             && m_polygonOffset == otherSurfaceEffect->m_polygonOffset
             && m_enableDepthWrite == otherSurfaceEffect->m_enableDepthWrite
+            && m_enableLighting == otherSurfaceEffect->m_enableLighting
             && m_cullBackfaces == otherSurfaceEffect->m_cullBackfaces)
         {
             return true;
@@ -378,6 +390,7 @@ EffectGenerator* SurfaceEffectGenerator::copy() const
     SurfaceEffectGenerator* effGen = new SurfaceEffectGenerator(m_color, m_polygonOffset);
     effGen->m_cullBackfaces = m_cullBackfaces;
     effGen->m_enableDepthWrite = m_enableDepthWrite;
+    effGen->m_enableLighting = m_enableLighting;
     return effGen;
 }
 

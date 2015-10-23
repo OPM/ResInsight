@@ -135,6 +135,7 @@ public:
 
     void                            setCullBackfaces(FaceCulling cullBackFaces) { m_cullBackfaces = cullBackFaces; }
     void                            enableDepthWrite(bool enableWrite)          { m_enableDepthWrite = enableWrite; }
+    void                            enableLighting(bool enableLighting)         { m_enableLighting = enableLighting; }
 
 protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
@@ -151,6 +152,7 @@ private:
     PolygonOffset   m_polygonOffset;
     FaceCulling     m_cullBackfaces;
     bool            m_enableDepthWrite;
+    bool            m_enableLighting;
 };
 
 
