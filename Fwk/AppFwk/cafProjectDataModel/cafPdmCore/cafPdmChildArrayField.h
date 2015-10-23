@@ -26,6 +26,8 @@ public:
     virtual void        insertAt(int indexAfter, PdmObjectHandle* obj) = 0;
     virtual void        erase(size_t index) = 0;
     virtual void        deleteAllChildObjects() = 0;
+    
+    virtual PdmObjectHandle* at(size_t index) = 0;
 
     bool                hasSameFieldCountForAllObjects();
 };
@@ -62,8 +64,9 @@ public:
     virtual size_t      size() const                              { return m_pointers.size(); }
     virtual bool        empty() const                             { return m_pointers.empty(); }
     virtual void        clear();
-    virtual void        deleteAllChildObjects();
+    virtual void        deleteAllChildObjects(); 
     virtual void        insertAt(int indexAfter, PdmObjectHandle* obj);
+    virtual PdmObjectHandle* at(size_t index);
 
     // std::vector-like access
 
@@ -77,6 +80,12 @@ public:
 
     void                erase(size_t index);
     size_t              index(DataType* pointer);
+
+    typename std::vector< PdmPointer<DataType> >::iterator begin()        { return m_pointers.begin(); };
+    typename std::vector< PdmPointer<DataType> >::iterator end()          { return m_pointers.end(); };
+
+    typename std::vector< PdmPointer<DataType> >::const_iterator begin() const        { return m_pointers.begin();    };
+    typename std::vector< PdmPointer<DataType> >::const_iterator end()   const        { return m_pointers.end();      };
 
     // Child objects
 

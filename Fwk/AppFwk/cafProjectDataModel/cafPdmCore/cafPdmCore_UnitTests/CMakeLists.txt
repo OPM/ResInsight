@@ -18,6 +18,7 @@ set( PROJECT_FILES
 
 	cafPdmCoreBasicTest.cpp
     cafPdmReferenceHelperTest.cpp
+    cafPdmChildArrayFieldHandleTest.cpp
 
 	Child.cpp
 	Child.h

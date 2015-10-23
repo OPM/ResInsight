@@ -232,6 +232,15 @@ void PdmChildArrayField<DataType*>::insertAt(int indexAfter, PdmObjectHandle* ob
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
+PdmObjectHandle* PdmChildArrayField<DataType*>::at(size_t index)
+{
+    return m_pointers[index].rawPtr();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
 void PdmChildArrayField<DataType*>::removeThisAsParentField()
 {
     typename std::vector< PdmPointer< DataType > >::iterator it;
