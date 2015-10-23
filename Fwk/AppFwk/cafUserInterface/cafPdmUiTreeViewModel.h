@@ -41,8 +41,6 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
-class QDragMoveEvent;
-
 namespace caf
 {
 
@@ -94,7 +92,7 @@ private:
 
     PdmUiTreeViewEditor*    m_treeViewEditor;
 
-    PdmUiDragDropInterface*    m_dragDropInterface;
+    PdmUiDragDropInterface* m_dragDropInterface;
 
 private:
 
