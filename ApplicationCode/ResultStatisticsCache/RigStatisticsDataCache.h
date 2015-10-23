@@ -47,26 +47,26 @@ public:
     const std::vector<size_t>&              cellScalarValuesHistogram();
 
 private:
-    double									m_minValue;
-    double									m_maxValue;
+    double                                    m_minValue;
+    double                                    m_maxValue;
     bool                                    m_isMaxMinCalculated;
 
-    double									m_posClosestToZero;
-    double									m_negClosestToZero;
+    double                                    m_posClosestToZero;
+    double                                    m_negClosestToZero;
     bool                                    m_isClosestToZeroCalculated;
 
-    double									m_p10;
-    double									m_p90;
+    double                                    m_p10;
+    double                                    m_p90;
     double                                  m_meanValue;
     bool                                    m_isMeanCalculated;
 
-    std::vector<size_t>						m_histogram;
+    std::vector<size_t>                        m_histogram;
 
-    std::vector<std::pair<double, double> > m_maxMinValuesPrTs;		    ///< Max min values for each time step
+    std::vector<std::pair<double, double> > m_maxMinValuesPrTs;            ///< Max min values for each time step
     std::vector<bool>                       m_isMaxMinPrTsCalculated;
-    std::vector<std::pair<double, double> > m_posNegClosestToZeroPrTs;	///< PosNeg values for each time step
+    std::vector<std::pair<double, double> > m_posNegClosestToZeroPrTs;    ///< PosNeg values for each time step
     std::vector<bool>                       m_isClosestToZeroPrTsCalculated;
 
-    cvf::ref<RigStatisticsCalculator>		m_statisticsCalculator;
+    cvf::ref<RigStatisticsCalculator>        m_statisticsCalculator;
 };
 

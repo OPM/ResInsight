@@ -134,7 +134,7 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
             {
                 caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(uiObjectHandle->objectToggleField());
 
-				caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+                caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
                 if (uiFieldHandle)
                 {
                     if (state == TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);

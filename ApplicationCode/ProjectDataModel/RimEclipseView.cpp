@@ -111,7 +111,7 @@ RimEclipseView::RimEclipseView()
    
     this->cellResult()->setReservoirView(this);
 
-	this->cellEdgeResult()->setReservoirView(this);
+    this->cellEdgeResult()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
@@ -620,7 +620,7 @@ void RimEclipseView::updateCurrentTimeStep()
     {
         if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
         {
-			m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
+            m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
         } 
         else if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
         {
@@ -1465,14 +1465,14 @@ void RimEclipseView::updateFaultColors()
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
-		if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
-		{
-			m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultColors, this->cellEdgeResult());
-		}
-		else
-		{
-			m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultColors);
-		}
+        if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
+        {
+            m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultColors, this->cellEdgeResult());
+        }
+        else
+        {
+            m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultColors);
+        }
     }
 }
 

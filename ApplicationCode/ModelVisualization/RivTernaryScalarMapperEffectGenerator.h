@@ -25,7 +25,7 @@ class RivTernaryScalarMapper;
 
 namespace cvf
 {
-	class TextureImage;
+    class TextureImage;
 }
 
 //==================================================================================================
@@ -36,36 +36,36 @@ namespace cvf
 class RivTernaryScalarMapperEffectGenerator : public caf::EffectGenerator
 {
 public:
-	RivTernaryScalarMapperEffectGenerator(const RivTernaryScalarMapper* scalarMapper, caf::PolygonOffset polygonOffset);
+    RivTernaryScalarMapperEffectGenerator(const RivTernaryScalarMapper* scalarMapper, caf::PolygonOffset polygonOffset);
 
-	void                            setOpacityLevel(float opacity)          { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f, 1.0f); }
-	void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
-	void                            setFaceCulling(caf::FaceCulling faceCulling) { m_faceCulling = faceCulling; }
-	void                            enableDepthWrite(bool enableWrite)      { m_enableDepthWrite = enableWrite; }
+    void                            setOpacityLevel(float opacity)          { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f, 1.0f); }
+    void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
+    void                            setFaceCulling(caf::FaceCulling faceCulling) { m_faceCulling = faceCulling; }
+    void                            enableDepthWrite(bool enableWrite)      { m_enableDepthWrite = enableWrite; }
     void                            disableLighting(bool disable)           { m_disableLighting = disable; }
 
 
 public:
-	static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);
+    static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);
 
 protected:
-	virtual bool                    isEqual(const caf::EffectGenerator* other) const;
-	virtual caf::EffectGenerator*	copy() const;
+    virtual bool                    isEqual(const caf::EffectGenerator* other) const;
+    virtual caf::EffectGenerator*    copy() const;
 
-	virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
-	virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
-
-private:
-	void                            updateCommonEffect(cvf::Effect* effect) const;
+    virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
+    virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
 
 private:
-	cvf::cref<RivTernaryScalarMapper>	m_scalarMapper;
-	mutable cvf::ref<cvf::TextureImage>	m_textureImage;
-	caf::PolygonOffset                  m_polygonOffset;
-	float								m_opacityLevel;
-	cvf::Color3f						m_undefinedColor;
-	caf::FaceCulling                    m_faceCulling;
-	bool								m_enableDepthWrite;
+    void                            updateCommonEffect(cvf::Effect* effect) const;
+
+private:
+    cvf::cref<RivTernaryScalarMapper>    m_scalarMapper;
+    mutable cvf::ref<cvf::TextureImage>    m_textureImage;
+    caf::PolygonOffset                  m_polygonOffset;
+    float                                m_opacityLevel;
+    cvf::Color3f                        m_undefinedColor;
+    caf::FaceCulling                    m_faceCulling;
+    bool                                m_enableDepthWrite;
     bool                                m_disableLighting;
 };
 

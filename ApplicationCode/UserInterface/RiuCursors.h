@@ -41,16 +41,16 @@ public:
         PICK,
         PICK_GOTO,
         PICK_ROTPOINT,
-        NUM_CURSORS	    
+        NUM_CURSORS        
     };
 
 public:
-	static QCursor get(CursorIndex cursorIdx);
+    static QCursor get(CursorIndex cursorIdx);
 
 private:
-	RiuCursors();
-	static QCursor cursorFromFile(const QString& fileName, int hotspotX = -1, int hotspotY = -1);
+    RiuCursors();
+    static QCursor cursorFromFile(const QString& fileName, int hotspotX = -1, int hotspotY = -1);
 
 private:
-    QCursor	m_cursors[NUM_CURSORS];
+    QCursor    m_cursors[NUM_CURSORS];
 };

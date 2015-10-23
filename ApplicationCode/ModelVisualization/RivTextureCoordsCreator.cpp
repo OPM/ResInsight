@@ -61,12 +61,12 @@ RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResul
 //--------------------------------------------------------------------------------------------------
 bool RivTextureCoordsCreator::isValid()
 {
-	if (m_quadMapper.isNull() || m_resultAccessor.isNull() || m_texMapper.isNull())
-	{
-		return false;
-	}
+    if (m_quadMapper.isNull() || m_resultAccessor.isNull() || m_texMapper.isNull())
+    {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,17 +74,17 @@ bool RivTextureCoordsCreator::isValid()
 //--------------------------------------------------------------------------------------------------
 void RivTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCoords)
 {
-	createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
+    createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivTextureCoordsCreator::createTextureCoords(
-	cvf::Vec2fArray* quadTextureCoords,
-	const cvf::StructGridQuadToCellFaceMapper* quadMapper,
-	const RigResultAccessor* resultAccessor,
-	const RivResultToTextureMapper* texMapper)
+    cvf::Vec2fArray* quadTextureCoords,
+    const cvf::StructGridQuadToCellFaceMapper* quadMapper,
+    const RigResultAccessor* resultAccessor,
+    const RivResultToTextureMapper* texMapper)
 {
     CVF_ASSERT(quadTextureCoords && quadMapper && resultAccessor && texMapper);
 

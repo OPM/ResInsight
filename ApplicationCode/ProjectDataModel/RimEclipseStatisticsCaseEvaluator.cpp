@@ -150,15 +150,15 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
                 // Build data access objects for source scalar results
 
-				cvf::Collection<RigResultAccessor> sourceDataAccessList;
+                cvf::Collection<RigResultAccessor> sourceDataAccessList;
                 for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                 {
                     RimEclipseCase* sourceCase = m_sourceCases.at(caseIdx);
 
-					// Trigger loading of dataset
-					sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
+                    // Trigger loading of dataset
+                    sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-					cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(sourceCase->reservoirData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
+                    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(sourceCase->reservoirData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
                     if (resultAccessor.notNull())
                     {
                         sourceDataAccessList.push_back(resultAccessor.p());

@@ -31,14 +31,14 @@
 //--------------------------------------------------------------------------------------------------
 TEST(TernaryScalarMapperTest, BasicFunctions)
 {
-	cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
+    cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
-	cvf::ref<cvf::TextureImage> texImage = new cvf::TextureImage;
-	scalarMapper->updateTexture(texImage.p(), 1.0);
+    cvf::ref<cvf::TextureImage> texImage = new cvf::TextureImage;
+    scalarMapper->updateTexture(texImage.p(), 1.0);
 
-	QImage img = cvfqt::Utils::toQImage(*(texImage.p()));
+    QImage img = cvfqt::Utils::toQImage(*(texImage.p()));
 
-	img.save("c:/tmp/test.png");
+    img.save("c:/tmp/test.png");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,58 +46,58 @@ TEST(TernaryScalarMapperTest, BasicFunctions)
 //--------------------------------------------------------------------------------------------------
 TEST(TernaryScalarMapperTest, TextureMapping)
 {
-	cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
+    cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
-	// Without opacity
-	{
-		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 0.0, false);
-		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-		EXPECT_DOUBLE_EQ(0.0, texCoord.y());
-	}
+    // Without opacity
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 0.0, false);
+        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+        EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+    }
 
-	{
-		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(1.0, 0.0, false);
-		EXPECT_DOUBLE_EQ(1.0, texCoord.x());
-		EXPECT_DOUBLE_EQ(0.0, texCoord.y());
-	}
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(1.0, 0.0, false);
+        EXPECT_DOUBLE_EQ(1.0, texCoord.x());
+        EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+    }
 
-	{
-		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 1.0, false);
-		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-		EXPECT_DOUBLE_EQ(0.5, texCoord.y());
-	}
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 1.0, false);
+        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+        EXPECT_DOUBLE_EQ(0.5, texCoord.y());
+    }
 
-	{
-		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(3.0, 3.0, false);
-		EXPECT_DOUBLE_EQ(1.0, texCoord.x());
-		EXPECT_DOUBLE_EQ(0.0, texCoord.y());
-	}
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(3.0, 3.0, false);
+        EXPECT_DOUBLE_EQ(1.0, texCoord.x());
+        EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+    }
 
-	{
-		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(-1.0, -1.0, false);
-		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-		EXPECT_DOUBLE_EQ(0.0, texCoord.y());
-	}
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(-1.0, -1.0, false);
+        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+        EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+    }
 
-	{
-		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.5, 3.0, false);
-		EXPECT_DOUBLE_EQ(0.5, texCoord.x());
-		EXPECT_DOUBLE_EQ(0.25, texCoord.y());
-	}
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.5, 3.0, false);
+        EXPECT_DOUBLE_EQ(0.5, texCoord.x());
+        EXPECT_DOUBLE_EQ(0.25, texCoord.y());
+    }
 
 
-	
-	
-	// Opacity
-	{
-		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 0.0, true);
-		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-		EXPECT_DOUBLE_EQ(0.5, texCoord.y());
-	}
+    
+    
+    // Opacity
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 0.0, true);
+        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+        EXPECT_DOUBLE_EQ(0.5, texCoord.y());
+    }
 
-	{
-		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 1.0, true);
-		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-		EXPECT_DOUBLE_EQ(1.0, texCoord.y());
-	}
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 1.0, true);
+        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+        EXPECT_DOUBLE_EQ(1.0, texCoord.y());
+    }
 }

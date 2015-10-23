@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 double RigHugeValResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
-	return HUGE_VAL;
+    return HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ double RigHugeValResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 //--------------------------------------------------------------------------------------------------
 double RigHugeValResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
-	return cellScalar(gridLocalCellIndex);
+    return cellScalar(gridLocalCellIndex);
 }
 
 //--------------------------------------------------------------------------------------------------

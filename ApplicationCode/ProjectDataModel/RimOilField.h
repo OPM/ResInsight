@@ -43,5 +43,5 @@ public:
 
     caf::PdmChildField<RimEclipseCaseCollection*>       analysisModels;
     caf::PdmChildField<RimGeoMechModels*>        geoMechModels;
-	caf::PdmChildField<RimWellPathCollection*>   wellPathCollection;
+    caf::PdmChildField<RimWellPathCollection*>   wellPathCollection;
 };

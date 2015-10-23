@@ -875,7 +875,7 @@ void WellSelectionPage::buildWellTreeView()
                     caf::PdmObjectCollection* fieldGroup = new caf::PdmObjectCollection;
                     fieldGroup->objects.uiCapability()->setUiHidden(true);
 
-					fieldGroup->setUiName(oilField->userDescriptionField()->uiCapability()->uiValue().toString());
+                    fieldGroup->setUiName(oilField->userDescriptionField()->uiCapability()->uiValue().toString());
 
                     regGroup->objects.push_back(fieldGroup);
 

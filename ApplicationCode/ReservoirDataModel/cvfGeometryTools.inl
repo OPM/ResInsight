@@ -104,22 +104,22 @@ bool GeometryTools::insertVertexInPolygon(  std::vector<IndexType> * polygon,
 
 
 //--------------------------------------------------------------------------------------------------
-/// \brief	Test if a point touches a polygon within the specified tolerance
+/// \brief    Test if a point touches a polygon within the specified tolerance
 ///
-/// \param	polygonNorm  Polygon normal
-/// \param	pPolygonVerts  Array of polygon vertice coordinates
-/// \param	piVertexIndices  Array of integer node indices for this polygon
-/// \param	iNumVerts  Number of vertices in polygon
-/// \param	point  The point to be checked 
+/// \param    polygonNorm  Polygon normal
+/// \param    pPolygonVerts  Array of polygon vertice coordinates
+/// \param    piVertexIndices  Array of integer node indices for this polygon
+/// \param    iNumVerts  Number of vertices in polygon
+/// \param    point  The point to be checked 
 /// \param  tolerance Tolerance in length
 /// \param  touchedEdgeIndex returns -1 if point is inside, and edge index if point touches an edge.
-/// \return	true if point lies inside or on the border of the polygon.
+/// \return    true if point lies inside or on the border of the polygon.
 /// 
-/// \assumpt	Assumes that the polygon is planar
-/// \comment	First check if point is on an edge, Then check if it is inside by
+/// \assumpt    Assumes that the polygon is planar
+/// \comment    First check if point is on an edge, Then check if it is inside by
 ///             counting the number of times a ray from point along positive X axis 
 ///             crosses an edge. Odd number says inside.
-/// \author		SP (really by Eric Haines) and JJS
+/// \author        SP (really by Eric Haines) and JJS
 //--------------------------------------------------------------------------------------------------
 template<typename VerticeArrayType, typename PolygonArrayType, typename IndexType>
 bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNormal, 
@@ -135,7 +135,7 @@ bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNor
     int X = (Z + 1) % 3;
     int Y = (Z + 2) % 3;
 
-    int	crossings;
+    int    crossings;
 
     int xBelowVx0;
     int yBelowVx0;
@@ -146,7 +146,7 @@ bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNor
 
     double dv0;
 
-    cvf::uint	j;
+    cvf::uint    j;
 
     // Check if point is on an edge or vertex
     size_t firstIdx;
@@ -179,19 +179,19 @@ bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNor
     {
         // cleverness:  bobble between filling endpoints of edges, so that the previous edge's shared endpoint is maintained. 
         if (j & 0x1) 
-        {		
+        {        
             vtx0 = vertices[indices[j]].ptr();
             yBelowVx0 = (dv0 = vtx0[Y] - point[Y]) >= 0.0;
         } 
         else 
-        {		
+        {        
             vtx1 = vertices[indices[j]].ptr();
-            yBelowVx1 = (vtx1[Y] >= point[Y]);	    
+            yBelowVx1 = (vtx1[Y] >= point[Y]);        
         }
 
         // check if Y of point is between Y of Vx0 and Vx1
         if (yBelowVx0 != yBelowVx1) 
-        {		
+        {        
             // check if X of point is not between X of Vx0 and Vx1
             if ( (xBelowVx0 = (vtx0[X] >= point[X])) == (vtx1[X] >= point[X]) ) 
             {
@@ -200,9 +200,9 @@ bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNor
             else 
             {
                 // compute intersection of polygon segment with X ray, note if > point's X. 
-                crossings += (vtx0[X] -	dv0*(vtx1[X] - vtx0[X])/(vtx1[Y] - vtx0[Y])) >= point[X];
-            }	    
-        }	
+                crossings += (vtx0[X] -    dv0*(vtx1[X] - vtx0[X])/(vtx1[Y] - vtx0[Y])) >= point[X];
+            }        
+        }    
     }
 
     // test if crossings is odd. If we care about its winding number > 0, then just: inside_flag = crossings > 0; 

@@ -248,14 +248,14 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 
         RimMockModelSettings rimMockModelSettings;
-		caf::PdmSettings::readFieldsFromApplicationStore(&rimMockModelSettings);
+        caf::PdmSettings::readFieldsFromApplicationStore(&rimMockModelSettings);
 
-		caf::PdmUiPropertyViewDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model", "");
+        caf::PdmUiPropertyViewDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model", "");
         if (propertyDialog.exec() == QDialog::Accepted)
         {
             QApplication::restoreOverrideCursor();
 
-			caf::PdmSettings::writeFieldsToApplicationStore(&rimMockModelSettings);
+            caf::PdmSettings::writeFieldsToApplicationStore(&rimMockModelSettings);
 
             double startX = 0;
             double startY = 0;

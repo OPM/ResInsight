@@ -60,25 +60,25 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView(QWidget* parent, Qt::Window
 
     connect(m_projectTreeView, SIGNAL(selectedObjectChanged(caf::PdmObjectHandle*)), m_propertyView, SLOT(showProperties(caf::PdmObjectHandle*)));
 
-	QWidget* propertyEditorWithHeader = new QWidget;
-	{
-		QLabel* propertyHeader = new QLabel;
-		propertyHeader->setText("Property Editor");
-		propertyHeader->setStyleSheet("QLabel { background-color: #CCCCCC }");
-		propertyHeader->setFixedHeight(20);
+    QWidget* propertyEditorWithHeader = new QWidget;
+    {
+        QLabel* propertyHeader = new QLabel;
+        propertyHeader->setText("Property Editor");
+        propertyHeader->setStyleSheet("QLabel { background-color: #CCCCCC }");
+        propertyHeader->setFixedHeight(20);
 
-		QVBoxLayout* layout = new QVBoxLayout;
-		layout->setMargin(0);
-		layout->addWidget(propertyHeader);
-		layout->addWidget(m_propertyView);
+        QVBoxLayout* layout = new QVBoxLayout;
+        layout->setMargin(0);
+        layout->addWidget(propertyHeader);
+        layout->addWidget(m_propertyView);
 
-		propertyEditorWithHeader->setLayout(layout);
-		propertyEditorWithHeader->setMinimumHeight(150);
-	}
+        propertyEditorWithHeader->setLayout(layout);
+        propertyEditorWithHeader->setMinimumHeight(150);
+    }
 
     QSplitter* splitter = new QSplitter(Qt::Vertical);
     splitter->addWidget(m_projectTreeView);
-	splitter->addWidget(propertyEditorWithHeader);
+    splitter->addWidget(propertyEditorWithHeader);
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setMargin(0);

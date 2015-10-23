@@ -96,7 +96,7 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     m_localAutoMin.resize(3, 0.0);
     m_localAutoMax.resize(3, 1.0);
 
-	m_scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
+    m_scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
     recreateLegend();
     updateLegend();
@@ -168,7 +168,7 @@ void RimTernaryLegendConfig::updateLegend()
     double swatUpper = 1.0;
 
     ternaryRanges(soilLower, soilUpper, sgasLower, sgasUpper, swatLower, swatUpper);
-	m_scalarMapper->setTernaryRanges(soilLower, soilUpper, sgasLower, sgasUpper);
+    m_scalarMapper->setTernaryRanges(soilLower, soilUpper, sgasLower, sgasUpper);
 
     cvf::String soilRange;
     cvf::String sgasRange;
@@ -449,6 +449,6 @@ void RimTernaryLegendConfig::updateLabelText()
 //--------------------------------------------------------------------------------------------------
 RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper()
 {
-	return m_scalarMapper.p();
+    return m_scalarMapper.p();
 }
 

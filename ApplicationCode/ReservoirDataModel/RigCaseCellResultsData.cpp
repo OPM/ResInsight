@@ -108,7 +108,7 @@ void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, doub
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::resultCount() const
 {
-	return m_cellScalarResults.size();
+    return m_cellScalarResults.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,9 +136,9 @@ const std::vector< std::vector<double> > & RigCaseCellResultsData::cellScalarRes
 //--------------------------------------------------------------------------------------------------
 std::vector< std::vector<double> > & RigCaseCellResultsData::cellScalarResults( size_t scalarResultIndex )
 {
-	CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
+    CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
-	return m_cellScalarResults[scalarResultIndex];
+    return m_cellScalarResults[scalarResultIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

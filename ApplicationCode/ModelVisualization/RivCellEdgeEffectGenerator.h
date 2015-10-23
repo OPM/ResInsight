@@ -101,10 +101,10 @@ class RivTernaryScalarMapper;
 class CellEdgeEffectGenerator : public caf::EffectGenerator
 {
 public:
-	CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeScalarMapper);
+    CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeScalarMapper);
 
-	void							setScalarMapper(const cvf::ScalarMapper* cellScalarMapper);
-	void							setTernaryScalarMapper(const RivTernaryScalarMapper* ternaryScalarMapper);
+    void                            setScalarMapper(const cvf::ScalarMapper* cellScalarMapper);
+    void                            setTernaryScalarMapper(const RivTernaryScalarMapper* ternaryScalarMapper);
 
     void                            setOpacityLevel(float opacity)          { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
     void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
@@ -125,9 +125,9 @@ private:
     cvf::cref<cvf::ScalarMapper>        m_cellScalarMapper;
     mutable cvf::ref<cvf::TextureImage> m_cellTextureImage;
 
-	cvf::cref<RivTernaryScalarMapper>	m_ternaryCellScalarMapper;
+    cvf::cref<RivTernaryScalarMapper>    m_ternaryCellScalarMapper;
 
-	float                           m_opacityLevel;
+    float                           m_opacityLevel;
     caf::FaceCulling                m_cullBackfaces;
     cvf::Color3f                    m_undefinedColor;
     cvf::Color3f                    m_defaultCellColor;

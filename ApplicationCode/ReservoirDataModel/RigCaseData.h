@@ -56,7 +56,7 @@ public:
     RigGridBase*                                grid(size_t index);
     size_t                                      gridCount() const;
 
-    RigCaseCellResultsData*		                results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RigCaseCellResultsData*                        results(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigCaseCellResultsData*               results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
     RigActiveCellInfo*                          activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel);

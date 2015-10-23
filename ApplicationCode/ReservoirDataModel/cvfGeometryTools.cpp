@@ -329,7 +329,7 @@ GeometryTools::inPlaneLineIntersect3D(  const cvf::Vec3d& planeNormal,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double	GeometryTools::linePointSquareDist(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3)
+double    GeometryTools::linePointSquareDist(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3)
 {
     cvf::Vec3d v31 = p3 - p1;
     cvf::Vec3d v21 = p2 - p1;
@@ -713,9 +713,9 @@ EarClipTesselator::EarClipTesselator():
 }
 
 //--------------------------------------------------------------------------------------------------
-/// \brief  	Do the main processing/actual triangulation
-/// \param  	triangleIndices Array that will receive the indices of the triangles resulting from the triangulation
-/// \return	    true when a tesselation was successully created 
+/// \brief      Do the main processing/actual triangulation
+/// \param      triangleIndices Array that will receive the indices of the triangles resulting from the triangulation
+/// \return        true when a tesselation was successully created 
 //--------------------------------------------------------------------------------------------------
 
 bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices ) 
@@ -729,61 +729,61 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
 
     // We want m_polygonIndices to be a counter-clockwise polygon to make the validation test work
 
-	if (calculateProjectedPolygonArea() < 0 )
-	{
-		m_polygonIndices.reverse();
-	}
+    if (calculateProjectedPolygonArea() < 0 )
+    {
+        m_polygonIndices.reverse();
+    }
 
     std::list<size_t>::iterator u, v, w;
 
     // If we loop two times around polygon without clipping a single triangle we are toast.
-	size_t count = 2*numVertices;   // error detection 
+    size_t count = 2*numVertices;   // error detection 
 
-	v = m_polygonIndices.end();   //nv - 1;
+    v = m_polygonIndices.end();   //nv - 1;
     --v;
 
-	while (numVertices > 2)
-	{
-		// if we loop, it is probably a non-simple polygon 
-		if (count <= 0 )
-		{
-			// Triangulate: ERROR - probable bad polygon!
-			return false;
-		}
+    while (numVertices > 2)
+    {
+        // if we loop, it is probably a non-simple polygon 
+        if (count <= 0 )
+        {
+            // Triangulate: ERROR - probable bad polygon!
+            return false;
+        }
         --count; 
 
-		// Three consecutive vertices in current polygon, <u,v,w> 
-		// previous 
-	    u = v; 
-		if (u == m_polygonIndices.end()) u =  m_polygonIndices.begin(); // if (nv <= u) u = 0;     
+        // Three consecutive vertices in current polygon, <u,v,w> 
+        // previous 
+        u = v; 
+        if (u == m_polygonIndices.end()) u =  m_polygonIndices.begin(); // if (nv <= u) u = 0;     
 
-		// new v
-		v = u; ++v; //u + 1; 
-		if (v == m_polygonIndices.end()) v =  m_polygonIndices.begin(); //if (nv <= v) v = 0;
+        // new v
+        v = u; ++v; //u + 1; 
+        if (v == m_polygonIndices.end()) v =  m_polygonIndices.begin(); //if (nv <= v) v = 0;
 
-		// next
-		w = v; ++w; //v + 1; 
-		if (w == m_polygonIndices.end()) w =  m_polygonIndices.begin(); //if (nv <= w) w = 0;     
+        // next
+        w = v; ++w; //v + 1; 
+        if (w == m_polygonIndices.end()) w =  m_polygonIndices.begin(); //if (nv <= w) w = 0;     
 
 
-		if ( isTriangleValid(u, v, w) )
-		{
-			// Indices of the vertices 
-			triangleIndices->push_back(*u);
-			triangleIndices->push_back(*v);
-			triangleIndices->push_back(*w);
+        if ( isTriangleValid(u, v, w) )
+        {
+            // Indices of the vertices 
+            triangleIndices->push_back(*u);
+            triangleIndices->push_back(*v);
+            triangleIndices->push_back(*w);
 
-			// Remove v from remaining polygon 
+            // Remove v from remaining polygon 
             m_polygonIndices.erase(v);
             v = w;
-			numVertices--;
+            numVertices--;
 
-			// Resets error detection counter 
-			count = 2*numVertices;
-		}
-	}
+            // Resets error detection counter 
+            count = 2*numVertices;
+        }
+    }
 
-	return true;
+    return true;
 }
 
 
@@ -801,15 +801,15 @@ bool EarClipTesselator::isTriangleValid( std::list<size_t>::const_iterator u, st
 
     if (  m_areaTolerance > (((B[m_X]-A[m_X])*(C[m_Y]-A[m_Y])) - ((B[m_Y]-A[m_Y])*(C[m_X]-A[m_X]))) ) return false;
 
-	std::list<size_t>::const_iterator c;
+    std::list<size_t>::const_iterator c;
     std::list<size_t>::const_iterator outside;
-	for (c = m_polygonIndices.begin(); c != m_polygonIndices.end(); ++c)
-	{
+    for (c = m_polygonIndices.begin(); c != m_polygonIndices.end(); ++c)
+    {
         // The polygon points that actually make up the triangle candidate does not count
         // (but the same points on different positions in the polygon does! 
         // Except those one off the triangle, that references the start or end of the triangle)
 
-		if ( (c == u) || (c == v) || (c == w)) continue;
+        if ( (c == u) || (c == v) || (c == w)) continue;
 
         // Originally the below tests was not included which resulted in missing triangles sometimes
 
@@ -827,10 +827,10 @@ bool EarClipTesselator::isTriangleValid( std::list<size_t>::const_iterator u, st
 
         cvf::Vec3d P = (*m_nodeCoords)[*c];
 
-		if (isPointInsideTriangle(A, B, C, P)) return false;
-	}
+        if (isPointInsideTriangle(A, B, C, P)) return false;
+    }
 
-	return true;
+    return true;
 }
 
 
@@ -843,19 +843,19 @@ bool EarClipTesselator::isPointInsideTriangle(const cvf::Vec3d& A, const cvf::Ve
 {
     CVF_ASSERT(m_X > -1 && m_Y > -1);
     
-	double ax = C[m_X] - B[m_X];  double ay = C[m_Y] - B[m_Y];
-	double bx = A[m_X] - C[m_X];  double by = A[m_Y] - C[m_Y];
-	double cx = B[m_X] - A[m_X];  double cy = B[m_Y] - A[m_Y];
+    double ax = C[m_X] - B[m_X];  double ay = C[m_Y] - B[m_Y];
+    double bx = A[m_X] - C[m_X];  double by = A[m_Y] - C[m_Y];
+    double cx = B[m_X] - A[m_X];  double cy = B[m_Y] - A[m_Y];
 
-	double apx= P[m_X] - A[m_X];  double apy= P[m_Y] - A[m_Y];
-	double bpx= P[m_X] - B[m_X];  double bpy= P[m_Y] - B[m_Y];
-	double cpx= P[m_X] - C[m_X];  double cpy= P[m_Y] - C[m_Y];
+    double apx= P[m_X] - A[m_X];  double apy= P[m_Y] - A[m_Y];
+    double bpx= P[m_X] - B[m_X];  double bpy= P[m_Y] - B[m_Y];
+    double cpx= P[m_X] - C[m_X];  double cpy= P[m_Y] - C[m_Y];
 
-	double aCROSSbp = ax*bpy - ay*bpx;
-	double cCROSSap = cx*apy - cy*apx;
-	double bCROSScp = bx*cpy - by*cpx;
+    double aCROSSbp = ax*bpy - ay*bpx;
+    double cCROSSap = cx*apy - cy*apx;
+    double bCROSScp = bx*cpy - by*cpx;
     double tol = 0;
-	return ((aCROSSbp >= tol) && (bCROSScp >= tol) && (cCROSSap >= tol));
+    return ((aCROSSbp >= tol) && (bCROSScp >= tol) && (cCROSSap >= tol));
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -866,21 +866,21 @@ double EarClipTesselator::calculateProjectedPolygonArea() const
 {
     CVF_ASSERT(m_X > -1 && m_Y > -1);
 
-	double A = 0;
+    double A = 0;
 
-	std::list<size_t>::const_iterator p = m_polygonIndices.end();
+    std::list<size_t>::const_iterator p = m_polygonIndices.end();
     --p;
 
-	std::list<size_t>::const_iterator q = m_polygonIndices.begin();
-	while (q != m_polygonIndices.end())
-	{
-		A += (*m_nodeCoords)[*p][m_X] * (*m_nodeCoords)[*q][m_Y] - (*m_nodeCoords)[*q][m_X]*(*m_nodeCoords)[*p][m_Y];
+    std::list<size_t>::const_iterator q = m_polygonIndices.begin();
+    while (q != m_polygonIndices.end())
+    {
+        A += (*m_nodeCoords)[*p][m_X] * (*m_nodeCoords)[*q][m_Y] - (*m_nodeCoords)[*q][m_X]*(*m_nodeCoords)[*p][m_Y];
 
-		p = q;
-		q++;
-	}
+        p = q;
+        q++;
+    }
 
-	return A*0.5;
+    return A*0.5;
 }
 
 //--------------------------------------------------------------------------------------------------

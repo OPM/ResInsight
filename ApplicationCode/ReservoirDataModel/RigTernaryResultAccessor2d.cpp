@@ -35,9 +35,9 @@ RigTernaryResultAccessor::RigTernaryResultAccessor()
 //--------------------------------------------------------------------------------------------------
 void RigTernaryResultAccessor::setTernaryResultAccessors(RigResultAccessor* soil, RigResultAccessor* sgas, RigResultAccessor* swat)
 {
-	m_soilAccessor = soil;
-	m_sgasAccessor = sgas;
-	m_swatAccessor = swat;
+    m_soilAccessor = soil;
+    m_sgasAccessor = sgas;
+    m_swatAccessor = swat;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,48 +45,48 @@ void RigTernaryResultAccessor::setTernaryResultAccessors(RigResultAccessor* soil
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
-	double soil = 0.0;
-	double sgas = 0.0;
+    double soil = 0.0;
+    double sgas = 0.0;
 
-	if (m_soilAccessor.notNull())
-	{ 
-		soil = m_soilAccessor->cellScalar(gridLocalCellIndex);
+    if (m_soilAccessor.notNull())
+    { 
+        soil = m_soilAccessor->cellScalar(gridLocalCellIndex);
 
-		if (m_sgasAccessor.notNull())
-		{
-			sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
-		}
-		else if (m_swatAccessor.notNull())
-		{
-			sgas = 1.0 - soil - m_swatAccessor->cellScalar(gridLocalCellIndex);
-		}
-		else
-		{
-			sgas = 1.0 - soil;
-		}
-	}
-	else
-	{
-		if (m_sgasAccessor.notNull())
-		{
-			sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
+        if (m_sgasAccessor.notNull())
+        {
+            sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
+        }
+        else if (m_swatAccessor.notNull())
+        {
+            sgas = 1.0 - soil - m_swatAccessor->cellScalar(gridLocalCellIndex);
+        }
+        else
+        {
+            sgas = 1.0 - soil;
+        }
+    }
+    else
+    {
+        if (m_sgasAccessor.notNull())
+        {
+            sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
 
-			if (m_swatAccessor.notNull())
-			{
-				soil = 1.0 - sgas - m_swatAccessor->cellScalar(gridLocalCellIndex);
-			}
-			else
-			{
-				soil = 1.0 - sgas;
-			}
-		}
-		else if (m_swatAccessor.notNull())
-		{
-			soil = 1.0 - m_swatAccessor->cellScalar(gridLocalCellIndex);
-		}
-	}
+            if (m_swatAccessor.notNull())
+            {
+                soil = 1.0 - sgas - m_swatAccessor->cellScalar(gridLocalCellIndex);
+            }
+            else
+            {
+                soil = 1.0 - sgas;
+            }
+        }
+        else if (m_swatAccessor.notNull())
+        {
+            soil = 1.0 - m_swatAccessor->cellScalar(gridLocalCellIndex);
+        }
+    }
 
-	return cvf::Vec2d(soil, sgas);
+    return cvf::Vec2d(soil, sgas);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,5 +94,5 @@ cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2d RigTernaryResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
-	return cellScalar(gridLocalCellIndex);
+    return cellScalar(gridLocalCellIndex);
 }

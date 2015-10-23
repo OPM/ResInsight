@@ -26,11 +26,11 @@
 
 namespace cvf
 {
-	class ScalarMapper;
-	class Part;
-	class Effect;
-	class StructGridQuadToCellFaceMapper;
-	class DrawableGeo;
+    class ScalarMapper;
+    class Part;
+    class Effect;
+    class StructGridQuadToCellFaceMapper;
+    class DrawableGeo;
 }
 
 class RivTernaryScalarMapper;
@@ -46,13 +46,13 @@ public:
     static void applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
     static void applyTernaryTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
 
-	static cvf::ref<cvf::Effect> createCellEdgeEffect(cvf::DrawableGeo* dg,
-		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
-		size_t gridIndex,
-		size_t timeStepIndex,
-		RimEclipseCellColors* cellResultColors,
-		RimCellEdgeColors* cellEdgeResultColors,
-		float opacityLevel,
+    static cvf::ref<cvf::Effect> createCellEdgeEffect(cvf::DrawableGeo* dg,
+        const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+        size_t gridIndex,
+        size_t timeStepIndex,
+        RimEclipseCellColors* cellResultColors,
+        RimCellEdgeColors* cellEdgeResultColors,
+        float opacityLevel,
         cvf::Color3f defaultColor, 
         caf::FaceCulling faceCulling,
         bool disableLighting);

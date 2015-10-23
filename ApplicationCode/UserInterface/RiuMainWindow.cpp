@@ -255,35 +255,35 @@ void RiuMainWindow::createActions()
 
     m_exitAction = new QAction("E&xit", this);
 
-    connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
+    connect(m_openProjectAction,                SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
 
     connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
     
-    connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
-    connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
-    connect(m_mockLargeResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
-    connect(m_mockModelCustomizedAction,	SIGNAL(triggered()), SLOT(slotMockModelCustomized()));
-    connect(m_mockInputModelAction,	    SIGNAL(triggered()), SLOT(slotInputMockModel()));
+    connect(m_mockModelAction,            SIGNAL(triggered()), SLOT(slotMockModel()));
+    connect(m_mockResultsModelAction,    SIGNAL(triggered()), SLOT(slotMockResultsModel()));
+    connect(m_mockLargeResultsModelAction,    SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
+    connect(m_mockModelCustomizedAction,    SIGNAL(triggered()), SLOT(slotMockModelCustomized()));
+    connect(m_mockInputModelAction,        SIGNAL(triggered()), SLOT(slotInputMockModel()));
 
-    connect(m_snapshotToFile,	        SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
-    connect(m_snapshotToClipboard,	    SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
+    connect(m_snapshotToFile,            SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
+    connect(m_snapshotToClipboard,        SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
     connect(m_snapshotAllViewsToFile,   SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
 
     connect(m_createCommandObject,      SIGNAL(triggered()), SLOT(slotCreateCommandObject()));
     connect(m_showRegressionTestDialog, SIGNAL(triggered()), SLOT(slotShowRegressionTestDialog()));
     connect(m_executePaintEventPerformanceTest, SIGNAL(triggered()), SLOT(slotExecutePaintEventPerformanceTest()));
     
-    connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
-    connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
+    connect(m_saveProjectAction,        SIGNAL(triggered()), SLOT(slotSaveProject()));
+    connect(m_saveProjectAsAction,        SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
 
-    connect(m_closeProjectAction,	            SIGNAL(triggered()), SLOT(slotCloseProject()));
+    connect(m_closeProjectAction,                SIGNAL(triggered()), SLOT(slotCloseProject()));
 
     connect(m_exitAction, SIGNAL(triggered()), QApplication::instance(), SLOT(closeAllWindows()));
 
     // Edit actions
     m_editPreferences                = new QAction("&Preferences...", this);
-    connect(m_editPreferences,	  SIGNAL(triggered()), SLOT(slotEditPreferences()));
+    connect(m_editPreferences,      SIGNAL(triggered()), SLOT(slotEditPreferences()));
 
     // View actions
     m_viewFromNorth                = new QAction(QIcon(":/SouthViewArrow.png"), "Look South", this);
@@ -302,13 +302,13 @@ void RiuMainWindow::createActions()
     m_zoomAll                = new QAction(QIcon(":/ZoomAll16x16.png"),"Zoom all", this);
     m_zoomAll->setToolTip("Zoom to view all");
 
-    connect(m_viewFromNorth,	            SIGNAL(triggered()), SLOT(slotViewFromNorth()));
-    connect(m_viewFromSouth,	            SIGNAL(triggered()), SLOT(slotViewFromSouth()));
-    connect(m_viewFromEast, 	            SIGNAL(triggered()), SLOT(slotViewFromEast()));
-    connect(m_viewFromWest, 	            SIGNAL(triggered()), SLOT(slotViewFromWest()));
-    connect(m_viewFromAbove,	            SIGNAL(triggered()), SLOT(slotViewFromAbove()));
-    connect(m_viewFromBelow,	            SIGNAL(triggered()), SLOT(slotViewFromBelow()));
-    connect(m_zoomAll,	                    SIGNAL(triggered()), SLOT(slotZoomAll()));
+    connect(m_viewFromNorth,                SIGNAL(triggered()), SLOT(slotViewFromNorth()));
+    connect(m_viewFromSouth,                SIGNAL(triggered()), SLOT(slotViewFromSouth()));
+    connect(m_viewFromEast,                 SIGNAL(triggered()), SLOT(slotViewFromEast()));
+    connect(m_viewFromWest,                 SIGNAL(triggered()), SLOT(slotViewFromWest()));
+    connect(m_viewFromAbove,                SIGNAL(triggered()), SLOT(slotViewFromAbove()));
+    connect(m_viewFromBelow,                SIGNAL(triggered()), SLOT(slotViewFromBelow()));
+    connect(m_zoomAll,                        SIGNAL(triggered()), SLOT(slotZoomAll()));
 
     // Debug actions
     m_newPropertyView = new QAction("New Project and Property View", this);
@@ -326,18 +326,18 @@ void RiuMainWindow::createActions()
     m_dsActionGroup = new QActionGroup(this);
 
     m_drawStyleLinesAction                = new QAction(QIcon(":/draw_style_lines_24x24.png"), "&Mesh Only", this);
-    //connect(m_drawStyleLinesAction,	    SIGNAL(triggered()), SLOT(slotDrawStyleLines()));
+    //connect(m_drawStyleLinesAction,        SIGNAL(triggered()), SLOT(slotDrawStyleLines()));
     m_dsActionGroup->addAction(m_drawStyleLinesAction);
 
      m_drawStyleLinesSolidAction           = new QAction(QIcon(":/draw_style_meshlines_24x24.png"), "Mesh And Surfaces", this);
-    //connect(m_drawStyleLinesSolidAction,	SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
+    //connect(m_drawStyleLinesSolidAction,    SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
      m_dsActionGroup->addAction(m_drawStyleLinesSolidAction);
 
      m_drawStyleFaultLinesSolidAction           = new QAction(QIcon(":/draw_style_surface_w_fault_mesh_24x24.png"), "Fault Mesh And Surfaces", this);
      m_dsActionGroup->addAction(m_drawStyleFaultLinesSolidAction);
 
     m_drawStyleSurfOnlyAction             = new QAction(QIcon(":/draw_style_surface_24x24.png"), "&Surface Only", this);
-    //connect(m_drawStyleSurfOnlyAction,	SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
+    //connect(m_drawStyleSurfOnlyAction,    SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
     m_dsActionGroup->addAction(m_drawStyleSurfOnlyAction);
 
 
@@ -345,21 +345,21 @@ void RiuMainWindow::createActions()
 
     m_disableLightingAction = new QAction(QIcon(":/disable_lighting_24x24.png"), "&Disable Results Lighting", this);
     m_disableLightingAction->setCheckable(true);
-    connect(m_disableLightingAction,	SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
+    connect(m_disableLightingAction,    SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
 
 
     m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
     m_drawStyleToggleFaultsAction->setCheckable(true);
-    connect(m_drawStyleToggleFaultsAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
+    connect(m_drawStyleToggleFaultsAction,    SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
 
     m_toggleFaultsLabelAction             = new QAction( QIcon(":/draw_style_faults_label_24x24.png"), "&Show Fault Labels", this);
     m_toggleFaultsLabelAction->setCheckable(true);
-    connect(m_toggleFaultsLabelAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultLabelsAction(bool)));
+    connect(m_toggleFaultsLabelAction,    SIGNAL(toggled(bool)), SLOT(slotToggleFaultLabelsAction(bool)));
 
     m_addWellCellsToRangeFilterAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Add Well Cells To Range Filter", this);
     m_addWellCellsToRangeFilterAction->setCheckable(true);
     m_addWellCellsToRangeFilterAction->setToolTip("Add Well Cells To Range Filter based on the individual settings");
-    connect(m_addWellCellsToRangeFilterAction,	SIGNAL(toggled(bool)), SLOT(slotAddWellCellsToRangeFilterAction(bool)));
+    connect(m_addWellCellsToRangeFilterAction,    SIGNAL(toggled(bool)), SLOT(slotAddWellCellsToRangeFilterAction(bool)));
 
 }
 
@@ -576,18 +576,18 @@ void RiuMainWindow::createToolBars()
 
 void RiuMainWindow::createDockPanels()
 {
-	{
-		QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
-		dockWidget->setObjectName("dockWidget");
-		dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
+    {
+        QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
-		m_projectTreeView = new caf::PdmUiTreeView(this);
+        m_projectTreeView = new caf::PdmUiTreeView(this);
         m_projectTreeView->enableSelectionManagerUpdating(true);
 
         RiaApplication* app = RiaApplication::instance();
         m_projectTreeView->enableAppendOfClassNameToUiItemText(app->preferences()->appendClassNameToUiText());
 
-		dockWidget->setWidget(m_projectTreeView);
+        dockWidget->setWidget(m_projectTreeView);
 
         m_projectTreeView->treeView()->setHeaderHidden(true);
         m_projectTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -602,13 +602,13 @@ void RiuMainWindow::createDockPanels()
         RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter(this);
         m_projectTreeView->treeView()->installEventFilter(treeViewEventFilter);
 
-		addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
-		connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
+        connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
         m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
-	}
-	
+    }
+    
 /*
     {
         QDockWidget* dockWidget = new QDockWidget("Undo stack", this);
@@ -676,7 +676,7 @@ void RiuMainWindow::createDockPanels()
 //     }
 
  
-    setCorner(Qt::BottomLeftCorner,	Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 }
 
@@ -1317,7 +1317,7 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 {
     m_pdmRoot = pdmRoot;
 
-	m_projectTreeView->setPdmItem(pdmRoot);
+    m_projectTreeView->setPdmItem(pdmRoot);
     // For debug only : m_projectTreeView->treeView()->expandAll();
     m_projectTreeView->setDragDropInterface(m_dragDropInterface);
 
@@ -1559,18 +1559,18 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotEditPreferences()
 {
-	RiaApplication* app = RiaApplication::instance();
-	caf::PdmUiPropertyViewDialog propertyDialog(this, app->preferences(), "Preferences", "");
+    RiaApplication* app = RiaApplication::instance();
+    caf::PdmUiPropertyViewDialog propertyDialog(this, app->preferences(), "Preferences", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
-		caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
+        caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
         app->applyPreferences();
     }
     else
     {
         // Read back currently stored values using QSettings
-		caf::PdmSettings::readFieldsFromApplicationStore(app->preferences());
+        caf::PdmSettings::readFieldsFromApplicationStore(app->preferences());
     }
 }
 
@@ -1594,7 +1594,7 @@ void RiuMainWindow::slotFramerateChanged(double frameRate)
 {
     if (RiaApplication::instance()->activeReservoirView() != NULL)
     {
-		caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->maximumFrameRate.uiCapability();
+        caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->maximumFrameRate.uiCapability();
         uiFieldHandle->setValueFromUi(QVariant(frameRate));
     }
 }
@@ -1871,7 +1871,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
     RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeRiv) return;
 
-	caf::PdmUiFieldHandle* uiFieldHandle = activeRiv->faultCollection->showFaultLabel.uiCapability();
+    caf::PdmUiFieldHandle* uiFieldHandle = activeRiv->faultCollection->showFaultLabel.uiCapability();
     uiFieldHandle->setValueFromUi(showLabels);
 
     refreshDrawStyleActions();
@@ -1994,7 +1994,7 @@ void RiuMainWindow::slotScaleChanged(int scaleValue)
 {
     if (RiaApplication::instance()->activeReservoirView())
     {
-		caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->scaleZ.uiCapability();
+        caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->scaleZ.uiCapability();
         uiFieldHandle->setValueFromUi(scaleValue);
     }
 }
@@ -2080,13 +2080,13 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     RiaRegressionTest regTestConfig;
 
     RiaApplication* app = RiaApplication::instance();
-	caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
+    caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
 
     caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings and apply them to the application
-		caf::PdmSettings::writeFieldsToApplicationStore(&regTestConfig);
+        caf::PdmSettings::writeFieldsToApplicationStore(&regTestConfig);
 
         QString currentApplicationPath = QDir::currentPath();
 
@@ -2143,7 +2143,7 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
         caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> rangeAddType;
         rangeAddType = doAdd ? RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL : RimEclipseWellCollection::RANGE_ADD_NONE;
 
-		caf::PdmUiFieldHandle* pdmUiFieldHandle = riv->wellCollection()->wellCellsToRangeFilterMode.uiCapability();
+        caf::PdmUiFieldHandle* pdmUiFieldHandle = riv->wellCollection()->wellCellsToRangeFilterMode.uiCapability();
         if (pdmUiFieldHandle)
         {
             pdmUiFieldHandle->setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));

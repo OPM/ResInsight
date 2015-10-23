@@ -800,7 +800,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(propertyFilter->resultDefinition()->porosityModel());
                 RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
 
-				cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
                 CVF_ASSERT(resultAccessor.notNull());
 
                 //#pragma omp parallel for schedule(dynamic)
@@ -867,7 +867,7 @@ void RivReservoirViewPartMgr::updateCellResultColor(RivCellSetEnum geometryType,
 void RivReservoirViewPartMgr::updateCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
     RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
-	pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
+    pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -875,8 +875,8 @@ void RivReservoirViewPartMgr::updateCellEdgeResultColor(RivCellSetEnum geometryT
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
-	RivReservoirPartMgr * pmgr = reservoirPartManager(geometryType, timeStepIndex);
-	pmgr->updateFaultCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
+    RivReservoirPartMgr * pmgr = reservoirPartManager(geometryType, timeStepIndex);
+    pmgr->updateFaultCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
 }
 
 //--------------------------------------------------------------------------------------------------

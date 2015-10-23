@@ -38,11 +38,11 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
-	RimEclipseCellColors* cellResultColors, 
-	RimTernaryLegendConfig* ternaryLegendConfig,
-	size_t timeStepIndex, 
-	size_t gridIndex, 
-	const cvf::StructGridQuadToCellFaceMapper* quadMapper)
+    RimEclipseCellColors* cellResultColors, 
+    RimTernaryLegendConfig* ternaryLegendConfig,
+    size_t timeStepIndex, 
+    size_t gridIndex, 
+    const cvf::StructGridQuadToCellFaceMapper* quadMapper)
 {
     RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
@@ -55,12 +55,12 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
 
-	cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SOIL");
-	cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SGAS");
-	cvf::ref<RigResultAccessor> swat = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SWAT");
-	
-	m_resultAccessor = new RigTernaryResultAccessor();
-	m_resultAccessor->setTernaryResultAccessors(soil.p(), sgas.p(), swat.p());
+    cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SOIL");
+    cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SGAS");
+    cvf::ref<RigResultAccessor> swat = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SWAT");
+    
+    m_resultAccessor = new RigTernaryResultAccessor();
+    m_resultAccessor->setTernaryResultAccessors(soil.p(), sgas.p(), swat.p());
 
     cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator( cellResultColors->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
         eclipseCase->gridCellToWellIndex(gridIndex));
@@ -76,17 +76,17 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
 //--------------------------------------------------------------------------------------------------
 void RivTernaryTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCoords)
 {
-	createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
+    createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivTernaryTextureCoordsCreator::createTextureCoords(
-	cvf::Vec2fArray* quadTextureCoords,
-	const cvf::StructGridQuadToCellFaceMapper* quadMapper,
-	const RigTernaryResultAccessor* resultAccessor,
-	const RivTernaryResultToTextureMapper* texMapper)
+    cvf::Vec2fArray* quadTextureCoords,
+    const cvf::StructGridQuadToCellFaceMapper* quadMapper,
+    const RigTernaryResultAccessor* resultAccessor,
+    const RivTernaryResultToTextureMapper* texMapper)
 {
     CVF_ASSERT(quadTextureCoords && quadMapper && resultAccessor && texMapper);
 
@@ -94,7 +94,7 @@ void RivTernaryTextureCoordsCreator::createTextureCoords(
     quadTextureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = quadTextureCoords->ptr();
 
-	cvf::Vec2d resultValue;
+    cvf::Vec2d resultValue;
     cvf::Vec2f texCoord;
 
 #pragma omp parallel for private(texCoord, resultValue)

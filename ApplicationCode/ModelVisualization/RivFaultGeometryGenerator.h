@@ -50,8 +50,8 @@ public:
     
     // Mapping between cells and geometry
 
-    const cvf::StructGridQuadToCellFaceMapper*		quadToCellFaceMapper()     { return m_quadMapper.p(); }
-    const cvf::StuctGridTriangleToCellFaceMapper*	triangleToCellFaceMapper() { return m_triangleMapper.p(); }
+    const cvf::StructGridQuadToCellFaceMapper*        quadToCellFaceMapper()     { return m_quadMapper.p(); }
+    const cvf::StuctGridTriangleToCellFaceMapper*    triangleToCellFaceMapper() { return m_triangleMapper.p(); }
 
     // Generated geometry
     cvf::ref<cvf::DrawableGeo>    generateSurface();

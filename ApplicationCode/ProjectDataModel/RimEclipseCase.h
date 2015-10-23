@@ -71,7 +71,7 @@ public:
     RigCaseData*                                reservoirData();
     const RigCaseData*                          reservoirData() const;
 
-    RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RimReservoirCellResultsStorage*                results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
     RimEclipseView*                           createAndAddReservoirView();
 

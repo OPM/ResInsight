@@ -152,7 +152,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     //cvf::Trace::enable(false);
 
     m_preferences = new RiaPreferences;
-	caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
+    caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
     applyPreferences();
 
     if (useShaders())
@@ -568,7 +568,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
     m_project->writeFile();
 
     m_preferences->lastUsedProjectFileName = fileName;
-	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
     return true;
 }
@@ -892,7 +892,7 @@ RimWellLogPlot* RiaApplication::activeWellLogPlot()
 void RiaApplication::setUseShaders(bool enable)
 {
     m_preferences->useShaders = enable;
-	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,7 +924,7 @@ RiaApplication::RINavigationPolicy RiaApplication::navigationPolicy() const
 void RiaApplication::setShowPerformanceInfo(bool enable)
 {
     m_preferences->showHud = enable;
-	caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 
@@ -2245,7 +2245,7 @@ void RiaApplication::regressionTestConfigureProject()
             {
                 resvView->faultCollection->setShowFaultsOutsideFilters(false);
 
-				caf::PdmUiFieldHandle* uiFieldHandle = resvView->faultResultSettings->showCustomFaultResult.uiCapability();
+                caf::PdmUiFieldHandle* uiFieldHandle = resvView->faultResultSettings->showCustomFaultResult.uiCapability();
                 if (uiFieldHandle)
                 {
                     uiFieldHandle->setValueFromUi(false);

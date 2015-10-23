@@ -33,12 +33,12 @@ class RigHistogramCalculator;
 class RigStatisticsCalculator : public cvf::Object
 {
 public:
-    virtual void	minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max) = 0;
-	virtual void	posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg) = 0;
-	
-	void	        meanCellScalarValue(double& meanValue);
-	virtual void	valueSumAndSampleCount(double& valueSum, size_t& sampleCount) = 0;
-	virtual void	addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator) = 0;
+    virtual void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max) = 0;
+    virtual void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg) = 0;
+    
+    void            meanCellScalarValue(double& meanValue);
+    virtual void    valueSumAndSampleCount(double& valueSum, size_t& sampleCount) = 0;
+    virtual void    addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator) = 0;
 
     virtual size_t  timeStepCount() = 0;
 };

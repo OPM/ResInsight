@@ -295,12 +295,12 @@ void RimProject::initAfterRead()
     {
         casesObsolete.clear();
     }
-	
-	if (casesObsolete().size() > 0 || caseGroupsObsolete.size() > 0)
-	{
-		//printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from Project to analysisModels", 
-		  //  casesObsolete().size(), caseGroupsObsolete.size());
-	}
+    
+    if (casesObsolete().size() > 0 || caseGroupsObsolete.size() > 0)
+    {
+        //printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from Project to analysisModels", 
+          //  casesObsolete().size(), caseGroupsObsolete.size());
+    }
 
     // Set project pointer to each well path
     for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)

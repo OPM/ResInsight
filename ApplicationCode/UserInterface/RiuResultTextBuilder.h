@@ -30,7 +30,7 @@ class QString;
 class RigCaseData;
 
 namespace cvf {
-	class Part;
+    class Part;
 }
 
 //==================================================================================================
@@ -40,15 +40,15 @@ namespace cvf {
 class RiuResultTextBuilder
 {
 public:
-	RiuResultTextBuilder(RimEclipseView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex);
+    RiuResultTextBuilder(RimEclipseView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex);
     void setFace(cvf::StructGridInterface::FaceType face);
     void setNncIndex(size_t nncIndex);
     void setIntersectionPoint(cvf::Vec3d intersectionPoint);
 
     QString mainResultText();
 
-	QString topologyText(QString itemSeparator);
-	
+    QString topologyText(QString itemSeparator);
+    
 private:
     void appendDetails(QString& text, const QString& details);
 
@@ -64,18 +64,18 @@ private:
 
     QString cellResultText(RimEclipseCellColors* resultColors);
 
-	void appendTextFromResultColors(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultColors, QString* resultInfoText);
+    void appendTextFromResultColors(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultColors, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimEclipseView> m_reservoirView;
 
-	size_t m_gridIndex;
-	size_t m_cellIndex;
-	size_t m_timeStepIndex;
+    size_t m_gridIndex;
+    size_t m_cellIndex;
+    size_t m_timeStepIndex;
 
-	cvf::StructGridInterface::FaceType m_face;
+    cvf::StructGridInterface::FaceType m_face;
 
     size_t      m_nncIndex;
 
-	cvf::Vec3d m_intersectionPoint;
+    cvf::Vec3d m_intersectionPoint;
 };

@@ -230,37 +230,37 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
     // Outer surface
-	if (m_surfaceFaces.notNull())
-	{
-		if (cellResultColors->isTernarySaturationSelected())
-		{
-			RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
-				timeStepIndex,
-				m_grid->gridIndex(),
-				m_surfaceGenerator.quadToCellFaceMapper());
+    if (m_surfaceFaces.notNull())
+    {
+        if (cellResultColors->isTernarySaturationSelected())
+        {
+            RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
+                timeStepIndex,
+                m_grid->gridIndex(),
+                m_surfaceGenerator.quadToCellFaceMapper());
 
-			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
+            texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
-			const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
+            const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
-		}
-		else
-		{
-			RivTextureCoordsCreator texturer(cellResultColors,
-				timeStepIndex,
-				m_grid->gridIndex(),
-				m_surfaceGenerator.quadToCellFaceMapper());
-			if (!texturer.isValid())
-			{
-				return;
-			}
+        }
+        else
+        {
+            RivTextureCoordsCreator texturer(cellResultColors,
+                timeStepIndex,
+                m_grid->gridIndex(),
+                m_surfaceGenerator.quadToCellFaceMapper());
+            if (!texturer.isValid())
+            {
+                return;
+            }
 
-			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
+            texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
-			const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
+            const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
-		}
-	}
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,17 +268,17 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
-	if (m_surfaceFaces.notNull())
-	{
-		cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
-		if (dg)
-		{
-			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_surfaceGenerator.quadToCellFaceMapper(), m_grid->gridIndex(),
-				timeStepIndex, cellResultColors, cellEdgeResultColors, m_opacityLevel, m_defaultColor, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
+    if (m_surfaceFaces.notNull())
+    {
+        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
+        if (dg)
+        {
+            cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_surfaceGenerator.quadToCellFaceMapper(), m_grid->gridIndex(),
+                timeStepIndex, cellResultColors, cellEdgeResultColors, m_opacityLevel, m_defaultColor, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
 
-			m_surfaceFaces->setEffect(eff.p());
-		}
-	}
+            m_surfaceFaces->setEffect(eff.p());
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

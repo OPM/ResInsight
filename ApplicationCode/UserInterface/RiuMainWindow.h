@@ -47,7 +47,7 @@ class RiuWellLogPlot;
 
 namespace caf
 {
-	class PdmUiTreeView;
+    class PdmUiTreeView;
     class AnimationToolBar;
     class FrameAnimationControl;
     class PdmObject;
@@ -76,8 +76,8 @@ public:
     RiuMainWindow();
     static RiuMainWindow* instance();
     
-    void		    initializeGuiNewProjectLoaded();
-    void		    cleanupGuiBeforeProjectClose();
+    void            initializeGuiNewProjectLoaded();
+    void            cleanupGuiBeforeProjectClose();
 
     void            removeViewer( QWidget* viewer );
     void            addViewer(QWidget* viewer, const std::vector<int>& windowsGeometry);
@@ -93,8 +93,8 @@ public:
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
-    void			loadWinGeoAndDockToolBarLayout();
-    void			showWindow();
+    void            loadWinGeoAndDockToolBarLayout();
+    void            showWindow();
 
     void            setCurrentObjectInTreeView(caf::PdmObject* object);
 
@@ -118,14 +118,14 @@ public:
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 
 protected:
-    virtual void	closeEvent(QCloseEvent* event);
+    virtual void    closeEvent(QCloseEvent* event);
 
 private:
     void            createActions();
     void            createMenus();
     void            createToolBars();
     void            createDockPanels();
-    void			saveWinGeoAndDockToolBarLayout();
+    void            saveWinGeoAndDockToolBarLayout();
 
     bool            checkForDocumentModifications();
 
@@ -137,17 +137,17 @@ private:
 private:
     static RiuMainWindow*    sm_mainWindowInstance;
     
-    QByteArray			    m_initialDockAndToolbarLayout;	// Initial dock window and toolbar layout, used to reset GUI
+    QByteArray                m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
 private:
     // File actions
     QAction*            m_importGeoMechCaseAction;
-    QAction*		    m_openProjectAction;
-    QAction*		    m_openLastUsedProjectAction;
-    QAction*		    m_saveProjectAction;
-    QAction*		    m_saveProjectAsAction;
+    QAction*            m_openProjectAction;
+    QAction*            m_openLastUsedProjectAction;
+    QAction*            m_saveProjectAction;
+    QAction*            m_saveProjectAsAction;
     QAction*            m_closeProjectAction;
-    QAction*		    m_exitAction;
+    QAction*            m_exitAction;
 
     // Recent files
     enum { MaxRecentFiles = 5 };
@@ -157,28 +157,28 @@ private:
 
 
     // Edit actions
-    QAction*		    m_editPreferences;
-    QAction*		    m_newPropertyView;
+    QAction*            m_editPreferences;
+    QAction*            m_newPropertyView;
 
     // View actions
-    QAction*		    m_viewFromNorth;
-    QAction*		    m_viewFromSouth;
-    QAction*		    m_viewFromEast;
-    QAction*		    m_viewFromWest;
-    QAction*		    m_viewFromAbove;
-    QAction*		    m_viewFromBelow;
-    QAction*		    m_zoomAll;
+    QAction*            m_viewFromNorth;
+    QAction*            m_viewFromSouth;
+    QAction*            m_viewFromEast;
+    QAction*            m_viewFromWest;
+    QAction*            m_viewFromAbove;
+    QAction*            m_viewFromBelow;
+    QAction*            m_zoomAll;
 
     // Mock actions
-    QAction*		    m_mockModelAction;
-    QAction*		    m_mockResultsModelAction;
-    QAction*		    m_mockLargeResultsModelAction;
-    QAction*		    m_mockModelCustomizedAction;
-    QAction*		    m_mockInputModelAction;
+    QAction*            m_mockModelAction;
+    QAction*            m_mockResultsModelAction;
+    QAction*            m_mockLargeResultsModelAction;
+    QAction*            m_mockModelCustomizedAction;
+    QAction*            m_mockInputModelAction;
 
-    QAction*		    m_snapshotToFile;
-    QAction*		    m_snapshotToClipboard;
-    QAction*		    m_snapshotAllViewsToFile;
+    QAction*            m_snapshotToFile;
+    QAction*            m_snapshotToClipboard;
+    QAction*            m_snapshotAllViewsToFile;
 
     QAction*            m_createCommandObject;
     QAction*            m_showRegressionTestDialog;
@@ -276,7 +276,7 @@ private slots:
 
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
 
-	void	selectedObjectsChanged();
+    void    selectedObjectsChanged();
     void    customMenuRequested(const QPoint& pos);
 
 
@@ -287,7 +287,7 @@ private slots:
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 private:
-	caf::PdmUiTreeView*			m_projectTreeView;
+    caf::PdmUiTreeView*            m_projectTreeView;
     
     caf::PdmUiDragDropInterface* m_dragDropInterface;
     

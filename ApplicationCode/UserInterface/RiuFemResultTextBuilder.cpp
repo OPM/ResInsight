@@ -38,9 +38,9 @@ RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView, 
     CVF_ASSERT(reservoirView);
     
     m_reservoirView = reservoirView;
-	m_gridIndex = gridIndex;
-	m_cellIndex = cellIndex;
-	m_timeStepIndex = timeStepIndex;
+    m_gridIndex = gridIndex;
+    m_cellIndex = cellIndex;
+    m_timeStepIndex = timeStepIndex;
 
     m_intersectionPoint = cvf::Vec3d::UNDEFINED;
     m_face = cvf::StructGridInterface::NO_FACE;
@@ -79,7 +79,7 @@ QString RiuFemResultTextBuilder::mainResultText()
 
     appendDetails(text, gridResultDetails());
 
-	return text;
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,21 +135,21 @@ QString RiuFemResultTextBuilder::topologyText(QString itemSeparator)
 //--------------------------------------------------------------------------------------------------
 QString RiuFemResultTextBuilder::gridResultDetails()
 {
-	QString text;
+    QString text;
 
-	if (m_reservoirView->geoMechCase() && m_reservoirView->geoMechCase()->geoMechData())
-	{
-		RigGeoMechCaseData* eclipseCaseData = m_reservoirView->geoMechCase()->geoMechData();
+    if (m_reservoirView->geoMechCase() && m_reservoirView->geoMechCase()->geoMechData())
+    {
+        RigGeoMechCaseData* eclipseCaseData = m_reservoirView->geoMechCase()->geoMechData();
 
-		this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
+        this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
 
         if (!text.isEmpty())
         {
             text.prepend("-- Element result details --\n");
         }
-	}
+    }
 
-	return text;
+    return text;
 }
 
 
@@ -158,10 +158,10 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 //--------------------------------------------------------------------------------------------------
 void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText)
 {
-	if (!resultColors)
-	{
-		return;
-	}
+    if (!resultColors)
+    {
+        return;
+    }
 
     if (resultColors->hasResult())
     {
@@ -218,16 +218,16 @@ void RiuFemResultTextBuilder::appendDetails(QString& text, const QString& detail
 QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechCellColors* resultColors)
 {
     QString text;
-	if (!resultColors)
-	{
-		return text;
-	}
+    if (!resultColors)
+    {
+        return text;
+    }
 
     if (resultColors->hasResult())
     {
-    	if (! (m_reservoirView->geoMechCase() && m_reservoirView->geoMechCase()->geoMechData())) return text;
-	
-		RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
+        if (! (m_reservoirView->geoMechCase() && m_reservoirView->geoMechCase()->geoMechData())) return text;
+    
+        RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
 
         const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultColors->resultAddress(), m_gridIndex, m_timeStepIndex);
         if (scalarResults.size())
