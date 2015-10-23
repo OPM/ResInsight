@@ -219,9 +219,8 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
         QList<PdmOptionItemInfo> enumNames = field()->valueOptions(&fromMenuOnly);
         if (!enumNames.isEmpty() && fromMenuOnly == true)
         {
-            QStringList uiTexts = PdmOptionItemInfo::extractUiTexts(enumNames);
             int enumValue = field()->uiValue().toInt();
-            m_lineEdit->setText(uiTexts.at(enumValue));
+            m_lineEdit->setText(enumNames[enumValue].optionUiText);
         }
         else
         {

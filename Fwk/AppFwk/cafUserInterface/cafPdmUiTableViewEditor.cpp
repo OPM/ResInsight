@@ -178,7 +178,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         QString text = "";
 		m_tableHeadingIcon->setPixmap(m_pdmListField->uiCapability()->uiIcon(uiConfigName).pixmap(16, 16));
-		m_tableHeading->setText(m_pdmListField->uiCapability()->uiName(uiConfigName));
+		m_tableHeading->setText(m_pdmListField->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(m_pdmListField->size()));
     }
     else
     {
