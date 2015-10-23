@@ -107,10 +107,19 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& object
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
-    objectGroup.createCopyByType(&typedObjects, PdmDefaultObjectFactory::instance());
+    std::vector<RimEclipseResultCase*> resultCases;
 
-    if (typedObjects.size() == 0)
+    for (size_t i = 0; i < objectGroup.objects.size(); i++)
+    {
+        RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(objectGroup.objects[i]);
+        if (eclCase)
+        {
+            RimEclipseResultCase* eclCaseCopy = dynamic_cast<RimEclipseResultCase*>(eclCase->copyByXmlSerialization(PdmDefaultObjectFactory::instance()));
+            resultCases.push_back(eclCaseCopy);
+        }
+    }
+
+    if (resultCases.size() == 0)
     {
         return;
     }
@@ -130,9 +139,9 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& object
     std::vector<RimEclipseResultCase*> insertedCases;
 
     // Add cases to case group
-    for (size_t i = 0; i < typedObjects.size(); i++)
+    for (size_t i = 0; i < resultCases.size(); i++)
     {
-        RimEclipseResultCase* rimResultReservoir = typedObjects[i];
+        RimEclipseResultCase* rimResultReservoir = resultCases[i];
 
         proj->assignCaseIdToCase(rimResultReservoir);
 
@@ -144,18 +153,10 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& object
         insertedCases.push_back(rimResultReservoir);
     }
 
-    // Initialize the new objects
-    for (size_t i = 0; i < insertedCases.size(); i++)
-    {
-        RimEclipseResultCase* rimResultReservoir = insertedCases[i];
-        rimResultReservoir->initAfterReadRecursively();
-    }
-
     // Load stuff 
     for (size_t i = 0; i < insertedCases.size(); i++)
     {
         RimEclipseResultCase* rimResultReservoir = insertedCases[i];
-
 
         if (!mainResultCase)
         {

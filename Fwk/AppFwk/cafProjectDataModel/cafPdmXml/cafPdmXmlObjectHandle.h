@@ -36,6 +36,7 @@ public:
     void                    readObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
     QString                 writeObjectToXmlString();
     static PdmObjectHandle* readUnknownObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
+    PdmObjectHandle*        copyByXmlSerialization(PdmObjectFactory* objectFactory);
 
     // Main XML serialization methods that is used internally by the document serialization system
     // Not supposed to be used directly. 

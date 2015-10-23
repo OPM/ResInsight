@@ -173,6 +173,21 @@ PdmObjectHandle* PdmXmlObjectHandle::readUnknownObjectFromXmlString(const QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+PdmObjectHandle* PdmXmlObjectHandle::copyByXmlSerialization(PdmObjectFactory* objectFactory)
+{
+    this->setupBeforeSaveRecursively();
+
+    QString xmlString = this->writeObjectToXmlString();
+
+    PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xmlString, objectFactory);
+    objectCopy->xmlCapability()->initAfterReadRecursively();
+
+    return objectCopy;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString PdmXmlObjectHandle::writeObjectToXmlString()
 {
     QString xmlString;
