@@ -62,7 +62,7 @@ set( PROJECT_FILES
     cafPdmUiComboBoxEditor.h
     cafPdmUiDoubleSliderEditor.cpp
     cafPdmUiDoubleSliderEditor.h
-    cafPdmUiDragDropHandle.h
+    cafPdmUiDragDropInterface.h
     cafPdmUiFilePathEditor.cpp
     cafPdmUiFilePathEditor.h
     cafPdmUiLineEditor.cpp

@@ -61,7 +61,7 @@ namespace caf
 class PdmUiItem;
 class PdmUiTreeViewModel;
 class PdmChildArrayFieldHandle;
-class PdmUiDragDropHandle;
+class PdmUiDragDropInterface;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -75,38 +75,6 @@ public:
 
 public:
     QStringList columnHeaders;
-};
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class PdmUiTreeViewWidget : public QTreeView
-{
-public:
-    PdmUiTreeViewWidget(QWidget* parent = 0) : QTreeView(parent) {};
-    virtual ~PdmUiTreeViewWidget() {};
-
-protected:
-    virtual void dragMoveEvent(QDragMoveEvent* event)
-    {
-        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
-        if (treeViewModel)
-        {
-            treeViewModel->updateDragDropHandleFromEvent(event);
-        }
-
-        QTreeView::dragMoveEvent(event);
-    }
-    virtual void dragLeaveEvent(QDragLeaveEvent* event)
-    {
-        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
-        if (treeViewModel)
-        {
-            treeViewModel->endDrag();
-        }
-
-        QTreeView::dragLeaveEvent(event);
-    }
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +104,7 @@ public:
 
     QWidget*            createWidget(QWidget* parent);
 
-    void                setDragDropHandle(PdmUiDragDropHandle* dragDropHandle);
+    void                setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
 
 signals:
     void                selectionChanged();
@@ -165,7 +133,7 @@ private:
     QPointer<QWidget>               m_mainWidget;
     QVBoxLayout*                    m_layout;
 
-    PdmUiTreeViewWidget*            m_treeView;
+    QTreeView*                      m_treeView;
     PdmUiTreeViewModel*             m_treeViewModel;
 
     PdmUiTreeViewEditorAttribute    m_editorAttributes;

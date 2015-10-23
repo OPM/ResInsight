@@ -39,22 +39,58 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiCommandSystemProxy.h"
+#include "cafPdmUiDragDropInterface.h"
+#include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewModel.h"
 #include "cafSelectionManager.h"
 
+#include <QDragMoveEvent>
+#include <QEvent>
 #include <QGridLayout>
 #include <QMenu>
 #include <QModelIndexList>
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QWidget>
-#include <QEvent>
 
 namespace caf
 {
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiTreeViewWidget : public QTreeView
+{
+public:
+    PdmUiTreeViewWidget(QWidget* parent = 0) : QTreeView(parent) {};
+    virtual ~PdmUiTreeViewWidget() {};
+
+protected:
+    virtual void dragMoveEvent(QDragMoveEvent* event)
+    {
+        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
+        if (treeViewModel && treeViewModel->dragDropInterface())
+        {
+            treeViewModel->dragDropInterface()->onProposedDropActionUpdated(event->proposedAction());
+        }
+
+        QTreeView::dragMoveEvent(event);
+    }
+
+    virtual void dragLeaveEvent(QDragLeaveEvent* event)
+    {
+        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
+        if (treeViewModel && treeViewModel->dragDropInterface())
+        {
+            treeViewModel->dragDropInterface()->onDragCanceled();
+        }
+
+        QTreeView::dragLeaveEvent(event);
+    }
+};
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -291,9 +327,9 @@ QModelIndex PdmUiTreeViewEditor::findModelIndex(const PdmUiItem* object) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
+void PdmUiTreeViewEditor::setDragDropInterface(PdmUiDragDropInterface* dragDropInterface)
 {
-    m_treeViewModel->setDragDropHandle(dragDropHandle);
+    m_treeViewModel->setDragDropInterface(dragDropInterface);
 }
 
 //--------------------------------------------------------------------------------------------------

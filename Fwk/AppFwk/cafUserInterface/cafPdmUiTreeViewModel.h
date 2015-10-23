@@ -50,7 +50,7 @@ class PdmObjectHandle;
 class PdmUiItem;
 class PdmUiTreeViewEditor;
 class PdmUiTreeOrdering;
-class PdmUiDragDropHandle;
+class PdmUiDragDropInterface;
 
 //==================================================================================================
 //
@@ -75,9 +75,8 @@ public:
     PdmUiItem*              uiItemFromModelIndex(const QModelIndex& index) const;
     QModelIndex             findModelIndex(const PdmUiItem* object) const;
 
-    void                    setDragDropHandle(PdmUiDragDropHandle* dragDropHandle);
-    void                    updateDragDropHandleFromEvent(const QDragMoveEvent* event);
-    void                    endDrag();
+    void                    setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
+    PdmUiDragDropInterface* dragDropInterface();
     
 private:
     void                    updateSubTreeRecursive(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);
@@ -95,7 +94,7 @@ private:
 
     PdmUiTreeViewEditor*    m_treeViewEditor;
 
-    PdmUiDragDropHandle*    m_dragDropHandle;
+    PdmUiDragDropInterface*    m_dragDropInterface;
 
 private:
 

@@ -105,7 +105,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 RiuDragDrop::RiuDragDrop()
 {
-    m_proposedAction = Qt::MoveAction;
+    m_proposedDropAction = Qt::MoveAction;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
                 itemflags |= Qt::ItemIsDropEnabled;
             }
         }
-        else if (m_proposedAction == Qt::MoveAction)
+        else if (m_proposedDropAction == Qt::MoveAction)
         {
             if (dynamic_cast<RimWellLogPlot*>(uiItem))
             {
@@ -191,7 +191,7 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
                 }
             }
         }
-        else if (m_proposedAction == Qt::CopyAction)
+        else if (m_proposedDropAction == Qt::CopyAction)
         {
             if (dynamic_cast<RimWellLogPlotTrack*>(uiItem))
             {
@@ -290,7 +290,7 @@ QStringList RiuDragDrop::mimeTypes() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuDragDrop::endDrag()
+void RiuDragDrop::onDragCanceled()
 {
     m_dragItems.clear();
 }
@@ -449,7 +449,7 @@ std::vector<caf::PdmPointer<caf::PdmObjectHandle> > RiuDragDrop::objectHandlesFr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuDragDrop::setProposedAction(Qt::DropAction action)
+void RiuDragDrop::onProposedDropActionUpdated(Qt::DropAction action)
 {
-    m_proposedAction = action;
+    m_proposedDropAction = action;
 }

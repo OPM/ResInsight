@@ -47,20 +47,28 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class PdmUiDragDropHandle
+class PdmUiDragDropInterface
 {
 public:
-    virtual ~PdmUiDragDropHandle() = 0;
+    virtual ~PdmUiDragDropInterface() = 0;
 
+protected:
+
+    friend class PdmUiTreeViewModel;
+    friend class PdmUiTreeViewWidget;
+
+    // Forwarding from Qt functions in QAbstractItemModel
     virtual Qt::DropActions     supportedDropActions() const = 0;
     virtual Qt::ItemFlags       flags(const QModelIndex &index) const = 0;
     virtual bool                dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) = 0;
     virtual QMimeData*          mimeData(const QModelIndexList &indexes) const = 0;
     virtual QStringList         mimeTypes() const = 0;
-    virtual void                endDrag() = 0;
-    virtual void                setProposedAction(Qt::DropAction action) = 0;
+
+    // Forwarding of tree view events
+    virtual void                onDragCanceled() = 0;
+    virtual void                onProposedDropActionUpdated(Qt::DropAction action) = 0;
 };
 
-inline PdmUiDragDropHandle::~PdmUiDragDropHandle() { }
+inline PdmUiDragDropInterface::~PdmUiDragDropInterface() { }
 
 } // end namespace caf

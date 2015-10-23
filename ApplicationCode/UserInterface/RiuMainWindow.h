@@ -55,7 +55,7 @@ namespace caf
     class UiPropertyCreatorPdm;
     class UiTreeModelPdm;
     class PdmUiItem;
-    class PdmUiDragDropHandle;
+    class PdmUiDragDropInterface;
 }
 
 namespace ssihub
@@ -289,7 +289,7 @@ public:
 private:
 	caf::PdmUiTreeView*			m_projectTreeView;
     
-    caf::PdmUiDragDropHandle*   m_dragDrop;
+    caf::PdmUiDragDropInterface* m_dragDropInterface;
     
     QUndoView*                  m_undoView;
 

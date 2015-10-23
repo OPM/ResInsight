@@ -190,9 +190,9 @@ QModelIndex PdmUiTreeView::findModelIndex(const PdmUiItem* object) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
+void PdmUiTreeView::setDragDropInterface(PdmUiDragDropInterface* dragDropInterface)
 {
-    m_treeViewEditor->setDragDropHandle(dragDropHandle);
+    m_treeViewEditor->setDragDropInterface(dragDropInterface);
 }
 
 //--------------------------------------------------------------------------------------------------

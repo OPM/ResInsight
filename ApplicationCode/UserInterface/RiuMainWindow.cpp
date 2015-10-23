@@ -138,7 +138,7 @@ RiuMainWindow::RiuMainWindow()
 
     sm_mainWindowInstance = this;
 
-    m_dragDrop = new RiuDragDrop;
+    m_dragDropInterface = new RiuDragDrop;
 
     initializeGuiNewProjectLoaded();
 
@@ -209,7 +209,7 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
         return;
     }
 
-    delete m_dragDrop;
+    delete m_dragDropInterface;
     
     saveWinGeoAndDockToolBarLayout();
         
@@ -1319,7 +1319,7 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 
 	m_projectTreeView->setPdmItem(pdmRoot);
     // For debug only : m_projectTreeView->treeView()->expandAll();
-    m_projectTreeView->setDragDropHandle(m_dragDrop);
+    m_projectTreeView->setDragDropInterface(m_dragDropInterface);
 
     for (size_t i = 0; i < additionalProjectViews.size(); i++)
     {

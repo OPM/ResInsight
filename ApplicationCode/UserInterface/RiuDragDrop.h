@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "cafPdmUiDragDropHandle.h"
+#include "cafPdmUiDragDropInterface.h"
 #include "cafPdmPointer.h"
 #include "cafPdmObjectGroup.h"
 
@@ -38,19 +38,21 @@ class RimWellLogPlotCurve;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class RiuDragDrop : public caf::PdmUiDragDropHandle
+class RiuDragDrop : public caf::PdmUiDragDropInterface
 {
 public:
     RiuDragDrop();
     virtual ~RiuDragDrop();
 
+protected:
     virtual Qt::DropActions supportedDropActions() const;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
     virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
     virtual QStringList mimeTypes() const;
-    virtual void endDrag();
-    virtual void setProposedAction(Qt::DropAction action);
+
+    virtual void onDragCanceled();
+    virtual void onProposedDropActionUpdated(Qt::DropAction action);
 
 private:
     void moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
@@ -64,6 +66,6 @@ private:
 
 private:
     mutable std::vector<caf::PdmPointer<caf::PdmObjectHandle> > m_dragItems;
-    Qt::DropAction m_proposedAction;
+    Qt::DropAction m_proposedDropAction;
 };
 

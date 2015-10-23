@@ -50,7 +50,7 @@ namespace caf
 
 class PdmUiItem;
 class PdmUiTreeViewEditor;
-class PdmUiDragDropHandle;
+class PdmUiDragDropInterface;
 class PdmObjectHandle;
 
 //==================================================================================================
@@ -83,7 +83,7 @@ public:
     PdmUiItem*  uiItemFromModelIndex(const QModelIndex& index) const;
     QModelIndex findModelIndex(const PdmUiItem* object) const;
 
-    void        setDragDropHandle(PdmUiDragDropHandle* dragDropHandle);
+    void        setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
 
 signals:
     void        selectionChanged();

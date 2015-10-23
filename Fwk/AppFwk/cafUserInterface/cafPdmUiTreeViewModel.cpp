@@ -39,7 +39,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmUiDragDropHandle.h"
+#include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiTreeItemEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
@@ -56,7 +56,7 @@ namespace caf
 PdmUiTreeViewModel::PdmUiTreeViewModel(PdmUiTreeViewEditor* treeViewEditor)
 {
     m_treeOrderingRoot = NULL;
-    m_dragDropHandle = NULL;
+    m_dragDropInterface = NULL;
 
     m_treeViewEditor = treeViewEditor;
 }
@@ -747,9 +747,9 @@ Qt::ItemFlags PdmUiTreeViewModel::flags(const QModelIndex &index) const
         }
     }
 
-    if (m_dragDropHandle)
+    if (m_dragDropInterface)
     {
-        Qt::ItemFlags dragDropFlags = m_dragDropHandle->flags(index);
+        Qt::ItemFlags dragDropFlags = m_dragDropInterface->flags(index);
         flagMask |= dragDropFlags;
     }
 
@@ -790,31 +790,17 @@ PdmUiItem* PdmUiTreeViewModel::uiItemFromModelIndex(const QModelIndex& index) co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::setDragDropHandle(PdmUiDragDropHandle* dragDropHandle)
+void PdmUiTreeViewModel::setDragDropInterface(PdmUiDragDropInterface* dragDropInterface)
 {
-    m_dragDropHandle = dragDropHandle;
+    m_dragDropInterface = dragDropInterface;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::updateDragDropHandleFromEvent(const QDragMoveEvent* event)
+PdmUiDragDropInterface* PdmUiTreeViewModel::dragDropInterface()
 {
-    if (m_dragDropHandle && event)
-    {
-        m_dragDropHandle->setProposedAction(event->proposedAction());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::endDrag()
-{
-    if (m_dragDropHandle)
-    {
-        m_dragDropHandle->endDrag();
-    }
+    return m_dragDropInterface;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -822,9 +808,9 @@ void PdmUiTreeViewModel::endDrag()
 //--------------------------------------------------------------------------------------------------
 QStringList PdmUiTreeViewModel::mimeTypes() const
 {
-    if (m_dragDropHandle)
+    if (m_dragDropInterface)
     {
-        return m_dragDropHandle->mimeTypes();
+        return m_dragDropInterface->mimeTypes();
     }
     else
     {
@@ -837,9 +823,9 @@ QStringList PdmUiTreeViewModel::mimeTypes() const
 //--------------------------------------------------------------------------------------------------
 QMimeData * PdmUiTreeViewModel::mimeData(const QModelIndexList &indexes) const
 {
-    if (m_dragDropHandle)
+    if (m_dragDropInterface)
     {
-        return m_dragDropHandle->mimeData(indexes);
+        return m_dragDropInterface->mimeData(indexes);
     }
     else
     {
@@ -852,9 +838,9 @@ QMimeData * PdmUiTreeViewModel::mimeData(const QModelIndexList &indexes) const
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
-    if (m_dragDropHandle)
+    if (m_dragDropInterface)
     {
-        return m_dragDropHandle->dropMimeData(data, action, row, column, parent);
+        return m_dragDropInterface->dropMimeData(data, action, row, column, parent);
     }
     else
     {
@@ -867,9 +853,9 @@ bool PdmUiTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 //--------------------------------------------------------------------------------------------------
 Qt::DropActions PdmUiTreeViewModel::supportedDropActions() const
 {
-    if (m_dragDropHandle)
+    if (m_dragDropInterface)
     {
-        return m_dragDropHandle->supportedDropActions();
+        return m_dragDropInterface->supportedDropActions();
     }
     else
     {
