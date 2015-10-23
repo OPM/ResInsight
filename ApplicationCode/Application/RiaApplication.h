@@ -175,6 +175,7 @@ private:
     void                    setWindowCaptionFromAppState();
     
     QImage                  grabFrameBufferImage();
+    void                    clearViewsScheduledForUpdate();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);

@@ -57,6 +57,8 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimScriptCollection.h"
+#include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
@@ -85,6 +87,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
+#include <QMdiSubWindow>
 #include <QMessageBox>
 #include <QTimer>
 #include <QUrl>
@@ -94,8 +97,6 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
-#include "RimViewLinkerCollection.h"
-#include "RimViewLinker.h"
 
 namespace caf
 {
@@ -579,6 +580,8 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 bool RiaApplication::closeProject(bool askToSaveIfDirty)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
+
+    clearViewsScheduledForUpdate();
 
     terminateProcess();
 
@@ -1607,8 +1610,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 RiuViewer* viewer = riv->viewer();
                 mainWnd->setActiveViewer(viewer->layoutWidget());
 
-                // Process all events to avoid a black image when grabbing frame buffer
-                QCoreApplication::processEvents();
+                clearViewsScheduledForUpdate();
 
                 QString fileName = cas->caseUserDescription() + "-" + riv->name();
                 fileName.replace(" ", "_");
@@ -1960,6 +1962,21 @@ QImage RiaApplication::grabFrameBufferImage()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::clearViewsScheduledForUpdate()
+{
+    if (m_resViewUpdateTimer)
+    {
+        while (m_resViewUpdateTimer->isActive())
+        {
+            QCoreApplication::processEvents();
+        }
+    }
+    m_resViewsToUpdate.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimProject* RiaApplication::project()
 {
     return m_project;
@@ -2063,6 +2080,8 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
 
     for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
     {
+        if (!m_resViewsToUpdate[i]) continue;
+
         if (m_resViewsToUpdate[i]->viewController())
             dependent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
         else
@@ -2196,7 +2215,6 @@ void RiaApplication::regressionTestConfigureProject()
     std::vector<RimCase*> projectCases;
     m_project->allCases(projectCases);
 
-
     for (size_t i = 0; i < projectCases.size(); i++)
     {
         RimCase* cas = projectCases[i];
@@ -2210,6 +2228,13 @@ void RiaApplication::regressionTestConfigureProject()
 
             if (riv && riv->viewer())
             {
+                // Make sure all views are maximized for snapshotting
+                QMdiSubWindow* subWnd = mainWnd->findMdiSubWindow(riv->viewer()->layoutWidget());
+                if (subWnd)
+                {
+                    subWnd->showMaximized();
+                }
+
                 // This size is set to match the regression test reference images
                 riv->viewer()->setFixedSize(1000, 745);
             }
