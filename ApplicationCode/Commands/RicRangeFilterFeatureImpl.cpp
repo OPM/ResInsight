@@ -26,13 +26,27 @@
 #include "cafSelectionManager.h"
 
 #include <vector>
+#include "RimView.h"
+#include "RimViewController.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable()
 {
-    return findRangeFilterCollection() != NULL;
+    RimCellRangeFilterCollection* rangeFilterCollection = findRangeFilterCollection();
+    if (!rangeFilterCollection) return false;
+
+    RimView* view;
+    rangeFilterCollection->firstAnchestorOrThisOfType(view);
+    if (view)
+    {
+       RimViewController* vc = view->viewController();    
+       if (!vc) return true;
+       return (!vc->isRangeFiltersControlled());
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
