@@ -202,7 +202,7 @@ void RimWellLogPlot::removeTrack(RimWellLogPlotTrack* track)
 {
     if (track)
     {
-        m_viewer->removeTrackPlot(track->viewer());
+        if (m_viewer) m_viewer->removeTrackPlot(track->viewer());
         tracks.removeChildObject(track);
     }
 }
