@@ -223,11 +223,11 @@ bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(dropTarget);
     if (objHandle)
     {
-        caf::PdmObjectGroup objectGroup;
+        caf::PdmObjectGroup draggedObjects;
         const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(data);
         if (myMimeData && parent.isValid())
         {
-            objectGroupFromModelIndexes(&objectGroup, myMimeData->indexes());
+            objectGroupFromModelIndexes(&draggedObjects, myMimeData->indexes());
         }
         else
         {
@@ -238,28 +238,28 @@ bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int
         objHandle->firstAnchestorOrThisOfType(gridCaseGroup);
         if (gridCaseGroup)
         {
-            return handleGridCaseGroupDrop(action, objectGroup, gridCaseGroup);
+            return handleGridCaseGroupDrop(action, draggedObjects, gridCaseGroup);
         }
 
         RimWellLogPlotCurve* wellLogPlotCurve;
         objHandle->firstAnchestorOrThisOfType(wellLogPlotCurve);
         if (wellLogPlotCurve)
         {
-            return handleWellLogPlotCurveDrop(action, objectGroup, wellLogPlotCurve);
+            return handleWellLogPlotCurveDrop(action, draggedObjects, wellLogPlotCurve);
         }
 
         RimWellLogPlotTrack* wellLogPlotTrack;
         objHandle->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            return handleWellLogPlotTrackDrop(action, objectGroup, wellLogPlotTrack);
+            return handleWellLogPlotTrackDrop(action, draggedObjects, wellLogPlotTrack);
         }
 
         RimWellLogPlot* wellLogPlot;
         objHandle->firstAnchestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
-            return handleWellLogPlotDrop(action, objectGroup, wellLogPlot);
+            return handleWellLogPlotDrop(action, draggedObjects, wellLogPlot);
         }
     }
 
