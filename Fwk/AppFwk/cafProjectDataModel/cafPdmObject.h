@@ -154,7 +154,7 @@ public:
     {
         addField(field, keyword);
 
-		PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
         {
             uiFieldHandle->setUiItemInfo(fieldDescription);

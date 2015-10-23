@@ -59,7 +59,7 @@ public:
     static void warningMultiLine(const QString& line1, const QString& line2Etc);
     static bool errorMultiLine(const QString& line1, const QString& line2Etc);
 
-    static void	pumpMessages();
+    static void    pumpMessages();
 };
 
 

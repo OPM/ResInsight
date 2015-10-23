@@ -78,11 +78,11 @@ AboutDialog::AboutDialog(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// Set application name to show in the dialog. Must be specified if any other app info is to be displayed
 //--------------------------------------------------------------------------------------------------
-void AboutDialog::setApplicationName(const QString& appName)	
+void AboutDialog::setApplicationName(const QString& appName)    
 { 
     assert(!m_isCreated); 
     m_appName = appName; 
-}			
+}            
 
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ void AboutDialog::setApplicationVersion(const QString& ver)
 {
     assert(!m_isCreated); 
     m_appVersion = ver; 
-}			
+}            
 
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ void AboutDialog::setCopyright(const QString& copyright)
 { 
     assert(!m_isCreated); 
     m_appCopyright = copyright; 
-}		
+}        
 
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ void AboutDialog::showQtVersion(bool show)
 { 
     assert(!m_isCreated); 
     m_showQtVersion = show; 
-}		
+}        
 
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ void AboutDialog::setIsDebugBuild(bool isDebugBuild)
 { 
     assert(!m_isCreated); 
     m_isDebugBuild = isDebugBuild; 
-}		
+}        
 
 
 //--------------------------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ void AboutDialog::create()
         if (!m_appVersion.isEmpty())
         {
             QString appVer = m_appVersion;
-//			appVer += cvf::System::is64Bit() ? "  (64-bit)" : "  (32-bit)";
+//            appVer += cvf::System::is64Bit() ? "  (64-bit)" : "  (32-bit)";
 
             QLabel* appVersionLabel = new QLabel(this);
             QFont appVersionFont(appVersionLabel->font());
@@ -228,7 +228,7 @@ void AboutDialog::create()
 
 
     // Possibly show extend version info
-    if (m_showQtVersion	    ||
+    if (m_showQtVersion        ||
         m_verLabels.size() > 0)
     {
         QGridLayout* verInfoLayout = new QGridLayout; 

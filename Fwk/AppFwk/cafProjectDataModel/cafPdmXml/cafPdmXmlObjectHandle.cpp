@@ -57,9 +57,9 @@ void PdmXmlObjectHandle::readFields(QXmlStreamReader& xmlStream, PdmObjectFactor
             QString name = xmlStream.name().toString();
 
             PdmFieldHandle* fieldHandle = m_owner->findField(name);
-			if (fieldHandle && fieldHandle->xmlCapability())
+            if (fieldHandle && fieldHandle->xmlCapability())
             {
-				PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
+                PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
                 if (xmlFieldHandle->isIOReadable())
                 {
                     // readFieldData assumes that the xmlStream points to first token of field content.
@@ -114,7 +114,7 @@ void PdmXmlObjectHandle::writeFields(QXmlStreamWriter& xmlStream)
     m_owner->fields(fields);
     for (size_t it = 0; it < fields.size(); ++it)
     {
-		PdmXmlFieldHandle* field = fields[it]->xmlCapability();
+        PdmXmlFieldHandle* field = fields[it]->xmlCapability();
         if (field && field->isIOWritable())
         {
             QString keyword = field->fieldHandle()->keyword();

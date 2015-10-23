@@ -126,12 +126,12 @@ QString Utils::constructFullFileName(const QString& folder, const QString& baseF
 //--------------------------------------------------------------------------------------------------
 QString Utils::indentString(int numSpacesToIndent, const QString& str)
 {
-	QString indentString;
-	indentString.fill(' ', numSpacesToIndent);
+    QString indentString;
+    indentString.fill(' ', numSpacesToIndent);
 
-	QStringList strList = str.split("\n");
+    QStringList strList = str.split("\n");
 
-	QString retStr = indentString + strList.join("\n" + indentString);
+    QString retStr = indentString + strList.join("\n" + indentString);
     return retStr;
 }
 

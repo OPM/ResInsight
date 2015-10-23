@@ -112,7 +112,7 @@ QVariant PdmUiTableViewModel::headerData(int section, Qt::Orientation orientatio
     {
         if (orientation == Qt::Horizontal)
         {
-			PdmUiFieldHandle* uiFieldHandle = getField(createIndex(0, section))->uiCapability();
+            PdmUiFieldHandle* uiFieldHandle = getField(createIndex(0, section))->uiCapability();
             if (uiFieldHandle)
             {
                 return uiFieldHandle->uiName(m_currentConfigName);
@@ -143,7 +143,7 @@ Qt::ItemFlags PdmUiTableViewModel::flags(const QModelIndex &index) const
     }
 
     PdmFieldHandle* field = getField(index);
-	PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+    PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
     if (uiFieldHandle)
     {
         if (uiFieldHandle->isUiReadOnly(m_currentConfigName))
@@ -169,7 +169,7 @@ bool PdmUiTableViewModel::setData(const QModelIndex &index, const QVariant &valu
             bool toggleOn = (value == Qt::Checked);
             PdmFieldHandle* field = getField(index);
 
-			PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+            PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
             PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, toggleOn);
 
             return true;
@@ -187,7 +187,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
         PdmFieldHandle* fieldHandle = getField(index);
-		PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
+        PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
         if (uiFieldHandle)
         {
             bool fromMenuOnly = false;
@@ -242,7 +242,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
     {
         if (isRepresentingBoolean(index))
         {
-			PdmUiFieldHandle* uiFieldHandle = getField(index)->uiCapability();
+            PdmUiFieldHandle* uiFieldHandle = getField(index)->uiCapability();
             if (uiFieldHandle)
             {
                 QVariant val = uiFieldHandle->uiValue();
@@ -445,7 +445,7 @@ PdmUiFieldEditorHandle* PdmUiTableViewModel::getEditor(const QModelIndex &index)
         {
             if (field)
             {
-				editor->setField(field->uiCapability());
+                editor->setField(field->uiCapability());
             }
         }
     }
@@ -521,9 +521,9 @@ PdmObjectHandle* PdmUiTableViewModel::pdmObjectForRow(int row) const
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTableViewModel::isRepresentingBoolean(const QModelIndex &index) const
 {
-	if (getField(index))
+    if (getField(index))
     {
-		QVariant val = getField(index)->uiCapability()->uiValue();
+        QVariant val = getField(index)->uiCapability()->uiValue();
         if (val.type() == QVariant::Bool)
         {
             return true;

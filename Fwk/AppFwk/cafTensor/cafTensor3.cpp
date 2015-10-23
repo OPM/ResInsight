@@ -68,82 +68,82 @@ cvf::Vec3d eigenVector3(const cvf::Mat3d& mx, double eigenValue, bool* computedO
 {
     const double doubleThreshold = 1.0e-60;
     if (computedOk) (*computedOk) = false;
-	cvf::Mat3d mxMinusEigv = mx;
+    cvf::Mat3d mxMinusEigv = mx;
 
-	for (int i = 0; i < 3; i++) 
+    for (int i = 0; i < 3; i++) 
     {
         mxMinusEigv(i, i) -= eigenValue;
     }
 
-	cvf::Mat3d cof = cofactor3(mxMinusEigv);
+    cvf::Mat3d cof = cofactor3(mxMinusEigv);
 
-	// Find largest absolute cofactor
+    // Find largest absolute cofactor
 
-	int largestCof_i = -1; 
+    int largestCof_i = -1; 
     int largestCof_j = -1;
-	double largestCof = 0.0;
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			double absCof = fabs(cof(i,j));
+    double largestCof = 0.0;
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            double absCof = fabs(cof(i,j));
 
-			if (absCof > largestCof)
-			{
-				largestCof = absCof;
-				largestCof_i = i;
-				largestCof_j = j;
-			}
-		}
-	}
+            if (absCof > largestCof)
+            {
+                largestCof = absCof;
+                largestCof_i = i;
+                largestCof_j = j;
+            }
+        }
+    }
 
-	if (fabs(largestCof) < doubleThreshold) return cvf::Vec3d::ZERO;
+    if (fabs(largestCof) < doubleThreshold) return cvf::Vec3d::ZERO;
 
-	// Find largest matrix element not in the max cofactor row/col
+    // Find largest matrix element not in the max cofactor row/col
 
-	int largestMxElm_i = -1; 
+    int largestMxElm_i = -1; 
     int largestMxElm_j = -1;
-	double largestMxElm = 0.0;
-	for (int i = 0; i < 3; i++)
-	{
-		if (i != largestCof_i)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				if (j != largestCof_j)
-				{
-					double absMxElm = fabs(mxMinusEigv(i,j));
+    double largestMxElm = 0.0;
+    for (int i = 0; i < 3; i++)
+    {
+        if (i != largestCof_i)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                if (j != largestCof_j)
+                {
+                    double absMxElm = fabs(mxMinusEigv(i,j));
 
-					if (absMxElm > largestMxElm)
-					{
-						largestMxElm = absMxElm;
-						largestMxElm_i = i;
-						largestMxElm_j = j;
-					}
-				}
-			}
-		}
-	}
+                    if (absMxElm > largestMxElm)
+                    {
+                        largestMxElm = absMxElm;
+                        largestMxElm_i = i;
+                        largestMxElm_j = j;
+                    }
+                }
+            }
+        }
+    }
 
-	// Check if largest coefficient is zero
-	if (fabs(largestMxElm) < doubleThreshold) return cvf::Vec3d::ZERO;
+    // Check if largest coefficient is zero
+    if (fabs(largestMxElm) < doubleThreshold) return cvf::Vec3d::ZERO;
 
-	// Find last component index
-	int lastComp_j = 0;
-	for (int i = 0; i < 3; i++)
-	{
-		if ((i != largestCof_j) && (i != largestMxElm_j)) lastComp_j = i;
-	}
+    // Find last component index
+    int lastComp_j = 0;
+    for (int i = 0; i < 3; i++)
+    {
+        if ((i != largestCof_j) && (i != largestMxElm_j)) lastComp_j = i;
+    }
 
     cvf::Vec3d eigenVector;
-	eigenVector[largestCof_j]   = 1.0;
-	eigenVector[lastComp_j]     = cof(largestCof_i, lastComp_j) / cof(largestCof_i, largestCof_j);
-	eigenVector[largestMxElm_j] = (-mxMinusEigv(largestMxElm_i, largestCof_j) - mxMinusEigv(largestMxElm_i, lastComp_j)*eigenVector[lastComp_j] ) 
+    eigenVector[largestCof_j]   = 1.0;
+    eigenVector[lastComp_j]     = cof(largestCof_i, lastComp_j) / cof(largestCof_i, largestCof_j);
+    eigenVector[largestMxElm_j] = (-mxMinusEigv(largestMxElm_i, largestCof_j) - mxMinusEigv(largestMxElm_i, lastComp_j)*eigenVector[lastComp_j] ) 
                                   / mxMinusEigv(largestMxElm_i, largestMxElm_j);
 
     if (computedOk) (*computedOk) = true;
 
-	return eigenVector;
+    return eigenVector;
 }
 
 

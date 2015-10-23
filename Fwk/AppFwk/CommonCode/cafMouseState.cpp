@@ -63,7 +63,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 QtMouseState::QtMouseState()
 {
-	m_cleanButtonClickTolerance = 3;
+    m_cleanButtonClickTolerance = 3;
 
     reset();
 }
@@ -200,12 +200,12 @@ void QtMouseState::updateFromMouseEvent(QGraphicsSceneMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void QtMouseState::reset()
 {
-	m_mouseButtonState = Qt::NoButton;
+    m_mouseButtonState = Qt::NoButton;
 
-	m_cleanButtonPressButton = Qt::NoButton;
-	m_cleanButtonPressPosX = cvf::UNDEFINED_INT;
+    m_cleanButtonPressButton = Qt::NoButton;
+    m_cleanButtonPressPosX = cvf::UNDEFINED_INT;
     m_cleanButtonPressPosY = cvf::UNDEFINED_INT;
-	m_cleanButtonClickButton = Qt::NoButton;
+    m_cleanButtonClickButton = Qt::NoButton;
 }
 
 
@@ -214,7 +214,7 @@ void QtMouseState::reset()
 //--------------------------------------------------------------------------------------------------
 Qt::MouseButtons QtMouseState::mouseButtonState() const
 {
-	return m_mouseButtonState;
+    return m_mouseButtonState;
 }
 
 
@@ -223,7 +223,7 @@ Qt::MouseButtons QtMouseState::mouseButtonState() const
 //--------------------------------------------------------------------------------------------------
 Qt::KeyboardModifiers QtMouseState::keyboardModifierFlags() const
 {
-	return m_keyboardModifierFlags;
+    return m_keyboardModifierFlags;
 }
 
 
@@ -232,7 +232,7 @@ Qt::KeyboardModifiers QtMouseState::keyboardModifierFlags() const
 //--------------------------------------------------------------------------------------------------
 Qt::MouseButton QtMouseState::cleanButtonClickButton() const
 {
-	return m_cleanButtonClickButton;
+    return m_cleanButtonClickButton;
 }
 
 
@@ -241,13 +241,13 @@ Qt::MouseButton QtMouseState::cleanButtonClickButton() const
 //--------------------------------------------------------------------------------------------------
 int QtMouseState::numMouseButtonsInState(Qt::MouseButtons buttonState)
 {
-	int iNum = 0;
+    int iNum = 0;
 
-	if (buttonState & Qt::LeftButton)	iNum++;
-	if (buttonState & Qt::RightButton)	iNum++;
-	if (buttonState & Qt::MidButton)	iNum++;
+    if (buttonState & Qt::LeftButton)    iNum++;
+    if (buttonState & Qt::RightButton)    iNum++;
+    if (buttonState & Qt::MidButton)    iNum++;
 
-	return iNum;
+    return iNum;
 }
 
 

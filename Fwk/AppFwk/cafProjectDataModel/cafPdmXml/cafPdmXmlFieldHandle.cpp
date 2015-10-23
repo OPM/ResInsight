@@ -54,10 +54,10 @@ QString PdmXmlFieldHandle::childClassKeyword()
 //--------------------------------------------------------------------------------------------------
 PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
 {
-	PdmXmlFieldHandle* xmlField = capability<PdmXmlFieldHandle>();
-	assert(xmlField);
+    PdmXmlFieldHandle* xmlField = capability<PdmXmlFieldHandle>();
+    assert(xmlField);
 
-	return xmlField;
+    return xmlField;
 }
 
 } // End of namespace caf

@@ -41,8 +41,8 @@ public:
     template <typename CapabilityType>
     CapabilityType*  capability();
 
-	PdmUiFieldHandle*  uiCapability();
-	PdmXmlFieldHandle* xmlCapability();
+    PdmUiFieldHandle*  uiCapability();
+    PdmXmlFieldHandle* xmlCapability();
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN(PdmFieldHandle);

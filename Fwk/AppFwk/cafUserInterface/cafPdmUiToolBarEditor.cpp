@@ -144,7 +144,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
             */
 
-			caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+            caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
 
             QString editorTypeName;
             if (uiFieldHandle && uiFieldHandle->uiValue().type() == QVariant::Bool)
@@ -181,7 +181,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
         // See Qt doc for QToolBar::insertWidget 
         QAction* action = m_actions[static_cast<int>(i)];
 
-		caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
         {
             action->setEnabled(!uiFieldHandle->isUiReadOnly(uiConfigName));
@@ -201,7 +201,7 @@ void PdmUiToolBarEditor::setFields(std::vector<caf::PdmFieldHandle*>& fields)
 
     for (size_t i = 0; i < fields.size(); i++)
     {
-		caf::PdmUiFieldHandle* uiFieldHandle = fields[i]->uiCapability();
+        caf::PdmUiFieldHandle* uiFieldHandle = fields[i]->uiCapability();
 
         // Supports only bool fields
         assert(uiFieldHandle->uiValue().type() == QVariant::Bool);

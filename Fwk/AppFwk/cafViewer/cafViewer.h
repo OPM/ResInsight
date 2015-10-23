@@ -123,8 +123,8 @@ public:
     void                    enableOverlyPainting(bool val);
 
     // Performance information for debugging etc.
-    void	                enablePerfInfoHud(bool enable);
-    bool	                isPerfInfoHudEnabled();
+    void                    enablePerfInfoHud(bool enable);
+    bool                    isPerfInfoHudEnabled();
 
     void                    enableForcedImmediateMode(bool enable);
 

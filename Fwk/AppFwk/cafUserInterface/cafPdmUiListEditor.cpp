@@ -153,7 +153,7 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         assert(m_optionsOnly); // Handling Additions on the fly not implemented
 
         strListModel->setItemsEditable(false);
-        QModelIndex currentItem = 	m_listView->selectionModel()->currentIndex();
+        QModelIndex currentItem =     m_listView->selectionModel()->currentIndex();
         QStringList texts = PdmOptionItemInfo::extractUiTexts(m_options);
         strListModel->setStringList(texts);
 
@@ -204,7 +204,7 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_listView->selectionModel()->blockSignals(true);
 
         QItemSelection selection =  m_listView->selectionModel()->selection();
-        QModelIndex currentItem = 	m_listView->selectionModel()->currentIndex();
+        QModelIndex currentItem =     m_listView->selectionModel()->currentIndex();
         QVariant fieldValue = field()->uiValue();
         QStringList texts = fieldValue.toStringList();
         texts.push_back("");

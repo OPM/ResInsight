@@ -313,14 +313,14 @@ bool caf::Viewer::event(QEvent* e)
         case QEvent::MouseButtonRelease:
         case QEvent::MouseButtonDblClick:
         case QEvent::MouseMove:
-        case QEvent::TabletMove:	 
-        case QEvent::TabletPress:	 
+        case QEvent::TabletMove:     
+        case QEvent::TabletPress:     
         case QEvent::TabletRelease:
         case QEvent::TabletEnterProximity:
         case QEvent::TabletLeaveProximity:
         case QEvent::Wheel:
         case QEvent::TouchBegin:
-        case QEvent::TouchUpdate:	
+        case QEvent::TouchUpdate:    
         case QEvent::TouchEnd:
             if (m_navigationPolicy->handleInputEvent(static_cast<QInputEvent*>(e)))
                 return true;

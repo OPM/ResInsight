@@ -154,17 +154,17 @@ void SelectionManager::selectionAsReferences(std::vector<QString>& referenceList
 
     for (size_t i = 0; i < selection.size(); i++)
     {
-		if (!selection[i].first.isNull())
-		{
-	        PdmUiObjectHandle* pdmObj = dynamic_cast<PdmUiObjectHandle*>(selection[i].second);
-	        if (pdmObj)
-    	    {
-        	    QString itemRef = PdmReferenceHelper::referenceFromRootToObject(m_rootObject, pdmObj->objectHandle());
+        if (!selection[i].first.isNull())
+        {
+            PdmUiObjectHandle* pdmObj = dynamic_cast<PdmUiObjectHandle*>(selection[i].second);
+            if (pdmObj)
+            {
+                QString itemRef = PdmReferenceHelper::referenceFromRootToObject(m_rootObject, pdmObj->objectHandle());
 
-            	referenceList.push_back(itemRef);
-        	}
-    	}
-	}
+                referenceList.push_back(itemRef);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

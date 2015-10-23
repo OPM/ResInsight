@@ -72,12 +72,12 @@ bool PdmFieldHandle::hasPtrReferencedObjects()
 /*
 PdmUiFieldHandle* PdmFieldHandle::uiCapability()
 {
-	return NULL;
+    return NULL;
 }
 
 PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
 {
-	return NULL;
+    return NULL;
 }
 */
 

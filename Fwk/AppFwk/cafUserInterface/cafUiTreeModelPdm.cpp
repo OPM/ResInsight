@@ -203,7 +203,7 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
                 {
                     if (children[cIdx] == obj)
                     {
-						caf::PdmUiFieldHandle* uiFieldHandle = fields[i]->uiCapability();
+                        caf::PdmUiFieldHandle* uiFieldHandle = fields[i]->uiCapability();
                         if (uiFieldHandle)
                         {
                             parentField = uiFieldHandle;
@@ -225,7 +225,7 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
         {
             if (uiObject->userDescriptionField())
             {
-				caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
+                caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
                 if (uiFieldHandle)
                 {
                     return uiFieldHandle->uiValue();
@@ -279,7 +279,7 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
     {
         if (uiObject && uiObject->objectToggleField())
         {
-			caf::PdmUiFieldHandle* uiFieldHandle = uiObject->objectToggleField()->uiCapability();
+            caf::PdmUiFieldHandle* uiFieldHandle = uiObject->objectToggleField()->uiCapability();
             if (uiFieldHandle)
             {
                 bool isToggledOn = uiFieldHandle->uiValue().toBool();
@@ -332,7 +332,7 @@ bool UiTreeModelPdm::setData(const QModelIndex &index, const QVariant &value, in
     {
         if (role == Qt::EditRole && uiObject->userDescriptionField())
         {
-			caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
+            caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
             if (uiFieldHandle)
             {
                 uiFieldHandle->setValueFromUi(value);
@@ -346,7 +346,7 @@ bool UiTreeModelPdm::setData(const QModelIndex &index, const QVariant &value, in
         {
             bool toggleOn = (value == Qt::Checked);
 
-			caf::PdmUiFieldHandle* uiFieldHandle = uiObject->objectToggleField()->uiCapability();
+            caf::PdmUiFieldHandle* uiFieldHandle = uiObject->objectToggleField()->uiCapability();
             if (uiFieldHandle)
             {
                 uiFieldHandle->setValueFromUi(toggleOn);
@@ -378,7 +378,7 @@ Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
         PdmUiObjectHandle* uiObject = uiObj(treeItem->dataObject());
         if (uiObject)
         {
-			if (uiObject->userDescriptionField() && !uiObject->userDescriptionField()->uiCapability()->isUiReadOnly())
+            if (uiObject->userDescriptionField() && !uiObject->userDescriptionField()->uiCapability()->isUiReadOnly())
             {
                 flagMask = flagMask | Qt::ItemIsEditable;
             }
@@ -651,7 +651,7 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
         // Fix for hidden legend definitions. There is only one visible legend definition, the others reside in a hidden container
         // Todo: This is a Hack. Must be rewritten when a more general ui tree building method is in place.
         // See comment at top of this method.
-		caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle && uiFieldHandle->isUiChildrenHidden())
         {
             continue;

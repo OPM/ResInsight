@@ -84,12 +84,12 @@ public :
                                                          { PdmPointerImpl::addReference(&m_object); }
     inline ~PdmPointer ()                                { PdmPointerImpl::removeReference(&m_object); }
 
-    T* 	            p() const                            { return  static_cast<T*>(const_cast<PdmObjectHandle*>(m_object)); }
-    bool 	        isNull() const                       { return !m_object; }
-    bool 	        notNull() const                      { return !isNull(); }
+    T*                 p() const                            { return  static_cast<T*>(const_cast<PdmObjectHandle*>(m_object)); }
+    bool             isNull() const                       { return !m_object; }
+    bool             notNull() const                      { return !isNull(); }
                     operator T* () const                 { return  static_cast<T*>(const_cast<PdmObjectHandle*>(m_object)); }
-    T& 	            operator* () const                   { return *static_cast<T*>(const_cast<PdmObjectHandle*>(m_object)); }
-    T* 	            operator->() const                   { return  static_cast<T*>(const_cast<PdmObjectHandle*>(m_object)); }
+    T&                 operator* () const                   { return *static_cast<T*>(const_cast<PdmObjectHandle*>(m_object)); }
+    T*                 operator->() const                   { return  static_cast<T*>(const_cast<PdmObjectHandle*>(m_object)); }
     PdmPointer<T> & operator= ( const PdmPointer<T>& p ) { if (this != &p)    PdmPointerImpl::removeReference(&m_object); m_object = p.m_object; PdmPointerImpl::addReference(&m_object); return *this; }
     PdmPointer<T> & operator= ( T* p )                   { if (m_object != p) PdmPointerImpl::removeReference(&m_object); m_object = p;          PdmPointerImpl::addReference(&m_object); return *this; }
 

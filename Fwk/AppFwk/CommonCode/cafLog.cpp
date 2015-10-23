@@ -50,7 +50,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 void Log::info(const QString& msg)
 {
-	infoMultiLine(msg, "");
+    infoMultiLine(msg, "");
 }
 
 
@@ -59,7 +59,7 @@ void Log::info(const QString& msg)
 //--------------------------------------------------------------------------------------------------
 void Log::warning(const QString& msg)
 {
-	warningMultiLine(msg, "");
+    warningMultiLine(msg, "");
 }
 
 
@@ -68,7 +68,7 @@ void Log::warning(const QString& msg)
 //--------------------------------------------------------------------------------------------------
 bool Log::error(const QString& err)
 {
-	return errorMultiLine(err, "");
+    return errorMultiLine(err, "");
 }
 
 
@@ -77,30 +77,30 @@ bool Log::error(const QString& err)
 //--------------------------------------------------------------------------------------------------
 void Log::infoMultiLine(const QString& line1, const QString& line2Etc)
 {
-	MessagePanel* messagePanel = MessagePanel::instance();
+    MessagePanel* messagePanel = MessagePanel::instance();
 
-	bool generateTrace = true;
+    bool generateTrace = true;
 
-	if (messagePanel)
-	{
-		QString msg = line1;
-		if (!line2Etc.isEmpty())
-		{
-			msg += "\n";
+    if (messagePanel)
+    {
+        QString msg = line1;
+        if (!line2Etc.isEmpty())
+        {
+            msg += "\n";
             msg += Utils::indentString(2, line2Etc);
-		}
+        }
 
-		messagePanel->showInfo(msg);
-	}
+        messagePanel->showInfo(msg);
+    }
 
-	if (generateTrace)
-	{
+    if (generateTrace)
+    {
         cvf::Trace::show("INF: %s", (const char*)line1.toAscii());
-		if (!line2Etc.isEmpty())
-		{
+        if (!line2Etc.isEmpty())
+        {
             cvf::Trace::show((const char*)Utils::indentString(5, line2Etc).toAscii());
-		}
-	}
+        }
+    }
 }
 
 
@@ -146,7 +146,7 @@ bool Log::errorMultiLine(const QString& line1, const QString& line2Etc)
     bool generateTrace = true;
 
     if (messagePanel)
-	{
+    {
         QString msg = line1;
         if (!line2Etc.isEmpty())
         {
@@ -155,43 +155,43 @@ bool Log::errorMultiLine(const QString& line1, const QString& line2Etc)
         }
 
         messagePanel->showError(msg);
-	}
+    }
 
-	bool messagePanelVisible = messagePanel ? messagePanel->isVisibleToUser() : false;
-	if (!messagePanelVisible)
-	{
-// 		if (mainWindow)
-// 		{
-// 			QString capt = QString(PD_APPLICATION_NAME) + " Error";
+    bool messagePanelVisible = messagePanel ? messagePanel->isVisibleToUser() : false;
+    if (!messagePanelVisible)
+    {
+//         if (mainWindow)
+//         {
+//             QString capt = QString(PD_APPLICATION_NAME) + " Error";
 // 
-// 			QString msg = line1;
-// 			if (!line2Etc.isEmpty())
-// 			{
-// 				msg += "\n";
-// 				msg += line2Etc;
-// 			}
+//             QString msg = line1;
+//             if (!line2Etc.isEmpty())
+//             {
+//                 msg += "\n";
+//                 msg += line2Etc;
+//             }
 // 
-// 			QMessageBox msgBox(mainWindow);
-// 			msgBox.setIcon(QMessageBox::Critical);
-// 			msgBox.setWindowTitle(capt);
-// 			msgBox.setText(msg);
+//             QMessageBox msgBox(mainWindow);
+//             msgBox.setIcon(QMessageBox::Critical);
+//             msgBox.setWindowTitle(capt);
+//             msgBox.setText(msg);
 // 
-// 			msgBox.exec();
-// 		}
-// 		else
-// 		{
-// 			generateTrace = true;
-// 		}
-	}
+//             msgBox.exec();
+//         }
+//         else
+//         {
+//             generateTrace = true;
+//         }
+    }
 
-	if (generateTrace)
-	{
+    if (generateTrace)
+    {
         cvf::Trace::show("\nERR: %s", (const char*)line1.toAscii());
         if (!line2Etc.isEmpty())
         {
             cvf::Trace::show((const char*)Utils::indentString(5, line2Etc).toAscii());
         }
-	}
+    }
 
     return false;
 }

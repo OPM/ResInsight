@@ -182,12 +182,12 @@ public:
                 {
                     if (uiObject->userDescriptionField())
                     {
-						caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
-						if (uiFieldHandle)
-						{
-							userDesc = uiFieldHandle->uiValue().toString();
-						}
-		            }
+                        caf::PdmUiFieldHandle* uiFieldHandle = uiObject->userDescriptionField()->uiCapability();
+                        if (uiFieldHandle)
+                        {
+                            userDesc = uiFieldHandle->uiValue().toString();
+                        }
+                    }
 
                     options.push_back(caf::PdmOptionItemInfo(uiObject->uiName() + "(" + userDesc + ")", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(objects[i]))));
                 }
@@ -513,7 +513,7 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     if (fields.size())
     {
         caf::PdmFieldHandle* field = fields[0];
-		caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+        caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if (uiFieldHandle)
         {
             m_pdmUiTreeView2->setPdmItem(uiFieldHandle);

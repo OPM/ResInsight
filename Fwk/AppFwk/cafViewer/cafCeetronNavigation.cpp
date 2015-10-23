@@ -254,14 +254,14 @@ void caf::CeetronNavigation::setCursorFromCurrentState()
     ManipulatorTrackball::NavigationType navType = m_trackball->activeNavigation();
     switch (navType)
     {
-    case ManipulatorTrackball::PAN:	     
+    case ManipulatorTrackball::PAN:         
         //m_viewer->setCursor(RiuCursors::get(RiuCursors::PAN));
         return;
-    case ManipulatorTrackball::WALK:	 
-        //m_viewer->setCursor(RiuCursors::get(RiuCursors::WALK));	    
+    case ManipulatorTrackball::WALK:     
+        //m_viewer->setCursor(RiuCursors::get(RiuCursors::WALK));        
         return;
-    case ManipulatorTrackball::ROTATE:	 
-        //m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));	
+    case ManipulatorTrackball::ROTATE:     
+        //m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));    
         return;
     default:
         break;

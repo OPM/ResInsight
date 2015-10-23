@@ -57,39 +57,39 @@ void PdmSettings::readFieldsFromApplicationStore(caf::PdmObjectHandle* object, c
     // Constructs a QSettings object for accessing settings of the application and organization
     // set previously with a call to QCoreApplication::setOrganizationName(), 
     // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
-	QSettings settings;
-	std::vector<caf::PdmFieldHandle*> fields;
+    QSettings settings;
+    std::vector<caf::PdmFieldHandle*> fields;
 
-	object->fields(fields);
-	size_t i;
-	for (i = 0; i < fields.size(); i++)
-	{
-		caf::PdmFieldHandle* fieldHandle = fields[i];
+    object->fields(fields);
+    size_t i;
+    for (i = 0; i < fields.size(); i++)
+    {
+        caf::PdmFieldHandle* fieldHandle = fields[i];
 
-		std::vector<caf::PdmObjectHandle*> children;
-		fieldHandle->childObjects(&children);
-		for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
-		{
-			caf::PdmObjectHandle* child = children[childIdx];
-			caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj(child);
+        std::vector<caf::PdmObjectHandle*> children;
+        fieldHandle->childObjects(&children);
+        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
+        {
+            caf::PdmObjectHandle* child = children[childIdx];
+            caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj(child);
 
-			QString subContext = context + xmlObjHandle->classKeyword() + "/";
-			readFieldsFromApplicationStore(child, subContext);
-		}
+            QString subContext = context + xmlObjHandle->classKeyword() + "/";
+            readFieldsFromApplicationStore(child, subContext);
+        }
 
-		if (children.size() == 0)
-		{
-			QString key = context + fieldHandle->keyword();
-			if (settings.contains(key))
-			{
-				QVariant val = settings.value(key);
+        if (children.size() == 0)
+        {
+            QString key = context + fieldHandle->keyword();
+            if (settings.contains(key))
+            {
+                QVariant val = settings.value(key);
 
-				caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
-				assert(valueField);
-				valueField->setFromQVariant(val);
-			}
-		}
-	}
+                caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
+                assert(valueField);
+                valueField->setFromQVariant(val);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,39 +104,39 @@ void PdmSettings::writeFieldsToApplicationStore(caf::PdmObjectHandle* object, co
     // Constructs a QSettings object for accessing settings of the application and organization
     // set previously with a call to QCoreApplication::setOrganizationName(), 
     // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
-	QSettings settings;
+    QSettings settings;
 
-	std::vector<caf::PdmFieldHandle*> fields;
-	object->fields(fields);
+    std::vector<caf::PdmFieldHandle*> fields;
+    object->fields(fields);
 
-	size_t i;
-	for (i = 0; i < fields.size(); i++)
-	{
-		caf::PdmFieldHandle* fieldHandle = fields[i];
+    size_t i;
+    for (i = 0; i < fields.size(); i++)
+    {
+        caf::PdmFieldHandle* fieldHandle = fields[i];
 
-		std::vector<caf::PdmObjectHandle*> children;
-		fieldHandle->childObjects(&children);
-		for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
-		{
-			caf::PdmObjectHandle* child = children[childIdx];
-			QString subContext;
-			if (context.isEmpty())
-			{
-				caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj(child);
+        std::vector<caf::PdmObjectHandle*> children;
+        fieldHandle->childObjects(&children);
+        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
+        {
+            caf::PdmObjectHandle* child = children[childIdx];
+            QString subContext;
+            if (context.isEmpty())
+            {
+                caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj(child);
 
-				subContext = xmlObjHandle->classKeyword() + "/";
-			}
+                subContext = xmlObjHandle->classKeyword() + "/";
+            }
 
-			writeFieldsToApplicationStore(child, subContext);
-		}
+            writeFieldsToApplicationStore(child, subContext);
+        }
 
-		if (children.size() == 0)
-		{
-			caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
-			assert(valueField);
-			settings.setValue(context + fieldHandle->keyword(), valueField->toQVariant());
-		}
-	}
+        if (children.size() == 0)
+        {
+            caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
+            assert(valueField);
+            settings.setValue(context + fieldHandle->keyword(), valueField->toQVariant());
+        }
+    }
 }
 
 

@@ -45,10 +45,10 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
 //--------------------------------------------------------------------------------------------------
 PdmUiFieldHandle* PdmFieldHandle::uiCapability()
 {
-	PdmUiFieldHandle* uiField = capability<PdmUiFieldHandle>();
-	assert(uiField);
+    PdmUiFieldHandle* uiField = capability<PdmUiFieldHandle>();
+    assert(uiField);
 
-	return uiField;
+    return uiField;
 }
 
 } // End of namespace caf
