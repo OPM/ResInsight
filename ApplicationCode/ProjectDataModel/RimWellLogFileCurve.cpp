@@ -150,9 +150,9 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     curveDataGroup->add(&m_wellLogChannnelName);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&m_curveColor);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_autoName);
-    appearanceGroup->add(&m_curveColor);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -358,6 +358,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&m_curveColor);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_autoName);
     if (m_autoName)
@@ -369,7 +370,6 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
         appearanceGroup->add(&m_addTimestepToCurveName);
     }
 
-    appearanceGroup->add(&m_curveColor);
 
     uiOrdering.setForgetRemainingFields(true);
 }
