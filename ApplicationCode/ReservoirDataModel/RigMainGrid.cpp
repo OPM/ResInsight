@@ -477,3 +477,17 @@ void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::ve
 
     m_cellSearchTree->findIntersections(inputBB, cellIndices);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigMainGrid::boundingBox() const
+{
+    if (m_boundingBox.isValid()) return m_boundingBox;
+
+    for (size_t i = 0; i < m_nodes.size(); ++i)
+    {
+        m_boundingBox.add(m_nodes[i]);
+    }
+    return m_boundingBox;
+}

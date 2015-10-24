@@ -76,8 +76,8 @@ RimViewController::RimViewController(void)
     m_syncVisibleCells.xmlCapability()->setIOWritable(false);
     m_syncVisibleCells.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitField(&m_syncRangeFilters,    "SyncRangeFilters", true,   "Range Filters", "", "", "");
-    CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", true,"Property Filters", "", "", "");
+    CAF_PDM_InitField(&m_syncRangeFilters,    "SyncRangeFilters", false,   "Range Filters", "", "", "");
+    CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -729,7 +729,30 @@ bool RimViewController::isVisibleCellsOveridden()
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isRangeFilterControlPossible()
 {
-    return true; //!isMasterAndDepViewDifferentType();
+    if (!isMasterAndDepViewDifferentType()) return true;
+
+    // Make sure the cases are in the same domain
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(masterView());
+    RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(masterView());
+    if (!geomView) geomView = managedGeoView();
+    if (!eclipseView) eclipseView = managedEclipseView();
+
+    if (eclipseView && geomView)
+    {
+        if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase()->geoMechData())
+        {
+            RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+            RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
+            
+            if (eclGrid && femPart)
+            {
+                cvf::BoundingBox fembb = femPart->boundingBox();
+                cvf::BoundingBox eclbb = eclGrid->boundingBox();
+                return fembb.contains(eclbb.min()) && fembb.contains(eclbb.max());
+            }
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

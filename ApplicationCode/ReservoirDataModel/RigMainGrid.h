@@ -69,7 +69,7 @@ public:
 
     void                                    setFlipAxis(bool flipXAxis, bool flipYAxis);
     void                                    findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices) const;
-                 
+    cvf::BoundingBox                        boundingBox() const;             
 private:
     void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
@@ -87,7 +87,8 @@ private:
     cvf::ref<RigFaultsPrCellAccumulator>    m_faultsPrCellAcc;
 
     cvf::Vec3d                              m_displayModelOffset;
-    mutable cvf::ref<cvf::BoundingBoxTree>  m_cellSearchTree;    
+    mutable cvf::ref<cvf::BoundingBoxTree>  m_cellSearchTree;
+    mutable cvf::BoundingBox                m_boundingBox;    
 
     bool                                    m_flipXAxis;
     bool                                    m_flipYAxis;
