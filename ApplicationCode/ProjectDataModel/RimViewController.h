@@ -95,6 +95,7 @@ private:
 
     bool                                    isMasterAndDepViewDifferentType();
     bool                                    isRangeFilterControlPossible();
+    bool                                    isPropertyFilterControlPossible();
 
     RimEclipseView*                         managedEclipseView();
     RimGeoMechView*                         managedGeoView();

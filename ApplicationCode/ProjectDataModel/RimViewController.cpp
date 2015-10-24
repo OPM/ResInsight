@@ -370,14 +370,22 @@ void RimViewController::updateOptionSensitivity()
     {
         this->m_syncCellResult.uiCapability()->setUiReadOnly(true);
         this->m_syncCellResult = false;
-        this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(true);
-        this->m_syncPropertyFilters = false;
     }
     else
     {
         this->m_syncCellResult.uiCapability()->setUiReadOnly(false);
+    }
+
+    if (isPropertyFilterControlPossible())
+    {
         this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(false);
     }
+    else
+    {
+        this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(true);
+        this->m_syncPropertyFilters = false;
+    }
+
 
     if (isRangeFilterControlPossible())
     {
@@ -771,12 +779,45 @@ bool RimViewController::isRangeFiltersControlled()
         return false;
     }
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isPropertyFilterControlPossible()
+{
+    // The cases need to be the same 
+    RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(masterView());
+
+    if (geomView)
+    {
+        RimGeoMechView*  depGeomView = managedGeoView();
+        if (depGeomView && geomView->geoMechCase() == depGeomView->geoMechCase())
+        {
+            return true;
+        }
+    }
+
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(masterView());
+
+    if (eclipseView)
+    {
+        RimEclipseView* depEclipseView = managedEclipseView();
+        if (depEclipseView && eclipseView->eclipseCase() == depEclipseView->eclipseCase())
+        { 
+            return true;
+        }
+    }
+  
+    return false; 
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isPropertyFilterOveridden()
 {
+   if (!isPropertyFilterControlPossible()) return false;
+
    if (ownerViewLinker()->isActive() && this->m_isActive())
     {
         return m_syncPropertyFilters;
