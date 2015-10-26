@@ -392,8 +392,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
             cvf::Collection<RigFault> faults;
             std::vector< RifKeywordAndFilePos > fileKeywords;
         
-            std::vector<QString> filenamesWithFaults;
-
             for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
             {
                 QString faultFilename = this->filenamesWithFaults()[i];
@@ -417,7 +415,9 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
                     RigMainGrid* mainGrid = eclipseCase->mainGrid();
                     mainGrid->setFaults(faults);
 
-                    std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                    std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                    std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                    filenamesWithFaults.erase(last, filenamesWithFaults.end());
 
                     this->setFilenamesWithFaults(filenamesWithFaults);
                 }
@@ -925,8 +925,6 @@ cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> 
     std::vector<SegmentPositionContribution> filteredPositions;
     filteredPositions.reserve(positions.size());
 
-    bool hasContibFromBelow = false;
-    bool hasContribFromAbove = false;
     double minDistFromContribAbove = HUGE_VAL;
     double minDistFromContribBelow = HUGE_VAL;
     std::vector<SegmentPositionContribution> contrFromAbove;
