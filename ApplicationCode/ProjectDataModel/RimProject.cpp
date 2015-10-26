@@ -719,10 +719,6 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             commandIds << "RicPasteEclipseCasesFeature";
             commandIds << "RicDeleteItemFeature";
         }
-        else if (dynamic_cast<RimCaseCollection*>(uiItem))
-        {
-            commandIds << "RicPasteEclipseCasesFeature";
-        }
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
             commandIds << "RicSaveEclipseResultAsInputPropertyFeature";
@@ -918,8 +914,6 @@ void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptColle
 
     QDir dir(scriptCollection->directory);
     QMenu* subMenu = menu->addMenu(dir.dirName());
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
 
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     CVF_ASSERT(commandManager);
