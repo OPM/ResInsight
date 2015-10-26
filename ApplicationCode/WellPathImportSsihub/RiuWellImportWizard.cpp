@@ -29,7 +29,6 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiTreeView.h"
 #include "cafPdmUiTreeViewEditor.h"
-#include "cafUiTreeModelPdm.h"
 
 #include <QObject>
 #include <QtGui>

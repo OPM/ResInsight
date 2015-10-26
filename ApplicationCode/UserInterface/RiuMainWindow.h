@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "cafUiTreeModelPdm.h"
-
 #include <QEvent>
 #include <QMainWindow>
 #include <QPointer>
@@ -53,7 +51,6 @@ namespace caf
     class PdmObject;
     class PdmUiPropertyView;
     class UiPropertyCreatorPdm;
-    class UiTreeModelPdm;
     class PdmUiItem;
     class PdmUiDragDropInterface;
 }

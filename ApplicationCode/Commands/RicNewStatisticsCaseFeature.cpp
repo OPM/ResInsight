@@ -29,7 +29,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
-#include "cafUiTreeModelPdm.h"
 #include "cafPdmUiTreeView.h"
 
 #include <QAction>

@@ -42,7 +42,6 @@ class RimWellPathEntry;
 
 namespace caf
 {
-    class UiTreeModelPdm;
     class PdmUiTreeView;
     class PdmUiListView;
     class PdmUiPropertyView;
