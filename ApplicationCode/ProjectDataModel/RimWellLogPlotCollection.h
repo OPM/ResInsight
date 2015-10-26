@@ -53,8 +53,6 @@ public:
     void removeExtractors(const RigCaseData* caseData);
     void removeExtractors(const RigGeoMechCaseData* caseData);
 
-    RimWellLogPlot* wellLogPlotFromViewer(RiuWellLogPlot* viewer) const;
-
     caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;
 private:
     cvf::Collection<RigEclipseWellLogExtractor> m_extractors;

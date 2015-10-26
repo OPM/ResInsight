@@ -1057,7 +1057,7 @@ bool RiuMainWindow::checkForDocumentModifications()
 void RiuMainWindow::slotCloseProject()
 {
     RiaApplication* app = RiaApplication::instance();
-    bool ret = app->closeProject(true);
+    app->closeProject(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2162,38 +2162,6 @@ void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
     {
         QErrorMessage* errorHandler = QErrorMessage::qtHandler();
         errorHandler->showMessage("Failed open browser with the following url\n\n" + usersGuideUrl);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObjectHandle* pdmObject, QMenu* menu)
-{
-    if (!menu)
-    {
-        return;
-    }
-
-    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT(cmdFeatureMgr);
-
-    if (dynamic_cast<RimWellPathCollection*>(pdmObject))
-    {
-        menu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
-        menu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
-    }
-    else if (dynamic_cast<RimEclipseCaseCollection*>(pdmObject))
-    {
-        menu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
-        menu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-        menu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
-    }
-    else if (dynamic_cast<RimGeoMechModels*>(pdmObject))
-    {
-    #ifdef USE_ODB_API
-        menu->addAction(m_importGeoMechCaseAction);
-    #endif
     }
 }
 

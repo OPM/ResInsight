@@ -111,25 +111,6 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RimWellLogPlotCollection::wellLogPlotFromViewer(RiuWellLogPlot* viewer) const
-{
-    CVF_ASSERT(viewer);
-
-    for (size_t pIdx = 0; pIdx < wellLogPlots.size(); pIdx++)
-    {
-        RimWellLogPlot* wellLogPlot = wellLogPlots[pIdx];
-        if (wellLogPlot->viewer() == viewer)
-        {
-            return wellLogPlot;
-        }
-    }
-
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::removeExtractors(const RigWellPath* wellPath)
 {
     for (int eIdx = (int) m_extractors.size() - 1; eIdx >= 0; eIdx--)

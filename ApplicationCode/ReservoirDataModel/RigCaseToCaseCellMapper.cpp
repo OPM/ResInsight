@@ -105,22 +105,6 @@ const int * RigCaseToCaseCellMapper::masterCaseCellIndices(int dependentCaseRese
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseToCaseCellMapper::storeMapping(int depCaseCellIdx, const std::vector<int>& masterCaseMatchingCells)
-{
-    if (masterCaseMatchingCells.size() == 1)
-    {
-        m_masterCellOrIntervalIndex[depCaseCellIdx] = masterCaseMatchingCells[0];
-    }
-    else if (masterCaseMatchingCells.size() > 1)
-    {
-        m_masterCellOrIntervalIndex[depCaseCellIdx] = -((int)(m_masterCellIndexSeries.size()));
-        m_masterCellIndexSeries.push_back(masterCaseMatchingCells);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RigCaseToCaseCellMapper::addMapping(int depCaseCellIdx, int masterCaseMatchingCell)
 {
     int mcOrSeriesIdx = m_masterCellOrIntervalIndex[depCaseCellIdx];

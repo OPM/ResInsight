@@ -155,25 +155,6 @@ std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCaseCellResultsData::cellScalarResult( size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex)
-{
-    if (scalarResultIndex < resultCount() &&
-        timeStepIndex < m_cellScalarResults[scalarResultIndex].size() &&
-        resultValueIndex != cvf::UNDEFINED_SIZE_T &&
-        resultValueIndex < m_cellScalarResults[scalarResultIndex][timeStepIndex].size())
-    {
-        return m_cellScalarResults[scalarResultIndex][timeStepIndex][resultValueIndex];
-    }
-    else
-    {
-        return HUGE_VAL;
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const
 {
     std::vector<ResultInfo>::const_iterator it;
