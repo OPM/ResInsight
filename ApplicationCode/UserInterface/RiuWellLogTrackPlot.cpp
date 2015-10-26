@@ -243,7 +243,7 @@ void RiuWellLogTrackPlot::selectClosestCurve(const QPoint& pos)
         {
             QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
             double dist;
-            int idx = candidateCurve->closestPoint(pos, &dist);
+            candidateCurve->closestPoint(pos, &dist);
             if (dist < distMin)
             {
                 closestCurve = candidateCurve;
