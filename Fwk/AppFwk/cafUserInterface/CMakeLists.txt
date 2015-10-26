@@ -41,7 +41,6 @@ set( QOBJECT_HEADERS
     cafPdmUiTreeViewModel.h
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
-    cafUiTreeModelPdm.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -119,10 +118,6 @@ set( PROJECT_FILES
     cafProgressInfo.h
     cafUiProcess.cpp
     cafUiProcess.h
-    cafUiTreeModelPdm.cpp
-    cafUiTreeModelPdm.h
-
-
 )
 
 add_library( ${PROJECT_NAME}

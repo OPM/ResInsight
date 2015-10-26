@@ -31,7 +31,6 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
-#include "cafUiTreeModelPdm.h"
 
 
 
