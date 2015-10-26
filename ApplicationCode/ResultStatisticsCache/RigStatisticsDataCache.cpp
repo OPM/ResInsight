@@ -173,20 +173,7 @@ void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& p
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram()
 {
-    if (m_histogram.size() == 0)
-    {
-        double min;
-        double max;
-        size_t nBins = 100;
-        this->minMaxCellScalarValues(min, max);
-
-        RigHistogramCalculator histCalc(min, max, nBins, &m_histogram);
-
-        m_statisticsCalculator->addDataToHistogramCalculator(histCalc);
-
-        m_p10 = histCalc.calculatePercentil(0.1);
-        m_p90 = histCalc.calculatePercentil(0.9);
-    }
+    computeStatisticsIfNeeded();
 
     return m_histogram;
 }
@@ -197,7 +184,7 @@ const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram()
 void RigStatisticsDataCache::p10p90CellScalarValues(double& p10, double& p90)
 {
     // First make sure they are calculated
-    const std::vector<size_t>& histogr = this->cellScalarValuesHistogram();
+    computeStatisticsIfNeeded();
 
     p10 = m_p10;
     p90 = m_p90;
@@ -215,5 +202,26 @@ void RigStatisticsDataCache::meanCellScalarValues(double& meanValue)
     }
 
     meanValue = m_meanValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeStatisticsIfNeeded()
+{
+    if (m_histogram.size() == 0)
+    {
+        double min;
+        double max;
+        size_t nBins = 100;
+        this->minMaxCellScalarValues(min, max);
+
+        RigHistogramCalculator histCalc(min, max, nBins, &m_histogram);
+
+        m_statisticsCalculator->addDataToHistogramCalculator(histCalc);
+
+        m_p10 = histCalc.calculatePercentil(0.1);
+        m_p90 = histCalc.calculatePercentil(0.9);
+    }
 }
 
