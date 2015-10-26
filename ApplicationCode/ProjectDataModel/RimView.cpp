@@ -75,8 +75,7 @@ RimView::RimView(void)
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     cameraPosition.uiCapability()->setUiHidden(true);
 
-    double defaultScaleFactor = 1.0;
-    defaultScaleFactor = preferences->defaultScaleFactorZ;
+    double defaultScaleFactor = preferences->defaultScaleFactorZ;
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();

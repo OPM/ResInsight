@@ -231,9 +231,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& res
 {
     if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
 
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-
-    scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);
+    size_t scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
