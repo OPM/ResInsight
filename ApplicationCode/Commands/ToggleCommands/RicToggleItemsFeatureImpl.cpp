@@ -35,7 +35,6 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
 
     if (selectedItems.size() == 1)
     {
-        caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>(selectedItems[0]);
         QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(selectedItems[0]);
         caf::PdmUiTreeOrdering* treeItem = static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer()); 
         if (!treeItem) return false;
@@ -97,7 +96,6 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
 
         // We need to get the children through the tree view, because that is where the actually shown children is 
         
-        caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>(selectedItems[0]);
         QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(selectedItems[0]);
         caf::PdmUiTreeOrdering* treeItem = reinterpret_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer()); 
 
