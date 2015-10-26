@@ -134,8 +134,6 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
     CVF_ASSERT(eclipseCase->results(porosityModel));
     CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
 
-    RigGridBase *grid = eclipseCase->grid(gridIndex);
-
     if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
     {
         return NULL;
@@ -163,8 +161,6 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeResultAccessor
     CVF_ASSERT(eclipseCase);
     CVF_ASSERT(eclipseCase->results(porosityModel));
     CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
-
-    RigGridBase *grid = eclipseCase->grid(gridIndex);
 
     if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
     {
