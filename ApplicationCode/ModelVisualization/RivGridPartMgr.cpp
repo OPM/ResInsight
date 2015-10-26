@@ -225,8 +225,6 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
 {
     CVF_ASSERT(cellResultColors);
 
-    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
-
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
     // Outer surface

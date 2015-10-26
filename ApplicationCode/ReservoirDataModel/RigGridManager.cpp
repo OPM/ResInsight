@@ -35,8 +35,6 @@ void RigGridManager::addCase(RigCaseData* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 void RigGridManager::removeCase(RigCaseData* eclipseCase)
 {
-    size_t indexToErase = cvf::UNDEFINED_SIZE_T;
-
     for (size_t i = 0; i < m_caseToGrid.size(); i++)
     {
         if (m_caseToGrid[i]->m_eclipseCase == eclipseCase)

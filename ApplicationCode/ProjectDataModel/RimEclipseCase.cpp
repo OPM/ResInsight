@@ -195,9 +195,7 @@ void RimEclipseCase::removeResult(const QString& resultName)
             rebuildDisplayModel = true;
         }
 
-        std::list< caf::PdmPointer< RimEclipsePropertyFilter > >::iterator it;
         RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->propertyFilterCollection();
-
         for (size_t filter = 0; filter < propFilterCollection->propertyFilters().size(); filter++)
         {
             RimEclipsePropertyFilter* propertyFilter = propFilterCollection->propertyFilters()[filter];

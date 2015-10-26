@@ -217,8 +217,6 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptionsF
         {
             QStringList varList = getResultVariableListForCurrentUIFieldSettings();
 
-            bool hasCombinedTransmissibility = false;
-
             QList<caf::PdmOptionItemInfo> optionList;
             QList<caf::PdmOptionItemInfo> perCellFaceOptionList;
             for (int i = 0; i < varList.size(); ++i)

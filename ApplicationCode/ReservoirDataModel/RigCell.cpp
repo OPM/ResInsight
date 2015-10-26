@@ -106,8 +106,6 @@ bool RigCell::isLongPyramidCell(double maxHeightFactor, double nodeNearTolerance
 
     const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
 
-    bool isPyramidCell = false;
-
     int face;
     for ( face = 0; face < 6 ; ++face)
     {
@@ -228,7 +226,6 @@ bool RigCell::isCollapsedCell(double nodeNearTolerance) const
 {
     const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
 
-    bool isPyramidCell = false;
     cvf::ubyte faceVertexIndices[4];
     cvf::ubyte oppFaceVertexIndices[4];
 

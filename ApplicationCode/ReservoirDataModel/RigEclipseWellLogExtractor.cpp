@@ -81,7 +81,8 @@ void RigEclipseWellLogExtractor::calculateIntersection()
             hexCorners[6] = nodeCoords[cornerIndices[6]];
             hexCorners[7] = nodeCoords[cornerIndices[7]];
 
-            int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
+            //int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
+            RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[cIdx], &intersections);
         }
 
         if (!isCellFaceNormalsOut)

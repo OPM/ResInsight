@@ -1154,7 +1154,8 @@ void RiaApplication::launchUnitTests()
     int argc = QCoreApplication::argc();
     testing::InitGoogleTest(&argc, QCoreApplication::argv());
 
-    int result = RUN_ALL_TESTS();
+    //int result = RUN_ALL_TESTS();
+    RUN_ALL_TESTS();
 }
 
 //--------------------------------------------------------------------------------------------------

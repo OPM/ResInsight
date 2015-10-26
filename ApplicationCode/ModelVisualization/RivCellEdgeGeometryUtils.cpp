@@ -218,7 +218,6 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
         cellEdgeColorTextureCoordsArrays.push_back(colorArray.p());
     }
 
-    RivTernaryScalarMapper* ternaryCellResultScalarMapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
     cvf::ScalarMapper* edgeResultScalarMapper = cellEdgeResultColors->legendConfig()->scalarMapper();
 
     double ignoredScalarValue = cellEdgeResultColors->ignoredScalarValue();

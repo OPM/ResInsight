@@ -155,8 +155,6 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
             std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
 
             std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchId];
-            std::list< RigWellResultPoint >::iterator it;
-            std::list< RigWellResultPoint >::iterator sStartIt;
             std::list< RigWellResultPoint >::iterator sEndIt;
             size_t  rStartIdx;
             size_t  rEndIdx;
@@ -190,7 +188,6 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
                     rEndIdx = 0;
                 }
 
-                sStartIt = sEndIt;
                 rStartIdx = rEndIdx;
             }
 
@@ -227,7 +224,6 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
                     rEndIdx = rStartIdx;
                 }
 
-                sStartIt = sEndIt;
                 rStartIdx = rEndIdx;
             }
 

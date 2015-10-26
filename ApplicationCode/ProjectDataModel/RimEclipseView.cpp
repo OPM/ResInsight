@@ -311,8 +311,6 @@ void RimEclipseView::createDisplayModel()
 
     // Remove all existing animation frames from the viewer. 
     // The parts are still cached in the RivReservoir geometry and friends
-
-    bool isAnimationActive = m_viewer->isAnimationActive();
     m_viewer->removeAllFrames();
 
     wellCollection->scheduleIsWellPipesVisibleRecalculation();
@@ -409,7 +407,7 @@ void RimEclipseView::createDisplayModel()
     }
 
     // Compute triangle count, Debug only
-
+/*
     if (false)
     {
         size_t totalTriangleCount = 0;
@@ -431,6 +429,7 @@ void RimEclipseView::createDisplayModel()
             }
         }
     }
+*/
 
     // Create Scenes from the frameModels
     // Animation frames for results display, starts from frame 1

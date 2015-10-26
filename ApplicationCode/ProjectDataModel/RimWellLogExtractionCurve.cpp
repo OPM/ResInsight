@@ -190,7 +190,6 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         RimWellLogPlotCollection* wellLogCollection = NULL;
         this->firstAnchestorOrThisOfType(wellLogCollection);
-
         CVF_ASSERT(wellLogCollection);
 
         cvf::ref<RigEclipseWellLogExtractor> eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
@@ -525,14 +524,12 @@ QString RimWellLogExtractionCurve::wellDate() const
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 
     QStringList timeStepNames;
-    size_t maxTimeStep = 0;
 
     if (eclipseCase)
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
         if (eclipseCase->reservoirData())
         {
-            maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
             timeStepNames = eclipseCase->timeStepStrings();
         }
     }
@@ -540,7 +537,6 @@ QString RimWellLogExtractionCurve::wellDate() const
     {
         if (geomCase->geoMechData())
         {
-            maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
             timeStepNames = geomCase->timeStepStrings();
         }
     }

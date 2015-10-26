@@ -56,7 +56,6 @@ RimFaultCollection::RimFaultCollection()
 {
     CAF_PDM_InitObject("Faults", ":/draw_style_faults_24x24.png", "", "");
 
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
     CAF_PDM_InitField(&showFaultCollection, "Active", true, "Active", "", "", "");
     showFaultCollection.uiCapability()->setUiHidden(true);
 

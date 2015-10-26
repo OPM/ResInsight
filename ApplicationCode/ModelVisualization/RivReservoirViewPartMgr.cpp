@@ -785,8 +785,6 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 const double lowerBound = propertyFilter->lowerBound();
                 const double upperBound = propertyFilter->upperBound();
 
-                size_t scalarResultIndex = propertyFilter->resultDefinition->scalarResultIndex();
-
                 size_t adjustedTimeStepIndex = timeStepIndex;
 
                 // Set time step to zero for static results

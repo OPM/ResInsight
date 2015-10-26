@@ -105,7 +105,6 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
     QStringList wellLogNames;
 
     const std::map<std::string, std::vector<double> >& contLogs = well->GetContLog();
-    std::vector<std::string> contLogNames;
     std::map<std::string, std::vector<double> >::const_iterator itCL;
     for (itCL = contLogs.begin(); itCL != contLogs.end(); itCL++)
     {

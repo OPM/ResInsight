@@ -513,7 +513,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         RigFemScalarResultFrames * srcSDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName));
 
         RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-        const RigFemPart * femPart = m_femParts->part(partIndex);
         int frameCount = srcSDataFrames->frameCount();
         for (int fIdx = 0; fIdx < frameCount; ++fIdx)
         {
@@ -522,7 +521,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
             size_t valCount = srcSFrameData.size();
             dstFrameData.resize(valCount);
-            int nodeIdx = 0;
             for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
             {
                 dstFrameData[vIdx] = -srcSFrameData[vIdx];

@@ -97,7 +97,6 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
     m_wellBranches.clear();
 
-    std::vector< size_t > pipeBranchIds;
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
@@ -315,7 +314,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
                         cvf::Vec3d outOfPrevCell(centerPreviousCell);
 
-                        int intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
+                        //int intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
                         //CVF_ASSERT(intersectionOk);
                         //CVF_ASSERT(intersectionOk);
                         if ((currentPoint - outOfPrevCell).lengthSquared() > 1e-3)
@@ -413,7 +412,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                                 cvf::Vec3d outOfPrevCell(centerPreviousCell);
 
                                 const RigCell& prevCell = rigReservoir->cellFromWellResultCell(*prevWellResPoint);
-                                bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
+                                //bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
                                 //CVF_ASSERT(intersectionOk);
                                 //CVF_ASSERT(intersectionOk);
                                 if ((intoThisCell - outOfPrevCell).lengthSquared() > 1e-3)

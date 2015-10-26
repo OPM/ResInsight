@@ -100,12 +100,6 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 
     updateNNCColors(cellResultColors);
 
-    size_t scalarSetIndex = cellResultColors->scalarResultIndex();
-
-    // If the result is static, only read that.
-    size_t resTimeStepIdx = timeStepIndex;
-    if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
-
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
     RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
