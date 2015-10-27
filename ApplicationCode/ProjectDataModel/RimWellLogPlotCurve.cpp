@@ -49,11 +49,11 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
-    m_plotCurve = new RiuWellLogPlotCurve;
-    m_plotCurve->setXAxis(QwtPlot::xTop);
-    m_plotCurve->setYAxis(QwtPlot::yLeft);
+    m_qwtPlotCurve = new RiuWellLogPlotCurve;
+    m_qwtPlotCurve->setXAxis(QwtPlot::xTop);
+    m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
 
-    m_plot = NULL;
+    m_ownerQwtTrack = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,10 +61,10 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCurve::~RimWellLogPlotCurve()
 {
-    m_plotCurve->detach();    
-    if (m_plot) m_plot->replot();
+    m_qwtPlotCurve->detach();    
+    if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
 
-    delete m_plotCurve;
+    delete m_qwtPlotCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     }
     else if (&m_curveColor == changedField)
     {
-        m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
+        m_qwtPlotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
     }
     else if (changedField == &m_autoName)
     {
@@ -97,7 +97,7 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         updatePlotTitle();
     }
 
-    if (m_plot) m_plot->replot();
+    if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,13 +113,13 @@ caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCurve::updateCurveVisibility()
 {
-    if (m_showCurve() && m_plot)
+    if (m_showCurve() && m_ownerQwtTrack)
     {
-        m_plotCurve->attach(m_plot);
+        m_qwtPlotCurve->attach(m_ownerQwtTrack);
     }
     else
     {
-        m_plotCurve->detach();
+        m_qwtPlotCurve->detach();
     }
 }
 
@@ -132,20 +132,20 @@ void RimWellLogPlotCurve::updatePlotConfiguration()
     this->updateCurveName();
     this->updatePlotTitle();
 
-    m_plotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
+    m_qwtPlotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
     // Todo: Rest of the curve setup controlled from this class
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::setPlot(RiuWellLogTrackPlot* plot)
+void RimWellLogPlotCurve::setQwtTrack(RiuWellLogTrackPlot* plot)
 {
-    m_plot = plot;
+    m_ownerQwtTrack = plot;
     if (m_showCurve)
     {
-        m_plotCurve->attach(m_plot);
-        m_plot->replot();
+        m_qwtPlotCurve->attach(m_ownerQwtTrack);
+        m_ownerQwtTrack->replot();
     }
 }
 
@@ -163,15 +163,15 @@ caf::PdmFieldHandle* RimWellLogPlotCurve::userDescriptionField()
 bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth) const
 {
     CVF_ASSERT(minimumDepth && maximumDepth);
-    CVF_ASSERT(m_plotCurve);
+    CVF_ASSERT(m_qwtPlotCurve);
 
-    if (m_plotCurve->data()->size() < 1)
+    if (m_qwtPlotCurve->data()->size() < 1)
     {
         return false;
     }
 
-    *minimumDepth = m_plotCurve->minYValue();
-    *maximumDepth = m_plotCurve->maxYValue();
+    *minimumDepth = m_qwtPlotCurve->minYValue();
+    *maximumDepth = m_qwtPlotCurve->maxYValue();
 
     return true;
 }
@@ -182,15 +182,15 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 bool RimWellLogPlotCurve::valueRange(double* minimumValue, double* maximumValue) const
 {
     CVF_ASSERT(minimumValue && maximumValue);
-    CVF_ASSERT(m_plotCurve);
+    CVF_ASSERT(m_qwtPlotCurve);
 
-    if (m_plotCurve->data()->size() < 1)
+    if (m_qwtPlotCurve->data()->size() < 1)
     {
         return false;
     }
 
-    *minimumValue = m_plotCurve->minXValue();
-    *maximumValue = m_plotCurve->maxXValue();
+    *minimumValue = m_qwtPlotCurve->minXValue();
+    *maximumValue = m_qwtPlotCurve->maxXValue();
 
     return true;
 }
@@ -206,9 +206,9 @@ void RimWellLogPlotCurve::setColor(const cvf::Color3f& color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::detachCurve()
+void RimWellLogPlotCurve::detachQwtCurve()
 {
-    m_plotCurve->detach();
+    m_qwtPlotCurve->detach();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ void RimWellLogPlotCurve::detachCurve()
 //--------------------------------------------------------------------------------------------------
 QwtPlotCurve* RimWellLogPlotCurve::plotCurve() const
 {
-    return m_plotCurve;
+    return m_qwtPlotCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,13 +224,13 @@ QwtPlotCurve* RimWellLogPlotCurve::plotCurve() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCurve::updatePlotTitle()
 {
-    m_plotCurve->setTitle(m_curveName);
+    m_qwtPlotCurve->setTitle(m_curveName);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotCurve::isCurveVisibile()
+bool RimWellLogPlotCurve::isCurveVisible()
 {
     return m_showCurve;
 }
@@ -253,11 +253,11 @@ void RimWellLogPlotCurve::updateTrackAndPlotFromCurveData()
     if (wellLogPlot)
     {
         bool setDepthRange = !wellLogPlot->hasAvailableDepthRange();
-        wellLogPlot->updateAvailableDepthRange();
+        wellLogPlot->calculateAvailableDepthRange();
 
         if (setDepthRange)
         {
-            wellLogPlot->setVisibleDepthRangeFromContents();
+            wellLogPlot->zoomAllDepth();
         }
     }
 
@@ -265,7 +265,7 @@ void RimWellLogPlotCurve::updateTrackAndPlotFromCurveData()
     firstAnchestorOrThisOfType(plotTrack);
     if (plotTrack)
     {
-        plotTrack->updateAxisRangesAndReplot();
+        plotTrack->allignDepthZoomToPlotAndZoomAllX();
     }
 }
 

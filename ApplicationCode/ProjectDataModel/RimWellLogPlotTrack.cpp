@@ -114,7 +114,7 @@ void RimWellLogPlotTrack::addCurve(RimWellLogPlotCurve* curve)
 
     if (m_wellLogTrackPlotWidget)
     {
-        curve->setPlot(m_wellLogTrackPlotWidget);
+        curve->setQwtTrack(m_wellLogTrackPlotWidget);
     }
 }
 
@@ -127,7 +127,7 @@ void RimWellLogPlotTrack::insertCurve(RimWellLogPlotCurve* curve, size_t index)
 
     if (m_wellLogTrackPlotWidget)
     {
-        curve->setPlot(m_wellLogTrackPlotWidget);
+        curve->setQwtTrack(m_wellLogTrackPlotWidget);
     }
 }
 
@@ -139,7 +139,7 @@ void RimWellLogPlotTrack::removeCurve(RimWellLogPlotCurve* curve)
     size_t index = curves.index(curve);
     if ( index < curves.size())
     {
-        curves[index]->detachCurve();
+        curves[index]->detachQwtCurve();
         curves.removeChildObject(curve);
     }
 }
@@ -255,7 +255,7 @@ void RimWellLogPlotTrack::recreateViewer()
 
         for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
         {
-            curves[cIdx]->setPlot(this->m_wellLogTrackPlotWidget);
+            curves[cIdx]->setQwtTrack(this->m_wellLogTrackPlotWidget);
         }
     }
 }
@@ -267,14 +267,14 @@ void RimWellLogPlotTrack::detachAllCurves()
 {
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
-        curves[cIdx]->detachCurve();
+        curves[cIdx]->detachQwtCurve();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::updateAxisRangesAndReplot()
+void RimWellLogPlotTrack::allignDepthZoomToPlotAndZoomAllX()
 {
     if (m_wellLogTrackPlotWidget)
     {
@@ -283,13 +283,12 @@ void RimWellLogPlotTrack::updateAxisRangesAndReplot()
         if (wellLogPlot)
         {
             double minimumDepth, maximumDepth;
-            wellLogPlot->visibleDepthRange(&minimumDepth, &maximumDepth);
+            wellLogPlot->depthZoomMinMax(&minimumDepth, &maximumDepth);
 
-            m_wellLogTrackPlotWidget->setDepthRange(minimumDepth, maximumDepth);
+            m_wellLogTrackPlotWidget->setDepthZoom(minimumDepth, maximumDepth);
         }
 
-        updateXAxisRangeFromCurves();
-        m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+        zoomAllXAxis();
 
         m_wellLogTrackPlotWidget->replot();
     }
@@ -298,7 +297,7 @@ void RimWellLogPlotTrack::updateAxisRangesAndReplot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::updateXAxisRangeFromCurves()
+void RimWellLogPlotTrack::zoomAllXAxis()
 {
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
@@ -330,6 +329,8 @@ void RimWellLogPlotTrack::updateXAxisRangeFromCurves()
 
     m_visibleXRangeMin = minValue;
     m_visibleXRangeMax = maxValue;
+
+    if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
 
     updateConnectedEditors();
 }

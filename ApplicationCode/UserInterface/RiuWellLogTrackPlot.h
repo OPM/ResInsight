@@ -40,7 +40,7 @@ public:
     RiuWellLogTrackPlot(RimWellLogPlotTrack* plotTrackDefinition, QWidget* parent = NULL);
     virtual ~RiuWellLogTrackPlot();
 
-    void setDepthRange(double minDepth, double maxDepth);
+    void setDepthZoom(double minDepth, double maxDepth);
     void setDepthTitle(const QString& title);
 
     void setXRange(double min, double max);

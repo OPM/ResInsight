@@ -49,72 +49,66 @@ public:
     RimWellLogPlot();
     virtual ~RimWellLogPlot();
 
-    void setDescription(const QString& description);
-    void updateViewerWidgetWindowTitle();
+    void                                            setDescription(const QString& description);
 
-    void    addTrack(RimWellLogPlotTrack* track);
-    void    insertTrack(RimWellLogPlotTrack* track, size_t index);
-    size_t  trackCount() { return tracks.size();}
-    void    removeTrack(RimWellLogPlotTrack* track);
-    void    moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracksToMove);
+    DepthTypeEnum                                   depthType() const;
+    QString                                         depthPlotTitle() const;
 
-    void loadDataAndUpdate();
-    void updateTracks();
-    void updateTrackNames();
+    caf::PdmField< std::vector<int> >               windowGeometry;
 
-    RiuWellLogPlot* viewer();
+    void                                            addTrack(RimWellLogPlotTrack* track);
+    void                                            insertTrack(RimWellLogPlotTrack* track, size_t index);
+    size_t                                          trackCount() { return m_tracks.size();}
+    void                                            removeTrack(RimWellLogPlotTrack* track);
+    void                                            moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracksToMove);
 
-    void zoomDepth(double zoomFactor, double zoomCenter);
-    void panDepth(double panFactor);
-    void setVisibleDepthRange(double minimumDepth, double maximumDepth);
+    void                                            loadDataAndUpdate();
+    void                                            updateTracks();
+    void                                            updateTrackNames();
 
-    void updateAvailableDepthRange();
-    void availableDepthRange(double* minimumDepth, double* maximumDepth) const;
-    bool hasAvailableDepthRange() const;
+    RiuWellLogPlot*                                 viewer();
 
-    void visibleDepthRange(double* minimumDepth, double* maximumDepth) const;
-    void updateAxisRanges();
-    void setVisibleDepthRangeFromContents();
+    void                                            zoomAllDepth();
+    void                                            setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter);
+    void                                            panDepth(double panFactor);
+    void                                            setDepthZoomMinMax(double minimumDepth, double maximumDepth);
+    void                                            depthZoomMinMax(double* minimumDepth, double* maximumDepth) const;
 
-    DepthTypeEnum depthType() const;
-    QString depthPlotTitle() const;
-
-    virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_userName; }
-
-    caf::PdmField< std::vector<int> >   windowGeometry;
-
+    void                                            calculateAvailableDepthRange();
+    void                                            availableDepthRange(double* minimumDepth, double* maximumDepth) const;
+    bool                                            hasAvailableDepthRange() const;
 
 protected:
 
     // Overridden PDM methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void setupBeforeSave();
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                                    setupBeforeSave();
+    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual caf::PdmFieldHandle*                    objectToggleField();
+    virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
 
 private:
-    void updateViewerWidget();
-    void recreateTrackPlots();
-    void detachAllCurves();
-    void handleViewerDeletion();
-
-    virtual caf::PdmFieldHandle* objectToggleField();
-
-
+    void                                            updateViewerWidget();
+    void                                            updateViewerWidgetWindowTitle();
+    void                                            updateDepthZoomInQwt();
+    void                                            recreateTrackPlots();
+    void                                            detachAllCurves();
+    void                                            handleViewerDeletion();
 
 private:
-    QPointer<RiuWellLogPlot> m_viewer;
     
-    caf::PdmField<bool>                 m_showWindow;
-
-    caf::PdmChildArrayField<RimWellLogPlotTrack*> tracks;
-    
+    caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >  m_depthType;
-    caf::PdmField<double>                           m_minimumVisibleDepth;
-    caf::PdmField<double>                           m_maximumVisibleDepth;
+    caf::PdmChildArrayField<RimWellLogPlotTrack*>   m_tracks;
 
-    double m_depthRangeMinimum;
-    double m_depthRangeMaximum;
+    caf::PdmField<double>                           m_minVisibleDepth;
+    caf::PdmField<double>                           m_maxVisibleDepth;
+
+    double                                          m_minAvailableDepth;
+    double                                          m_maxAvailableDepth;
 
     friend class RiuWellLogPlot;
+    QPointer<RiuWellLogPlot>                        m_viewer;
+
 };

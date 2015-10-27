@@ -179,7 +179,7 @@ void RimWellLogExtractionCurve::updatePlotData()
 {
     RimWellLogPlotCurve::updatePlotConfiguration();
 
-    if (isCurveVisibile())
+    if (isCurveVisible())
     {
         // Make sure we have set correct case data into the result definitions.
 
@@ -255,10 +255,10 @@ void RimWellLogExtractionCurve::updatePlotData()
             }
         }
 
-        m_plotCurve->setCurveData(m_curveData.p());
+        m_qwtPlotCurve->setCurveData(m_curveData.p());
         updateTrackAndPlotFromCurveData();
 
-        if (m_plot) m_plot->replot();
+        if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
     }
 }
 

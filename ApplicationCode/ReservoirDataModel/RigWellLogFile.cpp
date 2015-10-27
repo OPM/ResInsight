@@ -285,7 +285,7 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
 
     double minDepth = 0.0;
     double maxDepth = 0.0;
-    curveData->depthRange(&minDepth, &maxDepth);
+    curveData->calculateMDRange(&minDepth, &maxDepth);
 
     lasFile.setStartDepth(minDepth);
     lasFile.setStopDepth(maxDepth);

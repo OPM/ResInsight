@@ -47,7 +47,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
         wellLogPlotTrack->insertCurve(curves[cIdx], cIdx);
     }
 
-    wellLogPlotTrack->updateAxisRangesAndReplot();
+    wellLogPlotTrack->allignDepthZoomToPlotAndZoomAllX();
     wellLogPlotTrack->updateConnectedEditors();
 }
 
@@ -59,7 +59,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
     CVF_ASSERT(wellLogPlotTrack && insertAfterCurve);
 
     wellLogPlotTrack->moveCurves(insertAfterCurve, curves);
-    wellLogPlotTrack->updateAxisRangesAndReplot();
+    wellLogPlotTrack->allignDepthZoomToPlotAndZoomAllX();
     wellLogPlotTrack->updateConnectedEditors();
 }
 

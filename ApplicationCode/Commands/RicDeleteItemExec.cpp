@@ -114,14 +114,14 @@ void RicDeleteItemExec::redo()
         parentObj->firstAnchestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
-            wellLogPlot->updateAvailableDepthRange();
+            wellLogPlot->calculateAvailableDepthRange();
         }
 
         RimWellLogPlotTrack* wellLogPlotTrack;
         parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            wellLogPlotTrack->updateAxisRangesAndReplot();
+            wellLogPlotTrack->allignDepthZoomToPlotAndZoomAllX();
         }
 
         RimWellLogPlotCollection* wellLogPlotCollection = NULL;

@@ -269,7 +269,7 @@ void RigWellLogCurveData::computePolyLineStartStopIndices(const std::vector< std
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogCurveData::depthRange(double* minimumDepth, double* maximumDepth) const
+bool RigWellLogCurveData::calculateMDRange(double* minimumDepth, double* maximumDepth) const
 {
     CVF_ASSERT(minimumDepth && maximumDepth);
 

@@ -44,35 +44,35 @@ public:
     RimWellLogPlotCurve();
     virtual ~RimWellLogPlotCurve();
 
-    void    setColor(const cvf::Color3f& color);
+    void                            setColor(const cvf::Color3f& color);
 
-    bool    depthRange(double* minimumDepth, double* maximumDepth) const;
-    bool    valueRange(double* minimumValue, double* maximumValue) const;
+    bool                            depthRange(double* minimumDepth, double* maximumDepth) const;
+    bool                            valueRange(double* minimumValue, double* maximumValue) const;
     
-    void    setPlot(RiuWellLogTrackPlot* plot);
-    void    detachCurve();
+    void                            setQwtTrack(RiuWellLogTrackPlot* plot);
+    void                            detachQwtCurve();
 
-    bool    isCurveVisibile();
+    bool                            isCurveVisible();
 
-    QwtPlotCurve*               plotCurve() const;
-    const RigWellLogCurveData*  curveData() const;
+    QwtPlotCurve*                   plotCurve() const;
+    const RigWellLogCurveData*      curveData() const;
     
-    QString         name() const { return m_curveName; }
-    void            updateCurveName();
-    void            updatePlotTitle();
+    QString                         name() const { return m_curveName; }
+    void                            updateCurveName();
+    void                            updatePlotTitle();
 
-    virtual QString wellName() const = 0;
-    virtual QString wellLogChannelName() const = 0;
-    virtual QString wellDate() const  { return ""; };
-    virtual void    updatePlotData() = 0;
+    virtual QString                 wellName() const = 0;
+    virtual QString                 wellLogChannelName() const = 0;
+    virtual QString                 wellDate() const  { return ""; };
+    virtual void                    updatePlotData() = 0;
 
 protected:
-    virtual QString createCurveName() = 0;
+    virtual QString                 createCurveName() = 0;
 
-    void updatePlotConfiguration();
-    void updateCurveVisibility();
-    void updateTrackAndPlotFromCurveData();
-    void updateOptionSensitivity();
+    void                            updatePlotConfiguration();
+    void                            updateCurveVisibility();
+    void                            updateTrackAndPlotFromCurveData();
+    void                            updateOptionSensitivity();
 
     // Overridden PDM methods
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -81,14 +81,14 @@ protected:
     virtual void                    initAfterRead();
 
 
-    RiuWellLogTrackPlot*            m_plot;
-    RiuWellLogPlotCurve*            m_plotCurve;
+    RiuWellLogTrackPlot*            m_ownerQwtTrack;
+    RiuWellLogPlotCurve*            m_qwtPlotCurve;
     cvf::ref<RigWellLogCurveData>   m_curveData;
 
-    caf::PdmField<bool>         m_showCurve;
-    caf::PdmField<QString>      m_curveName;
-    caf::PdmField<QString>      m_customCurveName;
+    caf::PdmField<bool>             m_showCurve;
+    caf::PdmField<QString>          m_curveName;
+    caf::PdmField<QString>          m_customCurveName;
 
-    caf::PdmField<bool>         m_autoName;
-    caf::PdmField<cvf::Color3f> m_curveColor;
+    caf::PdmField<bool>             m_autoName;
+    caf::PdmField<cvf::Color3f>     m_curveColor;
 };

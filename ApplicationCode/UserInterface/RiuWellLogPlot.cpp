@@ -132,11 +132,11 @@ void RiuWellLogPlot::modifyWidthOfContainingMdiWindow(int widthChange)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::setDepthRangeAndReplot(double minDepth, double maxDepth)
+void RiuWellLogPlot::setDepthZoomAndReplot(double minDepth, double maxDepth)
 {
     for (int tpIdx = 0; tpIdx < m_trackPlots.count(); tpIdx++)
     {
-        m_trackPlots[tpIdx]->setDepthRange(minDepth, maxDepth);
+        m_trackPlots[tpIdx]->setDepthZoom(minDepth, maxDepth);
         m_trackPlots[tpIdx]->replot();
     }
 
@@ -168,10 +168,10 @@ void RiuWellLogPlot::slotSetMinDepth(int value)
 {
     double minimumDepth;
     double maximumDepth;
-    m_plotDefinition->visibleDepthRange(&minimumDepth, &maximumDepth);
+    m_plotDefinition->depthZoomMinMax(&minimumDepth, &maximumDepth);
 
     double delta = value - minimumDepth;
-    m_plotDefinition->setVisibleDepthRange(minimumDepth + delta, maximumDepth + delta);
+    m_plotDefinition->setDepthZoomMinMax(minimumDepth + delta, maximumDepth + delta);
 }
 
 //--------------------------------------------------------------------------------------------------

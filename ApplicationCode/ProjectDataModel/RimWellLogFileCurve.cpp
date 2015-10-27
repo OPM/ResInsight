@@ -69,7 +69,7 @@ void RimWellLogFileCurve::updatePlotData()
 {
     RimWellLogPlotCurve::updatePlotConfiguration();
 
-    if (isCurveVisibile())
+    if (isCurveVisible())
     {
         m_curveData = new RigWellLogCurveData;
 
@@ -92,16 +92,16 @@ void RimWellLogFileCurve::updatePlotData()
 
                 if (m_autoName)
                 {
-                    m_plotCurve->setTitle(createCurveName());
+                    m_qwtPlotCurve->setTitle(createCurveName());
                 }
             }
         }
 
-        m_plotCurve->setCurveData(m_curveData.p());
+        m_qwtPlotCurve->setCurveData(m_curveData.p());
 
         updateTrackAndPlotFromCurveData();
 
-        if (m_plot) m_plot->replot();
+        if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
     }
 }
 
@@ -137,7 +137,7 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         this->updatePlotData();
     }
 
-    if (m_plot) m_plot->replot();
+    if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
 }
 
 //--------------------------------------------------------------------------------------------------

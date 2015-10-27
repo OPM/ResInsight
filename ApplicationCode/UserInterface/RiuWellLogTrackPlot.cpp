@@ -132,7 +132,7 @@ void RiuWellLogTrackPlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrackPlot::setDepthRange(double minDepth, double maxDepth)
+void RiuWellLogTrackPlot::setDepthZoom(double minDepth, double maxDepth)
 {
     // Note: Y-axis is inverted
     setAxisScale(QwtPlot::yLeft, maxDepth, minDepth);
@@ -185,11 +185,11 @@ bool RiuWellLogTrackPlot::eventFilter(QObject* watched, QEvent* event)
 
                 if (wheelEvent->delta() > 0)
                 {
-                    plotDefinition->zoomDepth(RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
+                    plotDefinition->setDepthZoomByFactorAndCenter(RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
                 }
                 else
                 {
-                    plotDefinition->zoomDepth(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
+                    plotDefinition->setDepthZoomByFactorAndCenter(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
                 }
             }
             else

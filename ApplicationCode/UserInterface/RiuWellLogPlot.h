@@ -49,7 +49,7 @@ public:
     void insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index);
     void removeTrackPlot(RiuWellLogTrackPlot* trackPlot);
 
-    void setDepthRangeAndReplot(double minDepth, double maxDepth);
+    void setDepthZoomAndReplot(double minDepth, double maxDepth);
 
 private:
     void updateScrollBar(double minDepth, double maxDepth);

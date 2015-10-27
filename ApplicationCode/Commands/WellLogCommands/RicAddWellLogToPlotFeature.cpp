@@ -109,8 +109,8 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         }        
     }
 
-    plot->updateAvailableDepthRange();
-    plot->setVisibleDepthRangeFromContents();
+    plot->calculateAvailableDepthRange();
+    plot->zoomAllDepth();
     plotTrack->viewer()->replot();
 
     RiaApplication::instance()->project()->updateConnectedEditors();

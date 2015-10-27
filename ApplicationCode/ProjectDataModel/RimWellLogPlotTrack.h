@@ -57,7 +57,7 @@ public:
     void loadDataAndUpdate();
 
     bool availableDepthRange(double* minimumDepth, double* maximumDepth);
-    void updateAxisRangesAndReplot();
+    void allignDepthZoomToPlotAndZoomAllX();
 
     RiuWellLogTrackPlot* viewer();
     
@@ -72,7 +72,7 @@ protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
-    void updateXAxisRangeFromCurves();
+    void zoomAllXAxis();
 
 private:
     caf::PdmField<bool> m_show;
