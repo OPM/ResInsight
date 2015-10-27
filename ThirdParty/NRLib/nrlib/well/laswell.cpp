@@ -582,8 +582,12 @@ void NRLib::LasWell::setStopDepth(double stopDepth)
 
 void NRLib::LasWell::addWellInfo(const std::string& parameter, const std::string& value)
 {
+    // Example of line formatting taken from the documentation
+    // WELL. aaaaaaaaaaaaaaaaaaaaa : WELL
+    // 
+
     std::string info = parameter;
-    info += " : ";
+    info += " . ";
     info += value;
     info += " :";
 
