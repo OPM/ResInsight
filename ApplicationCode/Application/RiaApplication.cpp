@@ -399,6 +399,9 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
                 riv->loadDataAndUpdate();
                 this->setActiveReservoirView(riv);
+
+                riv->rangeFilterCollection()->updateIconState();
+
                 viewProgress.incrementProgress();
             }
 

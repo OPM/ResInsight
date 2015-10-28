@@ -179,20 +179,6 @@ RimEclipseView* RimCellRangeFilterCollection::eclipseView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::initAfterRead()
-{
-    for (size_t i = 0; i < rangeFilters.size(); i++)
-    {
-        RimCellRangeFilter* rangeFilter = rangeFilters[i];
-        rangeFilter->updateIconState();
-    }
-
-    updateIconState();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilterCollection::hasActiveFilters() const
 {
     if (!isActive()) return false; 
@@ -346,5 +332,11 @@ void RimCellRangeFilterCollection::updateIconState()
     updateUiIconFromState(activeIcon);
 
     uiCapability()->updateConnectedEditors();
+
+    for (size_t i = 0; i < rangeFilters.size(); i++)
+    {
+        RimCellRangeFilter* rangeFilter = rangeFilters[i];
+        rangeFilter->updateIconState();
+    }
 }
 

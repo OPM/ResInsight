@@ -60,10 +60,6 @@ public:
     virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
     virtual caf::PdmFieldHandle*    objectToggleField();
 
-protected:
-    // Overridden methods
-    virtual void                    initAfterRead();
-
 private:
     RimView*                        baseView() const;
 
