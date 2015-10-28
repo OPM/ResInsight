@@ -291,18 +291,18 @@ void RimWellLogPlot::calculateAvailableDepthRange()
         double minTrackDepth = HUGE_VAL;
         double maxTrackDepth = -HUGE_VAL;
 
-        if (m_tracks[tIdx]->availableDepthRange(&minTrackDepth, &maxTrackDepth))
-        {
-            if (minTrackDepth < minDepth)
-            {
-                minDepth = minTrackDepth;
-            }
+        m_tracks[tIdx]->availableDepthRange(&minTrackDepth, &maxTrackDepth);
 
-            if (maxTrackDepth > maxDepth)
-            {
-                maxDepth = maxTrackDepth;
-            }
+        if (minTrackDepth < minDepth)
+        {
+            minDepth = minTrackDepth;
         }
+
+        if (maxTrackDepth > maxDepth)
+        {
+            maxDepth = maxTrackDepth;
+        }
+        
     }
 
     m_minAvailableDepth = minDepth;

@@ -99,7 +99,7 @@ void RimWellLogFileCurve::updatePlotData()
 
         m_qwtPlotCurve->setCurveData(m_curveData.p());
 
-        updateTrackAndPlotFromCurveData();
+        zoomAllOwnerTrackAndPlot();
 
         if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
     }

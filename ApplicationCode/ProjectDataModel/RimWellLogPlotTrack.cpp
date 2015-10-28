@@ -145,31 +145,6 @@ void RimWellLogPlotTrack::removeCurve(RimWellLogPlotCurve* curve)
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::moveCurves(RimWellLogPlotCurve* insertAfterCurve, const std::vector<RimWellLogPlotCurve*>& curvesToMove)
-{
-    for (size_t cIdx = 0; cIdx < curvesToMove.size(); cIdx++)
-    {
-        RimWellLogPlotCurve* curve = curvesToMove[cIdx];
-
-        RimWellLogPlotTrack* wellLogPlotTrack;
-        curve->firstAnchestorOrThisOfType(wellLogPlotTrack);
-        if (wellLogPlotTrack)
-        {
-            wellLogPlotTrack->removeCurve(curve);
-            wellLogPlotTrack->updateConnectedEditors();
-        }
-    }
-
-    size_t index = curves.index(insertAfterCurve) + 1;
-
-    for (size_t cIdx = 0; cIdx < curvesToMove.size(); cIdx++)
-    {
-        insertCurve(curvesToMove[cIdx], index + cIdx);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -182,47 +157,34 @@ RiuWellLogTrackPlot* RimWellLogPlotTrack::viewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotTrack::availableDepthRange(double* minimumDepth, double* maximumDepth)
+void RimWellLogPlotTrack::availableDepthRange(double* minimumDepth, double* maximumDepth)
 {
     double minDepth = HUGE_VAL;
     double maxDepth = -HUGE_VAL;
 
     size_t curveCount = curves.size();
-    if (curveCount < 1)
-    {
-        return false;
-    }
-
-    bool rangeUpdated = false;
 
     for (size_t cIdx = 0; cIdx < curveCount; cIdx++)
     {
         double minCurveDepth = HUGE_VAL;
         double maxCurveDepth = -HUGE_VAL;
 
-        if (curves[cIdx]->depthRange(&minCurveDepth, &maxCurveDepth))
+        if (curves[cIdx]->isCurveVisible() && curves[cIdx]->depthRange(&minCurveDepth, &maxCurveDepth))
         {
             if (minCurveDepth < minDepth)
             {
                 minDepth = minCurveDepth;
-                rangeUpdated = true;
             }
 
             if (maxCurveDepth > maxDepth)
             {
                 maxDepth = maxCurveDepth;
-                rangeUpdated = true;
             }
         }
     }
 
-    if (rangeUpdated)
-    {
-        *minimumDepth = minDepth;
-        *maximumDepth = maxDepth;
-    }
-
-    return rangeUpdated;
+    *minimumDepth = minDepth;
+    *maximumDepth = maxDepth;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,6 +237,26 @@ void RimWellLogPlotTrack::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlotTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
+{
+    if (m_wellLogTrackPlotWidget)
+    {
+        RimWellLogPlot* wellLogPlot;
+        firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+           wellLogPlot->zoomAllDepth();
+        }
+
+        zoomAllXAxis();
+
+        m_wellLogTrackPlotWidget->replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotTrack::alignDepthZoomToPlotAndZoomAllX()
 {
     if (m_wellLogTrackPlotWidget)
@@ -308,7 +290,7 @@ void RimWellLogPlotTrack::zoomAllXAxis()
         double minCurveValue = HUGE_VAL;
         double maxCurveValue = -HUGE_VAL;
 
-        if (curves[cIdx]->valueRange(&minCurveValue, &maxCurveValue))
+        if (curves[cIdx]->isCurveVisible() && curves[cIdx]->valueRange(&minCurveValue, &maxCurveValue))
         {
             if (minCurveValue < minValue)
             {
@@ -362,4 +344,12 @@ void RimWellLogPlotTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimWellLogPlotTrack::curveIndex(RimWellLogPlotCurve* curve)
+{
+    return curves.index(curve);
 }

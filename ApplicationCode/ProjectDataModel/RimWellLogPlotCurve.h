@@ -52,7 +52,7 @@ public:
     void                            setQwtTrack(RiuWellLogTrackPlot* plot);
     void                            detachQwtCurve();
 
-    bool                            isCurveVisible();
+    bool                            isCurveVisible() const;
 
     QwtPlotCurve*                   plotCurve() const;
     const RigWellLogCurveData*      curveData() const;
@@ -71,7 +71,7 @@ protected:
 
     void                            updatePlotConfiguration();
     void                            updateCurveVisibility();
-    void                            updateTrackAndPlotFromCurveData();
+    void                            zoomAllOwnerTrackAndPlot();
     void                            updateOptionSensitivity();
 
     // Overridden PDM methods

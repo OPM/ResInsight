@@ -350,7 +350,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
     {
         if (action == Qt::MoveAction)
         {
-            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves);
+            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves, NULL);
             return true;
         }
     }

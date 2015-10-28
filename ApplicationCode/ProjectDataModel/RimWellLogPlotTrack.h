@@ -48,7 +48,7 @@ public:
     void addCurve(RimWellLogPlotCurve* curve);
     void insertCurve(RimWellLogPlotCurve* curve, size_t index);
     void removeCurve(RimWellLogPlotCurve* curve);
-    void moveCurves(RimWellLogPlotCurve* insertAfterCurve, const std::vector<RimWellLogPlotCurve*>& curvesToMove);
+    size_t curveIndex(RimWellLogPlotCurve* curve);
     size_t curveCount() { return curves.size(); }
 
     void recreateViewer();
@@ -56,7 +56,8 @@ public:
 
     void loadDataAndUpdate();
 
-    bool availableDepthRange(double* minimumDepth, double* maximumDepth);
+    void availableDepthRange(double* minimumDepth, double* maximumDepth);
+    void zoomAllXAndZoomAllDepthOnOwnerPlot();
     void alignDepthZoomToPlotAndZoomAllX();
 
     RiuWellLogTrackPlot* viewer();
@@ -73,7 +74,6 @@ protected:
 
 private:
     void zoomAllXAxis();
-
 private:
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;

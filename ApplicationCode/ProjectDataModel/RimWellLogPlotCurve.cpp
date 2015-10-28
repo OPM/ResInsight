@@ -62,9 +62,12 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 RimWellLogPlotCurve::~RimWellLogPlotCurve()
 {
     m_qwtPlotCurve->detach();    
-    if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
-
     delete m_qwtPlotCurve;
+
+    if (m_ownerQwtTrack)
+    {
+        m_ownerQwtTrack->replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,6 +124,21 @@ void RimWellLogPlotCurve::updateCurveVisibility()
     {
         m_qwtPlotCurve->detach();
     }
+
+    RimWellLogPlot* wellLogPlot;
+    this->firstAnchestorOrThisOfType(wellLogPlot);
+    if (wellLogPlot)
+    {
+        wellLogPlot->calculateAvailableDepthRange();
+    }
+
+    RimWellLogPlotTrack* wellLogPlotTrack;
+    this->firstAnchestorOrThisOfType(wellLogPlotTrack);
+    if (wellLogPlotTrack)
+    {
+        wellLogPlotTrack->zoomAllXAndZoomAllDepthOnOwnerPlot();
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,7 +182,7 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 {
     CVF_ASSERT(minimumDepth && maximumDepth);
     CVF_ASSERT(m_qwtPlotCurve);
-
+    
     if (m_qwtPlotCurve->data()->size() < 1)
     {
         return false;
@@ -230,7 +248,7 @@ void RimWellLogPlotCurve::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotCurve::isCurveVisible()
+bool RimWellLogPlotCurve::isCurveVisible() const
 {
     return m_showCurve;
 }
@@ -246,7 +264,7 @@ void RimWellLogPlotCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::updateTrackAndPlotFromCurveData()
+void RimWellLogPlotCurve::zoomAllOwnerTrackAndPlot()
 {
     RimWellLogPlot* wellLogPlot;
     firstAnchestorOrThisOfType(wellLogPlot);
@@ -260,7 +278,7 @@ void RimWellLogPlotCurve::updateTrackAndPlotFromCurveData()
     firstAnchestorOrThisOfType(plotTrack);
     if (plotTrack)
     {
-        plotTrack->alignDepthZoomToPlotAndZoomAllX();
+        plotTrack->zoomAllXAndZoomAllDepthOnOwnerPlot();
     }
 }
 
