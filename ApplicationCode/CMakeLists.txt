@@ -105,6 +105,7 @@ set( SOCKET_INTERFACE_FILES
 
 set( UNIT_TEST_FILES
     ProjectDataModel/ProjectDataModel_UnitTests/RimWellLogExtractionCurveImpl-Test.cpp 
+    ProjectDataModel/ProjectDataModel_UnitTests/WellPathAsciiFileReader-Test.cpp 
 )
 
 

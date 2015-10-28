@@ -420,15 +420,26 @@ void RimWellPathAsciiFileReader::readAllWellData(QString filePath)
             else if (quoteStartIdx > line.length() && quoteEndIdx > line.length())
             {
                 // Did not find any quotes
-                // Look for keyword Name
+                // Supported alternatives are 
+                // name WellNameA
+                // wellname: WellNameA
                 std::string lineLowerCase = line;
                 transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), ::tolower );
 
-                std::string token = "name ";
-                size_t firstNameIdx = lineLowerCase.find_first_of(token);
-                if (firstNameIdx < lineLowerCase.length())
+                std::string tokenName = "name";
+                std::size_t foundNameIdx = lineLowerCase.find(tokenName);
+                if (foundNameIdx != std::string::npos)
                 {
-                    wellName = line.substr(firstNameIdx + token.length());
+                    std::string tokenColon = ":";
+                    std::size_t foundColonIdx = lineLowerCase.find(tokenColon, foundNameIdx);
+                    if (foundColonIdx != std::string::npos)
+                    {
+                        wellName = line.substr(foundColonIdx + tokenColon.length());
+                    }
+                    else
+                    {
+                        wellName = line.substr(foundNameIdx + tokenName.length());
+                    }
                 }
             }
 
