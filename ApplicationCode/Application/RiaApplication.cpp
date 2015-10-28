@@ -617,6 +617,9 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     onProjectOpenedOrClosed();
 
+    // Make sure all project windows are closed down properly before returning
+    processEvents();
+
     return true;    
 }
 
