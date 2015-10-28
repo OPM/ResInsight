@@ -438,7 +438,8 @@ void RimWellPathAsciiFileReader::readAllWellData(QString filePath)
                 fileWellDataArray.push_back(WellData());
                 fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();
 
-                fileWellDataArray.back().m_name = wellName.c_str();
+                QString name = wellName.c_str();
+                fileWellDataArray.back().m_name = name.trimmed();
             }
         }
     }
