@@ -60,6 +60,7 @@ public:
     void                                            insertTrack(RimWellLogPlotTrack* track, size_t index);
     size_t                                          trackCount() { return m_tracks.size();}
     void                                            removeTrack(RimWellLogPlotTrack* track);
+    size_t                                          trackIndex(RimWellLogPlotTrack* track);
     void                                            moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracksToMove);
 
     void                                            loadDataAndUpdate();

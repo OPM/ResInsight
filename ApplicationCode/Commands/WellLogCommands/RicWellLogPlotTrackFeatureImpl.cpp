@@ -82,37 +82,42 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* wellLogPlot, const std::vector<RimWellLogPlotTrack*>& tracks)
+void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dstWellLogPlot, 
+                                                             const std::vector<RimWellLogPlotTrack*>& tracksToMove, 
+                                                             RimWellLogPlotTrack* trackToInsertAfter)
 {
-    CVF_ASSERT(wellLogPlot);
+    CVF_ASSERT(dstWellLogPlot);
 
-    RimWellLogPlotTrack* wellLogPlotTrack = NULL;
+    RimWellLogPlotTrack* track = NULL;
 
-    for (size_t tIdx = 0; tIdx < tracks.size(); tIdx++)
+    for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
     {
-        wellLogPlotTrack = tracks[tIdx];
+        track = tracksToMove[tIdx];
 
         RimWellLogPlot* oldPlot;
-        wellLogPlotTrack->firstAnchestorOrThisOfType(oldPlot);
+        track->firstAnchestorOrThisOfType(oldPlot);
         if (oldPlot)
         {
-            oldPlot->removeTrack(wellLogPlotTrack);
+            oldPlot->removeTrack(track);
             oldPlot->updateTrackNames();
             oldPlot->updateConnectedEditors();
         }
+     }
 
-        wellLogPlot->insertTrack(wellLogPlotTrack, tIdx);
-    }
+    size_t insertionStartIndex = 0;
+    if (trackToInsertAfter) insertionStartIndex = dstWellLogPlot->trackIndex(trackToInsertAfter) + 1;
 
-    wellLogPlot->updateTracks();
-    wellLogPlot->updateConnectedEditors();
-    
-    if (wellLogPlotTrack)
+    for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
     {
-        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(wellLogPlotTrack);
+        dstWellLogPlot->insertTrack(tracksToMove[tIdx], insertionStartIndex + tIdx);
     }
+
+    dstWellLogPlot->updateTrackNames();
+    dstWellLogPlot->updateTracks();
+    dstWellLogPlot->updateConnectedEditors();
 }
 
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -128,3 +133,4 @@ void RicWellLogPlotTrackFeatureImpl::moveTracks(RimWellLogPlotTrack* insertAfter
         wellLogPlot->updateConnectedEditors();
     }
 }
+*/

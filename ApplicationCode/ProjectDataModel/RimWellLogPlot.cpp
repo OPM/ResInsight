@@ -529,3 +529,11 @@ QString RimWellLogPlot::depthPlotTitle() const
     return depthTitle;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimWellLogPlot::trackIndex(RimWellLogPlotTrack* track)
+{
+    return m_tracks.index(track);
+}
+

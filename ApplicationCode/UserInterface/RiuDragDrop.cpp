@@ -219,9 +219,9 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
     caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
-    caf::PdmUiItem* dropTarget = uiTreeView->uiItemFromModelIndex(parent);
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(dropTarget);
-    if (objHandle)
+    caf::PdmUiItem* dropTargetUiItem = uiTreeView->uiItemFromModelIndex(parent);
+    caf::PdmObjectHandle* dropTarget = dynamic_cast<caf::PdmObjectHandle*>(dropTargetUiItem);
+    if (dropTarget)
     {
         caf::PdmObjectGroup draggedObjects;
         const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(data);
@@ -235,28 +235,28 @@ bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int
         }
 
         RimIdenticalGridCaseGroup* gridCaseGroup;
-        objHandle->firstAnchestorOrThisOfType(gridCaseGroup);
+        dropTarget->firstAnchestorOrThisOfType(gridCaseGroup);
         if (gridCaseGroup)
         {
             return handleGridCaseGroupDrop(action, draggedObjects, gridCaseGroup);
         }
 
         RimWellLogPlotCurve* wellLogPlotCurve;
-        objHandle->firstAnchestorOrThisOfType(wellLogPlotCurve);
+        dropTarget->firstAnchestorOrThisOfType(wellLogPlotCurve);
         if (wellLogPlotCurve)
         {
             return handleWellLogPlotCurveDrop(action, draggedObjects, wellLogPlotCurve);
         }
 
         RimWellLogPlotTrack* wellLogPlotTrack;
-        objHandle->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        dropTarget->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
             return handleWellLogPlotTrackDrop(action, draggedObjects, wellLogPlotTrack);
         }
 
         RimWellLogPlot* wellLogPlot;
-        objHandle->firstAnchestorOrThisOfType(wellLogPlot);
+        dropTarget->firstAnchestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             return handleWellLogPlotDrop(action, draggedObjects, wellLogPlot);
@@ -333,34 +333,36 @@ bool RiuDragDrop::handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectG
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotTrack* wellLogPlotTrack)
+bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimWellLogPlotTrack* trackTarget)
 {
-    std::vector<RimWellLogFileChannel*> wellLogFileChannels = RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogFileChannel*> wellLogFileChannels = RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup(draggedObjects);
     if (wellLogFileChannels.size() > 0)
     {
         if (action == Qt::CopyAction)
         {
-            RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(wellLogPlotTrack, wellLogFileChannels);
+            RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(trackTarget, wellLogFileChannels);
             return true;
         }
     }
 
-    std::vector<RimWellLogPlotCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogPlotCurve>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogPlotCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogPlotCurve>::typedObjectsFromGroup(draggedObjects);
     if (wellLogPlotCurves.size() > 0)
     {
         if (action == Qt::MoveAction)
         {
-            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves, NULL);
+            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(trackTarget, wellLogPlotCurves, NULL);
             return true;
         }
     }
 
-    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogPlotTrack>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogPlotTrack>::typedObjectsFromGroup(draggedObjects);
     if (wellLogPlotTracks.size() > 0)
     {
         if (action == Qt::MoveAction)
         {
-            RicWellLogPlotTrackFeatureImpl::moveTracks(wellLogPlotTrack, wellLogPlotTracks);
+            RimWellLogPlot* wellLogPlot;
+            trackTarget->firstAnchestorOrThisOfType(wellLogPlot);
+            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlot, wellLogPlotTracks, trackTarget); 
             return true;
         }
     }
@@ -371,17 +373,17 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotCurveDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotCurve* wellLogPlotCurve)
+bool RiuDragDrop::handleWellLogPlotCurveDrop(Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimWellLogPlotCurve* curveDropTarget)
 {
-    std::vector<RimWellLogPlotCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogPlotCurve>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogPlotCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogPlotCurve>::typedObjectsFromGroup(draggedObjects);
     if (wellLogPlotCurves.size() > 0)
     {
         if (action == Qt::MoveAction)
         {
             RimWellLogPlotTrack* wellLogPlotTrack;
-            wellLogPlotCurve->firstAnchestorOrThisOfType(wellLogPlotTrack);
+            curveDropTarget->firstAnchestorOrThisOfType(wellLogPlotTrack);
 
-            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves, wellLogPlotCurve);
+            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves, curveDropTarget);
             return true;
         }
     }
@@ -392,14 +394,14 @@ bool RiuDragDrop::handleWellLogPlotCurveDrop(Qt::DropAction action, caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot)
+bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimWellLogPlot* wellLogPlotTarget)
 {
-    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogPlotTrack>::typedObjectsFromGroup(objectGroup);
+    std::vector<RimWellLogPlotTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogPlotTrack>::typedObjectsFromGroup(draggedObjects);
     if (wellLogPlotTracks.size() > 0)
     {
         if (action == Qt::MoveAction)
         {
-            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlot, wellLogPlotTracks);
+            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlotTarget, wellLogPlotTracks, NULL);
             return true;
         }
     }
