@@ -121,7 +121,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            wellLogPlotTrack->allignDepthZoomToPlotAndZoomAllX();
+            wellLogPlotTrack->alignDepthZoomToPlotAndZoomAllX();
         }
 
         RimWellLogPlotCollection* wellLogPlotCollection = NULL;

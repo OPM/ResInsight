@@ -124,6 +124,7 @@ void RimWellLogPlotTrack::addCurve(RimWellLogPlotCurve* curve)
 void RimWellLogPlotTrack::insertCurve(RimWellLogPlotCurve* curve, size_t index)
 {
     curves.insert(index, curve);
+    // Todo: Mark curve data to use either TVD or MD
 
     if (m_wellLogTrackPlotWidget)
     {
@@ -274,7 +275,7 @@ void RimWellLogPlotTrack::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::allignDepthZoomToPlotAndZoomAllX()
+void RimWellLogPlotTrack::alignDepthZoomToPlotAndZoomAllX()
 {
     if (m_wellLogTrackPlotWidget)
     {

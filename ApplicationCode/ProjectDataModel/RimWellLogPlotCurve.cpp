@@ -252,20 +252,15 @@ void RimWellLogPlotCurve::updateTrackAndPlotFromCurveData()
     firstAnchestorOrThisOfType(wellLogPlot);
     if (wellLogPlot)
     {
-        bool setDepthRange = !wellLogPlot->hasAvailableDepthRange();
         wellLogPlot->calculateAvailableDepthRange();
-
-        if (setDepthRange)
-        {
-            wellLogPlot->zoomAllDepth();
-        }
+        wellLogPlot->zoomAllDepth();
     }
 
     RimWellLogPlotTrack* plotTrack;
     firstAnchestorOrThisOfType(plotTrack);
     if (plotTrack)
     {
-        plotTrack->allignDepthZoomToPlotAndZoomAllX();
+        plotTrack->alignDepthZoomToPlotAndZoomAllX();
     }
 }
 
