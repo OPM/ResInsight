@@ -36,7 +36,8 @@ public:
     virtual ~RigWellLogCurveData();
 
     void                                      setValuesAndMD(const std::vector<double>& xValues, 
-                                                             const std::vector<double>& measuredDepths);
+                                                             const std::vector<double>& measuredDepths,
+                                                             bool useValueFiltering);
     void                                      setValuesWithTVD(const std::vector<double>& xValues, 
                                                                const std::vector<double>& measuredDepths, 
                                                                const std::vector<double>& tvDepths );
@@ -68,6 +69,7 @@ private:
     std::vector<double>                       m_xValues;
     std::vector<double>                       m_measuredDepths;
     std::vector<double>                       m_tvDepths;
+    bool                                      m_useValueFiltering;
 
     std::vector< std::pair<size_t, size_t> >  m_intervalsOfContinousValidValues;
 

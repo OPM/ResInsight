@@ -86,7 +86,7 @@ void RimWellLogFileCurve::updatePlotData()
 
                     if (values.size() == depthValues.size())
                     {
-                        m_curveData->setValuesAndMD(values, depthValues);
+                        m_curveData->setValuesAndMD(values, depthValues, false);
                     }
                 }
 

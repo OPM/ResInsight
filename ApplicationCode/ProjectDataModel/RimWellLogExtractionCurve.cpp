@@ -247,7 +247,7 @@ void RimWellLogExtractionCurve::updatePlotData()
         {
             if (!tvDepthValues.size())
             {
-                m_curveData->setValuesAndMD(values, measuredDepthValues);
+                m_curveData->setValuesAndMD(values, measuredDepthValues, true);
             }
             else
             {

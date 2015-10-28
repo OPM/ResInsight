@@ -29,6 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 RigWellLogCurveData::RigWellLogCurveData()
 {
+    m_useValueFiltering = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,7 +43,8 @@ RigWellLogCurveData::~RigWellLogCurveData()
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues, 
-                                         const std::vector<double>& measuredDepths)
+                                         const std::vector<double>& measuredDepths,
+                                         bool useValueFiltering)
 {
     CVF_ASSERT(xValues.size() == measuredDepths.size());
 
@@ -50,7 +52,13 @@ void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues,
     m_measuredDepths = measuredDepths;
     m_tvDepths.clear();
 
-    calculateIntervalsOfContinousValidValues();
+    // Disable value filtering for curves coming from LAS files
+    m_useValueFiltering = useValueFiltering;
+
+    if (m_useValueFiltering)
+    {
+        calculateIntervalsOfContinousValidValues();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +73,9 @@ void RigWellLogCurveData::setValuesWithTVD(const std::vector<double>& xValues,
     m_xValues = xValues;
     m_measuredDepths = measuredDepths;
     m_tvDepths = tvDepths;
+
+    // Always use value filtering when TVD is present
+    m_useValueFiltering = true;
 
     calculateIntervalsOfContinousValidValues(); 
 }
@@ -91,10 +102,17 @@ const std::vector<double>& RigWellLogCurveData::measuredDepths() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogCurveData::xPlotValues() const
 {
-    std::vector<double> filteredValues;
-    getValuesByIntervals(m_xValues, m_intervalsOfContinousValidValues, &filteredValues);
+    if (m_useValueFiltering)
+    {
+        std::vector<double> filteredValues;
+        getValuesByIntervals(m_xValues, m_intervalsOfContinousValidValues, &filteredValues);
 
-    return filteredValues;
+        return filteredValues;
+    }
+    else
+    {
+        return m_xValues;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,17 +120,31 @@ std::vector<double> RigWellLogCurveData::xPlotValues() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogCurveData::depthPlotValues() const
 {
-    std::vector<double> filteredValues;
-    if (m_tvDepths.size())
+    if (m_useValueFiltering)
     {
-        getValuesByIntervals(m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        std::vector<double> filteredValues;
+        if (m_tvDepths.size())
+        {
+            getValuesByIntervals(m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        }
+        else
+        {
+            getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        }
+
+        return filteredValues;
     }
     else
     {
-        getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        if (m_tvDepths.size())
+        {
+            return m_tvDepths;
+        }
+        else
+        {
+            return m_measuredDepths;
+        }
     }
-
-    return filteredValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,6 +164,8 @@ std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::polylineStartStopI
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 {
+    CVF_ASSERT(m_useValueFiltering);
+
     std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
     calculateIntervalsOfValidValues(m_xValues, &intervalsOfValidValues);
 
