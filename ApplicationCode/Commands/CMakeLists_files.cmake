@@ -39,10 +39,6 @@ ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.h
 
-${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.h
-${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.h
-${CEE_CURRENT_LIST_DIR}RicWellPathsDeleteAllFeature.h
-
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.h
@@ -88,10 +84,6 @@ ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.cpp
-
-${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicWellPathsDeleteAllFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.cpp

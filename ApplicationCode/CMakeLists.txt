@@ -130,6 +130,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
+    Commands/WellPathCommands/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
