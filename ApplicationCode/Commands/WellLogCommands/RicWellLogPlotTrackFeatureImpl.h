@@ -38,5 +38,4 @@ public:
     static void moveTracksToWellLogPlot(RimWellLogPlot* wellLogPlot, 
                                         const std::vector<RimWellLogPlotTrack*>& tracks,
                                         RimWellLogPlotTrack* trackToInsertAfter);
-    //static void moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracks);
 };

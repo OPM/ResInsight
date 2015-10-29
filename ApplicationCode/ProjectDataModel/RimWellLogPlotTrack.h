@@ -44,7 +44,7 @@ public:
     virtual ~RimWellLogPlotTrack();
 
     void setDescription(const QString& description);
-
+    bool isVisible();
     void addCurve(RimWellLogPlotCurve* curve);
     void insertCurve(RimWellLogPlotCurve* curve, size_t index);
     void removeCurve(RimWellLogPlotCurve* curve);
@@ -59,6 +59,7 @@ public:
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
     void zoomAllXAndZoomAllDepthOnOwnerPlot();
     void alignDepthZoomToPlotAndZoomAllX();
+    void zoomAllXAxis();
 
     RiuWellLogTrackPlot* viewer();
     
@@ -73,7 +74,6 @@ protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
-    void zoomAllXAxis();
 private:
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;

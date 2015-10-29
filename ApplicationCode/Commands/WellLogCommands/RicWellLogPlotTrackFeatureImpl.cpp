@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlotTrack* destTrack, 
                                                                   const std::vector<RimWellLogPlotCurve*>& curves, 
-                                                                  RimWellLogPlotCurve* insertAfterCurve)
+                                                                  RimWellLogPlotCurve* curveToInsertAfter)
 {
     CVF_ASSERT(destTrack );
 
@@ -57,7 +57,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
     }
 
     size_t insertionStartIndex = 0;
-    if (insertAfterCurve) insertionStartIndex = destTrack->curveIndex(insertAfterCurve) + 1;
+    if (curveToInsertAfter) insertionStartIndex = destTrack->curveIndex(curveToInsertAfter) + 1;
 
     for (size_t cIdx = 0; cIdx < curves.size(); cIdx++)
     {
@@ -88,21 +88,30 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
 {
     CVF_ASSERT(dstWellLogPlot);
 
-    RimWellLogPlotTrack* track = NULL;
+    std::set<RimWellLogPlot*> srcPlots;
 
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
     {
-        track = tracksToMove[tIdx];
+        RimWellLogPlotTrack* track = tracksToMove[tIdx];
 
-        RimWellLogPlot* oldPlot;
-        track->firstAnchestorOrThisOfType(oldPlot);
-        if (oldPlot)
+        RimWellLogPlot* srcPlot;
+        track->firstAnchestorOrThisOfType(srcPlot);
+        if (srcPlot)
         {
-            oldPlot->removeTrack(track);
-            oldPlot->updateTrackNames();
-            oldPlot->updateConnectedEditors();
+            srcPlot->removeTrack(track);
+          
+            srcPlots.insert(srcPlot);
         }
-     }
+    }
+
+    for (std::set<RimWellLogPlot*>::iterator pIt = srcPlots.begin(); pIt != srcPlots.end(); ++pIt)
+    {
+        (*pIt)->calculateAvailableDepthRange();
+        (*pIt)->updateTrackNames();
+        (*pIt)->zoomAllDepth();
+        (*pIt)->updateConnectedEditors();
+    }
+
 
     size_t insertionStartIndex = 0;
     if (trackToInsertAfter) insertionStartIndex = dstWellLogPlot->trackIndex(trackToInsertAfter) + 1;
@@ -116,21 +125,3 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
     dstWellLogPlot->updateTracks();
     dstWellLogPlot->updateConnectedEditors();
 }
-
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicWellLogPlotTrackFeatureImpl::moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracks)
-{
-    CVF_ASSERT(insertAfterTrack);
-
-    RimWellLogPlot* wellLogPlot;
-    insertAfterTrack->firstAnchestorOrThisOfType(wellLogPlot);
-    if (wellLogPlot)
-    {
-        wellLogPlot->moveTracks(insertAfterTrack, tracks);
-        wellLogPlot->updateConnectedEditors();
-    }
-}
-*/

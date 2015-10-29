@@ -110,32 +110,40 @@ void RicDeleteItemExec::redo()
             wellPathColl->scheduleGeometryRegenAndRedrawViews();
         }
 
+        // Update due to deletion of curves (not tracks, handled separatly)
+
         RimWellLogPlot* wellLogPlot;
         parentObj->firstAnchestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             wellLogPlot->calculateAvailableDepthRange();
+            wellLogPlot->zoomAllDepth();
         }
 
         RimWellLogPlotTrack* wellLogPlotTrack;
         parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            wellLogPlotTrack->zoomAllXAndZoomAllDepthOnOwnerPlot();
+            wellLogPlotTrack->zoomAllXAxis();
         }
+        
+        // Update due to delete plots
+        // Make sure the plot collection disappears with the last plot
 
-        RimWellLogPlotCollection* wellLogPlotCollection = NULL;
-        parentObj->firstAnchestorOrThisOfType(wellLogPlotCollection);
+        RimWellLogPlotCollection* wellLogPlotCollection = dynamic_cast<RimWellLogPlotCollection*>(parentObj);
         if (wellLogPlotCollection)
         {
-            RimProject* project = NULL;
-            parentObj->firstAnchestorOrThisOfType(project);
-            if (project)
+            if (wellLogPlotCollection->wellLogPlots.empty())
             {
-                project->updateConnectedEditors();
+                RimProject* project = NULL;
+                parentObj->firstAnchestorOrThisOfType(project);
+                if (project)
+                {
+                    project->updateConnectedEditors();
+                }
             }
         }
-
+        
         RimViewLinkerCollection* viewLinkerCollection = NULL;
         parentObj->firstAnchestorOrThisOfType(viewLinkerCollection);
         if (viewLinkerCollection)

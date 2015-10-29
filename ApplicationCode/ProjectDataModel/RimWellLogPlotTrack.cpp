@@ -80,7 +80,18 @@ void RimWellLogPlotTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 {
     if (changedField == &m_show)
     {
-        if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->setVisible(m_show());
+        if (m_wellLogTrackPlotWidget)
+        {
+            m_wellLogTrackPlotWidget->setVisible(m_show());
+        }
+
+        RimWellLogPlot* wellLogPlot;
+        this->firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+            wellLogPlot->calculateAvailableDepthRange();
+            wellLogPlot->zoomAllDepth();
+        }
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
@@ -352,4 +363,12 @@ void RimWellLogPlotTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 size_t RimWellLogPlotTrack::curveIndex(RimWellLogPlotCurve* curve)
 {
     return curves.index(curve);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlotTrack::isVisible()
+{
+    return m_show;
 }

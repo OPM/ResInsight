@@ -67,12 +67,12 @@ void RicDeleteWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
         if (wellLogPlot && wellLogPlot->trackCount() > 1)
         {
             wellLogPlot->removeTrack(track);
-            wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->uiCapability()->updateConnectedEditors();
-        
             caf::SelectionManager::instance()->removeObjectFromAllSelections(track);
-
             delete track;
+
+            wellLogPlot->calculateAvailableDepthRange();
+            wellLogPlot->zoomAllDepth();
+            wellLogPlot->uiCapability()->updateConnectedEditors();
         }
     }
 }
