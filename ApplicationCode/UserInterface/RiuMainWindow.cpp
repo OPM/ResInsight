@@ -51,7 +51,6 @@
 #include "RimTreeViewStateSerializer.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
 #include "RiuDragDrop.h"

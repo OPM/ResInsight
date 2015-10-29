@@ -42,7 +42,6 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"
-#include "RimWellPathCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RigCaseData.h"

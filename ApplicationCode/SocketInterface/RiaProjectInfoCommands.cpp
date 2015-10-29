@@ -40,7 +40,6 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"
 #include "RimScriptCollection.h"
-#include "RimWellPathCollection.h"
 #include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
 #include "cafSelectionManager.h"
