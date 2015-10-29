@@ -5,12 +5,14 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RicWellPathDeleteFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathsDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RicWellPathDeleteFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathsImportSsihubFeature.cpp

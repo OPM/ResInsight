@@ -17,26 +17,27 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicWellPathsDeleteAllFeature.h"
+#include "RicWellPathDeleteFeature.h"
 
 #include "RimWellPathCollection.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include "RimWellPath.h"
 
 namespace caf
 {
 
-CAF_CMD_SOURCE_INIT(RicWellPathsDeleteAllFeature, "RicWellPathsDeleteAllFeature");
+CAF_CMD_SOURCE_INIT(RicWellPathDeleteFeature, "RicWellPathDeleteFeature");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathsDeleteAllFeature::isCommandEnabled()
+bool RicWellPathDeleteFeature::isCommandEnabled()
 {
-    std::vector<RimWellPathCollection*> objects;
+    std::vector<RimWellPath*> objects;
     caf::SelectionManager::instance()->objectsByType(&objects);
 
     if (objects.size() == 1)
@@ -50,14 +51,20 @@ bool RicWellPathsDeleteAllFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsDeleteAllFeature::onActionTriggered(bool isChecked)
+void RicWellPathDeleteFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPathCollection*> objects;
+    std::vector<RimWellPath*> objects;
     caf::SelectionManager::instance()->objectsByType(&objects);
 
-    RimWellPathCollection* wellPathCollection = objects[0];
+    if (objects.size() == 0) return;
 
-    wellPathCollection->deleteAllWellPaths();
+    RimWellPath* wellPath = objects[0];
+
+    RimWellPathCollection* wellPathCollection = NULL;
+    wellPath->firstAnchestorOrThisOfType(wellPathCollection);
+
+    wellPathCollection->removeWellPath(wellPath);;
+    delete wellPath;
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleGeometryRegenAndRedrawViews();
@@ -66,10 +73,9 @@ void RicWellPathsDeleteAllFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathsDeleteAllFeature::setupActionLook(QAction* actionToSetup)
+void RicWellPathDeleteFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Delete All Well Paths");
-    //actionToSetup->setIcon(QIcon(":/WellCollection.png"));
+    actionToSetup->setText("Delete Well Path");
 }
 
 } // end namespace caf

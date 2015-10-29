@@ -34,7 +34,7 @@
 #include <QString>
 
 class RivWellPathCollectionPartMgr;
-class RimWellPathAsciiFileReader;
+class RifWellPathAsciiFileReader;
 class RimWellPath;
 class RimProject;
 class RigWellPath;
@@ -80,7 +80,11 @@ public:
 
     void                                readWellPathFiles();
     void                                addWellPaths(QStringList filePaths);
-    RimWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
+    
+    void                                removeWellPath(RimWellPath* wellPath);
+    void                                deleteAllWellPaths();
+
+    RifWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
     
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     void                                addWellLogs(const QStringList& filePaths);
@@ -99,7 +103,7 @@ private:
     caf::PdmPointer<RimProject>         m_project;
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 
-    RimWellPathAsciiFileReader*         m_asciiFileReader;
+    RifWellPathAsciiFileReader*         m_asciiFileReader;
 };
 
 
@@ -107,7 +111,7 @@ private:
 ///  
 ///  
 //==================================================================================================
-class RimWellPathAsciiFileReader
+class RifWellPathAsciiFileReader
 {
 public:
     struct WellData
@@ -119,8 +123,10 @@ public:
     WellData readWellData(QString filePath, int indexInFile);
     size_t   wellDataCount(QString filePath);
 
-private:
+    void    clear();
+    void    removeFilePath(const QString& filePath);
 
+private:
     void readAllWellData(QString filePath);
 
     std::map<QString, std::vector<WellData> > m_fileNameToWellDataGroupMap;

@@ -21,8 +21,8 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameNoColon)
             out << "1 2 3";
         }
 
-        RimWellPathAsciiFileReader reader;
-        RimWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
+        RifWellPathAsciiFileReader reader;
+        RifWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
      }
 }
@@ -42,8 +42,8 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameWithColon)
             out << "1 2 3";
         }
 
-        RimWellPathAsciiFileReader reader;
-        RimWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
+        RifWellPathAsciiFileReader reader;
+        RifWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
      }
 }
@@ -63,8 +63,8 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameWithColonAndSpace)
             out << "1 2 3";
         }
 
-        RimWellPathAsciiFileReader reader;
-        RimWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
+        RifWellPathAsciiFileReader reader;
+        RifWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
      }
 }

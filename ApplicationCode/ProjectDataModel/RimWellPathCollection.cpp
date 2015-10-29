@@ -84,7 +84,7 @@ RimWellPathCollection::RimWellPathCollection()
     m_wellPathCollectionPartManager = new RivWellPathCollectionPartMgr(this);
     m_project = NULL;
 
-    m_asciiFileReader = new RimWellPathAsciiFileReader;
+    m_asciiFileReader = new RifWellPathAsciiFileReader;
 }
 
 
@@ -349,7 +349,42 @@ RimWellPath* RimWellPathCollection::wellPathByName(const QString& wellPathName) 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAsciiFileReader::readAllWellData(QString filePath)
+void RimWellPathCollection::deleteAllWellPaths()
+{
+    wellPaths.deleteAllChildObjects();
+
+    m_asciiFileReader->clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::removeWellPath(RimWellPath* wellPath)
+{
+    wellPaths.removeChildObject(wellPath);
+
+    bool isFilePathUsed = false;
+    for (size_t i = 0; i < wellPaths.size(); i++)
+    {
+        if (wellPaths[i]->filepath == wellPath->filepath)
+        {
+            isFilePathUsed = true;
+            break;
+        }
+    }
+
+    if (!isFilePathUsed)
+    {
+        // One file can have multiple well paths
+        // If no other well paths are referencing the filepath, remove cached data from the file reader
+        m_asciiFileReader->removeFilePath(wellPath->filepath);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifWellPathAsciiFileReader::readAllWellData(QString filePath)
 {
     std::map<QString, std::vector<WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
 
@@ -459,7 +494,7 @@ void RimWellPathAsciiFileReader::readAllWellData(QString filePath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathAsciiFileReader::WellData RimWellPathAsciiFileReader::readWellData(QString filePath, int indexInFile)
+RifWellPathAsciiFileReader::WellData RifWellPathAsciiFileReader::readWellData(QString filePath, int indexInFile)
 {
     this->readAllWellData(filePath);
 
@@ -473,7 +508,7 @@ RimWellPathAsciiFileReader::WellData RimWellPathAsciiFileReader::readWellData(QS
     }
     else
     {
-        // Error : The ascii well path file does not contain that many wellpaths
+        // Error : The ascii well path file does not contain that many well paths
         return WellData();
     }
 }
@@ -481,7 +516,7 @@ RimWellPathAsciiFileReader::WellData RimWellPathAsciiFileReader::readWellData(QS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimWellPathAsciiFileReader::wellDataCount(QString filePath)
+size_t RifWellPathAsciiFileReader::wellDataCount(QString filePath)
 {
     std::map<QString, std::vector<WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
 
@@ -496,4 +531,20 @@ size_t RimWellPathAsciiFileReader::wellDataCount(QString filePath)
     CVF_ASSERT(it != m_fileNameToWellDataGroupMap.end());
 
     return it->second.size();;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifWellPathAsciiFileReader::clear()
+{
+    m_fileNameToWellDataGroupMap.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifWellPathAsciiFileReader::removeFilePath(const QString& filePath)
+{
+    m_fileNameToWellDataGroupMap.erase(filePath);
 }

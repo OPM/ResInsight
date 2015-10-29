@@ -257,7 +257,7 @@ void RimWellPath::readJsonWellPathFile()
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::readAsciiWellPathFile()
 {
-    RimWellPathAsciiFileReader::WellData wpData = m_wellPathCollection->asciiFileReader()->readWellData(filepath(), wellPathIndexInFile());
+    RifWellPathAsciiFileReader::WellData wpData = m_wellPathCollection->asciiFileReader()->readWellData(filepath(), wellPathIndexInFile());
     this->name = wpData.m_name;
 
     setWellPathGeometry(wpData.m_wellPathGeometry.p());
