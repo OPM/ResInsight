@@ -143,6 +143,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
 //--------------------------------------------------------------------------------------------------
 void RimViewController::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
+    updateDisplayNameAndIcon();
     uiTreeOrdering.setForgetRemainingFields(true);
 }
 
@@ -213,16 +214,6 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimViewController::initAfterRead()
-{
-    updateOptionSensitivity();
-    updateDisplayNameAndIcon();
-
-    // Update overrides is now done on load project in Application
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -737,6 +728,8 @@ bool RimViewController::isVisibleCellsOveridden()
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isRangeFilterControlPossible()
 {
+    return true;
+    #if 0
     if (!isMasterAndDepViewDifferentType()) return true;
 
     // Make sure the cases are in the same domain
@@ -761,7 +754,41 @@ bool RimViewController::isRangeFilterControlPossible()
         }
     }
     return false;
+    #endif
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isRangeFilterMappingApliccable()
+{
+    if (!isMasterAndDepViewDifferentType()) return false;
+
+    // Make sure the cases are in the same domain
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(masterView());
+    RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(masterView());
+    if (!geomView) geomView = managedGeoView();
+    if (!eclipseView) eclipseView = managedEclipseView();
+
+    if (eclipseView && geomView)
+    {
+        if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase()->geoMechData())
+        {
+            RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+            RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
+
+            if (eclGrid && femPart)
+            {
+                cvf::BoundingBox fembb = femPart->boundingBox();
+                cvf::BoundingBox eclbb = eclGrid->boundingBox();
+                return fembb.contains(eclbb.min()) && fembb.contains(eclbb.max());
+            }
+        }
+    }
+
+    return false;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -840,7 +867,8 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
         return;
     }
 
-    if (true)//changedRangeFilter == NULL)
+    // Todo: Optimize by only mapping the changed range filter, if needed.
+
     {
         // Copy the rangeFilterCollection
 
@@ -849,50 +877,49 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
         PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xmlRangeFilterCollCopy, caf::PdmDefaultObjectFactory::instance());
         RimCellRangeFilterCollection* overrideRangeFilterColl = dynamic_cast<RimCellRangeFilterCollection*>(objectCopy);
 
-        // Convert the range filter to fit in the managed view
-        RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(masterView());
-        RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(masterView());
-        RimEclipseView* depEclView = managedEclipseView();
-        RimGeoMechView* depGeomView = managedGeoView();
-
-        if (eclipseMasterView && depGeomView)
+        // Convert the range filter to fit in the managed view if needed
+        if (isRangeFilterMappingApliccable())
         {
-            if (eclipseMasterView->eclipseCase()->reservoirData())
+            RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(masterView());
+            RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(masterView());
+            RimEclipseView* depEclView = managedEclipseView();
+            RimGeoMechView* depGeomView = managedGeoView();
+
+            if (eclipseMasterView && depGeomView)
             {
-                RigMainGrid* srcEclGrid = eclipseMasterView->eclipseCase()->reservoirData()->mainGrid();
-                RigFemPart* dstFemPart = depGeomView->geoMechCase()->geoMechData()->femParts()->part(0);
-                for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
+                if (eclipseMasterView->eclipseCase()->reservoirData())
                 {
-                    RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
-                    RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
-                    RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem(srcRFilter, srcEclGrid,
-                                                                               dstRFilter, dstFemPart);
+                    RigMainGrid* srcEclGrid = eclipseMasterView->eclipseCase()->reservoirData()->mainGrid();
+                    RigFemPart* dstFemPart = depGeomView->geoMechCase()->geoMechData()->femParts()->part(0);
+                    for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
+                    {
+                        RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
+                        RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
+                        RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem(srcRFilter, srcEclGrid,
+                                                                                   dstRFilter, dstFemPart);
+                    }
                 }
             }
-        }
-        else if (geoMasterView && depEclView)
-        {
-            if (depEclView->eclipseCase()->reservoirData())
+            else if (geoMasterView && depEclView)
             {
-                RigFemPart* srcFemPart = geoMasterView->geoMechCase()->geoMechData()->femParts()->part(0);
-                RigMainGrid* dstEclGrid = depEclView->eclipseCase()->reservoirData()->mainGrid();
-                for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
+                if (depEclView->eclipseCase()->reservoirData())
                 {
-                    RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
-                    RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
-                    RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl(srcRFilter, srcFemPart,
-                                                                               dstRFilter, dstEclGrid);
+                    RigFemPart* srcFemPart = geoMasterView->geoMechCase()->geoMechData()->femParts()->part(0);
+                    RigMainGrid* dstEclGrid = depEclView->eclipseCase()->reservoirData()->mainGrid();
+                    for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
+                    {
+                        RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
+                        RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
+                        RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl(srcRFilter, srcFemPart,
+                                                                                   dstRFilter, dstEclGrid);
+                    }
                 }
             }
         }
 
         managedView()->setOverrideRangeFilterCollection(overrideRangeFilterColl);
     }
-    else
-    {
-               // RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem( changedRangeFilter, eclipseMasterView, overrideRangeFilterColl->rangeFilters()[rfIdx], depGeomView)
-        
-    }
+   
  
 }
 

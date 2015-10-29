@@ -83,8 +83,6 @@ protected:  // Pdm overridden methods
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
-    virtual void                            initAfterRead();
-    
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
     virtual caf::PdmFieldHandle*            objectToggleField()     { return &m_isActive; }
 
@@ -96,13 +94,13 @@ private:
     bool                                    isMasterAndDepViewDifferentType();
     bool                                    isRangeFilterControlPossible();
     bool                                    isPropertyFilterControlPossible();
+    bool                                    isRangeFilterMappingApliccable();
 
     RimEclipseView*                         managedEclipseView();
     RimGeoMechView*                         managedGeoView();
     static void                             removeOverrides(RimView* view);
 
     static bool                             askUserToRestoreOriginalRangeFilterCollection(const QString& viewName);
-
 private:
     caf::PdmField<QString>                  m_name;
     caf::PdmPtrField<RimView*>              m_managedView;
