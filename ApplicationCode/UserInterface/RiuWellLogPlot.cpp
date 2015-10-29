@@ -46,6 +46,8 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
 
     m_layout = new QHBoxLayout(this);
     m_layout->setMargin(0);
+    m_layout->setSpacing(0);
+
     setLayout(m_layout);
 
     m_scrollBar = new QScrollBar(this);
