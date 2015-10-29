@@ -198,7 +198,7 @@ void RimView::updateViewerWidget()
     }
     else
     {
-        if (m_viewer)
+        if (m_viewer && m_viewer->layoutWidget())
         {
             if (m_viewer->layoutWidget()->parentWidget())
             {
