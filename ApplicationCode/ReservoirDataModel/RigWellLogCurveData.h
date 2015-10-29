@@ -37,7 +37,7 @@ public:
 
     void                                      setValuesAndMD(const std::vector<double>& xValues, 
                                                              const std::vector<double>& measuredDepths,
-                                                             bool useValueFiltering);
+                                                             bool isExtractionCurve);
     void                                      setValuesWithTVD(const std::vector<double>& xValues, 
                                                                const std::vector<double>& measuredDepths, 
                                                                const std::vector<double>& tvDepths );
@@ -69,7 +69,7 @@ private:
     std::vector<double>                       m_xValues;
     std::vector<double>                       m_measuredDepths;
     std::vector<double>                       m_tvDepths;
-    bool                                      m_useValueFiltering;
+    bool                                      m_isExtractionCurve;
 
     std::vector< std::pair<size_t, size_t> >  m_intervalsOfContinousValidValues;
 
