@@ -40,6 +40,7 @@
 #include <QFont>
 
 #include <float.h>
+#include <QScrollArea>
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
 #define RIU_SCROLLWHEEL_PANFACTOR   0.1
@@ -57,8 +58,9 @@ RiuWellLogTrackPlot::RiuWellLogTrackPlot(RimWellLogPlotTrack* plotTrackDefinitio
     m_grid->attach(this);
 
     m_legend = new QwtLegend(this);
-    insertLegend(m_legend, QwtPlot::TopLegend);
-
+    insertLegend(m_legend, QwtPlot::TopLegend, 1.0);
+    m_legend->setMaxColumns(1);
+    
     setFocusPolicy(Qt::ClickFocus);
     setDefaults();
 }
