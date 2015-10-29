@@ -144,6 +144,7 @@ void RiuWellLogTrackPlot::setDepthZoom(double minDepth, double maxDepth)
 void RiuWellLogTrackPlot::setXRange(double min, double max)
 {
     setAxisScale(QwtPlot::xTop, min, max);
+    setAxisScale(QwtPlot::xBottom, min, max);
 }
 
 //--------------------------------------------------------------------------------------------------
