@@ -24,7 +24,7 @@
 #include "cafPdmObject.h"
 
 #include "RigWellLogCurveData.h"
-
+#include <QPointer>
 #include <vector>
 
 class RigWellLogCurveData;
@@ -81,7 +81,7 @@ protected:
     virtual void                    initAfterRead();
 
 
-    RiuWellLogTrackPlot*            m_ownerQwtTrack;
+    QPointer<RiuWellLogTrackPlot>   m_ownerQwtTrack;
     RiuWellLogPlotCurve*            m_qwtPlotCurve;
     cvf::ref<RigWellLogCurveData>   m_curveData;
 
