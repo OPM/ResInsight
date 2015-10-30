@@ -47,7 +47,7 @@ class PlotCaseModel(QAbstractItemModel):
 
     def getAllItems(self):
         if self.__data is None:
-            self.__data = CaseList().getAllCasesWithDataAndNotRunning()
+            self.__data = CaseList().getAllCasesNotRunning()
 
         return self.__data
 

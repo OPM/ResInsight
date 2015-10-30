@@ -259,7 +259,6 @@ class LayerTest(ExtendedTestCase):
         pl = CPolyline( init_points = [(0 , 0) , (d/2 , d/2) , (d,d)])
         layer.addPolylineBarrier( pl , grid , 0)
         for i in range(d):
-            print i
             self.assertTrue( layer.bottomBarrier(i,i) )
             if i < (d - 1):
                 self.assertTrue( layer.leftBarrier(i+1,i) )
@@ -296,3 +295,12 @@ class LayerTest(ExtendedTestCase):
         layer.assign(10)
         self.assertEqual( layer.cellSum() , 500 )
         
+
+
+    def test_count_equal(self):
+        layer = Layer(10,10)
+        self.assertEqual( 100 , layer.countEqual( 0 ))
+        self.assertEqual( 0 , layer.countEqual( 1 ))
+
+        layer[3,3] = 3
+        self.assertEqual( 1 , layer.countEqual( 3 ))

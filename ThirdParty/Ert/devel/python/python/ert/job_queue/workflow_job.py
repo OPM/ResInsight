@@ -53,7 +53,7 @@ class WorkflowJob(BaseCClass):
         """ @rtype: bool """
         if self.isInternalScript():
             script_obj = ErtScript.loadScriptFromFile(self.getInternalScriptPath())
-            return issubclass(script_obj, ErtPlugin)
+            return script_obj is not None and issubclass(script_obj, ErtPlugin)
 
         return False
 

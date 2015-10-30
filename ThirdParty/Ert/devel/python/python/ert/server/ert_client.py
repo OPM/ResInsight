@@ -18,8 +18,14 @@ import sys
 import socket
 import json
 import datetime
+import time
 from ert.server import ErtServer
 
+class ServerReturnedNoneException(Exception):
+    pass
+
+class ConnectionErrorException(Exception):
+    pass
 
 class ErtClient(object):
     def __init__(self , port , host):
@@ -30,7 +36,8 @@ class ErtClient(object):
         try:
             self.socket.connect((self.host , self.port))
         except socket.error:
-            sys.exit("Failed to connect to port:%d at %s." % (port , host))
+            raise Exception("Failed to connect to port:%d at %s." % (port , host))
+
 
     @staticmethod
     def convert_to_datetime(data):
@@ -43,11 +50,19 @@ class ErtClient(object):
         return result
 
     def sendRecv(self , data):
-        self.socket.sendall( json.dumps(data) + "\n" )
-        recv = self.socket.recv(4096)
+        
+        try:
+            self.socket.sendall( json.dumps(data) + "\n" )
+            recv = self.socket.recv(4096)
+        except:
+            raise ConnectionErrorException()
+            
         result = json.loads(recv)
+        if result is not None:
+            result0 = result[0]
+        else:
+            raise ServerReturnedNoneException()
 
-        result0 = result[0]
         if result0 == "OK":
             result = result[1:]
             if data == ["TIME_STEP"]:
@@ -60,8 +75,19 @@ class ErtClient(object):
             raise Exception("Ert server returned result[0] == %s - must have OK|ERROR as first element in return list" % result[0])
 
 
-
     @staticmethod
     def runCommand( cmd , port , host):
-        client = ErtClient( port , host )
-        return client.sendRecv( cmd )
+        while True:
+            client = ErtClient(port, host)
+            try:
+                result = client.sendRecv(cmd)
+                return result
+            except ServerReturnedNoneException:
+                print("The server returned null on command %s, the command will be resent." % cmd)
+                time.sleep(3)
+            except ConnectionErrorException:
+                print("Connection dropped unexpectedly on command %s, the command will be resent." % cmd)
+                time.sleep(3)
+            except:
+                print("Unhandled exception on command %s - this will be raised to a higher place." % cmd)
+                raise

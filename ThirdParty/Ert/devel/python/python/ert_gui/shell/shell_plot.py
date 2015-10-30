@@ -16,6 +16,7 @@ class ShellPlot(object):
     def __init__(self, name):
         super(ShellPlot, self).__init__()
         clist = plt.rcParams['axes.color_cycle']
+        clist = ["#386CB0", "#7FC97F", "#FDC086", "#F0027F", "#BF5B17"]
         self.__color_cycle = itertools.cycle(clist)
 
         self.figure = plt.figure()

@@ -8,7 +8,11 @@ function(add_python_package target package_path source_files install_package)
   foreach (file ${source_files} )
      set( source_file ${CMAKE_CURRENT_SOURCE_DIR}/${file} )
      set( build_file ${PROJECT_BINARY_DIR}/${package_path}/${file} )
-     set( install_file ${CMAKE_INSTALL_PREFIX}/${package_path}/${file} )
+     if("$ENV{DESTDIR}" STREQUAL "")
+       set( install_file ${CMAKE_INSTALL_PREFIX}/${package_path}/${file} )
+     else()
+       set( install_file $ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${package_path}/${file} )
+     endif()
 
      add_custom_command(
         OUTPUT  ${build_file}

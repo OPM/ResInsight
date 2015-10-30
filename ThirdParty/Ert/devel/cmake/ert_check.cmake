@@ -1,3 +1,5 @@
+include(CheckSymbolExists)
+
 check_function_exists( fseeko HAVE_FSEEKO )
 if (HAVE_HFSEEKO)
    add_definitions( -DHAVE_FSEEKO )                       
@@ -110,6 +112,17 @@ if (HAVE__USLEEP)
   add_definitions( -DHAVE__USLEEP )
 endif()
 
+check_symbol_exists(_tzname time.h HAVE_WINDOWS_TZNAME)
+if (HAVE_WINDOWS_TZNAME)
+   add_definitions(-DHAVE_WINDOWS_TZNAME)
+else()
+   check_symbol_exists(tzname time.h HAVE_TZNAME)
+   if (HAVE_TZNAME)
+      add_definitions(-DHAVE_TZNAME)
+   else()
+      message(FATAL_ERROR "Could not find tzname global variable")
+   endif()
+endif()
 
 check_function_exists(pthread_yield_np HAVE_YIELD_NP)
 if (HAVE_YIELD_NP)
@@ -121,6 +134,11 @@ if (HAVE_YIELD)
   add_definitions(-DHAVE_YIELD)
 endif()
 
+
+check_function_exists(pthread_timedjoin_np HAVE_TIMEDJOIN)
+if (HAVE_TIMEDJOIN)
+  add_definitions(-DHAVE_TIMEDJOIN)
+endif()
 
 # Checking based on compiling. Some of the code generates warnings, so we just cut down to bare-bone compiler flags.
 

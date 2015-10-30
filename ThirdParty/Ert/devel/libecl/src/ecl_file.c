@@ -742,11 +742,6 @@ void ecl_file_fprintf_kw_list( const ecl_file_type * ecl_file , FILE * stream ) 
   file_map_fprintf_kw_list( ecl_file->active_map , stream );
 }
 
-#ifdef HAVE_FORK
-const char * ecl_file_enum_iget( int index , int * value) {
-  return util_enum_iget( index , ECL_FILE_ENUM_SIZE , (const util_enum_element_type []) { ECL_FILE_ENUM_DEFS } , value);
-}
-#endif
 
 /*****************************************************************/
 

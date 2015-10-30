@@ -42,20 +42,6 @@ typedef enum { ECL_OTHER_FILE           = 0   ,
                ECL_DATA_FILE            = 512 } ecl_file_enum;
 
 
-#define ECL_FILE_ENUM_DEFS {.value =   0 , .name="ECL_OTHER_FILE"},     \
-{.value =   1 , .name="ECL_RESTART_FILE"},                              \
-{.value =   2 , .name="ECL_UNIFIED_RESTART_FILE"},                      \
-{.value =   4 , .name="ECL_SUMMARY_FILE"},                              \
-{.value =   8 , .name="ECL_UNIFIED_SUMMARY_FILE"},                      \
-{.value =  16 , .name="ECL_SUMMARY_HEADER_FILE"},                       \
-{.value =  32 , .name="ECL_GRID_FILE"},                                 \
-{.value =  64 , .name="ECL_EGRID_FILE"},                                \
-{.value = 128 , .name="ECL_INIT_FILE"},                                 \
-{.value = 256 , .name="ECL_RFT_FILE"},                                  \
-{.value = 512 , .name="ECL_DATA_FILE"}
-#define ECL_FILE_ENUM_SIZE 11
-
-
 
   /*
     This enum enumerates the four different ways summary and restart information

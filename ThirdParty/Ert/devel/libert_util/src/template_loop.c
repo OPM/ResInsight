@@ -119,15 +119,13 @@ static void loop_free( loop_type * loop ) {
 static void replace_1var( buffer_type * var_expansion , int shift , int write_offset , int shift_offset , const char * value) {
   buffer_memshift( var_expansion , shift_offset , shift );
   buffer_fseek( var_expansion , write_offset , SEEK_SET );
-  buffer_fwrite_char_ptr( var_expansion , value );
+  buffer_fwrite( var_expansion , value , strlen(value) , 1);
 }
 
 
 static void loop_eval( const loop_type * loop , const char * body , buffer_type * var_expansion , int ivar) {
   buffer_clear( var_expansion );
   buffer_fwrite_char_ptr( var_expansion , body );
-  buffer_terminate_char_ptr( var_expansion );
-
   {
     const char * value = stringlist_iget( loop->items , ivar );
     int value_length = strlen( value );
@@ -235,13 +233,12 @@ static int template_eval_loop( const template_type * template , buffer_type * bu
         
         for (ivar =0; ivar < stringlist_get_size( loop->items ); ivar++) {
           loop_eval(loop , body , var_expansion , ivar );
-          buffer_fwrite_char_ptr( loop_expansion , buffer_get_data( var_expansion ));
+          buffer_strcat( loop_expansion , buffer_get_data( var_expansion ));
         }
         
         buffer_free( var_expansion );
         util_safe_free( body );
       }
-      buffer_terminate_char_ptr( loop_expansion );
       {
         int tag_length = loop->endtag_offset + loop->endtag_length - loop->opentag_offset;
         int offset = loop->endtag_offset + loop->endtag_length;
@@ -249,7 +246,7 @@ static int template_eval_loop( const template_type * template , buffer_type * bu
         
         buffer_memshift( buffer , offset , shift );
         buffer_fseek( buffer , loop->opentag_offset , SEEK_SET );
-        buffer_fwrite_char_ptr( buffer , buffer_get_data( loop_expansion ));
+        buffer_fwrite( buffer , buffer_get_data( loop_expansion ) , 1 , buffer_get_string_size( loop_expansion ));
         
         global_offset = loop->opentag_offset + buffer_get_string_size( loop_expansion );
       }

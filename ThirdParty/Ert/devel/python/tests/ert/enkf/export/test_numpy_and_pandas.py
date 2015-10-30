@@ -1,5 +1,6 @@
 import numpy
-from pandas import MultiIndex, DataFrame, pandas
+from pandas import MultiIndex, DataFrame
+import pandas as pandas
 from ert.test import ExtendedTestCase
 
 

@@ -67,6 +67,7 @@ set(header_files
     type_vector_functions.h
     ui_return.h
     struct_vector.h
+    buffer_string.h
 )
 
 set( test_source test_util.c )

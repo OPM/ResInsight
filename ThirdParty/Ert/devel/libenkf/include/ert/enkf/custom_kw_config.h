@@ -21,7 +21,7 @@ extern "C" {
     char *                  custom_kw_config_get_result_file(const custom_kw_config_type * config);
     char *                  custom_kw_config_get_output_file(const custom_kw_config_type * config);
     bool                    custom_kw_config_parse_result_file(custom_kw_config_type * config, const char * result_file, stringlist_type * result);
-    void                    custom_kw_config_serialize(custom_kw_config_type * config, stringlist_type * config_set);
+    void                    custom_kw_config_serialize(const custom_kw_config_type * config, stringlist_type * config_set);
     void                    custom_kw_config_deserialize(custom_kw_config_type * config, stringlist_type * config_set);
     bool                    custom_kw_config_has_key(const custom_kw_config_type * config, const char * key);
     bool                    custom_kw_config_key_is_double(const custom_kw_config_type * config, const char * key);

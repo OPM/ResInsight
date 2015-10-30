@@ -341,7 +341,7 @@ void rsh_driver_free__(void * __driver) {
 }
 
 
-void rsh_driver_set_host_list( rsh_driver_type * rsh_driver , hash_type * rsh_host_list) {
+void rsh_driver_set_host_list( rsh_driver_type * rsh_driver , const hash_type * rsh_host_list) {
   rsh_driver_clear_host_list( rsh_driver ); 
   if (rsh_host_list != NULL) {
     hash_iter_type * hash_iter = hash_iter_alloc( rsh_host_list );
@@ -429,7 +429,7 @@ bool rsh_driver_set_option( void * __driver , const char * option_key , const vo
       rsh_driver_add_host_from_string( driver , value );
     else if (strcmp(RSH_HOSTLIST , option_key) == 0) {      /* Set full host list - value should be hash of integers. */
       if (value != NULL) {
-        hash_type * hash_value = hash_safe_cast( value );
+        const hash_type * hash_value = hash_safe_cast_const( value );
         rsh_driver_set_host_list( driver , hash_value );
       }
     } else if (strcmp( RSH_CLEAR_HOSTLIST , option_key) == 0)

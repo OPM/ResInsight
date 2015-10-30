@@ -43,9 +43,7 @@ class ConfigError(BaseCClass):
 ##################################################################
 
 cwrapper = CWrapper(CONFIG_LIB)
-cwrapper.registerType("config_error", ConfigError)
-cwrapper.registerType("config_error_obj", ConfigError.createPythonObject)
-cwrapper.registerType("config_error_ref", ConfigError.createCReference)
+cwrapper.registerObjectType("config_error", ConfigError)
 
 ConfigError.cNamespace().free = cwrapper.prototype("void config_error_free(config_error)")
 ConfigError.cNamespace().count = cwrapper.prototype("int config_error_count(config_error)")

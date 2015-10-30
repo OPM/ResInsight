@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway. 
-    
-   The file 'run_arg.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2014  Statoil ASA, Norway.
+
+   The file 'run_arg.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -27,18 +27,17 @@
 
 
 #define RUN_ARG_TYPE_ID 66143287
-
+#define INVALID_QUEUE_INDEX -99
 
 
 struct run_arg_struct {
   UTIL_TYPE_ID_DECLARATION;
   int                     iens;
-  bool                    active;               /* Is this state object active at all - used for instance in ensemble experiments where only some of the members are integrated. */
   int                     init_step_parameters; /* The report step we initialize parameters from - will often be equal to step1, but can be different. */
   state_enum              init_state_parameter; /* Whether we should init from a forecast or an analyzed state - parameters. */
   state_enum              init_state_dynamic;   /* Whether we should init from a forecast or an analyzed state - dynamic state variables. */
-  int                     max_internal_submit;  /* How many times the enkf_state object should try to resubmit when the queueu has said everything is OK - but the load fails. */  
-  int                     num_internal_submit;   
+  int                     max_internal_submit;  /* How many times the enkf_state object should try to resubmit when the queueu has said everything is OK - but the load fails. */
+  int                     num_internal_submit;
   int                     load_start;           /* When loading back results - start at this step. */
   int                     step1;                /* The forward model is integrated: step1 -> step2 */
   int                     step2;
@@ -46,7 +45,7 @@ struct run_arg_struct {
   char                  * run_path;             /* The currently used  runpath - is realloced / freed for every step. */
   run_mode_type           run_mode;             /* What type of run this is */
   int                     queue_index;          /* The job will in general have a different index in the queue than the iens number. */
-  
+
   enkf_fs_type          * init_fs;
   enkf_fs_type          * result_fs;
   enkf_fs_type          * update_target_fs;
@@ -55,28 +54,28 @@ struct run_arg_struct {
   /* Return value - set by the called routine!!  */
   run_status_type         run_status;
 };
-  
+
 
 UTIL_SAFE_CAST_FUNCTION( run_arg , RUN_ARG_TYPE_ID )
 UTIL_IS_INSTANCE_FUNCTION( run_arg , RUN_ARG_TYPE_ID )
 
 
-static run_arg_type * run_arg_alloc(enkf_fs_type * init_fs , 
-                                    enkf_fs_type * result_fs , 
-                                    enkf_fs_type * update_target_fs , 
-                                    int iens , 
-                                    run_mode_type run_mode          , 
-                                    int init_step_parameters        ,      
+static run_arg_type * run_arg_alloc(enkf_fs_type * init_fs ,
+                                    enkf_fs_type * result_fs ,
+                                    enkf_fs_type * update_target_fs ,
+                                    int iens ,
+                                    run_mode_type run_mode          ,
+                                    int init_step_parameters        ,
                                     state_enum init_state_parameter ,
                                     state_enum init_state_dynamic   ,
-                                    int step1                       , 
+                                    int step1                       ,
                                     int step2                       ,
                                     int iter                        ,
                                     const char * runpath) {
-  
+
   run_arg_type * run_arg = util_malloc(sizeof * run_arg );
   UTIL_TYPE_ID_INIT(run_arg , RUN_ARG_TYPE_ID);
-  
+
   run_arg->init_fs = init_fs;
   run_arg->result_fs = result_fs;
   run_arg->update_target_fs = update_target_fs;
@@ -91,24 +90,25 @@ static run_arg_type * run_arg_alloc(enkf_fs_type * init_fs ,
   run_arg->iter = iter;
   run_arg->run_path = util_alloc_abs_path( runpath );
   run_arg->num_internal_submit = 0;
+  run_arg->queue_index = INVALID_QUEUE_INDEX;
 
   if (step1 == 0)
     run_arg->load_start = 1;
   else
     run_arg->load_start = step1;
-  
+
   return run_arg;
 }
 
 
-run_arg_type * run_arg_alloc_ENKF_ASSIMILATION(enkf_fs_type * fs , 
-                                               int iens , 
+run_arg_type * run_arg_alloc_ENKF_ASSIMILATION(enkf_fs_type * fs ,
+                                               int iens ,
                                                state_enum init_state_parameter ,
                                                state_enum init_state_dynamic   ,
-                                               int step1                       , 
+                                               int step1                       ,
                                                int step2                       ,
                                                const char * runpath) {
-  
+
   return run_arg_alloc(fs,fs,fs,iens,ENKF_ASSIMILATION,step1 , init_state_parameter, init_state_dynamic , step1 , step2 , 0 , runpath);
 }
 
@@ -157,7 +157,10 @@ void run_arg_increase_submit_count( run_arg_type * run_arg ) {
 
 
 void run_arg_set_queue_index( run_arg_type * run_arg , int queue_index) {
-  run_arg->queue_index = queue_index;
+  if (run_arg->queue_index == INVALID_QUEUE_INDEX)
+    run_arg->queue_index = queue_index;
+  else
+    util_abort("%s: attempt to reset run_arg->queue_index. These objects should not be recycled\n",__func__);
 }
 
 
@@ -222,13 +225,18 @@ int run_arg_get_parameter_init_step( const run_arg_type * run_arg ) {
 
 
 
-void run_arg_set_inactive( run_arg_type * run_arg ) {
-  run_arg->active = false;
+int run_arg_get_queue_index( const run_arg_type * run_arg ) {
+  if (run_arg->queue_index == INVALID_QUEUE_INDEX)
+    util_abort("%s: sorry internal error - asking for the queue_index in a not-initialized run_arg object.\n" , __func__);
+
+  return run_arg->queue_index;
 }
 
-
-int run_arg_get_queue_index( const run_arg_type * run_arg ) {
-  return run_arg->queue_index;
+bool run_arg_is_submitted( const run_arg_type * run_arg ) {
+  if (run_arg->queue_index == INVALID_QUEUE_INDEX)
+    return false;
+  else
+    return true;
 }
 
 

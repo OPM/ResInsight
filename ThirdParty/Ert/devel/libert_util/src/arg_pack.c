@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'arg_pack.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'arg_pack.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -61,14 +61,14 @@
 
    void some_function(const char * arg1 , int arg2 , double arg3) {
       .....
-   }  
+   }
 
-   
+
    void some_function__(void * __arg_pack) {
       arg_pack_type * arg_pack = arg_pack_safe_cast( __arg_pack );
       const char * arg1 = arg_pack_iget_ptr( arg_pack , 0);
       int          arg2 = arg_pack_iget_int( arg_pack , 1);
-      double       arg3 = arg_pack_iget_double(arg_pack , 2); 
+      double       arg3 = arg_pack_iget_double(arg_pack , 2);
 
       some_function( arg1 , arg2 , arg3 );
    }
@@ -76,7 +76,7 @@
 
    .....
    arg_pack_type * arg_pack = arg_pack_alloc();
-   arg_pack_append_ptr(arg_pack , "ARG1"); 
+   arg_pack_append_ptr(arg_pack , "ARG1");
    arg_pack_append_int(arg_pack , 1);
    arg_pack_append_double(arg_pack , 3.14159265);
 
@@ -84,7 +84,7 @@
 
 */
 
-  
+
 
 
 #define ARG_PACK_TYPE_ID 668268
@@ -101,10 +101,10 @@ typedef struct {
 
 struct arg_pack_struct {
   UTIL_TYPE_ID_DECLARATION;
-  int             size;                /* The number of arguments appended to this arg_pack instance. */     
+  int             size;                /* The number of arguments appended to this arg_pack instance. */
   int             alloc_size;          /* The number of nodes allocated to this arg_pack - will in general be greater than size. */
-  bool            locked;              /* To insure against unwaranted modifictaions - you can explicitly lock the arg_pack instance. This only */ 
-  arg_node_type **nodes;               /* Vector of nodes */ 
+  bool            locked;              /* To insure against unwaranted modifictaions - you can explicitly lock the arg_pack instance. This only */
+  arg_node_type **nodes;               /* Vector of nodes */
 };
 
 
@@ -126,7 +126,7 @@ static void arg_node_realloc_buffer(arg_node_type * node , int new_size) {
 
 
 static void __arg_node_assert_type(const arg_node_type * node , node_ctype arg_type) {
-  if (arg_type != node->ctype) 
+  if (arg_type != node->ctype)
     util_abort("%s: asked for type:\'%s\'  inserted as:\'%s\'  - aborting \n" , __func__ , node_ctype_name(arg_type) , node_ctype_name(node->ctype));
 }
 
@@ -182,7 +182,7 @@ static size_t arg_node_get_size_t( const arg_node_type * node) {
    arg_pack, as that will delete the pointer you are using as well.
 */
 
-  
+
 static void * arg_node_get_ptr(const arg_node_type * node , bool get_ptr) {
   if (get_ptr) {
     if (node->ctype != CTYPE_VOID_POINTER)
@@ -250,7 +250,7 @@ static void arg_node_set_size_t( arg_node_type * node , size_t value) {
 static void arg_node_set_ptr(arg_node_type * node , const void * ptr , arg_node_copyc_ftype * copyc , arg_node_free_ftype * destructor) {
   node->ctype      = CTYPE_VOID_POINTER;
   node->destructor = destructor;
-  node->copyc      = copyc; 
+  node->copyc      = copyc;
   if (copyc != NULL)
     node->buffer = copyc( ptr );
   else
@@ -264,7 +264,7 @@ static void arg_node_set_ptr(arg_node_type * node , const void * ptr , arg_node_
 
 static void arg_node_clear(arg_node_type * node) {
   if (node->ctype == CTYPE_VOID_POINTER) {
-    if (node->destructor != NULL) 
+    if (node->destructor != NULL)
       node->destructor( node->buffer );
     /* When you have cleared - must not reuse the thing. */
     node->destructor = NULL;
@@ -338,7 +338,7 @@ UTIL_SAFE_CAST_FUNCTION_CONST( arg_pack , ARG_PACK_TYPE_ID)
 UTIL_IS_INSTANCE_FUNCTION(arg_pack , ARG_PACK_TYPE_ID)
 
 static void __arg_pack_assert_index(const arg_pack_type * arg , int iarg) {
-  if (iarg < 0 || iarg >= arg->size) 
+  if (iarg < 0 || iarg >= arg->size)
     util_abort("%s: arg_pack() object filled with %d arguments - %d invalid argument number - aborting \n",__func__ , arg->size , iarg);
 }
 
@@ -369,11 +369,11 @@ static arg_node_type * arg_pack_iget_new_node( arg_pack_type * arg_pack , int in
       arg_node_free( arg_pack->nodes[index] );           /* Free the existing current node. */
       arg_pack->nodes[index] = arg_node_alloc_empty( );  /* Allocate a new fresh instance. */
     }
-    
+
     if (arg_pack->size == arg_pack->alloc_size)
       arg_pack_realloc_nodes(arg_pack , 1 + arg_pack->alloc_size * 2);  /* We have to grow the vector of nodes. */
 
-    if (index == arg_pack->size)                                
+    if (index == arg_pack->size)
       arg_pack->size++;            /* We are asking for the first element beyond the current length of the vector, i.e. append. */
     return arg_pack->nodes[index];
   }
@@ -414,7 +414,7 @@ arg_pack_type * arg_pack_alloc() {
 void arg_pack_free(arg_pack_type * arg_pack) {
   int i;
 
-  for (i=0; i < arg_pack->alloc_size; i++) 
+  for (i=0; i < arg_pack->alloc_size; i++)
     arg_node_free( arg_pack->nodes[i] );
 
   free(arg_pack->nodes);
@@ -430,7 +430,7 @@ void arg_pack_free__(void * __arg_pack) {
 
 
 void arg_pack_clear(arg_pack_type * arg_pack) {
-  if (arg_pack->locked) 
+  if (arg_pack->locked)
     util_abort("%s: arg_pack has been locked - abortng \n",__func__);
   {
     int i;
@@ -445,7 +445,7 @@ void arg_pack_clear(arg_pack_type * arg_pack) {
 /* Access functions:
 
   1. Append
-  2. iget 
+  2. iget
   3. iset (can NOT create holes in the vector)
 
 ******************************************************************/
@@ -527,7 +527,7 @@ node_ctype arg_pack_iget_ctype(const arg_pack_type * arg_pack ,int index) {
 
 
 void  arg_pack_iset_copy(arg_pack_type * arg_pack , int index , const void * ptr, arg_node_copyc_ftype * copyc , arg_node_free_ftype * freef) {
-  arg_node_type * node = arg_pack_iget_new_node( arg_pack , index );          
+  arg_node_type * node = arg_pack_iget_new_node( arg_pack , index );
   arg_node_set_ptr(node , ptr , copyc , freef);
 }
 
@@ -577,7 +577,7 @@ void arg_pack_fscanf(arg_pack_type * arg , FILE * stream, const char * filename)
     arg_node_type * node = arg->nodes[iarg];
     fmt = util_strcat_realloc(fmt , arg_node_fmt(node));
   }
-  
+
   switch(arg->size) {
   case(0):
     break;
@@ -603,7 +603,7 @@ void arg_pack_fscanf(arg_pack_type * arg , FILE * stream, const char * filename)
       arg0 = arg_pack_iget_adress(arg , 0);
       arg1 = arg_pack_iget_adress(arg , 1);
       arg2 = arg_pack_iget_adress(arg , 2);
-      
+
       scan_count = fscanf(stream , fmt , arg0 , arg1 , arg2);
       break;
     }
@@ -614,7 +614,7 @@ void arg_pack_fscanf(arg_pack_type * arg , FILE * stream, const char * filename)
       arg1 = arg_pack_iget_adress(arg , 1);
       arg2 = arg_pack_iget_adress(arg , 2);
       arg3 = arg_pack_iget_adress(arg , 3);
-      
+
       scan_count = fscanf(stream , fmt , arg0 , arg1 , arg2 , arg3);
       break;
     }
@@ -635,11 +635,11 @@ void arg_pack_fscanf(arg_pack_type * arg , FILE * stream, const char * filename)
     util_abort("%s: sorry %s not allocated for %d arguments from file %s\n",__func__ , __func__ , arg->size, filename);
 
   }
-  
+
   if (scan_count != arg->size) {
     util_abort("%s: wanted %d arguments - only found: %d in file %s \n", __func__ , arg->size , scan_count, filename);
   }
-    
+
   free(fmt);
 }
 

@@ -18,7 +18,7 @@
 from ert.util import UTIL_LIB
 from ert.util import Matrix
 from ert.util import LLSQResultEnum
-from ert.cwrap import CWrapper, CWrapperNameSpace
+from ert.cwrap import CWrapper, CWrapperNameSpace, CWrapError
 
 
 def quantile( data, q ):
@@ -30,6 +30,9 @@ def quantile_sorted( data, q ):
 
 
 def polyfit(n,x,y,s = None):
+    if cfunc.polyfit is None:
+        raise NotImplementedError("Sorry - your ert distribution has been built without lapack support")
+    
     if isinstance(x,Matrix):
         xm = x
     else:
@@ -79,5 +82,8 @@ cfunc = CWrapperNameSpace("stat")
 
 cfunc.quantile = cwrapper.prototype("double statistics_empirical_quantile( double_vector , double )")
 cfunc.quantile_sorted = cwrapper.prototype("double statistics_empirical_quantile( double_vector , double )")
-cfunc.polyfit = cwrapper.prototype("llsq_result_enum matrix_stat_polyfit(matrix , matrix , matrix , matrix)")
+try:
+    cfunc.polyfit = cwrapper.prototype("llsq_result_enum matrix_stat_polyfit(matrix , matrix , matrix , matrix)")
+except CWrapError:
+    cfunc.polyfit = None
 

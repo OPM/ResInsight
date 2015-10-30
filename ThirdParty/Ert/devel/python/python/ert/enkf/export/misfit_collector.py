@@ -1,6 +1,7 @@
 from pandas import DataFrame
 import numpy
 from ert.enkf import EnKFMain, EnkfFs, RealizationStateEnum, EnkfStateType
+from ert.enkf.key_manager import KeyManager
 from ert.util import BoolVector
 
 
@@ -16,16 +17,10 @@ class MisfitCollector(object):
         return [iens for iens in active_list]
 
     @staticmethod
-    def getAllMisfitKeys(ert):
+    def getAllMisfitKeys(ert, sort_keys=True):
         """ @rtype: list of str """
-        keys = []
-        for obs_vector in ert.getObservations():
-            key = "MISFIT:%s" % obs_vector.getObservationKey()
-            keys.append(key)
-
-        keys.append("MISFIT:TOTAL")
-
-        return keys
+        key_manager = KeyManager(ert)
+        return key_manager.misfitKeys(sort_keys=sort_keys)
 
     @staticmethod
     def loadAllMisfitData(ert, case_name):
@@ -37,7 +32,7 @@ class MisfitCollector(object):
         fs = ert.getEnkfFsManager().getFileSystem(case_name)
 
         realizations = MisfitCollector.createActiveList(ert, fs)
-        misfit_keys = MisfitCollector.getAllMisfitKeys(ert)
+        misfit_keys = MisfitCollector.getAllMisfitKeys(ert, sort_keys=False)
         misfit_sum_index = len(misfit_keys) - 1
 
         misfit_array = numpy.empty(shape=(len(misfit_keys), len(realizations)), dtype=numpy.float64)

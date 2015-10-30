@@ -49,7 +49,7 @@ bool              hash_has_key(const hash_type *, const char *);
 void            * hash_pop( hash_type * hash , const char * key);
 void            * hash_safe_get( const hash_type * hash , const char * key );
 void            * hash_get(const hash_type *, const char *);
-char            * hash_get_string(hash_type * , const char *);
+char            * hash_get_string(const hash_type * , const char *);
 void              hash_del(hash_type *, const char *);
 void              hash_safe_del(hash_type * , const char * );
 void              hash_clear(hash_type *);
@@ -75,11 +75,11 @@ hash_type       * hash_alloc_from_options(const stringlist_type *);
 bool              hash_add_option( hash_type * hash, const char * key_value);
 
 int               hash_inc_counter(hash_type * hash , const char * counter_key);
-int               hash_get_counter(hash_type * hash , const char * key);
+int               hash_get_counter(const hash_type * hash , const char * key);
 void              hash_insert_int(hash_type * , const char * , int);
-int               hash_get_int(hash_type * , const char *);
+int               hash_get_int(const hash_type * , const char *);
 void              hash_insert_double(hash_type * , const char * , double);
-double            hash_get_double(hash_type * , const char *);
+double            hash_get_double(const hash_type * , const char *);
 void              hash_apply( hash_type * hash , hash_apply_ftype * func);
 
 UTIL_IS_INSTANCE_HEADER(hash);

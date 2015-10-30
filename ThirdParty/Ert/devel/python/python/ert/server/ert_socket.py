@@ -21,13 +21,12 @@ import threading
 import json
 import traceback
 import socket
+import fcntl
 
 from ert.server import ErtServer, SUCCESS , ERROR
 
 class ErtHandler(SocketServer.StreamRequestHandler):
     ert_server = None
-    config_file = None
-    logger = None
     
     def handle(self):
         string_data = self.rfile.readline().strip()
@@ -52,10 +51,10 @@ class ErtHandler(SocketServer.StreamRequestHandler):
         try:
             result = self.ert_server.evalCmd( data )
         except Exception,e:
-            result = ERROR( "Exception raised" , exception = e)
+            tb = traceback.format_exc()
+            result = ERROR( "Exception raised:" , exception = tb)
 
         self.returnToClient( result )
-
 
 
     def handleQuit(self):
@@ -71,18 +70,26 @@ class ErtSocketServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 class ErtSocket(object):
 
-    def __init__(self , config_file , port , host , logger):
+    def __init__(self , config , port , host , logger):
+        self.host = host
+        self.port = port
         self.server = ErtSocketServer((host , port) , ErtHandler)
-        self.open(config_file , logger)
+        self._setupSocketCloseOnExec()
+        self.open(config , logger)
+        self.__is_listening = False
 
+    def _setupSocketCloseOnExec(self):
+        fd = self.server.fileno()
+        old_flags = fcntl.fcntl(fd, fcntl.F_GETFD)
+        fcntl.fcntl(fd, fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
 
     @staticmethod
-    def connect(config_file , port , host , logger , info_callback = None , timeout = 60 , sleep_time = 5):
+    def connect(config , port , host , logger = None, info_callback = None , timeout = 60 , sleep_time = 5):
         start_time = time.time()
         ert_socket = None
         while True:
             try:
-                ert_socket = ErtSocket(config_file , port, host , logger)
+                ert_socket = ErtSocket(config , port, host , logger)
                 break
             except socket.error:
                 if info_callback:
@@ -95,17 +102,16 @@ class ErtSocket(object):
         return ert_socket
 
 
-
-    def open(self , config_file , logger):
-        ErtHandler.ert_server = ErtServer( config_file , logger )
-
-
+    def open(self , config , logger):
+        ErtHandler.ert_server = ErtServer( config , logger )
 
     def evalCmd(self , cmd):
         return ErtHandler.ert_server.evalCmd( cmd )
 
-
     def listen(self):
+        self.__is_listening = True
         self.server.serve_forever( )
-        
-        
+
+    def shutdown(self):
+        if self.__is_listening:
+            self.server.shutdown()

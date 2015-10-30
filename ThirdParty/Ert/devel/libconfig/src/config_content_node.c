@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'config_content_node.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'config_content_node.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
@@ -30,7 +30,7 @@
 #define CONFIG_CONTENT_NODE_ID 6752887
 struct config_content_node_struct {
   UTIL_TYPE_ID_DECLARATION;
-  const config_schema_item_type * schema;         
+  const config_schema_item_type * schema;
   stringlist_type               * stringlist;              /* The values which have been set. */
   const config_path_elm_type    * cwd;
   stringlist_type               * string_storage;
@@ -59,7 +59,7 @@ void config_content_node_add_value(config_content_node_type * node , const char 
 
 void config_content_node_set(config_content_node_type * node , const stringlist_type * token_list) {
   int argc = stringlist_get_size( token_list ) - 1;
-  for (int iarg=0; iarg < argc; iarg++) 
+  for (int iarg=0; iarg < argc; iarg++)
     config_content_node_add_value( node , stringlist_iget( token_list , iarg + 1));
 }
 
@@ -149,7 +149,7 @@ const char * config_content_node_iget_as_path(config_content_node_type * node , 
     const char * config_value = config_content_node_iget(node , index);
     char * path_value = config_path_elm_alloc_path( node->cwd , config_value );
     config_content_node_push_string( node , path_value );
-    
+
     return path_value;
   }
 }
@@ -161,7 +161,7 @@ const char * config_content_node_iget_as_abspath( config_content_node_type * nod
     const char * config_value = config_content_node_iget(node , index);
     char * path_value = config_path_elm_alloc_abspath( node->cwd , config_value );
     config_content_node_push_string( node , path_value );
-    
+
     return path_value;
   }
 }
@@ -173,7 +173,7 @@ const char * config_content_node_iget_as_relpath( config_content_node_type * nod
     const char * config_value = config_content_node_iget(node , index);
     char * path_value = config_path_elm_alloc_relpath( node->cwd , config_value );
     config_content_node_push_string( node , path_value );
-    
+
     return path_value;
   }
 }
@@ -216,13 +216,13 @@ const config_path_elm_type * config_content_node_get_path_elm( const config_cont
 
    Which will be inserted in the opt_hash dictionary as : {"KEY1" :
    "VALUE1" , ... } Elements which do not conform to this syntax are
-   ignored.  
+   ignored.
 */
-   
+
 
 void config_content_node_init_opt_hash( const config_content_node_type * node , hash_type * opt_hash , int elm_offset) {
   int i;
-  for (i = elm_offset; i < config_content_node_get_size( node ); i++) 
+  for (i = elm_offset; i < config_content_node_get_size( node ); i++)
     hash_add_option( opt_hash , config_content_node_iget( node , i ));
 }
 

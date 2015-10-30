@@ -14,6 +14,7 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
+import os
 
 from ert.config import ContentTypeEnum, UnrecognizedEnum, SchemaItem, ContentItem, ContentNode, ConfigParser, ConfigContent
 from ert.test import ExtendedTestCase, TestAreaContext
@@ -123,12 +124,16 @@ class ConfigTest(ExtendedTestCase):
         schema_item.iset_type(2 , ContentTypeEnum.CONFIG_INT )
         schema_item.iset_type(3 , ContentTypeEnum.CONFIG_BOOL )
         schema_item.iset_type(4 , ContentTypeEnum.CONFIG_FLOAT )
-
+        schema_item.iset_type(5 , ContentTypeEnum.CONFIG_PATH )
+        
         with TestAreaContext("config/parse2"):
             with open("config","w") as fileH:
-                fileH.write("KEY VALUE1 VALUE2 100  True  3.14\n")
-            
-            content = conf.parse("config")
+                fileH.write("KEY VALUE1 VALUE2 100  True  3.14  path/file.txt\n")
+
+            cwd0 = os.getcwd( )
+            os.makedirs("tmp")
+            os.chdir("tmp")
+            content = conf.parse("../config")
             self.assertTrue( content.isValid() )
             self.assertTrue( "KEY" in content )
             self.assertFalse( "NOKEY" in content )
@@ -139,11 +144,30 @@ class ConfigTest(ExtendedTestCase):
             item = content["KEY"]
             self.assertEqual(len(item) , 1)
 
+            line = item[0]
+            with self.assertRaises(TypeError):
+                line.getPath(4)
+
+            with self.assertRaises(TypeError):
+                line.getPath()
+
+                
+            rel_path = line.getPath(index = 5, absolute = False)
+            self.assertEqual( rel_path , "../path/file.txt" )
+            get = line[5]
+            self.assertEqual( get , "../path/file.txt")
+            abs_path = line.getPath(index = 5)
+            self.assertEqual( abs_path , os.path.join(cwd0 , "path/file.txt"))
+            
+            rel_path = line.getPath(index = 5, absolute = False , relative_start = "../")
+            self.assertEqual( rel_path , "path/file.txt" )
+
+            
             with self.assertRaises(IndexError):
                 item[10]
 
             node = item[0]
-            self.assertEqual(len(node) , 5)
+            self.assertEqual(len(node) , 6)
             with self.assertRaises(IndexError):
                 node[6]
             
@@ -152,7 +176,7 @@ class ConfigTest(ExtendedTestCase):
             self.assertEqual( node[2] , 100 )
             self.assertEqual( node[3] , True )
             self.assertEqual( node[4] , 3.14)
-            
+
             self.assertEqual( content.getValue( "KEY" , 0 , 1 ) , "VALUE2" )
             self.assertEqual( content.cNamespace().iget( content , "KEY" , 0 , 1) , "VALUE2")
 
@@ -171,7 +195,7 @@ class ConfigTest(ExtendedTestCase):
             self.assertEqual(  content.cNamespace().get_occurences( content , "KEY" ) , 1)
             self.assertEqual(  content.cNamespace().get_occurences( content , "MISSING-KEY" ) , 0)
             
-
+            
 
     def test_schema(self):
         schema_item = SchemaItem("TestItem")

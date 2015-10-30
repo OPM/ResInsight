@@ -247,7 +247,7 @@ def main(argv):
 
     window.addDock("Configuration Summary", SummaryPanel(), area=Qt.BottomDockWidgetArea)
     window.addTool(IdeTool(os.path.basename(config_file), ert.reloadERT, help_tool))
-    window.addTool(PlotTool())
+    window.addTool(PlotTool(ert.ert()))
     window.addTool(ExportTool())
     window.addTool(WorkflowsTool())
     window.addTool(ManageCasesTool())

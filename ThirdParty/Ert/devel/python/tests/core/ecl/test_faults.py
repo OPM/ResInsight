@@ -17,19 +17,24 @@
 
 from unittest import skipIf
 import time
+from ert import util
 
 from ert.ecl.faults import FaultCollection, Fault, FaultLine, FaultSegment,FaultBlockLayer
 from ert.ecl import EclGrid, EclKW, EclTypeEnum
 from ert.test import ExtendedTestCase, TestAreaContext
 from ert.geo import Polyline , CPolyline
 
+
 class FaultTest(ExtendedTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.grid = EclGrid.create_rectangular( (151,100,50) , (1,1,1))
+        
     def setUp(self):
         self.faults1 = self.createTestPath("local/ECLIPSE/FAULTS/fault1.grdecl")
         self.faults2 = self.createTestPath("local/ECLIPSE/FAULTS/fault2.grdecl")
-        self.grid = EclGrid.create_rectangular( (151,100,50) , (1,1,1))
-        
-        
+
+
     def test_PolylineIJ(self):
         nx = 10
         ny = 10
@@ -506,10 +511,9 @@ class FaultTest(ExtendedTestCase):
 \'F\'              110  110     49   49      1   43    \'X\'    /
 \'F\'              111  111     48   48      1   43    \'Y\'    /
 /
-""")                
-            with open("faults.grdecl") as f:
-                faults = FaultCollection( grid , "faults.grdecl" )
-                
+""")
+            faults = FaultCollection( grid , "faults.grdecl" )
+
         fault = faults["F"]
         layer = fault[29]
         self.assertEqual(len(layer) , 2)
@@ -518,7 +522,7 @@ class FaultTest(ExtendedTestCase):
         line2 = layer[1]
         self.assertEqual(len(line1) , 4)
         self.assertEqual(len(line2) , 2)
-        
+
         seg0 = line1[0]
         seg1 = line1[1]
         seg2 = line1[2]
@@ -527,7 +531,7 @@ class FaultTest(ExtendedTestCase):
         self.assertEqual( seg1.getCorners() , (50 * (nx + 1) + 107 , 50 * (nx + 1) + 108))
         self.assertEqual( seg2.getCorners() , (50 * (nx + 1) + 108 , 49 * (nx + 1) + 108))
         self.assertEqual( seg3.getCorners() , (49 * (nx + 1) + 108 , 49 * (nx + 1) + 109))
-        
+
         
 
 
@@ -647,8 +651,7 @@ class FaultTest(ExtendedTestCase):
 \'F2\'              1    8       2    2       1    1    \'Y\'    /
 /
 """)                
-            with open("faults.grdecl") as f:
-                faults = FaultCollection( grid , "faults.grdecl" )
+            faults = FaultCollection( grid , "faults.grdecl" )
                 
             f1 = faults["F1"]
             f2 = faults["F2"]

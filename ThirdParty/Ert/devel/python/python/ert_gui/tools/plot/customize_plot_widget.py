@@ -5,34 +5,36 @@ from ert_gui.tools.plot import ColorChooser
 
 class CustomizePlotWidget(QWidget):
 
-    customPlotSettingsChanged = pyqtSignal(dict)
+    customPlotSettingsChanged = pyqtSignal()
 
     def __init__(self):
         QWidget.__init__(self)
         self.__custom = { }
 
         self.__layout = QVBoxLayout()
-        self.addCheckBox("error_bar_only", "Show only error bars", False)
+
         self.addCheckBox("show_observations", "Show observations", True)
         self.addCheckBox("show_refcase", "Show refcase", True)
+        self.addCheckBox("show_legend", "Show legend", True)
+        self.addCheckBox("show_grid", "Show grid", True)
         self.__layout.addSpacing(20)
 
-        self.addColorChooser("observation", "Observation", QColor(0, 0, 0, 255))
-        self.addColorChooser("observation_area", "Observation Error", QColor(0, 0, 0, 38))
-        self.addColorChooser("observation_error_bar", "Observation Error Bar", QColor(0, 0, 0, 255))
-        self.addColorChooser("refcase", "Refcase", QColor(0, 0, 0, 178))
-        self.addColorChooser("ensemble_1", "Case #1", QColor(56, 108, 176, 204))
-        self.addColorChooser("ensemble_2", "Case #2", QColor(127, 201, 127, 204))
-        self.addColorChooser("ensemble_3", "Case #3", QColor(253, 192, 134, 204))
-        self.addColorChooser("ensemble_4", "Case #4", QColor(240, 2, 127, 204))
-        self.addColorChooser("ensemble_5", "Case #5", QColor(191, 91, 23, 204))
+        # self.addColorChooser("observation", "Observation", QColor(0, 0, 0, 255))
+        # self.addColorChooser("observation_area", "Observation Error", QColor(0, 0, 0, 38))
+        # self.addColorChooser("observation_error_bar", "Observation Error Bar", QColor(0, 0, 0, 255))
+        # self.addColorChooser("refcase", "Refcase", QColor(0, 0, 0, 178))
+        # self.addColorChooser("ensemble_1", "Case #1", QColor(56, 108, 176, 204))
+        # self.addColorChooser("ensemble_2", "Case #2", QColor(127, 201, 127, 204))
+        # self.addColorChooser("ensemble_3", "Case #3", QColor(253, 192, 134, 204))
+        # self.addColorChooser("ensemble_4", "Case #4", QColor(240, 2, 127, 204))
+        # self.addColorChooser("ensemble_5", "Case #5", QColor(191, 91, 23, 204))
 
         self.__layout.addStretch()
 
         self.setLayout(self.__layout)
 
     def emitChange(self):
-        self.customPlotSettingsChanged.emit(self.__custom)
+        self.customPlotSettingsChanged.emit()
 
     def addCheckBox(self, name, description, default_value):
         checkbox = QCheckBox(description)

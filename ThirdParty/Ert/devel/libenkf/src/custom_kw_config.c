@@ -80,8 +80,9 @@ static void custom_kw_config_reset__(custom_kw_config_type * config) {
     config->key_definition_file = NULL;
 }
 
-void custom_kw_config_serialize(custom_kw_config_type * config, stringlist_type * config_set) {
-    pthread_rwlock_rdlock(& config->rw_lock);
+void custom_kw_config_serialize(const custom_kw_config_type * config, stringlist_type * config_set) {
+    pthread_rwlock_t * rw_lock = (pthread_rwlock_t *)& config->rw_lock;
+    pthread_rwlock_rdlock(rw_lock);
     {
         stringlist_clear(config_set);
 
@@ -100,7 +101,7 @@ void custom_kw_config_serialize(custom_kw_config_type * config, stringlist_type 
         stringlist_free(configured_keys);
 
     }
-    pthread_rwlock_unlock(& config->rw_lock);
+    pthread_rwlock_unlock(rw_lock);
 }
 
 void custom_kw_config_deserialize(custom_kw_config_type * config, stringlist_type * config_set) {

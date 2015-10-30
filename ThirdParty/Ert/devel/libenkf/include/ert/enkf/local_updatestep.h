@@ -37,6 +37,7 @@ int                     local_updatestep_get_num_ministep( const local_updateste
 local_updatestep_type * local_updatestep_alloc_copy( const local_updatestep_type * src , const char * name );
 void                    local_updatestep_fprintf( const local_updatestep_type * updatestep , FILE * stream);
 const char            * local_updatestep_get_name( const local_updatestep_type * updatestep );
+bool                    local_updatestep_has_data_key( const local_updatestep_type * update_step , const char * key);
 
 #ifdef __cplusplus
 }

@@ -294,6 +294,16 @@ void ecl_sum_tstep_set_from_key( ecl_sum_tstep_type * tstep , const char * gen_k
   ecl_sum_tstep_set_from_node( tstep , smspec_node , value);
 }
 
+double ecl_sum_tstep_get_from_key(const ecl_sum_tstep_type * tstep , const char * gen_key) {
+    const smspec_node_type * smspec_node = ecl_smspec_get_general_var_node( tstep->smspec , gen_key );
+    int data_index = smspec_node_get_params_index( smspec_node );
+    return ecl_sum_tstep_iget( tstep , data_index);
+}
+
+bool ecl_sum_tstep_has_key(const ecl_sum_tstep_type * tstep , const char * gen_key) {
+    return ecl_smspec_has_general_var(tstep->smspec, gen_key);
+}
+
 
 bool ecl_sum_tstep_sim_time_equal( const ecl_sum_tstep_type * tstep1 , const ecl_sum_tstep_type * tstep2 ) {
   if (tstep1->sim_time == tstep2->sim_time)

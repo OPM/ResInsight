@@ -1,30 +1,31 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'subst_list.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'subst_list.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef __SUBST_H__
 #define __SUBST_H__
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" {
 #endif
 #include <stdio.h>
 #include <stdbool.h>
 
+#include <ert/util/type_macros.h>
 #include <ert/util/subst_func.h>
 
   typedef struct          subst_list_struct subst_list_type;
@@ -43,7 +44,7 @@ extern "C" {
   void                    subst_list_prepend_copy(subst_list_type *  , const char * , const char * , const char * doc_string);
   void                    subst_list_prepend_ref(subst_list_type *  , const char * , const char * , const char * doc_string);
   void                    subst_list_prepend_owned_ref(subst_list_type *  , const char * , const char * , const char * doc_string);
-  
+
   bool                    subst_list_filter_file(const subst_list_type * , const char * , const  char * );
   bool                    subst_list_update_file(const subst_list_type * , const char * );
   bool                    subst_list_update_string(const subst_list_type * , char ** );
@@ -57,8 +58,9 @@ extern "C" {
   bool                    subst_list_has_key( const subst_list_type * subst_list , const char * key);
   char                  * subst_list_alloc_string_representation( const subst_list_type * subst_list );
   int                     subst_list_add_from_string( subst_list_type * subst_list , const char * arg_string, bool append);
-  
-#ifdef __cplusplus 
+
+  UTIL_IS_INSTANCE_HEADER( subst_list );
+#ifdef __cplusplus
 }
 #endif
 #endif

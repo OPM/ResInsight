@@ -34,6 +34,15 @@ class CaseList(ErtConnector, ListModelMixin):
 
         return cases_with_data_and_not_running
 
+    def getAllCasesNotRunning(self):
+        cases = self.getList()
+        cases_not_running = []
+        for case in cases:
+            if not self.ert().getEnkfFsManager().isCaseRunning(case):
+                cases_not_running.append(case)
+
+        return cases_not_running
+
 
     def getCaseRealizationStates(self, case_name):
         state_map = self.ert().getEnkfFsManager().getStateMapForCase(case_name)

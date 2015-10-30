@@ -95,12 +95,25 @@ class SocketTest(ExtendedTestCase):
                 self.runCommand( ["MISSING_COMMAND"] , port )
 
             self.runCommand( ["QUIT"] , port , expected = ["QUIT"] )
-            
-            # Server is closed
-            with self.assertRaises(Exception):
-                self.runCommand( ["STATUS"] , port )
 
 
+            start_time = time.time()
+            exception_raised = False
+            while True:
+                try:
+                    self.runCommand( ["STATUS"] , port )
+                    time.sleep( 1 )
+                except Exception:
+                    exception_raised = True
+                    break
+                
+                if time.time() - start_time > 10:
+                    break
+
+            if not exception_raised:
+                raise Exception("Expected exception when connecting to closed server")
+
+                
 
     def test_time_map(self):
         port = self.base_port + 1

@@ -186,8 +186,9 @@ static conf_class_type * enkf_obs_get_obs_conf_class();
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-
+#define ENKF_OBS_TYPE_ID 637297
 struct enkf_obs_struct {
+  UTIL_TYPE_ID_DECLARATION;
   /** A hash of obs_vector_types indexed by user provided keys. */
   vector_type         * obs_vector;
   hash_type           * obs_hash;
@@ -218,7 +219,7 @@ static int enkf_obs_get_last_restart( const enkf_obs_type * enkf_obs ) {
   return time_map_get_size( enkf_obs->obs_time ) - 1;
 }
 
-
+UTIL_IS_INSTANCE_FUNCTION( enkf_obs , ENKF_OBS_TYPE_ID )
 
 enkf_obs_type * enkf_obs_alloc( const history_type * history ,
                                 time_map_type * external_time_map ,
@@ -227,6 +228,7 @@ enkf_obs_type * enkf_obs_alloc( const history_type * history ,
                                 ensemble_config_type * ensemble_config )
 {
   enkf_obs_type * enkf_obs  = util_malloc(sizeof * enkf_obs);
+  UTIL_TYPE_ID_INIT( enkf_obs , ENKF_OBS_TYPE_ID );
   enkf_obs->obs_hash        = hash_alloc();
   enkf_obs->obs_vector      = vector_alloc_new();
   enkf_obs->obs_time        = time_map_alloc();
@@ -356,7 +358,7 @@ static void enkf_obs_get_obs_and_measure_summary(const enkf_obs_type      * enkf
     if (obs_vector_iget_active( obs_vector , step ) && active_list_iget( active_list , 0 /* Index into the scalar summary observation */)) {
       {
         const summary_obs_type * summary_obs = obs_vector_iget_node( obs_vector , step );
-        double_vector_iset( obs_std   , active_count , summary_obs_get_std( summary_obs ));
+        double_vector_iset( obs_std   , active_count , summary_obs_get_std( summary_obs ) * summary_obs_get_std_scaling( summary_obs ));
         double_vector_iset( obs_value , active_count , summary_obs_get_value( summary_obs ));
         last_step = step;
       }
@@ -518,6 +520,34 @@ void enkf_obs_clear( enkf_obs_type * enkf_obs ) {
 
 
 
+
+/*
+   Adding inverse observation keys to the enkf_nodes; can be called
+   several times.
+*/
+
+
+static void enkf_obs_update_keys( enkf_obs_type * enkf_obs ) {
+  /* First clear all existing observation keys. */
+  ensemble_config_clear_obs_keys( enkf_obs->ensemble_config );
+
+  /* Add new observation keys. */
+  {
+    hash_type      * map  = enkf_obs_alloc_data_map(enkf_obs);
+    hash_iter_type * iter = hash_iter_alloc(map);
+    const char * obs_key  = hash_iter_get_next_key(iter);
+    while (obs_key  != NULL) {
+      const char * state_kw = hash_get(map , obs_key);
+      ensemble_config_add_obs_key(enkf_obs->ensemble_config , state_kw , obs_key);
+      obs_key = hash_iter_get_next_key(iter);
+    }
+    hash_iter_free(iter);
+    hash_free(map);
+  }
+}
+
+
+
 /**
    This function will load an observation configuration from the
    observation file @config_file.
@@ -531,7 +561,7 @@ void enkf_obs_clear( enkf_obs_type * enkf_obs ) {
 bool enkf_obs_load(enkf_obs_type * enkf_obs ,
                    const char * config_file,
                    double std_cutoff) {
-  
+
   if (enkf_obs->valid) {
     int last_report                      = enkf_obs_get_last_restart( enkf_obs );
     conf_class_type    * enkf_conf_class = enkf_obs_get_obs_conf_class();
@@ -643,6 +673,7 @@ bool enkf_obs_load(enkf_obs_type * enkf_obs ,
     conf_instance_free(enkf_conf      );
     conf_class_free(   enkf_conf_class);
 
+    enkf_obs_update_keys( enkf_obs );
     return true;
   } else
     return false;

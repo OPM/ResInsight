@@ -132,6 +132,10 @@ class GridTest(ExtendedTestCase):
         self.assertEqual( actnum[0] , 1 )
         self.assertEqual( actnum[nx*ny*nz - 1] , 1 )
         
+        actnum_kw = grid.exportACTNUMKw( )
+        self.assertEqual(len(actnum_kw) , len(actnum))
+        for a1,a2 in zip(actnum, actnum_kw):
+            self.assertEqual(a1, a2)
 
 
 

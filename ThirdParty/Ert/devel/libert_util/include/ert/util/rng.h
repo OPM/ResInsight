@@ -68,6 +68,7 @@ typedef enum {
   unsigned int    rng_forward( rng_type * rng );
   double          rng_get_double( rng_type * rng );
   int             rng_get_int( rng_type * rng , int max_value );
+  unsigned int    rng_get_max_int(const rng_type * rng);
   
   double          rng_std_normal( rng_type * rng );
   void            rng_shuffle_int( rng_type * rng , int * data , size_t num_elements);

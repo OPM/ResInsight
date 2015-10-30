@@ -74,10 +74,16 @@ class StringListTest(TestCase):
         self.assertTrue("Bjarne" not in s)
 
     def test_append(self):
-        s = StringList(["A", "B"])
-        s.append("C")
-        self.assertEqual(list(s), ["A", "B", "C"])
+        s1 = StringList(["A", "B"])
+        s1.append("C")
 
+        s2 = StringList(["A","B","C"])
+        self.assertEqual(s1, ["A", "B", "C"])
+        self.assertEqual(s1, s2)
+        self.assertFalse(s1 == ["A","B","D"])
+        self.assertFalse(s1 == ["A","B","C" , "D"])
+
+        
     def test_append_not_string(self):
         s = StringList()
         s.append(10)

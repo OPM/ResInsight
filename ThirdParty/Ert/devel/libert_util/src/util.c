@@ -2637,6 +2637,7 @@ static int util_get_base_length(const char * file) {
   int path_length   = util_get_path_length(file);
   const char * base_start;
   const char * last_point;
+  long character_index;
 
   if (path_length == strlen(file))
     return 0;
@@ -2646,7 +2647,9 @@ static int util_get_base_length(const char * file) {
     base_start = &file[path_length + 1];
 
   last_point  = strrchr(base_start , '.');
-  if (last_point == NULL)
+  character_index = last_point - base_start;
+
+  if (last_point == NULL || character_index == 0)
     return strlen(base_start);
   else
     return last_point - base_start;
@@ -3243,6 +3246,15 @@ double util_difftime_seconds( time_t start_time , time_t end_time) {
 
 */
 
+char * util_get_timezone() {
+#if defined(HAVE_TZNAME)
+  return tzname[0];
+#elif defined(HAVE_WINDOWS_TZNAME)
+  return _tzname[0];
+#endif
+}
+
+
 time_t util_make_datetime(int sec, int min, int hour , int mday , int month , int year) {
   struct tm ts;
   ts.tm_sec    = sec;
@@ -3250,7 +3262,7 @@ time_t util_make_datetime(int sec, int min, int hour , int mday , int month , in
   ts.tm_hour   = hour;
   ts.tm_mday   = mday;
   ts.tm_mon    = month - 1;
-  ts.tm_year   = year  - 1900;
+  ts.tm_year   = year - 1900;
   ts.tm_isdst  = -1;    /* Negative value means mktime tries to determine automagically whether Daylight Saving Time is in effect. */
   {
     time_t t = mktime( &ts );
@@ -4849,6 +4861,7 @@ void util_install_signals(void) {
                                              Killing with SIGKILL (-9) will not give a backtrace.*/
   signal(SIGABRT , util_abort_signal);    /* Signal abort. */
   signal(SIGILL  , util_abort_signal);    /* Signal illegal instruction. */
+  signal(SIGFPE  , util_abort_signal);    /* Floating point exception */
 }
 
 

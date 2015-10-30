@@ -256,11 +256,9 @@ void * enkf_main_scale_obs_std_JOB(void * self, const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
 
   double scale_factor;
-  util_sscanf_double(stringlist_iget(args, 0), &scale_factor);
-
-  if (enkf_main_have_obs(enkf_main)) {
-    enkf_obs_type * observations = enkf_main_get_obs(enkf_main);
-    enkf_obs_scale_std(observations, scale_factor);
+  if (util_sscanf_double(stringlist_iget(args, 0), &scale_factor)) {
+    analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
+    analysis_config_set_global_std_scaling( analysis_config , scale_factor );
   }
   return NULL;
 }

@@ -103,11 +103,9 @@ extern "C" {
    */
 #define JOB_QUEUE_CAN_KILL    (JOB_QUEUE_WAITING + JOB_QUEUE_RUNNING + JOB_QUEUE_PENDING + JOB_QUEUE_SUBMITTED + JOB_QUEUE_USER_EXIT)
 
-
-
+#define JOB_QUEUE_WAITING_STATUS (JOB_QUEUE_WAITING + JOB_QUEUE_PENDING)
 
 #define JOB_QUEUE_CAN_UPDATE_STATUS (JOB_QUEUE_RUNNING + JOB_QUEUE_PENDING + JOB_QUEUE_SUBMITTED)
-
 
 #define JOB_QUEUE_COMPLETE_STATUS (JOB_QUEUE_USER_EXIT + JOB_QUEUE_SUCCESS + JOB_QUEUE_FAILED)
 
@@ -146,6 +144,13 @@ extern "C" {
   void queue_driver_free__(void * driver);
   const char * queue_driver_type_enum_iget(int index, int * value);
   const char * queue_driver_status_enum_iget(int index, int * value);
+
+  typedef enum {SUBMIT_OK           = 0 ,
+                SUBMIT_JOB_FAIL     = 1 , /* Typically no more attempts. */
+                SUBMIT_DRIVER_FAIL  = 2 , /* The driver would not take the job - for whatever reason?? */
+                SUBMIT_QUEUE_CLOSED = 3 } /* The queue is currently not accepting more jobs - either (temporarilty)
+                                             because of pause or it is going down. */   submit_status_type;
+
 
 #ifdef __cplusplus
 }

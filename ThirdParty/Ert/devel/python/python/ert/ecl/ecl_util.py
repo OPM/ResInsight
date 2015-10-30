@@ -24,13 +24,37 @@ ert.cwrap.cenum.create_enum() function in a semi-automagic manner.
 In addition to the enum definitions there are a few stateless
 functions from ecl_util.c which are not bound to any class type.
 """
-from ert.cwrap import create_enum, CWrapper, CWrapperNameSpace
-
+import ctypes
+from ert.cwrap import create_enum, CWrapper, CWrapperNameSpace, BaseCEnum
 from ert.ecl import ECL_LIB
 
+class EclFileEnum(BaseCEnum):
+    ECL_OTHER_FILE = None
+    ECL_RESTART_FILE = None
+    ECL_UNIFIED_RESTART_FILE = None
+    ECL_SUMMARY_FILE = None
+    ECL_UNIFIED_SUMMARY_FILE = None
+    ECL_GRID_FILE = None
+    ECL_EGRID_FILE = None
+    ECL_INIT_FILE = None
+    ECL_RFT_FILE = None
+    ECL_DATA_FILE = None
 
-# ecl_file_enum from ecl_util.h
-EclFileEnum = create_enum(ECL_LIB, "ecl_util_file_enum_iget", "ecl_file_enum")
+
+EclFileEnum.addEnum("ECL_OTHER_FILE", 0)
+EclFileEnum.addEnum("ECL_RESTART_FILE", 1)
+EclFileEnum.addEnum("ECL_UNIFIED_RESTART_FILE", 2)
+EclFileEnum.addEnum("ECL_SUMMARY_FILE", 4)
+EclFileEnum.addEnum("ECL_UNIFIED_SUMMARY_FILE", 8)
+EclFileEnum.addEnum("ECL_SUMMARY_HEADER_FILE", 16)
+EclFileEnum.addEnum("ECL_GRID_FILE", 32)
+EclFileEnum.addEnum("ECL_EGRID_FILE", 64)
+EclFileEnum.addEnum("ECL_INIT_FILE", 128)
+EclFileEnum.addEnum("ECL_RFT_FILE", 256)
+EclFileEnum.addEnum("ECL_DATA_FILE", 512)
+
+EclFileEnum.registerEnum(ECL_LIB, "ecl_file_enum")
+
 
 # ecl_phase_enum from ecl_util.h
 EclPhaseEnum = create_enum(ECL_LIB, "ecl_util_phase_enum_iget", "ecl_phase_enum")
@@ -42,15 +66,15 @@ EclTypeEnum = create_enum(ECL_LIB, "ecl_util_type_enum_iget", "ecl_type_enum")
 EclFileFlagEnum = create_enum(ECL_LIB, "ecl_util_file_flags_enum_iget", "ecl_file_flag_enum")
 
 
-
-
 cwrapper = CWrapper(ECL_LIB)
 cfunc = CWrapperNameSpace("ecl_util")
 
 cfunc.get_num_cpu = cwrapper.prototype("int ecl_util_get_num_cpu( char* )")
-cfunc.get_file_type = cwrapper.prototype("int ecl_util_get_file_type( char* , bool* , int*)")
+cfunc.get_file_type = cwrapper.prototype("ecl_file_enum ecl_util_get_file_type( char* , bool* , int*)")
 cfunc.get_type_name = cwrapper.prototype("char* ecl_util_get_type_name( int )")
 cfunc.get_start_date = cwrapper.prototype("time_t ecl_util_get_start_date( char* )")
+
+
 
 class EclUtil(object):
     @staticmethod
@@ -69,8 +93,9 @@ class EclUtil(object):
         """
         Will inspect an ECLIPSE filename and return an integer type flag.
         """
-        return cfunc.get_file_type(filename, None, None)
-
+        file_type , fmt , step = EclUtil.inspectExtension( filename )
+        return file_type
+    
     @staticmethod
     def type_name(ecl_type):
         return cfunc.get_type_name(ecl_type)
@@ -79,7 +104,24 @@ class EclUtil(object):
     def get_start_date(datafile):
         return cfunc.get_start_date(datafile).datetime()
 
+    @staticmethod
+    def inspectExtension( filename ):
+        """Will inspect an ECLIPSE filename and return a tuple consisting of
+        file type (EclFileEnum), a bool for formatted or not, and an
+        integer for the step number.
 
+        """
+        fmt_file = ctypes.c_bool()
+        report_step = ctypes.c_int(-1)
+        file_type = cfunc.get_file_type(filename, ctypes.byref(fmt_file) , ctypes.byref(report_step))
+        if report_step.value == -1:
+            step = None
+        else:
+            step = report_step.value
+
+        return (file_type , fmt_file.value , step)
+        
+        
 
 get_num_cpu = EclUtil.get_num_cpu
 get_file_type = EclUtil.get_file_type

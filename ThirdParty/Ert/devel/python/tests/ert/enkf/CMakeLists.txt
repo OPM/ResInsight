@@ -19,6 +19,7 @@ set(TEST_SOURCES
     test_labscale.py
     test_linalg.py
     test_local_obsdata_node.py
+    test_local_config.py
     test_meas_block.py
     test_meas_data.py
     test_obs_block.py
@@ -32,12 +33,14 @@ set(TEST_SOURCES
     test_time_map.py
     test_update.py
     test_ensemble_config.py
+    test_deprecation.py
 )
 
 add_python_package("python.tests.ert.enkf" ${PYTHON_INSTALL_PREFIX}/tests/ert/enkf "${TEST_SOURCES}" False)
 
 addPythonTest(ert.enkf.enkf tests.ert.enkf.test_enkf.EnKFTest LABELS StatoilData)
 addPythonTest(ert.enkf.enkf_obs tests.ert.enkf.test_enkf_obs.EnKFObsTest LABELS StatoilData)
+addPythonTest(ert.enkf.deprecation tests.ert.enkf.test_deprecation.DeprecationTest)
 addPythonTest(ert.enkf.meas_block tests.ert.enkf.test_meas_block.MeasBlockTest)
 addPythonTest(ert.enkf.meas_data tests.ert.enkf.test_meas_data.MeasDataTest)
 addPythonTest(ert.enkf.obs_data tests.ert.enkf.test_obs_data.ObsDataTest)
@@ -66,6 +69,7 @@ addPythonTest(ert.enkf.update tests.ert.enkf.test_update.UpdateTest LABELS Stato
 addPythonTest(ert.enkf.labscale tests.ert.enkf.test_labscale.LabScaleTest LABELS StatoilData)
 addPythonTest(ert.enkf.active_list tests.ert.enkf.test_active_list.ActiveListTest)
 addPythonTest(ert.enkf.local_obsdata_node tests.ert.enkf.test_local_obsdata_node.LocalObsdataNodeTest)
+addPythonTest(ert.enkf.local_config tests.ert.enkf.test_local_config.LocalConfigTest)
 addPythonTest(ert.enkf.ensemble_config tests.ert.enkf.test_ensemble_config.EnsembleConfigTest)
 
 add_subdirectory(data)

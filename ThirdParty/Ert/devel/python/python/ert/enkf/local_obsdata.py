@@ -1,18 +1,42 @@
 from ert.cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB, LocalObsdataNode
+from ert.enkf import ENKF_LIB, LocalObsdataNode 
 
 
 class LocalObsdata(BaseCClass):
 
-    def __init__(self, name):
-        assert isinstance(name, str)
+    
+    def __init__(self, name , obs = None):
+        # The obs instance should be a EnkFObs instance; some circular dependency problems
+        # by importing it right away. It is not really optional, but it is made optional
+        # here to be able to give a decent error message for old call sites which did not
+        # supply the obs argument.
+        if obs is None:
+            msg = """
 
+The LocalObsdata constructor has recently changed, as a second
+argument you should pass the EnkFObs instance with all the
+observations. You can typically get this instance from the ert main
+object as:
+
+    obs = ert.getObservations()
+    local_obs = LocalObsData("YOUR-KEY" , obs)
+
+"""
+            raise Exception( msg )
+
+        assert isinstance(name, str)
+        
         c_pointer = LocalObsdata.cNamespace().alloc(name)
         super(LocalObsdata, self).__init__(c_pointer)
+        self.initObservations( obs )
 
+        
+    def initObservations(self , obs):
+        self.obs = obs
+        
     def __len__(self):
-       """ @rtype: int """
-       return LocalObsdata.cNamespace().size(self)
+        """ @rtype: int """
+        return LocalObsdata.cNamespace().size(self)
 
 
     def __getitem__(self, key):
@@ -27,27 +51,13 @@ class LocalObsdata(BaseCClass):
                 return LocalObsdata.cNamespace().get_node(self, key).setParent(self)
             else:
                 raise KeyError("Unknown key:%s" % key)
-
         
     def __iter__(self):
         cur = 0
         while cur < len(self):
-           yield self[cur]
-           cur += 1
-
-           
-    def addNode(self, node):
-        """ @rtype: bool """
-        assert isinstance(node, LocalObsdataNode)
-        node.convertToCReference(self)
-        already_exists_node_for_key = LocalObsdata.cNamespace().add_node(self, node)
-        return already_exists_node_for_key
-
-    
-    def addObsVector(self , obs_vector):
-        self.addNode( obs_vector.createLocalObs() )
-
-        
+            yield self[cur]
+            cur += 1
+                    
     def __contains__(self, item):
         """ @rtype: bool """
         if isinstance(item, str):
@@ -56,7 +66,43 @@ class LocalObsdata(BaseCClass):
             return LocalObsdata.cNamespace().has_node(self, item.getKey())
 
         return False
+    
+    def __delitem__(self, key):
+        assert isinstance(key, str)
+        if key in self:
+            LocalObsdata.cNamespace().del_node(self, key)  
+        else:
+            raise KeyError("Unknown key:%s" % key)                
+    
+    def addNode(self, node):        
+        assert isinstance(node, LocalObsdataNode)
+        if node.getKey() in self.obs:
+            if node not in self:
+                node.convertToCReference(self)
+                LocalObsdata.cNamespace().add_node(self, node)
+            else:
+                raise KeyError("Tried to add existing observation key:%s " % node.getKey())
+            
+        else:
+            raise KeyError("The observation node: %s is not recognized observation key" % node.getKey())
 
+    def addNodeAndRange(self, key, step_1, step_2):
+        assert isinstance(key, str)
+        assert isinstance(step_1, int)
+        assert isinstance(step_2, int)        
+        node = LocalObsdataNode(key)                
+        self.addNode( node )
+        node.addRange(step_1, step_2)
+
+    
+    def clear(self):        
+        LocalObsdata.cNamespace().clear(self)        
+
+        
+    def addObsVector(self , obs_vector):
+        self.addNode( obs_vector.createLocalObs() )
+
+        
     def getName(self):
         """ @rtype: str """
         return LocalObsdata.cNamespace().name(self)
@@ -67,18 +113,18 @@ class LocalObsdata(BaseCClass):
 
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("local_obsdata", LocalObsdata)
-cwrapper.registerType("local_obsdata_obj", LocalObsdata.createPythonObject)
-cwrapper.registerType("local_obsdata_ref", LocalObsdata.createCReference)
+cwrapper.registerObjectType("local_obsdata", LocalObsdata)
 
-LocalObsdata.cNamespace().alloc    = cwrapper.prototype("c_void_p local_obsdata_alloc(char*)")
-LocalObsdata.cNamespace().free     = cwrapper.prototype("void local_obsdata_free(local_obsdata)")
-LocalObsdata.cNamespace().size     = cwrapper.prototype("int local_obsdata_get_size(local_obsdata)")
-LocalObsdata.cNamespace().has_node = cwrapper.prototype("bool local_obsdata_has_node(local_obsdata, char*)")
-LocalObsdata.cNamespace().add_node = cwrapper.prototype("bool local_obsdata_add_node(local_obsdata, local_obsdata_node)")
+LocalObsdata.cNamespace().alloc     = cwrapper.prototype("c_void_p local_obsdata_alloc(char*)")
+LocalObsdata.cNamespace().free      = cwrapper.prototype("void local_obsdata_free(local_obsdata)")
+LocalObsdata.cNamespace().size      = cwrapper.prototype("int local_obsdata_get_size(local_obsdata)")
+LocalObsdata.cNamespace().has_node  = cwrapper.prototype("bool local_obsdata_has_node(local_obsdata, char*)")
+LocalObsdata.cNamespace().add_node  = cwrapper.prototype("bool local_obsdata_add_node(local_obsdata, local_obsdata_node)")
+LocalObsdata.cNamespace().del_node  = cwrapper.prototype("void local_obsdata_del_node(local_obsdata, char*)")
+LocalObsdata.cNamespace().clear     = cwrapper.prototype("void local_dataset_clear(local_obsdata)")
 LocalObsdata.cNamespace().iget_node = cwrapper.prototype("local_obsdata_node_ref local_obsdata_iget(local_obsdata, int)")
-LocalObsdata.cNamespace().get_node = cwrapper.prototype("local_obsdata_node_ref local_obsdata_get(local_obsdata, char*)")
-LocalObsdata.cNamespace().name     = cwrapper.prototype("char* local_obsdata_get_name(local_obsdata)")
+LocalObsdata.cNamespace().get_node  = cwrapper.prototype("local_obsdata_node_ref local_obsdata_get(local_obsdata, char*)")
+LocalObsdata.cNamespace().name      = cwrapper.prototype("char* local_obsdata_get_name(local_obsdata)")
 
 
 

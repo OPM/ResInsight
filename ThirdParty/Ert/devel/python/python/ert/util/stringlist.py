@@ -69,6 +69,21 @@ class StringList(BaseCClass):
                     raise TypeError("Item: %s not a string" % s)
 
 
+    def __eq__(self , other):
+        if len(self) == len(other):
+            if isinstance( other , StringList):
+                return StringList.cNamespace().equal(self, other)
+            else:
+                equal = True
+                for index,s2 in enumerate(other):
+                    if self[index] != s2:
+                        equal = False
+                        break
+                return equal
+        else:
+            return False
+
+
     def __setitem__(self, index, value):
         if isinstance(index, IntType):
             length = self.__len__()
@@ -240,6 +255,7 @@ StringList.cNamespace().iget_copy  = cwrapper.prototype("char* stringlist_iget_c
 StringList.cNamespace().iset       = cwrapper.prototype("void  stringlist_iset_copy( stringlist , int , char* )")
 StringList.cNamespace().get_size   = cwrapper.prototype("int  stringlist_get_size( stringlist )")
 StringList.cNamespace().contains   = cwrapper.prototype("bool stringlist_contains(stringlist , char*)")
+StringList.cNamespace().equal      = cwrapper.prototype("bool stringlist_equal(stringlist , stringlist)")
 StringList.cNamespace().sort       = cwrapper.prototype("void stringlist_python_sort( stringlist , int)")
 StringList.cNamespace().pop        = cwrapper.prototype("char* stringlist_pop(stringlist)")
 StringList.cNamespace().last       = cwrapper.prototype("char* stringlist_get_last(stringlist)")

@@ -22,4 +22,5 @@ devel/python/lib64
 scratch.sparsebundle
 *.iml
 *.DS_Store
+__ert_lib_path.py
 

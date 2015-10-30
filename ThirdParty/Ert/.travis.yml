@@ -1,0 +1,38 @@
+language: python
+
+python:
+  - 2.7_with_system_site_packages
+
+compiler:
+  - gcc
+
+addons:
+  apt:
+    packages:
+      - liblapack-dev
+      - texlive-latex-base
+      - valgrind
+      - python-qt4
+      - python-qt4-gl
+
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
+
+install:
+  - conda install --yes numpy scipy matplotlib pandas pyopengl sphinx
+
+before_script:
+  - sudo apt-get install libplplot-dev
+  - sudo apt-get install python-tk
+  - mkdir build
+  - cd build
+  - echo "WORKFLOW_JOB_DIRECTORY ../devel/share/workflows/jobs/internal/config" > DEFAULT_SITE_CONFIG_FILE
+  - echo "WORKFLOW_JOB_DIRECTORY ../devel/share/workflows/jobs/internal-gui/config" >> DEFAULT_SITE_CONFIG_FILE
+  - echo "JOB_SCRIPT ../devel/share/bin/job_dispatch.py" >> DEFAULT_SITE_CONFIG_FILE
+  - cmake -DPYTHON_INSTALL_PREFIX=python -DBUILD_ERT=ON -DERT_BUILD_GUI=ON -DBUILD_ENS_PLOT=ON -DBUILD_TESTS=ON -DBUILD_APPLICATIONS=ON -DUSE_RUNPATH=ON -DBUILD_PYTHON=ON -DERT_USE_OPENMP=ON -DERT_DOC=ON -DSITE_CONFIG_FILE=DEFAULT_SITE_CONFIG_FILE ../devel
+
+script: make && ctest --output-on-failure -LE StatoilData

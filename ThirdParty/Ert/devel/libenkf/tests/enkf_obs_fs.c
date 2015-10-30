@@ -75,7 +75,7 @@ void test_iget(ert_test_context_type * test_context) {
   enkf_main_type * enkf_main = ert_test_context_get_main( test_context );
   enkf_obs_type * enkf_obs = enkf_main_get_obs( enkf_main );
 
-  test_assert_int_equal( 31 , enkf_obs_get_size( enkf_obs ) );
+  test_assert_int_equal( 32 , enkf_obs_get_size( enkf_obs ) );
   for (int iobs = 0; iobs < enkf_obs_get_size( enkf_obs ); iobs++) {
     obs_vector_type * vec1 = enkf_obs_iget_vector( enkf_obs , iobs );
     obs_vector_type * vec2 = enkf_obs_get_vector( enkf_obs , obs_vector_get_key( vec1 ));

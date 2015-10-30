@@ -1,17 +1,25 @@
+add_executable( job_status_test job_status_test.c )
 add_executable( job_loadOK job_loadOK.c )
 add_executable( job_loadFail job_loadFail.c )
+add_executable( job_node_test job_node_test.c )
+add_executable( job_list_test job_list_test.c )
 add_executable( create_file create_file.c )
 add_executable( job_workflow_test job_workflow_test.c )
 add_executable( job_lsf_parse_bsub_stdout job_lsf_parse_bsub_stdout.c )
 add_executable( ext_joblist_test ext_joblist_test.c )
 
+
+target_link_libraries( job_status_test job_queue test_util )
 target_link_libraries( job_workflow_test job_queue test_util )
 target_link_libraries( create_file job_queue  test_util )
 target_link_libraries( job_loadOK job_queue  test_util )
 target_link_libraries( job_loadFail job_queue  test_util )
 target_link_libraries( ext_joblist_test job_queue  test_util )
 target_link_libraries( job_lsf_parse_bsub_stdout job_queue test_util)
+target_link_libraries( job_node_test job_queue test_util)
+target_link_libraries( job_list_test job_queue test_util)
 
+add_test( job_status_test ${EXECUTABLE_OUTPUT_PATH}/job_status_test)
 add_test( job_lsf_parse_bsub_stdout ${EXECUTABLE_OUTPUT_PATH}/job_lsf_parse_bsub_stdout )
 
 add_test( job_workflow_test ${EXECUTABLE_OUTPUT_PATH}/job_workflow_test ${EXECUTABLE_OUTPUT_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/data/internal_job)
@@ -24,7 +32,8 @@ add_test( job_loadFail1 ${EXECUTABLE_OUTPUT_PATH}/job_loadFail ${CMAKE_CURRENT_S
 add_test( job_loadFail2 ${EXECUTABLE_OUTPUT_PATH}/job_loadFail ${CMAKE_CURRENT_SOURCE_DIR}/data/externalFail)
 add_test( job_loadFail3 ${EXECUTABLE_OUTPUT_PATH}/job_loadFail ${CMAKE_CURRENT_SOURCE_DIR}/data/internalFail ${CMAKE_CURRENT_SOURCE_DIR}/data/externalFail)
 
-
+add_test( job_node_test ${EXECUTABLE_OUTPUT_PATH}/job_node_test)
+add_test( job_list_test valgrind --leak-check=full --error-exitcode=1 ${EXECUTABLE_OUTPUT_PATH}/job_list_test)
 add_test( ext_joblist_test ${EXECUTABLE_OUTPUT_PATH}/ext_joblist_test ${CMAKE_CURRENT_SOURCE_DIR}/data/jobs/util ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable( job_program_output job_program_output.c )
@@ -33,6 +42,14 @@ target_link_libraries( job_program_output util test_util)
 add_executable( job_queue_test job_job_queue_test.c )
 target_link_libraries( job_queue_test job_queue test_util )
 add_test( job_queue_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_test ${EXECUTABLE_OUTPUT_PATH}/job_program_output )
+
+add_executable( job_queue_stress_task job_queue_stress_task.c )
+target_link_libraries( job_queue_stress_task  ert_util )
+
+add_executable( job_queue_stress_test job_queue_stress_test.c )
+target_link_libraries( job_queue_stress_test job_queue test_util )
+add_test( job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_task )
+
 
 add_executable( job_queue_driver_test job_queue_driver_test.c )
 target_link_libraries( job_queue_driver_test job_queue test_util )

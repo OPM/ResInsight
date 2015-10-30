@@ -16,7 +16,7 @@
 
 import os.path
 
-from ert.config import UnrecognizedEnum, CONFIG_LIB, ContentTypeEnum
+from ert.config import UnrecognizedEnum, CONFIG_LIB, ContentTypeEnum,ConfigError
 from ert.cwrap import BaseCClass, CWrapper
 
 class ContentNode(BaseCClass):
@@ -47,6 +47,20 @@ class ContentNode(BaseCClass):
         typed_get = self.typed_get[content_type]
         return typed_get( self , index )
 
+    def getPath(self , index = 0, absolute = True , relative_start = None):
+        index = self.__assertIndex(index)
+        content_type = ContentNode.cNamespace().iget_type(self, index)
+        if content_type in [ContentTypeEnum.CONFIG_EXISTING_PATH , ContentTypeEnum.CONFIG_PATH]:
+            if absolute:
+                return ContentNode.cNamespace().iget_as_abspath(self, index)
+            else:
+                if relative_start is None:
+                    return ContentNode.cNamespace().iget_as_relpath(self, index)
+                else:
+                    abs_path = ContentNode.cNamespace().iget_as_abspath(self, index)
+                    return os.path.relpath( abs_path , relative_start )
+        else:
+            raise TypeError("The getPath() method can only be called on PATH items")
         
     def content(self, sep=" "):
         return ContentNode.cNamespace().get_full_string(self, sep)
@@ -84,6 +98,8 @@ class ContentItem(BaseCClass):
         else:
             raise TypeError("[] operator must have integer index")
 
+    def last(self):
+        return self[-1]
 
     def getValue(self , item_index = -1 , node_index = 0):
         node = self[item_index]
@@ -126,6 +142,8 @@ class ConfigContent(BaseCClass):
         ConfigContent.cNamespace().free(self)
 
 
+    def getErrors(self):
+        return ConfigContent.cNamespace().get_errors(self)
 
 
 cwrapper = CWrapper(CONFIG_LIB)
@@ -137,6 +155,7 @@ ConfigContent.cNamespace().free     = cwrapper.prototype("void config_content_fr
 ConfigContent.cNamespace().is_valid = cwrapper.prototype("bool config_content_is_valid( config_content )")
 ConfigContent.cNamespace().has_key = cwrapper.prototype("bool config_content_has_item( config_content , char*)")
 ConfigContent.cNamespace().get_item = cwrapper.prototype("content_item_ref config_content_get_item( config_content , char*)")
+ConfigContent.cNamespace().get_errors = cwrapper.prototype("config_error_ref config_content_get_errors( content_node )")
 
 ContentItem.cNamespace().size = cwrapper.prototype("int config_content_item_get_size( content_item )")
 ContentItem.cNamespace().iget_content_node = cwrapper.prototype("content_node_ref config_content_item_iget_node( content_item , int)")
@@ -145,10 +164,14 @@ ContentNode.cNamespace().iget = cwrapper.prototype("char* config_content_node_ig
 ContentNode.cNamespace().size = cwrapper.prototype("int config_content_node_get_size( content_node )")
 ContentNode.cNamespace().get_full_string = cwrapper.prototype("char* config_content_node_get_full_string( content_node , char* )")
 ContentNode.cNamespace().iget_type = cwrapper.prototype("config_content_type_enum config_content_node_iget_type( content_node , int)")
+ContentNode.cNamespace().iget_as_abspath = cwrapper.prototype("char* config_content_node_iget_as_abspath( content_node , int)")
+ContentNode.cNamespace().iget_as_relpath = cwrapper.prototype("char* config_content_node_iget_as_relpath( content_node , int)")
 
+ContentNode.typed_get[ContentTypeEnum.CONFIG_STRING] = iget_as_string = cwrapper.prototype("char* config_content_node_iget( content_node , int)")
 ContentNode.typed_get[ContentTypeEnum.CONFIG_INT] = iget_as_int = cwrapper.prototype("int config_content_node_iget_as_int( content_node , int)")
-ContentNode.typed_get[ContentTypeEnum.CONFIG_BOOL] = iget_as_bool = cwrapper.prototype("bool config_content_node_iget_as_bool( content_node , int)")
 ContentNode.typed_get[ContentTypeEnum.CONFIG_FLOAT] = iget_as_double = cwrapper.prototype("double config_content_node_iget_as_double( content_node , int)")
 ContentNode.typed_get[ContentTypeEnum.CONFIG_PATH] = iget_as_path = cwrapper.prototype("char* config_content_node_iget_as_path( content_node , int)")
-ContentNode.typed_get[ContentTypeEnum.CONFIG_STRING] = iget_as_string = cwrapper.prototype("char* config_content_node_iget( content_node , int)")
+ContentNode.typed_get[ContentTypeEnum.CONFIG_EXISTING_PATH] = iget_as_path = cwrapper.prototype("char* config_content_node_iget_as_path( content_node , int)")
+ContentNode.typed_get[ContentTypeEnum.CONFIG_BOOL] = iget_as_bool = cwrapper.prototype("bool config_content_node_iget_as_bool( content_node , int)")
+
 

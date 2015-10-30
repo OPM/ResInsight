@@ -772,6 +772,21 @@ void layer_cells_equal( const layer_type * layer , int value , int_vector_type *
 }
 
 
+int layer_count_equal( const layer_type * layer , int value ) {
+  int num_equal = 0;
+  int i,j;
+  for (j=0; j < layer->ny; j++) {
+    for (i=0; i < layer->nx; i++) {
+      cell_type * cell = layer_iget_cell( layer , i , j );
+      if (cell->cell_value == value)
+        num_equal++;
+    }
+  }
+  return num_equal;
+}
+
+
+
 
 
 void layer_update_active( layer_type * layer , const ecl_grid_type * grid , int k) {

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'buffer.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'buffer.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef __BUFFER_H__
@@ -28,6 +28,7 @@ extern "C" {
 #include <string.h>
 #include <time.h>
 
+#include <ert/util/type_macros.h>
 #include <ert/util/ssize_t.h>
 
 
@@ -49,13 +50,10 @@ extern "C" {
   size_t             buffer_fread(buffer_type * buffer , void * target_ptr , size_t item_size , size_t items);
   size_t             buffer_safe_fwrite(buffer_type * buffer , const void * src_ptr , size_t item_size , size_t items);
   size_t             buffer_fwrite(buffer_type * buffer , const void * src_ptr , size_t item_size , size_t items);
-  const char       * buffer_fread_string(buffer_type * buffer);
-  char             * buffer_fread_alloc_string(buffer_type * buffer);
-  void               buffer_fwrite_string(buffer_type * buffer , const char * string);
   void               buffer_summarize(const buffer_type * buffer , const char *);
-  
+
   void               buffer_fwrite_char_ptr(buffer_type * buffer , const char * string_ptr );
-  void               buffer_terminate_char_ptr( buffer_type * buffer );
+  void               buffer_strcat(buffer_type * buffer , const char * string);
   void               buffer_fwrite_char(buffer_type * buffer , char value);
   void               buffer_fwrite_int(buffer_type * buffer , int value);
   void               buffer_fskip_bool(buffer_type * buffer);
@@ -72,21 +70,22 @@ extern "C" {
   size_t             buffer_get_remaining_size(const buffer_type *  buffer);
   void             * buffer_get_data(const buffer_type * buffer);
   void             * buffer_alloc_data_copy(const buffer_type * buffer);
+  void             * buffer_iget_data(const buffer_type * buffer, size_t offset);
   void               buffer_stream_fwrite( const buffer_type * buffer , FILE * stream );
   int                buffer_fgetc( buffer_type * buffer );
   void               buffer_fseek(buffer_type * buffer , ssize_t offset , int whence);
   void               buffer_fskip(buffer_type * buffer, ssize_t offset);
   void               buffer_clear( buffer_type * buffer );
-  
+
   void               buffer_fskip_int(buffer_type * buffer);
   void               buffer_fskip_time_t(buffer_type * buffer);
   time_t             buffer_fread_time_t(buffer_type * buffer);
   void               buffer_fwrite_time_t(buffer_type * buffer , time_t value);
   void               buffer_rewind(buffer_type * buffer );
-  
+
   double             buffer_fread_double(buffer_type * buffer);
   void               buffer_fwrite_double(buffer_type * buffer , double value);
-  
+
   size_t             buffer_stream_fwrite_n( const buffer_type * buffer , size_t offset , ssize_t write_size , FILE * stream );
   void               buffer_stream_fprintf( const buffer_type * buffer , FILE * stream );
   void               buffer_stream_fread( buffer_type * buffer , size_t byte_size , FILE * stream);
@@ -97,6 +96,13 @@ extern "C" {
   size_t             buffer_fwrite_compressed(buffer_type * buffer, const void * ptr , size_t byte_size);
   size_t             buffer_fread_compressed(buffer_type * buffer , size_t compressed_size , void * target_ptr , size_t target_size);
 #endif
+
+
+#include "buffer_string.h"
+
+  UTIL_IS_INSTANCE_HEADER( buffer );
+  UTIL_SAFE_CAST_HEADER( buffer );
+
 #ifdef __cplusplus
 }
 #endif

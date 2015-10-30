@@ -18,9 +18,13 @@ set(PYTHON_SOURCES
     ert_template.py
     ert_templates.py
     ert_workflow_list.py
+    key_manager.py
     local_config.py
+    local_dataset.py
+    local_ministep.py
     local_obsdata.py
     local_obsdata_node.py
+    local_updatestep.py
     meas_block.py
     meas_data.py
     model_config.py
@@ -37,7 +41,7 @@ set(PYTHON_SOURCES
     summary_key_set.py
 )
 
-add_python_package("python.ert.enkf"  ${PYTHON_INSTALL_PREFIX}/ert/enkf "${PYTHON_SOURCES}" True)
+add_python_package("python.ert.enkf" ${PYTHON_INSTALL_PREFIX}/ert/enkf "${PYTHON_SOURCES}" True)
 
 add_subdirectory(data)
 add_subdirectory(enums)

@@ -33,7 +33,17 @@ class ObsDataTest(ExtendedTestCase):
         R = obs_data.createR()
         self.assertEqual( (2,2) , R.dims() )
 
-        
-        
+        with self.assertRaises(IndexError):
+            obs_data[10]
+
+        v,s = obs_data[0]
+        self.assertEqual( v , 10 )
+        self.assertEqual( s , 10 )
+
+
+        v,s = obs_data[1]
+        self.assertEqual( v , 12 )
+        self.assertEqual( s , 12 )
+
 
 
