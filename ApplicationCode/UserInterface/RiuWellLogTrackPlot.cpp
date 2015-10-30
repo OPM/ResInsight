@@ -56,11 +56,7 @@ RiuWellLogTrackPlot::RiuWellLogTrackPlot(RimWellLogPlotTrack* plotTrackDefinitio
 
     m_grid = new QwtPlotGrid();
     m_grid->attach(this);
-
-    m_legend = new QwtLegend(this);
-    insertLegend(m_legend, QwtPlot::TopLegend, 1.0);
-    m_legend->setMaxColumns(1);
-    
+   
     setFocusPolicy(Qt::ClickFocus);
     setDefaults();
 }
@@ -279,5 +275,18 @@ QSize RiuWellLogTrackPlot::sizeHint() const
 QSize RiuWellLogTrackPlot::minimumSizeHint() const
 {
     return QSize(0, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuWellLogTrackPlot::isRimTrackVisible()
+{
+    if (m_plotTrackDefinition)
+    {
+        return m_plotTrackDefinition->isVisible();
+    }
+   
+   return false;
 }
 

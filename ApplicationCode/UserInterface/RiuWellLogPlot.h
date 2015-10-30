@@ -29,6 +29,7 @@ class RiuWellLogTrackPlot;
 class QHBoxLayout;
 class QScrollBar;
 class QFocusEvent;
+class QwtLegend;
 
 //==================================================================================================
 //
@@ -43,25 +44,37 @@ public:
     RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = NULL);
     virtual ~RiuWellLogPlot();
 
-    RimWellLogPlot* ownerPlotDefinition();
+    RimWellLogPlot*                 ownerPlotDefinition();
 
-    void addTrackPlot(RiuWellLogTrackPlot* trackPlot);
-    void insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index);
-    void removeTrackPlot(RiuWellLogTrackPlot* trackPlot);
+    void                            addTrackPlot(RiuWellLogTrackPlot* trackPlot);
+    void                            insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index);
+    void                            removeTrackPlot(RiuWellLogTrackPlot* trackPlot);
 
-    void setDepthZoomAndReplot(double minDepth, double maxDepth);
+    void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
+
+public slots:
+    void                            updateChildrenLayout();
+
+protected:
+    virtual void                    resizeEvent(QResizeEvent *event);
+    virtual void                    showEvent(QShowEvent *);
+    virtual void                    changeEvent(QEvent *);
 
 private:
-    void updateScrollBar(double minDepth, double maxDepth);
-    void modifyWidthOfContainingMdiWindow(int widthChange);
+    void                            updateScrollBar(double minDepth, double maxDepth);
+    void                            modifyWidthOfContainingMdiWindow(int widthChange);
+    void                            placeChildWidgets(int height, int width);
 
 private slots:
-    void slotSetMinDepth(int value);
+    void                            slotSetMinDepth(int value);
+    void                            scheduleUpdateChildrenLayout();
 
 private:
     QHBoxLayout*                    m_layout;
     QScrollBar*                     m_scrollBar;
+    QList<QwtLegend*>               m_legends;
     QList<RiuWellLogTrackPlot*>     m_trackPlots;
     caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
+    QTimer*                         m_scheduleUpdateChildrenLayoutTimer;
 };
 

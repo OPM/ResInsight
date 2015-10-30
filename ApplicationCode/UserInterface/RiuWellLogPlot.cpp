@@ -32,28 +32,29 @@
 #include <QScrollBar>
 #include <QFocusEvent>
 #include <QMdiSubWindow>
+#include <QTimer>
 
 #include <math.h>
+#include "qwt_legend.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
-    : QWidget(parent)
+    : QWidget(parent), m_scheduleUpdateChildrenLayoutTimer(NULL)
 {
     Q_ASSERT(plotDefinition);
     m_plotDefinition = plotDefinition;
 
-    m_layout = new QHBoxLayout(this);
-    m_layout->setMargin(0);
-    m_layout->setSpacing(0);
+    QPalette newPalette(palette());
+    newPalette.setColor(QPalette::Background, Qt::white);
+    setPalette(newPalette);
 
-    setLayout(m_layout);
+    setAutoFillBackground(true);
 
     m_scrollBar = new QScrollBar(this);
     m_scrollBar->setOrientation(Qt::Vertical);
-    m_scrollBar->setVisible(false);
-    m_layout->addWidget(m_scrollBar);
+    m_scrollBar->setVisible(true);
     
     connect(m_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(slotSetMinDepth(int)));
 }
@@ -75,7 +76,7 @@ RiuWellLogPlot::~RiuWellLogPlot()
 void RiuWellLogPlot::addTrackPlot(RiuWellLogTrackPlot* trackPlot)
 {
     // Insert the plot to the left of the scroll bar
-    insertTrackPlot(trackPlot, m_layout->count() - 1);
+    insertTrackPlot(trackPlot, m_trackPlots.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,8 +84,28 @@ void RiuWellLogPlot::addTrackPlot(RiuWellLogTrackPlot* trackPlot)
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index)
 {
-    m_layout->insertWidget(static_cast<int>(index), trackPlot);
-    m_trackPlots.append(trackPlot); // insert?
+    trackPlot->setParent(this);
+    
+    m_trackPlots.insert(static_cast<int>(index), trackPlot); 
+
+    QwtLegend* legend = new QwtLegend(this);
+    legend->setMaxColumns(1);
+    legend->connect(trackPlot, SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(updateLegend(const QVariant &, const QList< QwtLegendData > &)));
+    legend->contentsWidget()->layout()->setAlignment(Qt::AlignBottom | Qt::AlignHCenter);
+    m_legends.insert(static_cast<int>(index), legend);
+
+    this->connect(trackPlot,  SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(scheduleUpdateChildrenLayout()));
+ 
+    trackPlot->updateLegend();
+
+    if (trackPlot->isRimTrackVisible())
+    {
+        trackPlot->show();
+    }
+    else
+    {
+        trackPlot->hide();
+    }
 
     modifyWidthOfContainingMdiWindow(trackPlot->width());
 }
@@ -94,10 +115,21 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t inde
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrackPlot* trackPlot)
 {
-    m_layout->removeWidget(trackPlot);
-    m_trackPlots.removeAll(trackPlot);
+    if (!trackPlot) return;
 
-    modifyWidthOfContainingMdiWindow(-trackPlot->width());
+    int windowWidthChange = - trackPlot->width();
+
+    int trackIdx = m_trackPlots.indexOf(trackPlot);
+    CVF_ASSERT(trackIdx >= 0);
+
+    m_trackPlots.removeAt(trackIdx);
+    trackPlot->setParent(NULL);
+
+    QwtLegend* legend = m_legends[trackIdx];
+    m_legends.removeAt(trackIdx);
+    delete legend;
+
+    modifyWidthOfContainingMdiWindow(windowWidthChange);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,9 +140,20 @@ void RiuWellLogPlot::modifyWidthOfContainingMdiWindow(int widthChange)
     QMdiSubWindow* mdiWindow = RiuMainWindow::instance()->findMdiSubWindow(this);
     if (mdiWindow)
     {
-        QSize subWindowSize = mdiWindow->size();
+        if (m_trackPlots.size() == 0 && widthChange <= 0) return; // Last track removed. Leave be
 
-        int newWidth = subWindowSize.width() + widthChange;
+        QSize subWindowSize = mdiWindow->size();
+        int newWidth = 0;
+
+        if (m_trackPlots.size() == 1 && widthChange > 0) // First track added
+        {
+            newWidth = widthChange;
+        }
+        else
+        {
+            newWidth = subWindowSize.width() + widthChange;
+        }
+
         if (newWidth < 0) newWidth = 100;
 
         subWindowSize.setWidth(newWidth);
@@ -184,3 +227,134 @@ RimWellLogPlot* RiuWellLogPlot::ownerPlotDefinition()
     return m_plotDefinition;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::resizeEvent(QResizeEvent *event)
+{
+    int height = event->size().height();
+    int width  = event->size().width();
+
+    placeChildWidgets(height, width);
+    QWidget::resizeEvent(event);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::placeChildWidgets(int height, int width)
+{
+    int trackCount = m_trackPlots.size();
+    CVF_ASSERT(m_legends.size() == trackCount);
+
+    int visibleTrackCount = 0;
+    for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+    {
+        if (m_trackPlots[tIdx]->isVisible()) ++visibleTrackCount;
+    }
+
+    int scrollBarWidth = 0;
+    if (m_scrollBar->isVisible()) scrollBarWidth = m_scrollBar->sizeHint().width();
+
+    int maxLegendHeight = 0;
+
+    for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+    {
+        if (m_trackPlots[tIdx]->isVisible())
+        {
+            int legendHeight = m_legends[tIdx]->sizeHint().height();
+            if (legendHeight > maxLegendHeight) maxLegendHeight = legendHeight;
+        }
+    }
+
+    int trackHeight = height - maxLegendHeight;
+    int trackX = 0;
+
+
+    if (visibleTrackCount)
+    {
+        int trackWidth = (width - scrollBarWidth)/visibleTrackCount;
+        int trackWidthExtra = (width-scrollBarWidth)%visibleTrackCount;
+
+        for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+        {
+            if (m_trackPlots[tIdx]->isVisible())
+            {
+                int realTrackWidth = trackWidth;
+                if (trackWidthExtra > 0)
+                {
+                    realTrackWidth += 1;
+                    --trackWidthExtra;
+                }
+
+                m_legends[tIdx]->setGeometry(trackX, 0, realTrackWidth, maxLegendHeight);
+                m_trackPlots[tIdx]->setGeometry(trackX, maxLegendHeight, realTrackWidth, trackHeight);
+
+                trackX += realTrackWidth;
+            }
+        }
+    }
+
+    if (m_scrollBar->isVisible()) m_scrollBar->setGeometry(trackX, maxLegendHeight, scrollBarWidth, trackHeight);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::updateChildrenLayout()
+{
+    int trackCount = m_trackPlots.size();
+    for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+    {
+        if (m_trackPlots[tIdx]->isVisible())
+        {
+           m_legends[tIdx]->show();
+        }
+        else
+        {
+            m_legends[tIdx]->hide();
+        }
+    }
+
+    placeChildWidgets(this->height(), this->width());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::showEvent(QShowEvent *)
+{
+    updateChildrenLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::WindowStateChange)
+    {
+        updateChildrenLayout();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Schedule an update of the widget positions
+/// Will happen just a bit after the event loop is entered
+/// Used to delay the positioning to after the legend widgets is actually updated.
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::scheduleUpdateChildrenLayout()
+{
+    if (!m_scheduleUpdateChildrenLayoutTimer) 
+    {
+        m_scheduleUpdateChildrenLayoutTimer = new QTimer(this);
+        connect(m_scheduleUpdateChildrenLayoutTimer, SIGNAL(timeout()), this, SLOT(updateChildrenLayout()));
+    }
+
+    if (!m_scheduleUpdateChildrenLayoutTimer->isActive())
+    {
+        m_scheduleUpdateChildrenLayoutTimer->setSingleShot(true);
+        m_scheduleUpdateChildrenLayoutTimer->start(10);
+    }
+}

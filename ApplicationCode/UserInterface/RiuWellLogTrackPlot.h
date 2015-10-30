@@ -20,6 +20,7 @@
 #pragma once
 
 #include "qwt_plot.h"
+#include "cafPdmPointer.h"
 
 class RimWellLogPlotTrack;
 class QwtPlotGrid;
@@ -40,25 +41,25 @@ public:
     RiuWellLogTrackPlot(RimWellLogPlotTrack* plotTrackDefinition, QWidget* parent = NULL);
     virtual ~RiuWellLogTrackPlot();
 
-    void setDepthZoom(double minDepth, double maxDepth);
-    void setDepthTitle(const QString& title);
+    void                                    setDepthZoom(double minDepth, double maxDepth);
+    void                                    setDepthTitle(const QString& title);
 
-    void setXRange(double min, double max);
+    void                                    setXRange(double min, double max);
 
+    bool                                    isRimTrackVisible();
 
 protected:
-    virtual bool eventFilter(QObject* watched, QEvent* event);
-    virtual void focusInEvent(QFocusEvent* event);
-    virtual QSize sizeHint() const;
-    virtual QSize minimumSizeHint() const;
+    virtual bool                            eventFilter(QObject* watched, QEvent* event);
+    virtual void                            focusInEvent(QFocusEvent* event);
+    virtual QSize                           sizeHint() const;
+    virtual QSize                           minimumSizeHint() const;
 
 private:
-    void setDefaults();
-    void selectClosestCurve(const QPoint& pos);
+    void                                    setDefaults();
+    void                                    selectClosestCurve(const QPoint& pos);
 
 private:
-    RimWellLogPlotTrack*    m_plotTrackDefinition;
-    QwtPlotGrid*            m_grid;
-    QwtLegend*              m_legend;
+    caf::PdmPointer<RimWellLogPlotTrack>    m_plotTrackDefinition;
+    QwtPlotGrid*                            m_grid;
 };
 
