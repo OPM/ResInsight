@@ -122,12 +122,12 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
     size_t curveIndex = plotTrack->curveCount();
 
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
-    plotTrack->addCurve(curve);
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIndex);
     curve->setColor(curveColor);
     curve->setWellPath(wellPath);
     curve->setPropertiesFromView(view);
+    plotTrack->addCurve(curve);
 
     plotTrack->updateConnectedEditors();
     RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
