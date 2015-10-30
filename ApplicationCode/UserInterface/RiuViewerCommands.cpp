@@ -47,6 +47,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimView.h"
+#include "RimViewController.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellLogFile.h"
@@ -157,9 +158,15 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
             // IJK -slice commands
 
-            menu.addAction(QIcon(":/CellFilter_Range.png"), QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-            menu.addAction(QIcon(":/CellFilter_Range.png"), QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-            menu.addAction(QIcon(":/CellFilter_Range.png"), QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+            RimViewController* viewController = NULL;
+            if (m_reservoirView) viewController = m_reservoirView->viewController();    
+
+            if (!viewController || !viewController->isRangeFiltersControlled())
+            {
+                menu.addAction(QIcon(":/CellFilter_Range.png"), QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
+                menu.addAction(QIcon(":/CellFilter_Range.png"), QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
+                menu.addAction(QIcon(":/CellFilter_Range.png"), QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+            }
 
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
             if (eclipseView)
@@ -175,7 +182,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                     {
                         propertyAction->setEnabled(false);
                     }
-                    menu.addAction(propertyAction);
+
+                    if (!viewController || !viewController->isPropertyFilterOveridden())
+                    {
+                        menu.addAction(propertyAction);
+                    }
                 }
 
                 // Hide faults command
@@ -196,10 +207,12 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RimGeoMechCellColors* cellColors = geoMechView->cellResult().p();
                 if (cellColors)
                 {
-                    menu.addAction(QIcon(":/CellFilter_Values.png"), QString("Add property filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+                     if (!viewController || !viewController->isPropertyFilterOveridden())
+                    {
+                        menu.addAction(QIcon(":/CellFilter_Values.png"), QString("Add property filter"), this, SLOT(slotAddGeoMechPropertyFilter()));
+                    }
                 }
             }
-
         }
     }
 
@@ -294,6 +307,9 @@ void RiuViewerCommands::slotRangeFilterK()
     createSliceRangeFilter(2);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::createSliceRangeFilter(int ijOrk)
 {
     RimView* eclipseView = m_reservoirView.p();
