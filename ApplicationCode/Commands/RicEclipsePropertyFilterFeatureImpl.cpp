@@ -24,6 +24,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseCellColors.h"
+#include "RimViewController.h"
 
 #include "cafSelectionManager.h"
 
@@ -81,6 +82,25 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropert
 
     propertyFilterCollection->updateConnectedEditors();
     RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(caf::PdmObjectHandle* object)
+{
+    RimView* rimView = NULL;
+    object->firstAnchestorOrThisOfType(rimView);
+    if (rimView)
+    {
+        RimViewController* vc = rimView->viewController();
+        if (vc && vc->isPropertyFilterOveridden())
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

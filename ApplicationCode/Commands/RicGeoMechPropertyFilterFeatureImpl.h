@@ -25,6 +25,11 @@
 class RimGeoMechPropertyFilter;
 class RimGeoMechPropertyFilterCollection;
 
+namespace caf
+{
+    class PdmObjectHandle;
+}
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -37,6 +42,8 @@ public:
     static void addPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection);
     static void insertPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection, size_t index);
 
+    static bool isPropertyFilterCommandAvailable(caf::PdmObjectHandle* object);
+    
 private:
     static RimGeoMechPropertyFilter* createPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection);
     static void setDefaults(RimGeoMechPropertyFilter* propertyFilter);

@@ -38,8 +38,7 @@ CAF_CMD_SOURCE_INIT(RicRangeFilterInsertFeature, "RicRangeFilterInsertFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicRangeFilterInsertFeature::isCommandEnabled()
 {
-    std::vector<RimCellRangeFilter*> selection = selectedCellRangeFilters();
-    return selection.size() > 0;
+    return RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------

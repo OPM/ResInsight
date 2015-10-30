@@ -38,7 +38,12 @@ CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterInsertFeature, "RicGeoMechPropertyFi
 bool RicGeoMechPropertyFilterInsertFeature::isCommandEnabled()
 {
     std::vector<RimGeoMechPropertyFilter*> propertyFilters = RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilters();
-    return propertyFilters.size() == 1;
+    if (propertyFilters.size() == 1)
+    {
+        return RicGeoMechPropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(propertyFilters[0]);
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

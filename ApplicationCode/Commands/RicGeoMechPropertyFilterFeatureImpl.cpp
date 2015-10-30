@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicGeoMechPropertyFilterFeatureImpl.h"
+#include "RicEclipsePropertyFilterFeatureImpl.h"
 
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -84,6 +85,15 @@ void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter(RimGeoMechPropert
     propertyFilterCollection->updateConnectedEditors();
     RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicGeoMechPropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(caf::PdmObjectHandle* object)
+{
+    // Reuse code from EclipseProperty filter, as the function is only dependent on RimView
+    return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(object);
 }
 
 //--------------------------------------------------------------------------------------------------

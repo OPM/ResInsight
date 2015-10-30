@@ -25,6 +25,11 @@
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
 
+namespace caf
+{
+    class PdmObjectHandle;
+}
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -36,6 +41,8 @@ public:
 
     static void addPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection);
     static void insertPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index);
+
+    static bool isPropertyFilterCommandAvailable(caf::PdmObjectHandle* object);
 
 private:
     static void setDefaults(RimEclipsePropertyFilter* propertyFilter);
