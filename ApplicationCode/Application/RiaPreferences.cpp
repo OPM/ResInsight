@@ -59,6 +59,8 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer background", "", "The viewer background color for new views", "");
 
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
+    CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS curve without TVD warning", "", "", "");
+    showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&useShaders,                      "useShaders", true, "Use Shaders", "", "", "");
     useShaders.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -109,7 +111,8 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &loadAndShowSoil ||
             field == &useShaders ||
             field == &showHud ||
-            field == &appendClassNameToUiText)
+            field == &appendClassNameToUiText ||
+            field == &showLasCurveWithoutTvdWarning )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -141,6 +144,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     defaultSettingsGroup->add(&defaultGridLineColors);
     defaultSettingsGroup->add(&defaultFaultGridLineColors);
     defaultSettingsGroup->add(&defaultWellLabelColor);
+    defaultSettingsGroup->add(&showLasCurveWithoutTvdWarning);
 
     caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Behavior when loading new case");
     autoComputeGroup->add(&autocomputeDepthRelatedProperties);

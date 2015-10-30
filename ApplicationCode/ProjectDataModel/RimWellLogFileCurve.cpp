@@ -32,8 +32,11 @@
 #include "RiuWellLogPlotCurve.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "cafPdmUiTreeOrdering.h"
+
+#include <QMessageBox>
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogFileCurve, "WellLogFileCurve");
@@ -73,7 +76,21 @@ void RimWellLogFileCurve::updatePlotData()
     {
         m_curveData = new RigWellLogCurveData;
 
-        if (m_wellPath)
+        RimWellLogPlot* wellLogPlot;
+        firstAnchestorOrThisOfType(wellLogPlot);
+        CVF_ASSERT(wellLogPlot);
+
+        if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+        {
+            if (RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning())
+            {
+                QString tmp = QString("Display of True Vertical Depth (TVD) for LAS curves in not yet supported, and no LAS curve will be displayed in this mode.\n\n");
+                tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD warning\"";
+            
+                QMessageBox::warning(NULL, "LAS curve without TVD", tmp);
+            }
+        }
+        else if (m_wellPath)
         {
             RimWellLogFile* logFileInfo = m_wellPath->m_wellLogFile;
             if (logFileInfo)

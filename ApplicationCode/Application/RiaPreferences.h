@@ -59,6 +59,8 @@ public: // Pdm Fields
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
+    caf::PdmField<bool>     showLasCurveWithoutTvdWarning;
+
 
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
