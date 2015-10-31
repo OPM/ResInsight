@@ -123,7 +123,7 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
 
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
 
-    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIndex);
+    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
     curve->setColor(curveColor);
     curve->setWellPath(wellPath);
     curve->setPropertiesFromView(view);

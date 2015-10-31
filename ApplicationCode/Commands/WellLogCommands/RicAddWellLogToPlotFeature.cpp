@@ -95,7 +95,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFile();
             CVF_ASSERT(wellLogDataFile);
 
-            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(curveIdx);
+            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
             curve->setColor(curveColor);
             curve->setWellPath(wellPath);
             curve->setWellLogChannelName(wellLog->name());

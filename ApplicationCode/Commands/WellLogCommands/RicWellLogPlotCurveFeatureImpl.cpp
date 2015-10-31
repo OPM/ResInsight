@@ -24,13 +24,7 @@
 static const int RI_LOGPLOT_CURVECOLORSCOUNT = 15;
 static const int RI_LOGPLOT_CURVECOLORS[] =
 {
-    Qt::blue,
-    Qt::red,
-    Qt::green,
-    Qt::yellow,
-    Qt::magenta,
-    Qt::cyan,
-    Qt::gray,
+    Qt::black,
     Qt::darkBlue,
     Qt::darkRed,
     Qt::darkGreen,
@@ -38,16 +32,23 @@ static const int RI_LOGPLOT_CURVECOLORS[] =
     Qt::darkMagenta,
     Qt::darkCyan,
     Qt::darkGray,
-    Qt::black
+    Qt::blue,
+    Qt::red,
+    Qt::green,
+    Qt::yellow,
+    Qt::magenta,
+    Qt::cyan,
+    Qt::gray
 };
 
 //--------------------------------------------------------------------------------------------------
 /// Pick default curve color from an index based palette
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RicWellLogPlotCurveFeatureImpl::curveColorFromIndex(size_t curveIndex)
+cvf::Color3f RicWellLogPlotCurveFeatureImpl::curveColorFromTable()
 {
-    QColor color = QColor(Qt::GlobalColor(RI_LOGPLOT_CURVECOLORS[curveIndex % RI_LOGPLOT_CURVECOLORSCOUNT]));
-
+    static int colorIndex = 0;
+    QColor color = QColor(Qt::GlobalColor(RI_LOGPLOT_CURVECOLORS[colorIndex % RI_LOGPLOT_CURVECOLORSCOUNT]));
+    ++colorIndex;
     cvf::Color3f cvfColor(color.redF(), color.greenF(), color.blueF());
     return cvfColor;
 }
