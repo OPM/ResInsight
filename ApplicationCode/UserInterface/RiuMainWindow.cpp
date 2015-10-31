@@ -1246,7 +1246,7 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
         RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subWin->widget());
         if (wellLogPlot)
         {
-            subWindowSize = QSize(200, m_mdiArea->height());
+            subWindowSize = QSize(275, m_mdiArea->height());
         }
         else
         {
