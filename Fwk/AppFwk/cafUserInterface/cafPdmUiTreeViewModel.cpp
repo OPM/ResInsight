@@ -689,7 +689,9 @@ bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value
 
             return true;
         }
-        else if (role == Qt::CheckStateRole && uiObject->objectToggleField())
+        else if (   role == Qt::CheckStateRole &&
+                    uiObject->objectToggleField() && 
+                    !uiObject->objectToggleField()->uiCapability()->isUiReadOnly(m_uiConfigName))
         {
             bool toggleOn = (value == Qt::Checked);
 
@@ -728,15 +730,15 @@ Qt::ItemFlags PdmUiTreeViewModel::flags(const QModelIndex &index) const
         if (pdmUiObject)
         {
             if (pdmUiObject->userDescriptionField() && !pdmUiObject->userDescriptionField()->uiCapability()->isUiReadOnly())
-        {
-            flagMask = flagMask | Qt::ItemIsEditable;
-        }
+            {
+                flagMask = flagMask | Qt::ItemIsEditable;
+            }
 
             if (pdmUiObject->objectToggleField())
-        {
-            flagMask = flagMask | Qt::ItemIsUserCheckable;
+            {
+                flagMask = flagMask | Qt::ItemIsUserCheckable;
+            }
         }
-    }
     }
 
     if (treeItem->isValid())
