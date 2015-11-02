@@ -48,7 +48,9 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
             caf::PdmObjectHandle* childObj = child->object();
             caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj(childObj);
 
-            if (uiObjectHandleChild && uiObjectHandleChild->objectToggleField())
+            if (uiObjectHandleChild &&
+                uiObjectHandleChild->objectToggleField() &&
+                !uiObjectHandleChild->objectToggleField()->uiCapability()->isUiReadOnly())
             {
                 return true;
             }
