@@ -314,6 +314,19 @@ void RimViewController::updateOverrides()
 void RimViewController::removeOverrides()
 {
     removeOverrides(m_managedView);
+
+    RimEclipseView* manEclView = managedEclipseView();
+    RimGeoMechView* manGeoView = managedGeoView();
+
+    if (manGeoView)
+    {
+        manGeoView->updateIconStateForFilterCollections();
+    }
+
+    if (manEclView)
+    {
+        manEclView->updateIconStateForFilterCollections();
+    }
 }
 //--------------------------------------------------------------------------------------------------
 /// 
