@@ -187,9 +187,6 @@ void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
 
     updateEditorsForSubTree(existingSubTreeRoot);
 
-    // Notify Qt that the toggle/name/icon etc might have been changed
-    emitDataChanged(existingSubTreeRootModIdx);
-
 #if CAF_PDM_TREE_VIEW_DEBUG_PRINT
     std::cout << std::endl << "Result :"<< std::endl ;
     existingSubTreeRoot->debugDump(0);
@@ -284,6 +281,9 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
 
     if (!anyChanges)
     {
+        // Notify Qt that the toggle/name/icon etc might have been changed
+        emitDataChanged(existingSubTreeRootModIdx);
+
         // No changes to list of children at this level, call update on all children
         for (int i = 0; i < existingSubTreeRoot->childCount(); ++i)
         {
