@@ -59,6 +59,7 @@ public:
 
     void computeAndSetValidValues();
 
+    void updateActiveState();
 
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -67,6 +68,9 @@ protected:
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+
+private:
+    bool isRangeFilterControlled();
 
 private:
     const cvf::StructGridInterface*            selectedGrid();

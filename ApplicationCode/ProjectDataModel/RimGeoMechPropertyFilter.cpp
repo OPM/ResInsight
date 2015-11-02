@@ -18,18 +18,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
-#include "RimGeoMechResultDefinition.h"
 
-#include "cvfMath.h"
-
-#include "cafPdmUiDoubleSliderEditor.h"
-#include "cvfAssert.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimViewController.h"
+
 #include "RiuMainWindow.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
+
+#include "cvfAssert.h"
+#include "cvfMath.h"
 
 CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
 
@@ -59,7 +62,6 @@ RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
 
     m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
     m_maximumResultValue = cvf::UNDEFINED_DOUBLE;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,6 +83,7 @@ void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         this->updateIconState();
         this->updateFilterName();
+        this->uiCapability()->updateConnectedEditors();
 
         parentContainer()->updateDisplayModelNotifyManagedViews();
     }
@@ -133,6 +136,65 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&lowerBound);
     uiOrdering.add(&upperBound);
     uiOrdering.add(&filterMode);
+
+    updateReadOnlyStateOfAllFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    updateActiveState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
+{
+    bool readOnlyState = isPropertyFilterControlled();
+
+    std::vector<caf::PdmFieldHandle*> objFields;
+    this->fields(objFields);
+
+    // Include fields declared in RimResultDefinition
+    objFields.push_back(&(resultDefinition->m_resultPositionTypeUiField));
+    objFields.push_back(&(resultDefinition->m_resultVariableUiField));
+
+    for (size_t i = 0; i < objFields.size(); i++)
+    {
+        objFields[i]->uiCapability()->setUiReadOnly(readOnlyState);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
+{
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    bool isPropertyFilterControlled = false;
+    RimViewController* vc = rimView->viewController();
+    if (vc && vc->isPropertyFilterOveridden())
+    {
+        isPropertyFilterControlled = true;
+    }
+   
+    return isPropertyFilterControlled;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilter::updateActiveState()
+{
+    isActive.uiCapability()->setUiReadOnly(isPropertyFilterControlled());
 }
 
 //--------------------------------------------------------------------------------------------------

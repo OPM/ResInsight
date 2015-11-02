@@ -57,9 +57,17 @@ public:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            initAfterRead();
 
+    void                                    updateActiveState();
+
 protected:
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+
+private:
+    void                                    updateReadOnlyStateOfAllFields();
+    bool                                    isPropertyFilterControlled();
 
 private:
     double                                  m_minimumResultValue; 

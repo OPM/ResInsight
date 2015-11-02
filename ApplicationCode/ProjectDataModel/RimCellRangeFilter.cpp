@@ -112,6 +112,14 @@ void RimCellRangeFilter::computeAndSetValidValues()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimCellRangeFilter::updateActiveState()
+{
+    isActive.uiCapability()->setUiReadOnly(isRangeFilterControlled());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues()
 {
     CVF_ASSERT(parentContainer());
@@ -226,21 +234,13 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    RimView* rimView = NULL;
-    firstAnchestorOrThisOfType(rimView);
-    CVF_ASSERT(rimView);
-
-    bool isRangeFilterControlled = false;
-    if (rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
-    {
-        isRangeFilterControlled = true;
-    }
+    bool readOnlyState = isRangeFilterControlled();
 
     std::vector<caf::PdmFieldHandle*> objFields;
     this->fields(objFields);
     for (size_t i = 0; i < objFields.size(); i ++)
     {
-        objFields[i]->uiCapability()->setUiReadOnly(isRangeFilterControlled);
+        objFields[i]->uiCapability()->setUiReadOnly(readOnlyState);
     }
 }
 
@@ -251,17 +251,8 @@ void RimCellRangeFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrde
 {
     RimCellFilter::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
-    RimView* rimView = NULL;
-    firstAnchestorOrThisOfType(rimView);
-    CVF_ASSERT(rimView);
-
-    bool isRangeFilterControlled = false;
-    if (rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
-    {
-        isRangeFilterControlled = true;
-    }
-
-    isActive.uiCapability()->setUiReadOnly(isRangeFilterControlled);
+    updateActiveState();
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,6 +284,24 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
         }
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCellRangeFilter::isRangeFilterControlled()
+{
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    bool isRangeFilterControlled = false;
+    if (rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
+    {
+        isRangeFilterControlled = true;
+    }
+
+    return isRangeFilterControlled;
 }
 
 //--------------------------------------------------------------------------------------------------

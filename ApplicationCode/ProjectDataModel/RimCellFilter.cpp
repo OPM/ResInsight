@@ -103,8 +103,6 @@ void RimCellFilter::updateIconState()
 
     QIcon newIcon(icPixmap);
     this->setUiIcon(newIcon);
-
-    this->uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

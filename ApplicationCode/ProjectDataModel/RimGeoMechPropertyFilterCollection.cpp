@@ -69,6 +69,7 @@ RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 void RimGeoMechPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     updateIconState();
+    uiCapability()->updateConnectedEditors();
 
     updateDisplayModelNotifyManagedViews();
 }
@@ -172,5 +173,33 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
 
     updateUiIconFromState(activeIcon);
 
-    uiCapability()->updateConnectedEditors();
+    for (size_t i = 0; i < propertyFilters.size(); i++)
+    {
+        RimGeoMechPropertyFilter* propFilter = propertyFilters[i];
+        propFilter->updateActiveState();
+        propFilter->updateIconState();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    RimView* rimView = NULL;
+    this->firstAnchestorOrThisOfType(rimView);
+    RimViewController* viewController = rimView->viewController();
+    if (viewController && (viewController->isPropertyFilterOveridden() 
+                           || viewController->isVisibleCellsOveridden()))
+    {
+        isActive.uiCapability()->setUiReadOnly(true, uiConfigName);
+    }
+    else
+    {
+        isActive.uiCapability()->setUiReadOnly(false, uiConfigName);
+    }
+
+    updateIconState();
 }

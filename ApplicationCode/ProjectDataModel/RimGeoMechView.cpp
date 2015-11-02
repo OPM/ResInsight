@@ -575,9 +575,11 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 void RimGeoMechView::updateIconStateForFilterCollections()
 {
     m_rangeFilterCollection()->updateIconState();
+    m_rangeFilterCollection()->uiCapability()->updateConnectedEditors();
 
     // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_propertyFilterCollection()->updateIconState();
+    m_propertyFilterCollection()->uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

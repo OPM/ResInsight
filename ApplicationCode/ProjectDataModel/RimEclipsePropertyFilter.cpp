@@ -26,6 +26,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimViewController.h"
 
 #include "RiuMainWindow.h"
 
@@ -104,6 +105,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         updateFilterName();
         this->updateIconState();
+        this->uiCapability()->updateConnectedEditors();
 
         parentContainer()->updateDisplayModelNotifyManagedViews();
     }
@@ -152,6 +154,66 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&lowerBound);
     uiOrdering.add(&upperBound);
     uiOrdering.add(&filterMode);
+
+    updateReadOnlyStateOfAllFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    updateActiveState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
+{
+    bool readOnlyState = isPropertyFilterControlled();
+
+    std::vector<caf::PdmFieldHandle*> objFields;
+    this->fields(objFields);
+
+    // Include fields declared in RimResultDefinition
+    objFields.push_back(&(resultDefinition->m_resultTypeUiField));
+    objFields.push_back(&(resultDefinition->m_porosityModelUiField));
+    objFields.push_back(&(resultDefinition->m_resultVariableUiField));
+
+    for (size_t i = 0; i < objFields.size(); i++)
+    {
+        objFields[i]->uiCapability()->setUiReadOnly(readOnlyState);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipsePropertyFilter::isPropertyFilterControlled()
+{
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    bool isPropertyFilterControlled = false;
+    RimViewController* vc = rimView->viewController();
+    if (vc && vc->isPropertyFilterOveridden())
+    {
+        isPropertyFilterControlled = true;
+    }
+
+    return isPropertyFilterControlled;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateActiveState()
+{
+    isActive.uiCapability()->setUiReadOnly(isPropertyFilterControlled());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -139,6 +139,7 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     updateIconState();
+    uiCapability()->updateConnectedEditors();
     
     updateDisplayModeNotifyManagedViews(NULL);
 }
@@ -331,12 +332,11 @@ void RimCellRangeFilterCollection::updateIconState()
 
     updateUiIconFromState(activeIcon);
 
-    uiCapability()->updateConnectedEditors();
-
     for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        RimCellFilter* cellFilter = rangeFilters[i];
-        cellFilter->updateIconState();
+        RimCellRangeFilter* rangeFilter = rangeFilters[i];
+        rangeFilter->updateActiveState();
+        rangeFilter->updateIconState();
     }
 }
 
@@ -356,5 +356,7 @@ void RimCellRangeFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& 
     {
         isActive.uiCapability()->setUiReadOnly(false);
     }
+
+    updateIconState();
 }
 
