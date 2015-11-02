@@ -99,3 +99,28 @@ int RigFemTypes::oppositeFace(RigElementType elmType, int faceIdx)
 
     return faceIdx;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+const int* RigFemTypes::localElmNodeToIntegrationPointMapping(RigElementType elmType)
+{
+    static const int HEX8_Mapping[8] ={ 0, 1, 3, 2, 4, 5, 7, 6 };
+
+    switch (elmType)
+    {
+        case HEX8:
+        case HEX8P:
+            return HEX8_Mapping;
+            break;
+        case CAX4:
+            return HEX8_Mapping; // First four is identical to HEX8
+            break;
+        default:
+            assert(false); // Element type not supported
+            break;
+    }
+
+    return HEX8_Mapping;
+}

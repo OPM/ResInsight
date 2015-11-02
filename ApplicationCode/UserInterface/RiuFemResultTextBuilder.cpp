@@ -178,6 +178,8 @@ void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geo
             RigElementType elmType =  femPart->elementType(cellIndex);
             const int* elmentConn = femPart->connectivities(cellIndex);
             int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+            const int* lElmNodeToIpMap = RigFemTypes::localElmNodeToIntegrationPointMapping(elmType);
+
             for (int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx)
             {
                
@@ -194,7 +196,18 @@ void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geo
                     scalarValue = scalarResults[resIdx];
                 }
 
-                resultInfoText->append(QString("\tN:%1 \t: %2\n").arg(femPart->nodes().nodeIds[nodeIdx]).arg(scalarValue));
+
+                if (resultColors->resultPositionType() == RIG_INTEGRATION_POINT)
+                {
+                    resultInfoText->append(QString("\tIP:%1 \t: %2 \tAss. Node: \t%3").arg(lElmNodeToIpMap[lNodeIdx] + 1 ).arg(scalarValue).arg(femPart->nodes().nodeIds[nodeIdx]));
+                }
+                else
+                {
+                    resultInfoText->append(QString("\tN:%1 \t: %2").arg(femPart->nodes().nodeIds[nodeIdx]).arg(scalarValue));
+                }
+
+                cvf::Vec3f nodeCoord = femPart->nodes().coordinates[nodeIdx];
+                resultInfoText->append(QString("\t( %3, %4, %5)\n").arg(nodeCoord[0]).arg(nodeCoord[1]).arg(nodeCoord[2]));
             }
         }
     }
