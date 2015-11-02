@@ -95,7 +95,7 @@ void RimCellFilter::updateIconState()
         painter.drawPixmap(0,0, sign);
     }
 
-    if (!isActive)
+    if (!isActive || isActive.uiCapability()->isUiReadOnly())
     {
         QIcon temp(icPixmap);
         icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
@@ -103,6 +103,8 @@ void RimCellFilter::updateIconState()
 
     QIcon newIcon(icPixmap);
     this->setUiIcon(newIcon);
+
+    this->uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -335,8 +335,26 @@ void RimCellRangeFilterCollection::updateIconState()
 
     for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        RimCellRangeFilter* rangeFilter = rangeFilters[i];
-        rangeFilter->updateIconState();
+        RimCellFilter* cellFilter = rangeFilters[i];
+        cellFilter->updateIconState();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    RimViewController* viewController = baseView()->viewController();
+    if (viewController && viewController->isRangeFiltersControlled())
+    {
+        isActive.uiCapability()->setUiReadOnly(true);
+    }
+    else
+    {
+        isActive.uiCapability()->setUiReadOnly(false);
     }
 }
 

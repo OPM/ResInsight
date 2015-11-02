@@ -29,6 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimViewController.h"
 
 #include "cafPdmUiSliderEditor.h"
 #include "cvfAssert.h"
@@ -229,18 +230,38 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     firstAnchestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
 
-    bool isFilterOverride = false;
-    if (rimView->overrideRangeFilterCollection())
+    bool isRangeFilterControlled = false;
+    if (rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
     {
-        isFilterOverride = true;
+        isRangeFilterControlled = true;
     }
 
     std::vector<caf::PdmFieldHandle*> objFields;
     this->fields(objFields);
     for (size_t i = 0; i < objFields.size(); i ++)
     {
-        objFields[i]->uiCapability()->setUiReadOnly(isFilterOverride);
+        objFields[i]->uiCapability()->setUiReadOnly(isRangeFilterControlled);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    RimCellFilter::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    bool isRangeFilterControlled = false;
+    if (rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
+    {
+        isRangeFilterControlled = true;
+    }
+
+    isActive.uiCapability()->setUiReadOnly(isRangeFilterControlled);
 }
 
 //--------------------------------------------------------------------------------------------------

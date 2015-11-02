@@ -56,8 +56,9 @@ public:
     void                            updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter);
     void                            updateIconState();
 
-    // Overridden methods
+protected:
     virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
     virtual caf::PdmFieldHandle*    objectToggleField();
 
 private:
