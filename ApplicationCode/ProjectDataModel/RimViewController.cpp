@@ -68,7 +68,7 @@ RimViewController::RimViewController(void)
 
     CAF_PDM_InitField(&m_syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
     CAF_PDM_InitField(&m_syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
-    CAF_PDM_InitField(&m_syncCellResult,      "SyncCellResult", false,    "Cell Result", "", "", "");
+    CAF_PDM_InitField(&m_syncCellResult,      "SyncCellResult", false,    "Cell Color Result", "", "", "");
     
     CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
     /// We do not support this. Consider to remove sometime
