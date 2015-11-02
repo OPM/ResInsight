@@ -275,7 +275,8 @@ void RimEclipsePropertyFilter::updateFilterName()
     newFiltername = resultDefinition->resultVariable() + " ("
      + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
     this->name = newFiltername;
-    RiuMainWindow::instance()->forceProjectTreeRepaint();
+
+    uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

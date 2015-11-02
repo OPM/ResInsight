@@ -2176,17 +2176,6 @@ void RiuMainWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::forceProjectTreeRepaint()
-{
-    // This is a hack to force the treeview redraw. 
-    // Needed for some reason when changing names and icons in the model
-    m_projectTreeView->scroll(0,1);
-    m_projectTreeView->scroll(0,-1);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::customMenuRequested(const QPoint& pos)
 {
     QMenu menu;

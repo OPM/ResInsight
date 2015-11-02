@@ -84,7 +84,6 @@ public:
 
     void            refreshAnimationActions();
     void            updateScaleValue();
-    void            forceProjectTreeRepaint();
 
     caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     RiuProcessMonitor* processMonitor();

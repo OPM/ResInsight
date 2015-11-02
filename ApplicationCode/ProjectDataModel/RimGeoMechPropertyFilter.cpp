@@ -267,6 +267,6 @@ void RimGeoMechPropertyFilter::updateFilterName()
      + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
     this->name = newFiltername;
 
-    RiuMainWindow::instance()->forceProjectTreeRepaint();
+    uiCapability()->updateConnectedEditors();
 }
 
