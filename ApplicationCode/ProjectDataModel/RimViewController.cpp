@@ -968,20 +968,20 @@ bool RimViewController::askUserToRestoreOriginalRangeFilterCollection(const QStr
     msgBox.setIcon(QMessageBox::Question);
 
     QString questionText;
-    questionText = QString("The linked view named \"%1\" is about to be unlinked. The range filters can either restore the original or keep the current range filters based on the master view.").arg(viewName);
+    questionText = QString("The range filters in the view \"%1\" are about to be unlinked.").arg(viewName);
 
     msgBox.setText(questionText);
-    msgBox.setInformativeText("Do you want to restore the original range filters?");
+    msgBox.setInformativeText("Do you want to keep the range filters from the master view?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
     int ret = msgBox.exec();
     if (ret == QMessageBox::Yes)
     {
-        return true;
+        return false;
     }
     else
     {
-        return false;
+        return true;
     }
 }
 
