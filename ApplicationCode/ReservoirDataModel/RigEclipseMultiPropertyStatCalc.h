@@ -34,10 +34,10 @@ class RigCaseCellResultsData;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigMultipleDatasetStatCalc : public RigStatisticsCalculator
+class RigEclipseMultiPropertyStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigMultipleDatasetStatCalc();
+    RigEclipseMultiPropertyStatCalc();
     void addStatisticsCalculator(RigStatisticsCalculator* statisticsCalculator);
     void addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndices);
 

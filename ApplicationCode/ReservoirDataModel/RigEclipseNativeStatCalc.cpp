@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigNativeStatCalc.h"
+#include "RigEclipseNativeStatCalc.h"
 
 #include "RigStatisticsMath.h"
 #include "RigCaseCellResultsData.h"
@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigNativeStatCalc::RigNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
+RigEclipseNativeStatCalc::RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
     : m_resultsData(cellResultsData),
     m_scalarResultIndex(scalarResultIndex)
 {
@@ -39,7 +39,7 @@ RigNativeStatCalc::RigNativeStatCalc(RigCaseCellResultsData* cellResultsData, si
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
+void RigEclipseNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
@@ -66,7 +66,7 @@ void RigNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
+void RigEclipseNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
@@ -94,7 +94,7 @@ void RigNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
+void RigEclipseNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
@@ -106,7 +106,7 @@ void RigNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
+void RigEclipseNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
     size_t undefValueCount = 0;
@@ -129,7 +129,7 @@ void RigNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& val
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigNativeStatCalc::timeStepCount()
+size_t RigEclipseNativeStatCalc::timeStepCount()
 {
     return m_resultsData->timeStepCount(m_scalarResultIndex);
 }

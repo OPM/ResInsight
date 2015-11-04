@@ -31,10 +31,10 @@ class RigCaseCellResultsData;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigNativeStatCalc : public RigStatisticsCalculator
+class RigEclipseNativeStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex);
+    RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex);
 
     virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
     virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);

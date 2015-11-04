@@ -23,8 +23,8 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
-#include "RigMultipleDatasetStatCalc.h"
-#include "RigNativeStatCalc.h"
+#include "RigEclipseMultiPropertyStatCalc.h"
+#include "RigEclipseNativeStatCalc.h"
 
 #include <QDateTime>
 #include <math.h>
@@ -249,7 +249,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
 
     if (resultName == RimDefines::combinedTransmissibilityResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX"));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY"));
@@ -259,7 +259,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else if (resultName == RimDefines::combinedMultResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX"));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX-"));
@@ -272,7 +272,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else if (resultName == RimDefines::combinedRiTranResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranXResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranYResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranZResultName()));
@@ -280,7 +280,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else if (resultName == RimDefines::combinedRiMultResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultXResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultYResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultZResultName()));
@@ -288,7 +288,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else if (resultName == RimDefines::combinedRiAreaNormTranResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranXResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranYResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranZResultName()));
@@ -296,7 +296,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else
     {
-        statisticsCalculator = new RigNativeStatCalc(this, scalarResultIndex);
+        statisticsCalculator = new RigEclipseNativeStatCalc(this, scalarResultIndex);
     }
 
     cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(statisticsCalculator.p());
