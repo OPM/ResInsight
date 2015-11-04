@@ -92,53 +92,48 @@ void RigFemNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos
     }
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeStatCalc::valueSumAndSampleCount(double& valueSum, size_t& sampleCount)
+void RigFemNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
-   int timestepCount = (int)(this->timeStepCount());
-   int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
+    int tsIdx = static_cast<int>(timeStepIndex);
+    int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
 
-   for (int pIdx = 0; pIdx < partCount; ++pIdx)
-   {
-       for (int tIdx = 0; tIdx < timestepCount; tIdx++)
-       {
-           const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, tIdx);
-           size_t undefValueCount = 0;
-           for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
-           {
-               double value = values[cIdx];
-               if (value == HUGE_VAL || value != value)
-               {
-                   ++undefValueCount;
-                   continue;
-               }
+    for (int pIdx = 0; pIdx < partCount; ++pIdx)
+    {
+        const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, tsIdx);
+        size_t undefValueCount = 0;
+        for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+        {
+            double value = values[cIdx];
+            if (value == HUGE_VAL || value != value)
+            {
+                ++undefValueCount;
+                continue;
+            }
 
-               valueSum += value;
-           }
+            valueSum += value;
+        }
 
-           sampleCount += values.size();
-           sampleCount -= undefValueCount;
-       }
-   }
+        sampleCount += values.size();
+        sampleCount -= undefValueCount;
+    }
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeStatCalc::addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator)
+void RigFemNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
 {
-    int timestepCount = (int)(this->timeStepCount());
     int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
     for (int pIdx = 0; pIdx < partCount; ++pIdx)
     {
-        for (int tIdx = 0; tIdx < timestepCount; tIdx++)
-        {
-            const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, tIdx);
+        const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, static_cast<int>(timeStepIndex));
 
-            histogramCalculator.addData(values);
-        }
+        histogramCalculator.addData(values);
     }
 }
 

@@ -67,30 +67,32 @@ void RigMultipleDatasetStatCalc::posNegClosestToZero(size_t timeStepIndex, doubl
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigMultipleDatasetStatCalc::valueSumAndSampleCount(double& valueSum, size_t& sampleCount)
-{
-    for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
-    {
-        if (m_nativeStatisticsCalculators.at(i))
-        {
-            m_nativeStatisticsCalculators.at(i)->valueSumAndSampleCount(valueSum, sampleCount);
-        }
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMultipleDatasetStatCalc::addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator)
+void RigMultipleDatasetStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
     for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
     {
         if (m_nativeStatisticsCalculators.at(i))
         {
-            m_nativeStatisticsCalculators.at(i)->addDataToHistogramCalculator(histogramCalculator);
+            m_nativeStatisticsCalculators.at(i)->valueSumAndSampleCount(timeStepIndex, valueSum, sampleCount);
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMultipleDatasetStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
+{
+    for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
+    {
+        if (m_nativeStatisticsCalculators.at(i))
+        {
+            m_nativeStatisticsCalculators.at(i)->addDataToHistogramCalculator(timeStepIndex, histogramCalculator);
         }
     }
 }

@@ -24,12 +24,14 @@
 #include "cafAppEnum.h"
 
 #include "cvfAssert.h"
+#include "cvfObject.h"
 
 #include "cvfVector2.h"
 
 class RimEclipseView;
 class RimGeoMechView;
 class RimView;
+class RigStatisticsDataCache;
 
 //==================================================================================================
 ///  
@@ -51,18 +53,34 @@ public:
     caf::PdmField<bool>                         showInfoText;
     caf::PdmField<bool>                         showAnimProgress;
     caf::PdmField<bool>                         showHistogram;
-    
+
+    enum StatisticsTimeRangeType
+    {
+        ALL_TIMESTEPS,
+        CURRENT_TIMESTEP
+    };
+
+    enum StatisticsCellRangeType
+    {
+        ALL_CELLS,
+        VISIBLE_CELLS
+    };
+
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*                objectToggleField();
 private:
 
-    void updateReservoir3DInfo(RimEclipseView * reservoirView);
+    void updateEclipse3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
 
-
+    caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;
+    caf::PdmField<caf::AppEnum<StatisticsCellRangeType> > m_statisticsCellRange;
 
     caf::PdmPointer<RimView>                    m_viewDef;
 
     cvf::Vec2ui                                 m_position;
+    
+    cvf::ref<RigStatisticsDataCache>            m_visibleCellStatistics;
+
 };

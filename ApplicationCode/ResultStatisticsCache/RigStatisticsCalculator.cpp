@@ -42,3 +42,48 @@ void RigStatisticsCalculator::meanCellScalarValue(double& meanValue)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsCalculator::meanCellScalarValue(size_t timeStepIndex, double& meanValue)
+{
+    double valueSum = 0.0;
+    size_t sampleCount = 0;
+
+    this->valueSumAndSampleCount(timeStepIndex, valueSum, sampleCount);
+
+    if (sampleCount == 0)
+    {
+        meanValue = HUGE_VAL;
+    }
+    else
+    {
+        meanValue = valueSum / sampleCount;
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsCalculator::valueSumAndSampleCount(double& valueSum, size_t& sampleCount)
+{
+    size_t tsCount = this->timeStepCount();
+    for (size_t tIdx = 0; tIdx < tsCount; tIdx++)
+    {
+        this->valueSumAndSampleCount(tIdx, valueSum, sampleCount);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsCalculator::addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator)
+{
+    size_t tsCount = this->timeStepCount();
+    for (size_t tIdx = 0; tIdx < tsCount; tIdx++)
+    {
+        this->addDataToHistogramCalculator(tIdx, histogramCalculator);
+    }
+}
+

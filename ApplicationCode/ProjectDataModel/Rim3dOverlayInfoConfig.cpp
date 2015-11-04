@@ -41,7 +41,37 @@
 #include "RigFemResultAddress.h"
 #include "RigFemPartResultsCollection.h"
 
+#include "RigStatisticsDataCache.h"
+
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+namespace caf
+{
+template<>
+void caf::AppEnum<Rim3dOverlayInfoConfig::StatisticsTimeRangeType>::setUp()
+{
+    addItem(Rim3dOverlayInfoConfig::ALL_TIMESTEPS, "ALL_TIMESTEPS", "All Time Steps");
+    addItem(Rim3dOverlayInfoConfig::CURRENT_TIMESTEP, "CURRENT_TIMESTEP", "Current Time Step");
+    setDefault(Rim3dOverlayInfoConfig::ALL_TIMESTEPS);
+}
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+namespace caf
+{
+template<>
+void caf::AppEnum<Rim3dOverlayInfoConfig::StatisticsCellRangeType>::setUp()
+{
+    addItem(Rim3dOverlayInfoConfig::ALL_CELLS, "ALL_CELLS", "All Active Cells");
+    addItem(Rim3dOverlayInfoConfig::VISIBLE_CELLS, "VISIBLE_CELLS", "Visible Cells");
+    setDefault(Rim3dOverlayInfoConfig::ALL_CELLS);
+}
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -56,6 +86,9 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
     CAF_PDM_InitField(&showInfoText,        "ShowInfoText",         true,   "Info Text",   "", "", "");
     CAF_PDM_InitField(&showAnimProgress,    "ShowAnimProgress",     true,   "Animation progress",   "", "", "");
     CAF_PDM_InitField(&showHistogram,       "ShowHistogram",        true,   "Histogram",   "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_statisticsTimeRange, "StatisticsTimeRange", "Statistics Time Range", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_statisticsCellRange, "StatisticsCellRange", "Statistics Cell Range", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +144,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     m_viewDef->viewer()->showAnimationProgress(showAnimProgress());
 
     RimEclipseView * reservoirView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
-    if (reservoirView) updateReservoir3DInfo(reservoirView);
+    if (reservoirView) updateEclipse3DInfo(reservoirView);
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
     if (geoMechView) updateGeoMech3DInfo(geoMechView);
 }
@@ -135,7 +168,7 @@ void Rim3dOverlayInfoConfig::setReservoirView(RimView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirView)
+void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * reservoirView)
 {
     if (showInfoText())
     {
@@ -183,19 +216,38 @@ void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirVie
         if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult())
         {
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+            // Wait until regression tests confirm new statisticks is ok  infoText += QString("<br>Statistics for: ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
 
-            double min, max;
-            double p10, p90;
-            double mean;
-            size_t scalarIndex = reservoirView->cellResult()->scalarResultIndex();
-            reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-            reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-            reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
+            if (m_statisticsCellRange == ALL_CELLS)
+            {
+                double min, max;
+                double p10, p90;
+                double mean;
+                
+                size_t scalarIndex = reservoirView->cellResult()->scalarResultIndex();
 
-            //infoText += QString("<blockquote><b>Min:</b> %1   <b>P10:</b> %2   <b>Mean:</b> %3   <b>P90:</b> %4   <b>Max:</b> %5 </blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
-            //infoText += QString("<blockquote><pre>Min: %1   P10: %2   Mean: %3 \n  P90: %4   Max: %5 </pre></blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
-            infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
-                                "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
+                if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                {
+                    reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+                    reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+                    reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
+                }
+                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
+                {
+                    int timeStepIdx = reservoirView->currentTimeStep();
+                    reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, timeStepIdx, min, max);
+                    //reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, timeStepIdx, p10, p90);
+                    //reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex,  timeStepIdx, mean);
+                    p10 = HUGE_VAL;
+                    p90 = HUGE_VAL;
+                    mean = HUGE_VAL;
+                }
+
+                infoText += QString("<table border=0 cellspacing=5 >"
+                                    "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
+                                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5 </td></tr>"
+                                    "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
+            }
 
             if (reservoirView->faultResultSettings()->hasValidCustomResult())
             {
@@ -257,6 +309,8 @@ void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirVie
     {
         if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult())
         {
+            if (m_statisticsCellRange == ALL_CELLS && m_statisticsTimeRange == ALL_TIMESTEPS)
+            {
             double min, max;
             double p10, p90;
             double mean;
@@ -269,6 +323,7 @@ void Rim3dOverlayInfoConfig::updateReservoir3DInfo(RimEclipseView * reservoirVie
             reservoirView->viewer()->showHistogram(true);
             reservoirView->viewer()->setHistogram(min, max, reservoirView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex));
             reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
+            }
         }
     }
 }
@@ -322,8 +377,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                             break;
                     }
 
-                    infoText += QString(
-                    "<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
+                    infoText += QString("<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
 
                     double min = 0, max = 0;
                     double p10 = 0, p90 = 0;
@@ -332,13 +386,12 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
                     caseData->femPartResults()->meanScalarValue(resAddress, &mean);
                     caseData->femPartResults()->minMaxScalarValues(resAddress,&min, &max);
-
-                    // ToDo: Implement statistics for geomech data
-                    
                     caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
 
-                    infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
-                                        "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
+                    infoText += QString("<table border=0 cellspacing=5 >"
+                                        "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
+                                        "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> </tr>"
+                                        "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
                 }
                 else
                 {
