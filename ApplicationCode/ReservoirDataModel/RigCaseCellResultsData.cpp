@@ -90,6 +90,14 @@ const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(siz
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(size_t scalarResultIndex, size_t timeStepIndex)
+{
+    return m_statisticsDataCache[scalarResultIndex]->cellScalarValuesHistogram(timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
 {
     m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(p10, p90);
@@ -98,9 +106,25 @@ void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, do
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& p10, double& p90)
+{
+    m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(timeStepIndex, p10, p90);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, double& meanValue)
 {
     m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(meanValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue)
+{
+    m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(timeStepIndex, meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------

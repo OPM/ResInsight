@@ -48,12 +48,15 @@ public:
 
 
     void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, int frameIndex,  double* localMin, double* localMax);
-    void                                             posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
     void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
+    void                                             posNegClosestToZero(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
     void                                             posNegClosestToZero(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
     void                                             meanScalarValue(const RigFemResultAddress& resVarAddr, double* meanValue);
+    void                                             meanScalarValue(const RigFemResultAddress& resVarAddr, int frameIndex, double* meanValue);
     void                                             p10p90ScalarValues(const RigFemResultAddress& resVarAddr, double* p10, double* p90);
+    void                                             p10p90ScalarValues(const RigFemResultAddress& resVarAddr, int frameIndex, double* p10, double* p90);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr);
+    const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr, int frameIndex);
 
 private:
     RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,

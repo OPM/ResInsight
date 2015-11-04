@@ -54,8 +54,11 @@ public:
     void                                               posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg);
     void                                               posNegClosestToZero(size_t scalarResultIndex, size_t timeStepIndex, double& pos, double& neg);
     const std::vector<size_t>&                         cellScalarValuesHistogram(size_t scalarResultIndex);
+    const std::vector<size_t>&                         cellScalarValuesHistogram(size_t scalarResultIndex, size_t timeStepIndex);
     void                                               p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90);
+    void                                               p10p90CellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& p10, double& p90);
     void                                               meanCellScalarValues(size_t scalarResultIndex, double& meanValue);
+    void                                               meanCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue);
 
     // Access meta-information about the results
     size_t                                             resultCount() const;

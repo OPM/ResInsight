@@ -39,20 +39,8 @@ RigStatisticsDataCache::RigStatisticsDataCache(RigStatisticsCalculator* statisti
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::clearAllStatistics()
 {
-    m_minValue = HUGE_VAL;
-    m_maxValue = -HUGE_VAL;
-    m_isMaxMinCalculated = false;
-    m_posClosestToZero = HUGE_VAL;
-    m_negClosestToZero = -HUGE_VAL;
-    m_isClosestToZeroCalculated = false;
-    m_p10 = HUGE_VAL;
-    m_p90 = HUGE_VAL;
-    m_meanValue = HUGE_VAL;
-    m_isMeanCalculated = false;
-
-    m_histogram.clear();
-    m_maxMinValuesPrTs.clear();
-    m_posNegClosestToZeroPrTs.clear();
+    m_statsAllTimesteps = StatisticsValues();
+    m_statsPrTs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +48,7 @@ void RigStatisticsDataCache::clearAllStatistics()
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::minMaxCellScalarValues(double& min, double& max)
 {
-    if (!m_isMaxMinCalculated)
+    if (!m_statsAllTimesteps.m_isMaxMinCalculated)
     {
         min = HUGE_VAL;
         max = -HUGE_VAL;
@@ -74,13 +62,13 @@ void RigStatisticsDataCache::minMaxCellScalarValues(double& min, double& max)
             if (tsmax > max) max = tsmax;
         }
 
-        m_minValue = min;
-        m_maxValue = max;
-        m_isMaxMinCalculated = true;
+        m_statsAllTimesteps.m_minValue = min;
+        m_statsAllTimesteps.m_maxValue = max;
+        m_statsAllTimesteps.m_isMaxMinCalculated = true;
     }
 
-    min = m_minValue;
-    max = m_maxValue;
+    min = m_statsAllTimesteps.m_minValue;
+    max = m_statsAllTimesteps.m_maxValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,27 +76,26 @@ void RigStatisticsDataCache::minMaxCellScalarValues(double& min, double& max)
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
-    if (timeStepIndex >= m_maxMinValuesPrTs.size())
+    if (timeStepIndex >= m_statsPrTs.size())
     {
-        m_maxMinValuesPrTs.resize(timeStepIndex + 1, std::make_pair(HUGE_VAL, -HUGE_VAL));
-        m_isMaxMinPrTsCalculated.resize(timeStepIndex + 1, false);
+        m_statsPrTs.resize(timeStepIndex + 1);
     }
 
-    if (!m_isMaxMinPrTsCalculated[timeStepIndex])
+    if (!m_statsPrTs[timeStepIndex].m_isMaxMinCalculated)
     {
         double tsMin = HUGE_VAL;
         double tsMax = -HUGE_VAL;
 
         m_statisticsCalculator->minMaxCellScalarValues(timeStepIndex, tsMin, tsMax);
 
-        m_maxMinValuesPrTs[timeStepIndex].first = tsMin;
-        m_maxMinValuesPrTs[timeStepIndex].second = tsMax;
+        m_statsPrTs[timeStepIndex].m_minValue = tsMin;
+        m_statsPrTs[timeStepIndex].m_maxValue = tsMax;
 
-        m_isMaxMinPrTsCalculated[timeStepIndex] = true;
+        m_statsPrTs[timeStepIndex].m_isMaxMinCalculated = true;
     }
 
-    min = m_maxMinValuesPrTs[timeStepIndex].first;
-    max = m_maxMinValuesPrTs[timeStepIndex].second;
+    min = m_statsPrTs[timeStepIndex].m_minValue;
+    max = m_statsPrTs[timeStepIndex].m_maxValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +103,7 @@ void RigStatisticsDataCache::minMaxCellScalarValues(size_t timeStepIndex, double
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::posNegClosestToZero(double& pos, double& neg)
 {
-    if (!m_isClosestToZeroCalculated)
+    if (!m_statsAllTimesteps.m_isClosestToZeroCalculated)
     {
         pos = HUGE_VAL;
         neg = -HUGE_VAL;
@@ -130,13 +117,13 @@ void RigStatisticsDataCache::posNegClosestToZero(double& pos, double& neg)
             if (tsPos < pos && tsPos > 0) pos = tsPos;
         }
 
-        m_posClosestToZero = pos;
-        m_negClosestToZero = neg;
-        m_isClosestToZeroCalculated = true;
+        m_statsAllTimesteps.m_posClosestToZero = pos;
+        m_statsAllTimesteps.m_negClosestToZero = neg;
+        m_statsAllTimesteps.m_isClosestToZeroCalculated = true;
     }
 
-    pos = m_posClosestToZero;
-    neg = m_negClosestToZero;
+    pos = m_statsAllTimesteps.m_posClosestToZero;
+    neg = m_statsAllTimesteps.m_negClosestToZero;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,13 +131,12 @@ void RigStatisticsDataCache::posNegClosestToZero(double& pos, double& neg)
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& posNearZero, double& negNearZero)
 {
-    if (timeStepIndex >= m_posNegClosestToZeroPrTs.size())
+    if (timeStepIndex >= m_statsPrTs.size())
     {
-        m_posNegClosestToZeroPrTs.resize(timeStepIndex + 1, std::make_pair(HUGE_VAL, -HUGE_VAL));
-        m_isClosestToZeroPrTsCalculated.resize(timeStepIndex + 1, false);
+        m_statsPrTs.resize(timeStepIndex + 1);
     }
 
-    if (!m_isClosestToZeroPrTsCalculated[timeStepIndex])
+    if (!m_statsPrTs[timeStepIndex].m_isClosestToZeroCalculated)
     {
 
         double pos = HUGE_VAL;
@@ -158,14 +144,14 @@ void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& p
         
         m_statisticsCalculator->posNegClosestToZero(timeStepIndex, pos, neg);
 
-        m_posNegClosestToZeroPrTs[timeStepIndex].first = pos;
-        m_posNegClosestToZeroPrTs[timeStepIndex].second = neg;
+        m_statsPrTs[timeStepIndex].m_posClosestToZero = pos;
+        m_statsPrTs[timeStepIndex].m_negClosestToZero = neg;
 
-        m_isClosestToZeroPrTsCalculated[timeStepIndex] = true;
+        m_statsPrTs[timeStepIndex].m_isClosestToZeroCalculated = true;
     }
 
-    posNearZero = m_posNegClosestToZeroPrTs[timeStepIndex].first;
-    negNearZero = m_posNegClosestToZeroPrTs[timeStepIndex].second;
+    posNearZero = m_statsPrTs[timeStepIndex].m_posClosestToZero;
+    negNearZero = m_statsPrTs[timeStepIndex].m_negClosestToZero;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,9 +159,19 @@ void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& p
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram()
 {
-    computeStatisticsIfNeeded();
+    computeHistogramStatisticsIfNeeded();
 
-    return m_histogram;
+    return m_statsAllTimesteps.m_histogram;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram(size_t timeStepIndex)
+{
+    computeHistogramStatisticsIfNeeded(timeStepIndex);
+
+    return m_statsPrTs[timeStepIndex].m_histogram;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,11 +179,21 @@ const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram()
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::p10p90CellScalarValues(double& p10, double& p90)
 {
-    // First make sure they are calculated
-    computeStatisticsIfNeeded();
+    computeHistogramStatisticsIfNeeded();
 
-    p10 = m_p10;
-    p90 = m_p90;
+    p10 = m_statsAllTimesteps.m_p10;
+    p90 = m_statsAllTimesteps.m_p90;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::p10p90CellScalarValues(size_t timeStepIndex, double& p10, double& p90)
+{
+    computeHistogramStatisticsIfNeeded(timeStepIndex);
+
+    p10 = m_statsPrTs[timeStepIndex].m_p10;
+    p90 = m_statsPrTs[timeStepIndex].m_p90;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,33 +201,68 @@ void RigStatisticsDataCache::p10p90CellScalarValues(double& p10, double& p90)
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::meanCellScalarValues(double& meanValue)
 {
-    if (!m_isMeanCalculated)
+    if (!m_statsAllTimesteps.m_isMeanCalculated)
     {
-        m_statisticsCalculator->meanCellScalarValue(m_meanValue);
-        m_isMeanCalculated = true;
+        m_statisticsCalculator->meanCellScalarValue(m_statsAllTimesteps.m_meanValue);
+        m_statsAllTimesteps.m_isMeanCalculated = true;
     }
 
-    meanValue = m_meanValue;
+    meanValue = m_statsAllTimesteps.m_meanValue;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStatisticsDataCache::computeStatisticsIfNeeded()
+void RigStatisticsDataCache::meanCellScalarValues(size_t timeStepIndex, double& meanValue)
 {
-    if (m_histogram.size() == 0)
+   if (!m_statsPrTs[timeStepIndex].m_isMeanCalculated)
+    {
+        m_statisticsCalculator->meanCellScalarValue(timeStepIndex, m_statsPrTs[timeStepIndex].m_meanValue);
+        m_statsPrTs[timeStepIndex].m_isMeanCalculated = true;
+    }
+
+    meanValue = m_statsPrTs[timeStepIndex].m_meanValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded()
+{
+    if (m_statsAllTimesteps.m_histogram.size() == 0)
     {
         double min;
         double max;
         size_t nBins = 100;
         this->minMaxCellScalarValues(min, max);
 
-        RigHistogramCalculator histCalc(min, max, nBins, &m_histogram);
+        RigHistogramCalculator histCalc(min, max, nBins, &m_statsAllTimesteps.m_histogram);
 
         m_statisticsCalculator->addDataToHistogramCalculator(histCalc);
 
-        m_p10 = histCalc.calculatePercentil(0.1);
-        m_p90 = histCalc.calculatePercentil(0.9);
+        m_statsAllTimesteps.m_p10 = histCalc.calculatePercentil(0.1);
+        m_statsAllTimesteps.m_p90 = histCalc.calculatePercentil(0.9);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded(size_t timeStepIndex)
+{
+   if (m_statsPrTs[timeStepIndex].m_histogram.size() == 0)
+    {
+        double min;
+        double max;
+        size_t nBins = 100;
+        this->minMaxCellScalarValues(min, max);
+
+        RigHistogramCalculator histCalc(min, max, nBins, &m_statsPrTs[timeStepIndex].m_histogram);
+
+        m_statisticsCalculator->addDataToHistogramCalculator(timeStepIndex, histCalc);
+
+        m_statsPrTs[timeStepIndex].m_p10 = histCalc.calculatePercentil(0.1);
+        m_statsPrTs[timeStepIndex].m_p90 = histCalc.calculatePercentil(0.9);
     }
 }
 

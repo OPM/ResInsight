@@ -784,6 +784,14 @@ void RigFemPartResultsCollection::meanScalarValue(const RigFemResultAddress& res
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::meanScalarValue(const RigFemResultAddress& resVarAddr, int frameIndex, double* meanValue)
+{
+   this->statistics(resVarAddr)->meanCellScalarValues(frameIndex, *meanValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::p10p90ScalarValues(const RigFemResultAddress& resVarAddr, double* p10, double* p90)
 {
     this->statistics(resVarAddr)->p10p90CellScalarValues(*p10, *p90);
@@ -792,8 +800,24 @@ void RigFemPartResultsCollection::p10p90ScalarValues(const RigFemResultAddress& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::p10p90ScalarValues(const RigFemResultAddress& resVarAddr, int frameIndex, double* p10, double* p90)
+{
+    this->statistics(resVarAddr)->p10p90CellScalarValues(frameIndex, *p10, *p90);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(const RigFemResultAddress& resVarAddr)
 {
     return this->statistics(resVarAddr)->cellScalarValuesHistogram();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(const RigFemResultAddress& resVarAddr, int frameIndex)
+{
+    return this->statistics(resVarAddr)->cellScalarValuesHistogram(frameIndex);
 }
 
