@@ -21,7 +21,7 @@
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "RiuMainWindow.h"
 

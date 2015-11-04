@@ -31,7 +31,7 @@
 #include "RimMimeData.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 
 #include "RimWellLogTrack.h"

@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellLogPlotCurve.h"
+#include "RiuWellLogCurve.h"
 
 #include "RigWellLogCurveData.h"
 

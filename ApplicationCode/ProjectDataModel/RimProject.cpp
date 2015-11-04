@@ -626,7 +626,7 @@ void RimProject::computeUtmAreaOfInterest()
 #include "RimEclipseFaultColors.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogFileChannel.h"
 #include <QMenu>
 

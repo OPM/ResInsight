@@ -17,13 +17,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "RimWellLogPlot.h"
 
 #include "RimWellLogTrack.h"
 
-#include "RiuWellLogPlotCurve.h"
+#include "RiuWellLogCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cvfAssert.h"

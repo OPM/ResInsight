@@ -19,7 +19,7 @@
 
 #include "RicExportToLasFileFeature.h"
 
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 #include "RigWellLogFile.h"
 
 #include "RiuMainWindow.h"

@@ -19,7 +19,7 @@
 
 #include "RigWellLogFile.h"
 
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "well.hpp"
 #include "laswell.hpp"

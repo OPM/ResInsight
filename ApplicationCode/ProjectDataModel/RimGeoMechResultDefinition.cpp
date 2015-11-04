@@ -31,7 +31,7 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
 #include "RimViewLinker.h"
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "cafPdmUiListEditor.h"
 
