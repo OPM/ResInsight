@@ -68,7 +68,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
     
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
-    RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
+    RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addTrack(plotTrack);
     plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
 

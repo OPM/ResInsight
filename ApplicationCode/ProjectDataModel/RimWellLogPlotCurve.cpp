@@ -132,7 +132,7 @@ void RimWellLogPlotCurve::updateCurveVisibility()
         wellLogPlot->calculateAvailableDepthRange();
     }
 
-    RimWellLogPlotTrack* wellLogPlotTrack;
+    RimWellLogTrack* wellLogPlotTrack;
     this->firstAnchestorOrThisOfType(wellLogPlotTrack);
     if (wellLogPlotTrack)
     {
@@ -157,7 +157,7 @@ void RimWellLogPlotCurve::updatePlotConfiguration()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::setQwtTrack(RiuWellLogTrackPlot* plot)
+void RimWellLogPlotCurve::setQwtTrack(RiuWellLogTrack* plot)
 {
     m_ownerQwtTrack = plot;
     if (m_showCurve)
@@ -274,7 +274,7 @@ void RimWellLogPlotCurve::zoomAllOwnerTrackAndPlot()
         wellLogPlot->zoomAllDepth();
     }
 
-    RimWellLogPlotTrack* plotTrack;
+    RimWellLogTrack* plotTrack;
     firstAnchestorOrThisOfType(plotTrack);
     if (plotTrack)
     {

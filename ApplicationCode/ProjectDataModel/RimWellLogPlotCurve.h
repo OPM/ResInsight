@@ -28,7 +28,7 @@
 #include <vector>
 
 class RigWellLogCurveData;
-class RiuWellLogTrackPlot;
+class RiuWellLogTrack;
 class RiuWellLogPlotCurve;
 class QwtPlotCurve;
 class QString;
@@ -49,7 +49,7 @@ public:
     bool                            depthRange(double* minimumDepth, double* maximumDepth) const;
     bool                            valueRange(double* minimumValue, double* maximumValue) const;
     
-    void                            setQwtTrack(RiuWellLogTrackPlot* plot);
+    void                            setQwtTrack(RiuWellLogTrack* plot);
     void                            detachQwtCurve();
 
     bool                            isCurveVisible() const;
@@ -81,7 +81,7 @@ protected:
     virtual void                    initAfterRead();
 
 
-    QPointer<RiuWellLogTrackPlot>   m_ownerQwtTrack;
+    QPointer<RiuWellLogTrack>   m_ownerQwtTrack;
     RiuWellLogPlotCurve*            m_qwtPlotCurve;
     cvf::ref<RigWellLogCurveData>   m_curveData;
 

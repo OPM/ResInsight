@@ -73,7 +73,7 @@ RiuWellLogPlot::~RiuWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::addTrackPlot(RiuWellLogTrackPlot* trackPlot)
+void RiuWellLogPlot::addTrackPlot(RiuWellLogTrack* trackPlot)
 {
     // Insert the plot to the left of the scroll bar
     insertTrackPlot(trackPlot, m_trackPlots.size());
@@ -82,7 +82,7 @@ void RiuWellLogPlot::addTrackPlot(RiuWellLogTrackPlot* trackPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index)
+void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
 {
     trackPlot->setParent(this);
     
@@ -113,7 +113,7 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t inde
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrackPlot* trackPlot)
+void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrack* trackPlot)
 {
     if (!trackPlot) return;
 

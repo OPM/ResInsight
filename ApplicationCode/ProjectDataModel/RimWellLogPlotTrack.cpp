@@ -35,12 +35,12 @@
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
 
 
-CAF_PDM_SOURCE_INIT(RimWellLogPlotTrack, "WellLogPlotTrack");
+CAF_PDM_SOURCE_INIT(RimWellLogTrack, "WellLogPlotTrack");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrack::RimWellLogPlotTrack()
+RimWellLogTrack::RimWellLogTrack()
 {
     CAF_PDM_InitObject("Track", ":/WellLogTrack16x16.png", "", "");
 
@@ -60,7 +60,7 @@ RimWellLogPlotTrack::RimWellLogPlotTrack()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrack::~RimWellLogPlotTrack()
+RimWellLogTrack::~RimWellLogTrack()
 {
     delete m_wellLogTrackPlotWidget;
 }
@@ -68,7 +68,7 @@ RimWellLogPlotTrack::~RimWellLogPlotTrack()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::setDescription(const QString& description)
+void RimWellLogTrack::setDescription(const QString& description)
 {
     m_userName = description;
 }
@@ -76,7 +76,7 @@ void RimWellLogPlotTrack::setDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_show)
     {
@@ -104,7 +104,7 @@ void RimWellLogPlotTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlotTrack::objectToggleField()
+caf::PdmFieldHandle* RimWellLogTrack::objectToggleField()
 {
     return &m_show;
 }
@@ -112,7 +112,7 @@ caf::PdmFieldHandle* RimWellLogPlotTrack::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlotTrack::userDescriptionField()
+caf::PdmFieldHandle* RimWellLogTrack::userDescriptionField()
 {
     return &m_userName;
 }
@@ -120,7 +120,7 @@ caf::PdmFieldHandle* RimWellLogPlotTrack::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::addCurve(RimWellLogPlotCurve* curve)
+void RimWellLogTrack::addCurve(RimWellLogPlotCurve* curve)
 {
     curves.push_back(curve);
 
@@ -133,7 +133,7 @@ void RimWellLogPlotTrack::addCurve(RimWellLogPlotCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::insertCurve(RimWellLogPlotCurve* curve, size_t index)
+void RimWellLogTrack::insertCurve(RimWellLogPlotCurve* curve, size_t index)
 {
     curves.insert(index, curve);
     // Todo: Mark curve data to use either TVD or MD
@@ -147,7 +147,7 @@ void RimWellLogPlotTrack::insertCurve(RimWellLogPlotCurve* curve, size_t index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::removeCurve(RimWellLogPlotCurve* curve)
+void RimWellLogTrack::removeCurve(RimWellLogPlotCurve* curve)
 {
     size_t index = curves.index(curve);
     if ( index < curves.size())
@@ -161,7 +161,7 @@ void RimWellLogPlotTrack::removeCurve(RimWellLogPlotCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTrackPlot* RimWellLogPlotTrack::viewer()
+RiuWellLogTrack* RimWellLogTrack::viewer()
 {
     return m_wellLogTrackPlotWidget;
 }
@@ -169,7 +169,7 @@ RiuWellLogTrackPlot* RimWellLogPlotTrack::viewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::availableDepthRange(double* minimumDepth, double* maximumDepth)
+void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumDepth)
 {
     double minDepth = HUGE_VAL;
     double maxDepth = -HUGE_VAL;
@@ -202,7 +202,7 @@ void RimWellLogPlotTrack::availableDepthRange(double* minimumDepth, double* maxi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::loadDataAndUpdate()
+void RimWellLogTrack::loadDataAndUpdate()
 {
     CVF_ASSERT(m_wellLogTrackPlotWidget);
 
@@ -222,11 +222,11 @@ void RimWellLogPlotTrack::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::recreateViewer()
+void RimWellLogTrack::recreateViewer()
 {
     if (m_wellLogTrackPlotWidget == NULL)
     {
-        m_wellLogTrackPlotWidget = new RiuWellLogTrackPlot(this);
+        m_wellLogTrackPlotWidget = new RiuWellLogTrack(this);
 
         for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
         {
@@ -238,7 +238,7 @@ void RimWellLogPlotTrack::recreateViewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::detachAllCurves()
+void RimWellLogTrack::detachAllCurves()
 {
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
@@ -249,7 +249,7 @@ void RimWellLogPlotTrack::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
+void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
 {
     if (m_wellLogTrackPlotWidget)
     {
@@ -269,7 +269,7 @@ void RimWellLogPlotTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::alignDepthZoomToPlotAndZoomAllX()
+void RimWellLogTrack::alignDepthZoomToPlotAndZoomAllX()
 {
     if (m_wellLogTrackPlotWidget)
     {
@@ -292,7 +292,7 @@ void RimWellLogPlotTrack::alignDepthZoomToPlotAndZoomAllX()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::zoomAllXAxis()
+void RimWellLogTrack::zoomAllXAxis()
 {
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
@@ -333,7 +333,7 @@ void RimWellLogPlotTrack::zoomAllXAxis()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotCurve* RimWellLogPlotTrack::curveDefinitionFromCurve(const QwtPlotCurve* curve) const
+RimWellLogPlotCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* curve) const
 {
     for (size_t idx = 0; idx < curves.size(); idx++)
     {
@@ -349,7 +349,7 @@ RimWellLogPlotCurve* RimWellLogPlotTrack::curveDefinitionFromCurve(const QwtPlot
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
 
@@ -361,7 +361,7 @@ void RimWellLogPlotTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimWellLogPlotTrack::curveIndex(RimWellLogPlotCurve* curve)
+size_t RimWellLogTrack::curveIndex(RimWellLogPlotCurve* curve)
 {
     return curves.index(curve);
 }
@@ -369,7 +369,7 @@ size_t RimWellLogPlotTrack::curveIndex(RimWellLogPlotCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotTrack::isVisible()
+bool RimWellLogTrack::isVisible()
 {
     return m_show;
 }

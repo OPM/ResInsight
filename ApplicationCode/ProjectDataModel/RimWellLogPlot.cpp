@@ -167,7 +167,7 @@ caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::addTrack(RimWellLogPlotTrack* track)
+void RimWellLogPlot::addTrack(RimWellLogTrack* track)
 {
     m_tracks.push_back(track);
     if (m_viewer)
@@ -182,7 +182,7 @@ void RimWellLogPlot::addTrack(RimWellLogPlotTrack* track)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::insertTrack(RimWellLogPlotTrack* track, size_t index)
+void RimWellLogPlot::insertTrack(RimWellLogTrack* track, size_t index)
 {
     m_tracks.insert(index, track);
 
@@ -198,7 +198,7 @@ void RimWellLogPlot::insertTrack(RimWellLogPlotTrack* track, size_t index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::removeTrack(RimWellLogPlotTrack* track)
+void RimWellLogPlot::removeTrack(RimWellLogTrack* track)
 {
     if (track)
     {
@@ -210,11 +210,11 @@ void RimWellLogPlot::removeTrack(RimWellLogPlotTrack* track)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracksToMove)
+void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove)
 {
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
     {
-        RimWellLogPlotTrack* track = tracksToMove[tIdx];
+        RimWellLogTrack* track = tracksToMove[tIdx];
 
         RimWellLogPlot* wellLogPlot;
         track->firstAnchestorOrThisOfType(wellLogPlot);
@@ -534,7 +534,7 @@ QString RimWellLogPlot::depthPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimWellLogPlot::trackIndex(RimWellLogPlotTrack* track)
+size_t RimWellLogPlot::trackIndex(RimWellLogTrack* track)
 {
     return m_tracks.index(track);
 }

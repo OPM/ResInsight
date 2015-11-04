@@ -120,7 +120,7 @@ void RicDeleteItemExec::redo()
             wellLogPlot->zoomAllDepth();
         }
 
-        RimWellLogPlotTrack* wellLogPlotTrack;
+        RimWellLogTrack* wellLogPlotTrack;
         parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
