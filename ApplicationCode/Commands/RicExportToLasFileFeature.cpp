@@ -46,7 +46,7 @@ bool RicExportToLasFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogPlotCurve* curve = selectedWellLogPlotCurve();
+    RimWellLogCurve* curve = selectedWellLogPlotCurve();
     if (curve)
     {
         QString defaultDir = RiaApplication::instance()->defaultFileDialogDirectory("WELL_LOGS_DIR");
@@ -77,9 +77,9 @@ void RicExportToLasFileFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotCurve* RicExportToLasFileFeature::selectedWellLogPlotCurve() const
+RimWellLogCurve* RicExportToLasFileFeature::selectedWellLogPlotCurve() const
 {
-    std::vector<RimWellLogPlotCurve*> selection;
+    std::vector<RimWellLogCurve*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
     if (selection.size() > 0)

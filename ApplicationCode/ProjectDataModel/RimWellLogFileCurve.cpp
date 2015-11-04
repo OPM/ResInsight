@@ -70,7 +70,7 @@ RimWellLogFileCurve::~RimWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::updatePlotData()
 {
-    RimWellLogPlotCurve::updatePlotConfiguration();
+    RimWellLogCurve::updatePlotConfiguration();
 
     if (isCurveVisible())
     {
@@ -143,7 +143,7 @@ void RimWellLogFileCurve::setWellLogChannelName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+    RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &m_wellPath)
     {

@@ -29,7 +29,7 @@
 
 class RigWellLogCurveData;
 class RiuWellLogTrack;
-class RiuWellLogPlotCurve;
+class RiuWellLogCurve;
 class QwtPlotCurve;
 class QString;
 
@@ -37,12 +37,12 @@ class QString;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogPlotCurve : public caf::PdmObject
+class RimWellLogCurve : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimWellLogPlotCurve();
-    virtual ~RimWellLogPlotCurve();
+    RimWellLogCurve();
+    virtual ~RimWellLogCurve();
 
     void                            setColor(const cvf::Color3f& color);
 
@@ -82,7 +82,7 @@ protected:
 
 
     QPointer<RiuWellLogTrack>   m_ownerQwtTrack;
-    RiuWellLogPlotCurve*            m_qwtPlotCurve;
+    RiuWellLogCurve*            m_qwtPlotCurve;
     cvf::ref<RigWellLogCurveData>   m_curveData;
 
     caf::PdmField<bool>             m_showCurve;

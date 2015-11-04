@@ -120,7 +120,7 @@ caf::PdmFieldHandle* RimWellLogTrack::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::addCurve(RimWellLogPlotCurve* curve)
+void RimWellLogTrack::addCurve(RimWellLogCurve* curve)
 {
     curves.push_back(curve);
 
@@ -133,7 +133,7 @@ void RimWellLogTrack::addCurve(RimWellLogPlotCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::insertCurve(RimWellLogPlotCurve* curve, size_t index)
+void RimWellLogTrack::insertCurve(RimWellLogCurve* curve, size_t index)
 {
     curves.insert(index, curve);
     // Todo: Mark curve data to use either TVD or MD
@@ -147,7 +147,7 @@ void RimWellLogTrack::insertCurve(RimWellLogPlotCurve* curve, size_t index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::removeCurve(RimWellLogPlotCurve* curve)
+void RimWellLogTrack::removeCurve(RimWellLogCurve* curve)
 {
     size_t index = curves.index(curve);
     if ( index < curves.size())
@@ -333,7 +333,7 @@ void RimWellLogTrack::zoomAllXAxis()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* curve) const
+RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* curve) const
 {
     for (size_t idx = 0; idx < curves.size(); idx++)
     {
@@ -361,7 +361,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimWellLogTrack::curveIndex(RimWellLogPlotCurve* curve)
+size_t RimWellLogTrack::curveIndex(RimWellLogCurve* curve)
 {
     return curves.index(curve);
 }

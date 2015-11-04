@@ -34,7 +34,7 @@ class RimView;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogExtractionCurve : public RimWellLogPlotCurve
+class RimWellLogExtractionCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 public:

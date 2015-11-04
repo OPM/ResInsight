@@ -145,7 +145,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+    RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &m_case)
     {
@@ -177,7 +177,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::updatePlotData()
 {
-    RimWellLogPlotCurve::updatePlotConfiguration();
+    RimWellLogCurve::updatePlotConfiguration();
 
     if (isCurveVisible())
     {
@@ -378,7 +378,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::initAfterRead()
 {
-    RimWellLogPlotCurve::initAfterRead();
+    RimWellLogCurve::initAfterRead();
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());

@@ -33,7 +33,7 @@ class RimWellLogFileChannel;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogFileCurve : public RimWellLogPlotCurve
+class RimWellLogFileCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 

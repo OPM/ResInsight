@@ -29,12 +29,12 @@ class RigWellLogCurveData;
 ///  
 ///  
 //==================================================================================================
-class RiuWellLogPlotCurve : public QwtPlotCurve
+class RiuWellLogCurve : public QwtPlotCurve
 {
 public:
 
-    RiuWellLogPlotCurve();
-    virtual ~RiuWellLogPlotCurve();
+    RiuWellLogCurve();
+    virtual ~RiuWellLogCurve();
 
     void setCurveData(const RigWellLogCurveData* curveData);
 

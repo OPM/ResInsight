@@ -31,8 +31,8 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrack* destTrack, 
-                                                                  const std::vector<RimWellLogPlotCurve*>& curves, 
-                                                                  RimWellLogPlotCurve* curveToInsertAfter)
+                                                                  const std::vector<RimWellLogCurve*>& curves, 
+                                                                  RimWellLogCurve* curveToInsertAfter)
 {
     CVF_ASSERT(destTrack );
 
@@ -41,7 +41,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrac
 
     for (size_t cIdx = 0; cIdx < curves.size(); cIdx++)
     {
-        RimWellLogPlotCurve* curve = curves[cIdx];
+        RimWellLogCurve* curve = curves[cIdx];
 
         RimWellLogTrack* wellLogPlotTrack;
         curve->firstAnchestorOrThisOfType(wellLogPlotTrack);

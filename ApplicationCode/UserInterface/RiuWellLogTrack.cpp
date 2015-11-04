@@ -253,7 +253,7 @@ void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
 
     if (closestCurve && distMin < 20)
     {
-        RimWellLogPlotCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve(closestCurve);
+        RimWellLogCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve(closestCurve);
         if (selectedCurve)
         {
             RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(selectedCurve);

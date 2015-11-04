@@ -29,12 +29,12 @@
 #include "cvfAssert.h"
 
 // NB! Special macro for pure virtual class
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimWellLogPlotCurve, "WellLogPlotCurve");
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimWellLogCurve, "WellLogPlotCurve");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotCurve::RimWellLogPlotCurve()
+RimWellLogCurve::RimWellLogCurve()
 {
     CAF_PDM_InitObject("Curve", ":/WellLogCurve16x16.png", "", "");
 
@@ -49,7 +49,7 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
-    m_qwtPlotCurve = new RiuWellLogPlotCurve;
+    m_qwtPlotCurve = new RiuWellLogCurve;
     m_qwtPlotCurve->setXAxis(QwtPlot::xTop);
     m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
 
@@ -59,7 +59,7 @@ RimWellLogPlotCurve::RimWellLogPlotCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotCurve::~RimWellLogPlotCurve()
+RimWellLogCurve::~RimWellLogCurve()
 {
     m_qwtPlotCurve->detach();    
     delete m_qwtPlotCurve;
@@ -73,7 +73,7 @@ RimWellLogPlotCurve::~RimWellLogPlotCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_showCurve)
     {
@@ -106,7 +106,7 @@ void RimWellLogPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
+caf::PdmFieldHandle* RimWellLogCurve::objectToggleField()
 {
     return &m_showCurve;
 }
@@ -114,7 +114,7 @@ caf::PdmFieldHandle* RimWellLogPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::updateCurveVisibility()
+void RimWellLogCurve::updateCurveVisibility()
 {
     if (m_showCurve() && m_ownerQwtTrack)
     {
@@ -144,7 +144,7 @@ void RimWellLogPlotCurve::updateCurveVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::updatePlotConfiguration()
+void RimWellLogCurve::updatePlotConfiguration()
 {
     this->updateCurveVisibility();
     this->updateCurveName();
@@ -157,7 +157,7 @@ void RimWellLogPlotCurve::updatePlotConfiguration()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::setQwtTrack(RiuWellLogTrack* plot)
+void RimWellLogCurve::setQwtTrack(RiuWellLogTrack* plot)
 {
     m_ownerQwtTrack = plot;
     if (m_showCurve)
@@ -170,7 +170,7 @@ void RimWellLogPlotCurve::setQwtTrack(RiuWellLogTrack* plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlotCurve::userDescriptionField()
+caf::PdmFieldHandle* RimWellLogCurve::userDescriptionField()
 {
     return &m_curveName;
 }
@@ -178,7 +178,7 @@ caf::PdmFieldHandle* RimWellLogPlotCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth) const
+bool RimWellLogCurve::depthRange(double* minimumDepth, double* maximumDepth) const
 {
     CVF_ASSERT(minimumDepth && maximumDepth);
     CVF_ASSERT(m_qwtPlotCurve);
@@ -197,7 +197,7 @@ bool RimWellLogPlotCurve::depthRange(double* minimumDepth, double* maximumDepth)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotCurve::valueRange(double* minimumValue, double* maximumValue) const
+bool RimWellLogCurve::valueRange(double* minimumValue, double* maximumValue) const
 {
     CVF_ASSERT(minimumValue && maximumValue);
     CVF_ASSERT(m_qwtPlotCurve);
@@ -216,7 +216,7 @@ bool RimWellLogPlotCurve::valueRange(double* minimumValue, double* maximumValue)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::setColor(const cvf::Color3f& color)
+void RimWellLogCurve::setColor(const cvf::Color3f& color)
 {
     m_curveColor = color;
 }
@@ -224,7 +224,7 @@ void RimWellLogPlotCurve::setColor(const cvf::Color3f& color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::detachQwtCurve()
+void RimWellLogCurve::detachQwtCurve()
 {
     m_qwtPlotCurve->detach();
 }
@@ -232,7 +232,7 @@ void RimWellLogPlotCurve::detachQwtCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QwtPlotCurve* RimWellLogPlotCurve::plotCurve() const
+QwtPlotCurve* RimWellLogCurve::plotCurve() const
 {
     return m_qwtPlotCurve;
 }
@@ -240,7 +240,7 @@ QwtPlotCurve* RimWellLogPlotCurve::plotCurve() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::updatePlotTitle()
+void RimWellLogCurve::updatePlotTitle()
 {
     m_qwtPlotCurve->setTitle(m_curveName);
 }
@@ -248,7 +248,7 @@ void RimWellLogPlotCurve::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlotCurve::isCurveVisible() const
+bool RimWellLogCurve::isCurveVisible() const
 {
     return m_showCurve;
 }
@@ -256,7 +256,7 @@ bool RimWellLogPlotCurve::isCurveVisible() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::initAfterRead()
+void RimWellLogCurve::initAfterRead()
 {
     updateOptionSensitivity();
 }
@@ -264,7 +264,7 @@ void RimWellLogPlotCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::zoomAllOwnerTrackAndPlot()
+void RimWellLogCurve::zoomAllOwnerTrackAndPlot()
 {
     RimWellLogPlot* wellLogPlot;
     firstAnchestorOrThisOfType(wellLogPlot);
@@ -285,7 +285,7 @@ void RimWellLogPlotCurve::zoomAllOwnerTrackAndPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::updateCurveName()
+void RimWellLogCurve::updateCurveName()
 {
     if (m_autoName)
     {
@@ -300,7 +300,7 @@ void RimWellLogPlotCurve::updateCurveName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCurve::updateOptionSensitivity()
+void RimWellLogCurve::updateOptionSensitivity()
 {
     m_curveName.uiCapability()->setUiReadOnly(m_autoName);
 }
@@ -308,7 +308,7 @@ void RimWellLogPlotCurve::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigWellLogCurveData* RimWellLogPlotCurve::curveData() const
+const RigWellLogCurveData* RimWellLogCurve::curveData() const
 {
     return m_curveData.p();
 }

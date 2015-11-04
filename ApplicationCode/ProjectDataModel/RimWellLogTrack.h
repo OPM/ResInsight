@@ -27,7 +27,7 @@
 
 #include <vector>
 
-class RimWellLogPlotCurve;
+class RimWellLogCurve;
 class RiuWellLogTrack;
 
 class QwtPlotCurve;
@@ -45,10 +45,10 @@ public:
 
     void setDescription(const QString& description);
     bool isVisible();
-    void addCurve(RimWellLogPlotCurve* curve);
-    void insertCurve(RimWellLogPlotCurve* curve, size_t index);
-    void removeCurve(RimWellLogPlotCurve* curve);
-    size_t curveIndex(RimWellLogPlotCurve* curve);
+    void addCurve(RimWellLogCurve* curve);
+    void insertCurve(RimWellLogCurve* curve, size_t index);
+    void removeCurve(RimWellLogCurve* curve);
+    size_t curveIndex(RimWellLogCurve* curve);
     size_t curveCount() { return curves.size(); }
 
     void recreateViewer();
@@ -63,7 +63,7 @@ public:
 
     RiuWellLogTrack* viewer();
     
-    RimWellLogPlotCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;
+    RimWellLogCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;
 
 protected:
 
@@ -77,7 +77,7 @@ private:
 private:
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;
-    caf::PdmChildArrayField<RimWellLogPlotCurve*> curves;
+    caf::PdmChildArrayField<RimWellLogCurve*> curves;
     caf::PdmField<double> m_visibleXRangeMin;
     caf::PdmField<double> m_visibleXRangeMax;
 

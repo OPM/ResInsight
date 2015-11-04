@@ -25,21 +25,21 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlotCurve::RiuWellLogPlotCurve()
+RiuWellLogCurve::RiuWellLogCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlotCurve::~RiuWellLogPlotCurve()
+RiuWellLogCurve::~RiuWellLogCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlotCurve::drawCurve(QPainter* p, int style,
+void RiuWellLogCurve::drawCurve(QPainter* p, int style,
     const QwtScaleMap& xMap, const QwtScaleMap& yMap,
     const QRectF& canvasRect, int from, int to) const
 {
@@ -57,7 +57,7 @@ void RiuWellLogPlotCurve::drawCurve(QPainter* p, int style,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlotCurve::setCurveData(const RigWellLogCurveData* curveData)
+void RiuWellLogCurve::setCurveData(const RigWellLogCurveData* curveData)
 {
     CVF_ASSERT(curveData);
 
