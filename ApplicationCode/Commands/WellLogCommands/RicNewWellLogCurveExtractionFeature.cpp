@@ -22,7 +22,7 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"

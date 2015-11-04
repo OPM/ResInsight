@@ -21,10 +21,10 @@
 
 #include "RimWellLogPlot.h"
 
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuWellLogPlotCurve.h"
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "cvfAssert.h"
 

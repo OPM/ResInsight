@@ -25,7 +25,7 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogFileCurve.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
@@ -37,7 +37,7 @@
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "cafSelectionManager.h"
 #include "cafPdmUiTreeView.h"

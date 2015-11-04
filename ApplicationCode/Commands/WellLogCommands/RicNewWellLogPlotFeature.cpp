@@ -25,7 +25,7 @@
 
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogPlotCurve.h"
 
 #include "RiaApplication.h"

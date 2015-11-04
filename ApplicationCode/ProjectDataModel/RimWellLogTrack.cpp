@@ -17,12 +17,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCurve.h"
 
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 #include "RiuWellLogPlot.h"
 #include "RiuMainWindow.h"
 

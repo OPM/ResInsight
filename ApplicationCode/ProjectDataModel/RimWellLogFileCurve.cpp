@@ -25,10 +25,10 @@
 #include "RimWellPath.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogPlot.h"
 
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 #include "RiuWellLogPlotCurve.h"
 
 #include "RiaApplication.h"

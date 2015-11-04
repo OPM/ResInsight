@@ -19,7 +19,7 @@
 
 #include "RicDeleteWellLogPlotTrackFeature.h"
 
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogPlot.h"
 
 #include "cafSelectionManager.h"

@@ -30,11 +30,11 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogPlotCurve.h"
 #include "RimWellLogPlot.h"
 
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiTreeView.h"

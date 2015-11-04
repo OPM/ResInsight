@@ -23,7 +23,7 @@
 #include "RicNewWellLogPlotFeatureImpl.h"
 
 #include "RimWellLogFileCurve.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"

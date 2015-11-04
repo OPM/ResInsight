@@ -38,7 +38,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlotCurve.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimEclipseView.h"
@@ -47,7 +47,7 @@
 #include "RimGeoMechCellColors.h"
 
 #include "RiuWellLogPlotCurve.h"
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "cafPdmUiTreeOrdering.h"
 

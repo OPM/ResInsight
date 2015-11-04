@@ -29,7 +29,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPathCollection.h"
 
 #include "cafNotificationCenter.h"

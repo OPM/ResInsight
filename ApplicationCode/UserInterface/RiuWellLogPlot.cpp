@@ -19,11 +19,11 @@
 
 #include "RiuWellLogPlot.h"
 
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 #include "RiuMainWindow.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 
 #include "cafPdmUiTreeView.h"
 #include "cvfAssert.h"

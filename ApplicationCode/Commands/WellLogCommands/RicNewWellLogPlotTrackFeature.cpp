@@ -20,7 +20,7 @@
 #include "RicNewWellLogPlotTrackFeature.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuMainWindow.h"
 
