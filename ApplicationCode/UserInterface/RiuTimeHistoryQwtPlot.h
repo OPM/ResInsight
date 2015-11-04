@@ -34,7 +34,7 @@ public:
     RiuTimeHistoryQwtPlot(QWidget* parent = NULL);
     virtual ~RiuTimeHistoryQwtPlot();
 
-    void addCurve(const QString& curveName, const std::vector<double>& xValues, const std::vector<double>& yValues);
+    void addCurve(const QString& curveName, const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues);
     void deleteAllCurves();
 
 private:

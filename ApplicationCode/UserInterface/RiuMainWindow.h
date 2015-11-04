@@ -113,6 +113,8 @@ public:
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 
+    RiuTimeHistoryQwtPlot* timeHistoryPlot();
+
 protected:
     virtual void    closeEvent(QCloseEvent* event);
 

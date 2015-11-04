@@ -25,6 +25,8 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_layout.h"
 #include "qwt_scale_engine.h"
+#include "qwt_date_scale_draw.h"
+#include "qwt_date_scale_engine.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -32,25 +34,7 @@
 RiuTimeHistoryQwtPlot::RiuTimeHistoryQwtPlot(QWidget* parent)
     : QwtPlot(parent)
 {
-/*
-    setFocusPolicy(Qt::ClickFocus);
-*/
     setDefaults();
-
-    std::vector<double> xValues;
-    std::vector<double> yValues;
-
-    xValues.push_back(1);
-    xValues.push_back(2);
-    xValues.push_back(3);
-    xValues.push_back(4);
-
-    yValues.push_back(10);
-    yValues.push_back(12);
-    yValues.push_back(15);
-    yValues.push_back(11);
-
-    addCurve("Test", xValues, yValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,16 +48,28 @@ RiuTimeHistoryQwtPlot::~RiuTimeHistoryQwtPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector<double>& xValues, const std::vector<double>& yValues)
+void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues)
 {
-    CVF_ASSERT(xValues.size() == yValues.size());
+    CVF_ASSERT(dateTimes.size() == yValues.size());
 
     QwtPlotCurve* plotCurve = new QwtPlotCurve("Curve 1");
-    plotCurve->setSamples(xValues.data(), yValues.data(), (int) xValues.size());
+
+    QPolygonF points;
+    for (int i = 0; i < dateTimes.size(); i++)
+    {
+        double milliSecSinceEpoch = QwtDate::toDouble(dateTimes[i]);
+        points << QPointF(milliSecSinceEpoch, yValues[i]);
+    }
+
+    plotCurve->setSamples(points);
     plotCurve->setTitle(curveName);
 
     plotCurve->attach(this);
     m_plotCurves.push_back(plotCurve);
+
+    this->setAxisScale( QwtPlot::xTop, QwtDate::toDouble(dateTimes.front()), QwtDate::toDouble(dateTimes.back()));
+
+    this->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,30 +107,23 @@ void RiuTimeHistoryQwtPlot::setDefaults()
     canvas()->setMouseTracking(true);
     canvas()->installEventFilter(this);
 
-/*
-    QPen gridPen(Qt::SolidLine);
-    gridPen.setColor(Qt::lightGray);
-    m_grid->setPen(gridPen);
-*/
-
-    enableAxis(QwtPlot::xTop, true);
+    enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
-    enableAxis(QwtPlot::xBottom, false);
+    enableAxis(QwtPlot::xTop, false);
     enableAxis(QwtPlot::yRight, false);
 
     plotLayout()->setAlignCanvasToScales(true);
 
-    axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
+    QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw(Qt::UTC);
+    scaleDraw->setDateFormat(QwtDate::Year, QString("dd-MM-yyyy"));
+ 
+    QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine(Qt::UTC);
+    setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
+    setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
 
-    // Align the canvas with the actual min and max values of the curves
-    axisScaleEngine(QwtPlot::xTop)->setAttribute(QwtScaleEngine::Floating, true);
-    axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Floating, true);
-    setAxisScale(QwtPlot::yLeft, 1000, 0);
-    setAxisScale(QwtPlot::xTop, -10, 100);
-
-    QFont xAxisFont = axisFont(QwtPlot::xTop);
+    QFont xAxisFont = axisFont(QwtPlot::xBottom);
     xAxisFont.setPixelSize(9);
-    setAxisFont(QwtPlot::xTop, xAxisFont);
+    setAxisFont(QwtPlot::xBottom, xAxisFont);
 
     QFont yAxisFont = axisFont(QwtPlot::yLeft);
     yAxisFont.setPixelSize(9);
@@ -149,9 +138,7 @@ void RiuTimeHistoryQwtPlot::setDefaults()
     setAxisTitle(QwtPlot::yLeft, axisTitleY);
 
     
-    
     QwtLegend* legend = new QwtLegend(this);
-    
     // The legend will be deleted in the destructor of the plot or when 
     // another legend is inserted.
     this->insertLegend(legend, BottomLegend);

@@ -49,6 +49,7 @@ public:
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY);
 
+
 private slots:
     void            slotRangeFilterI();
     void            slotRangeFilterJ();
@@ -62,6 +63,7 @@ private:
     void            createSliceRangeFilter(int ijOrk);
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
     void            updateSelectionFromPickedPart(cvf::Part* part);
+    void            addTimeHistoryCurve(RimEclipseView* eclipseView, size_t gridIndex, size_t cellIndex);
 
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;

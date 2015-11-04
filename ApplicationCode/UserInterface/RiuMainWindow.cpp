@@ -1168,6 +1168,14 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiuTimeHistoryQwtPlot* RiuMainWindow::timeHistoryPlot()
+{
+    return m_timeHistoryQwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::removeViewer(QWidget* viewer)
 {
     m_blockSlotSubWindowActivated = true;

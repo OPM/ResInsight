@@ -26,9 +26,11 @@
 #include "Commands/WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
 
 #include "RigCaseData.h"
+#include "RigCaseCellResultsData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
+#include "RigTimeHistoryResultAccessor.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
@@ -55,6 +57,7 @@
 #include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
 #include "RiuResultTextBuilder.h"
+#include "RiuTimeHistoryQwtPlot.h"
 #include "RiuViewer.h"
 
 #include "RivFemPartGeometryGenerator.h"
@@ -489,6 +492,13 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
             resultInfo = textBuilder.mainResultText();
 
             pickInfo = textBuilder.topologyText(", ");
+
+            if (eclipseView->cellResult()->hasDynamicResult() &&
+                eclipseView->eclipseCase() &&
+                eclipseView->eclipseCase()->reservoirData())
+            {
+                addTimeHistoryCurve(eclipseView, gridIndex, cellIndex);
+            }
         }
         else if (geomView)
         {
@@ -515,6 +525,34 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
 
     mainWnd->statusBar()->showMessage(pickInfo);
     mainWnd->setResultInfo(resultInfo);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t gridIndex, size_t cellIndex)
+{
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(eclipseView->cellResult()->porosityModel());
+
+    std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(eclipseView->cellResult()->scalarResultIndex());
+
+    RigTimeHistoryResultAccessor timeHistResultAccessor(eclipseView->eclipseCase()->reservoirData(), gridIndex, cellIndex, eclipseView->cellResult()->scalarResultIndex(), porosityModel);
+    timeHistResultAccessor.computeCurveData();
+
+    QString curveName = eclipseView->eclipseCase()->caseUserDescription();
+    curveName += " - Result : ";
+    curveName += eclipseView->cellResult()->resultVariable();
+    curveName += " - ";
+    curveName += timeHistResultAccessor.topologyText();
+
+    std::vector<double> yValues = timeHistResultAccessor.yValues();
+
+    CVF_ASSERT(timeStepDates.size() == yValues.size());
+
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    
+    mainWnd->timeHistoryPlot()->deleteAllCurves();
+    mainWnd->timeHistoryPlot()->addCurve(curveName, timeStepDates, yValues);
 }
 
 //--------------------------------------------------------------------------------------------------
