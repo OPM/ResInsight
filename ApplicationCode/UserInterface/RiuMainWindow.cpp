@@ -58,6 +58,7 @@
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuResultInfoPanel.h"
+#include "RiuTimeHistoryQwtPlot.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
@@ -661,19 +662,15 @@ void RiuMainWindow::createDockPanels()
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
     }
 
-    // Test - create well log viewer in a dock widget
-    // TODO: remove after making MDI widgets for well log viewers
-//     {
-//         QDockWidget* dockPanel = new QDockWidget("TEST - Well Log Viewer", this);
-//         dockPanel->setObjectName("dockWellLogViewer");
-//         dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-//         
-//         RiuWellLogViewer* wellLogViewer = new RiuWellLogViewer(dockPanel);
-//         dockPanel->setWidget(wellLogViewer);
-// 
-//         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-//     }
+    {
+        QDockWidget* dockPanel = new QDockWidget("Time History Plot", this);
+        dockPanel->setObjectName("dockTimeHistoryPanel");
+        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_timeHistoryQwtPlot = new RiuTimeHistoryQwtPlot(dockPanel);
+        dockPanel->setWidget(m_timeHistoryQwtPlot);
 
+        addDockWidget(Qt::RightDockWidgetArea, dockPanel);
+    }
  
     setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);

@@ -42,6 +42,7 @@ class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuViewer;
 class RiuWellLogPlot;
+class RiuTimeHistoryQwtPlot;
 
 namespace caf
 {
@@ -197,6 +198,8 @@ private:
     RiuViewer*          m_mainViewer;
     RiuResultInfoPanel* m_resultInfoPanel;
     RiuProcessMonitor*  m_processMonitor;
+    
+    RiuTimeHistoryQwtPlot* m_timeHistoryQwtPlot;
     
     QMenu*              m_windowMenu;
 

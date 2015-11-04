@@ -90,6 +90,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuWellLogTrack.h
 	UserInterface/RiuProjectPropertyView.h
 	UserInterface/RiuProjectPropertyView.cpp
+	UserInterface/RiuTimeHistoryQwtPlot.h
+	UserInterface/RiuTimeHistoryQwtPlot.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
