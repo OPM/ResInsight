@@ -19,7 +19,10 @@
 
 #include "RiuTimeHistoryQwtPlot.h"
 
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
 #include "cvfAssert.h"
+#include "cvfColor3.h"
 
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
@@ -63,6 +66,9 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector
 
     plotCurve->setSamples(points);
     plotCurve->setTitle(curveName);
+
+    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+    plotCurve->setPen(QPen(QColor(curveColor.rByte(), curveColor.gByte(), curveColor.bByte())));
 
     plotCurve->attach(this);
     m_plotCurves.push_back(plotCurve);

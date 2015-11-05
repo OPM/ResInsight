@@ -472,6 +472,9 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
         }
     }
 
+
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+
     // Compose a info text regarding the hit
 
     QString pickInfo = "No hits";
@@ -512,16 +515,16 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
             pickInfo = textBuilder.topologyText(", ");
         }
     }
+    else
+    {
+        // Delete all curves if no cell is hit
+        mainWnd->timeHistoryPlot()->deleteAllCurves();
+    }
 
     if (wellPath)
     {
         pickInfo = QString("Well path hit: %1").arg(wellPath->name());
     }
-
-    // Display the text
-
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
 
     mainWnd->statusBar()->showMessage(pickInfo);
     mainWnd->setResultInfo(resultInfo);
@@ -551,7 +554,6 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     
-    mainWnd->timeHistoryPlot()->deleteAllCurves();
     mainWnd->timeHistoryPlot()->addCurve(curveName, timeStepDates, yValues);
 }
 
