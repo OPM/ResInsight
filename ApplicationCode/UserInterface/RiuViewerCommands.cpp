@@ -540,7 +540,7 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
     std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(eclipseView->cellResult()->scalarResultIndex());
 
     RigTimeHistoryResultAccessor timeHistResultAccessor(eclipseView->eclipseCase()->reservoirData(), gridIndex, cellIndex, eclipseView->cellResult()->scalarResultIndex(), porosityModel);
-    timeHistResultAccessor.computeCurveData();
+    timeHistResultAccessor.computeTimeHistoryData();
 
     QString curveName = eclipseView->eclipseCase()->caseUserDescription();
     curveName += " - Result : ";
@@ -548,7 +548,7 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
     curveName += " - ";
     curveName += timeHistResultAccessor.topologyText();
 
-    std::vector<double> yValues = timeHistResultAccessor.yValues();
+    std::vector<double> yValues = timeHistResultAccessor.timeHistoryValues();
 
     CVF_ASSERT(timeStepDates.size() == yValues.size());
 

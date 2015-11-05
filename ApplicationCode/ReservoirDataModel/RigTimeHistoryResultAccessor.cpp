@@ -38,7 +38,8 @@ RigTimeHistoryResultAccessor::RigTimeHistoryResultAccessor(RigCaseData* eclipseC
       m_porosityModel(porosityModel)
 {
     m_face = cvf::StructGridInterface::NO_FACE;
-    m_nncIndex = cvf::UNDEFINED_SIZE_T;
+
+    computeTimeHistoryData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,28 +48,22 @@ RigTimeHistoryResultAccessor::RigTimeHistoryResultAccessor(RigCaseData* eclipseC
 void RigTimeHistoryResultAccessor::setFace(cvf::StructGridInterface::FaceType face)
 {
     m_face = face;
+
+    computeTimeHistoryData();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigTimeHistoryResultAccessor::setNncIndex(size_t nncIndex)
+std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues() const
 {
-    m_nncIndex = nncIndex;
+    return m_timeHistoryValues;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigTimeHistoryResultAccessor::yValues() const
-{
-    return m_yValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RigTimeHistoryResultAccessor::topologyText()
+QString RigTimeHistoryResultAccessor::topologyText() const
 {
     QString text;
 
@@ -99,9 +94,9 @@ QString RigTimeHistoryResultAccessor::topologyText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigTimeHistoryResultAccessor::computeCurveData()
+void RigTimeHistoryResultAccessor::computeTimeHistoryData()
 {
-    if (m_yValues.size() != 0) return;
+    m_timeHistoryValues.clear();
 
     if (m_eclipseCaseData)
     {
@@ -111,7 +106,7 @@ void RigTimeHistoryResultAccessor::computeCurveData()
         {
             cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(m_eclipseCaseData, m_gridIndex, m_porosityModel, i, m_scalarResultIndex);
 
-            m_yValues.push_back(resultAccessor->cellScalar(m_cellIndex));
+            m_timeHistoryValues.push_back(resultAccessor->cellScalar(m_cellIndex));
         }
     }
 }

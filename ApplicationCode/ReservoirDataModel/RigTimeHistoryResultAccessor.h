@@ -29,30 +29,24 @@ class RigTimeHistoryResultAccessor
 {
 public:
     RigTimeHistoryResultAccessor(RigCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel);
-
     void setFace(cvf::StructGridInterface::FaceType face);
-    void setNncIndex(size_t nncIndex);
 
-    void    computeCurveData();
-    QString topologyText();
-
-    QString                 curveName() const;
-    std::vector<double>     yValues() const;
+    QString             topologyText() const;
+    std::vector<double> timeHistoryValues() const;
 
 private:
-
+    void                computeTimeHistoryData();
 
 private:
-    RigCaseData* m_eclipseCaseData;
+    RigCaseData*    m_eclipseCaseData;
 
     size_t          m_gridIndex;
     size_t          m_cellIndex;
-    size_t          m_nncIndex;
     size_t          m_scalarResultIndex;
 
     cvf::StructGridInterface::FaceType m_face;
     RifReaderInterface::PorosityModelResultType m_porosityModel;
 
-    std::vector<double> m_yValues;
+    std::vector<double> m_timeHistoryValues;
 };
 
