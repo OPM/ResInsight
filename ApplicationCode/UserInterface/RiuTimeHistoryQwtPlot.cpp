@@ -51,9 +51,9 @@ RiuTimeHistoryQwtPlot::~RiuTimeHistoryQwtPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues)
+void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
-    CVF_ASSERT(dateTimes.size() == yValues.size());
+    CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
 
     QwtPlotCurve* plotCurve = new QwtPlotCurve("Curve 1");
 
@@ -61,7 +61,7 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector
     for (int i = 0; i < dateTimes.size(); i++)
     {
         double milliSecSinceEpoch = QwtDate::toDouble(dateTimes[i]);
-        points << QPointF(milliSecSinceEpoch, yValues[i]);
+        points << QPointF(milliSecSinceEpoch, timeHistoryValues[i]);
     }
 
     plotCurve->setSamples(points);
@@ -76,6 +76,21 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector
     this->setAxisScale( QwtPlot::xTop, QwtDate::toDouble(dateTimes.front()), QwtDate::toDouble(dateTimes.back()));
 
     this->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues)
+{
+    std::vector<QDateTime> dateTimes;
+
+    for (size_t i = 0; i < frameTimes.size(); i++)
+    {
+        dateTimes.push_back(QwtDate::toDateTime(frameTimes[i]));
+    }
+
+    addCurve(curveName, dateTimes, timeHistoryValues);
 }
 
 //--------------------------------------------------------------------------------------------------

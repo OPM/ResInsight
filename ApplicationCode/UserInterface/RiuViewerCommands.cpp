@@ -77,6 +77,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
+#include "RigFemTimeHistoryResultAccessor.h"
 
 //==================================================================================================
 //
@@ -513,6 +514,12 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
             resultInfo = textBuilder.mainResultText();
 
             pickInfo = textBuilder.topologyText(", ");
+
+            if (geomView->cellResult() &&
+                geomView->cellResult()->hasResult())
+            {
+                addTimeHistoryCurve(geomView, gridIndex, cellIndex, localIntersectionPoint);
+            }
         }
     }
     else
@@ -540,7 +547,6 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
     std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(eclipseView->cellResult()->scalarResultIndex());
 
     RigTimeHistoryResultAccessor timeHistResultAccessor(eclipseView->eclipseCase()->reservoirData(), gridIndex, cellIndex, eclipseView->cellResult()->scalarResultIndex(), porosityModel);
-    timeHistResultAccessor.computeTimeHistoryData();
 
     QString curveName = eclipseView->eclipseCase()->caseUserDescription();
     curveName += " - Result : ";
@@ -548,13 +554,48 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
     curveName += " - ";
     curveName += timeHistResultAccessor.topologyText();
 
-    std::vector<double> yValues = timeHistResultAccessor.timeHistoryValues();
+    std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
 
-    CVF_ASSERT(timeStepDates.size() == yValues.size());
+    CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     
-    mainWnd->timeHistoryPlot()->addCurve(curveName, timeStepDates, yValues);
+    mainWnd->timeHistoryPlot()->addCurve(curveName, timeStepDates, timeHistoryValues);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& localIntersectionPoint)
+{
+    if (geoMechView &&
+        geoMechView->cellResult() &&
+        geoMechView->geoMechCase() &&
+        geoMechView->geoMechCase()->geoMechData())
+    {
+        RigFemTimeHistoryResultAccessor timeHistResultAccessor(geoMechView->geoMechCase()->geoMechData(), geoMechView->cellResult->resultAddress(), gridIndex, cellIndex, localIntersectionPoint);
+
+        QString curveName;
+        curveName.append(geoMechView->geoMechCase()->caseUserDescription() + ", ");
+
+        caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = geoMechView->cellResult()->resultPositionType();
+        curveName.append(resPosAppEnum.uiText() + ", ");
+        curveName.append(geoMechView->cellResult()->resultFieldUiName()+ ", ") ;
+        curveName.append(geoMechView->cellResult()->resultComponentUiName() + ":\n");
+        curveName.append(timeHistResultAccessor.topologyText());
+
+        std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
+        std::vector<double> frameTimes;
+        for (size_t i = 0; i < timeHistoryValues.size(); i++)
+        {
+            frameTimes.push_back(i);
+        }
+
+        CVF_ASSERT(frameTimes.size() == timeHistoryValues.size());
+
+        RiuMainWindow* mainWnd = RiuMainWindow::instance();
+        mainWnd->timeHistoryPlot()->addCurve(curveName, frameTimes, timeHistoryValues);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
