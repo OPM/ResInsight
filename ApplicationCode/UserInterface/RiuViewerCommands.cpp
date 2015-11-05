@@ -404,9 +404,8 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
+void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers)
 {
-
     size_t gridIndex = cvf::UNDEFINED_SIZE_T;
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
     size_t nncIndex = cvf::UNDEFINED_SIZE_T;
@@ -474,12 +473,17 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
     }
 
 
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
     // Compose a info text regarding the hit
 
     QString pickInfo = "No hits";
     QString resultInfo = "";
+
+    bool addCurveToTimeHistoryPlot = false;
+    if (keyboardModifiers & Qt::ControlModifier)
+    {
+        addCurveToTimeHistoryPlot = true;
+    }
 
     if (cellIndex != cvf::UNDEFINED_SIZE_T || nncIndex != cvf::UNDEFINED_SIZE_T)
     {
@@ -497,12 +501,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
 
             pickInfo = textBuilder.topologyText(", ");
 
-            if (eclipseView->cellResult()->hasDynamicResult() &&
-                eclipseView->eclipseCase() &&
-                eclipseView->eclipseCase()->reservoirData())
-            {
-                addTimeHistoryCurve(eclipseView, gridIndex, cellIndex);
-            }
+            if (addCurveToTimeHistoryPlot) addTimeHistoryCurve(eclipseView, gridIndex, cellIndex);
         }
         else if (geomView)
         {
@@ -515,22 +514,24 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
 
             pickInfo = textBuilder.topologyText(", ");
 
-            if (geomView->cellResult() &&
-                geomView->cellResult()->hasResult())
-            {
-                addTimeHistoryCurve(geomView, gridIndex, cellIndex, localIntersectionPoint);
-            }
+            if (addCurveToTimeHistoryPlot) addTimeHistoryCurve(geomView, gridIndex, cellIndex, localIntersectionPoint);
         }
     }
-    else
-    {
-        // Delete all curves if no cell is hit
-        mainWnd->timeHistoryPlot()->deleteAllCurves();
-    }
-
+    
     if (wellPath)
     {
         pickInfo = QString("Well path hit: %1").arg(wellPath->name());
+    }
+
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (cellIndex == cvf::UNDEFINED_SIZE_T &&
+        !(keyboardModifiers & Qt::ControlModifier))
+    {
+        if (mainWnd->timeHistoryPlot()->isVisible())
+        {
+            // Delete all curves if no cell is hit
+            mainWnd->timeHistoryPlot()->deleteAllCurves();
+        }
     }
 
     mainWnd->statusBar()->showMessage(pickInfo);
@@ -542,25 +543,33 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t gridIndex, size_t cellIndex)
 {
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(eclipseView->cellResult()->porosityModel());
-
-    std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(eclipseView->cellResult()->scalarResultIndex());
-
-    RigTimeHistoryResultAccessor timeHistResultAccessor(eclipseView->eclipseCase()->reservoirData(), gridIndex, cellIndex, eclipseView->cellResult()->scalarResultIndex(), porosityModel);
-
-    QString curveName = eclipseView->eclipseCase()->caseUserDescription();
-    curveName += " - Result : ";
-    curveName += eclipseView->cellResult()->resultVariable();
-    curveName += " - ";
-    curveName += timeHistResultAccessor.topologyText();
-
-    std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
-
-    CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
-
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (!mainWnd->timeHistoryPlot()->isVisible()) return;
+
+    if (eclipseView->cellResult()->hasDynamicResult() &&
+        eclipseView->eclipseCase() &&
+        eclipseView->eclipseCase()->reservoirData())
+    {
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(eclipseView->cellResult()->porosityModel());
+
+        std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(eclipseView->cellResult()->scalarResultIndex());
+
+        RigTimeHistoryResultAccessor timeHistResultAccessor(eclipseView->eclipseCase()->reservoirData(), gridIndex, cellIndex, eclipseView->cellResult()->scalarResultIndex(), porosityModel);
+
+        QString curveName = eclipseView->eclipseCase()->caseUserDescription();
+        curveName += ", ";
+        curveName += eclipseView->cellResult()->resultVariable();
+        curveName += ", ";
+        curveName += QString("Grid index %1").arg(gridIndex);
+        curveName += ", ";
+        curveName += timeHistResultAccessor.topologyText();
+
+        std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
+
+        CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
     
-    mainWnd->timeHistoryPlot()->addCurve(curveName, timeStepDates, timeHistoryValues);
+        mainWnd->timeHistoryPlot()->addCurve(curveName, timeStepDates, timeHistoryValues);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,8 +577,12 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& localIntersectionPoint)
 {
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (!mainWnd->timeHistoryPlot()->isVisible()) return;
+
     if (geoMechView &&
         geoMechView->cellResult() &&
+        geoMechView->cellResult()->hasResult() &&
         geoMechView->geoMechCase() &&
         geoMechView->geoMechCase()->geoMechData())
     {

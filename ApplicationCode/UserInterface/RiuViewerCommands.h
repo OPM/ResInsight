@@ -47,7 +47,7 @@ public:
     void setOwnerView(RimView * owner);
 
     void            displayContextMenu(QMouseEvent* event);
-    void            handlePickAction(int winPosX, int winPosY);
+    void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
 
 
 private slots:
