@@ -552,7 +552,9 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(eclipseView->cellResult()->porosityModel());
 
-        std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(eclipseView->cellResult()->scalarResultIndex());
+        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
+        eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+        std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
         RigTimeHistoryResultAccessor timeHistResultAccessor(eclipseView->eclipseCase()->reservoirData(), gridIndex, cellIndex, eclipseView->cellResult()->scalarResultIndex(), porosityModel);
 
