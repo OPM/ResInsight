@@ -19,13 +19,14 @@
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 
-#include "RigWellLogCurveData.h"
+#include "qwt_symbol.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve()
+RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
+    : QwtPlotCurve(title)
 {
 }
 
@@ -48,28 +49,32 @@ void RiuLineSegmentQwtPlotCurve::drawCurve(QPainter* p, int style,
     {
         for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
         {
-            QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, (int) m_polyLineStartStopIndices[intIdx].first, (int) m_polyLineStartStopIndices[intIdx].second);
+            if (m_polyLineStartStopIndices[intIdx].first == m_polyLineStartStopIndices[intIdx].second)
+            {
+                // Use a symbol to draw a single value, as a single value will not be visible
+                // when using QwtPlotCurve::drawCurve without symbols activated
+
+                QwtSymbol symbol(QwtSymbol::XCross);
+                symbol.setSize(10, 10);
+
+                QwtPlotCurve::drawSymbols(p, symbol, xMap, yMap, canvasRect, (int) m_polyLineStartStopIndices[intIdx].first, (int) m_polyLineStartStopIndices[intIdx].second);
+            }
+            else
+            {
+                QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, (int) m_polyLineStartStopIndices[intIdx].first, (int) m_polyLineStartStopIndices[intIdx].second);
+            }
         }
     }
-    else QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, from, to);
+    else
+    {
+        QwtPlotCurve::drawCurve(p, style, xMap, yMap, canvasRect, from, to);
+    }
 };
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setCurveData(const RigWellLogCurveData* curveData)
+void RiuLineSegmentQwtPlotCurve::setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices)
 {
-    CVF_ASSERT(curveData);
-
-    setCurveData(curveData->xPlotValues(), curveData->depthPlotValues(), curveData->polylineStartStopIndices());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setCurveData(const std::vector<double>& xValues, const std::vector<double>& yValues, const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices)
-{
-    setSamples(xValues.data(), yValues.data(), static_cast<int>(xValues.size()));
-
     m_polyLineStartStopIndices = lineSegmentStartStopIndices;
 }

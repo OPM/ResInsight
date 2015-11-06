@@ -19,7 +19,11 @@
 
 #include "RiuTimeHistoryQwtPlot.h"
 
+#include "RigCurveDataTools.h"
+
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
+#include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "cvfAssert.h"
 #include "cvfColor3.h"
@@ -30,6 +34,7 @@
 #include "qwt_scale_engine.h"
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -55,16 +60,29 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector
 {
     CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
 
-    QwtPlotCurve* plotCurve = new QwtPlotCurve("Curve 1");
+    std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
+    RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues);
+
+    std::vector<double> filteredTimeHistoryValues;
+    RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
+
+    std::vector<QDateTime> filteredDateTimes;
+    RigCurveDataTools::getValuesByIntervals(dateTimes, intervalsOfValidValues, &filteredDateTimes);
+    
+    std::vector< std::pair<size_t, size_t> > filteredIntervals;
+    RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
+    
+    RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
 
     QPolygonF points;
-    for (int i = 0; i < dateTimes.size(); i++)
+    for (int i = 0; i < filteredDateTimes.size(); i++)
     {
-        double milliSecSinceEpoch = QwtDate::toDouble(dateTimes[i]);
-        points << QPointF(milliSecSinceEpoch, timeHistoryValues[i]);
+        double milliSecSinceEpoch = QwtDate::toDouble(filteredDateTimes[i]);
+        points << QPointF(milliSecSinceEpoch, filteredTimeHistoryValues[i]);
     }
 
     plotCurve->setSamples(points);
+    plotCurve->setLineSegmentStartStopIndices(filteredIntervals);
     plotCurve->setTitle(curveName);
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();

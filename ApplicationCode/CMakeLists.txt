@@ -84,8 +84,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuTreeViewEventFilter.h
 	UserInterface/RiuWellLogPlot.cpp
 	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuWellLogCurve.cpp
-	UserInterface/RiuWellLogCurve.h
+	UserInterface/RiuLineSegmentQwtPlotCurve.cpp
+	UserInterface/RiuLineSegmentQwtPlotCurve.h
 	UserInterface/RiuWellLogTrack.cpp
 	UserInterface/RiuWellLogTrack.h
 	UserInterface/RiuProjectPropertyView.h

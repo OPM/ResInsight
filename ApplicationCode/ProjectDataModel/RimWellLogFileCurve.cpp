@@ -114,7 +114,8 @@ void RimWellLogFileCurve::updatePlotData()
             }
         }
 
-        m_qwtPlotCurve->setCurveData(m_curveData.p());
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues().data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
         zoomAllOwnerTrackAndPlot();
 

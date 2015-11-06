@@ -53,18 +53,9 @@ public:
 private:
     void                                      calculateIntervalsOfContinousValidValues();
 
-    static void                               calculateIntervalsOfValidValues(const std::vector<double>& values, 
-                                                                              std::vector< std::pair<size_t, size_t> >* intervals);
     static void                               splitIntervalAtEmptySpace(const std::vector<double>& depthValues, 
                                                                         size_t startIdx, size_t stopIdx, 
                                                                         std::vector< std::pair<size_t, size_t> >* intervals);
-
-    static void                               getValuesByIntervals(const std::vector<double>& values, 
-                                                                   const std::vector< std::pair<size_t, size_t> >& intervals, 
-                                                                   std::vector<double>* filteredValues);
-    static void                               computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
-                                                                              std::vector< std::pair<size_t, size_t> >* filteredIntervals);
-
 private:
     std::vector<double>                       m_xValues;
     std::vector<double>                       m_measuredDepths;
@@ -72,18 +63,5 @@ private:
     bool                                      m_isExtractionCurve;
 
     std::vector< std::pair<size_t, size_t> >  m_intervalsOfContinousValidValues;
-
-    friend class RigWellLogCurveDataTestInterface;
 };
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class RigWellLogCurveDataTestInterface
-{
-public:
-    static void calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals)
-    {
-        RigWellLogCurveData::calculateIntervalsOfValidValues(values, intervals);
-    }
-};
