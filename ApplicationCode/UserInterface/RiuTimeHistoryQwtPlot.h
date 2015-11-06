@@ -22,6 +22,7 @@
 #include "qwt_plot.h"
 
 class QwtPlotCurve;
+class QwtPlotGrid;
 
 //==================================================================================================
 //
@@ -43,6 +44,7 @@ private:
     void setDefaults();
 
 private:
-    std::vector<QwtPlotCurve*> m_plotCurves;
+    std::vector<QwtPlotCurve*>  m_plotCurves;
+    QwtPlotGrid*                m_grid;
 };
 

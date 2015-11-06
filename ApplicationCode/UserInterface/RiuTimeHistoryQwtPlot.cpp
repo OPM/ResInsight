@@ -28,12 +28,13 @@
 #include "cvfAssert.h"
 #include "cvfColor3.h"
 
-#include "qwt_legend.h"
-#include "qwt_plot_curve.h"
-#include "qwt_plot_layout.h"
-#include "qwt_scale_engine.h"
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
+#include "qwt_legend.h"
+#include "qwt_plot_curve.h"
+#include "qwt_plot_grid.h"
+#include "qwt_plot_layout.h"
+#include "qwt_scale_engine.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -42,6 +43,9 @@
 RiuTimeHistoryQwtPlot::RiuTimeHistoryQwtPlot(QWidget* parent)
     : QwtPlot(parent)
 {
+    m_grid = new QwtPlotGrid;
+    m_grid->attach(this);
+
     setDefaults();
 }
 
@@ -51,6 +55,9 @@ RiuTimeHistoryQwtPlot::RiuTimeHistoryQwtPlot(QWidget* parent)
 RiuTimeHistoryQwtPlot::~RiuTimeHistoryQwtPlot()
 {
     deleteAllCurves();
+
+    m_grid->detach();
+    delete m_grid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,17 +67,19 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector
 {
     CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
 
-    std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-    RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues);
-
     std::vector<double> filteredTimeHistoryValues;
-    RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
-
     std::vector<QDateTime> filteredDateTimes;
-    RigCurveDataTools::getValuesByIntervals(dateTimes, intervalsOfValidValues, &filteredDateTimes);
-    
     std::vector< std::pair<size_t, size_t> > filteredIntervals;
-    RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
+
+    {
+        std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
+        RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues);
+
+        RigCurveDataTools::getValuesByIntervals(timeHistoryValues,  intervalsOfValidValues, &filteredTimeHistoryValues);
+        RigCurveDataTools::getValuesByIntervals(dateTimes,          intervalsOfValidValues, &filteredDateTimes);
+    
+        RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
+    }
     
     RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
 
@@ -145,6 +154,10 @@ void RiuTimeHistoryQwtPlot::setDefaults()
 
     canvas()->setMouseTracking(true);
     canvas()->installEventFilter(this);
+
+    QPen gridPen(Qt::SolidLine);
+    gridPen.setColor(Qt::lightGray);
+    m_grid->setPen(gridPen);
 
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
