@@ -61,8 +61,12 @@ private:
             {
                 RigFemPart* part = m_caseData->femParts()->part(pIdx);
                 const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, (int)timeStepIndex);
-                int elmCount = part->elementCount();
 
+                size_t nodeCount = values.size();
+                cvf::UByteArray nodeVisibilities(nodeCount);
+                nodeVisibilities.setAll(false);
+
+                int elmCount = part->elementCount();
                 for (int elmIdx = 0; elmIdx < elmCount; ++elmIdx)
                 {
                     if (!(*m_cellVisibilities)[elmIdx]) continue;
@@ -72,6 +76,14 @@ private:
                     {
                         size_t elmNodeResIdx = part->elementNodeResultIdx(elmIdx, elmLocIdx);
                         int nodeIdx = part->nodeIdxFromElementNodeResultIdx(elmNodeResIdx);
+                        nodeVisibilities[nodeIdx] = true;
+                    }
+                }
+
+                for (size_t nodeIdx = 0; nodeIdx < nodeCount; ++nodeIdx)
+                {
+                    if (nodeVisibilities[nodeIdx])
+                    {
                         accumulator.addValue(values[nodeIdx]);
                     }
                 }
