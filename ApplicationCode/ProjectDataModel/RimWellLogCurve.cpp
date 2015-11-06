@@ -23,7 +23,7 @@
 
 #include "RimWellLogTrack.h"
 
-#include "RiuWellLogCurve.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cvfAssert.h"
@@ -49,7 +49,7 @@ RimWellLogCurve::RimWellLogCurve()
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
-    m_qwtPlotCurve = new RiuWellLogCurve;
+    m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
     m_qwtPlotCurve->setXAxis(QwtPlot::xTop);
     m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
 

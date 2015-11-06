@@ -46,7 +46,7 @@
 #include "RimGeoMechView.h"
 #include "RimGeoMechCellColors.h"
 
-#include "RiuWellLogCurve.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafPdmUiTreeOrdering.h"

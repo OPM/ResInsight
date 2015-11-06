@@ -29,7 +29,7 @@
 #include "RimWellLogPlot.h"
 
 #include "RiuWellLogTrack.h"
-#include "RiuWellLogCurve.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"

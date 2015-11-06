@@ -29,7 +29,7 @@
 
 class RigWellLogCurveData;
 class RiuWellLogTrack;
-class RiuWellLogCurve;
+class RiuLineSegmentQwtPlotCurve;
 class QwtPlotCurve;
 class QString;
 
@@ -82,7 +82,7 @@ protected:
 
 
     QPointer<RiuWellLogTrack>   m_ownerQwtTrack;
-    RiuWellLogCurve*            m_qwtPlotCurve;
+    RiuLineSegmentQwtPlotCurve*            m_qwtPlotCurve;
     cvf::ref<RigWellLogCurveData>   m_curveData;
 
     caf::PdmField<bool>             m_showCurve;

@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellLogCurve.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "RigWellLogCurveData.h"
 
@@ -25,21 +25,21 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogCurve::RiuWellLogCurve()
+RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogCurve::~RiuWellLogCurve()
+RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogCurve::drawCurve(QPainter* p, int style,
+void RiuLineSegmentQwtPlotCurve::drawCurve(QPainter* p, int style,
     const QwtScaleMap& xMap, const QwtScaleMap& yMap,
     const QRectF& canvasRect, int from, int to) const
 {
@@ -57,13 +57,19 @@ void RiuWellLogCurve::drawCurve(QPainter* p, int style,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogCurve::setCurveData(const RigWellLogCurveData* curveData)
+void RiuLineSegmentQwtPlotCurve::setCurveData(const RigWellLogCurveData* curveData)
 {
     CVF_ASSERT(curveData);
 
-    std::vector<double> validXValues = curveData->xPlotValues();
-    std::vector<double> validYValues = curveData->depthPlotValues();
+    setCurveData(curveData->xPlotValues(), curveData->depthPlotValues(), curveData->polylineStartStopIndices());
+}
 
-    setSamples(validXValues.data(), validYValues.data(), (int) validXValues.size());
-    m_polyLineStartStopIndices = curveData->polylineStartStopIndices();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setCurveData(const std::vector<double>& xValues, const std::vector<double>& yValues, const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices)
+{
+    setSamples(xValues.data(), yValues.data(), static_cast<int>(xValues.size()));
+
+    m_polyLineStartStopIndices = lineSegmentStartStopIndices;
 }
