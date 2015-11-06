@@ -31,6 +31,8 @@
 RigStatisticsDataCache::RigStatisticsDataCache(RigStatisticsCalculator* statisticsCalculator)
     : m_statisticsCalculator(statisticsCalculator)
 {
+    CVF_ASSERT(m_statisticsCalculator.notNull());
+
     clearAllStatistics();
 }
 
@@ -153,6 +155,40 @@ void RigStatisticsDataCache::posNegClosestToZero(size_t timeStepIndex, double& p
     posNearZero = m_statsPrTs[timeStepIndex].m_posClosestToZero;
     negNearZero = m_statsPrTs[timeStepIndex].m_negClosestToZero;
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::meanCellScalarValues(double& meanValue)
+{
+    if (!m_statsAllTimesteps.m_isMeanCalculated)
+    {
+        m_statisticsCalculator->meanCellScalarValue(m_statsAllTimesteps.m_meanValue);
+
+        m_statsAllTimesteps.m_isMeanCalculated = true;
+    }
+
+    meanValue = m_statsAllTimesteps.m_meanValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::meanCellScalarValues(size_t timeStepIndex, double& meanValue)
+{
+   if (timeStepIndex >= m_statsPrTs.size())
+    {
+        m_statsPrTs.resize(timeStepIndex + 1);
+    }
+
+   if (!m_statsPrTs[timeStepIndex].m_isMeanCalculated)
+    {
+        m_statisticsCalculator->meanCellScalarValue(timeStepIndex, m_statsPrTs[timeStepIndex].m_meanValue);
+        m_statsPrTs[timeStepIndex].m_isMeanCalculated = true;
+    }
+
+    meanValue = m_statsPrTs[timeStepIndex].m_meanValue;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -194,34 +230,6 @@ void RigStatisticsDataCache::p10p90CellScalarValues(size_t timeStepIndex, double
 
     p10 = m_statsPrTs[timeStepIndex].m_p10;
     p90 = m_statsPrTs[timeStepIndex].m_p90;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigStatisticsDataCache::meanCellScalarValues(double& meanValue)
-{
-    if (!m_statsAllTimesteps.m_isMeanCalculated)
-    {
-        m_statisticsCalculator->meanCellScalarValue(m_statsAllTimesteps.m_meanValue);
-        m_statsAllTimesteps.m_isMeanCalculated = true;
-    }
-
-    meanValue = m_statsAllTimesteps.m_meanValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigStatisticsDataCache::meanCellScalarValues(size_t timeStepIndex, double& meanValue)
-{
-   if (!m_statsPrTs[timeStepIndex].m_isMeanCalculated)
-    {
-        m_statisticsCalculator->meanCellScalarValue(timeStepIndex, m_statsPrTs[timeStepIndex].m_meanValue);
-        m_statsPrTs[timeStepIndex].m_isMeanCalculated = true;
-    }
-
-    meanValue = m_statsPrTs[timeStepIndex].m_meanValue;
 }
 
 //--------------------------------------------------------------------------------------------------

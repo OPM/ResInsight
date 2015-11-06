@@ -821,3 +821,11 @@ const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(co
     return this->statistics(resVarAddr)->cellScalarValuesHistogram(frameIndex);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RigFemPartResultsCollection::partCount() const
+{
+    return m_femParts->partCount();
+}
+

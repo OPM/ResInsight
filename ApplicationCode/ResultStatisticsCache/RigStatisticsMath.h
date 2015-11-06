@@ -41,6 +41,8 @@ public:
     void addData(const std::vector<double>& data);
     void addData(const std::vector<float>& data);
 
+    void addValue(double value);
+
     /// Calculates the estimated percentile from the histogram. 
     /// the percentile is the domain value at which pVal of the observations are below it.
     /// Will only consider observed values between min and max, as all other values are discarded from the histogram
@@ -48,7 +50,7 @@ public:
     double calculatePercentil(double pVal);
 
 private:
-    size_t maxIndex;
+    size_t m_maxIndex;
     double m_range;
     double m_min;
     size_t m_observationCount;

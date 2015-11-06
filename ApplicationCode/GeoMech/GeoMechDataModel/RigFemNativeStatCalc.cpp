@@ -38,7 +38,7 @@ RigFemNativeStatCalc::RigFemNativeStatCalc(RigFemPartResultsCollection* femResul
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
-    for (int pIdx = 0; pIdx < static_cast<int>(m_resultsData->m_femPartResults.size()); ++pIdx)
+    for (int pIdx = 0; pIdx < m_resultsData->partCount(); ++pIdx)
     {
         const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, (int)timeStepIndex);
 
@@ -68,7 +68,7 @@ void RigFemNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& 
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
-    for (int pIdx = 0; pIdx < static_cast<int>(m_resultsData->m_femPartResults.size()); ++pIdx)
+    for (int pIdx = 0; pIdx < m_resultsData->partCount(); ++pIdx)
     {
         const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, (int)timeStepIndex);
 
@@ -99,7 +99,7 @@ void RigFemNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos
 void RigFemNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
     int tsIdx = static_cast<int>(timeStepIndex);
-    int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
+    int partCount = m_resultsData->partCount();
 
     for (int pIdx = 0; pIdx < partCount; ++pIdx)
     {
@@ -128,7 +128,7 @@ void RigFemNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& 
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
 {
-    int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
+    int partCount = m_resultsData->partCount();
     for (int pIdx = 0; pIdx < partCount; ++pIdx)
     {
         const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, static_cast<int>(timeStepIndex));

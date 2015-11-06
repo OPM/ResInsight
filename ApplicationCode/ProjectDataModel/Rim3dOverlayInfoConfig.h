@@ -81,6 +81,9 @@ private:
 
     cvf::Vec2ui                                 m_position;
     
+    void updateVisCellStatsIfNeeded();
+
+    bool                                        m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache>            m_visibleCellStatistics;
 
 };

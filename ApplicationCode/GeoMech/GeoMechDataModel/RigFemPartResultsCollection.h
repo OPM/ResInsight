@@ -43,7 +43,7 @@ public:
     std::vector<std::string>                         stepNames();
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
-
+    int                                              partCount() const;
     int                                              frameCount();
 
 
@@ -67,7 +67,6 @@ private:
     RigFemScalarResultFrames*                        calculateBarConvertedResult(int partIndex, const RigFemResultAddress &convertedResultAddr, const std::string fieldNameToConvert);
     RigFemScalarResultFrames*                        calculateEnIpPorBarResult(int partIndex, const RigFemResultAddress &convertedResultAddr);
 
-    friend class RigFemNativeStatCalc;                                                                                      
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
     cvf::cref<RigFemPartCollection>                  m_femParts;
