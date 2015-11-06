@@ -263,7 +263,7 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded(size_t timeStepI
         double min;
         double max;
         size_t nBins = 100;
-        this->minMaxCellScalarValues(min, max);
+        this->minMaxCellScalarValues(timeStepIndex, min, max);
 
         RigHistogramCalculator histCalc(min, max, nBins, &m_statsPrTs[timeStepIndex].m_histogram);
 

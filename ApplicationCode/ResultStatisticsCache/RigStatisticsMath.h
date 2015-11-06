@@ -56,3 +56,78 @@ private:
     size_t m_observationCount;
     std::vector<size_t>* m_histogram;
 };
+
+
+class MinMaxAccumulator
+{
+public:
+    MinMaxAccumulator(double initMin, double initMax): max(initMax), min(initMin) {}
+    void addValue(double value)
+    {
+        if (value == HUGE_VAL) // TODO
+        {
+            return;
+        }
+
+        if (value < min)
+        {
+            min = value;
+        }
+
+        if (value > max)
+        {
+            max = value;
+        }
+    }
+
+    double max;
+    double min;
+};
+
+
+class PosNegAccumulator
+{
+public:
+    PosNegAccumulator(double initPos, double initNeg): pos(initPos), neg(initNeg) {}
+    void addValue(double value)
+    {
+        if (value == HUGE_VAL)
+        {
+            return;
+        }
+
+        if (value < pos && value > 0)
+        {
+            pos = value;
+        }
+
+        if (value > neg && value < 0)
+        {
+            neg = value;
+        }
+    }
+
+    double pos;
+    double neg;
+};
+
+
+class SumCountAccumulator
+{
+public:
+    SumCountAccumulator(double initSum, size_t initCount): valueSum(initSum), sampleCount(initCount) {}
+
+    void addValue(double value)
+    {
+        if (value == HUGE_VAL || value != value)
+        {
+            return;
+        }
+
+        valueSum += value;
+        ++sampleCount;
+    }
+
+    double valueSum;
+    size_t sampleCount;
+};

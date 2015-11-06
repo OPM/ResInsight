@@ -43,6 +43,7 @@
 
 #include "RigStatisticsDataCache.h"
 #include "RigFemNativeVisibleCellsStatCalc.h"
+#include "RigEclipseNativeVisibleCellsStatCalc.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 //--------------------------------------------------------------------------------------------------
@@ -174,6 +175,65 @@ void Rim3dOverlayInfoConfig::setReservoirView(RimView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * reservoirView)
 {
+    double min = HUGE_VAL, max = HUGE_VAL;
+    double p10 = HUGE_VAL, p90 = HUGE_VAL;
+    double mean = HUGE_VAL;
+    const std::vector<size_t>* histogram = NULL;
+
+    bool isResultsInfoRelevant  = reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult();
+
+    if (showHistogram() || showInfoText())
+    {
+        if (isResultsInfoRelevant)
+        {
+            size_t scalarIndex = reservoirView->cellResult()->scalarResultIndex();
+            if (m_statisticsCellRange == ALL_CELLS)
+            {
+                if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                {
+                    reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+                    reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+                    reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
+                    histogram = &(reservoirView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex));
+                }
+                else if (m_statisticsTimeRange == CURRENT_TIMESTEP )
+                {
+                    int timeStepIdx = reservoirView->currentTimeStep();
+                    reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, timeStepIdx, min, max);
+                    reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, timeStepIdx, p10, p90);
+                    reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex,  timeStepIdx, mean);
+                    histogram = &(reservoirView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex, timeStepIdx));
+                }
+                else
+                {
+                    CVF_ASSERT(false);
+                }
+            }
+            else if ( m_statisticsCellRange == VISIBLE_CELLS)
+            {
+                updateVisCellStatsIfNeeded();
+                if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                {
+                    // TODO: Only valid if we have no dynamic property filter
+                    m_visibleCellStatistics->meanCellScalarValues(mean);
+                    m_visibleCellStatistics->minMaxCellScalarValues(min, max);
+                    m_visibleCellStatistics->p10p90CellScalarValues(p10, p90);
+
+                    histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
+                }
+                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
+                {
+                    int currentTimeStep = reservoirView->currentTimeStep();
+                    m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, mean);
+                    m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
+                    m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
+
+                    histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
+                }
+            }
+        }
+    }
+
     if (showInfoText())
     {
         QString caseName;
@@ -217,39 +277,17 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * reservoirView)
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
         }
 
-        if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult())
+        if (isResultsInfoRelevant)
         {
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
             // Wait until regression tests confirm new statisticks is ok  :
             //infoText += QString("<br>Statistics for: ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
 
-            if (m_statisticsCellRange == ALL_CELLS)
-            {
-                double min = HUGE_VAL, max = HUGE_VAL;
-                double p10 = HUGE_VAL, p90 = HUGE_VAL;
-                double mean = HUGE_VAL;
-                
-                size_t scalarIndex = reservoirView->cellResult()->scalarResultIndex();
 
-                if (m_statisticsTimeRange == ALL_TIMESTEPS)
-                {
-                    reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-                    reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-                    reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
-                }
-                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
-                {
-                    int timeStepIdx = reservoirView->currentTimeStep();
-                    reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, timeStepIdx, min, max);
-                    reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, timeStepIdx, p10, p90);
-                    reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex,  timeStepIdx, mean);
-                }
-
-                infoText += QString("<table border=0 cellspacing=5 >"
-                                    "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
-                                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5 </td></tr>"
-                                    "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
-            }
+            infoText += QString("<table border=0 cellspacing=5 >"
+                                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
+                                "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5 </td></tr>"
+                                "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
 
             if (reservoirView->faultResultSettings()->hasValidCustomResult())
             {
@@ -309,41 +347,11 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * reservoirView)
 
     if (showHistogram())
     {
-        if (reservoirView->hasUserRequestedAnimation() && reservoirView->cellResult()->hasResult())
+        if (isResultsInfoRelevant)
         {
-            if (m_statisticsCellRange == ALL_CELLS)
-            {
-                double min = HUGE_VAL, max = HUGE_VAL;
-                double p10 = HUGE_VAL, p90 = HUGE_VAL;
-                double mean = HUGE_VAL;
-                const std::vector<size_t>* histogram = NULL;
-
-                size_t scalarIndex = reservoirView->cellResult()->scalarResultIndex();
-
-                if (m_statisticsTimeRange == ALL_TIMESTEPS)
-                {
-                    reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-                    reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-                    reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
-                    histogram = &(reservoirView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex));
-                }
-                else if (m_statisticsTimeRange == CURRENT_TIMESTEP )
-                {
-                    int timeStepIdx = reservoirView->currentTimeStep();
-                    reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, timeStepIdx, min, max);
-                    reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, timeStepIdx, p10, p90);
-                    reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex,  timeStepIdx, mean);
-                    histogram = &(reservoirView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex, timeStepIdx));
-                }
-                else
-                {
-                    CVF_ASSERT(false);
-                }
-
-                reservoirView->viewer()->showHistogram(true);
-                reservoirView->viewer()->setHistogram(min, max, *histogram);
-                reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
-            }
+            reservoirView->viewer()->showHistogram(true);
+            reservoirView->viewer()->setHistogram(min, max, *histogram);
+            reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
         }
     }
 }
@@ -511,15 +519,14 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
             calc = new RigFemNativeVisibleCellsStatCalc(geoMechView->geoMechCase()->geoMechData(),
                                                         resAddress,
                                                         geoMechView->currentTotalCellVisibility().p());
-            m_visibleCellStatistics = new RigStatisticsDataCache(calc.p());
-            m_isVisCellStatUpToDate = true;
+          
         }
         else if (eclipseView)
         {
-           // RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
-           // cvf::ref<RigEclipseNativeVisibleCellsStatCalc> calc = new RigEclipseNativeVisibleCellsStatCalc(geoMechView->geoMechCase()->geoMechData(),
-           //                                                                                        resAddress,
-           //                                                                                        geoMechView->currentTotalCellVisibility().p());
+           size_t scalarIndex = eclipseView->cellResult()->scalarResultIndex();
+           calc = new RigEclipseNativeVisibleCellsStatCalc(eclipseView->currentGridCellResults()->cellResults(),
+                                                           scalarIndex,
+                                                           eclipseView->currentTotalCellVisibility().p());
         }
 
         m_visibleCellStatistics = new RigStatisticsDataCache(calc.p());

@@ -18,45 +18,44 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 
-#include "RigFemNativeVisibleCellsStatCalc.h"
-#include "RigFemScalarResultFrames.h"
-#include "RigFemPartResultsCollection.h"
+#include "RigEclipseNativeVisibleCellsStatCalc.h"
 
 #include <math.h>
 #include "RigStatisticsMath.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
+#include "RigCaseCellResultsData.h"
+#include "RigActiveCellInfo.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemNativeVisibleCellsStatCalc::RigFemNativeVisibleCellsStatCalc(RigGeoMechCaseData* femCase,
-                                                                   const RigFemResultAddress& resVarAddr, 
-                                                                   const cvf::UByteArray* cellVisibilities)
-: m_caseData(femCase), m_resVarAddr(resVarAddr), m_cellVisibilities(cellVisibilities)
+RigEclipseNativeVisibleCellsStatCalc::RigEclipseNativeVisibleCellsStatCalc(RigCaseCellResultsData* cellResultsData, 
+                                                                           size_t scalarResultIndex,
+                                                                           const cvf::UByteArray* cellVisibilities)
+:   m_caseData(cellResultsData),
+    m_scalarResultIndex(scalarResultIndex), 
+    m_cellVisibilities(cellVisibilities)
 {
-    m_resultsData = femCase->femPartResults();
+
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
+void RigEclipseNativeVisibleCellsStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
     MinMaxAccumulator acc(min, max);
-    traverseElementNodes(acc, timeStepIndex);
+    traverseCells(acc, timeStepIndex);
     min = acc.min;
     max = acc.max;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
+void RigEclipseNativeVisibleCellsStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
     PosNegAccumulator acc(pos, neg);
-    traverseElementNodes(acc, timeStepIndex);
+    traverseCells(acc, timeStepIndex);
     pos = acc.pos;
     neg = acc.neg;
 
@@ -65,29 +64,28 @@ void RigFemNativeVisibleCellsStatCalc::posNegClosestToZero(size_t timeStepIndex,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
+void RigEclipseNativeVisibleCellsStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
     SumCountAccumulator acc(valueSum, sampleCount);
-    traverseElementNodes(acc, timeStepIndex);
+    traverseCells(acc, timeStepIndex);
     valueSum = acc.valueSum;
     sampleCount = acc.sampleCount;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
+void RigEclipseNativeVisibleCellsStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
 {
-    traverseElementNodes(histogramCalculator, timeStepIndex);
+    traverseCells(histogramCalculator, timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigFemNativeVisibleCellsStatCalc::timeStepCount()
+size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 {
-    return m_resultsData->frameCount();
+    return m_caseData->timeStepCount(m_scalarResultIndex);
 }
 
 
