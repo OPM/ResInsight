@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: odbsupport
-next_section: installation
 title: Getting Started
 permalink: /docs/gettingstarted/
 published: true
@@ -25,7 +23,7 @@ windows can be managed from the **Windows** menu or directly using the local men
 
 <div class="note">
 <h5>Add additional docking windows</h5>
-A new project tree and property editor can be added from **Windows->New Project and Property View**.
+A new project tree and property editor can be added from <b>Windows->New Project and Property View</b>.
 </div>
 
 
@@ -37,9 +35,15 @@ A selected subset of actions are presented as controls in the toolbar. The diffe
 
 In the main area of the application, several 3D views can be open at the same time. One of them will be active and the active view can be either maximized to use the whole main area, or normalized so that you can see all the open 3D views.
 
+Management of several views is available from the **Windows** menu
+
+- **Tile Windows** - distribute all open view windows to fill available view widget space
+- **Cascade Windows** - organize all open view windows sligthly offset on top of each other
+- **Close All Windows** - close all open view windows
+
 <div class="note">
-<h5>Docking window management</h5>
-To see views next to each other select the <b>Restore down</b> icon in the application (shown below for Windows).
+<h5>View window management</h5>
+Standard window management for applying minimized, normal and maximized state is available in the upper right corner.
 </div>
 ![Restore Down]({{ site.baseurl }}/images/RestoreDown.PNG)
 

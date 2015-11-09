@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: faults
-next_section: wellpaths
 title: Cell Filters
 permalink: /docs/filters/
 published: true

@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: buildinstructions
-next_section: regressiontestsystem
 title: Octave Interface Reference
 permalink: /docs/octaveinterfacereference/
 published: true

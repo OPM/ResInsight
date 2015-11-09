@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: gridimportexport
-next_section: faults
 title: Simulation Wells
 permalink: /docs/simulationwells/
 published: true

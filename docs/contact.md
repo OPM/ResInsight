@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: commandlineparameters
-next_section: about
 title: Contact
 permalink: /docs/contact/
 published: true

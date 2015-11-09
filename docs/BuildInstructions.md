@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: preferences
-next_section: octaveinterfacereference
 title: Build Instructions
 permalink: /docs/buildinstructions/
 published: true

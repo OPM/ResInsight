@@ -1,8 +1,6 @@
 ---
 layout: docs
-prev_section: installation
-next_section: reservoirviews
-title: Installation and Configuration (Linux)
+title: Linux Installation
 permalink: /docs/installationlinux/
 published: true
 ---

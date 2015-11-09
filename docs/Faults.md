@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: simulationwells
-next_section: filters
 title: Faults
 permalink: /docs/faults/
 published: true

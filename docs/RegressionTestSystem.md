@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: octaveinterfacereference
-next_section: commandlineparameters
 title: Regression Test System
 permalink: /docs/regressiontestsystem/
 published: true

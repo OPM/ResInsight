@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: home
-next_section: gettingstarted
 title: ABAQUS Odb Support
 permalink: /docs/odbsupport/
 published: true
@@ -16,7 +14,9 @@ ResInsight supports the elements C3D8R, C3D8 and C3D8P which are all HEX8 cells.
  
 ResInsight loads the second frame within each odb-step, and present those as the timeseries for each result.
 
-All the result fields in the odb-file is then available for post processing in ResInsight, but stresses and strains are converted to pressure-positive tensors as normally used in geomechanics, instead of the normal tension-positive tensors that ABAQUS stores. 
+All the result fields in the odb-file is then available for post processing in ResInsight, but stresses and strains are converted to pressure-positive tensors as normally used in geomechanics, instead of the normal tension-positive tensors that ABAQUS stores.
+
+Pressure and stress are always displayed using the *Bar* unit.
 
 Other derived results are also calculated, and are described in [ Derived Results ]({{ site.baseurl }}/docs/derivedresults)
 

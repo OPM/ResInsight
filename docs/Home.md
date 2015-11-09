@@ -1,7 +1,6 @@
 ---
 layout: docs
-title: ResInsight 1.4 Users Guide
-next_section: odbsupport
+title: ResInsight 1.5
 permalink: /docs/home/
 published: true
 ---
@@ -20,9 +19,9 @@ Integration with GNU Octave enables powerful and flexible result manipulation an
 The main input data is
 `*.GRID` and `*.EGRID` files along with their `*.INIT` and restart files `*.XNNN` and `*.UNRST`. 
 ResInsight also supports selected parts of Eclipse input files and can read grid 
-information and corresponding cell property data sets.
+information and corresponding cell property data sets. Well log data can be imported from `*.LAS` files.
 
-ResInsight can also be built with support for Geomechanic models from ABAQUS in the `*.odb` file format. 
+ResInsight can also be built with support for Geomechanic models from ABAQUS in the `*.odb` file format.
 
 ### About
 ResInsight has been co-developed by [Statoil ASA](http://www.statoil.com/), [Ceetron Solutions AS](http://www.ceetronsolutions.com/), and [Ceetron AS](http://ceetron.com/) with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.

@@ -1,8 +1,6 @@
 ---
 layout: docs
-prev_section: gettingstarted
-next_section: installationlinux
-title: Installation and Configuration (Windows)
+title: Windows Installation
 permalink: /docs/installation/
 published: true
 ---

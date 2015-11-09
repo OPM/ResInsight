@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: batchcommands
-next_section: preferences
 title: Model Navigation
 permalink: /docs/modelnavigation/
 published: true

@@ -1,7 +1,10 @@
-- title: Getting Started
+- title: Introduction
   docs:
   - home
   - odbsupport
+  
+- title: Getting Started
+  docs:
   - gettingstarted
   - installation
   - installationlinux
@@ -9,20 +12,22 @@
 - title: Application
   docs:
   - reservoirviews
+  - modelnavigation
+  - linkedviews
   - gridimportexport
   - simulationwells
   - faults
   - filters
   - wellpaths
+  - welllogsandplots
   - derivedresults
   - casegroupsandstatistics
   - octaveinterface
   - batchcommands
+  - preferences
 
 - title: Appendix
   docs:
-  - modelnavigation
-  - preferences
   - buildinstructions
   - octaveinterfacereference
   - regressiontestsystem

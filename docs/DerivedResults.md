@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: wellpaths
-next_section: casegroupsandstatistics
 title: Derived Results
 permalink: /docs/derivedresults/
 published: true
@@ -45,13 +43,17 @@ The directional combined parameters available are:
 
 ## Derived Geomechanical results
 
-ResInsight calculates several of the geomechanical results presented. Here we will present a brief overview.
+ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files. 
 
-The calculated result fields including their components are:
+The calculated result fields are:
 
-SE, E, ST and Gamma
+SE (Effective Stress) , E (Strain), ST (Total Stress) and Gamma (Stress path)
 
-In this text the label Sa and Ea will be used to denote the unchanged stress and strain tensor respectivly from the odb file. 
+In this text the label Sa and Ea will be used to denote the unchanged stress and strain tensor respectivly from the odb file.
+
+Components with one subscript denotes the principal values 1, 2, and 3 which refers to the maximum, middle, and minimum principals respectively. 
+
+Components with two subscripts however, refers to the global directions 1, 2, and 3 which corresponds to  X, Y, and Z and thus also Easting, Northing, and -Depth.
 
 ### SE - Effective Stress
 

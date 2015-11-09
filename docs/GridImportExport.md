@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: reservoirviews
-next_section: simulationwells
 title: Grid Import and Property Export
 permalink: /docs/gridimportexport/
 published: true

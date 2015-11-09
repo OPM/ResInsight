@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: derivedresults
-next_section: octaveinterface
 title: Grid Case Groups and Statistics
 permalink: /docs/casegroupsandstatistics/
 published: true

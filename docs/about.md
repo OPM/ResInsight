@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: contact
-#next_section: home
 title: About
 permalink: /docs/about/
 published: true

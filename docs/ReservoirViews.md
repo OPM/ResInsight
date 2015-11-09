@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: installationlinux
-next_section: gridimportexport
 title: Working with 3D Views
 permalink: /docs/reservoirviews/
 published: true

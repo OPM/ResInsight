@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: modelnavigation
-next_section: buildinstructions
 title: Preferences
 permalink: /docs/preferences/
 published: true

@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: octaveinterface
-next_section: modelnavigation
 title: Batch Commands
 permalink: /docs/batchcommands/
 published: true

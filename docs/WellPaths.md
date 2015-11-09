@@ -1,7 +1,5 @@
 ---
 layout: docs
-prev_section: filters
-next_section: derivedresults
 title: Well Trajectories
 permalink: /docs/wellpaths/
 published: true
