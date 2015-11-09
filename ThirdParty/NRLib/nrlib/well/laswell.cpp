@@ -450,6 +450,19 @@ void LasWell::AddLog(const std::string         & name,
 }
 
 
+int calculatePrecision(double value)
+{
+  double absVal = fabs(value);
+  if (1e-16 < absVal && absVal < 1.0e3){
+      int logVal = static_cast<int>(log(absVal));
+      int numDigitsAfterPoint = abs(logVal - 6);
+      return numDigitsAfterPoint;
+  }
+  else{
+      return 3;
+  }
+}
+
 void LasWell::WriteToFile(const std::string              & filename,
                           const std::vector<std::string> & comment_header)
 {
@@ -518,12 +531,16 @@ void LasWell::WriteToFile(const std::string              & filename,
   file.precision(3);
   for (size_t i = 0; i < logs[0]->size(); ++i) {
     for (size_t j = 0; j < logs.size(); ++j) {
-      file << (*logs[j])[i] << " ";
+      // Calculate a sensible precision. LAS does not support scientific notation 
+      double value = (*logs[j])[i];
+      int numDigitsAfterPoint = calculatePrecision(value);
+
+      file.precision(numDigitsAfterPoint);
+      file << value << " ";
     }
     file << "\n";
   }
 }
-
 
 void LasWell::WriteLasLine(std::ofstream     & file,
                            const std::string & mnemonic,
