@@ -254,6 +254,46 @@ ref<DrawableGeo> StructGridGeometryGenerator::createOutlineMeshDrawable(double c
 
 //--------------------------------------------------------------------------------------------------
 /// 
+//--------------------------------------------------------------------------------------------------
+ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawableFromSingleCell(const StructGridInterface* grid, size_t cellIndex)
+{
+    cvf::Vec3d cornerVerts[8];
+    grid->cellCornerVertices(cellIndex, cornerVerts);
+
+    std::vector<Vec3f> vertices;
+    
+    for (int enumInt = cvf::StructGridInterface::POS_I; enumInt < cvf::StructGridInterface::NO_FACE; enumInt++)
+    {
+        cvf::StructGridInterface::FaceType face = static_cast<cvf::StructGridInterface::FaceType>(enumInt);
+
+        ubyte faceConn[4];
+        grid->cellFaceVertexIndices(face, faceConn);
+
+        int n;
+        for (n = 0; n < 4; n++)
+        {
+            vertices.push_back(cvf::Vec3f(cornerVerts[faceConn[n]] - grid->displayModelOffset()));
+        }
+    }
+
+    cvf::ref<cvf::Vec3fArray> cvfVertices = new cvf::Vec3fArray;
+    cvfVertices->assign(vertices);
+
+    if (!(cvfVertices.notNull() && cvfVertices->size() != 0)) return NULL;
+
+    ref<DrawableGeo> geo = new DrawableGeo;
+    geo->setVertexArray(cvfVertices.p());
+    
+    ref<UIntArray> indices = lineIndicesFromQuadVertexArray(cvfVertices.p());
+    ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt(PT_LINES);
+    prim->setIndices(indices.p());
+
+    geo->addPrimitiveSet(prim.p());
+    return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
 /// 
 /// 
 /// 

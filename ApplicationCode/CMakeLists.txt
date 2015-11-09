@@ -92,6 +92,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuProjectPropertyView.cpp
 	UserInterface/RiuTimeHistoryQwtPlot.h
 	UserInterface/RiuTimeHistoryQwtPlot.cpp
+	UserInterface/RiuSelectionManager.h
+	UserInterface/RiuSelectionManager.cpp
 )
 
 set( SOCKET_INTERFACE_FILES

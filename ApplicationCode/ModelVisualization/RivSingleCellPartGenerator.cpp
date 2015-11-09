@@ -1,0 +1,74 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RivSingleCellPartGenerator.h"
+
+#include "RigCaseData.h"
+
+#include "cafEffectGenerator.h"
+#include "cvfPart.h"
+#include "cvfRenderStateDepth.h"
+#include "cvfStructGridGeometryGenerator.h"
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivSingleCellPartGenerator::RivSingleCellPartGenerator(RigCaseData* rigCaseData, size_t gridIndex, size_t cellIndex)
+    : m_rigCaseData(rigCaseData),
+    m_gridIndex(gridIndex),
+    m_cellIndex(cellIndex)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Part> RivSingleCellPartGenerator::createPart(const cvf::Color3f color)
+{
+    cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setName("Hightlight part for cell index " + m_cellIndex);
+    part->setDrawable(createMeshDrawable().p());
+
+    cvf::ref<cvf::Effect> eff;
+    caf::MeshEffectGenerator effGen(color);
+    eff = effGen.generateUnCachedEffect();
+
+    cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+    depth->enableDepthTest(false);
+    eff->setRenderState(depth.p());
+
+    part->setEffect(eff.p());
+
+    return part;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
+{
+    if (m_rigCaseData &&
+        m_cellIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        return cvf::StructGridGeometryGenerator::createMeshDrawableFromSingleCell(m_rigCaseData->grid(m_gridIndex), m_cellIndex);
+    }
+
+    return NULL;
+}
