@@ -93,7 +93,6 @@ public:
     void                                        setColorRangeMode(ColorRangesType colorMode);
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
-    void                                        setPosition(cvf::Vec2ui position);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     cvf::OverlayScalarMapperLegend*             legend() { return m_legend.p(); }
@@ -130,8 +129,6 @@ private:
     double                                      m_globalAutoNegClosestToZero;
     double                                      m_localAutoPosClosestToZero;
     double                                      m_localAutoNegClosestToZero;
-
-    cvf::Vec2ui                                 m_position;
 
     // Fields
     caf::PdmField<int>                          m_numLevels;

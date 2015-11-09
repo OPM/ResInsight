@@ -18,7 +18,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketCommand.h"
 #include "RiaSocketTools.h"
@@ -43,7 +42,6 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"
-#include "RimWellPathCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RigCaseData.h"

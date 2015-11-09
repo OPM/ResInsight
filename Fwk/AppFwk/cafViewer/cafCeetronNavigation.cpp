@@ -140,7 +140,7 @@ void caf::CeetronNavigation::mouseMoveEvent(QMouseEvent* event)
     bool needRedraw = m_trackball->updateNavigation(posX, posY);
     if (needRedraw)
     {
-        m_viewer->update();
+        m_viewer->navigationPolicyUpdate();
     }
 
     setCursorFromCurrentState();
@@ -208,7 +208,7 @@ void caf::CeetronNavigation::wheelEvent(QWheelEvent* event)
     m_trackball->updateNavigation(event->x(), posY + navDelta);
     m_trackball->endNavigation();
 
-    m_viewer->update();
+    m_viewer->navigationPolicyUpdate();
 
     event->accept();
 }
@@ -254,14 +254,14 @@ void caf::CeetronNavigation::setCursorFromCurrentState()
     ManipulatorTrackball::NavigationType navType = m_trackball->activeNavigation();
     switch (navType)
     {
-    case ManipulatorTrackball::PAN:	     
+    case ManipulatorTrackball::PAN:         
         //m_viewer->setCursor(RiuCursors::get(RiuCursors::PAN));
         return;
-    case ManipulatorTrackball::WALK:	 
-        //m_viewer->setCursor(RiuCursors::get(RiuCursors::WALK));	    
+    case ManipulatorTrackball::WALK:     
+        //m_viewer->setCursor(RiuCursors::get(RiuCursors::WALK));        
         return;
-    case ManipulatorTrackball::ROTATE:	 
-        //m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));	
+    case ManipulatorTrackball::ROTATE:     
+        //m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));    
         return;
     default:
         break;

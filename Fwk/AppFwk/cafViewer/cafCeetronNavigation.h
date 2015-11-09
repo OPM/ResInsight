@@ -57,14 +57,14 @@ protected:
     virtual void        setPointOfInterest(cvf::Vec3d poi);
 
     // Ceetron navigation stuff
-    void	        mouseMoveEvent(QMouseEvent* event);
-    void	        mousePressEvent(QMouseEvent* event);
-    void	        mouseReleaseEvent(QMouseEvent* event);
+    void            mouseMoveEvent(QMouseEvent* event);
+    void            mousePressEvent(QMouseEvent* event);
+    void            mouseReleaseEvent(QMouseEvent* event);
     void            wheelEvent(QWheelEvent* event);
 
     cvf::ManipulatorTrackball::NavigationType 
                     getNavigationTypeFromMouseButtons(Qt::MouseButtons mouseButtons);
-    void	        setCursorFromCurrentState();
+    void            setCursorFromCurrentState();
 
     void            initializeRotationCenter();
 

@@ -13,6 +13,8 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
+from warnings import warn
+
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
 from ert.util import StringList
@@ -67,7 +69,13 @@ class EclConfig(BaseCClass):
         return EclConfig.cNamespace().validate_gridfile(self, gridfile)
         
     def get_grid(self):
-        return EclConfig.cNamespace().get_grid(self)
+        warning_message = "The method get_grid() is deprecated. Use getGrid() instead"
+        warn(warning_message)
+        return self.getGrid( )
+    
+    def getGrid(self):
+        c_ptr = EclConfig.cNamespace().get_grid(self)
+        return EclGrid.create_ref( c_ptr )
 
     #-----------------------------------------------------------------
 

@@ -16,10 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
 #include "RiuResultInfoPanel.h"
 
-
+#include <QDockWidget>
+#include <QTextEdit>
+#include <QVBoxLayout>
+#include <QWidget>
 
 //==================================================================================================
 ///
@@ -36,16 +38,16 @@
 RiuResultInfoPanel::RiuResultInfoPanel(QDockWidget* parent)
 :   QWidget(parent)
 {
-	m_textEdit = new QTextEdit(this);
-	m_textEdit->setReadOnly(true);
-	m_textEdit->setLineWrapMode(QTextEdit::NoWrap);
+    m_textEdit = new QTextEdit(this);
+    m_textEdit->setReadOnly(true);
+    m_textEdit->setLineWrapMode(QTextEdit::NoWrap);
 
-	QVBoxLayout* layout = new QVBoxLayout();
-	layout->addWidget(m_textEdit);
+    QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(m_textEdit);
 
     layout->setContentsMargins(0, 0, 0, 0);
 
-	setLayout(layout);
+    setLayout(layout);
 }
 
 
@@ -56,9 +58,9 @@ void RiuResultInfoPanel::setInfo(const QString& info)
 {
     QString tmp(info);
 
-	convertStringToHTML(&tmp);
+    convertStringToHTML(&tmp);
 
-	m_textEdit->setText(info);
+    m_textEdit->setText(info);
 }
 
 
@@ -67,8 +69,8 @@ void RiuResultInfoPanel::setInfo(const QString& info)
 //--------------------------------------------------------------------------------------------------
 void RiuResultInfoPanel::convertStringToHTML(QString* str)
 {
-	str->replace("\n", "<br>");
-	str->replace(" ", "&nbsp;");
+    str->replace("\n", "<br>");
+    str->replace(" ", "&nbsp;");
 }
 
 

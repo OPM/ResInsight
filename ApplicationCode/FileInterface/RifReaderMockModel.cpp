@@ -18,8 +18,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RifReaderMockModel.h"
 #include "RigCaseCellResultsData.h"
 #include "RifReaderInterface.h"

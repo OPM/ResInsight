@@ -20,13 +20,14 @@
 
 #pragma once
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-class RimWellPathCollection;
 class RimEclipseCaseCollection;
 class RimGeoMechModels;
+class RimWellPathCollection;
 
 //==================================================================================================
 ///  
@@ -40,7 +41,7 @@ public:
     RimOilField(void);
     virtual ~RimOilField(void);
 
-    caf::PdmField<RimEclipseCaseCollection*>       analysisModels;
-    caf::PdmField<RimGeoMechModels*>        geoMechModels;
-	caf::PdmField<RimWellPathCollection*>   wellPathCollection;
+    caf::PdmChildField<RimEclipseCaseCollection*>       analysisModels;
+    caf::PdmChildField<RimGeoMechModels*>        geoMechModels;
+    caf::PdmChildField<RimWellPathCollection*>   wellPathCollection;
 };

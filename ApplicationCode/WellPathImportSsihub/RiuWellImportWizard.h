@@ -18,29 +18,34 @@
 
 #pragma once
 
-#include <QString>
-#include <QWizard>
-#include <QNetworkAccessManager>
-#include <QUrl>
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmObjectGroup.h"
+
 #include <QItemSelection>
+#include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QString>
+#include <QUrl>
+#include <QWizard>
 
 class QFile;
 class QProgressDialog;
 class QLabel;
 class QTextEdit;
 
-
 class RimWellPathImport;
 class RimOilFieldEntry;
+class RimWellPathEntry;
 
 
 namespace caf
 {
-    class UiTreeModelPdm;
     class PdmUiTreeView;
     class PdmUiListView;
-    class PdmObjectGroup;
+    class PdmUiPropertyView;
+    class PdmObjectCollection;
 }
 
 
@@ -67,14 +72,52 @@ class FieldSelectionPage : public QWizardPage
 
 public:
     FieldSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
+    ~FieldSelectionPage();
 
     virtual void initializePage();
+
+private:
+    caf::PdmUiPropertyView* m_propertyView;
 };
 
 
 
-class ObjectGroupWithHeaders;
+//--------------------------------------------------------------------------------------------------
+/// Container class used to define column headers
+//--------------------------------------------------------------------------------------------------
+class ObjectGroupWithHeaders : public caf::PdmObjectCollection
+{
+public:
+    ObjectGroupWithHeaders()    {};
 
+    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute);
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class DownloadEntity
+{
+public:
+    QString name;
+    QString requestUrl;
+    QString responseFilename;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class SummaryPageDownloadEntity : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    SummaryPageDownloadEntity();
+
+    caf::PdmField<QString> name;
+    caf::PdmField<QString> requestUrl;
+    caf::PdmField<QString> responseFilename;
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -89,6 +132,9 @@ public:
 
     virtual void initializePage();
     void buildWellTreeView();
+
+
+    void selectedWellPathEntries(std::vector<DownloadEntity>& downloadEntities, caf::PdmObjectHandle* objHandle);
 
 private:
     ObjectGroupWithHeaders*  m_regionsWithVisibleWells;
@@ -119,19 +165,9 @@ private:
     RimWellPathImport*  m_wellPathImportObject;
     QTextEdit*          m_textEdit;
     caf::PdmUiListView* m_listView;
-    caf::PdmObjectGroup*m_objectGroup;
+    caf::PdmObjectCollection*  m_objectGroup;
 };
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class DownloadEntity
-{
-public:
-    QString requestUrl;
-    QString responseFilename;
-};
 
 
 //--------------------------------------------------------------------------------------------------
@@ -146,12 +182,12 @@ public:
 
 public:
     RiuWellImportWizard(const QString& webServiceAddress, const QString& downloadFolder, RimWellPathImport* wellPathImportObject, QWidget *parent = 0);
+    ~RiuWellImportWizard();
 
     void        setCredentials(const QString& username, const QString& password);
     QStringList absoluteFilePathsToWellPaths() const;
 
     // Methods used from the wizard pages
-    caf::PdmObjectGroup* wellCollection();
     void        resetAuthenticationCount();
 
 public slots:
@@ -169,6 +205,7 @@ public slots:
 
     void        slotAuthenticationRequired(QNetworkReply* networkReply, QAuthenticator* authenticator);
 
+    int         wellSelectionPageId();
 
 #ifndef QT_NO_OPENSSL
     void sslErrors(QNetworkReply*,const QList<QSslError> &errors);

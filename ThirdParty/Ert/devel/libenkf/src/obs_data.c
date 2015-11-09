@@ -139,12 +139,12 @@ static void obs_block_free__( void * arg ) {
 }
 
 
-void obs_block_deactivate( obs_block_type * obs_block , int iobs , const char * msg) {
+void obs_block_deactivate( obs_block_type * obs_block , int iobs , bool verbose , const char * msg) {
   if (obs_block->active_mode[ iobs ] == ACTIVE) {
-    printf("Deactivating: %s(%d) : %s \n",obs_block->obs_key , iobs , msg);
+    if (verbose)
+      printf("Deactivating: %s(%d) : %s \n",obs_block->obs_key , iobs , msg);
     obs_block->active_mode[ iobs ] = DEACTIVATED;
     obs_block->active_size--;
-
   }
 }
 
@@ -691,4 +691,55 @@ int obs_data_get_active_size( const obs_data_type * obs_data ) {
 
 int obs_data_get_num_blocks( const obs_data_type * obs_data ) {
   return vector_get_size( obs_data->data );
+}
+
+
+
+int obs_data_get_total_size( const obs_data_type * obs_data ) {
+    int total_size = 0;
+    for (int block_nr = 0; block_nr < vector_get_size( obs_data->data ); block_nr++) {
+      const obs_block_type * obs_block   = vector_iget_const( obs_data->data , block_nr );
+      total_size += obs_block->size;
+    }
+    return total_size;
+}
+
+
+static const obs_block_type * obs_data_lookup_block( const obs_data_type * obs_data, int total_index , int * block_offset) {
+  if (total_index < obs_data_get_total_size( obs_data )) {
+      const obs_block_type * obs_block;
+      int total_offset = 0;
+      int block_index = 0;
+      int block_size;
+
+
+      while (true) {
+        obs_block   = vector_iget_const( obs_data->data , block_index );
+        block_size = obs_block->size;
+        if ((block_size + total_offset) > total_index)
+          break;
+
+        total_offset += block_size;
+        block_index++;
+      }
+      *block_offset = total_offset;
+      return obs_block;
+  } else {
+    util_abort("%s: could not lookup obs-block \n",__func__);
+    return NULL;
+  }
+}
+
+
+double obs_data_iget_value( const obs_data_type * obs_data , int total_index ) {
+  int total_offset;
+  const obs_block_type * obs_block = obs_data_lookup_block( obs_data , total_index , &total_offset );
+  return obs_block_iget_value( obs_block , total_index - total_offset );
+}
+
+
+double obs_data_iget_std( const obs_data_type * obs_data , int total_index ) {
+  int total_offset;
+  const obs_block_type * obs_block = obs_data_lookup_block( obs_data , total_index , &total_offset );
+  return obs_block_iget_std( obs_block , total_index - total_offset );
 }

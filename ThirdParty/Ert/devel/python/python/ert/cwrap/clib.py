@@ -46,12 +46,17 @@ so_extension = {"linux"  : "so",
 # Passing None to the CDLL() function means to open a lib handle to
 # the current runnning process, i.e. like dlopen( NULL ). We must
 # special case this to avoid creating the bogus argument 'None.so'.
-def lib_name(lib , platform_key):
+def lib_name(lib , path = None):
     if lib is None:
-        so_name = None
+        return None
     else:
+        platform_key = platform.system().lower()
         so_name = "%s.%s" % (lib , so_extension[ platform_key ])
-    return so_name
+        if path:
+            return os.path.join( path , so_name )
+        else:
+            return so_name
+
 
 
 
@@ -73,15 +78,14 @@ def __load( lib_list, ert_prefix):
 
     error_list = {}
     dll = None
-    platform_key = platform.system().lower()
     for lib in lib_list:
-        so_name = lib_name( lib , platform_key )
+        if ert_prefix:
+            lib_file = lib_name( lib , path = ert_lib_path )
+        else:
+            lib_file = lib_name( lib )
+
         try:
-            if ert_prefix and so_name:
-                ert_lib = os.path.join(ert_lib_path , so_name)
-                dll = ctypes.CDLL(ert_lib, ctypes.RTLD_GLOBAL)
-            else:
-                dll = ctypes.CDLL(so_name , ctypes.RTLD_GLOBAL)
+            dll = ctypes.CDLL(lib_file , ctypes.RTLD_GLOBAL)
             return dll
         except Exception, exc:
             error_list[lib] = exc

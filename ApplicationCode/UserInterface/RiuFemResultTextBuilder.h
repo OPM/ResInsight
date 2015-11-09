@@ -30,7 +30,7 @@ class RigGeoMechCaseData;
 class RimGeoMechCellColors;
 
 namespace cvf {
-	class Part;
+    class Part;
 }
 
 //==================================================================================================
@@ -40,14 +40,14 @@ namespace cvf {
 class RiuFemResultTextBuilder
 {
 public:
-	RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex);
+    RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex);
     void setFace(cvf::StructGridInterface::FaceType face);
     void setIntersectionPoint(cvf::Vec3d intersectionPoint);
 
     QString mainResultText();
 
-	QString topologyText(QString itemSeparator);
-	
+    QString topologyText(QString itemSeparator);
+    
 private:
     void appendDetails(QString& text, const QString& details);
 
@@ -55,16 +55,16 @@ private:
 
     QString closestNodeResultText(RimGeoMechCellColors* resultColors);
 
-	void appendTextFromResultColors(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText);
+    void appendTextFromResultColors(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimGeoMechView> m_reservoirView;
 
-	int m_gridIndex;
-	int m_cellIndex;
-	int m_timeStepIndex;
+    int m_gridIndex;
+    int m_cellIndex;
+    int m_timeStepIndex;
 
-	cvf::StructGridInterface::FaceType m_face;
+    cvf::StructGridInterface::FaceType m_face;
 
-	cvf::Vec3d m_intersectionPoint;
+    cvf::Vec3d m_intersectionPoint;
 };

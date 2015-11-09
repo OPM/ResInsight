@@ -23,6 +23,7 @@
 enum RigElementType
 {
     HEX8,
+    HEX8P,
     CAX4,
     UNKNOWN_ELM_TYPE
 };
@@ -34,4 +35,5 @@ public:
     static int elmentFaceCount(RigElementType elmType);
     static const int* localElmNodeIndicesForFace(RigElementType elmType, int faceIdx, int* faceNodeCount);
     static int oppositeFace(RigElementType elmType, int faceIdx);
+    static const int* localElmNodeToIntegrationPointMapping(RigElementType elmType);
 };

@@ -775,8 +775,11 @@ class EclKW(CClass):
         return cfunc.get_size( self )
     
     def set_name( self , name ):
+        if len(name) > 8:
+            raise ValueError("Sorry: the name property must be max 8 characters long :-(")
         cfunc.set_header( self , name )
 
+        
     def get_name( self ):
         return self.getName()
         
@@ -1016,6 +1019,15 @@ class EclKW(CClass):
         cfunc.fix_uninitialized( self , dims[0] , dims[1], dims[2] , actnum.getDataPtr() )
 
 
+    def getDataPtr(self):
+        if self.ecl_type == EclTypeEnum.ECL_INT_TYPE:
+            return cfunc.int_ptr( self )
+        elif self.ecl_type == EclTypeEnum.ECL_FLOAT_TYPE:
+            return cfunc.float_ptr( self )
+        elif self.ecl_type == EclTypeEnum.ECL_DOUBLE_TYPE:
+            return cfunc.double_ptr( self )
+        else:
+            raise ValueError("Only numeric types can export data pointer")
 
 #################################################################
 

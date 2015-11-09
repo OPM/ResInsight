@@ -122,7 +122,15 @@ class EclGrid(CClass):
 
 
     @classmethod
+    def create_ref(cls , c_ptr , parent = None ):
+        obj = object.__new__( cls )
+        obj.init_cref( c_ptr , parent )
+        return obj
+    
+
+    @classmethod
     def create_rectangular(cls , dims , dV , actnum = None):
+        warnings.warn("The create_rectangular method is deprecated - use createRectangular( )")
         return cls.createRectangular( dims , dV , actnum )
 
 
@@ -1057,6 +1065,11 @@ class EclGrid(CClass):
         else:
             raise ValueError("The input keyword must have nx*n*nz or nactive elements. Size:%d invalid" % len(kw))
 
+
+    def exportACTNUMKw(self):
+        actnum = EclKW.create("ACTNUM" , self.getGlobalSize() , EclTypeEnum.ECL_INT_TYPE)
+        cfunc.init_actnum( self , actnum.getDataPtr() )
+        return actnum
         
 
 # 2. Creating a wrapper object around the libecl library, 

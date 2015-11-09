@@ -18,8 +18,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RivReservoirViewPartMgr.h"
 
 #include "RigCaseCellResultsData.h"
@@ -40,6 +38,9 @@
 #include "RimEclipseWellCollection.h"
 
 #include "RivGridPartMgr.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
+#include "RigCaseToCaseCellMapper.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -59,6 +60,8 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     switch (geometryType)
     {
+    case OVERRIDDEN_CELL_VISIBILITY:
+        clearGeometryCache(OVERRIDDEN_CELL_VISIBILITY);
     case INACTIVE:
         clearGeometryCache(INACTIVE);
         clearGeometryCache(RANGE_FILTERED_INACTIVE);
@@ -184,6 +187,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::clearGeometryCache()
 {
+    clearGeometryCache(OVERRIDDEN_CELL_VISIBILITY);
     clearGeometryCache(ACTIVE);
     clearGeometryCache(ALL_WELL_CELLS);
     clearGeometryCache(VISIBLE_WELL_CELLS);
@@ -268,6 +272,9 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
 
     switch (geometryType)
     {
+    case OVERRIDDEN_CELL_VISIBILITY:
+        computeOverriddenCellVisibility(cellVisibility, grid);
+    break;
     case ACTIVE:
         computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx), false, false, true, m_reservoirView->showMainGrid() );
         break;
@@ -582,6 +589,65 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::computeOverriddenCellVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid)
+{
+
+    RimViewController* masterViewLink = m_reservoirView->viewController();
+    
+    CVF_ASSERT(masterViewLink);
+
+    RimView* masterView = masterViewLink->ownerViewLinker()->masterView();
+
+    // get cell visibility
+    #if 1
+    cvf::ref<cvf::UByteArray> totCellVisibility =  masterView->currentTotalCellVisibility();
+    #else
+    // Could get something more like 
+    std::vector<std::vector<cvf::UByteArray*> > gridsWithCellSetVisibility = masterView->getAllGridsCurrentCellSetsCellVisibility();
+    #endif    
+    
+    CVF_ASSERT(cellVisibility != NULL);
+    CVF_ASSERT(grid != NULL);
+
+    size_t gridCellCount = grid->cellCount();
+    cellVisibility->resize(gridCellCount);
+    cellVisibility->setAll(false);
+
+    const RigCaseToCaseCellMapper* cellMapper = masterViewLink->cellMapper();
+
+    for (size_t lcIdx = 0; lcIdx < gridCellCount; ++lcIdx)
+    {
+        #if 1
+        int reservoirCellIdx = static_cast<int>(grid->reservoirCellIndex(lcIdx));
+        int cellCount = 0;
+        const int* cellIndicesInMasterCase = cellMapper->masterCaseCellIndices(reservoirCellIdx, &cellCount);
+        
+        for (int mcIdx = 0; mcIdx < cellCount; ++mcIdx)
+        {
+            (*cellVisibility)[lcIdx] |=  (*totCellVisibility)[cellIndicesInMasterCase[mcIdx]]; // If any is visible, show
+        }
+
+        #else
+        
+        const RigGridCells& masterCaseCells = cellMapper->masterCaseGridAndLocalCellIndex(grid->gridIndex, lcIdx);
+
+        for (int mcIdx = 0; mcIdx < masterCaseCells.cellCount(); ++mcIdx)
+        {
+            int cellSetCount = gridsWithCellSetVisibility[ masterCaseCells.gridIndex[mcIdx] ].size();
+            for (int csIdx = 0; csIdx < cellSetCount; ++csIdx)
+            {
+                (*cellVisibility)[lcIdx] |=  gridsWithCellSetVisibility[masterCaseCells.gridIndex[mcIdx]][masterCaseCells.cellIndex[mcIdx]];
+            }
+        }
+        #endif
+    }
+}
+
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// Copy the data from source into destination. This is not trivial to do using cvf::Array ...
@@ -719,8 +785,6 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 const double lowerBound = propertyFilter->lowerBound();
                 const double upperBound = propertyFilter->upperBound();
 
-                size_t scalarResultIndex = propertyFilter->resultDefinition->scalarResultIndex();
-
                 size_t adjustedTimeStepIndex = timeStepIndex;
 
                 // Set time step to zero for static results
@@ -734,7 +798,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(propertyFilter->resultDefinition()->porosityModel());
                 RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
 
-				cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
                 CVF_ASSERT(resultAccessor.notNull());
 
                 //#pragma omp parallel for schedule(dynamic)
@@ -801,7 +865,7 @@ void RivReservoirViewPartMgr::updateCellResultColor(RivCellSetEnum geometryType,
 void RivReservoirViewPartMgr::updateCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
     RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
-	pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
+    pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -809,8 +873,8 @@ void RivReservoirViewPartMgr::updateCellEdgeResultColor(RivCellSetEnum geometryT
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
-	RivReservoirPartMgr * pmgr = reservoirPartManager(geometryType, timeStepIndex);
-	pmgr->updateFaultCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
+    RivReservoirPartMgr * pmgr = reservoirPartManager(geometryType, timeStepIndex);
+    pmgr->updateFaultCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
 }
 
 //--------------------------------------------------------------------------------------------------

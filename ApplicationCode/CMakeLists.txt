@@ -10,15 +10,30 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
 
 
 include_directories(
+    ${cafPdmCore_SOURCE_DIR}
+    ${cafPdmUiCore_SOURCE_DIR}
+    ${cafPdmXml_SOURCE_DIR}
+    ${cafProjectDataModel_SOURCE_DIR}
+
+    ${cafCommand_SOURCE_DIR}
+    ${cafViewer_SOURCE_DIR}
+    ${cafAnimControl_SOURCE_DIR}
+    ${cafUserInterface_SOURCE_DIR}
+    ${cafPdmCvf_SOURCE_DIR}
+    ${CommonCode_SOURCE_DIR}
+
+	${ResInsight_SOURCE_DIR}/ThirdParty
+
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
+    ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
-	${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
+    ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
@@ -38,7 +53,6 @@ file( GLOB_RECURSE HEADER_FILES *.h )
 
 set( APPLICATION_FILES 
     RiaMain.cpp
-    RiaStdInclude.cpp
         
     Application/RiaApplication.cpp
     Application/RiaPreferences.cpp
@@ -46,6 +60,8 @@ set( APPLICATION_FILES
     Application/RiaImageCompareReporter.cpp
     Application/RiaProjectModifier.cpp
     Application/RiaRegressionTest.cpp
+    
+    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc	
 )
 
 set( USER_INTERFACE_FILES
@@ -62,6 +78,18 @@ set( USER_INTERFACE_FILES
     UserInterface/RiuCadNavigation.cpp
     UserInterface/RiuRmsNavigation.cpp
 	UserInterface/RiuGeoQuestNavigation.cpp
+	UserInterface/RiuDragDrop.cpp
+	UserInterface/RiuDragDrop.h
+	UserInterface/RiuTreeViewEventFilter.cpp
+	UserInterface/RiuTreeViewEventFilter.h
+	UserInterface/RiuWellLogPlot.cpp
+	UserInterface/RiuWellLogPlot.h
+	UserInterface/RiuWellLogPlotCurve.cpp
+	UserInterface/RiuWellLogPlotCurve.h
+	UserInterface/RiuWellLogTrackPlot.cpp
+	UserInterface/RiuWellLogTrackPlot.h
+	UserInterface/RiuProjectPropertyView.h
+	UserInterface/RiuProjectPropertyView.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -75,21 +103,35 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketDataTransfer.cpp
 )
 
+set( UNIT_TEST_FILES
+    ProjectDataModel/ProjectDataModel_UnitTests/RimWellLogExtractionCurveImpl-Test.cpp 
+    ProjectDataModel/ProjectDataModel_UnitTests/WellPathAsciiFileReader-Test.cpp 
+)
+
 
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
      ${USER_INTERFACE_FILES}
      ${SOCKET_INTERFACE_FILES}
+     ${UNIT_TEST_FILES}
 )
 
 
 
 list( APPEND REFERENCED_CMAKE_FILES
     ReservoirDataModel/CMakeLists_files.cmake
+    ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
     FileInterface/CMakeLists_files.cmake
     ProjectDataModel/CMakeLists_files.cmake
     ModelVisualization/CMakeLists_files.cmake
 	GeoMech/GeoMechVisualization/CMakeLists_files.cmake
+	Commands/CMakeLists_files.cmake
+	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
+    Commands/ToggleCommands/CMakeLists_files.cmake
+    Commands/OctaveScriptCommands/CMakeLists_files.cmake
+    Commands/ViewLink/CMakeLists_files.cmake
+    Commands/WellLogCommands/CMakeLists_files.cmake
+    Commands/WellPathCommands/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
@@ -126,10 +168,9 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 #############################################################################
 
 set ( QT_MOC_HEADERS
+    ${QT_MOC_HEADERS}
     Application/RiaApplication.h
     
-    ProjectDataModel/RimUiTreeModelPdm.h
-    ProjectDataModel/RimUiTreeView.h
     ProjectDataModel/RimMimeData.h
     
     UserInterface/RiuMainWindow.h
@@ -139,7 +180,9 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
     UserInterface/RiuMultiCaseImportDialog.h
     UserInterface/RiuViewerCommands.h
-	
+	UserInterface/RiuTreeViewEventFilter.h
+	UserInterface/RiuWellLogPlot.h
+	UserInterface/RiuWellLogTrackPlot.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
@@ -233,6 +276,7 @@ source_group( "Application"         FILES ${APPLICATION_FILES} )
 source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
 source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
+source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
 
 #############################################################################
@@ -290,13 +334,28 @@ endif ()
 set( LINK_LIBRARIES
     WellPathImportSsihub
 
-    cafPdmCvf
+#    cafPdmCvf
+#    cafUserInterface
+#    cafProjectDataModel
+#    cafViewer
+#    cafAnimControl
+#	cafTensor
+#    CommonCode
+
+    #cafPdmCore
+    #cafPdmUiCore
+    cafPdmXml
+    #cafProjectDataModel
+    
     cafUserInterface
-    cafProjectDataModel
     cafViewer
     cafAnimControl
+    cafCommand
+    cafPdmCvf
+
 	cafTensor
     CommonCode
+    
     LibGuiQt
     LibViewing
     LibRender
@@ -311,8 +370,12 @@ set( LINK_LIBRARIES
     ert_geometry
     ecl_well
 
+    NRLib
+
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
+
+	Qwt
 )
 set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 

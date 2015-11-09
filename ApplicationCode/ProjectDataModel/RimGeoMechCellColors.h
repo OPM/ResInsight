@@ -20,6 +20,8 @@
 #pragma once
 
 #include "RimGeoMechResultDefinition.h"
+
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 
 class RimLegendConfig;
@@ -37,5 +39,8 @@ public:
     RimGeoMechCellColors(void);
     virtual ~RimGeoMechCellColors(void);
 
-    caf::PdmField<RimLegendConfig*> legendConfig;
+    caf::PdmChildField<RimLegendConfig*> legendConfig;
+
+    void            updateIconState();
+    virtual void    initAfterRead();
 };

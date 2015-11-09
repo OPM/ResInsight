@@ -23,10 +23,11 @@ class FilterPopup(QDialog):
         self.__layout.addWidget(QLabel("Filter by data type:"))
 
         self.addFilterItem("Summary", "summary")
-        self.addFilterItem("Block", "block")
+        # self.addFilterItem("Block", "block")
         self.addFilterItem("Gen KW", "gen_kw")
         self.addFilterItem("Gen Data", "gen_data")
-        self.addFilterItem("Custom PCA", "custom_pca")
+        self.addFilterItem("Custom KW", "custom_kw")
+        # self.addFilterItem("Custom PCA", "custom_pca")
 
         frame.setLayout(self.__layout)
 

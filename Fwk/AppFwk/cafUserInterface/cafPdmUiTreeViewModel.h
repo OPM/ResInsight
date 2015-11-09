@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafUiTreeItem.h"
@@ -42,18 +41,15 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
-#include <assert.h>
-#include "cafPdmPointer.h"
-
-
 namespace caf
 {
 
-class PdmObject;
-
-//typedef UiTreeItem<PdmPointer<PdmObject> > PdmUiTreeItem;
+class PdmObjectHandle;
+class PdmUiItem;
+class PdmUiTreeViewEditor;
 class PdmUiTreeOrdering;
-typedef UiTreeItem<PdmUiTreeOrdering* > PdmUiTreeItem;
+class PdmUiDragDropInterface;
+
 //==================================================================================================
 //
 // This class is intended to replace UiTreeModelPdm (cafUiTreeModelPdm)
@@ -64,51 +60,62 @@ class PdmUiTreeViewModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    PdmUiTreeViewModel(QObject* parent);
+    PdmUiTreeViewModel(PdmUiTreeViewEditor* treeViewEditor);
 
-    void                    setTreeItemRoot(PdmUiTreeItem* root);
-    PdmUiTreeItem*          treeItemRoot();
+    void                    setPdmItemRoot(PdmUiItem* rootItem);
+    void                    updateSubTree(PdmUiItem* subTreeRoot);
 
-    void                    emitDataChanged(const QModelIndex& index);
-
-    static PdmUiTreeItem*   getTreeItemFromIndex(const QModelIndex& index);
-    QModelIndex             getModelIndexFromPdmObject(const PdmObject* object) const;
-    void                    updateUiSubTree(PdmObject* root);
-
-    void                    notifyModelChanged();
     void                    setColumnHeaders(const QStringList& columnHeaders);
+    void                    setUiConfigName(const QString& uiConfigName) { m_uiConfigName = uiConfigName; }
+ 
+    // These are supposed to be used from the Editor only, and to implement selection support.
+ 
+    PdmUiItem*              uiItemFromModelIndex(const QModelIndex& index) const;
+    QModelIndex             findModelIndex(const PdmUiItem* object) const;
 
-public:
+    void                    setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
+    PdmUiDragDropInterface* dragDropInterface();
+    
+private:
+    void                    updateSubTreeRecursive(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);
+
+    PdmUiTreeOrdering*      treeItemFromIndex(const QModelIndex& index) const;
+    QModelIndex             findModelIndexRecursive(const QModelIndex& currentIndex, const PdmUiItem * object) const;
+
+    void                    resetTree(PdmUiTreeOrdering* root);
+    void                    emitDataChanged(const QModelIndex& index);
+    void                    updateEditorsForSubTree(PdmUiTreeOrdering* root);
+
+    PdmUiTreeOrdering*      m_treeOrderingRoot;
+    QStringList             m_columnHeaders;
+    QString                 m_uiConfigName;
+
+    PdmUiTreeViewEditor*    m_treeViewEditor;
+
+    PdmUiDragDropInterface* m_dragDropInterface;
+
+private:
+
     // Overrides from QAbstractItemModel
+
     virtual QModelIndex     index(int row, int column, const QModelIndex &parentIndex = QModelIndex( )) const;
     virtual QModelIndex     parent(const QModelIndex &index) const;
+
     virtual int             rowCount(const QModelIndex &parentIndex = QModelIndex( ) ) const;
     virtual int             columnCount(const QModelIndex &parentIndex = QModelIndex( ) ) const;
+
     virtual QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole ) const;
-    virtual QVariant        headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
-    
-    virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    virtual QVariant        headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
+    virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
 
-protected:
-    QModelIndex             getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const;
-private:
-    void                    updateModelSubTree(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeItem* uiModelSubTreeRoot, PdmUiTreeItem* updatedPdmSubTreeRoot);
-
-    PdmUiTreeItem*          m_treeItemRoot;
-    QStringList             m_columnHeaders;
+    virtual QStringList     mimeTypes() const;
+    virtual QMimeData*      mimeData(const QModelIndexList &indexes) const;
+    virtual bool            dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    virtual Qt::DropActions supportedDropActions() const;
 };
 
 
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class UiTreeItemBuilderPdm
-{
-public:
-    static PdmUiTreeItem* buildViewItems(PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* object);
-};
 
 } // End of namespace caf

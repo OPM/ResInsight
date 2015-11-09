@@ -16,8 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimExportInputPropertySettings.h"
 #include "cafPdmUiFilePathEditor.h"
 
@@ -32,7 +30,7 @@ RimExportInputSettings::RimExportInputSettings()
     CAF_PDM_InitObject("RimExportInputSettings", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export filename", "", "", "");
-    fileName.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    fileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     CAF_PDM_InitFieldNoDefault(&eclipseKeyword, "Eclipse Keyword", "Keyword", "", "", "");
 
 }

@@ -30,13 +30,18 @@ class SchedFileTest(ExtendedTestCase):
         self.sched_file = SchedFile(src_file, self.start_time)
         self.file_list = []
 
+    def test_missing(self):
+        with self.assertRaises(IOError):
+            SchedFile("/does/not/exist", datetime.date(2000 , 1 , 1))
+
+            
     def addFile( self, filename ):
         self.file_list.append(filename)
 
     def tearDown(self):
         for f in self.file_list:
             if os.path.exists(f):
-                os.unlink(f)
+               os.unlink(f)
 
     def test_load(self):
         self.assertTrue(self.sched_file, "Load failed")

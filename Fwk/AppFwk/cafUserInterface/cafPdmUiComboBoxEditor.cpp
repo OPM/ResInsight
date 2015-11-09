@@ -59,41 +59,47 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiComboBoxEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_comboBox.isNull());
-    assert(!m_label.isNull());
-
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
+    if (!m_label.isNull())
     {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        m_label->setText(field()->uiName(uiConfigName));
+        QIcon ic = field()->uiIcon(uiConfigName);
+        if (!ic.isNull())
+        {
+            m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
+        }
+        else
+        {
+            m_label->setText(field()->uiName(uiConfigName));
+        }
+        m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
     }
 
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_comboBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
-
-    // Demo code for attribute retreival when becoming relevant
-    // PdmUiComboBoxEditorAttribute attributes;
-    // field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
-
-    bool fromMenuOnly = false;
-    QList<PdmOptionItemInfo> options = field()->valueOptions(&fromMenuOnly);
-    m_comboBox->blockSignals(true);
-    m_comboBox->clear();
-    if (!options.isEmpty())
+    if (!m_comboBox.isNull())
     {
-        m_comboBox->addItems(PdmOptionItemInfo::extractUiTexts(options));
-        m_comboBox->setCurrentIndex(field()->uiValue().toInt());
+        m_comboBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
+
+        // Demo code for attribute retreival when becoming relevant
+        // PdmUiComboBoxEditorAttribute attributes;
+        // field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
+
+        bool fromMenuOnly = false;
+        QList<PdmOptionItemInfo> options = field()->valueOptions(&fromMenuOnly);
+        m_comboBox->blockSignals(true);
+        m_comboBox->clear();
+        if (!options.isEmpty())
+        {
+            for (int i = 0; i < options.size(); i++)
+            {
+                m_comboBox->addItem(options[i].icon, options[i].optionUiText);
+            }
+            m_comboBox->setCurrentIndex(field()->uiValue().toInt());
+        }
+        else
+        {
+            m_comboBox->addItem(field()->uiValue().toString());
+            m_comboBox->setCurrentIndex(0);
+        }
+        m_comboBox->blockSignals(false);
     }
-    else
-    {
-        m_comboBox->addItem(field()->uiValue().toString());
-        m_comboBox->setCurrentIndex(0);
-    }
-    m_comboBox->blockSignals(false);
 }
 
 
@@ -103,7 +109,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 QWidget* PdmUiComboBoxEditor::createEditorWidget(QWidget * parent)
 {
     m_comboBox = new QComboBox(parent);
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotCurrentIndexChanged(int)));
+    connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(slotIndexActivated(int)));
     return m_comboBox;
 }
 
@@ -119,7 +125,7 @@ QWidget* PdmUiComboBoxEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiComboBoxEditor::slotCurrentIndexChanged(int index)
+void PdmUiComboBoxEditor::slotIndexActivated(int index)
 {
     QVariant v;
     v = index;

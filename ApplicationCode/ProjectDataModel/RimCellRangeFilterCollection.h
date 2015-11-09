@@ -20,10 +20,12 @@
 
 #include "RimCellRangeFilter.h"
 
+#include "cafPdmChildArrayField.h"
+
 class RigActiveCellInfo;
+class RigFemPartCollection;
 class RigGridBase;
 class RimView;
-class RigFemPartCollection;
 
 //==================================================================================================
 ///  
@@ -38,38 +40,32 @@ public:
 
     // Fields
     caf::PdmField<bool> isActive;
-    caf::PdmField< std::list< caf::PdmPointer< RimCellRangeFilter > > > rangeFilters;
+    caf::PdmChildArrayField<RimCellRangeFilter*> rangeFilters;
 
     // Methods
-    RimCellRangeFilter*             createAndAppendRangeFilter();
-    void                            remove(RimCellRangeFilter* rangeFilter);
-
     void                            compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex) const;
     bool                            hasActiveFilters() const;
     bool                            hasActiveIncludeFilters() const;
 
-    void                            setReservoirView(RimView* reservoirView);
-
-    RimView*                        reservoirView();
     const cvf::StructGridInterface* gridByIndex(int gridIndex) const;
     int                             gridCount() const;
     QString                         gridName(int gridIndex) const;
 
     RigActiveCellInfo*              activeCellInfo() const;
 
-    // Overridden methods
-    virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-    virtual caf::PdmFieldHandle*    objectToggleField();
+    void                            updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter);
+    void                            updateIconState();
 
 protected:
-    // Overridden methods
-    virtual void                    initAfterRead();
+    virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    virtual caf::PdmFieldHandle*    objectToggleField();
 
+private:
+    RimView*                        baseView() const;
 
 private:
     RimEclipseView*                 eclipseView() const;
     RigMainGrid*                    mainGrid() const;
     RigFemPartCollection*           femPartColl() const;
-
-    RimView*                        m_reservoirView;
 };

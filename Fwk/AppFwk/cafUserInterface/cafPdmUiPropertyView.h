@@ -44,7 +44,7 @@ class QVBoxLayout;
 namespace caf
 {
 
-class PdmObject;
+class PdmObjectHandle;
 class PdmUiObjectEditorHandle;
 
 //==================================================================================================
@@ -58,10 +58,10 @@ public:
     PdmUiPropertyView(QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~PdmUiPropertyView();
 
-    void setUiConfigurationName(QString uiConfigName);
-    caf::PdmObject* currentObject();
+    void                        setUiConfigurationName(QString uiConfigName);
+    PdmObjectHandle*            currentObject();
 public slots:
-    void showProperties(caf::PdmObject* object);
+    void                        showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
 
 private:
     PdmUiObjectEditorHandle*    m_currentObjectView; 

@@ -33,7 +33,8 @@ RimCaseCollection::RimCaseCollection()
 {
     CAF_PDM_InitObject("Derived Statistics", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "Reservoirs ChildArrayField",  "", "", "");
+    reservoirs.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,15 +50,7 @@ RimCaseCollection::~RimCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
 {
-    std::vector<RimIdenticalGridCaseGroup*> parentObjects;
-    this->parentObjectsOfType(parentObjects);
-
-    if (parentObjects.size() > 0)
-    {
-        return parentObjects[0];
-    }
-
-    return NULL;
+    return dynamic_cast<RimIdenticalGridCaseGroup*>(this->parentField()->ownerObject());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,6 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmChildField.h"
 #include "cafAppEnum.h"
 
 // Include to make Pdm work for cvf::Color
@@ -33,6 +34,7 @@
 class RimProject;
 class RivWellPathPartMgr;
 class RimWellPathCollection;
+class RimWellLogFile;
 
 //==================================================================================================
 ///  
@@ -48,6 +50,7 @@ public:
 
     void                                setProject(RimProject* project) { m_project = project; }
     void                                setCollection(RimWellPathCollection* collection) { m_wellPathCollection = collection; }
+    void                                setLogFileInfo(RimWellLogFile* logFileInfo);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
@@ -65,10 +68,12 @@ public:
     caf::PdmField<cvf::Color3f>         wellPathColor;
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
+    caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
+
     RigWellPath*                        wellPathGeometry() { return m_wellPath.p(); }
     RivWellPathPartMgr*                 partMgr();
 
-    void                                readWellPathFile();
+    bool                                readWellPathFile(QString * errorMessage);
     void                                updateFilePathsFromProjectPath();
 
 
@@ -99,5 +104,5 @@ private:
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmPointer<RimWellPathCollection> m_wellPathCollection;
-    RimProject*                         m_project;
+    RimProject*                         m_project;    
 };

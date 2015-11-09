@@ -2,35 +2,30 @@ cmake_minimum_required (VERSION 2.8)
 
 project (cafProjectDataModel)
 
-add_library( ${PROJECT_NAME}
-	cafAppEnum.h
+# Qt
+find_package ( Qt4 COMPONENTS QtCore QtGui )
+include (${QT_USE_FILE})
+
+include_directories (
+    ${cafPdmCore_SOURCE_DIR}
+    ${cafPdmUiCore_SOURCE_DIR}
+    ${cafPdmXml_SOURCE_DIR}
+)
+
+set( PROJECT_FILES
 	cafFactory.h
 	cafFixedArray.h
 	cafOmpMutex.h
-	cafUiTreeItem.h
 	cafPdmDocument.cpp
 	cafPdmDocument.h
-	cafPdmField.cpp
-	cafPdmField.h
-	cafPdmField.inl
-	cafPdmFieldImpl.h
-	cafPdmObject.cpp
+	cafPdmObjectGroup.cpp
+	cafPdmObjectGroup.h
 	cafPdmObject.h
-	cafPdmObjectFactory.h
-	cafPdmPointer.cpp
-	cafPdmPointer.h
-	cafPdmUiEditorHandle.cpp
-	cafPdmUiEditorHandle.h
-	cafPdmUiFieldEditorHandle.cpp
-	cafPdmUiFieldEditorHandle.h
-	cafPdmUiItem.cpp
-	cafPdmUiItem.h
-	cafPdmUiObjectEditorHandle.cpp
-	cafPdmUiObjectEditorHandle.h
-	cafPdmUiOrdering.cpp
-	cafPdmUiOrdering.h
-	cafPdmUiTreeOrdering.cpp
-	cafPdmUiTreeOrdering.h
-	cafPdmUiTreeEditorHandle.h
-	cafPdmUiTreeEditorHandle.cpp
+	cafPdmField.h
 )
+
+add_library( ${PROJECT_NAME}
+	${PROJECT_FILES}
+)
+
+source_group("" FILES ${PROJECT_FILES})

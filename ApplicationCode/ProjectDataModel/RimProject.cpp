@@ -20,22 +20,47 @@
 
 #include "RimProject.h"
 
+
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
+
 #include "RigCaseData.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCase.h"
+
+#include "RiaApplication.h"
+#include "RimCalcScript.h"
 #include "RimCaseCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimOilField.h"
+#include "RimCommandObject.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseStatisticsCaseCollection.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechModels.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimViewController.h"
+#include "RimMainPlotCollection.h"
+#include "RimOilField.h"
 #include "RimScriptCollection.h"
+#include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
+#include "RiuMainWindow.h"
+
+#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
+#include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
+
+#include "cafCmdFeature.h"
+#include "cafPdmUiTreeOrdering.h"
+
 #include <QDir>
-#include "RimGeoMechModels.h"
-#include "RimGeoMechCase.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -44,49 +69,63 @@ CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 RimProject::RimProject(void)
 {
     CAF_PDM_InitFieldNoDefault(&m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "");
-    m_projectFileVersionString.setUiHidden(true);
+    m_projectFileVersionString.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&nextValidCaseId, "NextValidCaseId", 0, "Next Valid Case ID", "", "" ,"");
-    nextValidCaseId.setUiHidden(true);
+    nextValidCaseId.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&nextValidCaseGroupId, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "" ,"");
-    nextValidCaseGroupId.setUiHidden(true);
+    nextValidCaseGroupId.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&oilFields, "OilFields", "Oil Fields",  "", "", "");
-    oilFields.setUiHidden(true);
+    oilFields.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
+    scriptCollection.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
-    treeViewState.setUiHidden(true);
+    treeViewState.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
-    wellPathImport.setUiHidden(true);
-    wellPathImport.setUiChildrenHidden(true);
+    wellPathImport.uiCapability()->setUiHidden(true);
+    wellPathImport.uiCapability()->setUiChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&mainPlotCollection, "MainPlotCollection", "Plots", "", "", "");
+    mainPlotCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&viewLinkerCollection, "LinkedViews", "Linked Views (field in RimProject", ":/chain.png", "", "");
+    viewLinkerCollection.uiCapability()->setUiHidden(true);
+    viewLinkerCollection = new RimViewLinkerCollection;
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
-    //wellPathImport.setUiHidden(true);
+    //wellPathImport.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
-    currentModelIndexPath.setUiHidden(true);
+    currentModelIndexPath.uiCapability()->setUiHidden(true);
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
-    casesObsolete.setUiHidden(true);
-    casesObsolete.setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    casesObsolete.uiCapability()->setUiHidden(true);
+    casesObsolete.xmlCapability()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
     CAF_PDM_InitFieldNoDefault(&caseGroupsObsolete, "CaseGroups", "",  "", "", "");
-    caseGroupsObsolete.setUiHidden(true);
-    caseGroupsObsolete.setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    caseGroupsObsolete.uiCapability()->setUiHidden(true);
+    caseGroupsObsolete.xmlCapability()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
 
     // Initialization
 
     scriptCollection = new RimScriptCollection();
-    scriptCollection->directory.setUiHidden(true);
+    scriptCollection->directory.uiCapability()->setUiHidden(true);
+    scriptCollection->uiCapability()->setUiName("Scripts");
+    scriptCollection->uiCapability()->setUiIcon(QIcon(":/Default.png"));
+
+    mainPlotCollection = new RimMainPlotCollection();
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back(new RimOilField);
 
     initScriptDirectories();
+
+    this->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +144,7 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
+    if (mainPlotCollection()) delete mainPlotCollection();
     oilFields.deleteAllChildObjects();
     oilFields.push_back(new RimOilField);
 
@@ -115,10 +155,15 @@ void RimProject::close()
 
     commandObjects.deleteAllChildObjects();
 
+    delete viewLinkerCollection->viewLinker();
+    viewLinkerCollection->viewLinker = NULL;
+
     fileName = "";
 
     nextValidCaseId = 0;
     nextValidCaseGroupId = 0;
+    currentModelIndexPath = "";
+    treeViewState = "";
 }
 
 
@@ -236,9 +281,10 @@ void RimProject::initAfterRead()
     bool movedOneRimCase = false;
     for (size_t cIdx = 0; cIdx < casesObsolete().size(); ++cIdx)
     {
-        RimEclipseCase* sourceCase = casesObsolete[cIdx];
         if (analysisModels)
         {
+            RimEclipseCase* sourceCase = casesObsolete[cIdx];
+            casesObsolete.set(cIdx, NULL);
             analysisModels->cases.push_back(sourceCase);
             //printf("Moved m_project->casesObsolete[%i] to first oil fields analysis models\n", cIdx);
             movedOneRimCase = true; // moved at least one so assume the others will be moved too...
@@ -249,12 +295,12 @@ void RimProject::initAfterRead()
     {
         casesObsolete.clear();
     }
-	
-	if (casesObsolete().size() > 0 || caseGroupsObsolete.size() > 0)
-	{
-		//printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from Project to analysisModels", 
-		  //  casesObsolete().size(), caseGroupsObsolete.size());
-	}
+    
+    if (casesObsolete().size() > 0 || caseGroupsObsolete.size() > 0)
+    {
+        //printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from Project to analysisModels", 
+          //  casesObsolete().size(), caseGroupsObsolete.size());
+    }
 
     // Set project pointer to each well path
     for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
@@ -421,6 +467,67 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
+{
+    std::vector<RimCase*> cases;
+    allCases(cases);
+
+    std::vector<RimView*> alreadyLinkedViews;
+    if (viewLinkerCollection->viewLinker())
+    {
+        viewLinkerCollection->viewLinker()->allViews(alreadyLinkedViews);
+    }
+
+    for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
+    {
+        RimCase* rimCase = cases[caseIdx];
+        if (!rimCase) continue;
+
+        std::vector<RimView*> caseViews = rimCase->views();
+        for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
+        {
+            bool isLinked = false;
+            for (size_t lnIdx = 0; lnIdx < alreadyLinkedViews.size(); lnIdx++)
+            {
+                if (caseViews[viewIdx] == alreadyLinkedViews[lnIdx])
+                {
+                    isLinked = true;
+                }
+            }
+            if (!isLinked)
+            {
+                views.push_back(caseViews[viewIdx]);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allVisibleViews(std::vector<RimView*>& views)
+{
+    std::vector<RimCase*> cases;
+    allCases(cases);
+    
+    for (size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++)
+    {
+        RimCase* rimCase = cases[caseIdx];
+        if (!rimCase) continue;
+
+        std::vector<RimView*> caseViews = rimCase->views();
+        for (size_t viewIdx = 0; viewIdx < caseViews.size(); viewIdx++)
+        {
+            if (caseViews[viewIdx] && caseViews[viewIdx]->viewer())
+            {
+                views.push_back(caseViews[viewIdx]);
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -496,6 +603,386 @@ void RimProject::computeUtmAreaOfInterest()
         wellPathImport->south = south;
         wellPathImport->east = east;
         wellPathImport->west = west;
+    }
+}
+
+
+
+
+
+
+
+#include "cafCmdFeatureManager.h"
+#include "cafSelectionManager.h"
+
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellRangeFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechView.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotTrack.h"
+#include "RimWellLogPlotCurve.h"
+#include "RimWellLogFileChannel.h"
+#include <QMenu>
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
+{
+    QStringList commandIds;
+
+    std::vector<caf::PdmUiItem*> uiItems;
+    caf::SelectionManager::instance()->selectedItems(uiItems);
+
+    if (uiItems.size() == 0)
+    {
+        commandIds << "RicNewWellLogPlotFeature";
+    }
+    else if (uiItems.size() > 1)
+    {
+        caf::PdmUiItem* uiItem = uiItems[0];
+        if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
+        {
+            commandIds << "RicAddWellLogToPlotFeature";
+        }
+    }
+    else if (uiItems.size() == 1)
+    {
+        caf::PdmUiItem* uiItem = uiItems[0];
+        CVF_ASSERT(uiItem);
+
+        if (dynamic_cast<RimEclipseCaseCollection*>(uiItem))
+        {
+            commandIds << "RicImportEclipseCaseFeature";
+            commandIds << "RicImportInputEclipseCaseFeature";
+            commandIds << "RicCreateGridCaseGroupFeature";
+            commandIds << "RicEclipseCaseNewGroupFeature";
+        }
+        else if (dynamic_cast<RimGeoMechView*>(uiItem))
+        {
+            commandIds << "RicNewViewFeature";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteGeoMechViewsFeature";
+            commandIds << "RicDeleteItemFeature";
+            commandIds << "Separator";
+        }
+        else if (dynamic_cast<RimEclipseView*>(uiItem))
+        {
+            commandIds << "RicNewViewFeature";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteEclipseViewsFeature";
+            commandIds << "RicDeleteItemFeature";
+            commandIds << "Separator";
+        }
+        else if (dynamic_cast<RimCaseCollection*>(uiItem))
+        {
+            commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "RicNewStatisticsCaseFeature";
+        }
+        else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
+        {
+            commandIds << "RicNewViewFeature";
+            commandIds << "RicComputeStatisticsFeature";
+            commandIds << "RicCloseCaseFeature";
+            commandIds << "RicExecuteScriptForCasesFeature";
+        }
+        else if (dynamic_cast<RimEclipseCase*>(uiItem))
+        {
+            commandIds << "RicCopyReferencesToClipboardFeature";
+
+            commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "RicPasteEclipseViewsFeature";
+
+            commandIds << "RicCloseCaseFeature";
+            commandIds << "RicNewViewFeature";
+            commandIds << "RicEclipseCaseNewGroupFeature";
+            commandIds << "RicExecuteScriptForCasesFeature";
+        }
+        else if (dynamic_cast<RimGeoMechCase*>(uiItem))
+        {
+            commandIds << "RicPasteGeoMechViewsFeature";
+            commandIds << "RicNewViewFeature";
+            commandIds << "Separator";
+
+            commandIds << "RicCloseCaseFeature";
+        }
+        else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
+        {
+            commandIds << "RicEclipseCaseNewGroupFeature";
+            commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
+        {
+            commandIds << "RicSaveEclipseResultAsInputPropertyFeature";
+        }
+        else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem))
+        {
+            commandIds << "RicAddEclipseInputPropertyFeature";
+        }
+        else if (dynamic_cast<RimEclipseInputProperty*>(uiItem))
+        {
+            commandIds << "RicDeleteItemFeature";
+            commandIds << "RicSaveEclipseInputPropertyFeature";
+        }
+        else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
+        {
+            commandIds << "RicRangeFilterNewFeature";
+            commandIds << "RicRangeFilterNewSliceIFeature";
+            commandIds << "RicRangeFilterNewSliceJFeature";
+            commandIds << "RicRangeFilterNewSliceKFeature";
+        }
+        else if (dynamic_cast<RimCellRangeFilter*>(uiItem))
+        {
+            commandIds << "RicRangeFilterInsertFeature";
+            commandIds << "RicRangeFilterNewSliceIFeature";
+            commandIds << "RicRangeFilterNewSliceJFeature";
+            commandIds << "RicRangeFilterNewSliceKFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
+        {
+            commandIds << "RicEclipsePropertyFilterNewFeature";
+        }
+        else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
+        {
+            commandIds << "RicEclipsePropertyFilterInsertFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
+        {
+            commandIds << "RicGeoMechPropertyFilterNewFeature";
+        }
+        else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
+        {
+            commandIds << "RicGeoMechPropertyFilterInsertFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimWellPathCollection*>(uiItem))
+        {
+            commandIds << "RicWellPathsDeleteAllFeature";
+            commandIds << "RicWellPathsImportFileFeature";
+            commandIds << "RicWellPathsImportSsihubFeature";
+            commandIds << "RicWellLogsImportFileFeature";
+        }
+        else if (dynamic_cast<RimWellPath*>(uiItem))
+        {
+            commandIds << "RicNewWellLogFileCurveFeature";
+            commandIds << "RicNewWellLogCurveExtractionFeature";
+            commandIds << "RicWellPathDeleteFeature";
+        }
+        else if (dynamic_cast<RimCalcScript*>(uiItem))
+        {
+            commandIds << "RicEditScriptFeature";
+            commandIds << "RicNewScriptFeature";
+            commandIds << "Separator";
+            commandIds << "RicExecuteScriptFeature";
+        }
+        else if (dynamic_cast<RimScriptCollection*>(uiItem))
+        {
+            commandIds << "RicAddScriptPathFeature";
+            commandIds << "RicDeleteScriptPathFeature";
+        }
+        else if (dynamic_cast<RimViewController*>(uiItem))
+        {
+            commandIds << "RicShowAllLinkedViewsFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimViewLinker*>(uiItem))
+        {
+            commandIds << "RicShowAllLinkedViewsFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteAllLinkedViewsFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
+        {
+            commandIds << "RicNewWellLogPlotFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlot*>(uiItem))
+        {
+            commandIds << "RicNewWellLogPlotTrackFeature";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlotTrack*>(uiItem))
+        {
+            commandIds << "RicNewWellLogCurveExtractionFeature";
+            commandIds << "RicNewWellLogFileCurveFeature";
+            commandIds << "RicDeleteWellLogPlotTrackFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlotCurve*>(uiItem))
+        {
+            commandIds << "RicExportToLasFileFeature";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
+        {
+            commandIds << "RicAddWellLogToPlotFeature";
+        }
+
+        if (dynamic_cast<RimView*>(uiItem))
+        {
+            commandIds << "RicLinkVisibleViewsFeature";
+            commandIds << "RicLinkViewFeature";
+            commandIds << "RicUnLinkViewFeature";
+            commandIds << "RicShowLinkOptionsFeature";
+            commandIds << "RicSetMasterViewFeature";
+        }
+    }
+    
+    if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
+    {
+        commandIds << "Separator";
+        commandIds << "RicToggleItemsOnFeature";
+        commandIds << "RicToggleItemsOffFeature";
+        commandIds << "RicToggleItemsFeature";
+    }
+
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    for (int i = 0; i < commandIds.size(); i++)
+    {
+        if (commandIds[i] == "Separator")
+        {
+            contextMenu.addSeparator();
+        }
+        else if (commandIds[i] == "RicExecuteScriptForCasesFeature")
+        {
+            // Execute script on selection of cases
+             RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
+             if (ruiMainWindow)
+             { 
+                std::vector<RimCase*> cases;
+                ruiMainWindow->selectedCases(cases);
+
+                if (cases.size() > 0)
+                {
+                    QMenu* executeMenu = contextMenu.addMenu("Execute script");
+
+                    RiaApplication* app = RiaApplication::instance();
+                    RimProject* proj = app->project();
+                    if (proj && proj->scriptCollection())
+                    {
+                        RimScriptCollection* rootScriptCollection = proj->scriptCollection();
+
+                        // Root script collection holds a list of subdirectories of user defined script folders
+                        for (size_t i = 0; i < rootScriptCollection->subDirectories.size(); i++)
+                        {
+                            RimScriptCollection* subDir = rootScriptCollection->subDirectories[i];
+
+                            if (subDir)
+                            {
+                                appendScriptItems(executeMenu, subDir);
+                            }
+                        }
+                    }
+
+                    contextMenu.addSeparator();
+                    contextMenu.addMenu(executeMenu);
+                }
+            }
+        }
+        else
+        {
+            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+            if (feature->canFeatureBeExecuted())
+            {
+                QAction* act = commandManager->action(commandIds[i]);
+                CVF_ASSERT(act);
+
+                contextMenu.addAction(act);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection)
+{
+    CVF_ASSERT(menu);
+
+    QDir dir(scriptCollection->directory);
+    QMenu* subMenu = menu->addMenu(dir.dirName());
+
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(commandManager);
+
+    RicExecuteScriptForCasesFeature* executeScriptFeature = dynamic_cast<RicExecuteScriptForCasesFeature*>(commandManager->getCommandFeature("RicExecuteScriptForCasesFeature"));
+    CVF_ASSERT(executeScriptFeature);
+
+    for (size_t i = 0; i < scriptCollection->calcScripts.size(); i++)
+    {
+        RimCalcScript* calcScript = scriptCollection->calcScripts[i];
+        QFileInfo fi(calcScript->absolutePath());
+
+        QString menuText = fi.baseName();
+        QAction* scriptAction = subMenu->addAction(menuText, executeScriptFeature, SLOT(slotExecuteScriptForSelectedCases()));
+
+        scriptAction->setData(QVariant(calcScript->absolutePath()));
+    }
+
+    for (size_t i = 0; i < scriptCollection->subDirectories.size(); i++)
+    {
+        RimScriptCollection* subDir = scriptCollection->subDirectories[i];
+
+        appendScriptItems(subMenu, subDir);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    if (viewLinkerCollection()->viewLinker())
+    {
+        // Use object instead of field to avoid duplicate entries in the tree view
+        uiTreeOrdering.add(viewLinkerCollection());
+    }
+
+    RimOilField* oilField = activeOilField();
+    if (oilField)
+    {
+        if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
+        if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
+        if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
+    }
+
+    if (mainPlotCollection)
+    {
+        if (mainPlotCollection->wellLogPlotCollection())
+        {
+            if (mainPlotCollection->wellLogPlotCollection()->wellLogPlots().size() > 0)
+            {
+                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+            }
+        }
+    }
+
+    uiTreeOrdering.add(scriptCollection());
+    
+    uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::recreateMainPlotCollection()
+{
+    if (!mainPlotCollection())
+    {
+        mainPlotCollection = new RimMainPlotCollection();
     }
 }
 

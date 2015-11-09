@@ -34,6 +34,8 @@
 #include "RivFemElmVisibilityCalculator.h"
 #include "RigFemPartResultsCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
+#include "RimView.h"
+#include "RimViewController.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -111,7 +113,11 @@ void RivGeoMechVizLogic::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     this->scheduleRegenOfDirectlyDependentGeometry(geometryType);
 
-    int frameCount = m_geomechView->geoMechCase()->geoMechData()->femPartResults()->frameCount();
+    int frameCount = 0;
+    if (m_geomechView->geoMechCase()->geoMechData())
+    {
+        frameCount = m_geomechView->geoMechCase()->geoMechData()->femPartResults()->frameCount();
+    }
 
     for (int fIdx = -1; fIdx < frameCount; ++fIdx)
     {
@@ -134,8 +140,11 @@ void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry(RivCellSetEnum
 std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMgrs(int timeStepIndex)
 {
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs;
-
-    if (timeStepIndex >= 0 && m_geomechView->propertyFilterCollection()->hasActiveFilters())
+    if (m_geomechView->viewController() && m_geomechView->viewController()->isVisibleCellsOveridden())
+    {
+        visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(OVERRIDDEN_CELL_VISIBILITY, -1));
+    }
+    else if (timeStepIndex >= 0 && m_geomechView->propertyFilterCollection()->hasActiveFilters())
     {
         visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(PROPERTY_FILTERED, timeStepIndex));
     }
@@ -203,6 +212,13 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
                                                                      m_geomechView->propertyFilterCollection()
                                                                      );
         }
+        else if (pMgrKey.geometryType() == OVERRIDDEN_CELL_VISIBILITY)
+        {
+            RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(elmVisibility.p(), 
+                                                                           caseData->femParts()->part(femPartIdx),
+                                                                           m_geomechView->viewController());
+        }
+
         else if (pMgrKey.geometryType() == ALL_CELLS)
         {
             RivFemElmVisibilityCalculator::computeAllVisible(elmVisibility.p(), caseData->femParts()->part(femPartIdx));
@@ -218,6 +234,34 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
     m_partMgrCache->setGenerationFinished(pMgrKey);
 
     return partMgrToUpdate;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStepIndex)
+{
+    size_t gridCount = m_geomechView->geoMechCase()->geoMechData()->femParts()->partCount();
+    
+    if (gridCount == 0) return;
+
+    RigFemPart* part = m_geomechView->geoMechCase()->geoMechData()->femParts()->part(0);
+    int elmCount = part->elementCount();
+
+    totalVisibility->resize(elmCount);
+    totalVisibility->setAll(false);
+
+    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs(timeStepIndex);
+    for (size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx)
+    {
+        RivGeoMechPartMgr*  partMgr = m_partMgrCache->partMgr(visiblePartMgrs[pmIdx]);
+
+        cvf::ref<cvf::UByteArray> visibility =  partMgr->cellVisibility(0);
+        for (int elmIdx = 0; elmIdx < elmCount; ++ elmIdx)
+        {
+            (*totalVisibility)[elmIdx] |= (*visibility)[elmIdx];
+        }
+    }
 }
 
 

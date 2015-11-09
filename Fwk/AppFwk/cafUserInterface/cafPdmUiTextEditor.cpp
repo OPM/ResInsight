@@ -37,13 +37,11 @@
 
 #include "cafPdmUiTextEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-
-#include "cafPdmField.h"
 
 #include <QTextEdit>
 #include <QLabel>
@@ -51,7 +49,6 @@
 #include <QVBoxLayout>
 
 #include <assert.h>
-#include "cafFactory.h"
 
 
 
@@ -59,6 +56,25 @@ namespace caf
 {
 
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTextEditor);
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TextEdit::TextEdit(QWidget *parent /*= 0*/) : QTextEdit(parent)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TextEdit::focusOutEvent(QFocusEvent *e)
+{
+    QTextEdit::focusOutEvent(e);
+
+    emit editingFinished();
+}
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -87,17 +103,23 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_textEdit->setToolTip(field()->uiToolTip(uiConfigName));
 
     PdmUiTextEditorAttribute leab;
-    field()->ownerObject()->editorAttribute(field(), uiConfigName, &leab);
+    
+    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+    }
+    
     m_textMode = leab.textMode;
 
     if (leab.showSaveButton)
     {
-        disconnect(m_textEdit, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
+        disconnect(m_textEdit, SIGNAL(editingFinished()), this, SLOT(slotSetValueToField()));
         m_saveButton->show();
     }
     else
     {
-        connect(m_textEdit, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
+        connect(m_textEdit, SIGNAL(editingFinished()), this, SLOT(slotSetValueToField()));
         m_saveButton->hide();
     }
 
@@ -115,7 +137,6 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
 
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -123,11 +144,11 @@ QWidget* PdmUiTextEditor::createEditorWidget(QWidget * parent)
 {
     QWidget* containerWidget = new QWidget(parent);
 
-    m_textEdit = new QTextEdit(containerWidget);
-    connect(m_textEdit, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
+    m_textEdit = new TextEdit(containerWidget);
+    connect(m_textEdit, SIGNAL(editingFinished()), this, SLOT(slotSetValueToField()));
 
     m_saveButton = new QPushButton("Save changes", containerWidget);
-    connect(m_saveButton, SIGNAL(clicked()), this, SLOT(slotSaveButtonClicked()));
+    connect(m_saveButton, SIGNAL(clicked()), this, SLOT(slotSetValueToField()));
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(m_textEdit);
@@ -154,7 +175,7 @@ QWidget* PdmUiTextEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTextEditor::slotTextChanged()
+void PdmUiTextEditor::slotSetValueToField()
 {
     QVariant v;
     QString textValue;
@@ -172,14 +193,6 @@ void PdmUiTextEditor::slotTextChanged()
     v = textValue;
 
     this->setValueToField(v);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTextEditor::slotSaveButtonClicked()
-{
-    slotTextChanged();
 }
 
 

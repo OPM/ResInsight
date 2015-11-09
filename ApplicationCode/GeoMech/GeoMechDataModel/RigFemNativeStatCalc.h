@@ -35,15 +35,15 @@ class RigFemNativeStatCalc : public RigStatisticsCalculator
 public:
     RigFemNativeStatCalc(RigFemPartResultsCollection* femResultCollection, const RigFemResultAddress& resVarAddr);
 
-	virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
-	virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
-	virtual void valueSumAndSampleCount(double& valueSum, size_t& sampleCount);
+    virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
+    virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
+    virtual void valueSumAndSampleCount(double& valueSum, size_t& sampleCount);
 
-	virtual void addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator);
+    virtual void addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator);
     virtual size_t  timeStepCount();
 
 private:
-	RigFemPartResultsCollection* m_resultsData;
+    RigFemPartResultsCollection* m_resultsData;
     RigFemResultAddress m_resVarAddr;
 };
 

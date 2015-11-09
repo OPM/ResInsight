@@ -44,45 +44,10 @@ namespace caf
 {
 
 //==================================================================================================
-/// The PdmObjectGroup serves as a container of unknown PdmObjects, and is inherited by
-/// PdmDocument. Can be used to create sub assemblies.
-/// This class should possibly be merged with PdmDocument. It is not clear whether it really has 
-/// a reusable value on its own.
-//==================================================================================================
-class PdmObjectGroup : public PdmObject
-{
-    CAF_PDM_HEADER_INIT;
-public:
-    PdmObjectGroup();
-    ~PdmObjectGroup();
-
-    PdmPointersField<PdmObject*> objects;
-
-    void                         deleteObjects();
-    void                         removeNullPtrs();
-    void                         addObject(PdmObject * obj);
-
-    template <typename T>
-    void objectsByType(std::vector<PdmPointer<T> >* typedObjects ) const
-    {
-        if (!typedObjects) return;
-        size_t it;
-        for (it = 0; it != objects.size(); ++it)
-        {
-            T* obj = dynamic_cast<T*>(objects[it]);
-            if (obj) typedObjects->push_back(obj);
-        }
-    }
-
-    template <typename T>
-    void createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedObjects) const;
-};
-
-//==================================================================================================
 /// The PdmDocument class is the main class to do file based IO, 
 /// and is also supposed to act as the overall container of the objects read.
 //==================================================================================================
-class PdmDocument: public PdmObjectGroup
+class PdmDocument: public PdmObject
 {
     CAF_PDM_HEADER_INIT;
  public:
@@ -96,50 +61,8 @@ class PdmDocument: public PdmObjectGroup
     void                readFile(QIODevice* device);
     void                writeFile(QIODevice* device);
 
-    static void         updateUiIconStateRecursively(PdmObject * root);
-    static void         initAfterReadTraversal(PdmObject * root);
-
-    static void         setupBeforeSaveTraversal(PdmObject * root);
-
+    static void         updateUiIconStateRecursively(PdmObjectHandle* root);
 };
-
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename T>
-void PdmObjectGroup::createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedObjects) const
-{
-    std::vector<PdmPointer<T> > sourceTypedObjects;
-    objectsByType(&sourceTypedObjects);
-
-    QString encodedXml;
-    {
-        // Write original objects to XML file
-        PdmObjectGroup typedObjectGroup;
-        for (size_t i = 0; i < sourceTypedObjects.size(); i++)
-        {
-            typedObjectGroup.addObject(sourceTypedObjects[i]);
-            PdmDocument::setupBeforeSaveTraversal(sourceTypedObjects[i]);
-        }
-
-        QXmlStreamWriter xmlStream(&encodedXml);
-        xmlStream.setAutoFormatting(true);
-
-        typedObjectGroup.writeFields(xmlStream);
-    }
-
-    // Read back XML into object group, factory methods will be called that will create new objects
-    PdmObjectGroup destinationObjectGroup;
-    QXmlStreamReader xmlStream(encodedXml);
-    destinationObjectGroup.readFields(xmlStream);
-
-    for (size_t it = 0; it < destinationObjectGroup.objects.size(); it++)
-    {
-        T* obj = dynamic_cast<T*>(destinationObjectGroup.objects[it]);
-        if (obj) copyOfTypedObjects->push_back(obj);
-    }
-}
 
 
 

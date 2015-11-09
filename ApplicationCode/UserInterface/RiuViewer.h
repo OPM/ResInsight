@@ -58,6 +58,7 @@ public:
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
     void            setOwnerReservoirView(RimView * owner);
+    RimView*        ownerReservoirView();
     void            setEnableMask(unsigned int mask);
 
     void            showInfoText(bool enable);
@@ -72,7 +73,11 @@ public:
     void            addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend);
 
     void            updateNavigationPolicy();
- 
+
+    virtual void    navigationPolicyUpdate();               // Override of caf::Viewer::navigationPolicyUpdate()
+
+    void            setCurrentFrame(int frameIndex);
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();
@@ -82,6 +87,7 @@ private:
 
     void            mouseReleaseEvent(QMouseEvent* event);
     void            mousePressEvent(QMouseEvent* event);
+
 
     QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;

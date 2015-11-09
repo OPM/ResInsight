@@ -50,9 +50,9 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     CAF_PDM_InitObject("Cacher", "", "", "");
 
     CAF_PDM_InitField(&m_resultCacheFileName, "ResultCacheFileName",  QString(), "UiDummyname", "", "" ,"");
-    m_resultCacheFileName.setUiHidden(true);
+    m_resultCacheFileName.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname", "", "", "");
-    m_resultCacheMetaData.setUiHidden(true);
+    m_resultCacheMetaData.uiCapability()->setUiHidden(true);
 
 }
 
@@ -231,9 +231,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& res
 {
     if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
 
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-
-    scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);
+    size_t scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
@@ -978,16 +976,6 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
 
     bool hasNTGResults = ntgResultIdx != cvf::UNDEFINED_SIZE_T;
 
-    // Get the result count, to handle that one of them might be globally defined
-
-    size_t permxResultValueCount = m_cellResults->cellScalarResults(permXResultIdx)[0].size();
-    size_t resultValueCount = permxResultValueCount;
-    if (hasNTGResults)
-    {
-        size_t ntgResultValueCount = m_cellResults->cellScalarResults(ntgResultIdx)[0].size();
-        resultValueCount = CVF_MIN(permxResultValueCount, ntgResultValueCount);
-    }
-
     // Get all the actual result values
 
     std::vector<double> & permXResults = m_cellResults->cellScalarResults(permXResultIdx)[0];
@@ -1028,7 +1016,6 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
     }
 
     const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
-    const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
     bool isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     // NNC calculation
@@ -1217,8 +1204,6 @@ void RimReservoirCellResultsStorage::computeRiMULTComponent(const QString& riMul
     // Set up output container to correct number of results
 
     riMultResults.resize(resultValueCount);
-
-    const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
         
     for (size_t vIdx = 0; vIdx < transResults.size(); ++vIdx)
     {
@@ -1313,7 +1298,6 @@ void RimReservoirCellResultsStorage::computeRiTRANSbyAreaComponent(const QString
 
     const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
     const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
-    bool isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->cells().size(); nativeResvCellIndex++)
     {
@@ -1528,7 +1512,7 @@ double RimReservoirCellResultsStorage::darchysValue()
     double darchy = 0.008527; // (ECLIPSE 100) (METRIC)
 
     RimEclipseCase* rimCase = NULL;
-    this->firstAncestorOfType(rimCase);
+    this->firstAnchestorOrThisOfType(rimCase);
 
     if (rimCase && rimCase->reservoirData())
     {

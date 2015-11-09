@@ -8,9 +8,7 @@ from ert.util import BoolVector
 
 class GenDataCollector(object):
 
-
     @staticmethod
-
     def loadGenData(ert, case_name, key, report_step):
         """@type ert: EnKFMain
         @type case_name: str
@@ -36,10 +34,12 @@ class GenDataCollector(object):
         data_array.fill( numpy.nan )
         for realization_index, realization_number in enumerate(realizations):
             realization_vector = ensemble_data[realization_number]
-            for data_index in range(data_size):
-                if active_mask[data_index]:
-                    value = realization_vector[data_index]
-                    data_array[data_index][realization_index] = value
+
+            if len(realization_vector) > 0: # Must check because of a bug changing between different case with different states
+                for data_index in range(data_size):
+                    if active_mask[data_index]:
+                        value = realization_vector[data_index]
+                        data_array[data_index][realization_index] = value
         
         return DataFrame( data = data_array , columns = realizations )
         

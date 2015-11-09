@@ -313,14 +313,14 @@ bool caf::Viewer::event(QEvent* e)
         case QEvent::MouseButtonRelease:
         case QEvent::MouseButtonDblClick:
         case QEvent::MouseMove:
-        case QEvent::TabletMove:	 
-        case QEvent::TabletPress:	 
+        case QEvent::TabletMove:     
+        case QEvent::TabletPress:     
         case QEvent::TabletRelease:
         case QEvent::TabletEnterProximity:
         case QEvent::TabletLeaveProximity:
         case QEvent::Wheel:
         case QEvent::TouchBegin:
-        case QEvent::TouchUpdate:	
+        case QEvent::TouchUpdate:    
         case QEvent::TouchEnd:
             if (m_navigationPolicy->handleInputEvent(static_cast<QInputEvent*>(e)))
                 return true;
@@ -518,7 +518,8 @@ void caf::Viewer::setView(const cvf::Vec3d& alongDirection, const cvf::Vec3d& up
     if (m_navigationPolicy.notNull())
     {
         m_navigationPolicy->setView(alongDirection, upDirection); 
-        update();
+
+        navigationPolicyUpdate();
     }
 }
 
@@ -544,7 +545,8 @@ void caf::Viewer::zoomAll()
     m_mainCamera->toLookAt(&eye, &vrp, &up);
 
     m_mainCamera->fitView(bb, vrp-eye, up);
-    update();
+
+    navigationPolicyUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -592,16 +594,28 @@ bool caf::Viewer::isAnimationActive()
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 {
-    if (frameIndex < 0 || static_cast<size_t>(frameIndex) >= m_frameScenes.size() || m_frameScenes.at(frameIndex) == NULL) return;
+    if (m_frameScenes.size() == 0) return;
 
+    int clampedFrameIndex = frameIndex;
 
-    if(m_releaseOGLResourcesEachFrame)
+    if (static_cast<size_t>(frameIndex) >= m_frameScenes.size())
+    {
+        clampedFrameIndex = static_cast<int>(m_frameScenes.size()) - 1;
+    }
+
+    if (clampedFrameIndex < 0)
+    {
+        clampedFrameIndex = 0;
+    }
+
+    if (m_frameScenes.at(clampedFrameIndex) == NULL) return;
+
+    if (m_releaseOGLResourcesEachFrame)
     {
         releaseOGlResourcesForCurrentFrame();
     }
 
-    m_renderingSequence->firstRendering()->setScene(m_frameScenes.at(frameIndex));
-
+    m_renderingSequence->firstRendering()->setScene(m_frameScenes.at(clampedFrameIndex));
 
     update();
 }
@@ -639,6 +653,7 @@ void caf::Viewer::slotEndAnimation()
     }
 
     m_renderingSequence->firstRendering()->setScene(m_mainScene.p());
+
     update();
 }
 
@@ -790,5 +805,13 @@ void caf::Viewer::updateOverlayImagePresence()
     {
          m_mainRendering->removeOverlayItem(m_overlayImage.p());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create a virtual method so it is possible to override this function in derived classes
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::navigationPolicyUpdate()
+{
+    update();
 }
 

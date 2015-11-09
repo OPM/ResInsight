@@ -106,8 +106,6 @@ bool RigCell::isLongPyramidCell(double maxHeightFactor, double nodeNearTolerance
 
     const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
 
-    bool isPyramidCell = false;
-
     int face;
     for ( face = 0; face < 6 ; ++face)
     {
@@ -220,6 +218,48 @@ bool RigCell::isLongPyramidCell(double maxHeightFactor, double nodeNearTolerance
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCell::isCollapsedCell(double nodeNearTolerance) const
+{
+    const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
+
+    cvf::ubyte faceVertexIndices[4];
+    cvf::ubyte oppFaceVertexIndices[4];
+
+    int face;
+    for ( face = 0; face < 6 ; face += 2)
+    {
+        cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
+        cvf::StructGridInterface::cellFaceVertexIndices(cvf::StructGridInterface::oppositeFace(static_cast<cvf::StructGridInterface::FaceType>(face)), oppFaceVertexIndices);
+
+        cvf::Vec3d c0 =  nodes[m_cornerIndices[faceVertexIndices[0]]];
+        cvf::Vec3d c1 =  nodes[m_cornerIndices[faceVertexIndices[1]]];
+        cvf::Vec3d c2 =  nodes[m_cornerIndices[faceVertexIndices[2]]];
+        cvf::Vec3d c3 =  nodes[m_cornerIndices[faceVertexIndices[3]]];
+
+        cvf::Vec3d oc0 =  nodes[m_cornerIndices[oppFaceVertexIndices[0]]];
+        cvf::Vec3d oc1 =  nodes[m_cornerIndices[oppFaceVertexIndices[1]]];
+        cvf::Vec3d oc2 =  nodes[m_cornerIndices[oppFaceVertexIndices[2]]];
+        cvf::Vec3d oc3 =  nodes[m_cornerIndices[oppFaceVertexIndices[3]]];
+
+        int zeroLengthEdgeCount = 0;
+        if (isNear(c0, oc0, nodeNearTolerance)) { ++zeroLengthEdgeCount;  }
+        if (isNear(c1, oc3, nodeNearTolerance)) { ++zeroLengthEdgeCount;  }
+        if (isNear(c2, oc2, nodeNearTolerance)) { ++zeroLengthEdgeCount;  }
+        if (isNear(c3, oc1, nodeNearTolerance)) { ++zeroLengthEdgeCount;  }
+
+        if (zeroLengthEdgeCount >= 4)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

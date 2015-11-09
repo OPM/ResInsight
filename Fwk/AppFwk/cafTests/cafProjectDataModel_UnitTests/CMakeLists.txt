@@ -1,30 +1,46 @@
 cmake_minimum_required (VERSION 2.8)
 
+find_package ( Qt4 COMPONENTS QtCore QtGui )
+include (${QT_USE_FILE})
+
 project ( cafProjectDataModel_UnitTests )
 
 include_directories (
 	${CMAKE_SOURCE_DIR}/cafProjectDataModel 
 	${CMAKE_SOURCE_DIR}/cafTests
-
-	#Remove when RigStatistics is out
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ModelVisualization
 )
 
-# add the executable 
-add_executable (${PROJECT_NAME}
+include_directories (
+    ${cafPdmCore_SOURCE_DIR}
+    ${cafPdmUiCore_SOURCE_DIR}
+    ${cafPdmXml_SOURCE_DIR}
+)
+
+set( PROJECT_FILES
 	cafPdmBasicTest.cpp
 	cafProjectDataModel_UnitTests.cpp
         Child.cpp
         Parent.cpp
         TestObj.cpp
+
+)
+
+# add the executable 
+add_executable (${PROJECT_NAME}
+	${PROJECT_FILES}
 	${CMAKE_SOURCE_DIR}/cafTests/gtest/gtest-all.cpp
 )
+message(${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
 
 target_link_libraries ( ${PROJECT_NAME}
+    cafPdmCore
+    cafPdmUiCore
+    cafPdmXml
 	cafProjectDataModel 
-	${QT_LIBRARIES} 
+    ${QT_LIBRARIES}
 )
 
+source_group("" FILES ${PROJECT_FILES})
 
 # Copy Qt Dlls
 if (MSVC)

@@ -2,6 +2,10 @@ cmake_minimum_required (VERSION 2.8)
 
 project (cafAnimControl)
 
+# Qt
+find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
+include (${QT_USE_FILE})
+
 set( QOBJECT_HEADERS    
     cafFrameAnimationControl.h
     cafAnimationToolBar.h

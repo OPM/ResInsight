@@ -80,7 +80,7 @@ class GenDataRFTCSVExportJob(ErtPlugin):
         conventions:
         
           1. All the GEN_DATA RFT observations have key RFT_$WELL
-          2. The trajectory files are in $trajectory_path/$WELL.txt
+          2. The trajectory files are in $trajectory_path/$WELL.txt or $trajectory_path/$WELL_R.txt
         
         """
 
@@ -145,9 +145,8 @@ class GenDataRFTCSVExportJob(ErtPlugin):
                     std = obs_node.getStandardDeviation( obs_index )
                     obs[data_index,0] = value
                     obs[data_index,1] = std
-                    
 
-                real_data = pandas.DataFrame( index = ["Realization","Well"])
+
                 for iens in realizations:
                     realization_frame = pandas.DataFrame( data = {"TVD" : tvd_arg , 
                                                                   "Pressure" : rft_data[iens],
@@ -160,9 +159,9 @@ class GenDataRFTCSVExportJob(ErtPlugin):
                     realization_frame["Case"] = case
                     realization_frame["Iteration"] = iteration_number
 
-                    case_frame = pandas.concat( [case_frame , realization_frame] )
-                    
-                data_frame = pandas.concat([data_frame, case_frame])
+                    case_frame = case_frame.append(realization_frame)
+
+                data_frame = data_frame.append(case_frame)
 
         data_frame.set_index(["Realization" , "Well" , "Case" , "Iteration"] , inplace = True)
         data_frame.to_csv(output_file)

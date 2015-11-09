@@ -100,7 +100,6 @@ bool readDoubleValuesForActiveCells(RigCaseData* reservoir, size_t resultIndex, 
         newPropertyData[0].resize(activeCellInfo->reservoirActiveCellCount(), HUGE_VAL);
         std::vector<double>& valuesActiveCells = newPropertyData[0];
 
-        size_t acIdx = 0;
         for (size_t gcIdx = 0; gcIdx < activeCellInfo->reservoirCellCount(); gcIdx++)
         {
             size_t activeCellResultIndex = activeCellInfo->cellResultIndex(gcIdx);
@@ -187,7 +186,6 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
 
 
     bool allKwReadOk = true;
-    bool continueReading = true;
 
     fseek(gridFilePointer, specgridPos, SEEK_SET);
     allKwReadOk = allKwReadOk && NULL != (specGridKw = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_INT_TYPE));
@@ -297,7 +295,6 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
         return std::map<QString, QString>();
     }
 
-    bool isSomethingRead = false;
     std::map<QString, QString> newResults;
     for (size_t i = 0; i < fileKeywords.size(); ++i)
     {
@@ -503,8 +500,8 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
-	cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, eclipseCase->mainGrid()->gridIndex(), porosityModel, timeStep, resultName);
-	if (resultAccessor.isNull())
+    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, eclipseCase->mainGrid()->gridIndex(), porosityModel, timeStep, resultName);
+    if (resultAccessor.isNull())
     {
         return false;
     }
@@ -517,7 +514,7 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         {
             for (i = 0; i < eclipseCase->mainGrid()->cellCountI(); i++)
             {
-				double resultValue = resultAccessor->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
+                double resultValue = resultAccessor->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
                 if (resultValue == HUGE_VAL)
                 {
                     resultValue = undefinedValue;

@@ -18,74 +18,85 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RiaApplication.h"
 
-#include "cafEffectCache.h"
-#include "cafUtils.h"
-#include "cafAppEnum.h"
-
-#include "RiaVersionInfo.h"
 #include "RiaBaseDefs.h"
-//
-#include "RiuMainWindow.h"
-#include "RiuViewer.h"
-#include "RiuProcessMonitor.h"
-#include "RiaPreferences.h"
-//
-#include "RimEclipseResultCase.h"
-#include "RimEclipseInputCase.h"
-#include "RimEclipseView.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimOilField.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseFaultColors.h"
-
-#include "RiaSocketServer.h"
-#include "cafUiProcess.h"
-//
-#include "RimUiTreeModelPdm.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
+#include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
-#include "cafProgressInfo.h"
+#include "RiaSocketServer.h"
+#include "RiaVersionInfo.h"
+
 #include "RigGridManager.h"
 
-#include "RimProject.h"
-
-#include "RimEclipseCellColors.h"
-
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimEclipseInputPropertyCollection.h"
-
-#include "RimDefines.h"
-#include "RimScriptCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
 #include "RimCaseCollection.h"
-
-////////////
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimEclipseWellCollection.h"
-#include "RimEclipseStatisticsCase.h"
-#include "cafCeetronPlusNavigation.h"
-
-#include "cvfProgramOptions.h"
-#include "cvfqtUtils.h"
 #include "RimCommandObject.h"
+#include "RimDefines.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultCase.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechCellColors.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimMainPlotCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimScriptCollection.h"
+#include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
+#include "RiuMainWindow.h"
+#include "RiuProcessMonitor.h"
+#include "RiuViewer.h"
+
+#include "cafAppEnum.h"
+#include "cafCeetronPlusNavigation.h"
+#include "cafEffectCache.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmSettings.h"
+#include "cafPdmUiTreeView.h"
+#include "cafProgressInfo.h"
+#include "cafUiProcess.h"
+#include "cafUtils.h"
+#include "cvfFixedAtlasFont.h"
+#include "cvfProgramOptions.h"
+#include "cvfqtUtils.h"
+
+#include <QClipboard>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QDir>
+#include <QFileDialog>
+#include <QMdiSubWindow>
+#include <QMessageBox>
+#include <QTimer>
+#include <QUrl>
+
+#include "gtest/gtest.h"
+
+#ifdef WIN32
+#include <fcntl.h>
+#endif
 
 namespace caf
 {
@@ -141,7 +152,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     //cvf::Trace::enable(false);
 
     m_preferences = new RiaPreferences;
-    readFieldsFromApplicationStore(m_preferences);
+    caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
     applyPreferences();
 
     if (useShaders())
@@ -314,7 +325,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // VL check regarding specific order mentioned in comment above...
 
     m_preferences->lastUsedProjectFileName = projectFileName;
-    writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
@@ -366,36 +377,56 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // Add all "native" cases in the project
     std::vector<RimCase*> casesToLoad;
     m_project->allCases(casesToLoad);
-
-    caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
-    
-    for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
-        RimCase* cas = casesToLoad[cIdx];
-        CVF_ASSERT(cas);
+        caf::ProgressInfo caseProgress(casesToLoad.size(), "Reading Cases");
 
-        caseProgress.setProgressDescription(cas->caseUserDescription());
-        std::vector<RimView*> views = cas->views();
-        caf::ProgressInfo viewProgress(views.size() , "Creating Views");
-
-        size_t j;
-        for (j = 0; j < views.size(); j++)
+        for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
         {
-            RimView* riv = views[j];
-            CVF_ASSERT(riv);
+            RimCase* cas = casesToLoad[cIdx];
+            CVF_ASSERT(cas);
 
-            viewProgress.setProgressDescription(riv->name());
+            caseProgress.setProgressDescription(cas->caseUserDescription());
+            std::vector<RimView*> views = cas->views();
+            caf::ProgressInfo viewProgress(views.size(), "Creating Views");
 
-            riv->loadDataAndUpdate();
-            this->setActiveReservoirView(riv);
-            viewProgress.incrementProgress();
+            size_t j;
+            for (j = 0; j < views.size(); j++)
+            {
+                RimView* riv = views[j];
+                CVF_ASSERT(riv);
+
+                viewProgress.setProgressDescription(riv->name());
+
+                riv->loadDataAndUpdate();
+                this->setActiveReservoirView(riv);
+
+                riv->rangeFilterCollection()->updateIconState();
+
+                viewProgress.incrementProgress();
+            }
+
+            caseProgress.incrementProgress();
         }
-
-        caseProgress.incrementProgress();
     }
 
+    if (m_project->viewLinkerCollection() && m_project->viewLinkerCollection()->viewLinker())
+    {
+        m_project->viewLinkerCollection()->viewLinker()->updateOverrides();
+    }
 
+    {
+        if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
+        {
+            RimWellLogPlotCollection* wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
+            caf::ProgressInfo plotProgress(wlpColl->wellLogPlots().size(), "Loading Plot Data");
 
+            for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
+            {
+                wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+    }
     // NB! This function must be called before executing command objects, 
     // because the tree view state is restored from project file and sets
     // current active view ( see restoreTreeViewState() )
@@ -443,12 +474,36 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
         //printf("Create well path collection.\n");
         oilField->wellPathCollection = new RimWellPathCollection();
         oilField->wellPathCollection->setProject(m_project);
-        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project);
+
+        m_project->updateConnectedEditors();
     }
 
     if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
     
-    RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(oilField->wellPathCollection);
+    oilField->wellPathCollection->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Add a list of well log file paths (LAS files) to the well path collection
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::addWellLogsToModel(const QList<QString>& wellLogFilePaths)
+{
+    if (m_project == NULL || m_project->oilFields.size() < 1) return;
+
+    RimOilField* oilField = m_project->activeOilField();
+    if (oilField == NULL) return;
+
+    if (oilField->wellPathCollection == NULL)
+    {
+        oilField->wellPathCollection = new RimWellPathCollection();
+        oilField->wellPathCollection->setProject(m_project);
+
+        m_project->updateConnectedEditors();
+    }
+
+    if (oilField->wellPathCollection) oilField->wellPathCollection->addWellLogs(wellLogFilePaths);
+
+    oilField->wellPathCollection->updateConnectedEditors();
 }
 
 
@@ -482,15 +537,13 @@ bool RiaApplication::saveProjectPromptForFileName()
     QString startPath;
     if (!m_project->fileName().isEmpty())
     {
-        QFileInfo fi(m_project->fileName());
-        startPath = fi.absolutePath();
+        startPath = m_project->fileName();
     }
     else
     {
         startPath = app->defaultFileDialogDirectory("BINARY_GRID");
+        startPath += "/ResInsightProject.rsp";
     }
-
-    startPath += "/ResInsightProject.rsp";
 
     QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Project Files (*.rsp);;All files(*.*)"));
     if (fileName.isEmpty())
@@ -518,7 +571,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
     m_project->writeFile();
 
     m_preferences->lastUsedProjectFileName = fileName;
-    writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
     return true;
 }
@@ -530,6 +583,8 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 bool RiaApplication::closeProject(bool askToSaveIfDirty)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
+
+    clearViewsScheduledForUpdate();
 
     terminateProcess();
 
@@ -561,6 +616,9 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
     m_commandQueue.clear();
 
     onProjectOpenedOrClosed();
+
+    // Make sure all project windows are closed down properly before returning
+    processEvents();
 
     return true;    
 }
@@ -661,11 +719,10 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-
-    uiModel->updateUiSubTree(analysisModels);
+    analysisModels->updateConnectedEditors();
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+
 
     return true;
 }
@@ -698,8 +755,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-    uiModel->updateUiSubTree(analysisModels);
+    analysisModels->updateConnectedEditors();
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
@@ -744,9 +800,8 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
     //}
     progress.incrementProgress();
     progress.setProgressDescription("Loading results information");
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
 
-    uiModel->updateUiSubTree(m_project);
+    m_project->updateConnectedEditors();
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
     
@@ -824,10 +879,26 @@ void RiaApplication::setActiveReservoirView(RimView* rv)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::setActiveWellLogPlot(RimWellLogPlot* wlp)
+{
+    m_activeWellLogPlot = wlp;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot* RiaApplication::activeWellLogPlot()
+{
+   return m_activeWellLogPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::setUseShaders(bool enable)
 {
     m_preferences->useShaders = enable;
-    writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -859,7 +930,7 @@ RiaApplication::RINavigationPolicy RiaApplication::navigationPolicy() const
 void RiaApplication::setShowPerformanceInfo(bool enable)
 {
     m_preferences->showHud = enable;
-    writeFieldsToApplicationStore(m_preferences);
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 
@@ -891,6 +962,7 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("?",                         "",                                 "Displays help text.");
     progOpt.registerOption("regressiontest",            "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("unittest",                  "",                                 "Execute unit tests");
 
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
@@ -1068,10 +1140,83 @@ bool RiaApplication::parseArguments()
         return false;
     }
 
+    // Unit testing
+    // --------------------------------------------------------
+    if (cvf::Option o = progOpt.option("unittest"))
+    {
+        launchUnitTests();
+    }
 
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::launchUnitTests()
+{
+    cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
+
+    int argc = QCoreApplication::argc();
+    testing::InitGoogleTest(&argc, QCoreApplication::argv());
+
+    //int result = RUN_ALL_TESTS();
+    RUN_ALL_TESTS();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::launchUnitTestsWithConsole()
+{
+    // Following code is taken from cvfAssert.cpp
+#ifdef WIN32
+    {
+        // Allocate a new console for this app
+        // Only one console can be associated with an app, so should fail if a console is already present.
+        AllocConsole();
+
+        bool redirStdOut = true;
+        bool redirStdErr = true;
+        bool redirStdIn = false;
+
+        if (redirStdOut)
+        {
+            HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+            FILE* fp = _fdopen(fileDescriptor, "w");
+
+            *stdout = *fp;
+            setvbuf(stdout, NULL, _IONBF, 0);
+        }
+
+        if (redirStdErr)
+        {
+            HANDLE stdHandle = GetStdHandle(STD_ERROR_HANDLE);
+            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+            FILE* fp = _fdopen(fileDescriptor, "w");
+
+            *stderr = *fp;
+            setvbuf(stderr, NULL, _IONBF, 0);
+        }
+
+        if (redirStdIn)
+        {
+            HANDLE stdHandle = GetStdHandle(STD_INPUT_HANDLE);
+            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+            FILE* fp = _fdopen(fileDescriptor, "r");
+
+            *stdin = *fp;
+            setvbuf(stdin, NULL, _IONBF, 0);
+        }
+
+        // Make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
+        std::ios::sync_with_stdio();
+    }
+#endif
+
+    launchUnitTests();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1289,80 +1434,6 @@ bool RiaApplication::launchProcessForMultipleCases(const QString& program, const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Read fields of a Pdm object using QSettings
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, const QString context)
-{
-    QSettings settings;
-    std::vector<caf::PdmFieldHandle*> fields;
-
-    object->fields(fields);
-    size_t i;
-    for (i = 0; i < fields.size(); i++)
-    {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
-
-        std::vector<caf::PdmObject*> children;
-        fieldHandle->childObjects(&children);
-        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
-        {
-            caf::PdmObject* child = children[childIdx];
-            QString subContext = context + child->classKeyword() + "/";
-            readFieldsFromApplicationStore(child, subContext);
-        }
-        
-        
-        if (children.size() == 0)
-        {
-            QString key = context + fieldHandle->keyword();
-            if (settings.contains(key))
-            {
-                QVariant val = settings.value(key);
-                fieldHandle->setValueFromUi(val);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Write fields of a Pdm object using QSettings
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context)
-{
-    CVF_ASSERT(object);
-
-    QSettings settings;
-
-    std::vector<caf::PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    size_t i;
-    for (i = 0; i < fields.size(); i++)
-    {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
-
-        std::vector<caf::PdmObject*> children;
-        fieldHandle->childObjects(&children);
-        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
-        {
-            caf::PdmObject* child = children[childIdx];
-            QString subContext;
-            if (context.isEmpty())
-            {
-                subContext = context + child->classKeyword() + "/";
-            }
-
-            writeFieldsToApplicationStore(child, subContext);
-        }
-
-        if (children.size() == 0)
-        {
-            settings.setValue(context + fieldHandle->keyword(), fieldHandle->uiValue());
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiaPreferences* RiaApplication::preferences()
@@ -1390,13 +1461,16 @@ void RiaApplication::applyPreferences()
         caf::EffectGenerator::setRenderingMode(caf::EffectGenerator::FIXED_FUNCTION);
     }
 
+    if (RiuMainWindow::instance() && RiuMainWindow::instance()->projectTreeView())
+    {
+        RiuMainWindow::instance()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
+    }
+
     if (this->project())
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
-        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-        if (treeModel) treeModel->updateUiSubTree(this->project()->scriptCollection());
+        this->project()->updateConnectedEditors();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1541,10 +1615,9 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 setActiveReservoirView(riv);
 
                 RiuViewer* viewer = riv->viewer();
-                mainWnd->setActiveViewer(viewer);
+                mainWnd->setActiveViewer(viewer->layoutWidget());
 
-                // Process all events to avoid a black image when grabbing frame buffer
-                QCoreApplication::processEvents();
+                clearViewsScheduledForUpdate();
 
                 QString fileName = cas->caseUserDescription() + "-" + riv->name();
                 fileName.replace(" ", "_");
@@ -1665,7 +1738,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         this->preferences()->fields(fields);
         for (size_t i = 0; i < fields.size(); i++)
         {
-            QVariant v = fields[i]->uiValue();
+            QVariant v = fields[i]->uiCapability()->uiValue();
             preferencesValues.push_back(v);
         }
     }
@@ -1721,7 +1794,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
             for (size_t i = 0; i < preferencesValues.size(); i++)
             {
-                fields[i]->setValueFromUi(preferencesValues[i]);
+                fields[i]->uiCapability()->setValueFromUi(preferencesValues[i]);
             }
         }
     }
@@ -1848,9 +1921,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         gridCaseGroup->loadMainCaseAndActiveCellInfo();
     }
 
-    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
- 
-    uiModel->updateUiSubTree( m_project->activeOilField()->analysisModels());
+    m_project->activeOilField()->analysisModels()->updateConnectedEditors();
 
     if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
     {
@@ -1893,6 +1964,21 @@ QImage RiaApplication::grabFrameBufferImage()
     }
 
     return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::clearViewsScheduledForUpdate()
+{
+    if (m_resViewUpdateTimer)
+    {
+        while (m_resViewUpdateTimer->isActive())
+        {
+            QCoreApplication::processEvents();
+        }
+    }
+    m_resViewsToUpdate.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1994,19 +2080,38 @@ void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdat
 void RiaApplication::slotUpdateScheduledDisplayModels()
 {
     // Compress to remove duplicates
-    std::set<RimView*> resViewsToUpdate;
+    // and update dependent views after independent views
+
+    std::set<RimView*> independent3DViewsToUpdate;
+    std::set<RimView*> dependent3DViewsToUpdate;
+
     for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
     {
-        resViewsToUpdate.insert(m_resViewsToUpdate[i]);
-    }
+        if (!m_resViewsToUpdate[i]) continue;
 
-    for (std::set<RimView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it )
+        if (m_resViewsToUpdate[i]->viewController())
+            dependent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
+        else
+            independent3DViewsToUpdate.insert(m_resViewsToUpdate[i]);
+    }
+   
+    for (std::set<RimView*>::iterator it = independent3DViewsToUpdate.begin(); it != independent3DViewsToUpdate.end(); ++it )
     {
         if (*it)
         {
             (*it)->createDisplayModelAndRedraw();
         }
     }
+
+    for (std::set<RimView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end(); ++it)
+    {
+        if (*it)
+        {
+            (*it)->createDisplayModelAndRedraw();
+        }
+    }
+
+    m_resViewsToUpdate.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2117,7 +2222,6 @@ void RiaApplication::regressionTestConfigureProject()
     std::vector<RimCase*> projectCases;
     m_project->allCases(projectCases);
 
-
     for (size_t i = 0; i < projectCases.size(); i++)
     {
         RimCase* cas = projectCases[i];
@@ -2131,6 +2235,13 @@ void RiaApplication::regressionTestConfigureProject()
 
             if (riv && riv->viewer())
             {
+                // Make sure all views are maximized for snapshotting
+                QMdiSubWindow* subWnd = mainWnd->findMdiSubWindow(riv->viewer()->layoutWidget());
+                if (subWnd)
+                {
+                    subWnd->showMaximized();
+                }
+
                 // This size is set to match the regression test reference images
                 riv->viewer()->setFixedSize(1000, 745);
             }
@@ -2140,7 +2251,12 @@ void RiaApplication::regressionTestConfigureProject()
             if (resvView)
             {
                 resvView->faultCollection->setShowFaultsOutsideFilters(false);
-                resvView->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
+
+                caf::PdmUiFieldHandle* uiFieldHandle = resvView->faultResultSettings->showCustomFaultResult.uiCapability();
+                if (uiFieldHandle)
+                {
+                    uiFieldHandle->setValueFromUi(false);
+                }
             }
         }
     }

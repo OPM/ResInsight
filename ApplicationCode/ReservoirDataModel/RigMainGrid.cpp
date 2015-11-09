@@ -23,6 +23,7 @@
 #include "cvfAssert.h"
 #include "RimDefines.h"
 #include "RigFault.h"
+#include "cvfBoundingBoxTree.h"
 
 
 RigMainGrid::RigMainGrid(void)
@@ -440,4 +441,53 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
     }
 #endif
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices) const
+{
+    if (m_cellSearchTree.isNull())
+    {
+        // build tree
+
+        size_t cellCount = m_cells.size();
+
+        std::vector<cvf::BoundingBox> cellBoundingBoxes;
+        cellBoundingBoxes.resize(cellCount);
+
+        for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
+        {
+            const caf::SizeTArray8& cellIndices = m_cells[cIdx].cornerIndices();
+            cvf::BoundingBox& cellBB = cellBoundingBoxes[cIdx];
+            cellBB.add(m_nodes[cellIndices[0]]);
+            cellBB.add(m_nodes[cellIndices[1]]);
+            cellBB.add(m_nodes[cellIndices[2]]);
+            cellBB.add(m_nodes[cellIndices[3]]);
+            cellBB.add(m_nodes[cellIndices[4]]);
+            cellBB.add(m_nodes[cellIndices[5]]);
+            cellBB.add(m_nodes[cellIndices[6]]);
+            cellBB.add(m_nodes[cellIndices[7]]);
+        }
+
+        m_cellSearchTree = new cvf::BoundingBoxTree;
+        m_cellSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, NULL);
+    }
+
+    m_cellSearchTree->findIntersections(inputBB, cellIndices);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigMainGrid::boundingBox() const
+{
+    if (m_boundingBox.isValid()) return m_boundingBox;
+
+    for (size_t i = 0; i < m_nodes.size(); ++i)
+    {
+        m_boundingBox.add(m_nodes[i]);
+    }
+    return m_boundingBox;
 }

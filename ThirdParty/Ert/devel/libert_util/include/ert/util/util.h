@@ -104,6 +104,7 @@ typedef enum {left_pad   = 0,
   //#define UTIL_CXX_MALLOC(var , num_elm) (typeof (var)) util_malloc( (num_elm) * sizeof var)
 
   void         util_bitmask_on(int *  , int );
+  char       * util_get_timezone();
   time_t       util_make_datetime(int , int , int , int , int , int );
   void         util_fprintf_datetime(time_t  , FILE * );
   void         util_fprintf_date(time_t  , FILE * );

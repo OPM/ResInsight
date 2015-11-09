@@ -66,8 +66,8 @@ public: // protected: // Should be protected but this friending does not work on
     virtual void         setPointOfInterest(cvf::Vec3d poi) = 0;
 
     // Interface used by caf::ViewerBase
-    void                 setViewer(Viewer* viewer) { m_viewer = viewer; init(); }
-    QPointer<Viewer> m_viewer;
+    void                 setViewer(Viewer* viewer);
+    QPointer<Viewer>     m_viewer;
 };
 
 } // End namespace caf

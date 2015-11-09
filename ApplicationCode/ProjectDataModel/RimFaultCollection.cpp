@@ -56,27 +56,28 @@ RimFaultCollection::RimFaultCollection()
 {
     CAF_PDM_InitObject("Faults", ":/draw_style_faults_24x24.png", "", "");
 
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
-    CAF_PDM_InitField(&showFaultCollection,     "Active",        true,   "Active", "", "", "");
-    showFaultCollection.setUiHidden(true);
+    CAF_PDM_InitField(&showFaultCollection, "Active", true, "Active", "", "", "");
+    showFaultCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
-    CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
-    CAF_PDM_InitField(&m_showFaultsOutsideFilters,"ShowFaultsOutsideFilters", true,    "Show faults outside filters", "", "", "");
+    CAF_PDM_InitField(&showFaultFaces, "ShowFaultFaces", true, "Show defined faces", "", "", "");
+    CAF_PDM_InitField(&showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show opposite faces", "", "", "");
+    CAF_PDM_InitField(&m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show faults outside filters", "", "", "");
 
-    CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
+    CAF_PDM_InitField(&faultResult, "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
 
-    CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    false,   "Show labels", "", "", "");
+    CAF_PDM_InitField(&showFaultLabel, "ShowFaultLabel", false, "Show labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
-    CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Label color",  "", "", "");
-    
+    CAF_PDM_InitField(&faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label color", "", "", "");
+
     CAF_PDM_InitField(&showNNCs, "ShowNNCs", true, "Show NNCs", "", "", "");
     CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC geometry if no NNC result is available", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNnncCollection, "NoCommonAreaNnncCollection", "NNCs With No Common Area", "", "", "");
     noCommonAreaNnncCollection = new RimNoCommonAreaNncCollection;
+    noCommonAreaNnncCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
+    faults.uiCapability()->setUiHidden(true);
 
     m_reservoirView = NULL;
 }
@@ -325,9 +326,9 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 {
     bool isGridVizMode = isGridVisualizationMode();
 
-    faultResult.setUiReadOnly(isGridVizMode);
-    showFaultFaces.setUiReadOnly(isGridVizMode);
-    showOppositeFaultFaces.setUiReadOnly(isGridVizMode);
+    faultResult.uiCapability()->setUiReadOnly(isGridVizMode);
+    showFaultFaces.uiCapability()->setUiReadOnly(isGridVizMode);
+    showOppositeFaultFaces.uiCapability()->setUiReadOnly(isGridVizMode);
 
     caf::PdmUiGroup* labs = uiOrdering.addNewGroup("Fault Labels");
     labs->add(&showFaultLabel);

@@ -472,9 +472,7 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
     if (m_originalPipeCenterCoords->size() < 2) return;
     if (m_filteredPipeCenterCoords.size() > 0) return;
 
-
     double squareDistanceTolerance = 1e-4*1e-4;
-    double angleTolerance = 1e-5;
 
     size_t firstSegmentWithLength = 0;
     size_t i;
@@ -507,7 +505,6 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         cvf::Vec3d directionAB = coordB - coordA;
 
         // Skip segment lengths below tolerance
-        double dirLengthSq = directionAB.lengthSquared();
         if (directionAB.lengthSquared() > squareDistanceTolerance)
         {
             lastValidDirectionAB = directionAB.getNormalized();

@@ -21,6 +21,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <dlfcn.h>
+#include <unistd.h>
 
 #include <ert/util/util.h>
 #include <ert/util/hash.h>
@@ -348,12 +349,11 @@ static int lsf_driver_submit_internal_job( lsf_driver_type * driver ,
   char * command;
   {
     buffer_type * command_buffer = buffer_alloc( 256 );
-    buffer_fwrite_char_ptr( command_buffer , submit_cmd );
+    buffer_strcat( command_buffer , submit_cmd );
     for (int iarg = 0; iarg < argc; iarg++) {
-      buffer_fwrite_char( command_buffer , ' ');
-      buffer_fwrite_char_ptr( command_buffer , argv[ iarg ]);
+      buffer_strcat( command_buffer , " ");
+      buffer_strcat( command_buffer , argv[ iarg ]);
     }
-    buffer_terminate_char_ptr( command_buffer );
     command = buffer_get_data( command_buffer );
     buffer_free_container( command_buffer );
   }

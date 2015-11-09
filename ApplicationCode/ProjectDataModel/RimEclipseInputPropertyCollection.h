@@ -20,10 +20,12 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+#include "cvfBase.h"
+#include "cvfObject.h"
 
 class RimEclipseInputProperty;
 
@@ -47,6 +49,6 @@ public:
 
 
     // Fields:                        
-    caf::PdmPointersField<RimEclipseInputProperty*> inputProperties;
+    caf::PdmChildArrayField<RimEclipseInputProperty*> inputProperties;
 
 };

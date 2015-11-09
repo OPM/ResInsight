@@ -18,54 +18,84 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RiuMainWindow.h"
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTest.h"
+
 #include "RigCaseCellResultsData.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCase.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
+
 #include "RimCaseCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechModels.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechView.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-
-#include "RimEclipseCellColors.h"
-#include "RimGeoMechCellColors.h"
 #include "RimTools.h"
-#include "RimUiTreeModelPdm.h"
-#include "RimUiTreeView.h"
-#include "RimEclipseWellCollection.h"
-#include "RimWellPathCollection.h"
+#include "RimTreeViewStateSerializer.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
 #include "RimWellPathImport.h"
+
+#include "RiuDragDrop.h"
 #include "RiuMultiCaseImportDialog.h"
 #include "RiuProcessMonitor.h"
+#include "RiuProjectPropertyView.h"
 #include "RiuResultInfoPanel.h"
+#include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
-
-#include "RigGeoMechCaseData.h"
+#include "RiuWellLogPlot.h"
 
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
+#include "cafCmdExecCommandManager.h"
+#include "cafCmdFeatureManager.h"
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmUiPropertyDialog.h"
+#include "cafPdmObjectGroup.h"
+#include "cafPdmSettings.h"
 #include "cafPdmUiPropertyView.h"
-
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafPdmUiTreeView.h"
+#include "cafSelectionManager.h"
 #include "cvfTimer.h"
-#include "RimGeoMechModels.h"
-#include "RimGeoMechView.h"
-#include "RigFemPartResultsCollection.h"
+
+#include <QAction>
+#include <QCloseEvent>
+#include <QDesktopServices>
+#include <QDockWidget>
+#include <QErrorMessage>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QLabel>
+#include <QLayout>
+#include <QMdiArea>
+#include <QMdiSubWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QSpinBox>
+#include <QStyle>
+#include <QToolTip>
+#include <QTreeView>
+#include <QUndoStack>
+
 
 
 //==================================================================================================
@@ -83,27 +113,19 @@ RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = NULL;
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow::RiuMainWindow()
-:   m_treeView(NULL),   
-    m_pdmRoot(NULL),
+    : m_pdmRoot(NULL),
     m_mainViewer(NULL),
-    m_windowMenu(NULL)
+    m_windowMenu(NULL),
+    m_blockSlotSubWindowActivated(false)
 {
     CVF_ASSERT(sm_mainWindowInstance == NULL);
 
-#if 0
-    m_CentralFrame = new QFrame;
-    QHBoxLayout* frameLayout = new QHBoxLayout(m_CentralFrame);
-    setCentralWidget(m_CentralFrame);
-#else
     m_mdiArea = new QMdiArea;
-    connect(m_mdiArea, SIGNAL(subWindowActivated ( QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
+    m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
+    connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
-#endif
 
     //m_mainViewer = createViewer();
-
-
-    m_treeModelPdm = new RimUiTreeModelPdm(this);
 
     createActions();
     createMenus();
@@ -112,15 +134,16 @@ RiuMainWindow::RiuMainWindow()
 
     // Store the layout so we can offer reset option
     m_initialDockAndToolbarLayout = saveState(0);
-    loadWinGeoAndDockToolBarLayout();
 
     sm_mainWindowInstance = this;
-    
-    slotRefreshFileActions();
-    slotRefreshEditActions();
 
-    // Set pdm root so scripts are displayed
-    setPdmRoot(RiaApplication::instance()->project());
+    m_dragDropInterface = new RiuDragDrop;
+
+    initializeGuiNewProjectLoaded();
+
+    // Enabling the line below will activate the undo stack
+    // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
+    //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 }
 
 
@@ -153,6 +176,8 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::cleanupGuiBeforeProjectClose()
 {
+    caf::CmdExecCommandManager::instance()->undoStack()->clear();
+
     setPdmRoot(NULL);
     setResultInfo("");
     
@@ -161,6 +186,14 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
         m_pdmUiPropertyView->showProperties(NULL);
     }
 
+    for (size_t i = 0; i < additionalProjectViews.size(); i++)
+    {
+        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectViews[i]->widget());
+        if (projPropView)
+        {
+            projPropView->showProperties(NULL);
+        }
+    }
     m_processMonitor->startMonitorWorkProcess(NULL);
 }
 
@@ -175,9 +208,9 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
         return;
     }
 
+    delete m_dragDropInterface;
+    
     saveWinGeoAndDockToolBarLayout();
-
-
         
     event->accept();
 }
@@ -191,13 +224,7 @@ void RiuMainWindow::createActions()
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
 
-    m_importEclipseCaseAction     = new QAction(QIcon(":/Case48x48.png"), "Import &Eclipse Case", this);
-    m_importInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "Import &Input Eclipse Case", this);
     m_importGeoMechCaseAction     = new QAction(QIcon(":/GeoMechCase48x48.png"), "Import &Geo Mechanical Model", this);
-    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
-    
-    m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "Import &Well Paths from File", this);
-    m_importWellPathsFromSSIHubAction     = new QAction(QIcon(":/WellCollection.png"),"Import Well Paths from &SSI-hub", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
@@ -227,40 +254,35 @@ void RiuMainWindow::createActions()
 
     m_exitAction = new QAction("E&xit", this);
 
-    connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
+    connect(m_openProjectAction,                SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
-    connect(m_importEclipseCaseAction,	        SIGNAL(triggered()), SLOT(slotImportEclipseCase()));
+
     connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
-
-    connect(m_importInputEclipseFileAction,     SIGNAL(triggered()), SLOT(slotImportInputEclipseFiles()));
-    connect(m_openMultipleEclipseCasesAction,   SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
-    connect(m_importWellPathsFromFileAction,	SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
-    connect(m_importWellPathsFromSSIHubAction,  SIGNAL(triggered()), SLOT(slotImportWellPathsFromSSIHub()));
     
-    connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
-    connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
-    connect(m_mockLargeResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
-    connect(m_mockModelCustomizedAction,	SIGNAL(triggered()), SLOT(slotMockModelCustomized()));
-    connect(m_mockInputModelAction,	    SIGNAL(triggered()), SLOT(slotInputMockModel()));
+    connect(m_mockModelAction,            SIGNAL(triggered()), SLOT(slotMockModel()));
+    connect(m_mockResultsModelAction,    SIGNAL(triggered()), SLOT(slotMockResultsModel()));
+    connect(m_mockLargeResultsModelAction,    SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
+    connect(m_mockModelCustomizedAction,    SIGNAL(triggered()), SLOT(slotMockModelCustomized()));
+    connect(m_mockInputModelAction,        SIGNAL(triggered()), SLOT(slotInputMockModel()));
 
-    connect(m_snapshotToFile,	        SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
-    connect(m_snapshotToClipboard,	    SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
+    connect(m_snapshotToFile,            SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
+    connect(m_snapshotToClipboard,        SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
     connect(m_snapshotAllViewsToFile,   SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
 
     connect(m_createCommandObject,      SIGNAL(triggered()), SLOT(slotCreateCommandObject()));
     connect(m_showRegressionTestDialog, SIGNAL(triggered()), SLOT(slotShowRegressionTestDialog()));
     connect(m_executePaintEventPerformanceTest, SIGNAL(triggered()), SLOT(slotExecutePaintEventPerformanceTest()));
     
-    connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
-    connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
+    connect(m_saveProjectAction,        SIGNAL(triggered()), SLOT(slotSaveProject()));
+    connect(m_saveProjectAsAction,        SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
 
-    connect(m_closeProjectAction,	            SIGNAL(triggered()), SLOT(slotCloseProject()));
+    connect(m_closeProjectAction,                SIGNAL(triggered()), SLOT(slotCloseProject()));
 
     connect(m_exitAction, SIGNAL(triggered()), QApplication::instance(), SLOT(closeAllWindows()));
 
     // Edit actions
     m_editPreferences                = new QAction("&Preferences...", this);
-    connect(m_editPreferences,	  SIGNAL(triggered()), SLOT(slotEditPreferences()));
+    connect(m_editPreferences,      SIGNAL(triggered()), SLOT(slotEditPreferences()));
 
     // View actions
     m_viewFromNorth                = new QAction(QIcon(":/SouthViewArrow.png"), "Look South", this);
@@ -279,13 +301,13 @@ void RiuMainWindow::createActions()
     m_zoomAll                = new QAction(QIcon(":/ZoomAll16x16.png"),"Zoom all", this);
     m_zoomAll->setToolTip("Zoom to view all");
 
-    connect(m_viewFromNorth,	            SIGNAL(triggered()), SLOT(slotViewFromNorth()));
-    connect(m_viewFromSouth,	            SIGNAL(triggered()), SLOT(slotViewFromSouth()));
-    connect(m_viewFromEast, 	            SIGNAL(triggered()), SLOT(slotViewFromEast()));
-    connect(m_viewFromWest, 	            SIGNAL(triggered()), SLOT(slotViewFromWest()));
-    connect(m_viewFromAbove,	            SIGNAL(triggered()), SLOT(slotViewFromAbove()));
-    connect(m_viewFromBelow,	            SIGNAL(triggered()), SLOT(slotViewFromBelow()));
-    connect(m_zoomAll,	                    SIGNAL(triggered()), SLOT(slotZoomAll()));
+    connect(m_viewFromNorth,                SIGNAL(triggered()), SLOT(slotViewFromNorth()));
+    connect(m_viewFromSouth,                SIGNAL(triggered()), SLOT(slotViewFromSouth()));
+    connect(m_viewFromEast,                 SIGNAL(triggered()), SLOT(slotViewFromEast()));
+    connect(m_viewFromWest,                 SIGNAL(triggered()), SLOT(slotViewFromWest()));
+    connect(m_viewFromAbove,                SIGNAL(triggered()), SLOT(slotViewFromAbove()));
+    connect(m_viewFromBelow,                SIGNAL(triggered()), SLOT(slotViewFromBelow()));
+    connect(m_zoomAll,                        SIGNAL(triggered()), SLOT(slotZoomAll()));
 
     // Debug actions
     m_newPropertyView = new QAction("New Project and Property View", this);
@@ -303,18 +325,18 @@ void RiuMainWindow::createActions()
     m_dsActionGroup = new QActionGroup(this);
 
     m_drawStyleLinesAction                = new QAction(QIcon(":/draw_style_lines_24x24.png"), "&Mesh Only", this);
-    //connect(m_drawStyleLinesAction,	    SIGNAL(triggered()), SLOT(slotDrawStyleLines()));
+    //connect(m_drawStyleLinesAction,        SIGNAL(triggered()), SLOT(slotDrawStyleLines()));
     m_dsActionGroup->addAction(m_drawStyleLinesAction);
 
      m_drawStyleLinesSolidAction           = new QAction(QIcon(":/draw_style_meshlines_24x24.png"), "Mesh And Surfaces", this);
-    //connect(m_drawStyleLinesSolidAction,	SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
+    //connect(m_drawStyleLinesSolidAction,    SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
      m_dsActionGroup->addAction(m_drawStyleLinesSolidAction);
 
      m_drawStyleFaultLinesSolidAction           = new QAction(QIcon(":/draw_style_surface_w_fault_mesh_24x24.png"), "Fault Mesh And Surfaces", this);
      m_dsActionGroup->addAction(m_drawStyleFaultLinesSolidAction);
 
     m_drawStyleSurfOnlyAction             = new QAction(QIcon(":/draw_style_surface_24x24.png"), "&Surface Only", this);
-    //connect(m_drawStyleSurfOnlyAction,	SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
+    //connect(m_drawStyleSurfOnlyAction,    SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
     m_dsActionGroup->addAction(m_drawStyleSurfOnlyAction);
 
 
@@ -322,21 +344,21 @@ void RiuMainWindow::createActions()
 
     m_disableLightingAction = new QAction(QIcon(":/disable_lighting_24x24.png"), "&Disable Results Lighting", this);
     m_disableLightingAction->setCheckable(true);
-    connect(m_disableLightingAction,	SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
+    connect(m_disableLightingAction,    SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
 
 
     m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
     m_drawStyleToggleFaultsAction->setCheckable(true);
-    connect(m_drawStyleToggleFaultsAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
+    connect(m_drawStyleToggleFaultsAction,    SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
 
     m_toggleFaultsLabelAction             = new QAction( QIcon(":/draw_style_faults_label_24x24.png"), "&Show Fault Labels", this);
     m_toggleFaultsLabelAction->setCheckable(true);
-    connect(m_toggleFaultsLabelAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultLabelsAction(bool)));
+    connect(m_toggleFaultsLabelAction,    SIGNAL(toggled(bool)), SLOT(slotToggleFaultLabelsAction(bool)));
 
     m_addWellCellsToRangeFilterAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Add Well Cells To Range Filter", this);
     m_addWellCellsToRangeFilterAction->setCheckable(true);
     m_addWellCellsToRangeFilterAction->setToolTip("Add Well Cells To Range Filter based on the individual settings");
-    connect(m_addWellCellsToRangeFilterAction,	SIGNAL(toggled(bool)), SLOT(slotAddWellCellsToRangeFilterAction(bool)));
+    connect(m_addWellCellsToRangeFilterAction,    SIGNAL(toggled(bool)), SLOT(slotAddWellCellsToRangeFilterAction(bool)));
 
 }
 
@@ -383,6 +405,9 @@ public:
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createMenus()
 {
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(cmdFeatureMgr);
+
     // File menu
     QMenu* fileMenu = new ToolTipableMenu(menuBar());
     fileMenu->setTitle("&File");
@@ -394,16 +419,17 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
-    importMenu->addAction(m_importEclipseCaseAction);
-    importMenu->addAction(m_importInputEclipseFileAction);
-    importMenu->addAction(m_openMultipleEclipseCasesAction);
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
     #ifdef USE_ODB_API
     importMenu->addAction(m_importGeoMechCaseAction);
     importMenu->addSeparator();
     #endif
-    importMenu->addAction(m_importWellPathsFromFileAction);
-    importMenu->addAction(m_importWellPathsFromSSIHubAction);
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(m_snapshotToFile);
@@ -462,6 +488,7 @@ void RiuMainWindow::createMenus()
     testMenu->addSeparator();
     testMenu->addAction(m_showRegressionTestDialog);
     testMenu->addAction(m_executePaintEventPerformanceTest);
+    testMenu->addAction(cmdFeatureMgr->action("RicLaunchUnitTestsFeature"));
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu("&Windows");
@@ -481,12 +508,14 @@ void RiuMainWindow::createMenus()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createToolBars()
 {
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(cmdFeatureMgr);
 
     m_standardToolBar = addToolBar(tr("Standard"));
     m_standardToolBar->setObjectName(m_standardToolBar->windowTitle());
 
-    m_standardToolBar->addAction(m_importEclipseCaseAction);
-    m_standardToolBar->addAction(m_importInputEclipseFileAction);
+    m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
     m_standardToolBar->addAction(m_openProjectAction);
     //m_standardToolBar->addAction(m_openLastUsedProjectAction);
     m_standardToolBar->addAction(m_saveProjectAction);
@@ -508,6 +537,9 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_viewFromWest);
     m_viewToolBar->addAction(m_viewFromAbove);
     m_viewToolBar->addAction(m_viewFromBelow);
+    m_viewToolBar->addSeparator();
+    m_viewToolBar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
+    m_viewToolBar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
     m_viewToolBar->addSeparator();
     m_viewToolBar->addAction(m_drawStyleLinesAction);
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
@@ -546,22 +578,55 @@ void RiuMainWindow::createDockPanels()
     {
         QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
         dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
-        m_treeView = new RimUiTreeView(dockWidget);
-        m_treeView->setModel(m_treeModelPdm);
-        m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        m_projectTreeView = new caf::PdmUiTreeView(this);
+        m_projectTreeView->enableSelectionManagerUpdating(true);
+
+        RiaApplication* app = RiaApplication::instance();
+        m_projectTreeView->enableAppendOfClassNameToUiItemText(app->preferences()->appendClassNameToUiText());
+
+        dockWidget->setWidget(m_projectTreeView);
+
+        m_projectTreeView->treeView()->setHeaderHidden(true);
+        m_projectTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
         // Drag and drop configuration
-        m_treeView->setDragEnabled(true);
-        m_treeView->viewport()->setAcceptDrops(true);
-        m_treeView->setDropIndicatorShown(true);
-        m_treeView->setDragDropMode(QAbstractItemView::DragDrop);
+        m_projectTreeView->treeView()->setDragEnabled(true);
+        m_projectTreeView->treeView()->viewport()->setAcceptDrops(true);
+        m_projectTreeView->treeView()->setDropIndicatorShown(true);
+        m_projectTreeView->treeView()->setDragDropMode(QAbstractItemView::DragDrop);
 
-        dockWidget->setWidget(m_treeView);
+        // Install event filter used to handle key press events
+        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter(this);
+        m_projectTreeView->treeView()->installEventFilter(treeViewEventFilter);
 
-        addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+
+        connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
+        m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
     }
+    
+/*
+    {
+        QDockWidget* dockWidget = new QDockWidget("Undo stack", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+        m_undoView = new QUndoView(this);
+        m_undoView->setStack(caf::CmdExecCommandManager::instance()->undoStack());
+        //connect(caf::CmdExecCommandManager::instance()->undoStack(), SIGNAL(indexChanged(int)), SLOT(slotIndexChanged()));
+
+        dockWidget->setWidget(m_undoView);
+
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+
+        dockWidget->hide();
+
+        //m_windowsMenu->addAction(dockWidget->toggleViewAction());
+    }
+*/
 
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
@@ -572,7 +637,6 @@ void RiuMainWindow::createDockPanels()
         dockWidget->setWidget(m_pdmUiPropertyView);
 
         m_pdmUiPropertyView->layout()->setContentsMargins(5,0,0,0);
-        connect(m_treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), m_pdmUiPropertyView, SLOT(showProperties( caf::PdmObject* )));
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
@@ -597,8 +661,21 @@ void RiuMainWindow::createDockPanels()
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
     }
 
+    // Test - create well log viewer in a dock widget
+    // TODO: remove after making MDI widgets for well log viewers
+//     {
+//         QDockWidget* dockPanel = new QDockWidget("TEST - Well Log Viewer", this);
+//         dockPanel->setObjectName("dockWellLogViewer");
+//         dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+//         
+//         RiuWellLogViewer* wellLogViewer = new RiuWellLogViewer(dockPanel);
+//         dockPanel->setWidget(wellLogViewer);
+// 
+//         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+//     }
+
  
-    setCorner(Qt::BottomLeftCorner,	Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 }
 
@@ -616,8 +693,9 @@ void RiuMainWindow::saveWinGeoAndDockToolBarLayout()
 
     QByteArray layout = saveState(0);
     settings.setValue("dockAndToolBarLayout", layout);
-}
 
+    settings.setValue("isMaximized", isMaximized());
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -639,6 +717,23 @@ void RiuMainWindow::loadWinGeoAndDockToolBarLayout()
                 restoreState(layout.toByteArray(), 0);
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showWindow()
+{
+    // Company and appname set through QCoreApplication
+    QSettings settings;
+
+    showNormal();
+
+    QVariant isMax = settings.value("isMaximized", false);
+    if (isMax.toBool())
+    {
+        showMaximized();
     }
 }
 
@@ -672,7 +767,10 @@ void RiuMainWindow::slotRefreshFileActions()
     
     bool projectFileExists = QFile::exists(app->project()->fileName());
 
-    m_importWellPathsFromSSIHubAction->setEnabled(projectFileExists);
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(cmdFeatureMgr);
+
+    cmdFeatureMgr->action("RicWellPathsImportSsihubFeature")->setEnabled(projectFileExists);
 }
 
 
@@ -700,6 +798,8 @@ void RiuMainWindow::slotRefreshViewActions()
     m_viewFromBelow->setEnabled(enabled);
 
     updateScaleValue();
+
+    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature" << "RicTileWindowsFeature");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -716,12 +816,11 @@ void RiuMainWindow::refreshAnimationActions()
     m_animationToolBar->connectAnimationControl(animationControl);
 
     QStringList timeStepStrings;
+
     int currentTimeStepIndex = 0;
 
-    RiaApplication* app = RiaApplication::instance();
-
     bool enableAnimControls = false;
-    RimView * activeView = app->activeReservoirView();
+    RimView * activeView = RiaApplication::instance()->activeReservoirView();
     if (activeView && 
         activeView->viewer() &&
         activeView->viewer()->frameCount())
@@ -735,27 +834,7 @@ void RiuMainWindow::refreshAnimationActions()
             {
                 if (activeRiv->isTimeStepDependentDataVisible())
                 {
-                    std::vector<QDateTime> timeStepDates = activeRiv->currentGridCellResults()->cellResults()->timeStepDates(0);
-                    bool showHoursAndMinutes = false;
-                    for (size_t i = 0; i < timeStepDates.size(); i++)
-                    {
-                        if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
-                        {
-                            showHoursAndMinutes = true;
-                        }
-                    }
-
-                    QString formatString = "dd.MMM yyyy";
-                    if (showHoursAndMinutes)
-                    {
-                        formatString += " - hh:mm";
-                    }
-
-                    for (size_t i = 0; i < timeStepDates.size(); i++)
-                    {
-                        timeStepStrings += timeStepDates[i].toString(formatString);
-                    }
-                    currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
+                    timeStepStrings = activeRiv->eclipseCase()->timeStepStrings();
                 }
                 else
                 {
@@ -770,15 +849,12 @@ void RiuMainWindow::refreshAnimationActions()
             {
                 if (activeGmv->isTimeStepDependentDataVisible())
                 {
-                    std::vector<std::string> stepNames = activeGmv->geoMechCase()->geoMechData()->femPartResults()->stepNames();
-                    for (size_t i = 0; i < stepNames.size(); i++)
-                    {
-                        timeStepStrings += QString::fromStdString(stepNames[i]);
-                    }
-                    currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
+                    timeStepStrings = activeGmv->geoMechCase()->timeStepStrings();
                 }
             }
         }
+
+        currentTimeStepIndex = activeView->currentTimeStep();
 
         // Animation control is only relevant for more than one time step
 
@@ -787,7 +863,7 @@ void RiuMainWindow::refreshAnimationActions()
             enableAnimControls = false;
         }
 
-        m_animationToolBar->setFrameRate(app->activeReservoirView()->maximumFrameRate());
+        m_animationToolBar->setFrameRate(activeView->maximumFrameRate());
     }
 
     m_animationToolBar->setTimeStepStrings(timeStepStrings);
@@ -827,58 +903,6 @@ void RiuMainWindow::slotAbout()
     dlg.exec();
 }
 
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportEclipseCase()
-{
-    if (checkForDocumentModifications())
-    {
-        RiaApplication* app = RiaApplication::instance();
-
-        QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
-        if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
-        app->setDefaultFileDialogDirectory("BINARY_GRID", defaultDir);
-
-        int i;
-        for (i = 0; i < fileNames.size(); i++)
-        {
-            QString fileName = fileNames[i];
-
-            if (!fileNames.isEmpty())
-            {
-                if (app->openEclipseCaseFromFile(fileName))
-                {
-                    addRecentFiles(fileName);
-                }
-            }
-        }
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportInputEclipseFiles()
-{
-    if (checkForDocumentModifications())
-    {
-        RiaApplication* app = RiaApplication::instance();
-        QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL *)");
-
-        if (fileNames.isEmpty()) return;
-
-        // Remember the path to next time
-        app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
- 
-        app->openInputEclipseCaseFromFileNames(fileNames);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -949,24 +973,6 @@ void RiuMainWindow::slotOpenLastUsedProject()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportWellPathsFromFile()
-{
-    // Open dialog box to select well path files
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->defaultFileDialogDirectory("WELLPATH_DIR");
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(this, "Import Well Paths", defaultDir, "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)");
-
-    if (wellPathFilePaths.size() < 1) return;
-
-    // Remember the path to next time
-    app->setDefaultFileDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
-
-    app->addWellPathsToModel(wellPathFilePaths);
-    if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1014,16 +1020,6 @@ void RiuMainWindow::slotInputMockModel()
     app->createInputMockModel();
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSetCurrentFrame(int frameIndex)
-{
-    RiaApplication* app = RiaApplication::instance();
-   // app->setTimeStep(frameIndex);
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1060,7 +1056,7 @@ bool RiuMainWindow::checkForDocumentModifications()
 void RiuMainWindow::slotCloseProject()
 {
     RiaApplication* app = RiaApplication::instance();
-    bool ret = app->closeProject(true);
+    app->closeProject(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1157,13 +1153,13 @@ void RiuMainWindow::removeRecentFiles(const QString& file)
 /// 
 //--------------------------------------------------------------------------------------------------
 
-QMdiSubWindow* RiuMainWindow::findMdiSubWindow(RiuViewer* viewer)
+QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 {
     QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
     int i; 
     for (i = 0; i < subws.size(); ++i)
     {
-        if (subws[i]->widget() == viewer->layoutWidget())
+        if (subws[i]->widget() == viewer)
         {
             return subws[i];
         }
@@ -1172,40 +1168,120 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(RiuViewer* viewer)
     return NULL;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::removeViewer(RiuViewer* viewer)
+void RiuMainWindow::removeViewer(QWidget* viewer)
 {
-#if 0
-    m_CentralFrame->layout()->removeWidget(viewer->layoutWidget());
-#else
-    m_mdiArea->removeSubWindow( findMdiSubWindow(viewer));
-#endif
+    m_blockSlotSubWindowActivated = true;
+    m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
+    m_blockSlotSubWindowActivated = false;
+
+    slotRefreshViewActions();
 }
 
+
+// Helper class used to trap the close event of an QMdiSubWindow
+class RiuMdiSubWindow : public QMdiSubWindow
+{
+public:
+    RiuMdiSubWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0)
+        : QMdiSubWindow(parent, flags)
+    {
+    }
+
+    ~RiuMdiSubWindow()
+    {
+        RiuMainWindow::instance()->slotRefreshViewActions();
+    }
+
+protected:
+    virtual void closeEvent(QCloseEvent* event)
+    {
+        QWidget* mainWidget = widget();
+
+        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(mainWidget);
+        if (wellLogPlot)
+        {
+            wellLogPlot->ownerPlotDefinition()->windowGeometry = RiuMainWindow::instance()->windowGeometryForWidget(this);
+        }
+        else
+        {
+            RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
+            if (viewer)
+            {
+                viewer->ownerReservoirView()->windowGeometry = RiuMainWindow::instance()->windowGeometryForWidget(this);
+            }
+        }
+
+        QMdiSubWindow::closeEvent(event);
+    }
+};
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addViewer(RiuViewer* viewer)
+void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGeometry)
 {
-#if 0
-    m_CentralFrame->layout()->addWidget(viewer->layoutWidget());
-#else
-    QMdiSubWindow * subWin = m_mdiArea->addSubWindow(viewer->layoutWidget());
-    subWin->resize(400, 400);
+    RiuMdiSubWindow* subWin = new RiuMdiSubWindow(m_mdiArea);
+    subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
+    subWin->setWidget(viewer);
 
-    if (m_mdiArea->subWindowList().size() == 1)
+    QSize subWindowSize;
+    QPoint subWindowPos(-1, -1);
+    bool initialStateMaximized = false;
+
+    if (windowsGeometry.size() == 5)
     {
-        // Show first view maximized
-        subWin->showMaximized();
+        subWindowPos = QPoint(windowsGeometry[0], windowsGeometry[1]);
+        subWindowSize = QSize(windowsGeometry[2], windowsGeometry[3]);
+
+        if (windowsGeometry[4] > 0)
+        {
+            initialStateMaximized = true;
+        }
     }
     else
     {
-        subWin->show();
+        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subWin->widget());
+        if (wellLogPlot)
+        {
+            subWindowSize = QSize(275, m_mdiArea->height());
+        }
+        else
+        {
+            subWindowSize = QSize(400, 400);
+
+            if (m_mdiArea->subWindowList().size() < 1)
+            {
+                // Show first 3D view maximized
+                initialStateMaximized = true;
+            }
+        }
     }
-#endif
+
+    if (m_mdiArea->currentSubWindow() && m_mdiArea->currentSubWindow()->isMaximized())
+    {
+        initialStateMaximized = true;
+    }
+        
+    subWin->show();
+
+    // Move and resize must be done after window is visible
+    // If not, the position and size of the window is different to specification (Windows 7)
+    // Might be a Qt bug, must be tested on Linux
+    if (subWindowPos.x() > -1)
+    {
+        subWin->move(subWindowPos);
+    }
+    subWin->resize(subWindowSize);
+
+    if (initialStateMaximized)
+    {
+        subWin->showMaximized();
+    }
+
+    slotRefreshViewActions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1240,13 +1316,22 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 {
     m_pdmRoot = pdmRoot;
 
-    caf::PdmUiTreeItem* treeItemRoot = caf::UiTreeItemBuilderPdm::buildViewItems(NULL, -1, m_pdmRoot);
-    m_treeModelPdm->setTreeItemRoot(treeItemRoot);
+    m_projectTreeView->setPdmItem(pdmRoot);
+    // For debug only : m_projectTreeView->treeView()->expandAll();
+    m_projectTreeView->setDragDropInterface(m_dragDropInterface);
 
-    if (treeItemRoot && m_treeView->selectionModel())
+    for (size_t i = 0; i < additionalProjectViews.size(); i++)
     {
-        connect(m_treeView->selectionModel(), SIGNAL(currentChanged ( const QModelIndex & , const QModelIndex & )), SLOT(slotCurrentChanged( const QModelIndex & , const QModelIndex & )));
+        if (!additionalProjectViews[i]) continue;
+
+        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectViews[i]->widget());
+        if (projPropView)
+        {
+            projPropView->setPdmItem(pdmRoot);
+        }
     }
+
+    caf::SelectionManager::instance()->setPdmRootObject(pdmRoot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1331,11 +1416,35 @@ void RiuMainWindow::slotZoomAll()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
+    if (!subWindow) return;
+    if (m_blockSlotSubWindowActivated) return;
+
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
-    if (!subWindow) return;
 
-    // Iterate all cases in each oil field
+    RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(subWindow->widget());
+
+    if (wellLogPlotViewer)
+    {
+        RimWellLogPlot* wellLogPlot = wellLogPlotViewer->ownerPlotDefinition();
+        
+        if (wellLogPlot != RiaApplication::instance()->activeWellLogPlot())
+        {
+            RiaApplication::instance()->setActiveWellLogPlot(wellLogPlot);
+            if (wellLogPlot)
+            {
+                projectTreeView()->selectAsCurrentItem(wellLogPlot);
+            }
+        }
+        return;
+    }
+
+    RiaApplication::instance()->setActiveWellLogPlot(NULL);
+
+    // Find the activated 3D view
+    
+    RimView* activatedView = NULL;
+
     std::vector<RimCase*> allCases;
     proj->allCases(allCases);
 
@@ -1343,7 +1452,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     {
         RimCase* reservoirCase = allCases[caseIdx];
         if (reservoirCase == NULL) continue;
-        
+
         std::vector<RimView*> views = reservoirCase->views();
 
         size_t viewIdx;
@@ -1356,62 +1465,73 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                 riv->viewer()->layoutWidget() &&
                 riv->viewer()->layoutWidget()->parent() == subWindow)
             {
-                RimView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
-                RiaApplication::instance()->setActiveReservoirView(riv);
-                if (previousActiveReservoirView && previousActiveReservoirView != riv)
-                {
-                    QModelIndex previousViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(previousActiveReservoirView);
-                    QModelIndex newViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(riv);
-
-                    QModelIndex newSelectionIndex = newViewModelIndex;
-                    QModelIndex currentSelectionIndex = m_treeView->selectionModel()->currentIndex();
-
-                    if (currentSelectionIndex != newViewModelIndex &&
-                        currentSelectionIndex.isValid())
-                    {
-                        QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
-
-                        QModelIndex tmpModelIndex = currentSelectionIndex;
-
-                        while (tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex)
-                        {
-                            // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
-                            route.push_front(tmpModelIndex);
-
-                            tmpModelIndex = tmpModelIndex.parent();
-                        }
-
-                        // Traverse model indices from new view index to currently selected item
-                        int i;
-                        for (i = 0; i < route.size(); i++)
-                        {
-                            QModelIndex tmp = route[i];
-                            if (newSelectionIndex.isValid())
-                            {
-                                newSelectionIndex = m_treeModelPdm->index(tmp.row(), tmp.column(), newSelectionIndex);
-                            }
-                        }
-
-                        // Use view model index if anything goes wrong
-                        if (!newSelectionIndex.isValid())
-                        {
-                            newSelectionIndex = newViewModelIndex;
-                        }
-                    }
-
-                    m_treeView->setCurrentIndex(newSelectionIndex);
-                    if (newSelectionIndex != newViewModelIndex)
-                    {
-                        m_treeView->setExpanded(newViewModelIndex, true);
-                    }
-                }
-
-                slotRefreshViewActions();
-                refreshAnimationActions();
-                refreshDrawStyleActions();
+                activatedView = riv;
                 break;
             }
         }
+    }
+
+    {
+        RimView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
+        RiaApplication::instance()->setActiveReservoirView(activatedView);
+
+        if (previousActiveReservoirView != activatedView)
+        {
+            QModelIndex newViewModelIndex = m_projectTreeView->findModelIndex(activatedView);
+            QModelIndex newSelectionIndex = newViewModelIndex;
+
+            if (previousActiveReservoirView)
+            {
+                // Try to select the same entry in the new View, as was selected in the previous
+
+                QModelIndex previousViewModelIndex = m_projectTreeView->findModelIndex(previousActiveReservoirView);
+                QModelIndex currentSelectionIndex = m_projectTreeView->treeView()->selectionModel()->currentIndex();
+
+                if (currentSelectionIndex != newViewModelIndex &&
+                    currentSelectionIndex.isValid())
+                {
+                    QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+
+                    QModelIndex tmpModelIndex = currentSelectionIndex;
+
+                    while (tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex)
+                    {
+                        // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
+                        route.push_front(tmpModelIndex);
+
+                        tmpModelIndex = tmpModelIndex.parent();
+                    }
+
+                    // Traverse model indices from new view index to currently selected item
+                    int i;
+                    for (i = 0; i < route.size(); i++)
+                    {
+                        QModelIndex tmp = route[i];
+                        if (newSelectionIndex.isValid())
+                        {
+                            newSelectionIndex = m_projectTreeView->treeView()->model()->index(tmp.row(), tmp.column(), newSelectionIndex);
+                        }
+                    }
+
+                    // Use view model index if anything goes wrong
+                    if (!newSelectionIndex.isValid())
+                    {
+                        newSelectionIndex = newViewModelIndex;
+                    }
+                }
+            }
+
+            m_projectTreeView->treeView()->setCurrentIndex(newSelectionIndex);
+            if (newSelectionIndex != newViewModelIndex)
+            {
+                m_projectTreeView->treeView()->setExpanded(newViewModelIndex, true);
+            }
+
+        }
+
+        slotRefreshViewActions();
+        refreshAnimationActions();
+        refreshDrawStyleActions();
     }
 }
 
@@ -1439,27 +1559,31 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 void RiuMainWindow::slotEditPreferences()
 {
     RiaApplication* app = RiaApplication::instance();
-    caf::PdmUiPropertyDialog propertyDialog(this, app->preferences(), "Preferences");
+    caf::PdmUiPropertyViewDialog propertyDialog(this, app->preferences(), "Preferences", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
-        app->writeFieldsToApplicationStore(app->preferences());
+        caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
         app->applyPreferences();
     }
     else
     {
         // Read back currently stored values using QSettings
-        app->readFieldsFromApplicationStore(app->preferences());
+        caf::PdmSettings::readFieldsFromApplicationStore(app->preferences());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setActiveViewer(RiuViewer* viewer)
+void RiuMainWindow::setActiveViewer(QWidget* viewer)
 {
-   QMdiSubWindow * swin = findMdiSubWindow(viewer); 
+   m_blockSlotSubWindowActivated = true;
+   
+   QMdiSubWindow * swin = findMdiSubWindow(viewer);
    if (swin) m_mdiArea->setActiveSubWindow(swin);
+   
+   m_blockSlotSubWindowActivated = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1469,7 +1593,8 @@ void RiuMainWindow::slotFramerateChanged(double frameRate)
 {
     if (RiaApplication::instance()->activeReservoirView() != NULL)
     {
-        RiaApplication::instance()->activeReservoirView()->maximumFrameRate.setValueFromUi(QVariant(frameRate));
+        caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->maximumFrameRate.uiCapability();
+        uiFieldHandle->setValueFromUi(QVariant(frameRate));
     }
 }
 
@@ -1502,56 +1627,103 @@ void RiuMainWindow::slotBuildWindowActions()
             ++i;
         }
     }
+
+    m_windowMenu->addSeparator();
+    QAction* cascadeWindowsAction = new QAction("Cascade Windows", this);
+    connect(cascadeWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(cascadeSubWindows()));
+
+    QAction* closeAllSubWindowsAction = new QAction("Close All Windows", this);
+    connect(closeAllSubWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(closeAllSubWindows()));
+
+    m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTileWindowsFeature"));
+    m_windowMenu->addAction(cascadeWindowsAction);
+    m_windowMenu->addAction(closeAllSubWindowsAction);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
+void RiuMainWindow::selectedObjectsChanged()
 {
-    RimView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
-    QModelIndex activeViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(activeReservoirView);
+    std::vector<caf::PdmUiItem*> uiItems;
+    m_projectTreeView->selectedUiItems(uiItems);
 
-    QModelIndex tmp = current;
+    caf::PdmObjectHandle* firstSelectedObject = NULL;
 
-    // Traverse parents until a reservoir view is found
-    while (tmp.isValid())
+    if (uiItems.size() == 1)
     {
-        caf::PdmUiTreeItem* treeItem = m_treeModelPdm->getTreeItemFromIndex(tmp);
-        caf::PdmObject* pdmObject = treeItem->dataObject();
+        firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>(uiItems[0]);
+    }
+    m_pdmUiPropertyView->showProperties(firstSelectedObject);
 
-        RimView* rimReservoirView = dynamic_cast<RimView*>(pdmObject);
-        if (rimReservoirView)
+    if (uiItems.size() == 1)
+    {
+        // Find the reservoir view or the Plot that the selected item is within 
+
+        if (!firstSelectedObject)
         {
-            // If current selection is an item within a different reservoir view than active, 
-            // show new reservoir view and set this as activate view
-            if (rimReservoirView != activeReservoirView)
-            {
-                RiaApplication::instance()->setActiveReservoirView(rimReservoirView);
-                // Set focus in MDI area to this window if it exists
-                if (rimReservoirView->viewer())
-                {
-                    setActiveViewer(rimReservoirView->viewer());
-                }
-                m_treeView->setCurrentIndex(current);
-                refreshDrawStyleActions();
-                refreshAnimationActions();
-                slotRefreshFileActions();
-                slotRefreshEditActions();
-                slotRefreshViewActions();
+            caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>(uiItems[0]);
+            if (selectedField) firstSelectedObject = selectedField->ownerObject();
+        }
 
-                // The only way to get to this code is by selection change initiated from the project tree view
-                // As we are activating an MDI-window, the focus is given to this MDI-window
-                // Set focus back to the tree view to be able to continue keyboard tree view navigation
-                m_treeView->setFocus();
+        if (!firstSelectedObject) return;
+
+        // First check if we are within a RimView
+        RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
+        if (!selectedReservoirView)
+        {
+            firstSelectedObject->firstAnchestorOrThisOfType(selectedReservoirView);
+        }
+
+        bool isActiveViewChanged = false;
+        
+        RimWellLogPlot* selectedWellLogPlot = NULL;
+
+        if (selectedReservoirView)
+        {
+            // Set focus in MDI area to this window if it exists
+            if (selectedReservoirView->viewer())
+            {
+                setActiveViewer(selectedReservoirView->viewer()->layoutWidget());
+            }
+            isActiveViewChanged = true;
+        }
+        else // Check if we are winthin a Well Log plot
+        {
+            selectedWellLogPlot = dynamic_cast<RimWellLogPlot*>(firstSelectedObject);
+            if (!selectedWellLogPlot)
+            {
+                firstSelectedObject->firstAnchestorOrThisOfType(selectedWellLogPlot);
+            }
+
+            if (selectedWellLogPlot)
+            {
+                if (selectedWellLogPlot->viewer())
+                {
+                    setActiveViewer(selectedWellLogPlot->viewer());
+
+                }
+                isActiveViewChanged = true;
             }
         }
 
-        // Traverse parents until a reservoir view is found
-        tmp = tmp.parent();
+        if (isActiveViewChanged)
+        {
+            RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
+            RiaApplication::instance()->setActiveWellLogPlot(selectedWellLogPlot);
+            refreshDrawStyleActions();
+            refreshAnimationActions();
+            slotRefreshFileActions();
+            slotRefreshEditActions();
+            slotRefreshViewActions();
+
+            // The only way to get to this code is by selection change initiated from the project tree view
+            // As we are activating an MDI-window, the focus is given to this MDI-window
+            // Set focus back to the tree view to be able to continue keyboard tree view navigation
+            m_projectTreeView->treeView()->setFocus();
+        }
     }
 }
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -1559,46 +1731,17 @@ void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModel
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotNewObjectPropertyView()
 {
-    if (!m_treeModelPdm) return;
+    QDockWidget* dockWidget = new QDockWidget(QString("Additional Project Tree (%1)").arg(additionalProjectViews.size() + 1), this);
+    dockWidget->setObjectName("dockWidget");
+    dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-    RimUiTreeView* treeView = NULL;
-    
-    {
-        QDockWidget* dockWidget = new QDockWidget("Additional Project Tree " + QString::number(additionalProjectTrees.size() + 1), this);
-        dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    RiuProjectAndPropertyView* projPropView = new RiuProjectAndPropertyView(dockWidget);
+    dockWidget->setWidget(projPropView);
+    projPropView->setPdmItem(m_pdmRoot);
 
-        treeView = new RimUiTreeView(dockWidget);
-        treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
-        // Drag and drop configuration
-        m_treeView->setDragEnabled(true);
-        m_treeView->viewport()->setAcceptDrops(true);
-        m_treeView->setDropIndicatorShown(true);
-        m_treeView->setDragDropMode(QAbstractItemView::DragDrop);
-
-        dockWidget->setWidget(treeView);
-
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
-        additionalProjectTrees.push_back(dockWidget);
-    }
-
-    treeView->setModel(m_treeModelPdm);
-
-
-    {
-        QDockWidget* dockWidget = new QDockWidget("Additional Property Editor "  + QString::number(additionalPropertyEditors.size() + 1), this);
-        dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-
-        caf::PdmUiPropertyView* propView = new caf::PdmUiPropertyView(dockWidget);
-        dockWidget->setWidget(propView);
-
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
-
-        connect(treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), propView, SLOT(showProperties( caf::PdmObject* )));
-        additionalPropertyEditors.push_back(dockWidget);
-    }
+    additionalProjectViews.push_back(dockWidget);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1650,17 +1793,13 @@ void RiuMainWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenMultipleCases()
+/*void RiuMainWindow::slotOpenMultipleCases()
 {
 #if 1
-    RiaApplication* app = RiaApplication::instance();
-    RiuMultiCaseImportDialog dialog;
-    int action = dialog.exec();
-    if (action == QDialog::Accepted)
-    {
-        QStringList gridFileNames = dialog.eclipseCaseFileNames();
-        app->addEclipseCases(gridFileNames);
-    }
+    QAction* action = caf::CmdFeatureManager::instance()->action("RicCreateGridCaseGroupFeature");
+    CVF_ASSERT(action);
+
+    action->trigger();
 
 #else  // Code to fast generate a test project
     RiaApplication* app = RiaApplication::instance();
@@ -1685,7 +1824,7 @@ void RiuMainWindow::slotOpenMultipleCases()
 #endif
 
 }
-
+*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1731,7 +1870,8 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
     RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeRiv) return;
 
-    activeRiv->faultCollection->showFaultLabel.setValueFromUi(showLabels);
+    caf::PdmUiFieldHandle* uiFieldHandle = activeRiv->faultCollection->showFaultLabel.uiCapability();
+    uiFieldHandle->setValueFromUi(showLabels);
 
     refreshDrawStyleActions();
 }
@@ -1800,15 +1940,15 @@ void RiuMainWindow::slotDisableLightingAction(bool disable)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::storeTreeViewState()
 {
-    if (m_treeView)
+    if (m_projectTreeView)
     {
         QString treeViewState;
-        m_treeView->storeTreeViewStateToString(treeViewState);
+        RimTreeViewStateSerializer::storeTreeViewStateToString(m_projectTreeView->treeView(), treeViewState);
 
-        QModelIndex mi = m_treeView->currentIndex();
+        QModelIndex mi = m_projectTreeView->treeView()->currentIndex();
 
         QString encodedModelIndexString;
-        RimUiTreeView::encodeStringFromModelIndex(mi, encodedModelIndexString);
+        RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
         
         RiaApplication::instance()->project()->treeViewState = treeViewState;
         RiaApplication::instance()->project()->currentModelIndexPath = encodedModelIndexString;
@@ -1820,20 +1960,20 @@ void RiuMainWindow::storeTreeViewState()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::restoreTreeViewState()
 {
-    if (m_treeView)
+    if (m_projectTreeView)
     {
         QString stateString = RiaApplication::instance()->project()->treeViewState;
         if (!stateString.isEmpty())
         {
-            m_treeView->collapseAll();
-            m_treeView->applyTreeViewStateFromString(stateString);
+            m_projectTreeView->treeView()->collapseAll();
+            RimTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
         }
 
         QString currentIndexString = RiaApplication::instance()->project()->currentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
-            QModelIndex mi = RimUiTreeView::getModelIndexFromString(m_treeView->model(), currentIndexString);
-            m_treeView->setCurrentIndex(mi);
+            QModelIndex mi = RimTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
+            m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }
 }
@@ -1843,15 +1983,7 @@ void RiuMainWindow::restoreTreeViewState()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
 {
-    if (m_treeView && m_treeModelPdm)
-    {
-        QModelIndex mi = m_treeModelPdm->getModelIndexFromPdmObject(object);
-
-        if (mi.isValid())
-        {
-            m_treeView->setCurrentIndex(mi);
-        }
-    }
+    m_projectTreeView->selectAsCurrentItem(object);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1861,7 +1993,8 @@ void RiuMainWindow::slotScaleChanged(int scaleValue)
 {
     if (RiaApplication::instance()->activeReservoirView())
     {
-        RiaApplication::instance()->activeReservoirView()->scaleZ.setValueFromUi(scaleValue);
+        caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->scaleZ.uiCapability();
+        uiFieldHandle->setValueFromUi(scaleValue);
     }
 }
 
@@ -1890,80 +2023,7 @@ void RiuMainWindow::updateScaleValue()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 {
-    if (m_treeView && m_treeView->selectionModel())
-    {
-        QModelIndexList selectedModelIndexes = m_treeView->selectionModel()->selectedIndexes();
-        
-        caf::PdmObjectGroup group;
-        m_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndexes, &group);
-
-        std::vector<caf::PdmPointer<RimCase> > typedObjects;
-        group.objectsByType(&typedObjects);
-
-        for (size_t i = 0; i < typedObjects.size(); i++)
-        {
-            cases.push_back(typedObjects[i]);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportWellPathsFromSSIHub()
-{
-    RiaApplication* app = RiaApplication::instance();
-    if (!app->project())
-    {
-        return;
-    }
-
-    if (!QFile::exists(app->project()->fileName()))
-    {
-        return;
-    }
-
-    // Update the UTM bounding box from the reservoir
-    app->project()->computeUtmAreaOfInterest();
-
-    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
-    wellPathsFolderPath += "_wellpaths";
-    QDir::root().mkpath(wellPathsFolderPath);
-
-    RimWellPathImport* copyOfWellPathImport = dynamic_cast<RimWellPathImport*>(app->project()->wellPathImport->deepCopy());
-    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);
-
-    RimWellPathImport* wellPathObjectToBeDeleted = NULL;
-
-    // Get password/username from application cache
-    {
-        QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
-        QString ssihubPassword = app->cacheDataObject("ssihub_password").toString();
-
-        wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
-    }
-
-    if (QDialog::Accepted == wellImportwizard.exec())
-    {
-        QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
-        if (wellPaths.size() > 0)
-        {
-            app->addWellPathsToModel(wellPaths);
-            app->project()->createDisplayModelAndRedrawAllViews();
-        }
-
-        wellPathObjectToBeDeleted = app->project()->wellPathImport;
-        app->project()->wellPathImport = copyOfWellPathImport;
-
-        app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
-        app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
-    }
-    else
-    {
-        wellPathObjectToBeDeleted = copyOfWellPathImport;
-    }
-
-    delete wellPathObjectToBeDeleted;
+    caf::SelectionManager::instance()->objectsByType(&cases);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1984,14 +2044,21 @@ void RiuMainWindow::slotCreateCommandObject()
     RiaApplication* app = RiaApplication::instance();
     if (!app->project()) return;
 
-    QItemSelectionModel* selectionModel = m_treeView->selectionModel();
-    if (selectionModel)
-    {
-        QModelIndexList selectedModelIndices = selectionModel->selectedIndexes();
-        
-        caf::PdmObjectGroup selectedObjects;
-        m_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndices, &selectedObjects);
+    std::vector<caf::PdmUiItem*> selectedUiItems;
+    m_projectTreeView->selectedUiItems(selectedUiItems);
 
+    caf::PdmObjectGroup selectedObjects;
+    for (size_t i = 0; i < selectedUiItems.size(); ++i)
+    {
+        caf::PdmUiObjectHandle* uiObj = dynamic_cast<caf::PdmUiObjectHandle*>(selectedUiItems[i]);
+        if (uiObj) 
+        {
+            selectedObjects.addObject(uiObj->objectHandle());
+        }
+    }
+
+    if (selectedObjects.objects.size())
+    { 
         std::vector<RimCommandObject*> commandObjects;
         RimCommandFactory::createCommandObjects(selectedObjects, &commandObjects);
 
@@ -2012,13 +2079,13 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     RiaRegressionTest regTestConfig;
 
     RiaApplication* app = RiaApplication::instance();
-    app->readFieldsFromApplicationStore(&regTestConfig);
+    caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
 
-    caf::PdmUiPropertyDialog regressionTestDialog(this, &regTestConfig, "Regression Test");
+    caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings and apply them to the application
-        app->writeFieldsToApplicationStore(&regTestConfig);
+        caf::PdmSettings::writeFieldsToApplicationStore(&regTestConfig);
 
         QString currentApplicationPath = QDir::currentPath();
 
@@ -2074,7 +2141,12 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
     {
         caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> rangeAddType;
         rangeAddType = doAdd ? RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL : RimEclipseWellCollection::RANGE_ADD_NONE;
-        riv->wellCollection()->wellCellsToRangeFilterMode.setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
+
+        caf::PdmUiFieldHandle* pdmUiFieldHandle = riv->wellCollection()->wellCellsToRangeFilterMode.uiCapability();
+        if (pdmUiFieldHandle)
+        {
+            pdmUiFieldHandle->setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
+        }
     }
 }
 
@@ -2095,51 +2167,91 @@ void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu)
+void RiuMainWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
-    if (!menu)
-    {
-        return;
-    }
+   
+    m_projectTreeView->setExpanded(uiItem, expanded);
+}
 
-    if (dynamic_cast<RimWellPathCollection*>(pdmObject))
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::customMenuRequested(const QPoint& pos)
+{
+    QMenu menu;
+
+    RiaApplication* app = RiaApplication::instance();
+    app->project()->actionsBasedOnSelection(menu);
+
+    // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
+    // Since we might get this signal from different treeViews, we need to map the position accordingly.  
+    QObject* senderObj = this->sender();
+    QTreeView* treeView = dynamic_cast<QTreeView*>(senderObj); 
+    if (treeView)
     {
-        menu->addAction(m_importWellPathsFromFileAction);
-        menu->addAction(m_importWellPathsFromSSIHubAction);
-    }
-    else if (dynamic_cast<RimEclipseCaseCollection*>(pdmObject))
-    {
-        menu->addAction(m_importEclipseCaseAction);
-        menu->addAction(m_importInputEclipseFileAction);
-        menu->addAction(m_openMultipleEclipseCasesAction);
-    }
-    else if (dynamic_cast<RimGeoMechModels*>(pdmObject))
-    {
-    #ifdef USE_ODB_API
-        menu->addAction(m_importGeoMechCaseAction);
-    #endif
+        QPoint globalPos = treeView->viewport()->mapToGlobal(pos);
+        menu.exec(globalPos);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setExpanded(const caf::PdmObject* pdmObject, bool expanded)
+std::vector<int> RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
 {
-    QModelIndex mi = m_treeModelPdm->getModelIndexFromPdmObject(pdmObject);
-    if (m_treeView && mi.isValid())
+    QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
+    if (mdiWindow)
     {
-        m_treeView->setExpanded(mi, expanded);
+        return windowGeometryForWidget(mdiWindow);
     }
+
+    std::vector<int> geo;
+    return geo;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::forceProjectTreeRepaint()
+std::vector<int> RiuMainWindow::windowGeometryForWidget(QWidget* widget)
 {
-    // This is a hack to force the treeview redraw. 
-    // Needed for some reason when changing names and icons in the model
-    m_treeView->scroll(0,1);
-    m_treeView->scroll(0,-1);
+    std::vector<int> geo;
+
+    if (widget)
+    {
+        geo.push_back(widget->pos().x());
+        geo.push_back(widget->pos().y());
+        geo.push_back(widget->size().width());
+        geo.push_back(widget->size().height());
+        geo.push_back(widget->isMaximized());
+    }
+
+    return geo;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::tileWindows()
+{
+    // Based on workaround described here
+    // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
+
+    QMdiSubWindow *a = m_mdiArea->activeSubWindow();
+    QList<QMdiSubWindow *> list = m_mdiArea->subWindowList(m_mdiArea->activationOrder());
+    for (int i = 0; i < list.count(); i++)
+    {
+        m_mdiArea->setActiveSubWindow(list[i]);
+    }
+
+    m_mdiArea->tileSubWindows();
+    m_mdiArea->setActiveSubWindow(a);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuMainWindow::isAnyMdiSubWindowVisible()
+{
+    return m_mdiArea->subWindowList().size() > 0;
+}
+

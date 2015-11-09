@@ -16,7 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
 
@@ -31,7 +30,8 @@ int main(int argc, char *argv[])
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     window.setWindowTitle("ResInsight " + platform);
     window.setDefaultWindowSize();
-    window.show();
+    window.loadWinGeoAndDockToolBarLayout();
+    window.showWindow();
 
     if (app.parseArguments())
     {

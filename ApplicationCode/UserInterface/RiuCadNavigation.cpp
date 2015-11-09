@@ -133,7 +133,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     bool needRedraw = m_trackball->updateNavigation(translatedMousePosX, translatedMousePosY);
                     if (needRedraw)
                     {
-                        m_viewer->update();
+                        m_viewer->navigationPolicyUpdate();
                         m_navigationUpdated = true;
                     }
                     isEventHandled = true;
@@ -169,7 +169,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                         cvf::Vec3d newVrp = vrp + trans;
 
                         m_viewer->mainCamera()->setFromLookAt(newPos,newVrp, up );
-                        m_viewer->update();
+                        m_viewer->navigationPolicyUpdate();
                     }
                 }
                 isEventHandled = true;

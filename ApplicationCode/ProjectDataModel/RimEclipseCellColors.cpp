@@ -20,9 +20,12 @@
 
 #include "RimEclipseCellColors.h"
 
+#include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimUiTreeModelPdm.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
+
 #include "RiuMainWindow.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
@@ -32,21 +35,28 @@ CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::RimEclipseCellColors()
 {
-    CAF_PDM_InitObject("Result Slot", "", "", "");
+    CAF_PDM_InitObject("Cell Result", ":/CellResult.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
-    this->legendConfig = new RimLegendConfig();
-    this->legendConfig.setUiHidden(true);
-    this->legendConfig.setUiChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&obsoleteField_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
+    this->obsoleteField_legendConfig.uiCapability()->setUiHidden(true);
+    this->obsoleteField_legendConfig.uiCapability()->setUiChildrenHidden(true);
+    this->obsoleteField_legendConfig.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "");
-    m_legendConfigData.setUiHidden(true);
-    m_legendConfigData.setUiChildrenHidden(true);
+    m_legendConfigData.uiCapability()->setUiHidden(true);
+    m_legendConfigData.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
     this->ternaryLegendConfig = new RimTernaryLegendConfig();
-    this->ternaryLegendConfig.setUiHidden(true);
-    this->ternaryLegendConfig.setUiChildrenHidden(true);
+    this->ternaryLegendConfig.uiCapability()->setUiHidden(true);
+    this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_legendConfigPtrField, "LegendDefinitionPtrField", "Legend Definition PtrField", "", "", "");
+    this->m_legendConfigPtrField.uiCapability()->setUiHidden(true);
+    this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(true);
+
+    // Make sure we have a created legend for the default/undefined result variable
+    changeLegendConfig(this->resultVariable());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +64,10 @@ RimEclipseCellColors::RimEclipseCellColors()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::~RimEclipseCellColors()
 {
-    delete legendConfig();
+    CVF_ASSERT(obsoleteField_legendConfig() == NULL);
+
+    m_legendConfigData.deleteAllChildObjects();
+
     delete ternaryLegendConfig();
 }
 
@@ -65,7 +78,7 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 {
     RimEclipseResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);
 
-    // Update of legend config must happen after RimResultDefinition::fieldChangedByUi(), as this function modifies this->resultVariable()
+    // Update of legend config must happen after RimEclipseResultDefinition::fieldChangedByUi(), as this function modifies this->resultVariable()
     if (changedField == &m_resultVariableUiField)
     {
         if (oldValue != newValue)
@@ -78,7 +91,11 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             if (m_reservoirView) m_reservoirView->hasUserRequestedAnimation = true;
         }
 
-        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
+        RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>(this->parentField()->ownerObject());
+        if (faultColors)
+        {
+            faultColors->updateConnectedEditors();
+        }
     }
 
     if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
@@ -91,29 +108,29 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
     if (resultVarNameOfNewLegend == RimDefines::ternarySaturationResultName())
     {
-        this->ternaryLegendConfig.setUiHidden(false);
-        this->ternaryLegendConfig.setUiChildrenHidden(false);
-        this->legendConfig.setUiHidden(true);
-        this->legendConfig.setUiChildrenHidden(true);
+        this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(false);
+        this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(true);
     }
     else
     {
-        this->ternaryLegendConfig.setUiHidden(true);
-        this->ternaryLegendConfig.setUiChildrenHidden(true);
+        this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(true);
 
-        if (this->legendConfig()->resultVariableName() != resultVarNameOfNewLegend)
+        bool found = false;
+
+        QString legendResultVariable;
+
+        if (this->m_legendConfigPtrField())
         {
-            std::list<caf::PdmPointer<RimLegendConfig> >::iterator it;
-            bool found = false;
-            for (it = m_legendConfigData.v().begin(); it != m_legendConfigData.v().end(); ++it)
+            legendResultVariable = this->m_legendConfigPtrField()->resultVariableName();
+        }
+
+        if (!this->m_legendConfigPtrField() || legendResultVariable != resultVarNameOfNewLegend)
+        {
+            for (size_t i = 0; i < m_legendConfigData.size(); i++)
             {
-                if ((*it)->resultVariableName() == resultVarNameOfNewLegend)
+                if (m_legendConfigData[i]->resultVariableName() == resultVarNameOfNewLegend)
                 {
-                    RimLegendConfig* newLegend = *it;
-          
-                    m_legendConfigData.v().erase(it);
-                    m_legendConfigData.v().push_back(this->legendConfig());
-                    this->legendConfig = newLegend;
+                    this->m_legendConfigPtrField = m_legendConfigData[i];
                     found = true;
                     break;
                 }
@@ -122,18 +139,17 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
             // Not found ?
             if (!found)
             {
-                 RimLegendConfig* newLegend = new RimLegendConfig;
-                 newLegend->setReservoirView(m_reservoirView);
-                 newLegend->resultVariableName = resultVarNameOfNewLegend;
-                 m_legendConfigData.v().push_back(this->legendConfig());
-                 this->legendConfig = newLegend;
+                    RimLegendConfig* newLegend = new RimLegendConfig;
+                    newLegend->setReservoirView(m_reservoirView);
+                    newLegend->resultVariableName = resultVarNameOfNewLegend;
+                    m_legendConfigData.push_back(newLegend);
+
+                    this->m_legendConfigPtrField = newLegend;
             }
         }
-    
-        this->legendConfig.setUiHidden(false);
-        this->legendConfig.setUiChildrenHidden(false);
-    }
 
+        this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(false);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,12 +159,26 @@ void RimEclipseCellColors::initAfterRead()
 {
     RimEclipseResultDefinition::initAfterRead();
 
-    if (this->legendConfig()->resultVariableName == "")
+    if (this->m_legendConfigPtrField() && this->m_legendConfigPtrField()->resultVariableName == "")
     {
-        this->legendConfig()->resultVariableName = this->resultVariable();
+        this->m_legendConfigPtrField()->resultVariableName = this->resultVariable();
+    }
+
+    if (obsoleteField_legendConfig)
+    {
+        // The current legend config is NOT stored in <ResultVarLegendDefinitionList> in ResInsight up to v 1.3.7-dev
+        RimLegendConfig* obsoleteLegend = obsoleteField_legendConfig();
+
+        // set to NULL before pushing into container
+        obsoleteField_legendConfig = NULL;
+
+        m_legendConfigData.push_back(obsoleteLegend);
+        m_legendConfigPtrField = obsoleteLegend;
     }
 
     changeLegendConfig(this->resultVariable());
+
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,18 +186,25 @@ void RimEclipseCellColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
-    RimEclipseResultDefinition::setReservoirView(ownerReservoirView);
+    this->setEclipseCase(ownerReservoirView->eclipseCase());
 
     m_reservoirView = ownerReservoirView;
-    this->legendConfig()->setReservoirView(ownerReservoirView);
-    std::list<caf::PdmPointer<RimLegendConfig> >::iterator it;
-    for (it = m_legendConfigData.v().begin(); it != m_legendConfigData.v().end(); ++it)
+
+    for (size_t i = 0; i < m_legendConfigData.size(); i++)
     {
-        (*it)->setReservoirView(ownerReservoirView);
+        m_legendConfigData[i]->setReservoirView(ownerReservoirView);
     }
 
     this->ternaryLegendConfig()->setReservoirView(ownerReservoirView);
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimEclipseCellColors::reservoirView()
+{
+    return m_reservoirView;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -177,5 +214,31 @@ void RimEclipseCellColors::setResultVariable(const QString& val)
     RimEclipseResultDefinition::setResultVariable(val);
 
     this->changeLegendConfig(val);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimLegendConfig* RimEclipseCellColors::legendConfig()
+{
+    return m_legendConfigPtrField;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::updateIconState()
+{
+    RimViewController* viewController = m_reservoirView->viewController();
+    if (viewController && viewController->isResultColorControlled())
+    {
+        updateUiIconFromState(false);
+    }
+    else
+    {
+        updateUiIconFromState(true);
+    }
+
+    uiCapability()->updateConnectedEditors();
 }
 

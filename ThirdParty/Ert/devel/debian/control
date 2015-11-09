@@ -2,7 +2,7 @@ Source: ert.ecl
 Priority: extra
 Maintainer: Arne Morten Kvarving <arne.morten.kvarving@sintef.no>
 Build-Depends: debhelper (>= 8.0.0), cmake, liblapack-dev, libquadmath0,
-               iputils-ping, zlib1g-dev, git
+               iputils-ping, zlib1g-dev, git, python-dev
 Standards-Version: 3.9.2
 Section: libs
 Homepage: http://ert.nr.no
@@ -22,5 +22,13 @@ Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: The Ensemble based Reservoir Tool
+ ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
+ of reservoir models.
+
+Package: python-ert.ecl
+Section: python
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libert.ecl1
+Description: The Ensemble based Reservoir Tool - Python bindings
  ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
  of reservoir models.

@@ -20,16 +20,22 @@
 
 #include "RimCellRangeFilterCollection.h"
 
-#include "RimEclipseCase.h"
-#include "RigGridBase.h"
-#include "RimEclipseView.h"
 #include "RigCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-#include "RigGeoMechCaseData.h"
 #include "RigFemPart.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
+#include "RigGeoMechCaseData.h"
+#include "RigGridBase.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
+
+#include "cafPdmUiEditorHandle.h"
+
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
 
@@ -38,11 +44,13 @@ CAF_PDM_SOURCE_INIT(RimCellRangeFilterCollection, "CellRangeFilterCollection");
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 {
-    CAF_PDM_InitObject("Cell Range Filters", ":/CellFilter_Range.png", "", "");
+    CAF_PDM_InitObject("Range Filters", ":/CellFilter_Range.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&rangeFilters,   "RangeFilters", "Range Filters", "", "", "");
+    rangeFilters.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
-    isActive.setUiHidden(true);
+    isActive.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,21 +58,8 @@ RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection::~RimCellRangeFilterCollection()
 {
-    std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
-    {
-        delete it->p();
-    }
+    rangeFilters.deleteAllChildObjects();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::setReservoirView(RimView* reservoirView)
-{
-    m_reservoirView = reservoirView;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// RimCellRangeFilter is using Eclipse 1-based indexing, adjust filter values before 
@@ -74,10 +69,9 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 {
     CVF_ASSERT(cellRangeFilter);
 
-    std::list< caf::PdmPointer<RimCellRangeFilter> >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); it++)
+    for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        RimCellRangeFilter* rangeFilter = *it;
+        RimCellRangeFilter* rangeFilter = rangeFilters[i];
 
         if (rangeFilter && rangeFilter->isActive() && static_cast<size_t>(rangeFilter->gridIndex()) == gridIndex)
         {
@@ -107,7 +101,6 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -126,14 +119,13 @@ RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
     return NULL;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 {
     RimEclipseView* eclipseView = this->eclipseView();
-    if (eclipseView )
+    if (eclipseView)
     {
         return eclipseView->currentActiveCellInfo();
     }
@@ -141,45 +133,40 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
     return NULL;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-
-    this->updateUiIconFromToggleField();
-
-    CVF_ASSERT(m_reservoirView);
-
-    m_reservoirView->scheduleGeometryRegen(RANGE_FILTERED);
-    m_reservoirView->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
-
-    m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+    updateIconState();
+    uiCapability()->updateConnectedEditors();
+    
+    updateDisplayModeNotifyManagedViews(NULL);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilter* RimCellRangeFilterCollection::createAndAppendRangeFilter()
+void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter)
 {
-    RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
-    rangeFilter->setParentContainer(this);
-    rangeFilter->setDefaultValues();
+    RimView* view = NULL;
+    firstAnchestorOrThisOfType(view);
 
-    rangeFilters.v().push_back(rangeFilter);
+    if (view->isMasterView())
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            // Update data for range filter
+            // Update of display model is handled by view->scheduleGeometryRegen, also for managed views
+            viewLinker->updateRangeFilters(changedRangeFilter);
+        }
+    }
 
-    rangeFilter->name = QString("New Filter (%1)").arg(rangeFilters().size());
+    view->scheduleGeometryRegen(RANGE_FILTERED);
+    view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
-    return rangeFilter;
-}
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimView* RimCellRangeFilterCollection::reservoirView()
-{
-    return m_reservoirView;
+    view->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,31 +174,7 @@ RimView* RimCellRangeFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimCellRangeFilterCollection::eclipseView() const
 {
-    return dynamic_cast<RimEclipseView*>(m_reservoirView);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::initAfterRead()
-{
-    std::list< caf::PdmPointer<RimCellRangeFilter> >::iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); it++)
-    {
-        RimCellRangeFilter* rangeFilter = *it;
-        rangeFilter->setParentContainer(this);
-        rangeFilter->updateIconState();
-    }
-
-    this->updateUiIconFromToggleField();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::remove(RimCellRangeFilter* rangeFilter)
-{
-    rangeFilters.v().remove(rangeFilter);
+    return dynamic_cast<RimEclipseView*>(baseView());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,10 +184,9 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
 {
     if (!isActive()) return false; 
 
-    std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
+    for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        if ((*it)->isActive()) return true;
+        if (rangeFilters[i]->isActive()) return true;
     }
 
     return false;
@@ -245,14 +207,12 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 {
     if (!isActive) return false; 
 
-    std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
+    for (size_t i = 0; i < rangeFilters.size(); i++)
     {
-        if ((*it)->isActive() && (*it)->filterMode() == RimCellFilter::INCLUDE) return true;
+        if (rangeFilters[i]->isActive() && rangeFilters[i]->filterMode() == RimCellFilter::INCLUDE) return true;
     }
 
     return false;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,16 +289,74 @@ QString RimCellRangeFilterCollection::gridName(int gridIndex) const
 //--------------------------------------------------------------------------------------------------
 RigFemPartCollection* RimCellRangeFilterCollection::femPartColl() const
 {
-       RimGeoMechView* eclipseView = dynamic_cast<RimGeoMechView*>(m_reservoirView);
-
-    if (eclipseView &&
-        eclipseView->geoMechCase() &&
-        eclipseView->geoMechCase()->geoMechData() )
+    RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(baseView());
+    if (geoView &&
+        geoView->geoMechCase() &&
+        geoView->geoMechCase()->geoMechData() )
     {
-
-        return eclipseView->geoMechCase()->geoMechData()->femParts();
+        return geoView->geoMechCase()->geoMechData()->femParts();
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimView* RimCellRangeFilterCollection::baseView() const
+{
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
+
+    return rimView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilterCollection::updateIconState()
+{
+    bool activeIcon = true;
+
+    RimViewController* viewController = baseView()->viewController();
+    if (viewController && ( viewController->isRangeFiltersControlled() 
+                         || viewController->isVisibleCellsOveridden()) )
+    {
+        activeIcon = false;
+    }
+
+    if (!isActive)
+    {
+        activeIcon = false;
+    }
+
+    updateUiIconFromState(activeIcon);
+
+    for (size_t i = 0; i < rangeFilters.size(); i++)
+    {
+        RimCellRangeFilter* rangeFilter = rangeFilters[i];
+        rangeFilter->updateActiveState();
+        rangeFilter->updateIconState();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    RimViewController* viewController = baseView()->viewController();
+    if (viewController && viewController->isRangeFiltersControlled())
+    {
+        isActive.uiCapability()->setUiReadOnly(true);
+    }
+    else
+    {
+        isActive.uiCapability()->setUiReadOnly(false);
+    }
+
+    updateIconState();
 }
 

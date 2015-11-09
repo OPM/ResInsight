@@ -83,6 +83,10 @@ class CustomDialog(QDialog):
 
         return qw
 
+    def addSpace(self, size=10):
+        """ Add some vertical spacing """
+        space_widget = self.createSpace(size)
+        self.layout.addRow("", space_widget)
 
     def addOption(self, option_widget):
         """
@@ -92,6 +96,11 @@ class CustomDialog(QDialog):
         self.__option_list.append(option_widget)
         option_widget.validationChanged.connect(self.optionValidationChanged)
         self.layout.addRow(option_widget.getLabel(), option_widget)
+
+    def addWidget(self, widget, label=""):
+        if not label.endswith(":"):
+            label = "%s:" % label
+        self.layout.addRow(label, widget)
 
 
     def addButtons(self):

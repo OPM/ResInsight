@@ -48,6 +48,8 @@ RimOilFieldEntry::RimOilFieldEntry()
     CAF_PDM_InitFieldNoDefault(&wellsFilePath,      "wellsFilePath",             "wellsFilePath", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "",  "", "", "");
+    wells.uiCapability()->setUiHidden(true);
+    wells.uiCapability()->setUiChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

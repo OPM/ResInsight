@@ -12,9 +12,21 @@ class ObsData(BaseCClass):
 
     def __len__(self):
         """ @rtype: int """
-        return ObsData.cNamespace().active_size(self)
+        return ObsData.cNamespace().total_size(self)
+
+    def __getitem__(self , index):
+        if index < 0:
+            index += len(self)
+
+        if index >= len(self):
+            raise IndexError("Invalid index:%d valid range: [0,%d)" % (index , len(self)))
+
+        value = ObsData.cNamespace().iget_value( self , index )
+        std = ObsData.cNamespace().iget_std( self , index )
+        return (value,std)
 
 
+    
     def addBlock(self , obs_key , obs_size):
         error_covar = None 
         error_covar_owner = False
@@ -64,7 +76,9 @@ cwrapper.registerObjectType("obs_data", ObsData)
 
 ObsData.cNamespace().alloc       = cwrapper.prototype("c_void_p obs_data_alloc(double)")
 ObsData.cNamespace().free        = cwrapper.prototype("void obs_data_free(obs_data)")
-ObsData.cNamespace().active_size = cwrapper.prototype("int obs_data_get_active_size(obs_data)")
+ObsData.cNamespace().total_size  = cwrapper.prototype("int obs_data_get_total_size(obs_data)")
+ObsData.cNamespace().iget_value  = cwrapper.prototype("double obs_data_iget_value(obs_data)")
+ObsData.cNamespace().iget_std  = cwrapper.prototype("double obs_data_iget_std(obs_data)")
 ObsData.cNamespace().add_block   = cwrapper.prototype("obs_block_ref obs_data_add_block(obs_data , char* , int , matrix , bool)")
 
 ObsData.cNamespace().allocdObs   = cwrapper.prototype("matrix_obj obs_data_allocdObs(obs_data)")

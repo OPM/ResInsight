@@ -123,13 +123,15 @@ public:
     void                    enableOverlyPainting(bool val);
 
     // Performance information for debugging etc.
-    void	                enablePerfInfoHud(bool enable);
-    bool	                isPerfInfoHudEnabled();
+    void                    enablePerfInfoHud(bool enable);
+    bool                    isPerfInfoHudEnabled();
 
     void                    enableForcedImmediateMode(bool enable);
 
     // Find out whether the system supports shaders
     static bool             isShadersSupported();
+
+    virtual void            navigationPolicyUpdate();
 
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);

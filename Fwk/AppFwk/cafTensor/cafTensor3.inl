@@ -170,111 +170,111 @@ cvf::Vec3d eigenVector3(const cvf::Mat3d& mx, double eigenValue, bool* computedO
 template<typename S>
 cvf::Vec3f Tensor3<S>::calculatePrincipals( cvf::Vec3f principalDirections[3])
 {
-	CVF_TIGHT_ASSERT(m_tensor);
+    CVF_TIGHT_ASSERT(m_tensor);
 
     const float floatThreshold = 1.0e-30f;
     const double doubleThreshold = 1.0e-60;
 
     cvf::Vec3f principalValues;
-	
-   	// Init return arrays to invalid
+    
+       // Init return arrays to invalid
 
     principalValues[0] = std::numeric_limits<float>::infinity();
     principalValues[1] = std::numeric_limits<float>::infinity();
     principalValues[2] = std::numeric_limits<float>::infinity();
 
     if (principalDirections)
-	{
-		principalDirections[0] = cvf::Vec3f::ZERO;
-		principalDirections[1] = cvf::Vec3f::ZERO;
-		principalDirections[2] = cvf::Vec3f::ZERO;
-	}
+    {
+        principalDirections[0] = cvf::Vec3f::ZERO;
+        principalDirections[1] = cvf::Vec3f::ZERO;
+        principalDirections[2] = cvf::Vec3f::ZERO;
+    }
 
     // Return if we have an undefined component
  
-	int i;
-	for (i = 0; i < 6; i++)
-	{
-		if (m_tensor[i] == std::numeric_limits<S>::infinity()) 
+    int i;
+    for (i = 0; i < 6; i++)
+    {
+        if (m_tensor[i] == std::numeric_limits<S>::infinity()) 
         {
             return principalValues;
         }
-	}
+    }
     
-	// Return 0, 0, 0 if all components are zero
+    // Return 0, 0, 0 if all components are zero
 
-	bool isAllTensCompsZero = true;
-	for (i = 0; i < 6; i++)
-	{
-		if (!(abs(m_tensor[i]) < floatThreshold))
-		{
-			isAllTensCompsZero = false;
-			break;
-		}
-	}
+    bool isAllTensCompsZero = true;
+    for (i = 0; i < 6; i++)
+    {
+        if (!(abs(m_tensor[i]) < floatThreshold))
+        {
+            isAllTensCompsZero = false;
+            break;
+        }
+    }
 
-	if (isAllTensCompsZero)
+    if (isAllTensCompsZero)
     {
         return cvf::Vec3f::ZERO;
     }
 
-	double SXX = m_tensor[0], SYY = m_tensor[1], SZZ = m_tensor[2];
-	double SXY = m_tensor[3], SYZ = m_tensor[4], SZX = m_tensor[5];
+    double SXX = m_tensor[0], SYY = m_tensor[1], SZZ = m_tensor[2];
+    double SXY = m_tensor[3], SYZ = m_tensor[4], SZX = m_tensor[5];
 
-	double pressure = -(SXX + SYY + SZZ)/3.0;
+    double pressure = -(SXX + SYY + SZZ)/3.0;
 
-	// Normally we would solve the eigenvalues by solving the 3'rd degree equation:
+    // Normally we would solve the eigenvalues by solving the 3'rd degree equation:
     //    -sigma^3 + A*sigma^2 - B*sigma + C = 0
-	// in which A, B, and C are the invariants of the stress tensor.
+    // in which A, B, and C are the invariants of the stress tensor.
     // http://www.engapplets.vt.edu/Mohr/java/nsfapplets/MohrCircles2-3D/Theory/theory.htm
 
-	// But the roots(eigenvalues) are calculated by transforming the above equation into
-	// s**3 + aa*s + b = 0 and using the trignometric solution.
-	// See crc standard mathematical tables 19th edition pp. 103-104.
+    // But the roots(eigenvalues) are calculated by transforming the above equation into
+    // s**3 + aa*s + b = 0 and using the trignometric solution.
+    // See crc standard mathematical tables 19th edition pp. 103-104.
 
-	SXX += pressure;
-	SYY += pressure;
-	SZZ += pressure;
+    SXX += pressure;
+    SYY += pressure;
+    SZZ += pressure;
 
     double S1, S2, S3;
-	double AA, BB, CC, DD, angleP;
+    double AA, BB, CC, DD, angleP;
 
-	AA = SXY*SXY + SYZ*SYZ + SZX*SZX - SXX*SYY - SYY*SZZ - SXX*SZZ;
+    AA = SXY*SXY + SYZ*SYZ + SZX*SZX - SXX*SYY - SYY*SZZ - SXX*SZZ;
 
-	BB = SXX * SYZ * SYZ 
+    BB = SXX * SYZ * SYZ 
         + SYY * SZX * SZX 
         + SZZ * SXY * SXY 
         - SXX * SYY * SZZ 
         - 2.0 * SXY * SYZ * SZX;
 
-	if (fabs(AA) < doubleThreshold)
-	{
-		S1 = 0.0;
-		S2 = 0.0;
-		S3 = 0.0;
-	}
-	else
-	{
-		CC = -sqrt(27.0/AA) * BB * 0.5 / AA;
+    if (fabs(AA) < doubleThreshold)
+    {
+        S1 = 0.0;
+        S2 = 0.0;
+        S3 = 0.0;
+    }
+    else
+    {
+        CC = -sqrt(27.0/AA) * BB * 0.5 / AA;
 
-		if      (CC > 1.0)  CC = 1.0;
-		else if (CC < -1.0) CC = -1.0;
+        if      (CC > 1.0)  CC = 1.0;
+        else if (CC < -1.0) CC = -1.0;
 
-		angleP  = acos(CC)/3.0;
-		DD      = 2.0*sqrt(AA/3.0);
-		S1      = DD*cos(angleP);
-		S2      = DD*cos(angleP + 4.0*cvf::PI_D/3.0);
-		S3      = DD*cos(angleP + 2.0*cvf::PI_D/3.0);
-	}
+        angleP  = acos(CC)/3.0;
+        DD      = 2.0*sqrt(AA/3.0);
+        S1      = DD*cos(angleP);
+        S2      = DD*cos(angleP + 4.0*cvf::PI_D/3.0);
+        S3      = DD*cos(angleP + 2.0*cvf::PI_D/3.0);
+    }
 
-	int idxPMin = 2;
+    int idxPMin = 2;
     int idxPMid = 1;
     int idxPMax = 0;
 
-	double principalsd[3];
-	principalsd[idxPMax] = (S1 - pressure);
-	principalsd[idxPMid] = (S2 - pressure);
-	principalsd[idxPMin] = (S3 - pressure);
+    double principalsd[3];
+    principalsd[idxPMax] = (S1 - pressure);
+    principalsd[idxPMid] = (S2 - pressure);
+    principalsd[idxPMin] = (S3 - pressure);
 
     // Sort the principals if we have no Z component in the tensor at all 
     if ((m_tensor[2] == 0.0f) && (m_tensor[4] == 0.0f) && (m_tensor[5] == 0.0f))
@@ -317,8 +317,8 @@ template< typename S>
 float caf::Tensor3<S>::calculateVonMises()
 {
     return (float) sqrt( (   (m_tensor[0]*m_tensor[0] + m_tensor[1]*m_tensor[1] + m_tensor[2]*m_tensor[2]) ) +
-				         (  -(m_tensor[0]*m_tensor[1] + m_tensor[1]*m_tensor[2] + m_tensor[0]*m_tensor[2]) ) +
-				         ( 3*(m_tensor[3]*m_tensor[3] + m_tensor[4]*m_tensor[4] + m_tensor[5]*m_tensor[5]) )   );
+                         (  -(m_tensor[0]*m_tensor[1] + m_tensor[1]*m_tensor[2] + m_tensor[0]*m_tensor[2]) ) +
+                         ( 3*(m_tensor[3]*m_tensor[3] + m_tensor[4]*m_tensor[4] + m_tensor[5]*m_tensor[5]) )   );
 }
 
 }

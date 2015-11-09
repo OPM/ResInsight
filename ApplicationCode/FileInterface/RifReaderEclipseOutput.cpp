@@ -392,8 +392,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
             cvf::Collection<RigFault> faults;
             std::vector< RifKeywordAndFilePos > fileKeywords;
         
-            std::vector<QString> filenamesWithFaults;
-
             for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
             {
                 QString faultFilename = this->filenamesWithFaults()[i];
@@ -417,7 +415,9 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
                     RigMainGrid* mainGrid = eclipseCase->mainGrid();
                     mainGrid->setFaults(faults);
 
-                    std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                    std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                    std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                    filenamesWithFaults.erase(last, filenamesWithFaults.end());
 
                     this->setFilenamesWithFaults(filenamesWithFaults);
                 }
@@ -925,8 +925,6 @@ cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> 
     std::vector<SegmentPositionContribution> filteredPositions;
     filteredPositions.reserve(positions.size());
 
-    bool hasContibFromBelow = false;
-    bool hasContribFromAbove = false;
     double minDistFromContribAbove = HUGE_VAL;
     double minDistFromContribBelow = HUGE_VAL;
     std::vector<SegmentPositionContribution> contrFromAbove;
@@ -1079,7 +1077,6 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
         sameCount = true;
     }
 
-    RigMainGrid* mainGrid = m_eclipseCase->mainGrid();
     std::vector<RigGridBase*> grids;
     m_eclipseCase->allGrids(&grids);
 
@@ -1215,8 +1212,6 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     double accLengthFromLastConnection = 0;
                     int segmentIdBelow                 = -1;
                     bool segmentBelowHasConnections    = false;
-                    std::set<int> ertSegIdsOfPosContribToRemove; 
-
 
                     while (segment && branchId == well_segment_get_branch_id(segment))
                     {
@@ -1493,7 +1488,6 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                 for (size_t bIdx = 0; bIdx <  wellResFrame.m_wellResultBranches.size(); ++bIdx)
                 {
                     RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[ bIdx];
-                    bool previousResultPointWasCell = false;
                     for (size_t rpIdx = 0; rpIdx < wellResultBranch.m_branchResultPoints.size(); ++rpIdx)
                     {
                         RigWellResultPoint & resPoint = wellResultBranch.m_branchResultPoints[rpIdx];
@@ -1612,11 +1606,9 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
     for (int i = 0; i < keywords.size(); i++)
     {
         QString keyword = keywords[i];
-        size_t keywordDataCount = keywordDataItemCounts[i];
 
         if (activeCellInfo->reservoirActiveCellCount() > 0)
         {
-            size_t timeStepsAllCells     = keywordDataItemCounts[i] / activeCellInfo->reservoirCellCount();
             size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->reservoirCellCount();
 
             size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->reservoirActiveCellCount();
@@ -1678,7 +1670,6 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityMod
     {
         RigActiveCellInfo* actCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); 
 
-        size_t dataItemCount = 0;
         size_t sourceStartPosition = 0;
 
         for (size_t i = 0; i < m_eclipseCase->mainGrid()->gridCount(); i++)

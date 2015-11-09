@@ -36,11 +36,16 @@
 
 
 #include "cafPdmUiTreeViewModel.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDragDropInterface.h"
+#include "cafPdmUiTreeItemEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewEditor.h"
 
-
+#include <QTreeView>
+#include <QDragMoveEvent>
 
 namespace caf
 {
@@ -48,229 +53,76 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeViewModel::PdmUiTreeViewModel(QObject* parent)
+PdmUiTreeViewModel::PdmUiTreeViewModel(PdmUiTreeViewEditor* treeViewEditor)
 {
-    m_treeItemRoot = NULL;
+    m_treeOrderingRoot = NULL;
+    m_dragDropInterface = NULL;
+
+    m_treeViewEditor = treeViewEditor;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Will populate the tree with the contents of the Pdm data structure rooted at rootItem.
+/// Will not show the rootItem itself, only the children and downwards 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewModel::setPdmItemRoot(PdmUiItem* rootItem)
+{
+    // Check if we are already watching this root
+    if (m_treeOrderingRoot && m_treeOrderingRoot->activeItem() == rootItem)
+    {
+        this->updateSubTree(rootItem);
+        return;
+    }
+
+    PdmUiTreeOrdering* newRoot = NULL;
+    PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (rootItem);
+
+    if (field)
+    {
+        newRoot = new PdmUiTreeOrdering(field->fieldHandle());
+        PdmUiObjectHandle::expandUiTree(newRoot, m_uiConfigName);
+    }
+    else
+    {
+        PdmUiObjectHandle * obj = dynamic_cast<PdmUiObjectHandle*> (rootItem);
+        if (obj)
+        {
+            newRoot = obj->uiTreeOrdering(m_uiConfigName);
+        }
+    }
+
+    assert( newRoot || rootItem == NULL ); // Only fields, objects or NULL is allowed.
+
+    //if (newRoot) newRoot->debugDump(0);
+
+    this->resetTree(newRoot);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::setTreeItemRoot(PdmUiTreeItem* root)
+void PdmUiTreeViewModel::resetTree(PdmUiTreeOrdering* newRoot)
 {
     beginResetModel();
     
-    if (m_treeItemRoot)
+    if (m_treeOrderingRoot)
     {
-        delete m_treeItemRoot;
+        delete m_treeOrderingRoot;
     }
 
-    m_treeItemRoot = root;
+    m_treeOrderingRoot = newRoot;
+
+    updateEditorsForSubTree(m_treeOrderingRoot);
+
     endResetModel();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QModelIndex PdmUiTreeViewModel::index(int row, int column, const QModelIndex &parentIndex /*= QModelIndex( ) */) const
+void PdmUiTreeViewModel::setColumnHeaders(const QStringList& columnHeaders)
 {
-//     if (!m_treeItemRoot)
-//         return QModelIndex();
-
-    if (!hasIndex(row, column, parentIndex))
-        return QModelIndex();
-
-    PdmUiTreeItem* parentItem = NULL;
-
-    if (!parentIndex.isValid())
-        parentItem = m_treeItemRoot;
-    else
-        parentItem = static_cast<PdmUiTreeItem*>(parentIndex.internalPointer());
-
-    PdmUiTreeItem* childItem = parentItem->child(row);
-    if (childItem)
-        return createIndex(row, column, childItem);
-    else
-        return QModelIndex();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QModelIndex PdmUiTreeViewModel::parent(const QModelIndex &childIndex) const
-{
-//    if (!m_treeItemRoot) return QModelIndex();
-
-    if (!childIndex.isValid()) return QModelIndex();
-
-    PdmUiTreeItem* childItem = static_cast<PdmUiTreeItem*>(childIndex.internalPointer());
-    if (!childItem) return QModelIndex();
-
-    PdmUiTreeItem* parentItem = childItem->parent();
-    if (!parentItem) return QModelIndex();
-
-    if (parentItem == m_treeItemRoot) return QModelIndex();
-
-    return createIndex(parentItem->row(), 0, parentItem);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int PdmUiTreeViewModel::rowCount(const QModelIndex &parentIndex /*= QModelIndex( ) */) const
-{
-    if (!m_treeItemRoot)
-        return 0;
-
-    if (parentIndex.column() > 0)
-        return 0;
-
-    PdmUiTreeItem* parentItem;
-    if (!parentIndex.isValid())
-        parentItem = m_treeItemRoot;
-    else
-        parentItem = PdmUiTreeViewModel::getTreeItemFromIndex(parentIndex);
-
-    return parentItem->childCount();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int PdmUiTreeViewModel::columnCount(const QModelIndex &parentIndex /*= QModelIndex( ) */) const
-{
-    if (!m_treeItemRoot)
-        return 0;
-
-    if (parentIndex.isValid())
-    {
-         PdmUiTreeItem* parentItem = PdmUiTreeViewModel::getTreeItemFromIndex(parentIndex);
-         if (parentItem)
-         {
-             return parentItem->columnCount();
-         }
-         else
-         {
-             return 0;
-         }
-    }
-    else
-        return m_treeItemRoot->columnCount();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole */) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-     PdmUiTreeOrdering* uitreeOrdering = static_cast<PdmUiTreeOrdering*>(index.internalPointer());
-     if (!uitreeOrdering)
-     {
-         return QVariant();
-     }
-    PdmFieldHandle* pdmField = uitreeOrdering->field();
-    PdmObject* pdmObj = uitreeOrdering->object();
-
-     if (role == Qt::DisplayRole || role == Qt::EditRole)
-     {
-         if (pdmField && !pdmField->uiName().isEmpty())
-         {
-             return pdmField->uiName();
-         }
-         else if (pdmObj)
-         {
-             if (pdmObj->userDescriptionField())
-                return pdmObj->userDescriptionField()->uiValue();
-             else
-                 return pdmObj->uiName();
-         }
-         else if (uitreeOrdering->uiItem())
-         {
-            return uitreeOrdering->uiItem()->uiName();
-         }
-         else
-         {
-             // Should not get here
-             assert(0);
-         }
-     }
-     else if (role == Qt::DecorationRole)
-     {
-         if (pdmField && !pdmField->uiIcon().isNull())
-         {
-             return pdmField->uiIcon();
-         }
-         else if (pdmObj)
-         {
-             return pdmObj->uiIcon();
-         }
-         else if (uitreeOrdering->uiItem())
-         {
-             return uitreeOrdering->uiItem()->uiIcon();
-         }
-         else
-         {
-             // Should not get here
-             assert(0);
-         }
-     }
-     else if (role == Qt::ToolTipRole)
-     {
-         if (pdmField && !pdmField->uiToolTip().isEmpty())
-             return pdmField->uiToolTip();
-         else if (pdmObj)
-         {
-             return pdmObj->uiToolTip();
-         }
-         else if (uitreeOrdering->uiItem())
-         {
-             return uitreeOrdering->uiItem()->uiToolTip();
-         }
-         else
-         {
-             // Should not get here
-             assert(0);
-         }
-     }
-     else if (role == Qt::WhatsThisRole)
-     {
-         if (pdmField && !pdmField->uiWhatsThis().isEmpty())
-             return pdmField->uiWhatsThis();
-         else if (pdmObj)
-         {
-             return pdmObj->uiWhatsThis();
-         }
-         else if (uitreeOrdering->uiItem())
-         {
-             return uitreeOrdering->uiItem()->uiWhatsThis();
-         }
-         else
-         {
-             // Should not get here
-             assert(0);
-         }
-     }
-     else if (role == Qt::CheckStateRole)
-     {
-         if (pdmObj && pdmObj->objectToggleField())
-         {
-             bool isToggledOn = pdmObj->objectToggleField()->uiValue().toBool();
-             if (isToggledOn)
-             {
-                 return Qt::Checked;
-             }
-             else
-             {
-                 return Qt::Unchecked;
-             }
-         }
-     }
-
-    return QVariant();
+    m_columnHeaders = columnHeaders;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,6 +134,534 @@ void PdmUiTreeViewModel::emitDataChanged(const QModelIndex& index)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Refreshes the UI-tree below the supplied root PdmUiItem
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewModel::updateSubTree(PdmUiItem* pdmRoot)
+{
+    // Build the new "Correct" Tree
+
+    PdmUiTreeOrdering* newTreeRootTmp = NULL;
+    PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*> (pdmRoot);
+    if (field)
+    {
+        newTreeRootTmp = new PdmUiTreeOrdering(field->fieldHandle());
+    }
+    else
+    {
+        PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*> (pdmRoot);
+        if (obj)
+        {
+            newTreeRootTmp = new PdmUiTreeOrdering(obj->objectHandle());
+        }
+    }
+
+    PdmUiObjectHandle::expandUiTree(newTreeRootTmp, m_uiConfigName);
+
+#if CAF_PDM_TREE_VIEW_DEBUG_PRINT
+    std::cout << std::endl << "New Stuff: " << std::endl ;
+    newTreeRootTmp->debugDump(0);
+#endif
+
+    // Find the corresponding entry for "root" in the existing Ui tree
+
+    QModelIndex existingSubTreeRootModIdx = findModelIndex(pdmRoot);
+
+    PdmUiTreeOrdering* existingSubTreeRoot = NULL;
+    if (existingSubTreeRootModIdx.isValid())
+    {
+        existingSubTreeRoot = treeItemFromIndex(existingSubTreeRootModIdx);
+    }
+    else
+    {
+        existingSubTreeRoot = m_treeOrderingRoot;
+    }
+
+#if CAF_PDM_TREE_VIEW_DEBUG_PRINT
+    std::cout << std::endl << "Old :"<< std::endl ;
+    existingSubTreeRoot->debugDump(0);
+#endif
+
+    updateSubTreeRecursive(existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp);
+
+    delete newTreeRootTmp;
+
+    updateEditorsForSubTree(existingSubTreeRoot);
+
+#if CAF_PDM_TREE_VIEW_DEBUG_PRINT
+    std::cout << std::endl << "Result :"<< std::endl ;
+    existingSubTreeRoot->debugDump(0);
+#endif    
+}
+
+class RecursiveUpdateData
+{
+public:
+    RecursiveUpdateData(QModelIndex mi, PdmUiTreeOrdering* existingChild, PdmUiTreeOrdering* sourceChild)
+        : m_modelIndex(mi),
+        m_existingChild(existingChild),
+        m_sourceChild(sourceChild)
+    {
+    };
+
+    QModelIndex         m_modelIndex;
+    PdmUiTreeOrdering*  m_existingChild;
+    PdmUiTreeOrdering*  m_sourceChild;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Makes the existingSubTreeRoot tree become identical to the tree in sourceSubTreeRoot, 
+/// calling begin..() end..() to make the UI update accordingly.
+/// This assumes that all the items have a pointer an unique PdmObject 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTreeRootModIdx, PdmUiTreeOrdering* existingSubTreeRoot, PdmUiTreeOrdering* sourceSubTreeRoot)
+{
+    // Build map for source items
+    std::map<caf::PdmUiItem*, int> sourceTreeMap;
+    for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
+    {
+        PdmUiTreeOrdering* child = sourceSubTreeRoot->child(i);
+
+        if (child && child->activeItem())
+        {
+            sourceTreeMap[child->activeItem()] = i;
+        }
+    }
+
+    // Detect items to be deleted from existing tree
+    std::vector<int> indicesToRemoveFromExisting;
+    for (int i = 0; i < existingSubTreeRoot->childCount() ; ++i)
+    {
+        PdmUiTreeOrdering* child = existingSubTreeRoot->child(i);
+
+        std::map<caf::PdmUiItem*, int>::iterator it = sourceTreeMap.find(child->activeItem());
+        if (it == sourceTreeMap.end())
+        {
+            indicesToRemoveFromExisting.push_back(i);
+        }
+    }
+
+    // Delete items with largest index first from existing
+    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); it++)
+    {
+        this->beginRemoveRows(existingSubTreeRootModIdx, *it, *it);
+        existingSubTreeRoot->removeChildren(*it, 1);
+        this->endRemoveRows();
+    }
+
+    // Build map for existing items without the deleted items
+    std::map<caf::PdmUiItem*, int> existingTreeMap;
+    for (int i = 0; i < existingSubTreeRoot->childCount() ; ++i)
+    {
+        PdmUiTreeOrdering* child = existingSubTreeRoot->child(i);
+
+        if (child && child->activeItem())
+        {
+            existingTreeMap[child->activeItem()] = i;
+        }
+    }
+
+    // Check if there are any changes between existing and source
+    // If no changes, update the subtree recursively
+    bool anyChanges = false;
+    if (existingSubTreeRoot->childCount() == sourceSubTreeRoot->childCount())
+    {
+        for (int i = 0; i < existingSubTreeRoot->childCount(); ++i)
+        {
+            if (existingSubTreeRoot->child(i)->activeItem() != sourceSubTreeRoot->child(i)->activeItem())
+            {
+                anyChanges = true;
+                break;
+            }
+        }
+    }
+    else
+    {
+        anyChanges = true;
+    }
+
+    if (!anyChanges)
+    {
+        // Notify Qt that the toggle/name/icon etc might have been changed
+        emitDataChanged(existingSubTreeRootModIdx);
+
+        // No changes to list of children at this level, call update on all children
+        for (int i = 0; i < existingSubTreeRoot->childCount(); ++i)
+        {
+            updateSubTreeRecursive( index(i, 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(i), sourceSubTreeRoot->child(i));
+        }
+    }
+    else
+    {
+        std::vector<RecursiveUpdateData> recursiveUpdateData;
+        std::vector<PdmUiTreeOrdering*> newMergedOrdering;
+
+        emit layoutAboutToBeChanged();
+        {
+            // Detect items to be moved from source to existing
+            // Merge items from existing and source into newMergedOrdering using order in sourceSubTreeRoot
+            std::vector<int> indicesToRemoveFromSource;
+            for (int i = 0; i < sourceSubTreeRoot->childCount() ; ++i)
+            {
+                PdmUiTreeOrdering* sourceChild = sourceSubTreeRoot->child(i);
+                std::map<caf::PdmUiItem*, int>::iterator it = existingTreeMap.find(sourceChild->activeItem());
+                if (it != existingTreeMap.end())
+                {
+                    newMergedOrdering.push_back(existingSubTreeRoot->child(it->second));
+
+                    recursiveUpdateData.push_back(RecursiveUpdateData(index(static_cast<int>(newMergedOrdering.size() - 1), 0, existingSubTreeRootModIdx), existingSubTreeRoot->child(it->second), sourceChild));
+                }
+                else
+                {
+                    newMergedOrdering.push_back(sourceChild);
+
+                    indicesToRemoveFromSource.push_back(i);
+                }
+            }
+
+            // Delete new items from source because they have been moved into newMergedOrdering
+            for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); it++)
+            {
+                // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
+                sourceSubTreeRoot->removeChildrenNoDelete(*it, 1);
+            }
+
+            // Delete all items from existingSubTreeRoot, as the complete list is present in newMergedOrdering
+            existingSubTreeRoot->removeChildrenNoDelete(0, existingSubTreeRoot->childCount());
+
+            // First, reorder all items in existing tree, as this operation is valid when later emitting the signal layoutChanged()
+            // Insert of new items before issuing this signal causes the tree items below the inserted item to collapse
+            for (size_t i = 0; i < newMergedOrdering.size(); i++)
+            {
+                if (existingTreeMap.find(newMergedOrdering[i]->activeItem()) != existingTreeMap.end())
+                {
+                    existingSubTreeRoot->appendChild(newMergedOrdering[i]);
+                }
+            }
+        }
+
+        emit layoutChanged();
+
+        // Insert new items into existingSubTreeRoot
+        for (size_t i = 0; i < newMergedOrdering.size(); i++)
+        {
+            if (existingTreeMap.find(newMergedOrdering[i]->activeItem()) == existingTreeMap.end())
+            {
+                this->beginInsertRows(existingSubTreeRootModIdx, static_cast<int>(i), static_cast<int>(i));
+                existingSubTreeRoot->insertChild(static_cast<int>(i), newMergedOrdering[i]);
+                this->endInsertRows();
+            }
+        }
+
+        for (size_t i = 0; i < recursiveUpdateData.size(); i++)
+        {
+            updateSubTreeRecursive(recursiveUpdateData[i].m_modelIndex, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewModel::updateEditorsForSubTree(PdmUiTreeOrdering* root)
+{
+    if (!root) return;
+
+    if (!root->editor())
+    {
+        PdmUiTreeItemEditor* treeItemEditor = new PdmUiTreeItemEditor(root->activeItem());
+        root->setEditor(treeItemEditor);
+        assert(root->editor());
+    }
+
+    PdmUiTreeItemEditor* treeItemEditor = dynamic_cast<PdmUiTreeItemEditor*>(root->editor());
+    if (treeItemEditor)
+    {
+        treeItemEditor->setTreeViewEditor(m_treeViewEditor);
+    }
+
+    for (int i = 0; i < root->childCount(); ++i)
+    {
+        updateEditorsForSubTree(root->child(i));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeOrdering* caf::PdmUiTreeViewModel::treeItemFromIndex(const QModelIndex& index) const 
+{
+    if (!index.isValid())
+    {
+        return m_treeOrderingRoot;
+    }
+    
+    assert(index.internalPointer());
+
+    PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>(index.internalPointer());
+
+    return treeItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QModelIndex caf::PdmUiTreeViewModel::findModelIndex( const PdmUiItem * object) const
+{
+    QModelIndex foundIndex;
+    int numRows = rowCount(QModelIndex());
+    int r = 0;
+    while (r < numRows && !foundIndex.isValid())
+    {
+        foundIndex = findModelIndexRecursive(index(r, 0, QModelIndex()), object);
+        ++r;
+    }
+    return foundIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QModelIndex caf::PdmUiTreeViewModel::findModelIndexRecursive(const QModelIndex& currentIndex, const PdmUiItem * pdmItem) const
+{
+    if (currentIndex.internalPointer())
+    {
+        PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>(currentIndex.internalPointer());
+        if (treeItem->activeItem() == pdmItem) return currentIndex;
+    }
+
+   int row;
+   for (row = 0; row < rowCount(currentIndex); ++row)
+   {
+       QModelIndex foundIndex = findModelIndexRecursive(index(row, 0, currentIndex), pdmItem);
+       if (foundIndex.isValid()) return foundIndex;
+   }
+   return QModelIndex();
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// An invalid parent index is implicitly meaning the root item, and not "above" root, since
+/// we are not showing the root item itself
+//--------------------------------------------------------------------------------------------------
+QModelIndex PdmUiTreeViewModel::index(int row, int column, const QModelIndex &parentIndex ) const
+{
+    if (!m_treeOrderingRoot)
+        return QModelIndex();
+
+    PdmUiTreeOrdering* parentItem = NULL;
+
+    if (!parentIndex.isValid())
+        parentItem = m_treeOrderingRoot;
+    else
+        parentItem = static_cast<PdmUiTreeOrdering*>(parentIndex.internalPointer());
+
+    assert(parentItem);
+
+    if (parentItem->childCount() <= row)
+    {
+        return QModelIndex();
+    }
+
+    PdmUiTreeOrdering* childItem = parentItem->child(row);
+    if (childItem)
+        return createIndex(row, column, childItem);
+    else
+        return QModelIndex();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QModelIndex PdmUiTreeViewModel::parent(const QModelIndex &childIndex) const
+{
+    if (!childIndex.isValid()) return QModelIndex();
+
+    PdmUiTreeOrdering* childItem = static_cast<PdmUiTreeOrdering*>(childIndex.internalPointer());
+    if (!childItem) return QModelIndex();
+
+    PdmUiTreeOrdering* parentItem = childItem->parent();
+    if (!parentItem) return QModelIndex();
+
+    if (parentItem == m_treeOrderingRoot) return QModelIndex();
+
+    return createIndex(parentItem->indexInParent(), 0, parentItem);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int PdmUiTreeViewModel::rowCount(const QModelIndex &parentIndex ) const
+{
+    if (!m_treeOrderingRoot)
+        return 0;
+
+    if (parentIndex.column() > 0)
+        return 0;
+
+    PdmUiTreeOrdering* parentItem = this->treeItemFromIndex(parentIndex);
+
+    return parentItem->childCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int PdmUiTreeViewModel::columnCount(const QModelIndex &parentIndex ) const
+{
+    if (!m_treeOrderingRoot)
+        return 0;
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
+{
+    if (!index.isValid())
+    {
+        return QVariant();
+    }
+
+    PdmUiTreeOrdering* uitreeOrdering = static_cast<PdmUiTreeOrdering*>(index.internalPointer());
+    if (!uitreeOrdering)
+    {
+        return QVariant();
+    }
+
+    bool isObjRep = uitreeOrdering->isRepresentingObject();
+    bool isFieldRep = uitreeOrdering->isRepresentingField();
+    bool isDisplayOnly = uitreeOrdering->isDisplayItemOnly();
+
+
+    if (role == Qt::DisplayRole && !uitreeOrdering->isValid())
+    {
+        QString str;
+
+#ifdef DEBUG
+        str = "Invalid uiordering";
+#endif
+
+        return QVariant(str);
+    }
+
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
+    {
+        if (isObjRep)
+        {
+            PdmUiObjectHandle* pdmUiObject = uiObj(uitreeOrdering->object());
+            if (pdmUiObject)
+            {
+                QVariant v;
+                if (pdmUiObject->userDescriptionField())
+                {
+                    caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObject->userDescriptionField()->uiCapability();
+                    if (uiFieldHandle)
+                    {
+                        v = uiFieldHandle->uiValue();
+                    }
+                }
+                else
+                {
+                    v = pdmUiObject->uiName();
+                }
+
+                QString txt = v.toString();
+
+                if (m_treeViewEditor->isAppendOfClassNameToUiItemTextEnabled())
+                {
+                    PdmObjectHandle* pdmObjHandle = pdmUiObject->objectHandle();
+                    if (pdmObjHandle)
+                    {
+                        txt += " - ";
+                        txt += typeid(*pdmObjHandle).name();
+                    }
+                }
+
+                return txt;
+            }
+            else
+            {
+                return QVariant();
+            }
+        }
+       
+        if (uitreeOrdering->activeItem())
+        {
+            return uitreeOrdering->activeItem()->uiName();
+        }
+        else
+        {
+            return QVariant();
+        }
+    }
+    else if (role == Qt::DecorationRole)
+    {
+        if (uitreeOrdering->activeItem())
+        {
+            return uitreeOrdering->activeItem()->uiIcon();
+        }
+        else
+        {
+            return QVariant();
+        }
+    }
+    else if (role == Qt::ToolTipRole)
+    {
+        if (uitreeOrdering->activeItem())
+        {
+             return uitreeOrdering->activeItem()->uiToolTip();
+        }
+        else
+        {
+            return QVariant();
+        }
+    }
+    else if (role == Qt::WhatsThisRole)
+    {
+        if (uitreeOrdering->activeItem())
+        {
+            return uitreeOrdering->activeItem()->uiWhatsThis();
+        }
+        else
+        {
+            return QVariant();
+        }
+    }
+    else if (role == Qt::CheckStateRole)
+    {
+        if (isObjRep)
+        {
+            PdmUiObjectHandle* pdmUiObj = uiObj(uitreeOrdering->object());
+            if (pdmUiObj && pdmUiObj->objectToggleField())
+            {
+                caf::PdmUiFieldHandle* uiFieldHandle = pdmUiObj->objectToggleField()->uiCapability();
+                if (uiFieldHandle)
+                {
+                    bool isToggledOn = uiFieldHandle->uiValue().toBool();
+                    if (isToggledOn)
+                    {
+                        return Qt::Checked;
+                    }
+                    else
+                    {
+                        return Qt::Unchecked;
+                    }
+                }
+                else
+                {
+                    return QVariant();
+                }
+            }
+        }
+    }
+
+    return QVariant();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value, int role /*= Qt::EditRole*/)
@@ -290,33 +670,39 @@ bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value
     {
         return false;
     }
-    
-    PdmUiTreeItem* treeItem = PdmUiTreeViewModel::getTreeItemFromIndex(index);
+
+    PdmUiTreeOrdering* treeItem = PdmUiTreeViewModel::treeItemFromIndex(index);
     assert(treeItem);
-    
-    PdmObject* obj = treeItem->dataObject()->object();
-    if (!obj)
-    {
-        return false;
-    }
-            
-    if (role == Qt::EditRole && obj->userDescriptionField())
-    {
-        obj->userDescriptionField()->setValueFromUi(value);
 
-        emitDataChanged(index);
-        
-        return true;
-    }
-    else if (role == Qt::CheckStateRole && obj->objectToggleField())
+    if (!treeItem->isRepresentingObject()) return false;
+
+    PdmUiObjectHandle* uiObject = uiObj(treeItem->object());
+    if (uiObject)
     {
-        bool toggleOn = (value == Qt::Checked);
-        
-        obj->objectToggleField()->setValueFromUi(toggleOn);
+        if (role == Qt::EditRole && uiObject->userDescriptionField())
+        {
+            PdmUiFieldHandle* userDescriptionUiField = uiObject->userDescriptionField()->uiCapability();
+            if (userDescriptionUiField)
+            {
+                userDescriptionUiField->setValueFromUi(value);
+            }
 
-        emitDataChanged(index);
+            return true;
+        }
+        else if (   role == Qt::CheckStateRole &&
+                    uiObject->objectToggleField() && 
+                    !uiObject->objectToggleField()->uiCapability()->isUiReadOnly(m_uiConfigName))
+        {
+            bool toggleOn = (value == Qt::Checked);
 
-        return true;
+            PdmUiFieldHandle* toggleUiField = uiObject->objectToggleField()->uiCapability();
+            if (toggleUiField)
+            {
+                toggleUiField->setValueFromUi(value);
+            }
+
+            return true;
+        }
     }
 
     return false;
@@ -329,155 +715,49 @@ bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value
 Qt::ItemFlags PdmUiTreeViewModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
+    {
         return Qt::ItemIsEnabled;
+    }
 
     Qt::ItemFlags flagMask = QAbstractItemModel::flags(index);
 
-    PdmUiTreeItem* treeItem = getTreeItemFromIndex(index);
-    if (treeItem)
+    PdmUiTreeOrdering* treeItem = treeItemFromIndex(index);
+    assert(treeItem);
+
+    if (treeItem->isRepresentingObject())
     {
-        PdmObject* pdmObject = treeItem->dataObject()->object();
-        if (pdmObject)
+        PdmUiObjectHandle* pdmUiObject = uiObj(treeItem->object());
+        if (pdmUiObject)
         {
-            if (pdmObject->userDescriptionField() && !pdmObject->userDescriptionField()->isUiReadOnly())
+            if (pdmUiObject->userDescriptionField() && !pdmUiObject->userDescriptionField()->uiCapability()->isUiReadOnly())
             {
                 flagMask = flagMask | Qt::ItemIsEditable;
             }
 
-            if (pdmObject->objectToggleField())
+            if (pdmUiObject->objectToggleField())
             {
                 flagMask = flagMask | Qt::ItemIsUserCheckable;
             }
-
-            if (pdmObject->isUiReadOnly())
-            {
-                flagMask = flagMask & (~Qt::ItemIsEnabled);
-            }
-
         }
     }
-    else
+
+    if (treeItem->isValid())
     {
-        flagMask = flagMask & (~Qt::ItemIsEditable);
+        if (treeItem->activeItem()->isUiReadOnly())
+        {
+            flagMask = flagMask & (~Qt::ItemIsEnabled);
+        }
+    }
+
+    if (m_dragDropInterface)
+    {
+        Qt::ItemFlags dragDropFlags = m_dragDropInterface->flags(index);
+        flagMask |= dragDropFlags;
     }
 
     return flagMask;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// Refreshes the UI-tree below the supplied root PdmObject
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::updateUiSubTree(PdmObject* pdmRoot)
-{
-    // Build the new "Correct" Tree
-
-    PdmUiTreeOrdering* tempUpdatedPdmTree = pdmRoot->uiTreeOrdering();
-
-    // Find the corresponding entry for "root" in the existing Ui tree
-
-    QModelIndex uiSubTreeRootModelIdx = getModelIndexFromPdmObject(pdmRoot);
-
-    PdmUiTreeItem* uiModelSubTreeRoot = NULL;
-    if (uiSubTreeRootModelIdx.isValid())
-    {
-        uiModelSubTreeRoot = getTreeItemFromIndex(uiSubTreeRootModelIdx);
-    }
-    else
-    {
-        uiModelSubTreeRoot = m_treeItemRoot;
-    }
-
- 
-    updateModelSubTree(uiSubTreeRootModelIdx, uiModelSubTreeRoot, tempUpdatedPdmTree);
- 
-    delete tempUpdatedPdmTree;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Makes the destinationSubTreeRoot tree become identical to the tree in sourceSubTreeRoot, 
-/// calling begin..() end..() to make the UI update accordingly.
-/// This assumes that all the items have a pointer an unique PdmObject 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::updateModelSubTree(const QModelIndex& modelIdxOfDestinationSubTreeRoot, PdmUiTreeItem* destinationSubTreeRoot, PdmUiTreeItem* sourceSubTreeRoot)
-{
-    // First loop over children in the old ui tree, deleting the ones not present in 
-    // the newUiTree
-
-    for (int resultChildIdx = 0; resultChildIdx < destinationSubTreeRoot->childCount() ; ++resultChildIdx)
-    {
-        PdmUiTreeItem* oldChild = destinationSubTreeRoot->child(resultChildIdx);
-        int childIndex = sourceSubTreeRoot->findChildItemIndex(oldChild->dataObject());
-
-        if (childIndex == -1) // Not found
-        {
-            this->beginRemoveRows(modelIdxOfDestinationSubTreeRoot, resultChildIdx, resultChildIdx);
-            destinationSubTreeRoot->removeChildren(resultChildIdx, 1);
-            this->endRemoveRows();
-            resultChildIdx--;
-        }
-    }
-
-    // Then loop over the children in the new ui tree, finding the corresponding items in the old tree. 
-    // If they are found, we move them to the correct position. 
-    // If not found, we pulls the item out of the old ui tree, inserting it into the new tree to avoid the default delete operation in ~UiTreeItem()
-
-    int sourceChildCount = sourceSubTreeRoot->childCount();
-    int sourceChildIdx = 0;
-
-    for (int resultChildIdx = 0; resultChildIdx < sourceChildCount; ++resultChildIdx, ++sourceChildIdx)
-    {
-        PdmUiTreeItem* newChild = sourceSubTreeRoot->child(sourceChildIdx);
-        int childIndex = destinationSubTreeRoot->findChildItemIndex(newChild->dataObject());
-
-        if (childIndex == -1) // Not found
-        {
-            this->beginInsertRows(modelIdxOfDestinationSubTreeRoot, resultChildIdx, resultChildIdx);
-            destinationSubTreeRoot->insertChild(resultChildIdx, newChild);
-            this->endInsertRows();
-            sourceSubTreeRoot->removeChildrenNoDelete(sourceChildIdx, 1);
-            sourceChildIdx--;
-        }
-        else if (childIndex != resultChildIdx) // Found, but must be moved
-        {
-            assert(childIndex > resultChildIdx);
-
-            PdmUiTreeItem* oldChild = destinationSubTreeRoot->child(childIndex);
-            this->beginMoveRows(modelIdxOfDestinationSubTreeRoot, childIndex, childIndex, modelIdxOfDestinationSubTreeRoot, resultChildIdx);
-            destinationSubTreeRoot->removeChildrenNoDelete(childIndex, 1);
-            destinationSubTreeRoot->insertChild(resultChildIdx, oldChild);
-            this->endMoveRows();
-            updateModelSubTree( index(resultChildIdx, 0, modelIdxOfDestinationSubTreeRoot), oldChild, newChild);
-        }
-        else // Found the corresponding item in the right place.
-        {
-            PdmUiTreeItem* oldChild = destinationSubTreeRoot->child(childIndex);
-            updateModelSubTree( index(resultChildIdx, 0, modelIdxOfDestinationSubTreeRoot), oldChild, newChild);
-        }
-    }
-
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUiTreeItem* PdmUiTreeViewModel::treeItemRoot()
-{
-    return m_treeItemRoot;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::notifyModelChanged()
-{
-    QModelIndex startModelIdx = index(0,0);
-    QModelIndex endModelIdx = index(rowCount(startModelIdx), 0);
-
-    emit dataChanged(startModelIdx, endModelIdx);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -498,70 +778,92 @@ QVariant PdmUiTreeViewModel::headerData(int section, Qt::Orientation orientation
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewModel::setColumnHeaders(const QStringList& columnHeaders)
+PdmUiItem* PdmUiTreeViewModel::uiItemFromModelIndex(const QModelIndex& index) const
 {
-    m_columnHeaders = columnHeaders;
-}
-
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUiTreeItem* caf::PdmUiTreeViewModel::getTreeItemFromIndex(const QModelIndex& index)
-{
-    if (index.isValid())
+    PdmUiTreeOrdering* treeItem = this->treeItemFromIndex(index);
+    if (treeItem)
     {
-        assert(index.internalPointer());
-
-        PdmUiTreeItem* treeItem = static_cast<PdmUiTreeItem*>(index.internalPointer());
-        return treeItem;
+        return treeItem->activeItem();
     }
-
+    
     return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::PdmUiTreeViewModel::getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const
+void PdmUiTreeViewModel::setDragDropInterface(PdmUiDragDropInterface* dragDropInterface)
 {
-    if (currentIndex.internalPointer())
-    {
-        PdmUiTreeItem* treeItem = static_cast<PdmUiTreeItem*>(currentIndex.internalPointer());
-        if (treeItem->dataObject()->object() == object) return currentIndex;
-    }
-
-   int row;
-   for (row = 0; row < rowCount(currentIndex); ++row)
-   {
-       QModelIndex foundIndex = getModelIndexFromPdmObjectRecursive(index(row, 0, currentIndex), object);
-       if (foundIndex.isValid()) return foundIndex;
-   }
-   return QModelIndex();
+    m_dragDropInterface = dragDropInterface;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::PdmUiTreeViewModel::getModelIndexFromPdmObject( const PdmObject * object) const
+PdmUiDragDropInterface* PdmUiTreeViewModel::dragDropInterface()
 {
-   QModelIndex foundIndex;
-   int numRows = rowCount(QModelIndex());
-   int r = 0;
-   while (r < numRows && !foundIndex.isValid())
-   {
-      foundIndex = getModelIndexFromPdmObjectRecursive(index(r, 0, QModelIndex()), object);
-      ++r;
-   }
-   return foundIndex;
+    return m_dragDropInterface;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList PdmUiTreeViewModel::mimeTypes() const
+{
+    if (m_dragDropInterface)
+    {
+        return m_dragDropInterface->mimeTypes();
+    }
+    else
+    {
+        return QAbstractItemModel::mimeTypes();
+    }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QMimeData * PdmUiTreeViewModel::mimeData(const QModelIndexList &indexes) const
+{
+    if (m_dragDropInterface)
+    {
+        return m_dragDropInterface->mimeData(indexes);
+    }
+    else
+    {
+        return QAbstractItemModel::mimeData(indexes);
+    }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (m_dragDropInterface)
+    {
+        return m_dragDropInterface->dropMimeData(data, action, row, column, parent);
+    }
+    else
+    {
+        return QAbstractItemModel::dropMimeData(data, action, row, column, parent);
+    }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Qt::DropActions PdmUiTreeViewModel::supportedDropActions() const
+{
+    if (m_dragDropInterface)
+    {
+        return m_dragDropInterface->supportedDropActions();
+    }
+    else
+    {
+        return QAbstractItemModel::supportedDropActions();
+    }
+}
 
 
 } // end namespace caf

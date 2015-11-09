@@ -37,15 +37,14 @@
 
 #include "cafPdmUiListViewEditor.h"
 
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmObjectGroup.h"
 #include "cafPdmUiEditorHandle.h"
-#include "cafUiTreeModelPdm.h"
-#include "cafPdmDocument.h"
 
-#include <QWidget>
 #include <QGridLayout>
 #include <QTableView>
+#include <QWidget>
 
 
 
@@ -55,7 +54,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-UiTableModelPdm::UiTableModelPdm(QObject* parent)
+UiListViewModelPdm::UiListViewModelPdm(QObject* parent)
     : QAbstractTableModel(parent)
 {
     m_columnCount = 0;
@@ -65,7 +64,7 @@ UiTableModelPdm::UiTableModelPdm(QObject* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int UiTableModelPdm::rowCount(const QModelIndex &parent /*= QModelIndex( ) */) const
+int UiListViewModelPdm::rowCount(const QModelIndex &parent /*= QModelIndex( ) */) const
 {
     if (!m_pdmObjectGroup)
     {
@@ -78,7 +77,7 @@ int UiTableModelPdm::rowCount(const QModelIndex &parent /*= QModelIndex( ) */) c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int UiTableModelPdm::columnCount(const QModelIndex &parent /*= QModelIndex( ) */) const
+int UiListViewModelPdm::columnCount(const QModelIndex &parent /*= QModelIndex( ) */) const
 {
     if (!m_pdmObjectGroup)
     {
@@ -96,7 +95,7 @@ int UiTableModelPdm::columnCount(const QModelIndex &parent /*= QModelIndex( ) */
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void UiTableModelPdm::computeColumnCount()
+void UiListViewModelPdm::computeColumnCount()
 {
     if (m_editorAttribute.fieldNames.size() > 0)
     {
@@ -123,7 +122,7 @@ void UiTableModelPdm::computeColumnCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QVariant UiTableModelPdm::headerData(int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */) const
+QVariant UiListViewModelPdm::headerData(int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */) const
 {
     return QVariant(QString("Header %1").arg(section));
 }
@@ -131,13 +130,13 @@ QVariant UiTableModelPdm::headerData(int section, Qt::Orientation orientation, i
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QVariant caf::UiTableModelPdm::data(const QModelIndex &index, int role /*= Qt::DisplayRole */) const
+QVariant caf::UiListViewModelPdm::data(const QModelIndex &index, int role /*= Qt::DisplayRole */) const
 {
     if (m_pdmObjectGroup && (role == Qt::DisplayRole || role == Qt::EditRole))
     {
         if (index.row() < static_cast<int>(m_pdmObjectGroup->objects.size()))
         {
-            PdmObject* pdmObject = m_pdmObjectGroup->objects[index.row()];
+            PdmObjectHandle* pdmObject = m_pdmObjectGroup->objects[index.row()];
             if (pdmObject)
             {
                 std::vector<PdmFieldHandle*> fields;
@@ -164,7 +163,15 @@ QVariant caf::UiTableModelPdm::data(const QModelIndex &index, int role /*= Qt::D
                         fieldIndex = index.column();
                     }
 
-                    return fields[fieldIndex]->uiValue();
+                    PdmUiFieldHandle* uiFieldHandle = fields[fieldIndex]->uiCapability();
+                    if (uiFieldHandle)
+                    {
+                        return uiFieldHandle->uiValue();
+                    }
+                    else
+                    {
+                        return QVariant();
+                    }
                 }
             }
         }
@@ -177,14 +184,18 @@ QVariant caf::UiTableModelPdm::data(const QModelIndex &index, int role /*= Qt::D
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::UiTableModelPdm::setPdmData(PdmObjectGroup* objectGroup, const QString& configName)
+void caf::UiListViewModelPdm::setPdmData(PdmObjectCollection* objectGroup, const QString& configName)
 {
     m_pdmObjectGroup = objectGroup;
     m_configName = configName;
 
     if (m_pdmObjectGroup)
     {
-        m_pdmObjectGroup->objectEditorAttribute(m_configName, &m_editorAttribute);
+        caf::PdmUiObjectHandle* uiObject = uiObj(m_pdmObjectGroup);
+        if (uiObject)
+        {
+            uiObject->objectEditorAttribute(m_configName, &m_editorAttribute);
+        }
     }
 
     computeColumnCount();
@@ -217,7 +228,7 @@ QWidget* PdmUiListViewEditor::createWidget(QWidget* parent)
     m_layout     = new QVBoxLayout();
     m_mainWidget->setLayout(m_layout);
 
-    m_tableModelPdm = new UiTableModelPdm(m_mainWidget);
+    m_tableModelPdm = new UiListViewModelPdm(m_mainWidget);
 
     m_tableView = new QTableView(m_mainWidget);
     m_tableView->setShowGrid(false);
@@ -233,7 +244,7 @@ QWidget* PdmUiListViewEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiListViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    PdmObjectGroup* objectGroup = dynamic_cast<PdmObjectGroup*>(pdmObject());
+    PdmObjectCollection* objectGroup = dynamic_cast<PdmObjectCollection*>(pdmObject());
     m_tableModelPdm->setPdmData(objectGroup, uiConfigName);
 
     m_tableView->resizeColumnsToContents();

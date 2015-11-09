@@ -21,6 +21,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -84,14 +85,12 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmField<RimEclipseCellColors*>                cellResult;
-    caf::PdmField<RimCellEdgeColors*>                   cellEdgeResult;
-    caf::PdmField<RimEclipseFaultColors*>               faultResultSettings;
+    caf::PdmChildField<RimEclipseCellColors*>                cellResult;
+    caf::PdmChildField<RimCellEdgeColors*>                   cellEdgeResult;
+    caf::PdmChildField<RimEclipseFaultColors*>               faultResultSettings;
 
-    caf::PdmField<RimEclipsePropertyFilterCollection*>  propertyFilterCollection;
-
-    caf::PdmField<RimEclipseWellCollection*>            wellCollection;
-    caf::PdmField<RimFaultCollection*>                  faultCollection;
+    caf::PdmChildField<RimEclipseWellCollection*>            wellCollection;
+    caf::PdmChildField<RimFaultCollection*>                  faultCollection;
 
     // Fields
 
@@ -100,6 +99,10 @@ public:
     caf::PdmField<bool>                             showMainGrid;
 
     // Access internal objects
+
+    RimEclipsePropertyFilterCollection*             propertyFilterCollection();
+    const RimEclipsePropertyFilterCollection*       propertyFilterCollection() const;
+    void                                            setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc);
 
     RimReservoirCellResultsStorage*                 currentGridCellResults();
     RigActiveCellInfo*                              currentActiveCellInfo();
@@ -126,9 +129,12 @@ public:
 
     // Overridden PDM methods:
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                                            updateIconStateForFilterCollections();
+
 protected:
     virtual void                                    initAfterRead();
     virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
     void                                            createDisplayModel();
@@ -147,7 +153,7 @@ private:
     virtual void                                    updateViewerWidgetWindowTitle();
 
     std::vector<RivCellSetEnum>                     visibleFaultGeometryTypes() const;
-    void                                            updateFaultForcedVisibility();
+    void                                            forceFaultVisibilityOn();
     void                                            updateFaultColors();
 
     void                                            syncronizeWellsWithResults();
@@ -160,6 +166,11 @@ private:
     void                                            clampCurrentTimestep();
 
     virtual RimCase*                                ownerCase();
+
+    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
+
+    caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
+    caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
     caf::PdmPointer<RimEclipseCase>                 m_reservoir;
 

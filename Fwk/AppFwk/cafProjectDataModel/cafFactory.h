@@ -39,6 +39,25 @@
 
 #include <assert.h>
 #include <map>
+#include <cstddef>
+
+// Taken from gtest.h
+//
+// Due to C++ preprocessor weirdness, we need double indirection to
+// concatenate two tokens when one of them is __LINE__.  Writing
+//
+//   foo ## __LINE__
+//
+// will result in the token foo__LINE__, instead of foo followed by
+// the current line number.  For more details, see
+// http://www.parashift.com/c++-faq-lite/misc-technical-issues.html#faq-39.6
+#define CAF_FACTORY_CONCATENATE_STRINGS(foo, bar) CAF_FACTORY_CONCATENATE_STRINGS_IMPL_(foo, bar)
+#define CAF_FACTORY_CONCATENATE_STRINGS_IMPL_(foo, bar) foo ## bar
+
+#define CAF_UNIQUE_COMPILE_UNIT_VAR_NAME CAF_FACTORY_CONCATENATE_STRINGS(caf_factory_init_, __LINE__)
+
+#define CAF_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key) \
+static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key)
 
 namespace caf
 {
@@ -55,6 +74,8 @@ namespace caf
     ///     That is useful if you do not want a centralized registering (but rather making each class register itself):
     ///
     ///     static bool uniqueVarname = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
+    ///
+    ///     You can also use the macro CAF_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key)
     ///
     ///     See also cafPdmUiFieldEditorHandle.h for an advanced example.
     ///

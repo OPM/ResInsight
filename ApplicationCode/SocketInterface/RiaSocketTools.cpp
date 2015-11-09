@@ -18,31 +18,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
+#include "RiaSocketTools.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-
-#include "RiaSocketTools.h"
+#include "RiaSocketDataTransfer.h"
 #include "RiaSocketServer.h"
-#include "RimEclipseCase.h"
-#include "RimCaseCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimEclipseInputCase.h"
 
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimEclipseInputPropertyCollection.h"
-
-#include "RiaSocketDataTransfer.h"
-
+#include <QErrorMessage>
 #include <QTcpSocket>
 
 //--------------------------------------------------------------------------------------------------

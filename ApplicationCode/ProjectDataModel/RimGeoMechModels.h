@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -37,7 +38,7 @@ public:
     RimGeoMechModels(void);
     virtual ~RimGeoMechModels(void);
 
-    caf::PdmPointersField<RimGeoMechCase*>                     cases;
+    caf::PdmChildArrayField<RimGeoMechCase*> cases;
 
 private:
 };

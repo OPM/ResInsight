@@ -89,7 +89,11 @@ void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
-    field()->ownerObject()->editorAttribute(field(), uiConfigName, &m_attributes);
+    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+    }
 
     QColor col = field()->uiValue().value<QColor>();
     setColor(col);

@@ -38,6 +38,12 @@ class ErtScript(object):
     def cancel(self):
         self.__is_cancelled = True
 
+    def cleanup(self):
+        """
+        Override to perform cleanup after a run.
+        """
+        pass
+
     def initializeAndRun(self, argument_types, argument_values, verbose=False):
         """
         @type argument_types: list of type
@@ -66,10 +72,11 @@ class ErtScript(object):
             return self.run(*arguments)
         except Exception as e:
             sys.stderr.write("The script '%s' caused an error while running:\n" % self.__class__.__name__)
-            traceback.print_exception(sys.exc_type, sys.exc_value, sys.exc_traceback)
             self.__failed = True
             stack_trace = traceback.format_exception(sys.exc_type, sys.exc_value, sys.exc_traceback)
             return "".join(stack_trace)
+        finally:
+            self.cleanup()
 
 
     __module_count = 0 # Need to have unique modules in case of identical object naming in scripts

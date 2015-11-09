@@ -1,6 +1,7 @@
 set(PYTHON_SOURCES
     __init__.py
     default_boolean_model.py
+    default_choice_list_model.py
     default_name_format_model.py
     default_path_model.py
     function_button_model.py

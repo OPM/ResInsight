@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -41,5 +42,5 @@ public:
     virtual caf::PdmFieldHandle* userDescriptionField();
     
     caf::PdmField<QString>                      name;
-    caf::PdmPointersField<RimNoCommonAreaNNC*>  noCommonAreaNncs;
+    caf::PdmChildArrayField<RimNoCommonAreaNNC*>  noCommonAreaNncs;
 };

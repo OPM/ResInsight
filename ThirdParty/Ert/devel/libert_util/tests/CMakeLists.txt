@@ -10,6 +10,11 @@ set(PING_SERVERS "" CACHE STRING  "List of servers for testing ping")
 
 link_directories( ${ERT_BINARY_DIR}/libert_util/src )
 
+add_executable( test_thread_pool test_thread_pool.c )
+target_link_libraries( test_thread_pool ert_util test_util )
+add_test( test_thread_pool valgrind --error-exitcode=1 --tool=memcheck ${EXECUTABLE_OUTPUT_PATH}/test_thread_pool )
+
+
 add_executable( ert_util_type_vector_test ert_util_type_vector_test.c )
 target_link_libraries( ert_util_type_vector_test ert_util test_util )
 add_test( ert_util_type_vector_test ${EXECUTABLE_OUTPUT_PATH}/ert_util_type_vector_test )
@@ -18,9 +23,18 @@ add_executable( ert_util_matrix ert_util_matrix.c )
 target_link_libraries( ert_util_matrix ert_util test_util )
 add_test( ert_util_matrix ${EXECUTABLE_OUTPUT_PATH}/ert_util_matrix )
 
+add_executable( ert_util_subst_list ert_util_subst_list.c )
+target_link_libraries( ert_util_subst_list ert_util test_util )
+add_test( ert_util_subst_list ${EXECUTABLE_OUTPUT_PATH}/ert_util_subst_list )
+
+
 add_executable( ert_util_matrix_stat ert_util_matrix_stat.c )
 target_link_libraries( ert_util_matrix_stat ert_util test_util )
 add_test( ert_util_matrix_stat ${EXECUTABLE_OUTPUT_PATH}/ert_util_matrix_stat )
+
+add_executable( ert_util_buffer ert_util_buffer.c )
+target_link_libraries( ert_util_buffer ert_util test_util )
+add_test( ert_util_buffer ${EXECUTABLE_OUTPUT_PATH}/ert_util_buffer )
 
 add_executable( ert_util_statistics ert_util_statistics.c )
 target_link_libraries( ert_util_statistics ert_util test_util )
@@ -145,6 +159,10 @@ add_test( ert_util_strstr_int_format  ${EXECUTABLE_OUTPUT_PATH}/ert_util_strstr_
 add_executable( ert_util_parent_path ert_util_parent_path.c )
 target_link_libraries( ert_util_parent_path ert_util test_util )
 add_test( ert_util_parent_path ${EXECUTABLE_OUTPUT_PATH}/ert_util_parent_path)
+
+add_executable( ert_util_alloc_file_components ert_util_alloc_file_components.c )
+target_link_libraries( ert_util_alloc_file_components ert_util test_util )
+add_test( ert_util_alloc_file_components ${EXECUTABLE_OUTPUT_PATH}/ert_util_alloc_file_components)
 
 add_executable( ert_util_work_area ert_util_work_area.c )
 target_link_libraries( ert_util_work_area ert_util test_util )

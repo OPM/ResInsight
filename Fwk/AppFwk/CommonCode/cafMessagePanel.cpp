@@ -61,13 +61,13 @@ MessagePanel* MessagePanel::sm_messagePanelInstance = NULL;
 MessagePanel::MessagePanel(QDockWidget* parent)
 :   QWidget(parent)
 {
-	m_textEdit = new QTextEdit(this);
-	m_textEdit->setReadOnly(true);
-	m_textEdit->setLineWrapMode(QTextEdit::NoWrap);
+    m_textEdit = new QTextEdit(this);
+    m_textEdit->setReadOnly(true);
+    m_textEdit->setLineWrapMode(QTextEdit::NoWrap);
 
-	QVBoxLayout* layout = new QVBoxLayout();
-	layout->addWidget(m_textEdit);
-	setLayout(layout);
+    QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(m_textEdit);
+    setLayout(layout);
 
     sm_messagePanelInstance = this;
 }
@@ -78,13 +78,13 @@ MessagePanel::MessagePanel(QDockWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void MessagePanel::showInfo(QString info)
 {
-	convertStringToHTML(&info);
+    convertStringToHTML(&info);
 
-	QString str = "<font color='green'>";
-	str += info;
-	str += "</font>";
+    QString str = "<font color='green'>";
+    str += info;
+    str += "</font>";
 
-	m_textEdit->append(str);
+    m_textEdit->append(str);
 }
 
 
@@ -93,13 +93,13 @@ void MessagePanel::showInfo(QString info)
 //--------------------------------------------------------------------------------------------------
 void MessagePanel::showWarning(QString warn)
 {
-	convertStringToHTML(&warn);
+    convertStringToHTML(&warn);
 
-	QString str = "<font color='maroon'>";
-	str += warn;
-	str += "</font>";
-	
-	m_textEdit->append(str);
+    QString str = "<font color='maroon'>";
+    str += warn;
+    str += "</font>";
+    
+    m_textEdit->append(str);
 }
 
 
@@ -108,13 +108,13 @@ void MessagePanel::showWarning(QString warn)
 //--------------------------------------------------------------------------------------------------
 void MessagePanel::showError(QString error)
 {
-	convertStringToHTML(&error);
+    convertStringToHTML(&error);
 
-	QString str = "<b><font color='red'>";
-	str += error;
-	str += "</font></b>";
+    QString str = "<b><font color='red'>";
+    str += error;
+    str += "</font></b>";
 
-	m_textEdit->append(str);
+    m_textEdit->append(str);
 }
 
 
@@ -123,8 +123,8 @@ void MessagePanel::showError(QString error)
 //--------------------------------------------------------------------------------------------------
 void MessagePanel::convertStringToHTML(QString* str)
 {
-	str->replace("\n", "<br>");
-	str->replace(" ", "&nbsp;");
+    str->replace("\n", "<br>");
+    str->replace(" ", "&nbsp;");
 }
 
 
@@ -143,15 +143,15 @@ QSize MessagePanel::sizeHint () const
 //--------------------------------------------------------------------------------------------------
 bool MessagePanel::isVisibleToUser()
 {
-	if (!isVisible()) return false;
+    if (!isVisible()) return false;
 
-	if (!m_textEdit) return false;
-	if (!m_textEdit->isVisible()) return false;
+    if (!m_textEdit) return false;
+    if (!m_textEdit->isVisible()) return false;
 
-	QRegion rgn = m_textEdit->visibleRegion();
-	if (rgn.isEmpty()) return false;
+    QRegion rgn = m_textEdit->visibleRegion();
+    if (rgn.isEmpty()) return false;
 
-	return true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -10,11 +10,10 @@ include_directories(
     ${LibViewing_SOURCE_DIR}
 
     ${ResInsight_SOURCE_DIR}/ThirdParty
-    ${ResInsight_SOURCE_DIR}/CommonCode
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
-
-
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ModelVisualization
+    
+    ${CommonCode_SOURCE_DIR}
 )
 
 set( MODEL_VISUALIZATION_CPP_SOURCES

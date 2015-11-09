@@ -32,7 +32,7 @@
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafPdmSettings.h"
-#include "cafPdmUiPropertyDialog.h"
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -49,17 +49,17 @@ RimEclipseResultCase::RimEclipseResultCase()
     CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
-    caseFileName.setUiReadOnly(true);
+    caseFileName.uiCapability()->setUiReadOnly(true);
 
     // Obsolete, unused field
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
-    caseDirectory.setIOWritable(false); 
-    caseDirectory.setUiHidden(true);
+    caseDirectory.xmlCapability()->setIOWritable(false); 
+    caseDirectory.uiCapability()->setUiHidden(true);
 
-    flipXAxis.setIOWritable(true);
-    //flipXAxis.setUiHidden(true);
-    flipYAxis.setIOWritable(true);
-    //flipYAxis.setUiHidden(true);
+    flipXAxis.xmlCapability()->setIOWritable(true);
+    //flipXAxis.uiCapability()->setUiHidden(true);
+    flipYAxis.xmlCapability()->setIOWritable(true);
+    //flipYAxis.uiCapability()->setUiHidden(true);
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -248,14 +248,14 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 
         RimMockModelSettings rimMockModelSettings;
-        caf::Settings::readFieldsFromApplicationStore(&rimMockModelSettings);
+        caf::PdmSettings::readFieldsFromApplicationStore(&rimMockModelSettings);
 
-        caf::PdmUiPropertyDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model");
+        caf::PdmUiPropertyViewDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model", "");
         if (propertyDialog.exec() == QDialog::Accepted)
         {
             QApplication::restoreOverrideCursor();
 
-            caf::Settings::writeFieldsToApplicationStore(&rimMockModelSettings);
+            caf::PdmSettings::writeFieldsToApplicationStore(&rimMockModelSettings);
 
             double startX = 0;
             double startY = 0;

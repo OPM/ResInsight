@@ -36,4 +36,5 @@ class RigWellPath : public cvf::Object
 {
 public:
     std::vector<cvf::Vec3d>             m_wellPathPoints;
+    std::vector<double>                 m_measuredDepths;
 };

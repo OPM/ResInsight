@@ -10,3 +10,5 @@ Contents:
    keywords/index
    workflows/index
    observations/index
+   distributions/index
+   localization/index

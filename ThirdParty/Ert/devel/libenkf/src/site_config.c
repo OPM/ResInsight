@@ -581,11 +581,6 @@ static void site_config_set_job_queue__(site_config_type * site_config, job_driv
     site_config->driver_type_site = driver_type;
 }
 
-void site_config_set_job_queue(site_config_type * site_config, const char * queue_name) {
-  job_driver_type driver_type = job_queue_lookup_driver_name(queue_name);
-  site_config_set_job_queue__(site_config, driver_type);
-}
-
 bool site_config_queue_is_running(const site_config_type * site_config) {
   return job_queue_is_running(site_config->job_queue);
 }

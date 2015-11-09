@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemPartGrid::RigFemPartGrid(RigFemPart* femPart)
+RigFemPartGrid::RigFemPartGrid(const RigFemPart* femPart)
 {
     m_femPart = femPart;
     generateStructGridData();
@@ -172,6 +172,16 @@ void RigFemPartGrid::generateStructGridData()
 
         if (kCoord > static_cast<int>(m_elmentIJKCounts[2])) m_elmentIJKCounts[2] = kCoord;
     }
+
+
+    
+    m_elmIdxPrIJK.resize(m_elmentIJKCounts[0], m_elmentIJKCounts[1],m_elmentIJKCounts[2]);
+    
+    for (int elmIdx = 0; elmIdx < m_femPart->elementCount(); ++elmIdx)
+    {
+        cvf::Vec3i ijk = m_ijkPrElement[elmIdx];
+        m_elmIdxPrIJK.at(ijk[0], ijk[1],  ijk[2]) = elmIdx;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,8 +198,8 @@ int RigFemPartGrid::findElmIdxForIJK000()
         cvf::Vec3i ijkMainFaceIndices = findMainIJKFaces(elmIdx);
 
         if (   m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1
-            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1
-            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[0]) != -1 ) 
+            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[1]) != -1
+            && m_femPart->elementNeighbor(elmIdx, ijkMainFaceIndices[2]) != -1 ) 
         {
             return elmIdx;
         }
@@ -201,7 +211,7 @@ int RigFemPartGrid::findElmIdxForIJK000()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex)
+cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex) const
 {
     cvf::Vec3i ijkMainFaceIndices = cvf::Vec3i(-1, -1, -1);
 
@@ -216,7 +226,7 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex)
     // Record three independent main direction vectors for the element, and what face they are created from
     cvf::Vec3f mainElmDirections[3];
     int mainElmDirOriginFaces[3];
-    if (eType == HEX8)
+    if (eType == HEX8 || eType == HEX8P)
     {
         mainElmDirections[0] = normals[0] - normals[1]; // To get a better "average" direction vector
         mainElmDirections[1] = normals[2] - normals[3];
@@ -380,8 +390,7 @@ bool RigFemPartGrid::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::cellIndexFromIJK(size_t i, size_t j, size_t k) const
 {
-    CVF_ASSERT(false);
-    return cvf::UNDEFINED_SIZE_T;
+    return m_elmIdxPrIJK.at(i,j,k);
 }
 
 //--------------------------------------------------------------------------------------------------

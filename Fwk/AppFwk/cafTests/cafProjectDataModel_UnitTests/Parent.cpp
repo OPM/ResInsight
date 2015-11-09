@@ -1,11 +1,12 @@
+#include "Child.h"
 #include "Parent.h"
-//#include "Child.h"
 
 CAF_PDM_SOURCE_INIT(Parent, "Parent");
 
 
 Parent::Parent()
 {
+    CAF_PDM_InitObject("Parent", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_simpleObjectsField, "SimpleObjects",  "A child object", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_simpleObjectF, "SimpleObject",  "A child object", "", "", "");
 }

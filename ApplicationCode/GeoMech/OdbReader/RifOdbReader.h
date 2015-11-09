@@ -41,7 +41,7 @@ public:
     RifOdbReader();
     virtual ~RifOdbReader();
 
-	virtual bool                                                openFile(const std::string& fileName, std::string* errorMessage);
+    virtual bool                                                openFile(const std::string& fileName, std::string* errorMessage);
 
     virtual bool                                                readFemParts(RigFemPartCollection* geoMechCase);
     virtual std::vector<std::string>                            stepNames();
@@ -63,9 +63,9 @@ public:
 private:
     enum ResultPosition
     {
-	    NODAL,
-	    ELEMENT_NODAL,
-	    INTEGRATION_POINT
+        NODAL,
+        ELEMENT_NODAL,
+        INTEGRATION_POINT
     };
 
     class RifOdbResultKey
@@ -93,7 +93,7 @@ private:
     size_t                                                  resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex);
     size_t                                                  componentsCount(const std::string& fieldName, ResultPosition position);
     const odb_Frame&                                        stepFrame(int stepIndex, int frameIndex) const;
-    odb_Instance*									        instance(int instanceIndex);
+    odb_Instance*                                            instance(int instanceIndex);
 
     int                                                     componentIndex(const RifOdbResultKey& result, const std::string& componentName);
     std::vector<std::string>                                componentNames(const RifOdbResultKey& result);
@@ -108,5 +108,5 @@ private:
     std::vector< std::map<int, int> >                       m_nodeIdToIdxMaps;
     std::vector< std::map<int, int> >                       m_elementIdToIdxMaps;
 
-	static size_t                                           sm_instanceCount;
+    static size_t                                           sm_instanceCount;
 };

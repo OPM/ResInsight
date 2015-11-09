@@ -124,7 +124,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
             
             // Set default effect
             caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), caf::PO_1);
-            cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
+            cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
             part->setEffect(geometryOnlyEffect.p());
             part->setEnableMask(surfaceBit);
             m_surfaceFaces = part;
@@ -154,7 +154,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 
             cvf::ref<cvf::Effect> eff;
             caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
-            eff = effGen.generateEffect();
+            eff = effGen.generateCachedEffect();
 
             // Set priority to make sure fault lines are rendered first
             part->setPriority(10);
@@ -186,7 +186,7 @@ void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen(color, caf::PO_1);
-    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
+    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
 
     if (m_surfaceFaces.notNull()) m_surfaceFaces->setEffect(geometryOnlyEffect.p());
 
@@ -206,7 +206,7 @@ void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
     if (m_surfaceFaces.notNull())
     {
         caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
-        eff = effGen.generateEffect();
+        eff = effGen.generateCachedEffect();
         m_surfaceGridLines->setEffect(eff.p());
     }
 }
@@ -234,16 +234,19 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
 
         RigFemResultAddress resVarAddress = cellResultColors->resultAddress();
 
+        // Do a "Hack" to show elm nodal and not nodal POR results
+        if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+
         const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
 
         const std::vector<size_t>* vxToResultMapping = NULL;
 
-        if (cellResultColors->resultPositionType() == RIG_NODAL)
+        if (resVarAddress.resultPosType == RIG_NODAL)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToNodeIdxMapping());
         }
-        else if (   cellResultColors->resultPositionType() == RIG_ELEMENT_NODAL 
-                 || cellResultColors->resultPositionType() == RIG_INTEGRATION_POINT)
+        else if (   resVarAddress.resultPosType == RIG_ELEMENT_NODAL 
+                 || resVarAddress.resultPosType == RIG_INTEGRATION_POINT)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmNodeIdx());
         }
@@ -288,7 +291,11 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
             }
         }
 
-        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
+        RimView* view = NULL;
+        cellResultColors->firstAnchestorOrThisOfType(view);
+        CVF_ASSERT(view);
+
+        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, view->isLightingDisabled());
     }
 }
 

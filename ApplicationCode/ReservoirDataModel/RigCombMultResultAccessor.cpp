@@ -22,6 +22,8 @@
 #include "RigGridBase.h"
 
 #include <cmath>
+#include "RigCell.h"
+#include "RigMainGrid.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -145,5 +147,24 @@ double RigCombMultResultAccessor::nativeMultScalar(size_t gridLocalCellIndex, cv
     }
 
     return faceScalar;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCombMultResultAccessor::cellScalarGlobIdx(size_t globCellIndex) const
+{
+    CVF_TIGHT_ASSERT(false);
+
+    return HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCombMultResultAccessor::cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const
+{
+    size_t gridLocalCellIndex = m_grid->mainGrid()->cell(globCellIndex).gridLocalCellIndex();
+    return this->cellFaceScalar(gridLocalCellIndex, faceId);
 }
 

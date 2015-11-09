@@ -30,7 +30,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigNativeStatCalc::RigNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
-	: m_resultsData(cellResultsData),
+    : m_resultsData(cellResultsData),
     m_scalarResultIndex(scalarResultIndex)
 {
 
@@ -41,26 +41,26 @@ RigNativeStatCalc::RigNativeStatCalc(RigCaseCellResultsData* cellResultsData, si
 //--------------------------------------------------------------------------------------------------
 void RigNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
-	std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+    std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
-	size_t i;
-	for (i = 0; i < values.size(); i++)
-	{
-		if (values[i] == HUGE_VAL)
-		{
-			continue;
-		}
+    size_t i;
+    for (i = 0; i < values.size(); i++)
+    {
+        if (values[i] == HUGE_VAL)
+        {
+            continue;
+        }
 
-		if (values[i] < min)
-		{
-			min = values[i];
-		}
+        if (values[i] < min)
+        {
+            min = values[i];
+        }
 
-		if (values[i] > max)
-		{
-			max = values[i];
-		}
-	}
+        if (values[i] > max)
+        {
+            max = values[i];
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,24 +70,24 @@ void RigNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, d
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
-	size_t i;
-	for (i = 0; i < values.size(); i++)
-	{
-		if (values[i] == HUGE_VAL)
-		{
-			continue;
-		}
+    size_t i;
+    for (i = 0; i < values.size(); i++)
+    {
+        if (values[i] == HUGE_VAL)
+        {
+            continue;
+        }
 
-		if (values[i] < pos && values[i] > 0)
-		{
-			pos = values[i];
-		}
+        if (values[i] < pos && values[i] > 0)
+        {
+            pos = values[i];
+        }
 
-		if (values[i] > neg && values[i] < 0)
-		{
-			neg = values[i];
-		}
-	}
+        if (values[i] > neg && values[i] < 0)
+        {
+            neg = values[i];
+        }
+    }
 }
 
 
@@ -96,12 +96,12 @@ void RigNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, d
 //--------------------------------------------------------------------------------------------------
 void RigNativeStatCalc::addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator)
 {
-	for (size_t tIdx = 0; tIdx < m_resultsData->timeStepCount(m_scalarResultIndex); tIdx++)
-	{
+    for (size_t tIdx = 0; tIdx < m_resultsData->timeStepCount(m_scalarResultIndex); tIdx++)
+    {
         std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, tIdx);
 
-		histogramCalculator.addData(values);
-	}
+        histogramCalculator.addData(values);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

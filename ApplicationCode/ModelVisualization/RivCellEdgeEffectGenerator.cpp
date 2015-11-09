@@ -57,7 +57,7 @@ CellEdgeEffectGenerator::CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeSc
 //--------------------------------------------------------------------------------------------------
 void CellEdgeEffectGenerator::setScalarMapper(const cvf::ScalarMapper* cellScalarMapper)
 {
-	m_cellScalarMapper = cellScalarMapper;
+    m_cellScalarMapper = cellScalarMapper;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ void CellEdgeEffectGenerator::setScalarMapper(const cvf::ScalarMapper* cellScala
 //--------------------------------------------------------------------------------------------------
 void CellEdgeEffectGenerator::setTernaryScalarMapper(const RivTernaryScalarMapper* ternaryScalarMapper)
 {
-	m_ternaryCellScalarMapper = ternaryScalarMapper;
+    m_ternaryCellScalarMapper = ternaryScalarMapper;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,8 +78,8 @@ bool CellEdgeEffectGenerator::isEqual(const EffectGenerator* other) const
     if (otherCellFaceEffectGenerator 
         && m_cellScalarMapper.p() == otherCellFaceEffectGenerator->m_cellScalarMapper.p() 
         && m_edgeScalarMapper.p() == otherCellFaceEffectGenerator->m_edgeScalarMapper.p()
-		&& m_ternaryCellScalarMapper.p() == otherCellFaceEffectGenerator->m_ternaryCellScalarMapper.p()
-		&& m_cullBackfaces == otherCellFaceEffectGenerator->m_cullBackfaces
+        && m_ternaryCellScalarMapper.p() == otherCellFaceEffectGenerator->m_ternaryCellScalarMapper.p()
+        && m_cullBackfaces == otherCellFaceEffectGenerator->m_cullBackfaces
         && m_opacityLevel         == otherCellFaceEffectGenerator->m_opacityLevel
         && m_undefinedColor       == otherCellFaceEffectGenerator->m_undefinedColor
         && m_defaultCellColor     == otherCellFaceEffectGenerator->m_defaultCellColor
@@ -114,8 +114,8 @@ bool CellEdgeEffectGenerator::isEqual(const EffectGenerator* other) const
 caf::EffectGenerator* CellEdgeEffectGenerator::copy() const
 {
     CellEdgeEffectGenerator * newEffect = new CellEdgeEffectGenerator(m_edgeScalarMapper.p());
-	newEffect->setScalarMapper(m_cellScalarMapper.p());
-	newEffect->setTernaryScalarMapper(m_ternaryCellScalarMapper.p());
+    newEffect->setScalarMapper(m_cellScalarMapper.p());
+    newEffect->setTernaryScalarMapper(m_ternaryCellScalarMapper.p());
     newEffect->m_edgeTextureImage = m_edgeTextureImage;
     newEffect->m_cellTextureImage = m_cellTextureImage;
 
@@ -133,54 +133,54 @@ caf::EffectGenerator* CellEdgeEffectGenerator::copy() const
 //--------------------------------------------------------------------------------------------------
 void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) const
 {
-	cvf::ref<cvf::Effect> eff = effect;
+    cvf::ref<cvf::Effect> eff = effect;
 
-	// Set up shader program
+    // Set up shader program
 
-	cvf::ShaderProgramGenerator shaderGen("CellEdgeFaceShaderProgramGenerator", cvf::ShaderSourceProvider::instance());
-	{
-		QFile data(":/Shader/fs_CellFace.glsl");
-		if (data.open(QFile::ReadOnly))
-		{
-			QTextStream in(&data);
+    cvf::ShaderProgramGenerator shaderGen("CellEdgeFaceShaderProgramGenerator", cvf::ShaderSourceProvider::instance());
+    {
+        QFile data(":/Shader/fs_CellFace.glsl");
+        if (data.open(QFile::ReadOnly))
+        {
+            QTextStream in(&data);
 
-			QString data = in.readAll();
-			cvf::String cvfString = cvfqt::Utils::toString(data);
+            QString data = in.readAll();
+            cvf::String cvfString = cvfqt::Utils::toString(data);
 
-			shaderGen.addFragmentCode(cvfString);
-		}
-	}
+            shaderGen.addFragmentCode(cvfString);
+        }
+    }
 
-	if (m_ternaryCellScalarMapper.notNull())
-	{
-		{
-			QFile data(":/Shader/vs_2dTextureCellFace.glsl");
-			if (data.open(QFile::ReadOnly))
-			{
-				QTextStream in(&data);
+    if (m_ternaryCellScalarMapper.notNull())
+    {
+        {
+            QFile data(":/Shader/vs_2dTextureCellFace.glsl");
+            if (data.open(QFile::ReadOnly))
+            {
+                QTextStream in(&data);
 
-				QString data = in.readAll();
-				cvf::String cvfString = cvfqt::Utils::toString(data);
+                QString data = in.readAll();
+                cvf::String cvfString = cvfqt::Utils::toString(data);
 
-				shaderGen.addVertexCode(cvfString);
-			}
-		}
-	}
-	else
-	{
-		{
-			QFile data(":/Shader/vs_CellFace.glsl");
-			if (data.open(QFile::ReadOnly))
-			{
-				QTextStream in(&data);
+                shaderGen.addVertexCode(cvfString);
+            }
+        }
+    }
+    else
+    {
+        {
+            QFile data(":/Shader/vs_CellFace.glsl");
+            if (data.open(QFile::ReadOnly))
+            {
+                QTextStream in(&data);
 
-				QString data = in.readAll();
-				cvf::String cvfString = cvfqt::Utils::toString(data);
+                QString data = in.readAll();
+                cvf::String cvfString = cvfqt::Utils::toString(data);
 
-				shaderGen.addVertexCode(cvfString);
-			}
-		}
-	}
+                shaderGen.addVertexCode(cvfString);
+            }
+        }
+    }
 
     if (m_disableLighting)
     {
@@ -203,11 +203,11 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
 
     cvf::ref<cvf::TextureImage> modifiedCellTextImage;
     m_edgeScalarMapper->updateTexture(m_edgeTextureImage.p());
-	if (m_ternaryCellScalarMapper.notNull())
-	{
-		m_ternaryCellScalarMapper->updateTexture(m_cellTextureImage.p(), m_opacityLevel);
-		modifiedCellTextImage = m_cellTextureImage;
-	}
+    if (m_ternaryCellScalarMapper.notNull())
+    {
+        m_ternaryCellScalarMapper->updateTexture(m_cellTextureImage.p(), m_opacityLevel);
+        modifiedCellTextImage = m_cellTextureImage;
+    }
     else if (m_cellScalarMapper.notNull()) 
     {
         m_cellScalarMapper->updateTexture(m_cellTextureImage.p());

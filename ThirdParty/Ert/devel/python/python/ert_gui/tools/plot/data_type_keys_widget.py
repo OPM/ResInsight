@@ -7,9 +7,9 @@ from ert_gui.widgets.search_box import SearchBox
 
 
 class DataTypeKeysWidget(QWidget):
-    dataTypeKeySelected = pyqtSignal(str)
+    dataTypeKeySelected = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, model):
         QWidget.__init__(self)
 
         self.__filter_popup = FilterPopup(self)
@@ -17,7 +17,7 @@ class DataTypeKeysWidget(QWidget):
 
         layout = QVBoxLayout()
 
-        self.model = DataTypeKeysListModel()
+        self.model = model
         self.filter_model = DataTypeProxyModel(self.model)
 
         filter_layout = QHBoxLayout()
@@ -46,17 +46,18 @@ class DataTypeKeysWidget(QWidget):
         self.setLayout(layout)
 
     def onItemChanged(self, item):
-        self.filter_model.setShowBlockKeys(item["block"])
+        # self.filter_model.setShowBlockKeys(item["block"])
         self.filter_model.setShowSummaryKeys(item["summary"])
         self.filter_model.setShowGenKWKeys(item["gen_kw"])
         self.filter_model.setShowGenDataKeys(item["gen_data"])
-        self.filter_model.setShowCustomPcaKeys(item["custom_pca"])
+        self.filter_model.setShowCustomKwKeys(item["custom_kw"])
+        # self.filter_model.setShowCustomPcaKeys(item["custom_pca"])
 
 
     def itemSelected(self):
         selected_item = self.getSelectedItem()
         if selected_item is not None:
-            self.dataTypeKeySelected.emit(selected_item)
+            self.dataTypeKeySelected.emit()
 
 
     def getSelectedItem(self):

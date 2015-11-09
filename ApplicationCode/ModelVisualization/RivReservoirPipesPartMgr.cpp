@@ -18,22 +18,22 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RivReservoirPipesPartMgr.h"
+
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellEdgeColors.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
-#include "RivWellPipesPartMgr.h"
-#include "RivWellHeadPartMgr.h"
-#include "RimCellEdgeColors.h"
 
-#include "cafPdmFieldCvfMat4d.h"
+#include "RivWellHeadPartMgr.h"
+#include "RivWellPipesPartMgr.h"
+
 #include "cafPdmFieldCvfColor.h"
-#include "RimEclipseCellColors.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "cafPdmFieldCvfMat4d.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

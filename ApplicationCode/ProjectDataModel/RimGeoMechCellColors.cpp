@@ -18,8 +18,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechCellColors.h"
+
 #include "RimLegendConfig.h"
 #include "RimView.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCellColors, "GeoMechResultSlot");
@@ -32,6 +35,7 @@ RimGeoMechCellColors::RimGeoMechCellColors(void)
 {
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     this->legendConfig = new RimLegendConfig();
+    legendConfig.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,4 +43,34 @@ RimGeoMechCellColors::RimGeoMechCellColors(void)
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCellColors::~RimGeoMechCellColors(void)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCellColors::updateIconState()
+{
+    RimView* rimView = NULL;
+    this->firstAnchestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    RimViewController* viewController = rimView->viewController();
+    if (viewController && viewController->isResultColorControlled())
+    {
+        updateUiIconFromState(false);
+    }
+    else
+    {
+        updateUiIconFromState(true);
+    }
+
+    uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCellColors::initAfterRead()
+{
+    updateIconState();
 }

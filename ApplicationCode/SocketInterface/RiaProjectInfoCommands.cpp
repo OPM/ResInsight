@@ -18,7 +18,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
 #include "RiaSocketCommand.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
@@ -41,9 +40,9 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"
 #include "RimScriptCollection.h"
-#include "RimWellPathCollection.h"
 #include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
+#include "cafSelectionManager.h"
 
 
 
@@ -122,11 +121,9 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
-        if (ruiMainWindow)
         {
             std::vector<RimCase*> cases;
-            ruiMainWindow->selectedCases(cases);
+            caf::SelectionManager::instance()->objectsByType(&cases);
 
             std::vector<qint64>  caseIds;
             std::vector<QString> caseNames;

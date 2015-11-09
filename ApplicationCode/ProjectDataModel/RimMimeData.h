@@ -20,6 +20,9 @@
 
 #include <QMimeData>
 #include <QModelIndex>
+#include <QStringList>
+
+#include <vector>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -44,3 +47,27 @@ private:
 };
 
 Q_DECLARE_METATYPE(MimeDataWithIndexes)
+
+
+//--------------------------------------------------------------------------------------------------
+/// MimeData class used to carry string references to pdm objects
+//--------------------------------------------------------------------------------------------------
+class MimeDataWithReferences : public QMimeData
+{
+    Q_OBJECT
+
+public:
+    MimeDataWithReferences();
+    MimeDataWithReferences(const MimeDataWithReferences& other);
+
+    void                        setReferences(const std::vector<QString>& references);
+    const std::vector<QString>& references() const;
+    virtual bool                hasFormat(const QString& mimetype) const;
+    virtual QStringList         formats() const;
+    static QString              formatName();
+
+private:
+    std::vector<QString> m_references;
+};
+
+Q_DECLARE_METATYPE(MimeDataWithReferences)

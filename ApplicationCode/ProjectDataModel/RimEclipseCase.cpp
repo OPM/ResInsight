@@ -28,11 +28,15 @@
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
+#include "RimCommandObject.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimProject.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -43,37 +47,39 @@
 #include <QDebug>
 
 
-#include "cafPdmAbstractClassSourceInit.h"
-
-CAF_PDM_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir"); 
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
 
 //------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
-    
-
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
+    reservoirViews.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");
-    m_matrixModelResults.setUiHidden(true);
+    m_matrixModelResults.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
-    m_fractureModelResults.setUiHidden(true);
+    m_fractureModelResults.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
     CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&filesContainingFaults,    "FilesContainingFaults", "", "", "", "");
-    filesContainingFaults.setUiHidden(true);
+    filesContainingFaults.uiCapability()->setUiHidden(true);
 
     // Obsolete field
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
-    caseName.setIOWritable(false);
-    caseName.setUiHidden(true);
+    caseName.xmlCapability()->setIOWritable(false);
+    caseName.uiCapability()->setUiHidden(true);
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
+    m_matrixModelResults.uiCapability()->setUiHidden(true);
+    m_matrixModelResults.uiCapability()->setUiChildrenHidden(true);
+
     m_fractureModelResults = new RimReservoirCellResultsStorage;
+    m_fractureModelResults.uiCapability()->setUiHidden(true);
+    m_fractureModelResults.uiCapability()->setUiChildrenHidden(true);
 
     this->setReservoirData( NULL );
 }
@@ -87,6 +93,19 @@ RimEclipseCase::~RimEclipseCase()
 
     delete m_matrixModelResults();
     delete m_fractureModelResults();
+
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                plotCollection->removeExtractors(this->reservoirData());
+            }
+        }
+    }
 
     if (this->reservoirData())
     {
@@ -176,9 +195,7 @@ void RimEclipseCase::removeResult(const QString& resultName)
             rebuildDisplayModel = true;
         }
 
-        std::list< caf::PdmPointer< RimEclipsePropertyFilter > >::iterator it;
         RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->propertyFilterCollection();
-
         for (size_t filter = 0; filter < propFilterCollection->propertyFilters().size(); filter++)
         {
             RimEclipsePropertyFilter* propertyFilter = propFilterCollection->propertyFilters()[filter];
@@ -297,15 +314,7 @@ void RimEclipseCase::computeCachedData()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseCase::parentCaseCollection()
 {
-    std::vector<RimCaseCollection*> parentObjects;
-    this->parentObjectsOfType(parentObjects);
-
-    if (parentObjects.size() > 0)
-    {
-        return parentObjects[0];
-    }
-
-    return NULL;
+    return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,4 +419,36 @@ std::vector<RimView*> RimEclipseCase::views()
         views.push_back(reservoirViews[vIdx]);
     }
     return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseCase::timeStepStrings()
+{
+    QStringList stringList;
+
+    std::vector<QDateTime> timeStepDates = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
+
+    bool showHoursAndMinutes = false;
+    for (size_t i = 0; i < timeStepDates.size(); i++)
+    {
+        if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+        {
+            showHoursAndMinutes = true;
+        }
+    }
+
+    QString formatString = "dd.MMM yyyy";
+    if (showHoursAndMinutes)
+    {
+        formatString += " - hh:mm";
+    }
+
+    for (size_t i = 0; i < timeStepDates.size(); i++)
+    {
+        stringList += timeStepDates[i].toString(formatString);
+    }
+
+    return stringList;
 }

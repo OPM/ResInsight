@@ -20,6 +20,8 @@
 
 #include "RimEclipsePropertyFilter.h"
 
+#include "cafPdmChildArrayField.h"
+
 //==================================================================================================
 ///  
 ///  
@@ -31,32 +33,25 @@ public:
     RimEclipsePropertyFilterCollection();
     virtual ~RimEclipsePropertyFilterCollection();
 
-
     // Fields:
-    caf::PdmField<bool> active;
-    caf::PdmPointersField<RimEclipsePropertyFilter*> propertyFilters;
+    caf::PdmField<bool> isActive;
+    caf::PdmChildArrayField<RimEclipsePropertyFilter*> propertyFilters;
 
     // Methods
-    RimEclipsePropertyFilter*  createAndAppendPropertyFilter();
-    void                    remove(RimEclipsePropertyFilter* propertyFilter);
-
     bool                    hasActiveFilters() const; 
     bool                    hasActiveDynamicFilters() const; 
 
-    void                    setReservoirView(RimEclipseView* reservoirView);
-    RimEclipseView*       reservoirView();
+    RimEclipseView*         reservoirView();
 
     void                    loadAndInitializePropertyFilters();
 
-
-    // Overridden methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*    objectToggleField();
+    void                    updateDisplayModelNotifyManagedViews();
+    void                    updateIconState();
 
 protected:
     // Overridden methods
-    virtual void initAfterRead();
-
-private:
-    caf::PdmPointer<RimEclipseView> m_reservoirView;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    virtual void                    initAfterRead();
+    virtual caf::PdmFieldHandle*    objectToggleField();
 };

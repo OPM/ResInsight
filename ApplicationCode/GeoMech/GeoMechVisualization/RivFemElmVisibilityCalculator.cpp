@@ -32,6 +32,9 @@
 
 #include "RigGeoMechCaseData.h"
 #include "RigFemPartResultsCollection.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
+#include "RigCaseToCaseCellMapper.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -112,6 +115,9 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                 const double upperBound = propertyFilter->upperBound();
 
                 RigFemResultAddress resVarAddress = propertyFilter->resultDefinition->resultAddress();
+ 
+                // Do a "Hack" to use elm nodal and not nodal POR results
+                if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
                 size_t adjustedTimeStepIndex = timeStepIndex;
 
@@ -163,6 +169,39 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                 }
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility(cvf::UByteArray* elmVisibilities, 
+                                                                    const RigFemPart* femPart, 
+                                                                    RimViewController* masterViewLink)
+{
+    CVF_ASSERT(elmVisibilities != NULL);
+    CVF_ASSERT(femPart != NULL);
+
+    RimView* masterView = masterViewLink->ownerViewLinker()->masterView();
+    cvf::ref<cvf::UByteArray> totCellVisibility =  masterView->currentTotalCellVisibility();
+
+    int elmCount = femPart->elementCount();
+    elmVisibilities->resize(elmCount);
+    elmVisibilities->setAll(false);
+
+    const RigCaseToCaseCellMapper* cellMapper = masterViewLink->cellMapper();
+
+    for (int elmIdx = 0; elmIdx < elmCount; ++elmIdx)
+    {
+        // We are assuming that there is only one part.  
+        int cellCount = 0;
+        const int* cellIndicesInMasterCase = cellMapper->masterCaseCellIndices(elmIdx, &cellCount);
+        
+        for (int mcIdx = 0; mcIdx < cellCount; ++mcIdx)
+        {
+            (*elmVisibilities)[elmIdx] |=  (*totCellVisibility)[cellIndicesInMasterCase[mcIdx]]; // If any is visible, show
+        }
+
     }
 }
 

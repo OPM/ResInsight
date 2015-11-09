@@ -157,7 +157,6 @@ class Layer(BaseCClass):
 
     def addIJBarrier(self , ij_list):
         if len(ij_list) < 2:
-            print "ij_list:%s" % ij_list
             raise ValueError("Must have at least two (i,j) points")
 
         nx = self.getNX()
@@ -227,6 +226,10 @@ class Layer(BaseCClass):
         return ij_list
         
 
+    def countEqual(self , value):
+        return Layer.cNamespace().count_equal( self , value )
+
+    
 
 cwrapper = CWrapper(ECL_LIB)
 CWrapper.registerObjectType("layer", Layer)
@@ -248,5 +251,6 @@ Layer.cNamespace().assign = cwrapper.prototype("void layer_assign(layer , int)")
 Layer.cNamespace().cell_sum = cwrapper.prototype("int layer_get_cell_sum(layer)")
 Layer.cNamespace().update_connected = cwrapper.prototype("void layer_update_connected_cells(layer,int,int,int,int)")
 Layer.cNamespace().cells_equal = cwrapper.prototype("void layer_cells_equal( layer, int,int_vector,int_vector)")
+Layer.cNamespace().count_equal = cwrapper.prototype("int layer_count_equal( layer, int)")
 Layer.cNamespace().active_cell = cwrapper.prototype("bool layer_iget_active( layer, int,int)")
 Layer.cNamespace().update_active = cwrapper.prototype("bool layer_update_active( layer, ecl_grid , int)")

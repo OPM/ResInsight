@@ -39,8 +39,15 @@ public:
     static double     linePointSquareDist(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3);
     static int        intersectLineSegmentTriangle( const cvf::Vec3d p0, const cvf::Vec3d p1, 
                                                     const cvf::Vec3d t0, const cvf::Vec3d t1, const cvf::Vec3d t2,
-                                                    cvf::Vec3d* intersectionPoint );
+                                                    cvf::Vec3d* intersectionPoint, 
+                                                    bool * isLineDirDotNormalNegative);
     static cvf::Vec3d barycentricCoords(const cvf::Vec3d&  t0, const cvf::Vec3d&  t1, const cvf::Vec3d&  t2, const cvf::Vec3d&  p);
+    static cvf::Vec4d barycentricCoords(const cvf::Vec3d&  v0, const cvf::Vec3d&  v1, const cvf::Vec3d&  v2, const cvf::Vec3d& v3, const cvf::Vec3d&  p);
+    static double interpolateQuad(const cvf::Vec3d& v1, double s1,
+                                  const cvf::Vec3d& v2, double s2,
+                                  const cvf::Vec3d& v3, double s3,
+                                  const cvf::Vec3d& v4, double s4,
+                                  const cvf::Vec3d& point);
 
     static int        findClosestAxis(const cvf::Vec3d& vec );
     static double     getAngle(const cvf::Vec3d& positiveNormalAxis, const cvf::Vec3d& v1, const cvf::Vec3d& v2);

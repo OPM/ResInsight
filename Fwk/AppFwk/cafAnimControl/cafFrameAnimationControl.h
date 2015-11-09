@@ -58,6 +58,7 @@ public:
     void    setNumFrames(int numFrames);
     int     numFrames() const;
     int     currentFrame() const;
+    void    setCurrentFrameOnly(int frameIndex);
 
     bool    isActive() const;
 

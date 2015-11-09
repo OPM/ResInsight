@@ -50,7 +50,7 @@ namespace caf
 {
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
-class PdmObjectGroup;
+class PdmObjectCollection;
 
 
 
@@ -73,14 +73,14 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class UiTableModelPdm : public QAbstractTableModel
+class UiListViewModelPdm : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    UiTableModelPdm(QObject* parent);
+    UiListViewModelPdm(QObject* parent);
     
-    void                setPdmData(PdmObjectGroup* objectGroup, const QString& configName);
+    void                setPdmData(PdmObjectCollection* objectGroup, const QString& configName);
 
     // Qt overrides
     virtual int         rowCount( const QModelIndex &parent = QModelIndex( ) ) const;
@@ -92,7 +92,7 @@ private:
     void computeColumnCount();
 
 private:
-    PdmObjectGroup*                 m_pdmObjectGroup;
+    PdmObjectCollection*              m_pdmObjectGroup;
     QString                         m_configName;
     PdmUiListViewEditorAttribute    m_editorAttribute;
     int                             m_columnCount;
@@ -118,7 +118,7 @@ private:
     QLayout*            m_layout;
 
     QTableView*         m_tableView;
-    UiTableModelPdm*    m_tableModelPdm;
+    UiListViewModelPdm* m_tableModelPdm;
 };
 
 

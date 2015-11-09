@@ -30,6 +30,7 @@ class RimGeoMechView;
 class RimGeoMechPropertyFilter;
 class RifGeoMechReaderInterface;
 class RigGeoMechCaseData;
+class RimGeoMechCase;
 
 //==================================================================================================
 ///  
@@ -43,8 +44,7 @@ public:
     RimGeoMechResultDefinition(void);
     virtual ~RimGeoMechResultDefinition(void);
 
-    void                       setReservoirView(RimGeoMechView* ownerReservoirView);
-    RimGeoMechView*            reservoirView();
+    void                       setGeoMechCase(RimGeoMechCase* geomCase);
 
     RigGeoMechCaseData*        ownerCaseData();
     bool                       hasResult(); 
@@ -57,14 +57,11 @@ public:
     QString                    resultComponentName() { return m_resultComponentName();}
     void                       setResultAddress(const RigFemResultAddress& resultAddress);
 
-    void                       setOwnerPropertyFilter(RimGeoMechPropertyFilter* propertyFilter);
-
     QString                    resultFieldUiName();
     QString                    resultComponentUiName();
 
 protected:
-    friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields
-
+   
 private:
     virtual QList<caf::PdmOptionItemInfo>            calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                            bool * useOptionsOnly);
@@ -73,7 +70,7 @@ private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     static void getUiAndResultVariableStringList(QStringList* uiNames, QStringList* variableNames, 
                                                  const std::map<std::string, std::vector<std::string> >& fieldCompNames);
-    static QString     composeUiVarString(const QString& resultFieldName, const QString& resultComponentName);
+    static QString     composeFieldCompString(const QString& resultFieldName, const QString& resultComponentName);
 
     virtual void initAfterRead();
 
@@ -81,11 +78,14 @@ private:
     caf::PdmField<QString>                           m_resultFieldName;
     caf::PdmField<QString>                           m_resultComponentName;
 
+    friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields
+    friend class RimWellLogExtractionCurve; // Curve needs the ui fields
+ 
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionTypeUiField;
     caf::PdmField<QString>                           m_resultVariableUiField;
 
-    caf::PdmPointer<RimGeoMechView>                  m_reservoirView;
-    caf::PdmPointer<RimGeoMechPropertyFilter>        m_propertyFilter;
+    caf::PdmPointer<RimGeoMechCase>                  m_geomCase;
 
     static QString convertToUiResultFieldName(QString resultFieldName);
+    static QString convertToUIComponentName(QString resultComponentName);
 };

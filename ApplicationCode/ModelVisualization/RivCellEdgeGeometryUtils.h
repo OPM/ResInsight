@@ -24,8 +24,8 @@
 
 namespace cvf
 {
-	class DrawableGeo;
-	class StructGridQuadToCellFaceMapper;
+    class DrawableGeo;
+    class StructGridQuadToCellFaceMapper;
 }
 
 class RimCellEdgeColors;
@@ -38,36 +38,36 @@ class RigCaseData;
 class RivCellEdgeGeometryUtils
 {
 public:
-	static void addCellEdgeResultsToDrawableGeo(size_t timeStepIndex,
-		RimEclipseCellColors* cellResultColors,
-		RimCellEdgeColors* cellEdgeResultColors,
-		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
-		cvf::DrawableGeo* geo,
-		size_t gridIndex,
-		float opacityLevel);
+    static void addCellEdgeResultsToDrawableGeo(size_t timeStepIndex,
+        RimEclipseCellColors* cellResultColors,
+        RimCellEdgeColors* cellEdgeResultColors,
+        const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+        cvf::DrawableGeo* geo,
+        size_t gridIndex,
+        float opacityLevel);
 
-	static void addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex,
-		RimEclipseCellColors* cellResultColors,
-		RimCellEdgeColors* cellEdgeResultColors,
-		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
-		cvf::DrawableGeo* geo,
-		size_t gridIndex,
-		float opacityLevel);
+    static void addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex,
+        RimEclipseCellColors* cellResultColors,
+        RimCellEdgeColors* cellEdgeResultColors,
+        const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+        cvf::DrawableGeo* geo,
+        size_t gridIndex,
+        float opacityLevel);
 
 
 private:
-	static cvf::ref<RigResultAccessor> createCellCenterResultAccessor(
-		RimEclipseCellColors* cellResultColors,
-		size_t timeStepIndex,
-		RigCaseData* eclipseCase,
-		const RigGridBase* grid);
+    static cvf::ref<RigResultAccessor> createCellCenterResultAccessor(
+        RimEclipseCellColors* cellResultColors,
+        size_t timeStepIndex,
+        RigCaseData* eclipseCase,
+        const RigGridBase* grid);
 
-	static cvf::ref<RigResultAccessor> createCellEdgeCenterResultAccessor(
-		RimEclipseCellColors* cellResultColors,
-		RimCellEdgeColors* cellEdgeResultColors,
-		size_t timeStepIndex,
-		RigCaseData* eclipseCase,
-		const RigGridBase* grid);
+    static cvf::ref<RigResultAccessor> createCellEdgeCenterResultAccessor(
+        RimEclipseCellColors* cellResultColors,
+        RimCellEdgeColors* cellEdgeResultColors,
+        size_t timeStepIndex,
+        RigCaseData* eclipseCase,
+        const RigGridBase* grid);
 
     static bool hideScalarValue(double scalarValue, double scalarValueToHide, double tolerance);
 };

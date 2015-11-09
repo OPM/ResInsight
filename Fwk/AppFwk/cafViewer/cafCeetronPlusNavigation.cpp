@@ -146,7 +146,7 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
                         bool needRedraw = m_trackball->updateNavigation(translatedMousePosX, translatedMousePosY);
                         if (needRedraw)
                         {
-                            m_viewer->update();
+                            m_viewer->navigationPolicyUpdate();
                         }
                     }
                     isEventHandled = true;
@@ -257,6 +257,6 @@ void caf::CeetronPlusNavigation::zoomAlongRay(cvf::Ray* ray, int delta)
         cvf::Vec3d newVrp = vrp + trans;
 
         m_viewer->mainCamera()->setFromLookAt(newPos, newVrp, up );
-        m_viewer->update();
+        m_viewer->navigationPolicyUpdate();
     }
 }

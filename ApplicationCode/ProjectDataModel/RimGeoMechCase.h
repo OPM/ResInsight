@@ -18,11 +18,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "RimCase.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+
 #include "cvfObject.h"
 
 class RimGeoMechView;
@@ -53,8 +56,11 @@ public:
     virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
     virtual std::vector<RimView*>           views();
 
+    virtual QStringList                     timeStepStrings();
+
+
     // Fields:                                        
-    caf::PdmPointersField<RimGeoMechView*>  geoMechViews;
+    caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 
 private:
     virtual void                            initAfterRead();

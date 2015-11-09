@@ -209,6 +209,11 @@ if (USE_RUNPATH)
    add_runpath( enkf )
 endif()
 
+add_custom_target(ert_share_symlinking ALL
+	COMMENT "Symlinking to the development share directory."
+    COMMAND ln -sf -t ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/share
+)
+
 #-----------------------------------------------------------------
 if (INSTALL_ERT)
    install(TARGETS enkf DESTINATION ${CMAKE_INSTALL_LIBDIR})

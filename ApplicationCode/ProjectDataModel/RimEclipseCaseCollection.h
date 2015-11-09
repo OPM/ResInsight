@@ -20,17 +20,18 @@
 
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 #include "cvfObject.h"
 
-class RimEclipseCase;
-class RigGridManager;
-class RimIdenticalGridCaseGroup;
-class RigMainGrid;
 class RigCaseData;
+class RigGridManager;
+class RigMainGrid;
+class RimEclipseCase;
+class RimIdenticalGridCaseGroup;
 class RimWellPathCollection;
 
 //==================================================================================================
@@ -45,8 +46,8 @@ public:
     RimEclipseCaseCollection(void);
     virtual ~RimEclipseCaseCollection(void);
 
-    caf::PdmPointersField<RimEclipseCase*>                     cases;
-    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
+    caf::PdmChildArrayField<RimEclipseCase*>                     cases;
+    caf::PdmChildArrayField<RimIdenticalGridCaseGroup*>   caseGroups;
 
     void                                                close();
 

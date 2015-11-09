@@ -21,6 +21,8 @@
 
 #include "RimCellFilter.h"
 
+#include "cafPdmChildField.h"
+
 
 class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;
@@ -37,7 +39,7 @@ public:
     RimGeoMechPropertyFilter();
     virtual ~RimGeoMechPropertyFilter();
 
-    caf::PdmField<RimGeoMechResultDefinition*>  resultDefinition;
+    caf::PdmChildField<RimGeoMechResultDefinition*>  resultDefinition;
 
     caf::PdmField<double>                       lowerBound;
     caf::PdmField<double>                       upperBound;
@@ -48,10 +50,17 @@ public:
     void                                        updateFilterName();
     void                                        computeResultValueRange();
     
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                                        updateActiveState();
+    
 protected:
+    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
     virtual void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+
+private:
+    void                                        updateReadOnlyStateOfAllFields();
+    bool                                        isPropertyFilterControlled();
 
 private:
     RimGeoMechPropertyFilterCollection*         m_parentContainer;

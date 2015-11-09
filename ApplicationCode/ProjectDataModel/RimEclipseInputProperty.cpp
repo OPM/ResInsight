@@ -53,12 +53,12 @@ RimEclipseInputProperty::RimEclipseInputProperty()
     CAF_PDM_InitField(&fileName, "FileName", QString(), "Filename", "", "" ,"");
     CAF_PDM_InitField(&resolvedState, "ResolvedState", (ResolveStateEnum)UNKNOWN, "Data state", "", "", "");
 
-    resolvedState.setUiReadOnly(true);
-    resolvedState.setIOReadable(false); 
-    resolvedState.setIOWritable(false); 
-    resolvedState.setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    resolvedState.uiCapability()->setUiReadOnly(true);
+    resolvedState.xmlCapability()->setIOReadable(false); 
+    resolvedState.xmlCapability()->setIOWritable(false); 
+    resolvedState.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
-    fileName.setUiReadOnly(true);
+    fileName.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------

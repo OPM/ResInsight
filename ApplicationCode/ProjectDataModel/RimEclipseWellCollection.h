@@ -20,10 +20,11 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafAppEnum.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
@@ -101,7 +102,7 @@ public:
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 
-    caf::PdmPointersField<RimEclipseWell*>     wells;
+    caf::PdmChildArrayField<RimEclipseWell*>     wells;
 
     RimEclipseWell*                            findWell(QString name);
     bool                                hasVisibleWellCells();

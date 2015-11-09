@@ -42,6 +42,7 @@ class RimView;
 class RimProject;
 class RimCommandObject;
 class RiaProjectModifier;
+class RimWellLogPlot;
 
 namespace caf
 {
@@ -79,6 +80,9 @@ public:
     RimView*                activeReservoirView();
     const RimView*          activeReservoirView() const;
 
+    void                    setActiveWellLogPlot(RimWellLogPlot*);
+    RimWellLogPlot*         activeWellLogPlot();
+
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
     RimProject*         project(); 
@@ -107,6 +111,7 @@ public:
     bool                saveProjectPromptForFileName();
     bool                closeProject(bool askToSaveIfDirty);
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
+    void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
     void                copySnapshotToClipboard();
     void                saveSnapshotPromtpForFilename();
@@ -139,8 +144,6 @@ public:
     void                terminateProcess();
     
     RiaPreferences*     preferences();
-    void                readFieldsFromApplicationStore(caf::PdmObject* object, const QString context = "");
-    void                writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context = "");
     void                applyPreferences();
 
     cvf::Font*          standardFont();
@@ -156,6 +159,9 @@ public:
 
     bool                isRunningRegressionTests() const;
 
+    void                launchUnitTests();
+    void                launchUnitTestsWithConsole();
+
 private:
     enum ProjectLoadAction
     {
@@ -169,6 +175,7 @@ private:
     void                    setWindowCaptionFromAppState();
     
     QImage                  grabFrameBufferImage();
+    void                    clearViewsScheduledForUpdate();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -177,6 +184,8 @@ private slots:
 
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
+    caf::PdmPointer<RimWellLogPlot>     m_activeWellLogPlot;
+
     caf::PdmPointer<RimProject>         m_project;
 
     std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;

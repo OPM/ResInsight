@@ -37,7 +37,7 @@ RimEclipseWell::RimEclipseWell()
 
     CAF_PDM_InitFieldNoDefault(&name,       "WellName",             "Name", "", "", "");
     CAF_PDM_InitField(&showWell,         "ShowWell",      true, "Show well ", "", "", "");
-    showWell.setUiHidden(true);
+    showWell.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&showWellLabel,         "ShowWellLabel",      true, "Show well label", "", "", "");
 
@@ -48,8 +48,8 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitField(&showWellCells,       "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "Use well fence", "", "", "");
 
-    name.setUiHidden(true);
-    name.setUiReadOnly(true);
+    name.uiCapability()->setUiHidden(true);
+    name.uiCapability()->setUiReadOnly(true);
 
     m_wellIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -197,7 +197,7 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
             if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
             {
                 cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-                if ((*cellVisibility)[gridCellIndex]) 
+                if ((*cellVisibility)[gridCellIndex])
                 {
                     return true;
                 }
@@ -217,7 +217,7 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
                         gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
 
                         cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-                        if ((*cellVisibility)[gridCellIndex]) 
+                        if ((*cellVisibility)[gridCellIndex])
                         {
                             return true;
                         }

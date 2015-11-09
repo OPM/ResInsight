@@ -18,18 +18,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
-#include "RimGeoMechResultDefinition.h"
 
-#include "cvfMath.h"
-
-#include "cafPdmUiDoubleSliderEditor.h"
-#include "cvfAssert.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimViewController.h"
+
 #include "RiuMainWindow.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
+
+#include "cvfAssert.h"
+#include "cvfMath.h"
 
 CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
 
@@ -39,27 +42,26 @@ CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
 RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
     : m_parentContainer(NULL)
 {
-    CAF_PDM_InitObject("GeoMech Property Filter", ":/CellFilter_Values.png", "", "");
+    CAF_PDM_InitObject("Property Filter", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimGeoMechResultDefinition();
-    resultDefinition->setOwnerPropertyFilter(this);
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
-    resultDefinition.setUiHidden(true);
+    resultDefinition.uiCapability()->setUiHidden(true);
+    resultDefinition.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitField(&lowerBound, "LowerBound", 0.0, "Min", "", "", "");
-    lowerBound.setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&upperBound, "UpperBound", 0.0, "Max", "", "", "");
-    upperBound.setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
 
     m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
     m_maximumResultValue = cvf::UNDEFINED_DOUBLE;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,8 +83,9 @@ void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         this->updateIconState();
         this->updateFilterName();
-        ((RimView*)resultDefinition->reservoirView())->scheduleGeometryRegen(PROPERTY_FILTERED);
-        resultDefinition->reservoirView()->scheduleCreateDisplayModelAndRedraw();
+        this->uiCapability()->updateConnectedEditors();
+
+        parentContainer()->updateDisplayModelNotifyManagedViews();
     }
 }
 
@@ -133,6 +136,65 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&lowerBound);
     uiOrdering.add(&upperBound);
     uiOrdering.add(&filterMode);
+
+    updateReadOnlyStateOfAllFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    updateActiveState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
+{
+    bool readOnlyState = isPropertyFilterControlled();
+
+    std::vector<caf::PdmFieldHandle*> objFields;
+    this->fields(objFields);
+
+    // Include fields declared in RimResultDefinition
+    objFields.push_back(&(resultDefinition->m_resultPositionTypeUiField));
+    objFields.push_back(&(resultDefinition->m_resultVariableUiField));
+
+    for (size_t i = 0; i < objFields.size(); i++)
+    {
+        objFields[i]->uiCapability()->setUiReadOnly(readOnlyState);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
+{
+    RimView* rimView = NULL;
+    firstAnchestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    bool isPropertyFilterControlled = false;
+    RimViewController* vc = rimView->viewController();
+    if (vc && vc->isPropertyFilterOveridden())
+    {
+        isPropertyFilterControlled = true;
+    }
+   
+    return isPropertyFilterControlled;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilter::updateActiveState()
+{
+    isActive.uiCapability()->setUiReadOnly(isPropertyFilterControlled());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,8 +239,8 @@ void RimGeoMechPropertyFilter::computeResultValueRange()
     m_maximumResultValue = max;
     m_minimumResultValue = min;
 
-    lowerBound.setUiName(QString("Min (%1)").arg(min));
-    upperBound.setUiName(QString("Max (%1)").arg(max));
+    lowerBound.uiCapability()->setUiName(QString("Min (%1)").arg(min));
+    upperBound.uiCapability()->setUiName(QString("Max (%1)").arg(max));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,10 +259,14 @@ void RimGeoMechPropertyFilter::updateFilterName()
         case RIG_INTEGRATION_POINT: posName = "IP"; break;
     }
 
-    newFiltername =  posName + ", " + QString::fromStdString(resultAddress.fieldName + ", " + resultAddress.componentName) + " ("
+    QString fieldUiName = resultDefinition->resultFieldUiName();
+    QString compoUiName = resultDefinition->resultComponentUiName();
+
+
+    newFiltername =  posName + ", " + fieldUiName + ", " + compoUiName + " ("
      + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
     this->name = newFiltername;
 
-    RiuMainWindow::instance()->forceProjectTreeRepaint();
+    uiCapability()->updateConnectedEditors();
 }
 

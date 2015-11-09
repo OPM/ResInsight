@@ -46,12 +46,13 @@ RimEclipseInputCase::RimEclipseInputCase()
 {
     CAF_PDM_InitObject("RimInputCase", ":/EclipseInput48x48.png", "", "");
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");
-    m_gridFileName.setUiReadOnly(true);
+    m_gridFileName.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&m_additionalFileNames, "AdditionalFileNames", "Additional files", "", "" ,"");
-    m_additionalFileNames.setUiReadOnly(true);
+    m_additionalFileNames.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_inputPropertyCollection, "InputPropertyCollection", "",  "", "", "");
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
+    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden(true);
 }
 
 
@@ -299,9 +300,6 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 
         if (!fileKeywordSet.empty())
         {
-           
-           
-            std::vector<QString> knownKwsLeft;
             for_all(knownKeywords, fkIt) 
             {
                 if (fileKeywordSet.count(knownKeywords[fkIt]))
@@ -381,14 +379,14 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel(QString modelN
 
         mockFileInterface->open("", reservoir.p());
         {
-            size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
+            //size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
             
             //TODO: Rewrite active cell info in mock models
             //reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
         {
-            size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
+            //size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
 
             //TODO: Rewrite active cell info in mock models
             //reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);

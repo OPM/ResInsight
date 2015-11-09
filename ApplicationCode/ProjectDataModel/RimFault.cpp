@@ -33,11 +33,11 @@ RimFault::RimFault()
     CAF_PDM_InitObject("RimFault", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&name,       "FaultName",             "Name", "", "", "");
-    name.setUiHidden(true);
-    name.setUiReadOnly(true);
+    name.uiCapability()->setUiHidden(true);
+    name.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&showFault,         "ShowFault",      true, "Show fault", "", "", "");
-    showFault.setUiHidden(true);
+    showFault.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&faultColor,       "Color",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault color", "", "", "");
 
@@ -69,7 +69,8 @@ void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const Q
     if (&faultColor == changedField || &showFault == changedField)
     {
         RimEclipseView* reservoirView = NULL;
-        this->firstAncestorOfType(reservoirView);
+
+        this->firstAnchestorOrThisOfType(reservoirView);
 
         if (reservoirView) 
         {

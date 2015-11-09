@@ -136,7 +136,6 @@ void RigReservoirBuilderMock::appendCubeNodes(const cvf::Vec3d& min, const cvf::
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells)
 {
-    size_t activeCellIndex = 0;
     long long i;
 
     size_t cellIndexStart = cells.size();
@@ -347,11 +346,8 @@ bool RigReservoirBuilderMock::dynamicResult(RigCaseData* eclipseCase, const QStr
 #pragma omp parallel for
     for (long long k = 0; k < static_cast<long long>(eclipseCase->mainGrid()->cells().size()); k++)
     {
-        RigCell& cell = eclipseCase->mainGrid()->cells()[k];
-        {
-            double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->cells().size() );
-            values->at(k) = val;
-        }
+        double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->cells().size() );
+        values->at(k) = val;
     }
 
     // Set result size to zero for some timesteps

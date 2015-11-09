@@ -26,7 +26,7 @@
 
 namespace cvf
 {
-	class TextureImage;
+    class TextureImage;
 }
 
 //==================================================================================================
@@ -35,23 +35,23 @@ namespace cvf
 class RivTernaryScalarMapper : public cvf::Object
 {
 public:
-	RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor);
+    RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor);
 
-	void setTernaryRanges(double soilLower, double soilUpper, double sgasLower, double sgasUpper);
+    void setTernaryRanges(double soilLower, double soilUpper, double sgasLower, double sgasUpper);
 
-	cvf::Vec2f	mapToTextureCoord(double soil, double sgas, bool isTransparent) const;
-	bool		updateTexture(cvf::TextureImage* image, float opacityLevel) const;
+    cvf::Vec2f    mapToTextureCoord(double soil, double sgas, bool isTransparent) const;
+    bool        updateTexture(cvf::TextureImage* image, float opacityLevel) const;
 
 private:
-	cvf::Color3f	m_undefScalarColor;
-	cvf::Vec2ui		m_textureSize;
+    cvf::Color3f    m_undefScalarColor;
+    cvf::Vec2ui        m_textureSize;
 
-	double m_rangeMaxSoil;
-	double m_rangeMinSoil;
-	double m_soilFactor;
+    double m_rangeMaxSoil;
+    double m_rangeMinSoil;
+    double m_soilFactor;
 
-	double m_rangeMaxSgas;
-	double m_rangeMinSgas;
-	double m_sgasFactor;
+    double m_rangeMaxSgas;
+    double m_rangeMinSgas;
+    double m_sgasFactor;
 };
 

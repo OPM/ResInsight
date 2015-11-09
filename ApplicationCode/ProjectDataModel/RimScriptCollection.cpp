@@ -21,7 +21,6 @@
 #include "RimScriptCollection.h"
 
 #include "RimCalcScript.h"
-#include "RimUiTreeModelPdm.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiFilePathEditor.h"
@@ -40,9 +39,11 @@ RimScriptCollection::RimScriptCollection()
 
     CAF_PDM_InitFieldNoDefault(&directory, "ScriptDirectory", "Dir",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&calcScripts, "CalcScripts", "",  "", "", "");
+    calcScripts.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&subDirectories, "SubDirectories", "",  "", "", "");
+    subDirectories.uiCapability()->setUiHidden(true);
 
-    directory.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    directory.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,8 +177,6 @@ void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle *changedFie
         QFileInfo fi(directory);
         this->setUiName(fi.baseName());
         this->readContentFromDisc();
-        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-        if (treeModel) treeModel->updateUiSubTree(this);
     }
 }
 

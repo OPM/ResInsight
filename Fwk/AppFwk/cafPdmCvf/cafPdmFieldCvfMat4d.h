@@ -34,66 +34,8 @@
 //
 //##################################################################################################
 
-
 #pragma once
-#include <QVariant>
-#include <QList>
-//#include <QStringList>
-//#include <QXmlStreamReader>
-//#include <QXmlStreamWriter>
-#include <QTextStream>
 
-//#include "cafPdmUiItem.h"
-//#include "cafPdmObjectFactory.h"
-
-#include "cafPdmFieldImpl.h"
-#include "cvfAssert.h"
-#include "cvfMatrix4.h"
-
-namespace caf 
-{
-
-    // Forward declarations
-    template <typename T> class PdmField;
-
-
-//==================================================================================================
-/// Partial specialization for PdmField<  cvf::Mat4d >
-//==================================================================================================
-
-template <>
-class PdmFieldTypeSpecialization < cvf::Mat4d >
-{
-public:
-    /// Convert the field value into a QVariant
-    static QVariant convert(const cvf::Mat4d& value)
-    {
-        return QVariant();
-    }
-
-    /// Set the field value from a QVariant
-    static void setFromVariant(const QVariant& variantValue, cvf::Mat4d& value)
-    {
-        
-    }
-
-    /// Methods to get a list of options for a field
-    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const cvf::Mat4d& )
-    {
-        return QList<PdmOptionItemInfo>();
-    }
-
-    /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects(const PdmField< cvf::Mat4d >& field, std::vector<PdmObject*>* objects)
-    { }
-
-};
-
-}
-
-//==================================================================================================
-/// QTextStream Stream operator for cvf::Color3f
-//==================================================================================================
-
-void operator >> (QTextStream& str, cvf::Mat4d& value);
-void operator << (QTextStream& str, const cvf::Mat4d& value);
+#include "cafPdmCoreMat4d.h"
+#include "cafPdmXmlMat4d.h"
+#include "cafPdmUiCoreMat4d.h"

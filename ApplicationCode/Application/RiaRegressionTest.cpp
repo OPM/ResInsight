@@ -28,10 +28,10 @@ CAF_PDM_SOURCE_INIT(RiaRegressionTest, "RiaRegressionTest");
 RiaRegressionTest::RiaRegressionTest(void)
 {
     CAF_PDM_InitFieldNoDefault(&applicationWorkingFolder,        "workingFolder", "Folder containing <b>compare</b>", "", "Location of compare tool from Image Magic suite", "");
-    applicationWorkingFolder.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    applicationWorkingFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
     CAF_PDM_InitFieldNoDefault(&regressionTestFolder,   "regressionTestFolder", "Regression Test Folder", "", "", "");
-    regressionTestFolder.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    regressionTestFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------

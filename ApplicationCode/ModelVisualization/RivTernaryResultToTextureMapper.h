@@ -33,15 +33,15 @@
 class RivTernaryResultToTextureMapper : public cvf::Object
 {
 public:
-	RivTernaryResultToTextureMapper(const RivTernaryScalarMapper* scalarMapper, const RigPipeInCellEvaluator* pipeInCellEvaluator) 
+    RivTernaryResultToTextureMapper(const RivTernaryScalarMapper* scalarMapper, const RigPipeInCellEvaluator* pipeInCellEvaluator) 
         : m_scalarMapper(scalarMapper), m_pipeInCellEvaluator(pipeInCellEvaluator)
     {}
     
     cvf::Vec2f getTexCoord(double soil, double sgas, size_t cellIndex) const
     {
-		bool isTransparent = m_pipeInCellEvaluator->isWellPipeInCell(cellIndex);
+        bool isTransparent = m_pipeInCellEvaluator->isWellPipeInCell(cellIndex);
 
-		return m_scalarMapper->mapToTextureCoord(soil, sgas, isTransparent);
+        return m_scalarMapper->mapToTextureCoord(soil, sgas, isTransparent);
     }
   
 private:

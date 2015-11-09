@@ -1,6 +1,7 @@
 from pandas import DataFrame, MultiIndex
 import numpy
 from ert.enkf import ErtImplType, EnKFMain, EnkfFs, RealizationStateEnum
+from ert.enkf.key_manager import KeyManager
 from ert.enkf.plot_data import EnsemblePlotData
 from ert.util import BoolVector
 
@@ -19,8 +20,8 @@ class SummaryCollector(object):
     @staticmethod
     def getAllSummaryKeys(ert):
         """ @rtype: list of str """
-        keys = ert.ensembleConfig().getKeylistFromImplType(ErtImplType.SUMMARY)
-        return sorted([key for key in keys], key=lambda k : k.lower())
+        key_manager = KeyManager(ert)
+        return key_manager.summaryKeys()
 
     @staticmethod
     def loadAllSummaryData(ert, case_name, keys=None):

@@ -27,11 +27,11 @@ extern "C" {
 #include <ert/util/path_fmt.h>
 
 #include <ert/job_queue/queue_driver.h>
+#include <ert/job_queue/job_node.h>
 
-  typedef bool (job_callback_ftype)   (void *);
 
   typedef struct job_queue_struct      job_queue_type;
-  typedef struct job_queue_node_struct job_queue_node_type;
+
 
   void                job_queue_submit_complete( job_queue_type * queue );
   job_driver_type     job_queue_get_driver_type( const job_queue_type * queue );
@@ -42,29 +42,17 @@ extern "C" {
   job_queue_type   *  job_queue_alloc( int  , const char * ok_file , const char * exit_file);
   void                job_queue_free(job_queue_type *);
 
-  int                 job_queue_add_job_mt(job_queue_type * ,
-                                           const char * run_cmd ,
-                                           job_callback_ftype * done_callback,
-                                           job_callback_ftype * retry_callback,
-                                           job_callback_ftype * exit_callback,
-                                           void * callback_arg ,
-                                           int num_cpu ,
-                                           const char * ,
-                                           const char * ,
-                                           int argc ,
-                                           const char ** argv );
-
-  int                 job_queue_add_job_st(job_queue_type * ,
-                                           const char * run_cmd ,
-                                           job_callback_ftype * done_callback,
-                                           job_callback_ftype * retry_callback,
-                                           job_callback_ftype * exit_callback,
-                                           void * callback_arg ,
-                                           int num_cpu ,
-                                           const char * ,
-                                           const char * ,
-                                           int argc ,
-                                           const char ** argv );
+  int                 job_queue_add_job(job_queue_type * ,
+                                        const char * run_cmd ,
+                                        job_callback_ftype * done_callback,
+                                        job_callback_ftype * retry_callback,
+                                        job_callback_ftype * exit_callback,
+                                        void * callback_arg ,
+                                        int num_cpu ,
+                                        const char * ,
+                                        const char * ,
+                                        int argc ,
+                                        const char ** argv );
 
   void                job_queue_reset(job_queue_type * queue);
   void                job_queue_run_jobs(job_queue_type * queue, int num_total_run, bool verbose);
@@ -72,14 +60,12 @@ extern "C" {
   void *              job_queue_run_jobs__(void * );
   void                job_queue_start_manager_thread( job_queue_type * job_queue , pthread_t * queue_thread , int job_size , bool verbose);
 
-  job_status_type     job_queue_iget_job_status(const job_queue_type * , int );
-  const char        * job_queue_status_name( job_status_type status );
+  job_status_type     job_queue_iget_job_status(job_queue_type * , int );
 
   int                 job_queue_iget_status_summary( const job_queue_type * queue , job_status_type status);
   time_t              job_queue_iget_sim_start( job_queue_type * queue, int job_index);
   time_t              job_queue_iget_sim_end( job_queue_type * queue, int job_index);
   time_t              job_queue_iget_submit_time( job_queue_type * queue, int job_index);
-  job_driver_type     job_queue_lookup_driver_name( const char * driver_name );
 
   void                job_queue_set_max_job_duration(job_queue_type * queue, int max_duration_seconds);
   int                 job_queue_get_max_job_duration(const job_queue_type * queue);
@@ -98,20 +84,25 @@ extern "C" {
   void              * job_queue_iget_job_data( job_queue_type * job_queue , int job_nr );
 
   int                 job_queue_get_active_size( const job_queue_type * queue );
+  int                 job_queue_get_num_callback( const job_queue_type * queue);
   int                 job_queue_get_num_running( const job_queue_type * queue);
   int                 job_queue_get_num_pending( const job_queue_type * queue);
   int                 job_queue_get_num_waiting( const job_queue_type * queue);
   int                 job_queue_get_num_complete( const job_queue_type * queue);
   int                 job_queue_get_num_failed( const job_queue_type * queue);
   int                 job_queue_get_num_killed( const job_queue_type * queue);
-  const char        * job_queue_iget_failed_job( const job_queue_type * queue , int job_index);
-  const char        * job_queue_iget_error_reason( const job_queue_type * queue , int job_index);
-  const char        * job_queue_iget_stderr_capture( const job_queue_type * queue , int job_index);
-  const char        * job_queue_iget_stderr_file( const job_queue_type * queue , int job_index);
-  const char        * job_queue_iget_run_path( const job_queue_type * queue , int job_index);
+  const char        * job_queue_iget_failed_job(  job_queue_type * queue , int job_index);
+  const char        * job_queue_iget_error_reason(  job_queue_type * queue , int job_index);
+  const char        * job_queue_iget_stderr_capture(  job_queue_type * queue , int job_index);
+  const char        * job_queue_iget_stderr_file(  job_queue_type * queue , int job_index);
+  const char        * job_queue_iget_run_path(  job_queue_type * queue , int job_index);
   void                job_queue_iset_external_restart(job_queue_type * queue , int job_index);
   job_queue_node_type * job_queue_iget_job( job_queue_type * job_queue , int job_nr );
   bool                job_queue_has_driver(const job_queue_type * queue );
+  job_queue_node_type * job_queue_iget_node(job_queue_type * queue , int job_index);
+  int job_queue_get_max_running( const job_queue_type * queue );
+
+  UTIL_SAFE_CAST_HEADER( job_queue );
 
 #ifdef __cplusplus
 }

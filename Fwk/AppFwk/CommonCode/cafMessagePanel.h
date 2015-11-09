@@ -52,27 +52,27 @@ namespace caf {
 //==================================================================================================
 class MessagePanel : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MessagePanel(QDockWidget* parent);
+    MessagePanel(QDockWidget* parent);
     
     static MessagePanel* instance();
 
-	void			showInfo(QString info);
-	void			showWarning(QString warn);
-	void			showError(QString error);
+    void            showInfo(QString info);
+    void            showWarning(QString warn);
+    void            showError(QString error);
 
-    virtual QSize	sizeHint () const;
-	bool			isVisibleToUser();
+    virtual QSize    sizeHint () const;
+    bool            isVisibleToUser();
 
 private:
-    static void	        convertStringToHTML(QString* str);
+    static void            convertStringToHTML(QString* str);
 
 private:
     static MessagePanel*    sm_messagePanelInstance;
     
-    QTextEdit*		m_textEdit;
+    QTextEdit*        m_textEdit;
 };
 
 }

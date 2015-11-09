@@ -78,6 +78,7 @@ extern "C" {
   void         layer_update_active( layer_type * layer , const ecl_grid_type * grid , int k);
 
   void         layer_cells_equal( const layer_type * layer , int value , int_vector_type * i_list , int_vector_type * j_list);
+  int          layer_count_equal( const layer_type * layer , int value );
 
 UTIL_IS_INSTANCE_HEADER( layer );
 UTIL_SAFE_CAST_HEADER( layer );

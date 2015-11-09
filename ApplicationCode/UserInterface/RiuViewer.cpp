@@ -18,54 +18,35 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RiuViewer.h"
-#include "RiuViewerCommands.h"
 
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
+#include "RiaBaseDefs.h"
+
+#include "RimProject.h"
+#include "RimView.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
+
+#include "RiuCadNavigation.h"
+#include "RiuGeoQuestNavigation.h"
+#include "RiuRmsNavigation.h"
+#include "RiuSimpleHistogramWidget.h"
+#include "RiuViewerCommands.h"
 
 #include "cafCeetronPlusNavigation.h"
-#include "RiuCadNavigation.h"
-#include "RiuRmsNavigation.h"
-#include "RiuGeoQuestNavigation.h"
-
-#include "RimEclipseView.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimEclipseCase.h"
-#include "RimCellEdgeColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseWellCollection.h"
-
-#include "RimUiTreeModelPdm.h"
-
-#include "RimReservoirCellResultsStorage.h"
-
-#include "RigCaseData.h"
-
-#include "RiuSimpleHistogramWidget.h"
-
-#include "cafNavigationPolicy.h"
 #include "cafEffectGenerator.h"
+#include "cvfCamera.h"
+#include "cvfFont.h"
+#include "cvfOverlayAxisCross.h"
+#include "cvfRenderSequence.h"
+#include "cvfRendering.h"
+#include "cvfScene.h"
 
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RivSourceInfo.h"
-#include "RivFemPickSourceInfo.h"
-
-#include "RiuResultTextBuilder.h"
-#include "RivFemPartGeometryGenerator.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RigFemPart.h"
-#include "RigFemPartGrid.h"
+#include <QCDEStyle>
+#include <QLabel>
+#include <QMouseEvent>
+#include <QProgressBar>
 
 using cvf::ManipulatorTrackball;
 
@@ -81,7 +62,6 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 ///
 //==================================================================================================
 
-#include "RiaBaseDefs.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -172,6 +152,12 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
         m_animationProgress->setFont(regTestFont);
         m_histogramWidget->setFont(regTestFont);
     }
+
+    // When a context menu is created in the viewer is, and the action triggered is displaying a dialog,
+    // the context menu of QMainWindow is displayed after the action has finished
+    // Setting this policy will make sure the handling is not deferred to the widget's parent,
+    // which solves the problem
+    setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
 
@@ -183,6 +169,8 @@ RiuViewer::~RiuViewer()
     if (m_reservoirView)
     {
         m_reservoirView->showWindow = false;
+        m_reservoirView->uiCapability()->updateUiIconFromToggleField();
+
         m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
     }
     delete m_InfoLabel;
@@ -274,12 +262,16 @@ void RiuViewer::slotEndAnimation()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotSetCurrentFrame(int frameIndex)
 {
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
-    CVF_ASSERT(firstRendering);
+    setCurrentFrame(frameIndex);
 
-    if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
-
-    caf::Viewer::slotSetCurrentFrame(frameIndex);
+    if (m_reservoirView)
+    {
+        RimViewLinker* viewLinker = m_reservoirView->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->updateTimeStep(m_reservoirView, frameIndex);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -490,4 +482,42 @@ void RiuViewer::updateNavigationPolicy()
             CVF_ASSERT(0);
             break;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::navigationPolicyUpdate()
+{
+    caf::Viewer::navigationPolicyUpdate();
+
+    if (m_reservoirView)
+    {
+        RimViewLinker* viewLinker = m_reservoirView->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->updateCamera(m_reservoirView);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setCurrentFrame(int frameIndex)
+{
+    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    CVF_ASSERT(firstRendering);
+
+    if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
+
+    caf::Viewer::slotSetCurrentFrame(frameIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimView* RiuViewer::ownerReservoirView()
+{
+    return m_reservoirView;
 }

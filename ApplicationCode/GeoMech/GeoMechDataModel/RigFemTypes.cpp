@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 int RigFemTypes::elmentNodeCount(RigElementType elmType)
 {
-    static int elementTypeCounts[2] ={ 8, 4 };
+    static int elementTypeCounts[3] ={ 8, 8, 4 };
 
     return elementTypeCounts[elmType];
 }
@@ -37,7 +37,7 @@ int RigFemTypes::elmentNodeCount(RigElementType elmType)
 //--------------------------------------------------------------------------------------------------
 int RigFemTypes::elmentFaceCount(RigElementType elmType)
 {
-    const static int elementFaceCounts[2] ={ 6, 1 };
+    const static int elementFaceCounts[3] ={ 6, 6, 1 };
 
     return elementFaceCounts[elmType];
 }
@@ -46,7 +46,7 @@ int RigFemTypes::elmentFaceCount(RigElementType elmType)
 /// 
 //--------------------------------------------------------------------------------------------------
 // HEX8
-//     7---------6               
+//     7---------6     Increased k -> Increased depth : 4 5 6 7 is the deepest quad
 //    /|        /|     |k        
 //   / |       / |     | /j      
 //  4---------5  |     |/        
@@ -63,6 +63,7 @@ const int* RigFemTypes::localElmNodeIndicesForFace(RigElementType elmType, int f
     switch (elmType)
     {
         case HEX8:
+        case HEX8P:
             (*faceNodeCount) = 4;
             return HEX8_Faces[faceIdx];
             break;
@@ -85,6 +86,7 @@ int RigFemTypes::oppositeFace(RigElementType elmType, int faceIdx)
     switch (elmType)
     {
         case HEX8:
+        case HEX8P:
             return HEX8_OppositeFaces[faceIdx];
             break;
         case CAX4:
@@ -96,4 +98,29 @@ int RigFemTypes::oppositeFace(RigElementType elmType, int faceIdx)
     }
 
     return faceIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+const int* RigFemTypes::localElmNodeToIntegrationPointMapping(RigElementType elmType)
+{
+    static const int HEX8_Mapping[8] ={ 0, 1, 3, 2, 4, 5, 7, 6 };
+
+    switch (elmType)
+    {
+        case HEX8:
+        case HEX8P:
+            return HEX8_Mapping;
+            break;
+        case CAX4:
+            return HEX8_Mapping; // First four is identical to HEX8
+            break;
+        default:
+            assert(false); // Element type not supported
+            break;
+    }
+
+    return HEX8_Mapping;
 }

@@ -34,6 +34,8 @@ class RigResultAccessor : public cvf::Object
 public:
     virtual double cellScalar(size_t gridLocalCellIndex) const = 0;
     virtual double cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
+    virtual double cellScalarGlobIdx(size_t globCellIndex) const = 0;
+    virtual double cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
 };
 
 //==================================================================================================
@@ -42,6 +44,8 @@ public:
 class RigHugeValResultAccessor : public RigResultAccessor
 {
 public:
-	virtual double cellScalar(size_t gridLocalCellIndex) const;
-	virtual double cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    virtual double cellScalar(size_t gridLocalCellIndex) const;
+    virtual double cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    virtual double cellScalarGlobIdx(size_t globCellIndex) const;
+    virtual double cellFaceScalarGlobIdx(size_t globCellIndex,  cvf::StructGridInterface::FaceType faceId) const;
 };

@@ -209,8 +209,6 @@ void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimEclipseCel
 
     for (size_t i = 0; i < faultCollection->faults.size(); i++)
     {
-        RimFault* rimFault = faultCollection->faults[i];
-
         if (cellResultColors && (cellResultColors->hasResult() || cellResultColors->isTernarySaturationSelected()) )
         {
             m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultColors);

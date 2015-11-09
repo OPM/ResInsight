@@ -1,6 +1,7 @@
 from pandas import DataFrame
 from ert.enkf import ErtImplType, EnKFMain, EnkfFs, RealizationStateEnum, CustomKWConfig, EnkfNode, NodeId, \
     EnkfStateType
+from ert.enkf.key_manager import KeyManager
 
 
 class CustomKWCollector(object):
@@ -8,19 +9,8 @@ class CustomKWCollector(object):
     @staticmethod
     def getAllCustomKWKeys(ert):
         """ @rtype: list of str """
-        custom_kw_keys = ert.ensembleConfig().getKeylistFromImplType(ErtImplType.CUSTOM_KW)
-        custom_kw_keys = [key for key in custom_kw_keys]
-
-        custom_kw_list = []
-        for name in custom_kw_keys:
-            enkf_config_node = ert.ensembleConfig().getNode(name)
-            custom_kw_config = enkf_config_node.getModelConfig()
-            assert isinstance(custom_kw_config, CustomKWConfig)
-
-            for key in custom_kw_config:
-                custom_kw_list.append("%s:%s" % (name, key))
-
-        return custom_kw_list
+        key_manager = KeyManager(ert)
+        return key_manager.customKwKeys()
 
     @staticmethod
     def groupKeys(keys):

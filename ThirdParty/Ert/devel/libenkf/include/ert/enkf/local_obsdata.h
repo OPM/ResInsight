@@ -42,7 +42,9 @@ typedef struct local_obsdata_struct local_obsdata_type;
   local_obsdata_node_type       * local_obsdata_get( const local_obsdata_type * data , const char * key);
   void                            local_obsdata_clear( local_obsdata_type * data );
   void                            local_obsdata_del_node( local_obsdata_type * data  , const char * key);
-  void local_obsdata_reset_tstep_list( local_obsdata_type * data , const int_vector_type * step_list);
+  void                            local_obsdata_reset_tstep_list( local_obsdata_type * data , const int_vector_type * step_list);
+  void                            local_obsdata_fprintf( const local_obsdata_type * obsdata , FILE * stream );
+  void                            local_obsdata_summary_fprintf( const local_obsdata_type * obsdata , FILE * stream);
 
 UTIL_IS_INSTANCE_HEADER( local_obsdata );
 

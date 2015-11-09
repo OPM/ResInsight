@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'stringlist.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'stringlist.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <string.h>
@@ -38,7 +38,7 @@
    This file implements a very thin wrapper around a list (vector) of
    strings, and the total number of strings. It is mostly to avoid
    sending both argc and argv.
-   
+
    Most of the functionality is implemented through vector.c and
    stateless functions in util.c
 */
@@ -63,7 +63,7 @@ static void stringlist_fprintf__(const stringlist_type * stringlist, const char 
       const char * s = stringlist_iget(stringlist , i);
       fprintf(stream , "%s%s", s  , sep);
     }
-    
+
     fprintf(stream , "%s", stringlist_iget( stringlist , length - 1 ));
   }
 }
@@ -140,7 +140,7 @@ static stringlist_type * stringlist_alloc_empty( bool alloc_vector ) {
     stringlist->strings = vector_alloc_new();
   else
     stringlist->strings = NULL;
-  
+
   return stringlist;
 }
 
@@ -156,9 +156,9 @@ stringlist_type * stringlist_alloc_new() {
 stringlist_type * stringlist_alloc_argv_copy(const char ** argv , int argc) {
   int iarg;
   stringlist_type * stringlist = stringlist_alloc_empty( true);
-  for (iarg = 0; iarg < argc; iarg++) 
+  for (iarg = 0; iarg < argc; iarg++)
     stringlist_append_copy( stringlist , argv[iarg]);
-  
+
   return stringlist;
 }
 
@@ -166,7 +166,7 @@ stringlist_type * stringlist_alloc_argv_copy(const char ** argv , int argc) {
 stringlist_type * stringlist_alloc_argv_ref(const char ** argv , int argc) {
   int iarg;
   stringlist_type * stringlist = stringlist_alloc_empty( true );
-  for (iarg = 0; iarg < argc; iarg++) 
+  for (iarg = 0; iarg < argc; iarg++)
     stringlist_append_ref( stringlist , argv[iarg]);
 
   return stringlist;
@@ -176,19 +176,19 @@ stringlist_type * stringlist_alloc_argv_ref(const char ** argv , int argc) {
 stringlist_type * stringlist_alloc_argv_owned_ref(const char ** argv , int argc) {
   int iarg;
   stringlist_type * stringlist = stringlist_alloc_empty( true );
-  for (iarg = 0; iarg < argc; iarg++) 
+  for (iarg = 0; iarg < argc; iarg++)
     stringlist_append_owned_ref( stringlist , argv[iarg]);
-  
+
   return stringlist;
 }
 
 
 
-/** 
+/**
     Allocates a new stringlist instance where all the new string are
     references to the string found in the existing stringlist
-    instance.  
-*/ 
+    instance.
+*/
 stringlist_type * stringlist_alloc_shallow_copy(const stringlist_type * src) {
   stringlist_type * copy = stringlist_alloc_empty( false );
   copy->strings = vector_alloc_copy( src->strings , false);
@@ -223,7 +223,7 @@ stringlist_type * stringlist_alloc_shallow_copy_with_limits(const stringlist_typ
 stringlist_type * stringlist_alloc_deep_copy_with_limits(const stringlist_type * src, int offset , int num_strings) {
   stringlist_type * copy = stringlist_alloc_empty( true );
   int i;
-  for (i = 0; i < num_strings; i++) 
+  for (i = 0; i < num_strings; i++)
     stringlist_append_copy( copy , stringlist_iget( src , i + offset));
   return copy;
 }
@@ -256,7 +256,7 @@ void stringlist_append_stringlist_ref(stringlist_type * stringlist , const strin
 
 /**
   Insert a copy of a stringlist in some position.
-  
+
   Can probably be made more efficient.
 */
 
@@ -302,7 +302,7 @@ void stringlist_deep_copy( stringlist_type * target , const stringlist_type * sr
 
 
 
-/** 
+/**
     Frees all the memory contained by the stringlist.
 */
 void stringlist_clear(stringlist_type * stringlist) {
@@ -352,11 +352,11 @@ const char * stringlist_back(const stringlist_type * stringlist) {
 int stringlist_iget_as_int( const stringlist_type * stringlist , int index , bool * valid) {
   const char * string_value = stringlist_iget( stringlist , index );
   int value = -1;
-  
+
   if (valid != NULL)
     *valid = false;
 
-  if (util_sscanf_int(string_value , &value)) 
+  if (util_sscanf_int(string_value , &value))
     if (valid != NULL)
       *valid = true;
 
@@ -430,7 +430,7 @@ int stringlist_get_size(const stringlist_type * stringlist) {
 
 
 /*
-  Return NULL if the list has zero entries. 
+  Return NULL if the list has zero entries.
 */
 static char ** stringlist_alloc_char__(const stringlist_type * stringlist, bool deep_copy) {
   char ** strings = NULL;
@@ -460,7 +460,7 @@ char ** stringlist_alloc_char_ref(const stringlist_type * stringlist) {
 
 
 
-/** 
+/**
     Scans the stringlist (linear scan) to see if it contains (at
     least) one occurence of 's'. Will never return true if the input
     string @s equals NULL, altough the stringlist itself can contain
@@ -471,7 +471,7 @@ bool stringlist_contains(const stringlist_type * stringlist , const char * s) {
   int  size     = stringlist_get_size( stringlist );
   int  index    = 0;
   bool contains = false;
-  
+
   while ((index < size) && (!contains)) {
     const char * istring = stringlist_iget(stringlist , index);
     if (istring != NULL)
@@ -491,7 +491,7 @@ int_vector_type * stringlist_find(const stringlist_type * stringlist, const char
   int_vector_type * indicies = int_vector_alloc(0, -1);
   int  size     = stringlist_get_size( stringlist );
   int  index    = 0;
-  
+
   while (index < size ) {
     const char * istring = stringlist_iget(stringlist , index);
     if (istring != NULL)
@@ -562,25 +562,25 @@ char * stringlist_alloc_joined_substring( const stringlist_type * s , int start_
   {
     char * string = NULL;
     int i;
-    
+
     /* Start with allocating a string long enough to hold all the substrings. */
     {
       int sep_length   = strlen( sep );
       int total_length = 0;
       for (i=start_index; i < end_index; i++)
         total_length += (strlen(stringlist_iget( s , i)) + sep_length);
-      
+
       total_length += (1 - sep_length);
       string    = util_malloc( total_length * sizeof * string );
       string[0] = '\0';
     }
-    
+
     for (i = start_index; i < end_index; i ++) {
       strcat( string , stringlist_iget( s , i));
       if (i < (end_index - 1))
         strcat( string , sep );
     }
-    
+
     return string;
   }
 }
@@ -602,7 +602,7 @@ char * stringlist_alloc_joined_string(const stringlist_type * s , const char * s
    in the list. The actual functionality is in the util_split_string()
    function.
 */
-   
+
 
 
 stringlist_type * stringlist_alloc_from_split( const char * input_string , const char * sep ) {
@@ -624,7 +624,7 @@ void stringlist_buffer_fwrite( const stringlist_type * s , buffer_type * buffer 
   int i;
   int size = stringlist_get_size( s );
   buffer_fwrite_int( buffer , size );
-  for (i=0; i < size; i++) 
+  for (i=0; i < size; i++)
     buffer_fwrite_string(buffer , stringlist_iget(s , i) );
 }
 
@@ -633,11 +633,11 @@ void stringlist_fwrite(const stringlist_type * s, FILE * stream) {
   int i;
   int size = stringlist_get_size( s );
   util_fwrite_int( size , stream);
-  for (i=0; i < size; i++) 
+  for (i=0; i < size; i++)
     util_fwrite_string(stringlist_iget(s , i) , stream);
 }
 
-/* 
+/*
    When a stringlist is loaded from file the current content of the
    stringlist is discarded; and the stringlist becomes the owner of
    all the data read in.
@@ -754,7 +754,7 @@ int stringlist_select_matching_files(stringlist_type * names , const char * path
     WIN32_FIND_DATA file_data;
     HANDLE          file_handle;
     char * pattern  = util_alloc_filename( path , file_pattern , NULL );
-    
+
     stringlist_clear( names );
     file_handle = FindFirstFile( pattern , &file_data );
     if (file_handle != INVALID_HANDLE_VALUE) {
@@ -765,7 +765,7 @@ int stringlist_select_matching_files(stringlist_type * names , const char * path
     }
     FindClose( file_handle );
     free( pattern );
-    
+
     return stringlist_get_size( names );
   }
 #endif
@@ -783,7 +783,7 @@ int stringlist_append_matching_elements(stringlist_type * target , const stringl
     }
     return match_count;
 }
-  
+
   int stringlist_select_matching_elements(stringlist_type * target , const stringlist_type * src , const char * pattern) {
   stringlist_clear( target );
   return stringlist_append_matching_elements( target , src , pattern );

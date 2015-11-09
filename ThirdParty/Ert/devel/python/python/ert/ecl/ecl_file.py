@@ -275,11 +275,11 @@ class EclFile(CClass):
         """
 
         OK = False
-        if report_step:
+        if not report_step is None:
             OK = cfunc.restart_block_step( self , report_step )
-        elif sim_time:
+        elif not sim_time is None:
             OK = cfunc.restart_block_time( self , CTime( sim_time ) )
-        elif index:
+        elif not index is None:
             OK = cfunc.restart_block_iselect( self, index )
         else:
             raise TypeError("select_restart_section() requires either dtime or report_step argument - none given")

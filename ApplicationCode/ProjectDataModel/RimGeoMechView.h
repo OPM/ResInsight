@@ -19,29 +19,31 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
-#include "cafAppEnum.h"
-#include "cafPdmFieldCvfColor.h"   
-#include "cafPdmFieldCvfMat4d.h"   
-
-#include "cvfObject.h"
 #include "RimView.h"
 
-class RimGeoMechCellColors;
-class Rim3dOverlayInfoConfig;
-class RiuViewer;
-class RimGeoMechCase;
-class RivGeoMechPartMgr;
-class RimCellRangeFilterCollection;
-class RivGeoMechVizLogic;
-class RimGeoMechPropertyFilterCollection;
+#include "cafAppEnum.h"
+#include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"   
+#include "cafPdmFieldCvfMat4d.h"   
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
+
+#include "cvfObject.h"
+
 class RigFemPart;
+class Rim3dOverlayInfoConfig;
+class RimCellRangeFilterCollection;
+class RimGeoMechCase;
+class RimGeoMechCellColors;
+class RimGeoMechPropertyFilterCollection;
+class RiuViewer;
+class RivGeoMechPartMgr;
+class RivGeoMechVizLogic;
 
 namespace cvf {
-    class Transform;
     class CellRangeFilter;
+    class Transform;
 }
 
 //==================================================================================================
@@ -61,13 +63,20 @@ public:
 
     virtual void                                        loadDataAndUpdate();
 
-    caf::PdmField<RimGeoMechCellColors*>                cellResult;
-    caf::PdmField<RimGeoMechPropertyFilterCollection*>  propertyFilterCollection;
+    caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
+
+    RimGeoMechPropertyFilterCollection*                 propertyFilterCollection();
+    void                                                setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc);
 
     bool                                                isTimeStepDependentDataVisible();
 
     virtual cvf::Transform*                             scaleTransform();
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
+    void                                                updateIconStateForFilterCollections();
+
+protected:
+    virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+
 
 private:
     virtual void                                        createDisplayModel();
@@ -88,6 +97,11 @@ private:
     virtual void                                        initAfterRead();
 
     virtual RimCase*                                    ownerCase();
+
+    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
+
+    caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
+    caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
 
     caf::PdmPointer<RimGeoMechCase>                     m_geomechCase;
     cvf::ref<RivGeoMechVizLogic>                        m_vizLogic;

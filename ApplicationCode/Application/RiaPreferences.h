@@ -22,9 +22,10 @@
 
 #include "RiaApplication.h"
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
@@ -58,16 +59,19 @@ public: // Pdm Fields
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
+    caf::PdmField<bool>     showLasCurveWithoutTvdWarning;
+
 
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
+    caf::PdmField<bool>     appendClassNameToUiText;
 
     caf::PdmField<QString>  lastUsedProjectFileName;
 
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
     caf::PdmField<bool>     loadAndShowSoil;
 
-    caf::PdmField<RifReaderSettings*> readerSettings;
+    caf::PdmChildField<RifReaderSettings*> readerSettings;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

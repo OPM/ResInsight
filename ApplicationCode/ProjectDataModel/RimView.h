@@ -19,23 +19,36 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
-#include "cafAppEnum.h"
+#include "cafPdmObject.h"
+
 #include "RivCellSetEnum.h"
 
-class RiuViewer;
+#include "cvfArray.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
+
+
+#include <QPointer>
+
 class Rim3dOverlayInfoConfig;
 class RimCase;
+class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
+class RiuViewer;
+class RimViewLinker;
+class RimViewController;
 
 namespace cvf
 {
     class BoundingBox;
-    class Scene;
     class ModelBasicList;
+    class Scene;
     class Transform;
 }
 
@@ -63,7 +76,15 @@ public:
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
 
-    caf::PdmField<RimCellRangeFilterCollection*>    rangeFilterCollection;
+    RimCellRangeFilterCollection*           rangeFilterCollection();
+    const RimCellRangeFilterCollection*     rangeFilterCollection() const;
+
+    RimCellRangeFilterCollection*           overrideRangeFilterCollection();
+    void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
+    void                                    replaceRangeFilterCollectionWithOverride();
+
+    caf::PdmField< std::vector<int> >       windowGeometry;
+
 
     // Draw style 
 
@@ -96,6 +117,8 @@ public:
     void                                    setShowFaultsOnly(bool showFaults);
     bool                                    isGridVisualizationMode() const;
 
+    void                                    setScaleZAndUpdate(double scaleZ);
+
     // Animation
     int                                     currentTimeStep()    { return m_currentTimeStep;}
     void                                    setCurrentTimeStep(int frameIdx);
@@ -105,6 +128,12 @@ public:
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
+
+    RimViewController*                      viewController() const;
+    bool                                    isMasterView() const;
+    RimViewLinker*                          assosiatedViewLinker() const;
+
+    cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
@@ -136,21 +165,29 @@ protected:
     virtual void                            updateViewerWidgetWindowTitle() = 0;
 
     virtual void                            resetLegendsInViewer() = 0;
- 
+    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
+
     QPointer<RiuViewer>                     m_viewer;
 
-    caf::PdmField<int>                      m_currentTimeStep;
-    caf::PdmField<Rim3dOverlayInfoConfig*>  overlayInfoConfig;
+    caf::PdmField<int>                                  m_currentTimeStep;
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>         m_overlayInfoConfig;
+
+    caf::PdmChildField<RimCellRangeFilterCollection*>   m_rangeFilterCollection;
+    caf::PdmChildField<RimCellRangeFilterCollection*>   m_overrideRangeFilterCollection;
 
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
+    cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
+
+private:
+    RimViewLinker*                          viewLinkerIfMasterView() const;
+
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;
-
 };
 
 

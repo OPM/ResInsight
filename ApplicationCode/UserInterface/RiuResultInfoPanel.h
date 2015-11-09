@@ -32,19 +32,19 @@ class QTextEdit;
 //==================================================================================================
 class RiuResultInfoPanel : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	RiuResultInfoPanel(QDockWidget* parent);
+    RiuResultInfoPanel(QDockWidget* parent);
 
-	void			setInfo(const QString& info);
+    void            setInfo(const QString& info);
 
-    virtual QSize	sizeHint () const;
-
-private:
-	static void	    convertStringToHTML(QString* str);
+    virtual QSize    sizeHint () const;
 
 private:
-    QTextEdit*		m_textEdit;
+    static void        convertStringToHTML(QString* str);
+
+private:
+    QTextEdit*        m_textEdit;
 };
 

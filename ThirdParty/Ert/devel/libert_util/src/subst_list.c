@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'subst_list.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'subst_list.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <ctype.h>
@@ -32,7 +32,7 @@
 /**
    This file implements a small support struct for search-replace
    operations, along with wrapped calls to util_string_replace_inplace().
-   
+
    Substitutions can be carried out on files and string in memory (char *
    with \0 termination); and the operations can be carried out inplace, or
    in a filtering mode where a new file/string is created.
@@ -46,16 +46,16 @@
 
         * subst_list_insert_ref(subst_list , key , value);
         * subst_list_insert_owned_ref(subst_list , key , value);
-        * subst_list_insert_copy(subst_list , key , value );  
-   
+        * subst_list_insert_copy(subst_list , key , value );
+
        The difference between these functions is who is owning the memory
        pointed to by the value pointer.
 
     3. Do the actual search-replace operation on a file or memory buffer:
-    
+
        * subst_list_filter_file()   : Does search-replace on a file.
        * subst_list_update_string() : Does search-replace on a buffer.
-       
+
     4. Free the subst_list and go home.
 
    Internally the (key,value) pairs used for substitutions are stored in a
@@ -71,10 +71,10 @@
 */
 
 
-typedef enum { SUBST_DEEP_COPY   = 1,     
+typedef enum { SUBST_DEEP_COPY   = 1,
                SUBST_MANAGED_REF = 2,
                SUBST_SHARED_REF  = 3} subst_insert_type; /* Mode used in the subst_list_insert__() function */
-  
+
 #define SUBST_LIST_TYPE_ID 6614320
 
 struct subst_list_struct {
@@ -83,7 +83,7 @@ struct subst_list_struct {
   vector_type                 * string_data;  /* The string substitutions we should do. */
   vector_type                 * func_data;    /* The functions we support. */
   const subst_func_pool_type  * func_pool;    /* NOT owned by the subst_list instance - can be NULL */
-  hash_type                   * map; 
+  hash_type                   * map;
 };
 
 
@@ -96,16 +96,16 @@ typedef struct {
 
 
 
-/* 
+/*
    The subst_list type is implemented as a hash of subst_list_node
    instances. This node type is not exported out of this file scope at
    all.
 */
 
-typedef struct {  
+typedef struct {
   bool              value_owner;     /* Wether the memory pointed to by value should bee freed.*/
   char            * value;
-  char            * key;      
+  char            * key;
   char            * doc_string;      /* A doc_string of this substitution - only for documentation - can be NULL. */
 } subst_list_string_type;
 
@@ -120,7 +120,7 @@ static subst_list_string_type * subst_list_string_alloc(const char * key) {
   subst_list_string_type * node = util_malloc(sizeof * node );
   node->value_owner       = false;
   node->value             = NULL;
-  node->doc_string        = NULL; 
+  node->doc_string        = NULL;
   node->key               = util_alloc_string_copy( key );
   return node;
 }
@@ -148,7 +148,7 @@ static void subst_list_string_free__(void * node) {
 
 
 /**
-   input_value can be NULL. 
+   input_value can be NULL.
 */
 static void subst_list_string_set_value(subst_list_string_type * node, const char * input_value , const char * doc_string , subst_insert_type insert_mode) {
   subst_list_string_free_content( node );
@@ -158,15 +158,15 @@ static void subst_list_string_set_value(subst_list_string_type * node, const cha
       value = util_alloc_string_copy(input_value);
     else
       value = (char *) input_value;
-    
+
     if (insert_mode == SUBST_SHARED_REF)
       node->value_owner = false;
     else
       node->value_owner = true;
-    
+
     node->value = value;
   }
-  
+
   if (doc_string != NULL)
     node->doc_string = util_realloc_string_copy( node->doc_string , doc_string );
 }
@@ -176,7 +176,7 @@ static void subst_list_string_set_value(subst_list_string_type * node, const cha
    When arriving at this function the main subst scope should already have verified that
    the requested function is available in the function pool.
 */
-   
+
 static subst_list_func_type * subst_list_func_alloc( const char * func_name, subst_func_type * func) {
   subst_list_func_type * subst_func = util_malloc( sizeof * subst_func );
   subst_func->name      = util_alloc_string_copy( func_name );
@@ -231,14 +231,14 @@ static subst_list_string_type * subst_list_insert_new_node(subst_list_type * sub
     vector_append_owned_ref( subst_list->string_data , new_node , subst_list_string_free__ );
   else
     vector_insert_owned_ref( subst_list->string_data , 0 , new_node , subst_list_string_free__ );
-  
+
   hash_insert_ref( subst_list->map , key , new_node );
   return new_node;
 }
 
 /*****************************************************************/
 
-static UTIL_IS_INSTANCE_FUNCTION( subst_list , SUBST_LIST_TYPE_ID )
+UTIL_IS_INSTANCE_FUNCTION( subst_list , SUBST_LIST_TYPE_ID )
 
 
 /**
@@ -266,13 +266,13 @@ bool subst_list_has_key( const subst_list_type * subst_list , const char * key) 
 }
 
 
-/* 
+/*
    The input argument is currently only (void *), runtime it will be
    checked whether it is of type subst_list_type, in which case it is
    interpreted as a parent instance, if it is of type
    subst_func_pool_type it is interpreted as a func_pool instance,
    otherwise the function will fail hard.
-   
+
    If the the input argument is a subst_list parent, the func_pool of
    the parent is used also for the newly allocated subst_list
    instance.
@@ -289,14 +289,14 @@ subst_list_type * subst_list_alloc(const void * input_arg) {
   subst_list->func_data        = vector_alloc_new();
 
   if (input_arg != NULL) {
-    if (subst_list_is_instance( input_arg )) 
+    if (subst_list_is_instance( input_arg ))
       subst_list_set_parent( subst_list , input_arg );
     else if (subst_func_pool_is_instance( input_arg ))
       subst_list->func_pool = input_arg;
     else
       util_abort("%s: run_time cast failed - invalid type on input argument.\n",__func__);
   }
-  
+
   return subst_list;
 }
 
@@ -315,10 +315,10 @@ subst_list_type * subst_list_alloc(const void * input_arg) {
 */
 
 
-static void subst_list_insert__(subst_list_type * subst_list , const char * key , const char * value , const char * doc_string, bool append , 
+static void subst_list_insert__(subst_list_type * subst_list , const char * key , const char * value , const char * doc_string, bool append ,
                                 subst_insert_type insert_mode) {
   subst_list_string_type * node = subst_list_get_string_node(subst_list , key);
-  
+
   if (node == NULL) /* Did not have the node. */
     node = subst_list_insert_new_node(subst_list , key ,append);
   subst_list_string_set_value(node , value , doc_string , insert_mode);
@@ -346,7 +346,7 @@ static void subst_list_insert__(subst_list_type * subst_list , const char * key 
        to do whatever it wants with the value pointer.
 
 */
-   
+
 void subst_list_append_ref(subst_list_type * subst_list , const char * key , const char * value, const char * doc_string) {
   subst_list_insert__(subst_list , key , value , doc_string , true , SUBST_SHARED_REF);
 }
@@ -381,7 +381,7 @@ void subst_list_prepend_copy(subst_list_type * subst_list , const char * key , c
 */
 
 void subst_list_insert_func(subst_list_type * subst_list , const char * func_name , const char * local_func_name) {
-  
+
   if (subst_list->func_pool != NULL && subst_func_pool_has_func( subst_list->func_pool , func_name )) {
     subst_list_func_type * subst_func = subst_list_func_alloc( local_func_name , subst_func_pool_get_func( subst_list->func_pool , func_name ));
     vector_append_owned_ref( subst_list->func_data , subst_func , subst_list_func_free__ );
@@ -407,10 +407,10 @@ void subst_list_free(subst_list_type * subst_list) {
 /*
   Below comes many different functions for doing the actual updating
   the functions differ in the form of the input and output. At the
-  lowest level, is the function 
-  
+  lowest level, is the function
+
     subst_list_uppdate_buffer()
-  
+
   which will update a buffer instance. This function again will call
   two separate functions for pure string substitutions and for
   function evaluation.
@@ -486,19 +486,19 @@ static bool subst_list_eval_funcs____(const subst_list_type * subst_list , const
   for (index = 0; index < vector_get_size( subst_list->func_data); index++) {
     const subst_list_func_type * subst_func = vector_iget_const( subst_list->func_data , index );
     const char                 * func_name  = subst_func->name;
-    
+
     bool match;
     buffer_rewind( buffer );
     do {
       size_t match_pos;
       match     = buffer_strstr( buffer , func_name );
       match_pos = buffer_get_offset( buffer );
-      
+
       if (match) {
         bool   update     = false;
         char * arg_start  = buffer_get_data( buffer );
         arg_start        += buffer_get_offset( buffer ) + strlen( func_name );
-        
+
         if (arg_start[0] == '(') {  /* We require that an opening paren follows immediately behind the function name. */
           char * arg_end = strchr( arg_start , ')');
           if (arg_end != NULL) {
@@ -506,8 +506,8 @@ static bool subst_list_eval_funcs____(const subst_list_type * subst_list , const
             char            * arg_content = util_alloc_substring_copy( arg_start, 1 , arg_end - arg_start - 1);
             stringlist_type * arg_list    = basic_parser_tokenize_buffer( parser , arg_content , true);
             char            * func_eval   = subst_list_func_eval( subst_func , arg_list );
-            int               old_len     = strlen(func_name) + strlen( arg_content) + 2;       
-            
+            int               old_len     = strlen(func_name) + strlen( arg_content) + 2;
+
             if (func_eval != NULL) {
               buffer_memshift( buffer , match_pos + old_len , strlen( func_eval ) - old_len);
               buffer_fwrite( buffer , func_eval , strlen( func_eval ) , sizeof * func_eval );
@@ -515,17 +515,17 @@ static bool subst_list_eval_funcs____(const subst_list_type * subst_list , const
               update = true;
               global_match = true;
             }
-            
+
             free( arg_content );
             stringlist_free( arg_list );
-          } 
-        } 
-        if (!update) 
+          }
+        }
+        if (!update)
           buffer_fseek( buffer , match_pos + strlen( func_name ) , SEEK_SET);
       }
     } while (match);
   }
-  if (subst_list->parent != NULL) 
+  if (subst_list->parent != NULL)
     global_match = (subst_list_eval_funcs____( subst_list->parent , parser , buffer ) || global_match);
   return global_match;
 }
@@ -548,7 +548,7 @@ static bool subst_list_eval_funcs__(const subst_list_type * subst_list , buffer_
 
      Inherited defintions
      --------------------
-     
+
      In this situation we have defined a (key,value) substitution,
      where the value depends on a value following afterwards:
 
@@ -559,7 +559,7 @@ static bool subst_list_eval_funcs__(const subst_list_type * subst_list , buffer_
      subsequently "<CASE>" is replaced with "Test4". A typical use
      case here is that the common definition of "<PATH>" is in the
      parent, and consequently parent should run first (i.e. top
-     down). 
+     down).
 
      However, in other cases the order of defintion might very well be
      opposite, i.e. with "<CASE>" first and then things will blow up:
@@ -569,8 +569,8 @@ static bool subst_list_eval_funcs__(const subst_list_type * subst_list , buffer_
 
      and, the final <CASE> will not be resolved. I.e. there is no
      obvious 'right' way to do it.
-     
-     
+
+
 
      Overriding defaults
      -------------------
@@ -598,7 +598,7 @@ static bool subst_list_replace_strings( const subst_list_type * subst_list , buf
   bool match = false;
   if (subst_list->parent != NULL)
     match = subst_list_replace_strings( subst_list->parent , buffer );
-  
+
   /* The actual string replace */
   match = (subst_list_replace_strings__( subst_list , buffer ) || match);
   return match;
@@ -641,7 +641,7 @@ bool subst_list_filter_file(const subst_list_type * subst_list , const char * sr
   buffer_type * buffer = buffer_fread_alloc( src_file );
   buffer_fseek( buffer , 0 , SEEK_END );  /* Ensure that the buffer is a \0 terminated string. */
   buffer_fwrite_char( buffer , '\0');
-  
+
   /*****************************************************************/
   /* Backup file ??  */
   if (util_same_file(src_file , target_file)) {
@@ -649,19 +649,19 @@ bool subst_list_filter_file(const subst_list_type * subst_list , const char * sr
     backup_file = util_alloc_tmp_file("/tmp" , backup_prefix , false);
     free(backup_prefix);
   }
-  
-  
+
+
   /* Writing backup file */
   if (backup_file != NULL) {
     FILE * stream = util_fopen(backup_file , "w");
     buffer_stream_fwrite_n( buffer , 0 , -1 , stream );  /* -1: Do not write the trailing \0. */
     fclose(stream);
   }
-  
-  
+
+
   /* Doing the actual update */
   match = subst_list_update_buffer(subst_list , buffer);
-  
+
 
   /* Writing updated file */
   {
@@ -669,7 +669,7 @@ bool subst_list_filter_file(const subst_list_type * subst_list , const char * sr
     buffer_stream_fwrite_n( buffer , 0 , -1 , stream );  /* -1: Do not write the trailing \0. */
     fclose(stream);
   }
-  
+
   /* OK - all went hunka dory - unlink the backup file and leave the building. */
   if (backup_file != NULL) {
     remove( backup_file );
@@ -697,7 +697,7 @@ bool subst_list_update_string(const subst_list_type * subst_list , char ** strin
   bool match = subst_list_update_buffer(subst_list , buffer);
   *string = buffer_get_data( buffer );
   buffer_free_container( buffer );
-  
+
   return match;
 }
 
@@ -774,7 +774,7 @@ subst_list_type * subst_list_alloc_deep_copy(const subst_list_type * src) {
     copy = subst_list_alloc( src->parent );
   else
     copy = subst_list_alloc( src->func_pool);
-  
+
   {
     int index;
     for (index = 0; index < vector_get_size( src->string_data ); index++) {
@@ -787,7 +787,7 @@ subst_list_type * subst_list_alloc_deep_copy(const subst_list_type * src) {
       subst_list_func_type       * copy_node = subst_list_func_alloc( src_node->name , src_node->func );
       vector_append_owned_ref( copy->func_data , copy_node , subst_list_func_free__ );
     }
-    
+
   }
   return copy;
 }
@@ -856,29 +856,28 @@ void subst_list_fprintf(const subst_list_type * subst_list , FILE * stream) {
    KEY1=Value1, Key2=Value2, Key3=Value3. Will return NULL is there
    are no elements in the subst_list.
 */
-   
+
 char * subst_list_alloc_string_representation( const subst_list_type * subst_list ) {
   int size = subst_list_get_size( subst_list );
   char * return_string = NULL;
   if (size > 0) {
     buffer_type * buffer = buffer_alloc( 512 );
     int i;
-  
+
     for (i=0; i < size; i++) {
       buffer_fwrite_char_ptr( buffer , subst_list_iget_key( subst_list , i));
-      buffer_fwrite_char(buffer , '=');
-      buffer_fwrite_char_ptr( buffer , subst_list_iget_value( subst_list , i));
-      if (i < (size - 1)) 
-        buffer_fwrite_char_ptr( buffer , ", ");
+      buffer_strcat(buffer , "=");
+      buffer_strcat( buffer , subst_list_iget_value( subst_list , i));
+      if (i < (size - 1))
+        buffer_strcat( buffer , ", ");
     }
-    buffer_fwrite_char( buffer , '\0');
     buffer_shrink_to_fit( buffer );
     return_string = buffer_get_data( buffer );
     buffer_free_container( buffer );
   }
   return return_string;
 }
-  
+
 
 /** Will loose tagging .... */
 int subst_list_add_from_string( subst_list_type * subst_list , const char * arg_string, bool append) {
@@ -886,7 +885,7 @@ int subst_list_add_from_string( subst_list_type * subst_list , const char * arg_
   if (arg_string != NULL) {
     char ** key_value_list;
     int     num_arg, iarg;
-    
+
     util_split_string(arg_string , "," , &num_arg , &key_value_list);
     for (iarg = 0; iarg < num_arg; iarg++) {
       if (strchr(key_value_list[iarg] , '=') == NULL)
@@ -902,27 +901,27 @@ int subst_list_add_from_string( subst_list_type * subst_list , const char * arg_
         int arg_length , value_length;
         while (isspace(*tmp))  /* Skipping initial space */
           tmp++;
-        
+
         arg_length = strcspn(tmp , " =");
         key  = util_alloc_substring_copy(tmp , 0 , arg_length);
         tmp += arg_length;
         while ((*tmp == ' ') || (*tmp == '='))
           tmp++;
-        
+
         value_length = strcspn(tmp , " ");
         value = util_alloc_substring_copy( tmp , 0 , value_length);
-        
+
         /* Setting the argument */
         if (append)
           subst_list_append_copy( subst_list , key , value , NULL);
         else
           subst_list_prepend_copy( subst_list , key , value , NULL);
-        
+
         free(key);
         free(value);
         tmp += value_length;
-        
-        
+
+
         /* Accept only trailing space - any other character indicates a failed parsing. */
         while (*tmp != '\0') {
           if (!isspace(*tmp))

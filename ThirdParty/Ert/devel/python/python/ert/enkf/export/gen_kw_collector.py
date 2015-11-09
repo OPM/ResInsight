@@ -2,6 +2,7 @@ import math
 from pandas import DataFrame, MultiIndex
 import numpy
 from ert.enkf import ErtImplType, EnKFMain, EnkfFs, RealizationStateEnum, GenKwConfig
+from ert.enkf.key_manager import KeyManager
 from ert.enkf.plot_data import EnsemblePlotGenKW
 from ert.util import BoolVector
 
@@ -20,22 +21,8 @@ class GenKwCollector(object):
     @staticmethod
     def getAllGenKwKeys(ert):
         """ @rtype: list of str """
-        gen_kw_keys = ert.ensembleConfig().getKeylistFromImplType(ErtImplType.GEN_KW)
-        gen_kw_keys = [key for key in gen_kw_keys]
-
-        gen_kw_list = []
-        for key in gen_kw_keys:
-            enkf_config_node = ert.ensembleConfig().getNode(key)
-            gen_kw_config = enkf_config_node.getModelConfig()
-            assert isinstance(gen_kw_config, GenKwConfig)
-
-            for keyword_index, keyword in enumerate(gen_kw_config):
-                gen_kw_list.append("%s:%s" % (key, keyword))
-
-                if gen_kw_config.shouldUseLogScale(keyword_index):
-                    gen_kw_list.append("LOG10_%s:%s" % (key, keyword))
-
-        return gen_kw_list
+        key_manager = KeyManager(ert)
+        return key_manager.genKwKeys()
 
     @staticmethod
     def loadAllGenKwData(ert, case_name, keys=None):

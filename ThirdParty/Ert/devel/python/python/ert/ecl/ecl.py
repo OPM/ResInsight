@@ -117,12 +117,8 @@ class default_wrapper(object):
 ecl_default = default_wrapper()
 
 
-from .ecl_util import EclFileEnum, EclFileFlagEnum, EclPhaseEnum, EclTypeEnum, EclUtil
-
-#make enum values globally available in ert.ecl.ecl
-for enum in EclFileEnum.enum_names:
-    globals()[enum] = getattr(EclFileEnum, enum)
-
+from .ecl_util import EclFileFlagEnum, EclPhaseEnum, EclTypeEnum, EclUtil
+    
 for enum in EclFileFlagEnum.enum_names:
     globals()[enum] = getattr(EclFileFlagEnum, enum)
 

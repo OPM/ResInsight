@@ -29,7 +29,9 @@ class SiteConfig(BaseCClass):
         return SiteConfig.cNamespace().get_queue_name( self )
 
     def setJobQueue(self, queue):
-        SiteConfig.cNamespace().set_job_queue( self , queue)
+        raise Exception("The function setJobQueue() is not properly implemented")
+
+
 
     def getLsfQueue(self):
         """ @rtype: str """
@@ -141,6 +143,11 @@ class SiteConfig(BaseCClass):
     def addRshHost(self, host, max_running):
         SiteConfig.cNamespace().add_rsh_host(self, host, max_running)
 
+    def getLocation(self):
+        """ @rtype: str """
+        return SiteConfig.cNamespace().get_location(self)
+
+
     def free(self):
         SiteConfig.cNamespace().free(self)
 
@@ -152,7 +159,6 @@ cwrapper.registerType( "site_config_ref" , SiteConfig.createCReference)
 
 SiteConfig.cNamespace().free                  = cwrapper.prototype("void site_config_free( site_config )")
 SiteConfig.cNamespace().get_queue_name        = cwrapper.prototype("char* site_config_get_queue_name(site_config)")
-SiteConfig.cNamespace().set_job_queue         = cwrapper.prototype("void site_config_set_job_queue(site_config, char*)")
 SiteConfig.cNamespace().get_lsf_queue         = cwrapper.prototype("char* site_config_get_lsf_queue(site_config)")
 SiteConfig.cNamespace().set_lsf_queue         = cwrapper.prototype("void site_config_set_lsf_queue(site_config, char*)")
 SiteConfig.cNamespace().get_max_running_lsf   = cwrapper.prototype("int site_config_get_max_running_lsf(site_config)")
@@ -186,3 +192,4 @@ SiteConfig.cNamespace().clear_pathvar         = cwrapper.prototype("void site_co
 SiteConfig.cNamespace().update_pathvar        = cwrapper.prototype("void site_config_update_pathvar(site_config, char*, char*)")
 SiteConfig.cNamespace().get_job_queue         = cwrapper.prototype("job_queue_ref site_config_get_job_queue(site_config)")
 SiteConfig.cNamespace().queue_is_running      = cwrapper.prototype("bool site_config_queue_is_running(site_config)")
+SiteConfig.cNamespace().get_location          = cwrapper.prototype("char* site_config_get_location(site_config)")

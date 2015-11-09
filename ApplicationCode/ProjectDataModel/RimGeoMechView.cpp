@@ -19,38 +19,43 @@
 
 #include "RimGeoMechView.h"
 
-#include "Rim3dOverlayInfoConfig.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-#include "RimGeoMechCellColors.h"
 
-#include "RiuMainWindow.h"
-#include "cafCeetronPlusNavigation.h"
-#include "cafCadNavigation.h"
-#include "RimLegendConfig.h"
-#include "cvfOverlayScalarMapperLegend.h"
-
-#include "RimGeoMechCase.h"
-#include "cvfPart.h"
-#include "cvfViewport.h"
-#include "cvfModelBasicList.h"
-#include "cvfScene.h"
-#include "RimEclipseView.h"
-#include "RiuViewer.h"
-#include "RivGeoMechPartMgr.h"
-#include "RigGeoMechCaseData.h"
-#include "cvfqtUtils.h"
 #include "RigFemPartCollection.h"
-#include "cafFrameAnimationControl.h"
-#include <QMessageBox>
-#include "cafProgressInfo.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RivGeoMechPartMgrCache.h"
-#include "RivGeoMechVizLogic.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
-#include "RimGeoMechPropertyFilterCollection.h"
+#include "RigGeoMechCaseData.h"
 
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimLegendConfig.h"
+
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
+
+#include "RivGeoMechPartMgr.h"
+#include "RivGeoMechPartMgrCache.h"
+#include "RivGeoMechVizLogic.h"
+
+#include "cafCadNavigation.h"
+#include "cafCeetronPlusNavigation.h"
+#include "cafFrameAnimationControl.h"
+#include "cafProgressInfo.h"
+#include "cvfModelBasicList.h"
+#include "cvfOverlayScalarMapperLegend.h"
+#include "cvfPart.h"
+#include "cvfScene.h"
+#include "cvfViewport.h"
+#include "cvfqtUtils.h"
+
+#include <QMessageBox>
+#include "RimViewLinker.h"
+#include "cafPdmUiTreeOrdering.h"
 
 
 
@@ -68,22 +73,17 @@ RimGeoMechView::RimGeoMechView(void)
 
     CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
     cellResult = new RimGeoMechCellColors();
+    cellResult.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
-    rangeFilterCollection = new RimCellRangeFilterCollection();
-    rangeFilterCollection->setReservoirView(this);
+    CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
+    m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
+    m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&propertyFilterCollection, "PropertyFilters", "Property Filters",         "", "", "");
-    propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
-    propertyFilterCollection->setReservoirView(this);
-
-    this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
+    //this->cellResult()->setReservoirView(this);
     this->cellResult()->legendConfig()->setReservoirView(this);
 
     m_scaleTransform = new cvf::Transform();
     m_vizLogic = new RivGeoMechVizLogic(this);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,12 +154,7 @@ void RimGeoMechView::loadDataAndUpdate()
     updateViewerWidget();
     this->propertyFilterCollection()->loadAndInitializePropertyFilters();
 
-    createDisplayModelAndRedraw();
-
-    if (cameraPosition().isIdentity())
-    {
-        setDefaultView();
-    }
+    this->scheduleCreateDisplayModelAndRedraw();
 
     progress.incrementProgress();
 }
@@ -244,13 +239,14 @@ void RimGeoMechView::createDisplayModel()
 
    if (isTimeStepDependentDataVisible())
    {
-        m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
+        m_viewer->animationControl()->setCurrentFrameOnly(m_currentTimeStep);
+        m_viewer->setCurrentFrame(m_currentTimeStep);
    }
    else
    {
        updateLegends();
        m_vizLogic->updateStaticCellColors(-1);
-       overlayInfoConfig()->update3DInfo();
+       m_overlayInfoConfig()->update3DInfo();
    }
 }
 
@@ -301,7 +297,7 @@ void RimGeoMechView::updateCurrentTimeStep()
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
 
-    overlayInfoConfig()->update3DInfo();
+    m_overlayInfoConfig()->update3DInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,7 +347,6 @@ void RimGeoMechView::updateDisplayModelVisibility()
 
     m_viewer->setEnableMask(mask);
     m_viewer->update();
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,6 +355,8 @@ void RimGeoMechView::updateDisplayModelVisibility()
 void RimGeoMechView::setGeoMechCase(RimGeoMechCase* gmCase)
 {
     m_geomechCase = gmCase;
+    cellResult()->setGeoMechCase(gmCase);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -384,7 +381,8 @@ void RimGeoMechView::updateLegends()
     }
 
     if (!m_geomechCase || !m_viewer || !m_geomechCase->geoMechData()
-        ||  !this->isTimeStepDependentDataVisible() )
+        || !this->isTimeStepDependentDataVisible() 
+        || !(cellResult()->resultAddress().isValid()) )
     {
         return;
     }
@@ -411,9 +409,21 @@ void RimGeoMechView::updateLegends()
 
     m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
 
-    cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(
+    cvf::String legendTitle = cvfqt::Utils::toString(
         caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
-        + cellResult->resultFieldUiName() + ", " + cellResult->resultComponentUiName()));
+        + cellResult->resultFieldUiName());
+
+    if (!cellResult->resultComponentUiName().isEmpty())
+    {
+        legendTitle += ", " + cvfqt::Utils::toString(cellResult->resultComponentUiName());
+    }
+
+    if (cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar")
+    {
+        legendTitle += " [Bar]";
+    }
+
+    cellResult()->legendConfig->legend()->setTitle(legendTitle);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,7 +487,9 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             if (m_viewer)
             {
-                RiuMainWindow::instance()->removeViewer(m_viewer);
+                windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget());
+
+                RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
                 delete m_viewer;
                 m_viewer = NULL;
             }
@@ -492,7 +504,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::initAfterRead()
 {
-    this->cellResult()->setReservoirView(this);
+    this->cellResult()->setGeoMechCase(m_geomechCase);
 
     this->updateUiIconFromToggleField();
 }
@@ -511,5 +523,77 @@ RimCase* RimGeoMechView::ownerCase()
 void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
     m_vizLogic->scheduleGeometryRegen(geometryType);
+
+    if (this->isMasterView())
+    {
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->scheduleGeometryRegenForDepViews(geometryType);
+        }
+    }
+    m_currentReservoirCellVisibility = NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc)
+{
+    m_overridePropertyFilterCollection = pfc;
+    
+    this->scheduleGeometryRegen(PROPERTY_FILTERED);
+    this->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGeoMechPropertyFilterCollection* RimGeoMechView::propertyFilterCollection()
+{
+    if (m_overridePropertyFilterCollection)
+    {
+        return m_overridePropertyFilterCollection;
+    }
+    else
+    {
+        return m_propertyFilterCollection;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
+{
+    m_vizLogic->calculateCurrentTotalCellVisibility(totalVisibility, m_currentTimeStep);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateIconStateForFilterCollections()
+{
+    m_rangeFilterCollection()->updateIconState();
+    m_rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+
+    // NB - notice that it is the filter collection managed by this view that the icon update applies to
+    m_propertyFilterCollection()->updateIconState();
+    m_propertyFilterCollection()->uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(m_overlayInfoConfig());
+
+    uiTreeOrdering.add(cellResult());
+    
+    uiTreeOrdering.add(m_rangeFilterCollection());
+    uiTreeOrdering.add(m_propertyFilterCollection());
+    
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 

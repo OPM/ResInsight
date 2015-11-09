@@ -30,6 +30,7 @@ import datetime
 # index as the first argument and the key/key_index as second
 # argument. In the python code this order has been reversed.
 from ert.cwrap import BaseCClass, CWrapper, CFILE
+from ert.ecl import EclSumTStep
 from ert.ecl.ecl_sum_vector import EclSumVector
 from ert.ecl.ecl_smspec_node import EclSMSPECNode
 from ert.util import StringList, CTime, DoubleVector, TimeVector, IntVector
@@ -110,6 +111,7 @@ class EclSum(BaseCClass):
     def writer(case , start_time , nx,ny,nz , fmt_output = False , unified = True , time_in_days = True , key_join_string = ":"):
         """
         The writer is not generally usable.
+        @rtype: EclSum
         """
         return EclSum.cNamespace().create_writer( case , fmt_output , unified , key_join_string , CTime(start_time) , time_in_days , nx , ny , nz)
 
@@ -119,8 +121,9 @@ class EclSum(BaseCClass):
         
 
     def addTStep(self , report_step , sim_days):
-        tstep = EclSum.cNamespace().add_tstep( self , report_step , sim_days )
-        return tstep
+        """ @rtype: EclSumTStep """
+        sim_seconds = sim_days * 24 * 60 * 60
+        return EclSum.cNamespace().add_tstep(self, report_step, sim_seconds)
 
 
     def _initialize(self):
@@ -973,7 +976,9 @@ ime_index.
 
     #################################################################
 
-# 2. Creating a wrapper object around the libecl library, 
+
+
+# 2. Creating a wrapper object around the libecl library,
 #    registering the type map : ecl_kw <-> EclKW
 cwrapper = CWrapper(ECL_LIB)
 cwrapper.registerType( "ecl_sum" , EclSum )
@@ -1030,9 +1035,10 @@ EclSum.cNamespace().get_var_node                  = cwrapper.prototype("smspec_n
 EclSum.cNamespace().create_well_list              = cwrapper.prototype("stringlist_obj ecl_sum_alloc_well_list( ecl_sum , char* )")
 EclSum.cNamespace().create_group_list             = cwrapper.prototype("stringlist_obj ecl_sum_alloc_group_list( ecl_sum , char* )")
 
-EclSum.cNamespace().create_writer                 = cwrapper.prototype("ecl_sum_obj  ecl_sum_alloc_writer( char* , bool , bool , char* , time_t , bool , int , int , int)")
-EclSum.cNamespace().add_variable                  = cwrapper.prototype("void         ecl_sum_add_var(ecl_sum , char* , char* , int , char*, double)")
-EclSum.cNamespace().add_tstep                     = cwrapper.prototype("c_void_p     ecl_sum_add_tstep(ecl_sum , int , double)")
+EclSum.cNamespace().create_writer                 = cwrapper.prototype("ecl_sum_obj       ecl_sum_alloc_writer( char* , bool , bool , char* , time_t , bool , int , int , int)")
+EclSum.cNamespace().add_variable                  = cwrapper.prototype("void              ecl_sum_add_var(ecl_sum , char* , char* , int , char*, double)")
+EclSum.cNamespace().add_tstep                     = cwrapper.prototype("ecl_sum_tstep_ref ecl_sum_add_tstep(ecl_sum , int , double)")
 
 import ert.ecl.ecl_sum_keyword_vector
-EclSum.cNamespace().dump_csv_line                = cwrapper.prototype("void ecl_sum_dump_line_to_csv_file(ecl_sum , time_t , ecl_sum_vector, FILE)")
+EclSum.cNamespace().dump_csv_line                = cwrapper.prototype("void  ecl_sum_dump_line_to_csv_file(ecl_sum , time_t , ecl_sum_vector, FILE)")
+EclSum.cNamespace().get_smspec                   = cwrapper.prototype("void* ecl_sum_get_smspec(ecl_sum)")

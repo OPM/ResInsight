@@ -259,8 +259,16 @@ class KWTest(ExtendedTestCase):
         self.assertEqual(kw[4] , 66)
         self.assertEqual(kw[5] , 99)
 
+        
+    def test_long_name(self):
+        with self.assertRaises(ValueError):
+            EclKW.create("LONGLONGNAME" , 10 , EclTypeEnum.ECL_INT_TYPE)
 
+        kw = EclKW.create("REGIONS" , 10 , EclTypeEnum.ECL_INT_TYPE)
+        with self.assertRaises(ValueError):
+            kw.set_name("LONGLONGNAME")
 
+            
 #def cutoff( x , arg ):
 #    if x < arg:
 #        return 0

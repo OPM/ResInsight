@@ -20,11 +20,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
 #include <pthread.h>
 #include <unistd.h>
 
 #include <ert/util/thread_pool.h>
 #include <ert/util/util.h>
+#include <ert/util/type_macros.h>
 
 /**
    This file implements a small thread_pool object based on
@@ -117,8 +119,9 @@ typedef struct {
 
 
 
-
+#define THREAD_POOL_TYPE_ID 71443207
 struct thread_pool_struct {
+  UTIL_TYPE_ID_DECLARATION;
   thread_pool_arg_type      * queue;              /* The jobs to be executed are appended in this vector. */
   int                         queue_index;        /* The index of the next job to run. */
   int                         queue_size;         /* The number of jobs in the queue - including those which are complete. [Should be protected / atomic / ... ] */
@@ -134,7 +137,7 @@ struct thread_pool_struct {
 };
 
 
-
+static UTIL_SAFE_CAST_FUNCTION( thread_pool , THREAD_POOL_TYPE_ID )
 
 
 /**
@@ -212,7 +215,7 @@ static void * thread_pool_start_job( void * arg ) {
 */
 
 static void * thread_pool_main_loop( void * arg ) {
-  thread_pool_type * tp = (thread_pool_type *) arg;
+  thread_pool_type * tp = thread_pool_safe_cast( arg );
   {
     const int usleep_init = 1000;  /* The sleep time when there are free slots available - but no jobs wanting to run. */
     int internal_offset   = 0;     /* Keep track of the (index of) the last job slot fired off - minor time saving. */
@@ -262,9 +265,8 @@ static void * thread_pool_main_loop( void * arg ) {
         if (!slot_found) {
             util_yield();
         }
-      } else {
-          util_usleep(usleep_init);    /* There are no jobs wanting to run. */
-      }
+      } else
+        util_usleep(usleep_init);    /* There are no jobs wanting to run. */
 
       /*****************************************************************/
       /*
@@ -349,6 +351,65 @@ void thread_pool_join(thread_pool_type * pool) {
   }
 }
 
+/*
+  This will try to join the thread; if the manager thread has not
+  completed within @timeout_seconds the function will return false. If
+  the join fails the queue will be reset in a non-joining state and it
+  will be open for more jobs. Probably not in a 100% sane state.
+*/
+
+bool thread_pool_try_join(thread_pool_type * pool, int timeout_seconds) {
+  bool join_ok = true;
+
+  pool->join = true;                               /* Signals to the main thread that joining can start. */
+  if (pool->max_running > 0) {
+    struct timespec ts;
+    time_t timeout_time = time( NULL );
+
+    util_inplace_forward_seconds(&timeout_time , timeout_seconds );
+    ts.tv_sec = timeout_time;
+    ts.tv_nsec = 0;
+
+#ifdef HAVE_TIMEDJOIN
+
+    {
+      int join_return = pthread_timedjoin_np( pool->dispatch_thread , NULL , &ts);  /* Wait for the main thread to complete. */
+      if (join_return == 0)
+        pool->accepting_jobs = false;
+      else {
+        pool->join = false;
+        join_ok = false;
+      }
+    }
+
+#else
+
+    while(true) {
+        if (pthread_kill(pool->dispatch_thread, 0) == 0){
+            util_yield();
+        } else {
+            pthread_join(pool->dispatch_thread, NULL);
+            pool->accepting_jobs = false;
+            break;
+        }
+
+        time_t now = time(NULL);
+
+        if(util_difftime_seconds(now, timeout_time) <= 0) {
+            join_ok = false;
+            break;
+        }
+    }
+
+#endif
+
+
+
+  }
+  return join_ok;
+}
+
+
 
 
 /**
@@ -360,6 +421,7 @@ void thread_pool_join(thread_pool_type * pool) {
 
 thread_pool_type * thread_pool_alloc(int max_running , bool start_queue) {
   thread_pool_type * pool = util_malloc( sizeof *pool );
+  UTIL_TYPE_ID_INIT( pool , THREAD_POOL_TYPE_ID );
   pool->job_slots         = util_calloc( max_running , sizeof * pool->job_slots );
   pool->max_running       = max_running;
   pool->queue             = NULL;

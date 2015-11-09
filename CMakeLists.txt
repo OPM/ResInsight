@@ -55,6 +55,7 @@ include (ResInsightVersion.cmake)
 
 # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
 SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
+SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
 SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
 
@@ -107,6 +108,15 @@ set_property(TARGET
 			  PROPERTY FOLDER "ERT"
 )
 
+
+################################################################################
+# NRLib
+################################################################################
+
+add_subdirectory(ThirdParty/NRLib)
+include_directories(ThirdParty/NRLib/nrlib/well)
+
+
 ################################################################################
 # Qt
 ################################################################################
@@ -124,6 +134,13 @@ include (${QT_USE_FILE})
 
 # Open GL
 find_package( OpenGL )
+
+################################################################################
+# Qwt
+################################################################################
+
+add_subdirectory(ThirdParty/Qwt/src)
+include_directories(ThirdParty/Qwt/src)
 
 ################################################################################
 # Vizualization Framework
@@ -178,31 +195,35 @@ set_property(TARGET
 # Application Framework
 ################################################################################
 
-add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
-add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafAnimControl)
 add_subdirectory(Fwk/AppFwk/cafViewer)
+
+add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmCore)
+add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmUiCore)
+add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml)
+add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
+
+add_subdirectory(Fwk/AppFwk/cafCommand)
 add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
+add_subdirectory(Fwk/AppFwk/CommonCode)
+
+
 add_subdirectory(Fwk/AppFwk/cafTensor)
 
-include_directories(
-    ${cafUserInterface_SOURCE_DIR}
-    ${cafProjectDataModel_SOURCE_DIR}
-    ${cafPdmCvf_SOURCE_DIR}
-    ${CommonCode_SOURCE_DIR}
-	${cafAnimControl_SOURCE_DIR}
-	${cafViewer_SOURCE_DIR}
-	${cafTensor_SOURCE_DIR}
-)
-
 set_property(TARGET  
-	cafAnimControl 
-	cafPdmCvf 
+	cafAnimControl
+    cafViewer
+
+    cafPdmCore
+    cafPdmUiCore
+    cafPdmXml
 	cafProjectDataModel 
+
+    cafCommand
 	cafUserInterface 
-	cafViewer
 	cafTensor
+	cafPdmCvf 
 	CommonCode
 	PROPERTY FOLDER "AppFwk"
 )
@@ -237,12 +258,12 @@ add_subdirectory(OctavePlugin)
 # Unit tests
 ################################################################################
 add_subdirectory(ApplicationCode/ReservoirDataModel/ReservoirDataModel_UnitTests)
-add_subdirectory(ApplicationCode/FileInterface/FileInterface_UnitTests)
+#add_subdirectory(ApplicationCode/FileInterface/FileInterface_UnitTests)
 add_subdirectory(ApplicationCode/ModelVisualization/ModelVisualization_UnitTests)
 
 set_property(TARGET  
 	ModelVisualization_UnitTests 
-	FileInterface_UnitTests 
+#	FileInterface_UnitTests 
 	RigReservoirDataModel_UnitTests 
 	PROPERTY FOLDER "UnitTests"
 )

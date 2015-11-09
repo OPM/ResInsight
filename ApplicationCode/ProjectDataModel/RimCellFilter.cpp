@@ -16,12 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
-
-#include "cafAppEnum.h"
 #include "RimCellFilter.h"
 
+#include "cafAppEnum.h"
+
+#include <QPainter>
 
 namespace caf
 {
@@ -46,7 +45,7 @@ RimCellFilter::RimCellFilter()
 
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Filter Name"), "Name", "", "", "");
     CAF_PDM_InitField(&isActive,  "Active",           true,                   "Active",   "", "", "");
-    isActive.setUiHidden(true);
+    isActive.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&filterMode, "FilterType", "Filter Type", "", "", "");
 }
@@ -96,7 +95,7 @@ void RimCellFilter::updateIconState()
         painter.drawPixmap(0,0, sign);
     }
 
-    if (!isActive)
+    if (!isActive || isActive.uiCapability()->isUiReadOnly())
     {
         QIcon temp(icPixmap);
         icPixmap = temp.pixmap(16, 16, QIcon::Disabled);

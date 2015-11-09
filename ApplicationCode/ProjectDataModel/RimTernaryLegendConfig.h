@@ -72,8 +72,8 @@ public:
 
     void                recreateLegend();
     
-    RivTernarySaturationOverlayItem*	legend();
-	RivTernaryScalarMapper*				scalarMapper();
+    RivTernarySaturationOverlayItem*    legend();
+    RivTernaryScalarMapper*                scalarMapper();
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -109,5 +109,5 @@ private:
 
     caf::PdmPointer<RimEclipseView>           m_reservoirView;
     cvf::ref<RivTernarySaturationOverlayItem>   m_legend;
-	cvf::ref<RivTernaryScalarMapper>			m_scalarMapper;
+    cvf::ref<RivTernaryScalarMapper>            m_scalarMapper;
 };

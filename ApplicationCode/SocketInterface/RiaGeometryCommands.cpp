@@ -18,7 +18,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
 #include "RiaSocketCommand.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
@@ -90,7 +89,6 @@ public:
         //  dv(2) = cellCountK;
         //  dv(3) = 3;
 
-        cvf::Vec3d cornerVerts[8];
         size_t blockByteCount = cellCount * sizeof(double);
         std::vector<double> doubleValues(blockByteCount);
 

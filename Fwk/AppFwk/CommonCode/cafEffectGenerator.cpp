@@ -155,17 +155,27 @@ EffectGenerator::RenderingModeType EffectGenerator::renderingMode()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Effect> EffectGenerator::generateCachedEffect() const
+{
+    cvf::ref<cvf::Effect> eff = caf::EffectCache::instance()->findEffect(this);
+
+    if (eff.notNull()) return eff.p();
+
+    eff = generateUnCachedEffect();
+    caf::EffectCache::instance()->addEffect(this, eff.p());
+
+    return eff;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Creates a new effect using the settings in the inherited generator. 
 /// Creates a new effect and calls the correct update-Effect method dep. on the effect type (software/shader)
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Effect> EffectGenerator::generateEffect() const
+cvf::ref<cvf::Effect> EffectGenerator::generateUnCachedEffect() const
 {
-    
-    cvf::ref<cvf::Effect> eff = caf::EffectCache::instance()->findEffect(this);
-
-    if (eff.notNull())  return eff.p();
-
-    eff = new cvf::Effect;
+    cvf::ref<cvf::Effect> eff = new cvf::Effect;
 
     if (sm_renderingMode == SHADER_BASED)
     {
@@ -176,10 +186,10 @@ cvf::ref<cvf::Effect> EffectGenerator::generateEffect() const
         updateForFixedFunctionRendering(eff.p());
     }
 
-    caf::EffectCache::instance()->addEffect(this, eff.p());
-
     return eff;
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// Updates the effect to the state defined by the inherited effect generator.
@@ -237,6 +247,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, Polygo
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
     m_enableDepthWrite = true;
+    m_enableLighting = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,6 +259,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, Polygo
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
     m_enableDepthWrite = true;
+    m_enableLighting = true;
 }
 
 
@@ -259,8 +271,16 @@ void SurfaceEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) 
     cvf::ShaderProgramGenerator gen("SurfaceEffectGenerator", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
     gen.addFragmentCode(cvf::ShaderSourceRepository::src_Color);
-    gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
-    gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+
+    if (m_enableLighting)
+    {
+        gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+    }
+    else
+    {
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Unlit);
+    }
 
     cvf::ref<cvf::ShaderProgram> shaderProg = gen.generate();
 
@@ -286,6 +306,7 @@ void SurfaceEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect
 
     cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
     lighting->enableTwoSided(true);
+    lighting->enable(m_enableLighting);
     eff->setRenderState(lighting.p());
 
     this->updateCommonEffect(effect);
@@ -351,6 +372,7 @@ bool SurfaceEffectGenerator::isEqual(const EffectGenerator* other) const
         if (m_color == otherSurfaceEffect->m_color 
             && m_polygonOffset == otherSurfaceEffect->m_polygonOffset
             && m_enableDepthWrite == otherSurfaceEffect->m_enableDepthWrite
+            && m_enableLighting == otherSurfaceEffect->m_enableLighting
             && m_cullBackfaces == otherSurfaceEffect->m_cullBackfaces)
         {
             return true;
@@ -368,6 +390,7 @@ EffectGenerator* SurfaceEffectGenerator::copy() const
     SurfaceEffectGenerator* effGen = new SurfaceEffectGenerator(m_color, m_polygonOffset);
     effGen->m_cullBackfaces = m_cullBackfaces;
     effGen->m_enableDepthWrite = m_enableDepthWrite;
+    effGen->m_enableLighting = m_enableLighting;
     return effGen;
 }
 
@@ -781,6 +804,7 @@ EffectGenerator* ScalarMapperMeshEffectGenerator::copy() const
 MeshEffectGenerator::MeshEffectGenerator(const cvf::Color3f& color)
 {
     m_color = color;
+    m_lineStipple = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -798,7 +822,12 @@ void MeshEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) con
     cvf::ref<cvf::Effect> eff = effect;
     eff->setShaderProgram(shaderProg.p());
     eff->setUniform(new cvf::UniformFloat("u_color", cvf::Color4f(m_color, 1.0)));
-
+    
+    if (m_lineStipple)
+    {
+        // TODO: Use when VizFwk is updated
+        //eff->setRenderState(new cvf::RenderStateLineStipple_FF);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -813,6 +842,11 @@ void MeshEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) c
     eff->setRenderState(new cvf::RenderStateDepth(true, cvf::RenderStateDepth::LEQUAL));
     eff->setRenderState(new cvf::RenderStateLighting_FF(false));
 
+    if (m_lineStipple)
+    {
+        // TODO: Use when VizFwk is updated
+        //eff->setRenderState(new cvf::RenderStateLineStipple_FF);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -824,10 +858,17 @@ bool MeshEffectGenerator::isEqual(const EffectGenerator* other) const
 
     if (otherMesh)
     {
-        if (m_color == otherMesh->m_color)
+        if (m_color != otherMesh->m_color)
         {
-            return true;
+            return false;
         }
+
+        if (m_lineStipple != otherMesh->m_lineStipple)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     return false;
@@ -838,7 +879,10 @@ bool MeshEffectGenerator::isEqual(const EffectGenerator* other) const
 //--------------------------------------------------------------------------------------------------
 EffectGenerator* MeshEffectGenerator::copy() const
 {
-    return new MeshEffectGenerator(m_color);
+    MeshEffectGenerator* effGen = new MeshEffectGenerator(m_color);
+    effGen->setLineStipple(m_lineStipple);
+
+    return effGen;
 }
 
 

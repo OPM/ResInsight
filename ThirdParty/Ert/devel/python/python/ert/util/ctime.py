@@ -15,12 +15,11 @@
 #  for more details. 
 
 
-import math
 import ctypes
 import datetime
 import time
-from types import NoneType
 from ert.cwrap import CWrapper, BaseCValue
+from ert.util import UTIL_LIB
 
 
 class CTime(BaseCValue):
@@ -32,9 +31,9 @@ class CTime(BaseCValue):
         elif isinstance(value, CTime):
             value = value.value()
         elif isinstance(value, datetime.datetime):
-            value = int(math.floor(time.mktime((value.year, value.month, value.day, value.hour, value.minute, value.second, 0, 0, -1 ))))
+            value = CTime._mktime(value.second, value.minute, value.hour, value.day, value.month, value.year)
         elif isinstance(value, datetime.date):
-            value = int(math.floor(time.mktime((value.year, value.month, value.day, 0, 0, 0, 0, 0, -1 ))))
+            value = CTime._mktime(0, 0, 0, value.day, value.month, value.year)
         else:
             raise NotImplementedError("Can not convert class %s to CTime" % value.__class__)
 
@@ -57,7 +56,7 @@ class CTime(BaseCValue):
         return datetime.datetime(*self.time()[0:6])
 
     def __str__(self):
-        return "%s" % (str(self.datetime()))
+        return self.datetime().strftime("%Y-%m-%d %H:%M:%S%z")
 
     def __ge__(self, other):
         return self > other or self == other
@@ -131,11 +130,26 @@ class CTime(BaseCValue):
         # this function is a requirement for comparing against datetime objects where the CTime is on the right side
         pass
 
+    def __repr__(self):
+        return "time_t value: %d [%s]" % (self.value(), str(self))
+
+
     @property
     def stripped(self):
         return time.strptime(self, "%Y-%m-%d %H:%M:S%")
 
+    @classmethod
+    def timezone(cls):
+        """
+         Returns the current timezone "in" C
+         @rtype: str
+        """
+        return CTime._timezone()
 
-cwrapper = CWrapper(None)
+
+cwrapper = CWrapper(UTIL_LIB)
 cwrapper.registerType("time_t", CTime)
+
+CTime._timezone = cwrapper.prototype("char* util_get_timezone()")
+CTime._mktime = cwrapper.prototype("long util_make_datetime(int, int, int, int, int, int)")
 

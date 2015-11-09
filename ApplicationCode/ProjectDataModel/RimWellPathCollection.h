@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -33,7 +34,7 @@
 #include <QString>
 
 class RivWellPathCollectionPartMgr;
-class RimWellPathAsciiFileReader;
+class RifWellPathAsciiFileReader;
 class RimWellPath;
 class RimProject;
 class RigWellPath;
@@ -72,14 +73,21 @@ public:
     caf::PdmField<bool>                 wellPathClip;
     caf::PdmField<int>                  wellPathClipZDistance;
 
-    caf::PdmPointersField<RimWellPath*> wellPaths;
+    caf::PdmChildArrayField<RimWellPath*> wellPaths;
     
    
     RivWellPathCollectionPartMgr*       wellPathCollectionPartMgr() { return m_wellPathCollectionPartManager.p(); }
 
     void                                readWellPathFiles();
     void                                addWellPaths(QStringList filePaths);
-    RimWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
+    
+    void                                removeWellPath(RimWellPath* wellPath);
+    void                                deleteAllWellPaths();
+
+    RifWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
+    
+    RimWellPath*                        wellPathByName(const QString& wellPathName) const;
+    void                                addWellLogs(const QStringList& filePaths);
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
@@ -90,14 +98,20 @@ private:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     virtual caf::PdmFieldHandle*        objectToggleField();
 
+    void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
+
     caf::PdmPointer<RimProject>         m_project;
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 
-    RimWellPathAsciiFileReader*         m_asciiFileReader;
+    RifWellPathAsciiFileReader*         m_asciiFileReader;
 };
 
 
-class RimWellPathAsciiFileReader
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RifWellPathAsciiFileReader
 {
 public:
     struct WellData
@@ -109,8 +123,10 @@ public:
     WellData readWellData(QString filePath, int indexInFile);
     size_t   wellDataCount(QString filePath);
 
-private:
+    void    clear();
+    void    removeFilePath(const QString& filePath);
 
+private:
     void readAllWellData(QString filePath);
 
     std::map<QString, std::vector<WellData> > m_fileNameToWellDataGroupMap;

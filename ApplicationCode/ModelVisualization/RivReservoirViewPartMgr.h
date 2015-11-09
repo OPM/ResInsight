@@ -52,16 +52,16 @@ public:
     void                        updateCellResultColor    (RivCellSetEnum geometryType, size_t timeStepIndex, 
                                                           RimEclipseCellColors* cellResultColors);
     void                        updateCellEdgeResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, 
-														  RimEclipseCellColors* cellResultColors,
-														  RimCellEdgeColors* cellEdgeResultColors);
+                                                          RimEclipseCellColors* cellResultColors,
+                                                          RimCellEdgeColors* cellEdgeResultColors);
 
     // Faults
     void                        appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType);
     void                        appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex);
     void                        updateFaultColors(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
-	void                        updateFaultCellEdgeResultColor(	RivCellSetEnum geometryType, size_t timeStepIndex,
-															RimEclipseCellColors* cellResultColors,
-															RimCellEdgeColors* cellEdgeResultColors);
+    void                        updateFaultCellEdgeResultColor(    RivCellSetEnum geometryType, size_t timeStepIndex,
+                                                            RimEclipseCellColors* cellResultColors,
+                                                            RimCellEdgeColors* cellEdgeResultColors);
 
     // Fault labels
     RivCellSetEnum  geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const;
@@ -83,7 +83,10 @@ private:
     static void                 computeNativeVisibility  (cvf::UByteArray* cellVisibilities, const RigGridBase* grid, const RigActiveCellInfo* activeCellInfo, const cvf::UByteArray* cellIsInWellStatuses,  bool invalidCellsIsVisible, bool inactiveCellsIsVisible, bool activeCellsIsVisible, bool mainGridIsVisible);
     void                        computeRangeVisibility   (RivCellSetEnum geometryType, cvf::UByteArray* cellVisibilities, const RigGridBase* grid, const cvf::UByteArray* nativeVisibility, const RimCellRangeFilterCollection* rangeFilterColl);
     static void                 computePropertyVisibility(cvf::UByteArray* cellVisibilities, const RigGridBase* grid, size_t timeStepIndex, const cvf::UByteArray* rangeFilterVisibility, RimEclipsePropertyFilterCollection* propFilterColl);
-    static void                 copyByteArray(cvf::UByteArray* cellVisibilities, const cvf::UByteArray* cellIsWellStatuses );
+    void                        computeOverriddenCellVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid);
+
+
+    static void                 copyByteArray(cvf::UByteArray* dest, const cvf::UByteArray* source );
 
     RivReservoirPartMgr *       reservoirPartManager(RivCellSetEnum geometryType, size_t timeStepIndex );
 
@@ -99,6 +102,6 @@ private:
     std::vector<uchar>                                      m_propFilteredWellGeometryFramesNeedsRegen;
 
     cvf::ref<cvf::Transform>                                m_scaleTransform;
-    caf::PdmPointer<RimEclipseView>                       m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                         m_reservoirView;
 
 };

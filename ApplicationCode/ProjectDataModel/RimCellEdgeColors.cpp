@@ -36,10 +36,10 @@ CAF_PDM_SOURCE_INIT(RimCellEdgeColors, "CellEdgeResultSlot");
 //--------------------------------------------------------------------------------------------------
 RimCellEdgeColors::RimCellEdgeColors()
 {
-    CAF_PDM_InitObject("Cell Edge Result", "", "", "");
+    CAF_PDM_InitObject("Cell Edge Result", ":/EdgeResult_1.png", "", "");
 
     CAF_PDM_InitField(&enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable cell edge results", "", "", "");
-    enableCellEdgeColors.setUiHidden(true);
+    enableCellEdgeColors.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result property", "", "", "");
     CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
@@ -47,8 +47,9 @@ RimCellEdgeColors::RimCellEdgeColors()
     CAF_PDM_InitField(&useZVariable, "UseZVariable", true, "Use Z values", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
+    legendConfig.uiCapability()->setUiHidden(true);
 
-    resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    resultVariable.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
     legendConfig = new RimLegendConfig();
 

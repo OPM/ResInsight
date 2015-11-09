@@ -44,7 +44,6 @@ public:
     RimCellRangeFilter();
     virtual ~RimCellRangeFilter();
 
-    void setParentContainer(RimCellRangeFilterCollection* parentContainer);
     RimCellRangeFilterCollection* parentContainer();
     void setDefaultValues();
 
@@ -60,17 +59,21 @@ public:
 
     void computeAndSetValidValues();
 
-    virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void updateActiveState();
 
 protected:
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
 
 private:
-    const cvf::StructGridInterface*            selectedGrid();
+    bool isRangeFilterControlled();
 
-    RimCellRangeFilterCollection* m_parentContainer;
+private:
+    const cvf::StructGridInterface*            selectedGrid();
 };
 
 

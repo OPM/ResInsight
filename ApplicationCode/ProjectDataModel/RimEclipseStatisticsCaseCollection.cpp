@@ -21,6 +21,7 @@
 #include "RimEclipseStatisticsCaseCollection.h"
 
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimEclipseStatisticsCase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimEclipseStatisticsCaseCollection, "RimStatisticalCollection");
@@ -34,6 +35,7 @@ RimEclipseStatisticsCaseCollection::RimEclipseStatisticsCaseCollection()
     CAF_PDM_InitObject("Derived Statistics", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&cases, "Reservoirs", "",  "", "", "");
+    cases.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,14 +51,7 @@ RimEclipseStatisticsCaseCollection::~RimEclipseStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimEclipseStatisticsCaseCollection::parentCaseGroup()
 {
-    std::vector<RimIdenticalGridCaseGroup*> parentObjects;
-    this->parentObjectsOfType(parentObjects);
-
-    if (parentObjects.size() > 0)
-    {
-        return parentObjects[0];
-    }
-
-    return NULL;
+    RimIdenticalGridCaseGroup* parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>(this->parentField()->ownerObject());
+    return parentObject;
 }
 

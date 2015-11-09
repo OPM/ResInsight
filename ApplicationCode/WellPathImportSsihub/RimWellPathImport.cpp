@@ -62,6 +62,7 @@ RimWellPathImport::RimWellPathImport()
     CAF_PDM_InitField(&west,  "UtmWest",  0.0,    "West", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&regions, "Regions", "",  "", "", "");
+    regions.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,17 +169,17 @@ void RimWellPathImport::updateFieldVisibility()
 {
     if (utmFilterMode == UTM_FILTER_CUSTOM)
     {
-        north.setUiReadOnly(false);
-        south.setUiReadOnly(false);
-        east.setUiReadOnly(false);
-        west.setUiReadOnly(false);
+        north.uiCapability()->setUiReadOnly(false);
+        south.uiCapability()->setUiReadOnly(false);
+        east.uiCapability()->setUiReadOnly(false);
+        west.uiCapability()->setUiReadOnly(false);
     }
     else
     {
-        north.setUiReadOnly(true);
-        south.setUiReadOnly(true);
-        east.setUiReadOnly(true);
-        west.setUiReadOnly(true);
+        north.uiCapability()->setUiReadOnly(true);
+        south.uiCapability()->setUiReadOnly(true);
+        east.uiCapability()->setUiReadOnly(true);
+        west.uiCapability()->setUiReadOnly(true);
     }
 }
 

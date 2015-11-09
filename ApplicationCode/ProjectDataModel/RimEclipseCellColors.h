@@ -24,34 +24,49 @@
 #include "RimLegendConfig.h"
 #include "RimEclipseResultDefinition.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
+#include "cafPdmPtrField.h"
+
 class RimTernaryLegendConfig;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimEclipseCellColors :  public RimEclipseResultDefinition
+class RimEclipseCellColors : public RimEclipseResultDefinition
 {
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipseCellColors();
     virtual ~RimEclipseCellColors();
 
-    virtual void setReservoirView(RimEclipseView* ownerReservoirView);
-    caf::PdmField<RimLegendConfig*> legendConfig;
-    caf::PdmField<RimTernaryLegendConfig*> ternaryLegendConfig;
+    void                                        setReservoirView(RimEclipseView* ownerReservoirView);
+    RimEclipseView*                             reservoirView();
 
-    // Overridden methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void setResultVariable(const QString& resultName);
+    RimLegendConfig*                            legendConfig();
+    caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
+
+    virtual void                                setResultVariable(const QString& resultName);
+    
+    void                                        updateIconState();
 
 protected:
+    // Overridden methods
+    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
     friend class RimEclipseFaultColors;
-    virtual void initAfterRead();
+    virtual void                                initAfterRead();
 
 private:
-    void changeLegendConfig(QString resultVarNameOfNewLegend);
+    void                                        changeLegendConfig(QString resultVarNameOfNewLegend);
 
-    caf::PdmField<std::list<caf::PdmPointer<RimLegendConfig> > >    m_legendConfigData;
+    caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigData;
+    caf::PdmPtrField<RimLegendConfig*>          m_legendConfigPtrField;
+
+    caf::PdmPointer<RimEclipseView>             m_reservoirView;
+
+    // Obsolete   
+    caf::PdmChildField<RimLegendConfig*>        obsoleteField_legendConfig;
 };
 

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'local_nodeset.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'local_dataset.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -25,7 +25,7 @@
 
 #include <ert/enkf/enkf_macros.h>
 #include <ert/enkf/local_ministep.h>
-#include <ert/enkf/local_config.h>  
+#include <ert/enkf/local_config.h>
 #include <ert/enkf/active_list.h>
 #include <ert/enkf/local_dataset.h>
 
@@ -93,6 +93,10 @@ void local_dataset_add_node(local_dataset_type * dataset, const char *node_key) 
   hash_insert_hash_owned_ref( dataset->nodes , node_key , active_list_alloc( ALL_ACTIVE ) , active_list_free__);
 }
 
+bool local_dataset_has_key(const local_dataset_type * dataset, const char * key) {
+  return hash_has_key( dataset->nodes , key );
+}
+
 
 void local_dataset_del_node( local_dataset_type * dataset , const char * node_key) {
   hash_del( dataset->nodes , node_key );
@@ -114,17 +118,33 @@ stringlist_type * local_dataset_alloc_keys( const local_dataset_type * dataset )
 
 
 void local_dataset_fprintf( const local_dataset_type * dataset , FILE * stream) {
+  fprintf(stream , "\n%s %s\n", local_config_get_cmd_string( CREATE_DATASET ), local_dataset_get_name(dataset));
+ {
   hash_iter_type * data_iter = hash_iter_alloc( dataset->nodes );
   while (!hash_iter_is_complete( data_iter )) {
     const char * data_key          = hash_iter_get_next_key( data_iter );
     active_list_type * active_list = hash_get( dataset->nodes , data_key );
-    
+
     fprintf(stream , "%s %s %s\n", local_config_get_cmd_string( ADD_DATA ) , dataset->name , data_key );
-    active_list_fprintf( active_list , false , data_key , stream );
+    active_list_fprintf( active_list , local_dataset_get_name(dataset) , data_key , stream );
   }
   hash_iter_free( data_iter );
+ }
 }
 
+void local_dataset_summary_fprintf( const local_dataset_type * dataset , FILE * stream) {
+{
+  hash_iter_type * data_iter = hash_iter_alloc( dataset->nodes );
+  while (!hash_iter_is_complete( data_iter )) {
+    const char * data_key          = hash_iter_get_next_key( data_iter );
+    fprintf(stream , "NAME OF DATA:%s,", data_key );
+
+    active_list_type * active_list = hash_get( dataset->nodes , data_key );
+    active_list_summary_fprintf( active_list , local_dataset_get_name(dataset) , data_key , stream);
+  }
+  hash_iter_free( data_iter );
+ }
+}
 
 
 int local_dataset_get_size( const local_dataset_type * dataset ) {

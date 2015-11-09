@@ -1,0 +1,163 @@
+
+#include "cafPdmObjectHandle.h"
+
+#include "cafPdmFieldHandle.h"
+#include "cafPdmObjectCapability.h"
+
+#include <assert.h>
+
+
+namespace caf
+{
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmObjectHandle::~PdmObjectHandle()
+{
+    for (size_t i = 0; i < m_capabilities.size(); ++i)
+    {
+        if (m_capabilities[i].second) delete m_capabilities[i].first;
+    }
+
+    // Set all guarded pointers pointing to this to NULL
+
+    std::set<PdmObjectHandle**>::iterator it;
+    for (it = m_pointersReferencingMe.begin(); it != m_pointersReferencingMe.end() ; ++it)
+    {
+        (**it) = NULL;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::fields(std::vector<PdmFieldHandle*>& fields) const
+{
+    fields = m_fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::setAsParentField(PdmFieldHandle* parentField)
+{
+    assert(m_parentField == NULL);
+
+    m_parentField = parentField;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::removeAsParentField(PdmFieldHandle* parentField)
+{
+    assert(m_parentField == parentField);
+
+    m_parentField = NULL;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::addReferencingPtrField(PdmFieldHandle* fieldReferringToMe)
+{
+    if (fieldReferringToMe != NULL) m_referencingPtrFields.insert(fieldReferringToMe);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::removeReferencingPtrField(PdmFieldHandle* fieldReferringToMe)
+{
+    if (fieldReferringToMe != NULL) m_referencingPtrFields.erase(fieldReferringToMe);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Appends pointers to all the PdmPtrFields containing a pointer to this object.
+/// As the PdmPtrArrayFields can hold several pointers to the same object, the returned vector can 
+/// contain multiple pointers to the same field. 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::referringPtrFields(std::vector<PdmFieldHandle*>& fieldsReferringToMe) const
+{
+    std::multiset<PdmFieldHandle*>::const_iterator it;
+
+    for (it = m_referencingPtrFields.begin(); it != m_referencingPtrFields.end(); ++it)
+    {
+        fieldsReferringToMe.push_back(*it);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::objectsWithReferringPtrFields(std::vector<PdmObjectHandle*>& objects) const
+{
+    std::vector<caf::PdmFieldHandle*> parentFields;
+    this->referringPtrFields(parentFields);
+    size_t i;
+    for (i = 0; i < parentFields.size(); i++)
+    {
+        objects.push_back(parentFields[i]->ownerObject());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::addField(PdmFieldHandle* field, const QString& keyword)
+{
+    field->m_ownerObject = this;
+
+    assert(!keyword.isEmpty());
+    assert(this->findField(keyword) == NULL);
+
+    field->setKeyword(keyword);
+    m_fields.push_back(field);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword)
+{
+    std::vector<PdmFieldHandle*> fields;
+    this->fields(fields);
+
+    for (size_t it = 0; it < fields.size(); it++)
+    {
+        PdmFieldHandle* field = fields[it];
+        if (field->keyword() == keyword)
+        {
+            return field;
+        }
+    }
+
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmFieldHandle* PdmObjectHandle::parentField() const
+{
+    return m_parentField;
+}
+
+// These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
+/*
+PdmUiObjectHandle* PdmObjectHandle::uiCapability()
+{
+return NULL;
+}
+
+PdmXmlObjectHandle* PdmObjectHandle::xmlCapability()
+{
+return NULL;
+}
+*/
+
+
+} // End namespace caf

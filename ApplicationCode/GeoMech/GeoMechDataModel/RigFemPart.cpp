@@ -21,6 +21,7 @@
 
 #include "RigFemPartGrid.h"
 #include "cvfBoundingBox.h"
+#include "cvfBoundingBoxTree.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -48,7 +49,7 @@ void RigFemPart::preAllocateElementStorage(int elementCount)
     m_elementTypes.reserve(elementCount);
     m_elementConnectivityStartIndices.reserve(elementCount);
 
-    m_allAlementConnectivities.reserve(elementCount*8);
+    m_allElementConnectivities.reserve(elementCount*8);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,19 +59,19 @@ void RigFemPart::appendElement(RigElementType elmType, int id, const int* connec
 {
     m_elementId.push_back(id);
     m_elementTypes.push_back(elmType);
-    m_elementConnectivityStartIndices.push_back(m_allAlementConnectivities.size());
+    m_elementConnectivityStartIndices.push_back(m_allElementConnectivities.size());
 
     int nodeCount = RigFemTypes::elmentNodeCount(elmType);
     for (int lnIdx = 0; lnIdx < nodeCount; ++lnIdx)
     {
-        m_allAlementConnectivities.push_back(connectivities[lnIdx]);
+        m_allElementConnectivities.push_back(connectivities[lnIdx]);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigFemPartGrid* RigFemPart::structGrid()
+const RigFemPartGrid* RigFemPart::structGrid() const
 {
     if (m_structGrid.isNull())
     {
@@ -249,7 +250,7 @@ void RigFemPart::calculateElmNeighbors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx)
+cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx) const
 {
     const std::vector<cvf::Vec3f>& nodeCoordinates = this->nodes().coordinates;
 
@@ -295,7 +296,7 @@ float RigFemPart::characteristicElementSize()
     {
         RigElementType eType = this->elementType(elmIdx);
 
-        if (eType == HEX8)
+        if (eType == HEX8 || eType == HEX8P)
         {
             const int* elmentConn = this->connectivities(elmIdx);
             cvf::Vec3f nodePos0 = this->nodes().coordinates[elmentConn[0]];
@@ -336,5 +337,54 @@ cvf::BoundingBox RigFemPart::boundingBox()
     }
 
     return m_boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const
+{
+    if (m_elementSearchTree.isNull())
+    {
+        // build tree
+
+        size_t elmCount = elementCount();
+
+        std::vector<cvf::BoundingBox> cellBoundingBoxes;
+        cellBoundingBoxes.resize(elmCount);
+
+        for (size_t elmIdx = 0; elmIdx < elmCount; ++elmIdx)
+        {
+            const int* cellIndices = connectivities(elmIdx);
+            cvf::BoundingBox& cellBB = cellBoundingBoxes[elmIdx];
+            cellBB.add(m_nodes.coordinates[cellIndices[0]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[1]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[2]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[3]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[4]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[5]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[6]]);
+            cellBB.add(m_nodes.coordinates[cellIndices[7]]);
+        }
+
+        m_elementSearchTree = new cvf::BoundingBoxTree;
+        m_elementSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, NULL);
+    }
+
+    m_elementSearchTree->findIntersections(inputBB, elementIndices);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPart::elementNodeResultCount() const
+{
+    int lastElmIdx = this->elementCount() - 1;
+    if (lastElmIdx < 0) return 0;
+    RigElementType elmType = this->elementType(lastElmIdx);
+    int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+    size_t lastElmResultIdx = this->elementNodeResultIdx(lastElmIdx, elmNodeCount -1);
+
+    return lastElmResultIdx + 1;
 }
 

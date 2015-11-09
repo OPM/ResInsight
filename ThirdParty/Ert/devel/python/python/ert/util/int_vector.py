@@ -25,9 +25,8 @@ class IntVector(VectorTemplate):
         super(IntVector, self).__init__(default_value, initial_size)
 
     @classmethod
-    def active_list(cls , range_string):
-        """
-        Will create a IntVector instance with the values from @range_string.
+    def active_list(cls , range_string ):
+        """Will create a IntVector instance with the values from @range_string.
 
         The range_string input should be of the type "1,3-5,9,17",
         i.e. integer values separated by commas, and dashes to
@@ -37,10 +36,26 @@ class IntVector(VectorTemplate):
            "1,4-7,10"  =>  {1,4,5,6,7,10}
            "1,4-7,10X" =>  {}
         
-        The empty list will evaluate to false
+        The empty list will evaluate to false. The values in the input
+        string are meant to indicate "active values", i.e. the output
+        values are sorted and repeated values are only counted once:
+        
+           "1,1,7,2" => {1,2,7}
+        
         """
         return cls.cNamespace().create_active_list(range_string)
-        
+
+    @classmethod
+    def valueList(cls , range_string):
+        """Will create a IntVecter of all the values in the @range_string.
+
+        Will not sort the values, and not uniquiefy - in contrast to
+        the active_list() method.
+
+        """
+        return cls.cNamespace().create_value_list(range_string)
+    
+    
     def count(self, value):
         """ @rtype: int """
         return IntVector.cNamespace().count_equal(self, value)
@@ -84,7 +99,8 @@ IntVector.cNamespace().memcpy              = cwrapper.prototype("void   int_vect
 IntVector.cNamespace().set_default         = cwrapper.prototype("void   int_vector_set_default( int_vector , int)")
 IntVector.cNamespace().get_default         = cwrapper.prototype("int    int_vector_get_default( int_vector )")
 IntVector.cNamespace().element_size        = cwrapper.prototype("int    int_vector_element_size( int_vector )")
-IntVector.cNamespace().create_active_list  = cwrapper.prototype("int_vector_obj string_util_alloc_active_list( char* )")
+IntVector.cNamespace().create_active_list  = cwrapper.prototype("int_vector_obj string_util_alloc_active_list( char*)")
+IntVector.cNamespace().create_value_list  = cwrapper.prototype("int_vector_obj string_util_alloc_value_list( char*)")
 
 IntVector.cNamespace().permute          = cwrapper.prototype("void int_vector_permute(int_vector, permutation_vector)")
 IntVector.cNamespace().sort_perm        = cwrapper.prototype("permutation_vector_obj int_vector_alloc_sort_perm(int_vector)")

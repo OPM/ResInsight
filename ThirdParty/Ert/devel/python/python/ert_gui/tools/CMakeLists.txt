@@ -4,7 +4,7 @@ set(PYTHON_SOURCES
     tool.py
 )
 
-add_python_package("python.ert_gui.tools"  ${PYTHON_INSTALL_PREFIX}/ert_gui/tools "${PYTHON_SOURCES}" True)
+add_python_package("python.ert_gui.tools" ${PYTHON_INSTALL_PREFIX}/ert_gui/tools "${PYTHON_SOURCES}" True)
 
 add_subdirectory(export)
 add_subdirectory(help)

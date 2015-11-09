@@ -100,12 +100,6 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 
     updateNNCColors(cellResultColors);
 
-    size_t scalarSetIndex = cellResultColors->scalarResultIndex();
-
-    // If the result is static, only read that.
-    size_t resTimeStepIdx = timeStepIndex;
-    if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
-
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
     RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
@@ -115,16 +109,16 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
     {
         if (cellResultColors->isTernarySaturationSelected())
         {
-			RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
-				timeStepIndex,
-				m_grid->gridIndex(),
-				m_nativeFaultGenerator->quadToCellFaceMapper());
+            RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
+                timeStepIndex,
+                m_grid->gridIndex(),
+                m_nativeFaultGenerator->quadToCellFaceMapper());
 
-			texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
+            texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
 
-			const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
+            const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_nativeFaultFaces.p(), m_nativeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
-		}
+        }
         else
         {
             RivTextureCoordsCreator texturer(cellResultColors, 
@@ -132,50 +126,50 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
                 m_grid->gridIndex(),  
                 m_nativeFaultGenerator->quadToCellFaceMapper());
 
-			if (!texturer.isValid())
-			{
-				return;
-			}
+            if (!texturer.isValid())
+            {
+                return;
+            }
 
             texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
 
-			const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
+            const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTextureResultsToPart(m_nativeFaultFaces.p(), m_nativeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
         }
     }
 
     if (m_oppositeFaultFaces.notNull())
     {
-		if (cellResultColors->isTernarySaturationSelected())
-		{
-			RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
-				timeStepIndex,
-				m_grid->gridIndex(),
-				m_oppositeFaultGenerator->quadToCellFaceMapper());
+        if (cellResultColors->isTernarySaturationSelected())
+        {
+            RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
+                timeStepIndex,
+                m_grid->gridIndex(),
+                m_oppositeFaultGenerator->quadToCellFaceMapper());
 
-			texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
+            texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
 
-			const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
-			RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
-		}
-		else
-		{
-			RivTextureCoordsCreator texturer(cellResultColors,
-				timeStepIndex,
-				m_grid->gridIndex(),
-				m_oppositeFaultGenerator->quadToCellFaceMapper());
+            const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
+            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
+        }
+        else
+        {
+            RivTextureCoordsCreator texturer(cellResultColors,
+                timeStepIndex,
+                m_grid->gridIndex(),
+                m_oppositeFaultGenerator->quadToCellFaceMapper());
 
-			if (!texturer.isValid())
-			{
-				return;
-			}
+            if (!texturer.isValid())
+            {
+                return;
+            }
 
-			texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
+            texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
 
-			const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
+            const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTextureResultsToPart(m_oppositeFaultFaces.p(), m_oppositeFaultFacesTextureCoords.p(), mapper, m_opacityLevel, this->faceCullingMode(), eclipseView->isLightingDisabled());
-		}
-	}
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,30 +179,30 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipse
 {
     updateNNCColors(cellResultColors);
 
-	if (m_nativeFaultFaces.notNull())
-	{
-		cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
-		if (dg)
-		{
-			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_nativeFaultGenerator->quadToCellFaceMapper(),
-				m_grid->gridIndex(),
+    if (m_nativeFaultFaces.notNull())
+    {
+        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
+        if (dg)
+        {
+            cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_nativeFaultGenerator->quadToCellFaceMapper(),
+                m_grid->gridIndex(),
                 timeStepIndex, cellResultColors, cellEdgeResultColors, m_opacityLevel, m_defaultColor, this->faceCullingMode(), cellResultColors->reservoirView()->isLightingDisabled());
 
-			m_nativeFaultFaces->setEffect(eff.p());
-		}
-	}
+            m_nativeFaultFaces->setEffect(eff.p());
+        }
+    }
 
-	if (m_oppositeFaultFaces.notNull())
-	{
-		cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
-		if (dg)
-		{
-			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_oppositeFaultGenerator->quadToCellFaceMapper(), m_grid->gridIndex(),
+    if (m_oppositeFaultFaces.notNull())
+    {
+        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
+        if (dg)
+        {
+            cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_oppositeFaultGenerator->quadToCellFaceMapper(), m_grid->gridIndex(),
                 timeStepIndex, cellResultColors, cellEdgeResultColors, m_opacityLevel, m_defaultColor, this->faceCullingMode(), cellResultColors->reservoirView()->isLightingDisabled());
 
-			m_oppositeFaultFaces->setEffect(eff.p());
-		}
-	}
+            m_oppositeFaultFaces->setEffect(eff.p());
+        }
+    }
 }
 
 const int priFaultGeo = 1;
@@ -368,7 +362,7 @@ void RivFaultPartMgr::updatePartEffect()
     caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, caf::PO_1);
     geometryEffgen.setCullBackfaces(faceCullingMode());
   
-    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
+    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
 
     if (m_nativeFaultFaces.notNull())
     {
@@ -387,7 +381,7 @@ void RivFaultPartMgr::updatePartEffect()
 
     cvf::ref<cvf::Effect> eff;
     caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
-    eff = faultEffGen.generateEffect();
+    eff = faultEffGen.generateCachedEffect();
 
     if (m_nativeFaultGridLines.notNull())
     {
@@ -457,12 +451,15 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         
         cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
         {
-            std::vector<RimFaultCollection*> parentObjects;
-            m_rimFault->parentObjectsOfType(parentObjects);
-
-            if (parentObjects.size() > 0)
+            RimFault* noConstRimFault = const_cast<RimFault*>(m_rimFault);
+            if (noConstRimFault)
             {
-                defWellLabelColor = parentObjects[0]->faultLabelColor();;
+                RimFaultCollection* parentObject;
+                noConstRimFault->firstAnchestorOrThisOfType(parentObject);
+                if (parentObject)
+                {
+                    defWellLabelColor = parentObject->faultLabelColor();;
+                }
             }
         }
 
@@ -511,7 +508,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         m_faultLabelLinePart->updateBoundingBox();
 
         caf::MeshEffectGenerator gen(m_rimFault->faultColor());
-        cvf::ref<cvf::Effect> eff = gen.generateEffect();
+        cvf::ref<cvf::Effect> eff = gen.generateCachedEffect();
         
         m_faultLabelLinePart->setEffect(eff.p());
     }
@@ -674,13 +671,13 @@ void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
         {
             // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_NEG_LARGE);
-            nncEffect = nncEffgen.generateEffect();
+            nncEffect = nncEffgen.generateCachedEffect();
         }
         else
         {
             // If no grid is present, use same offset as grid geometry to be able to see mesh lines
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_1);
-            nncEffect = nncEffgen.generateEffect();
+            nncEffect = nncEffgen.generateCachedEffect();
         }
 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_NNCFaces->drawable());
@@ -702,13 +699,13 @@ void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
         {
             // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_NEG_LARGE);
-            nncEffect = nncEffgen.generateEffect();
+            nncEffect = nncEffgen.generateCachedEffect();
         }
         else
         {
             // If no grid is present, use same offset as grid geometry to be able to see mesh lines
             caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_1);
-            nncEffect = nncEffgen.generateEffect();
+            nncEffect = nncEffgen.generateCachedEffect();
         }
 
         m_NNCFaces->setEffect(nncEffect.p());

@@ -31,6 +31,7 @@
 class RimEclipseView;
 class RigCaseCellResultsData;
 class RimReservoirCellResultsStorage;
+class RimEclipseCase;
 //==================================================================================================
 ///  
 ///  
@@ -42,8 +43,7 @@ public:
     RimEclipseResultDefinition();
     virtual ~RimEclipseResultDefinition();
 
-    virtual void                    setReservoirView(RimEclipseView* ownerReservoirView);
-    RimEclipseView*               reservoirView();
+    void                            setEclipseCase(RimEclipseCase* eclipseCase);
 
     RimDefines::ResultCatType       resultType() const { return m_resultType(); }
     void                            setResultType(RimDefines::ResultCatType val);
@@ -72,20 +72,25 @@ protected:
 
     friend class RimEclipsePropertyFilter;
     friend class RimEclipseFaultColors;
+    friend class RimWellLogExtractionCurve;
 
     // User interface only fields, to support "filtering"-like behaviour etc.
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
-    caf::PdmPointer<RimEclipseView>                               m_reservoirView;
+    caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
+
 
 protected:
     void updateFieldVisibility();
 
     QList<caf::PdmOptionItemInfo> calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
+
+
 private:
     QStringList getResultVariableListForCurrentUIFieldSettings();
+    static void removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
 };
 

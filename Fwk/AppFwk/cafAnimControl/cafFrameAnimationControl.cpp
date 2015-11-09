@@ -158,6 +158,19 @@ int FrameAnimationControl::currentFrame() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Set current frame without emitting signal
+/// Used when views are linked and need to update current frame without emitting a signal
+/// Emitting a signal will cause infinite recursion
+//--------------------------------------------------------------------------------------------------
+void FrameAnimationControl::setCurrentFrameOnly(int frameIndex)
+{
+    if (frameIndex >= 0)
+    {
+        m_currentFrame = frameIndex;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::setNumFrames(int numFrames)

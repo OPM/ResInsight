@@ -18,6 +18,8 @@
 
 #pragma once
 
+//class RivPipeQuadToSegmentMapper;
+
 class RivPipeGeometryGenerator : public cvf::Object
 {
 public:
@@ -69,6 +71,9 @@ private:
     
     // Map from generated cylinder segments to pipe result indices
     std::vector<size_t>         m_filteredPipeSegmentToResult;
+
+    // TODO: implement
+    //RivPipeQuadToSegmentMapper* m_quadToSegmentMapper;
 
     double                      m_radius;
     double                      m_minimumBendAngle;

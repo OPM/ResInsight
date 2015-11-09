@@ -159,8 +159,9 @@ static void * __hash_get_node_unlocked(const hash_type *__hash , const char *key
   difficult due to locking requirements.
 */
 
-static void * __hash_get_node(hash_type *hash , const char *key, bool abort_on_error) {
+static void * __hash_get_node(const hash_type *hash_in , const char *key, bool abort_on_error) {
   hash_node_type * node;
+  hash_type * hash = (hash_type *)hash_in;
   __hash_rdlock( hash );
   node = __hash_get_node_unlocked(hash , key , abort_on_error);
   __hash_unlock( hash );
@@ -168,7 +169,7 @@ static void * __hash_get_node(hash_type *hash , const char *key, bool abort_on_e
 }
 
 
-static node_data_type * hash_get_node_data(hash_type *hash , const char *key) {
+static node_data_type * hash_get_node_data(const hash_type *hash , const char *key) {
   hash_node_type * node = __hash_get_node(hash , key , true);
   return hash_node_get_data(node);
 }
@@ -356,7 +357,7 @@ void hash_insert_string(hash_type * hash , const char * key , const char * value
 }
 
 
-char * hash_get_string(hash_type * hash , const char * key) {
+char * hash_get_string(const hash_type * hash , const char * key) {
   node_data_type * node_data = hash_get_node_data(hash , key);
   return node_data_get_string( node_data );
 }
@@ -369,7 +370,7 @@ void hash_insert_int(hash_type * hash , const char * key , int value) {
 }
 
 
-int hash_get_int(hash_type * hash , const char * key) {
+int hash_get_int(const hash_type * hash , const char * key) {
   node_data_type * node_data = hash_get_node_data(hash , key);
   return node_data_get_int( node_data );
 }
@@ -400,7 +401,7 @@ int hash_inc_counter(hash_type * hash , const char * counter_key) {
    Will return 0 if the key is not in the hash.
 */
 
-int hash_get_counter(hash_type * hash , const char * key) {
+int hash_get_counter(const hash_type * hash , const char * key) {
   if (hash_has_key( hash , key ))
     return hash_get_int( hash , key );
   else
@@ -414,7 +415,7 @@ void hash_insert_double(hash_type * hash , const char * key , double value) {
   __hash_insert_node(hash , hash_node);
 }
 
-double hash_get_double(hash_type * hash , const char * key) {
+double hash_get_double(const hash_type * hash , const char * key) {
   node_data_type * node_data = hash_get_node_data(hash , key);
   return node_data_get_double( node_data );
 }

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import sys
 
 try:
@@ -7,27 +8,21 @@ except ImportError:
     from unittest import TextTestRunner
 
 
-def runTestCase(tests):
-    test_result = TextTestRunner(verbosity=0).run(tests)
-    if test_result.errors or test_result.failures:
-        for (test, trace_back) in test_result.errors:
-            sys.stderr.write("=================================================================\n")
-            sys.stderr.write("Test:%s error \n" % test.id())
-            sys.stderr.write("%s\n" % trace_back)
+def runTestCase(tests, verbosity=0):
+    test_result = TextTestRunner(verbosity=verbosity).run(tests)
 
-        for (test, trace_back) in test_result.failures:
-            sys.stderr.write("=================================================================\n")
-            sys.stderr.write("Test:%s failure \n" % test.id())
-            sys.stderr.write("%s\n" % trace_back)
-
+    if len(test_result.errors) or len(test_result.failures):
+        test_result.printErrors()
         return False
     else:
         return True
 
 
 if __name__ == '__main__':
-    PYTHONPATH = sys.argv[1]
-    sys.path.insert(0, PYTHONPATH)
+    TEST_PYTHONPATH = sys.argv[1]
+    os.environ["PYTHONPATH"] = TEST_PYTHONPATH + os.pathsep + os.getenv("PYTHONPATH", "")
+    for path_element in reversed(TEST_PYTHONPATH.split(os.pathsep)):
+        sys.path.insert(0, path_element)
 
     test_class_path = sys.argv[2]
     argv = []
@@ -38,9 +33,11 @@ if __name__ == '__main__':
         pass
 
     from ert.test import ErtTestRunner
+
     tests = ErtTestRunner.getTestsFromTestClass(test_class_path, argv)
 
-    if runTestCase(tests):
+    # Set verbosity to 2 to see which test method in a class that fails.
+    if runTestCase(tests, verbosity=0):
         sys.exit(0)
     else:
         sys.exit(1)

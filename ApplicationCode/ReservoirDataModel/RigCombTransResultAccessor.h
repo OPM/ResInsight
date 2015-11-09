@@ -40,8 +40,12 @@ public:
 
     virtual double  cellScalar(size_t gridLocalCellIndex) const;
     virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    virtual double  cellScalarGlobIdx(size_t globCellIndex) const;
+    virtual double  cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+
 private:
     double neighborCellTran(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId, const RigResultAccessor* transAccessor) const;
+
 
     cvf::ref<RigResultAccessor> m_xTransAccessor;
     cvf::ref<RigResultAccessor> m_yTransAccessor;

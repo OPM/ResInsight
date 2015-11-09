@@ -128,7 +128,16 @@ class UtilTest(TestCase):
         active_list = IntVector.active_list("1,10,100-105X")
         self.assertFalse(active_list)
 
+        
+    def test_value_list(self):
+        list2 = IntVector.valueList("3,10-12,0,1")
+        self.assertTrue( len(list2) == 6 )
+        expected = [3,10,11,12,0,1]
+        for v1,v2 in zip(list2,expected):
+            self.assertEqual( v1 , v2)
+            
 
+        
 
     def test_contains_int(self):
         iv = IntVector()

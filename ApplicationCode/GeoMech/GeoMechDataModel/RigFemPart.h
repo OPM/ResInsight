@@ -30,13 +30,16 @@
 
 class RigFemPartGrid;
 
+namespace cvf
+{
+    class BoundingBoxTree;
+}
+
 class RigFemPartNodes
 {
 public:
      std::vector<int>           nodeIds;
      std::vector<cvf::Vec3f>    coordinates;
-
-     
 };
 
 class RigFemPart : public cvf::Object
@@ -55,10 +58,11 @@ public:
     
     int                         elmId(size_t elementIdx) const             { return m_elementId[elementIdx]; }
     RigElementType              elementType(size_t elementIdx) const       { return m_elementTypes[elementIdx]; }
-    const int*                  connectivities(size_t elementIdx) const    { return &m_allAlementConnectivities[m_elementConnectivityStartIndices[elementIdx]];}
+    const int*                  connectivities(size_t elementIdx) const    { return &m_allElementConnectivities[m_elementConnectivityStartIndices[elementIdx]];}
 
     size_t                      elementNodeResultIdx(int elementIdx, int elmLocalNodeIdx) const { return m_elementConnectivityStartIndices[elementIdx] + elmLocalNodeIdx;}
-    int                         nodeIdxFromElementNodeResultIdx(size_t elmNodeResultIdx)  const { return m_allAlementConnectivities[elmNodeResultIdx]; }
+    size_t                      elementNodeResultCount() const;
+    int                         nodeIdxFromElementNodeResultIdx(size_t elmNodeResultIdx)  const { return m_allElementConnectivities[elmNodeResultIdx]; }
 
     RigFemPartNodes&            nodes()                                    {return m_nodes;}
     const RigFemPartNodes&      nodes() const                              {return m_nodes;}
@@ -76,10 +80,11 @@ public:
     cvf::BoundingBox            boundingBox();
     float                       characteristicElementSize();
     const std::vector<int>&     possibleGridCornerElements() const { return m_possibleGridCornerElements; }
+    void                        findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const;
 
-    cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex);
+    cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex) const;
 
-    const RigFemPartGrid*       structGrid();   
+    const RigFemPartGrid*       structGrid() const;   
 
 private:
     int                         m_elementPartId;
@@ -87,11 +92,11 @@ private:
     std::vector<int>            m_elementId;
     std::vector<RigElementType> m_elementTypes;
     std::vector<size_t>         m_elementConnectivityStartIndices;
-    std::vector<int>            m_allAlementConnectivities;
+    std::vector<int>            m_allElementConnectivities;
 
     RigFemPartNodes             m_nodes;
 
-    cvf::ref<RigFemPartGrid>    m_structGrid;
+    mutable cvf::ref<RigFemPartGrid>    m_structGrid;
 
     void calculateNodeToElmRefs();
     std::vector<std::vector<int> > m_nodeToElmRefs; // Needs a more memory friendly structure
@@ -103,5 +108,7 @@ private:
 
     float                       m_characteristicElementSize;
     cvf::BoundingBox            m_boundingBox;
+
+    mutable cvf::ref<cvf::BoundingBoxTree> m_elementSearchTree;
 
 };

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfArray.h"
 #include "cvfCollection.h"
 
@@ -66,9 +67,9 @@ public:
 
     // Faults
     void   updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
-	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors,
-		RimCellEdgeColors* cellEdgeResultColors);
-	void   appendFaultPartsToModel(cvf::ModelBasicList* model);
+    void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors,
+        RimCellEdgeColors* cellEdgeResultColors);
+    void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:
 

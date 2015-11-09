@@ -19,8 +19,9 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 class RimGeoMechPropertyFilter;
@@ -37,33 +38,24 @@ public:
     RimGeoMechPropertyFilterCollection();
     virtual ~RimGeoMechPropertyFilterCollection();
 
-    void                  setReservoirView(RimGeoMechView* reservoirView);
     RimGeoMechView*       reservoirView();
 
-
     // Fields:
-    caf::PdmField<bool> active;
-    caf::PdmPointersField<RimGeoMechPropertyFilter*> propertyFilters;
+    caf::PdmField<bool> isActive;
+    caf::PdmChildArrayField<RimGeoMechPropertyFilter*> propertyFilters;
 
     // Methods
-    RimGeoMechPropertyFilter*  createAndAppendPropertyFilter();
-    void                    remove(RimGeoMechPropertyFilter* propertyFilter);
-
     bool                    hasActiveFilters() const; 
     bool                    hasActiveDynamicFilters() const; 
 
-
     void                    loadAndInitializePropertyFilters();
-
-
-    // Overridden methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*    objectToggleField();
+    void                    updateDisplayModelNotifyManagedViews();
+    void                    updateIconState();
 
 protected:
     // Overridden methods
-    virtual void initAfterRead();
-
-private:
-    caf::PdmPointer<RimGeoMechView> m_reservoirView;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    virtual caf::PdmFieldHandle*    objectToggleField();
+    virtual void                    initAfterRead();
 };

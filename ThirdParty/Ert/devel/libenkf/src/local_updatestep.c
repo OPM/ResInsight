@@ -57,6 +57,16 @@ local_updatestep_type * local_updatestep_alloc( const char * name ) {
 }
 
 
+bool local_updatestep_has_data_key( const local_updatestep_type * update_step , const char * key) {
+  bool has_key = false;
+  for (int i = 0; i < vector_get_size( update_step->ministep ); i++) {
+    const local_ministep_type * ministep = vector_iget_const( update_step->ministep , i );
+    if (local_ministep_has_data_key(ministep, key))
+      has_key = true;
+  }
+  return has_key;
+}
+
 /**
    Observe that use_count values are not copied.
 */
@@ -110,7 +120,7 @@ const char * local_updatestep_get_name( const local_updatestep_type * updatestep
 
 
 void local_updatestep_fprintf( const local_updatestep_type * updatestep , FILE * stream) {
-  fprintf(stream , "%s %s\n" , local_config_get_cmd_string( CREATE_UPDATESTEP ) , updatestep->name );
+  fprintf(stream , "\n%s %s\n" , local_config_get_cmd_string( CREATE_UPDATESTEP ) , updatestep->name );
   {
     int i;
     for (i=0; i < vector_get_size( updatestep->ministep ); i++) {

@@ -147,24 +147,7 @@ class ExtendedTestCase(TestCase):
 
     def createSharePath(self, path, share_root=None):
         if share_root is None and self.__share_root is None:
-            file_path = os.path.realpath(__file__)
-            build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../devel/share/"))
-            site_packages_build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../../../devel/share/"))
-            src_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../share/"))
-            env_root = os.getenv("ERT_TEST_ROOT_PATH")
-
-            if env_root is not None and os.path.exists(env_root):
-                root = os.path.realpath(env_root)
-            elif os.path.exists(build_root):
-                root = os.path.realpath(build_root)
-            elif os.path.exists(site_packages_build_root):
-                root = os.path.realpath(site_packages_build_root)
-            elif os.path.exists(src_root):
-                root = os.path.realpath(src_root)
-            else:
-                root = None
-
-            self.setShareRoot(root)
+            self.setShareRoot(ExtendedTestCase.findShareRoot())
 
         root_path = self.__share_root
         if share_root is not None:
@@ -175,15 +158,34 @@ class ExtendedTestCase(TestCase):
 
         return os.path.realpath(os.path.join(root_path , path))
 
-    
+
+    @staticmethod
+    def findShareRoot():
+        file_path = os.path.realpath(__file__)
+        build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../devel/share/"))
+        site_packages_build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../../../devel/share/"))
+        src_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../share/"))
+        env_root = os.getenv("ERT_SHARE_PATH")
+
+        if env_root is not None and os.path.exists(env_root):
+            root = os.path.realpath(env_root)
+        elif os.path.exists(build_root):
+            root = os.path.realpath(build_root)
+        elif os.path.exists(site_packages_build_root):
+            root = os.path.realpath(site_packages_build_root)
+        elif os.path.exists(src_root):
+            root = os.path.realpath(src_root)
+        else:
+            root = None
+
+        return root
+
     def assertNotRaises(self, func):
         try:
             func()
         except:
             self.fail()
 
-
-            
     @staticmethod
     def slowTestShouldNotRun():
         """

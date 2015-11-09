@@ -28,19 +28,19 @@
 class RigTernaryResultAccessor : public RigResultAccessor2d
 {
 public:
-	RigTernaryResultAccessor();
+    RigTernaryResultAccessor();
 
-	/// Requires two of the arguments to be present
-	void setTernaryResultAccessors(RigResultAccessor* soil, RigResultAccessor* sgas, RigResultAccessor* swat);
+    /// Requires two of the arguments to be present
+    void setTernaryResultAccessors(RigResultAccessor* soil, RigResultAccessor* sgas, RigResultAccessor* swat);
 
-	/// Returns [SOIL, SGAS] regardless of which one of the three is missing. if Soil or SWat is missing, it is calculated 
-	/// based on the two others
-	virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex) const;
-	virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    /// Returns [SOIL, SGAS] regardless of which one of the three is missing. if Soil or SWat is missing, it is calculated 
+    /// based on the two others
+    virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex) const;
+    virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
 private:
-	cvf::ref<RigResultAccessor> m_soilAccessor;
-	cvf::ref<RigResultAccessor> m_sgasAccessor;
-	cvf::ref<RigResultAccessor> m_swatAccessor;
+    cvf::ref<RigResultAccessor> m_soilAccessor;
+    cvf::ref<RigResultAccessor> m_sgasAccessor;
+    cvf::ref<RigResultAccessor> m_swatAccessor;
 };
 

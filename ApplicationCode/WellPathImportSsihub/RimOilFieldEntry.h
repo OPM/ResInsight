@@ -20,6 +20,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmChildArrayField.h"
 
 #include "RimWellsEntry.h"
 
@@ -39,7 +40,7 @@ public:
     caf::PdmField<bool>             selected;
     caf::PdmField<QString>          wellsFilePath;  // Location of the response file from request "/wells"
 
-    caf::PdmPointersField<RimWellPathEntry*> wells;
+    caf::PdmChildArrayField<RimWellPathEntry*> wells;
 
     RimWellPathEntry* find(const QString& name, RimWellPathEntry::WellTypeEnum wellPathType);
 

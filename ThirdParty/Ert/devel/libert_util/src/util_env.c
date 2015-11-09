@@ -228,7 +228,6 @@ char * util_alloc_envvar( const char * value ) {
     buffer_type * buffer = buffer_alloc( 1024 );               /* Start by filling up a buffer instance with 
                                                                   the current content of @value. */
     buffer_fwrite_char_ptr( buffer , value );
-    buffer_fwrite_char( buffer , '\0' );
     buffer_rewind( buffer );
     
     

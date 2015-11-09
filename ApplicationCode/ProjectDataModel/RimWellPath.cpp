@@ -23,11 +23,18 @@
 #include "RifJsonEncodeDecode.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellLogFile.h"
 #include "RimWellPathCollection.h"
+#include "RimProject.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 #include "RivWellPathPartMgr.h"
+
+#include "RiuMainWindow.h"
 
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 
@@ -39,48 +46,51 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitObject("WellPath", ":/Well.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&name,               "WellPathName",                         "Name", "", "", "");
-    name.setUiReadOnly(true);
-    name.setIOWritable(false);
-    name.setIOReadable(false);
-    name.setUiHidden(true);
+    name.uiCapability()->setUiReadOnly(true);
+    name.xmlCapability()->setIOWritable(false);
+    name.xmlCapability()->setIOReadable(false);
+    name.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&id,                 "WellPathId",                           "Id", "", "", "");
-    id.setUiReadOnly(true);
-    id.setIOWritable(false);
-    id.setIOReadable(false);
+    id.uiCapability()->setUiReadOnly(true);
+    id.xmlCapability()->setIOWritable(false);
+    id.xmlCapability()->setIOReadable(false);
     CAF_PDM_InitFieldNoDefault(&sourceSystem,       "SourceSystem",                         "Source System", "", "", "");
-    sourceSystem.setUiReadOnly(true);
-    sourceSystem.setIOWritable(false);
-    sourceSystem.setIOReadable(false);
+    sourceSystem.uiCapability()->setUiReadOnly(true);
+    sourceSystem.xmlCapability()->setIOWritable(false);
+    sourceSystem.xmlCapability()->setIOReadable(false);
     CAF_PDM_InitFieldNoDefault(&utmZone,            "UTMZone",                              "UTM Zone", "", "", "");
-    utmZone.setUiReadOnly(true);
-    utmZone.setIOWritable(false);
-    utmZone.setIOReadable(false);
+    utmZone.uiCapability()->setUiReadOnly(true);
+    utmZone.xmlCapability()->setIOWritable(false);
+    utmZone.xmlCapability()->setIOReadable(false);
     CAF_PDM_InitFieldNoDefault(&updateDate,         "WellPathUpdateDate",                   "Update Date", "", "", "");
-    updateDate.setUiReadOnly(true);
-    updateDate.setIOWritable(false);
-    updateDate.setIOReadable(false);
+    updateDate.uiCapability()->setUiReadOnly(true);
+    updateDate.xmlCapability()->setIOWritable(false);
+    updateDate.xmlCapability()->setIOReadable(false);
     CAF_PDM_InitFieldNoDefault(&updateUser,         "WellPathUpdateUser",                   "Update User", "", "", "");
-    updateUser.setUiReadOnly(true);
-    updateUser.setIOWritable(false);
-    updateUser.setIOReadable(false);
+    updateUser.uiCapability()->setUiReadOnly(true);
+    updateUser.xmlCapability()->setIOWritable(false);
+    updateUser.xmlCapability()->setIOReadable(false);
     CAF_PDM_InitFieldNoDefault(&m_surveyType,       "WellPathSurveyType",                   "Survey Type", "", "", "");
-    m_surveyType.setUiReadOnly(true);
-    m_surveyType.setIOWritable(false);
-    m_surveyType.setIOReadable(false);
+    m_surveyType.uiCapability()->setUiReadOnly(true);
+    m_surveyType.xmlCapability()->setIOWritable(false);
+    m_surveyType.xmlCapability()->setIOReadable(false);
 
     CAF_PDM_InitField(&filepath,                    "WellPathFilepath",     QString(""),    "Filepath", "", "", "");
-    filepath.setUiReadOnly(true);
+    filepath.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in file", "", "", "");
-    wellPathIndexInFile.setUiReadOnly(true);
+    wellPathIndexInFile.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&showWellPathLabel,           "ShowWellPathLabel",    true,           "Show well path label", "", "", "");
 
     CAF_PDM_InitField(&showWellPath,                "ShowWellPath",         true,           "Show well path", "", "", "");
-    showWellPath.setUiHidden(true);
+    showWellPath.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well path radius scale", "", "", "");
     CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well path color", "", "", "");
     
+    CAF_PDM_InitFieldNoDefault(&m_wellLogFile,      "WellLogFile",  "Well Log File", "", "", "");
+    m_wellLogFile.uiCapability()->setUiHidden(true);
+
     m_wellPath = NULL;
     m_project = NULL;
 }
@@ -91,6 +101,25 @@ RimWellPath::RimWellPath()
 //--------------------------------------------------------------------------------------------------
 RimWellPath::~RimWellPath()
 {
+    if (m_wellLogFile())
+    {
+        delete m_wellLogFile;
+    }
+
+    RimProject* project;
+    firstAnchestorOrThisOfType(project);
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                plotCollection->removeExtractors(m_wellPath.p());
+            }
+        }
+    }
+
 }
 
 
@@ -147,21 +176,31 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
 
 
 //--------------------------------------------------------------------------------------------------
-/// Read JSON file containing well path data
+/// Read JSON or ascii file containing well path data
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::readWellPathFile()
+bool RimWellPath::readWellPathFile(QString* errorMessage)
 {
-    QFileInfo fi(filepath());
+    QFileInfo fileInf(filepath());
 
-    if (fi.suffix().compare("json") == 0)
+    if (fileInf.isFile() && fileInf.exists())
     {
-        this->readJsonWellPathFile();
+        if (fileInf.suffix().compare("json") == 0)
+        {
+            this->readJsonWellPathFile();
+        }
+        else
+        {
+            this->readAsciiWellPathFile();
+        }
+
+        return true;
     }
     else
     {
-        this->readAsciiWellPathFile();
-    }
+        if (errorMessage) (*errorMessage) = "Could not find the well path file: " + filepath();
 
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,6 +243,9 @@ void RimWellPath::readJsonWellPathFile()
         QMap<QString, QVariant> coordinateMap = point.toMap();
         cvf::Vec3d vec3d(coordinateMap["east"].toDouble(), coordinateMap["north"].toDouble(), -(coordinateMap["tvd"].toDouble() - datumElevation));
         wellPathGeom->m_wellPathPoints.push_back(vec3d);
+        
+        double measuredDepth = coordinateMap["md"].toDouble();
+        wellPathGeom->m_measuredDepths.push_back(measuredDepth);
     }
 
     //jsonReader.dumpToFile(wellPathGeom->m_wellPathPoints, "c:\\temp\\jsonpoints.txt");
@@ -215,7 +257,7 @@ void RimWellPath::readJsonWellPathFile()
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::readAsciiWellPathFile()
 {
-    RimWellPathAsciiFileReader::WellData wpData = m_wellPathCollection->asciiFileReader()->readWellData(filepath(), wellPathIndexInFile());
+    RifWellPathAsciiFileReader::WellData wpData = m_wellPathCollection->asciiFileReader()->readWellData(filepath(), wellPathIndexInFile());
     this->name = wpData.m_name;
 
     setWellPathGeometry(wpData.m_wellPathGeometry.p());
@@ -242,7 +284,6 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     ssihubGroup->add(&updateDate);
     ssihubGroup->add(&updateUser);
     ssihubGroup->add(&m_surveyType);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,12 +301,18 @@ QString RimWellPath::getCacheDirectoryPath()
 //--------------------------------------------------------------------------------------------------
 QString RimWellPath::getCacheFileName()
 {
+    if (filepath().isEmpty())
+    {
+        return "";
+    }
+
     QString cacheFileName;
 
     // Make the path correct related to the possibly new project filename
     QString newCacheDirPath = getCacheDirectoryPath();
     QFileInfo oldCacheFile(filepath);
 
+   
     cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
 
     return cacheFileName;
@@ -278,6 +325,11 @@ void RimWellPath::setupBeforeSave()
 {
     // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
     if (!isStoredInCache())
+    {
+        return;
+    }
+
+    if (filepath().isEmpty())
     {
         return;
     }
@@ -320,3 +372,18 @@ void RimWellPath::updateFilePathsFromProjectPath()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setLogFileInfo(RimWellLogFile* logFileInfo)
+{
+    if (m_wellLogFile())
+    {
+        delete m_wellLogFile;
+    }
+
+    m_wellLogFile = logFileInfo;
+    m_wellLogFile->uiCapability()->setUiHidden(true);
+
+    this->name = m_wellLogFile->wellName();
+}

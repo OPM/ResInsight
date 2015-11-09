@@ -1,0 +1,76 @@
+@startuml
+left to right direction
+
+component cafProjectDataModel
+note right of [cafProjectDataModel]
+  Templated factory class
+  Multithreaded mutex
+  Aggreagated class PdmObject, inherits Core, Ui, Xml
+  Helper macro to be able to use PdmField(macro for replacing with PdmValueField)
+  PdmObjectGroup - collection of PdmObjects
+end note
+
+
+component cafPdmCore
+note right of [cafPdmCore]
+  cafAppEnum
+  Classes derived from cafPdmFieldHandle 
+  cafPdmPointer
+end note
+
+component cafPdmUiCore
+note right of [cafPdmUiCore]
+  Object editor handle
+  Field editor handle
+  Ui ordering for properties
+  Ui ordering for tree view
+  Selection manager
+end note
+
+component cafPdmXml
+note right of [cafPdmXml]
+  Default object factory
+  Serialization of objects to Xml
+end note
+
+component cafUserInterface
+note right of [cafUserInterface]
+  Default object property editor
+  Property view contained in a dialog (used to display preferences)
+  
+  Table editor
+  Progress info
+  
+  PdmField editors (line, checkbox, list view, ...)
+end note
+
+component cafCommand
+note right of [cafCommand]
+  Feature manager
+  Base class for features
+  Base class for feature commands
+  Management of undo/redo
+end note
+
+component cafAnimControl
+component cafTensor
+
+component cafViewer
+note right of [cafViewer]
+  Viewer widget used to display 3D models
+  Mouse navigation policies
+end note
+
+component cafPdmCvf
+note right of [cafPdmCvf]
+  Definition of default Ui editors for CVF classes
+  Color3f
+  Vec3d
+  Mat4d
+end note
+
+
+
+
+@enduml
+		

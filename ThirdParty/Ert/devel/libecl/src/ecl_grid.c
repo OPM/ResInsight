@@ -639,6 +639,7 @@ struct ecl_grid_struct {
                                         but in cases with skewed cells this has proved
                                         numerically challenging. */
   bool                  is_metric;
+  int                   eclipse_version;
 };
 
 
@@ -1338,6 +1339,7 @@ static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid , int du
   grid->parent_grid     = NULL;
   grid->children        = hash_alloc();
   grid->coarse_cells    = vector_alloc_new();
+  grid->eclipse_version = 0;
   return grid;
 }
 
@@ -2283,8 +2285,12 @@ static void ecl_grid_init_nnc_cells( ecl_grid_type * grid1, ecl_grid_type * grid
 */
 static void ecl_grid_init_nnc(ecl_grid_type * main_grid, ecl_file_type * ecl_file) {
   int num_nnchead_kw = ecl_file_get_num_named_kw( ecl_file , NNCHEAD_KW );
-
   int i;
+
+  if(num_nnchead_kw > 0 && main_grid->eclipse_version == 2015){
+      return; //Eclipse 2015 has an error with nnc.
+  }
+
   for (i = 0; i < num_nnchead_kw; i++) {
     ecl_file_push_block(ecl_file);               /* <---------------------------------------------------------------- */
     ecl_file_select_block(ecl_file , NNCHEAD_KW , i);
@@ -2366,11 +2372,15 @@ static ecl_grid_type * ecl_grid_alloc_EGRID__( ecl_grid_type * main_grid , const
   ecl_kw_type * actnum_kw    = NULL;
   ecl_kw_type * mapaxes_kw   = NULL;
   int dualp_flag;
+  int eclipse_version;
   if (grid_nr == 0) {
     ecl_kw_type * filehead_kw  = ecl_file_iget_named_kw( ecl_file , FILEHEAD_KW  , grid_nr);
     dualp_flag                 = ecl_kw_iget_int( filehead_kw , FILEHEAD_DUALP_INDEX );
-  } else
+    eclipse_version = ecl_kw_iget_int( filehead_kw, FILEHEAD_YEAR_INDEX);
+  } else{
     dualp_flag = main_grid->dualp_flag;
+    eclipse_version = main_grid->eclipse_version;
+  }
 
 
   /** If ACTNUM is not present - that is is interpreted as - all active. */
@@ -2399,6 +2409,7 @@ static ecl_grid_type * ecl_grid_alloc_EGRID__( ecl_grid_type * main_grid , const
                                                            corsnum_kw );
 
     if (ECL_GRID_MAINGRID_LGR_NR != grid_nr) ecl_grid_set_lgr_name_EGRID(ecl_grid , ecl_file , grid_nr);
+    ecl_grid->eclipse_version = eclipse_version;
     return ecl_grid;
   }
 }
@@ -4311,19 +4322,42 @@ double ecl_grid_get_cell_thickness3( const ecl_grid_type * grid , int i , int j 
 
 
 
+double ecl_grid_get_cell_dx1( const ecl_grid_type * grid , int global_index ) {
+  fprintf(stderr , "** WARNING: The ecl_grid_get_cell_dx1() function is only a stub returning -1.\n");
+  fprintf(stderr , "            If you need a correct value for cell dx you must rebuild a new ert version.\n");
+  return -1;
+}
+
+
+double ecl_grid_get_cell_dx3( const ecl_grid_type * grid , int i , int j , int k) {
+  const int global_index = ecl_grid_get_global_index3(grid , i,j,k);
+  return ecl_grid_get_cell_dx1( grid , global_index );
+}
+
+
+double ecl_grid_get_cell_dy1( const ecl_grid_type * grid , int global_index ) {
+  fprintf(stderr , "** WARNING: The ecl_grid_get_cell_dy1() function is only a stub returning -1.\n");
+  fprintf(stderr , "            If you need a correct value for cell dy you must update rebuild a new ert version.\n");
+  return -1;
+}
+
+
+double ecl_grid_get_cell_dy3( const ecl_grid_type * grid , int i , int j , int k) {
+  const int global_index = ecl_grid_get_global_index3(grid , i,j,k);
+  return ecl_grid_get_cell_dy1( grid , global_index );
+}
+
+
 
 const nnc_info_type * ecl_grid_get_cell_nnc_info1( const ecl_grid_type * grid , int global_index) {
   const ecl_cell_type * cell = ecl_grid_get_cell( grid , global_index);
   return cell->nnc_info;
 }
 
-
-
 const nnc_info_type * ecl_grid_get_cell_nnc_info3( const ecl_grid_type * grid , int i , int j , int k) {
   const int global_index = ecl_grid_get_global_index3(grid , i,j,k);
   return ecl_grid_get_cell_nnc_info1(grid, global_index);
 }
-
 
 
 /*****************************************************************/

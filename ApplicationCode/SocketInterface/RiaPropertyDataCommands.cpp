@@ -18,33 +18,30 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RiaSocketCommand.h"
 #include "RiaSocketDataTransfer.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RifReaderInterface.h"
-
-#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
-#include "RimUiTreeModelPdm.h"
 
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
-#include "RigResultAccessorFactory.h"
+
+#include <QErrorMessage>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -323,7 +320,7 @@ public:
 
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
-			cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(rimCase->reservoirData(), gridIdx, porosityModelEnum, requestedTimesteps[tsIdx], propertyName);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(rimCase->reservoirData(), gridIdx, porosityModelEnum, requestedTimesteps[tsIdx], propertyName);
 
             if (resultAccessor.isNull())
             {
@@ -642,8 +639,7 @@ public:
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
                         inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-                        treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
+                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
@@ -1007,8 +1003,7 @@ public:
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
                         inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-                        treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
+                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }

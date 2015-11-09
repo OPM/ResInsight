@@ -106,7 +106,7 @@ void enkf_analysis_fprintf_obs_summary(const obs_data_type * obs_data , const me
 
 
 
-void enkf_analysis_deactivate_outliers(obs_data_type * obs_data , meas_data_type * meas_data , double std_cutoff , double alpha) {
+void enkf_analysis_deactivate_outliers(obs_data_type * obs_data , meas_data_type * meas_data , double std_cutoff , double alpha, bool verbose) {
   for (int block_nr =0; block_nr < obs_data_get_num_blocks( obs_data ); block_nr++) {
     obs_block_type  * obs_block  = obs_data_iget_block( obs_data , block_nr);
     meas_block_type * meas_block = meas_data_iget_block( meas_data , block_nr );
@@ -121,7 +121,7 @@ void enkf_analysis_deactivate_outliers(obs_data_type * obs_data , meas_data_type
               De activated because the ensemble has to small
               variation for this particular measurement.
             */
-            obs_block_deactivate( obs_block , iobs , "No ensemble variation");
+            obs_block_deactivate( obs_block , iobs , verbose , "No ensemble variation");
             meas_block_deactivate( meas_block , iobs );
           } else {
             double ens_mean  = meas_block_iget_ens_mean( meas_block , iobs );
@@ -136,7 +136,7 @@ void enkf_analysis_deactivate_outliers(obs_data_type * obs_data , meas_data_type
             */
 
             if (fabs( innov ) > alpha * (ens_std + obs_std)) {
-              obs_block_deactivate(obs_block , iobs , "No overlap");
+              obs_block_deactivate(obs_block , iobs , verbose , "No overlap");
               meas_block_deactivate(meas_block , iobs);
             }
           }
@@ -146,7 +146,7 @@ void enkf_analysis_deactivate_outliers(obs_data_type * obs_data , meas_data_type
   }
 }
 
-void enkf_analysis_deactivate_std_zero(obs_data_type * obs_data , meas_data_type * meas_data) {
+void enkf_analysis_deactivate_std_zero(obs_data_type * obs_data , meas_data_type * meas_data , bool verbose) {
 
   for (int block_nr =0; block_nr < obs_data_get_num_blocks( obs_data ); block_nr++) {
     obs_block_type  * obs_block  = obs_data_iget_block( obs_data , block_nr);
@@ -162,7 +162,7 @@ void enkf_analysis_deactivate_std_zero(obs_data_type * obs_data , meas_data_type
               De activated because the ensemble has to small
               variation for this particular measurement.
             */
-            obs_block_deactivate( obs_block , iobs , "No ensemble variation");
+            obs_block_deactivate( obs_block , iobs , verbose , "No ensemble variation");
             meas_block_deactivate( meas_block , iobs );
           }
         }

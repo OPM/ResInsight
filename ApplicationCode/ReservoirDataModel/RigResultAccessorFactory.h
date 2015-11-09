@@ -36,20 +36,20 @@ public:
         size_t timeStepIndex,
         const QString& uiResultName);
 
-	static cvf::ref<RigResultAccessor>
-		createResultAccessor(RigCaseData* eclipseCase,
-		size_t gridIndex,
-		RifReaderInterface::PorosityModelResultType porosityModel,
-		size_t timeStepIndex,
-		const QString& uiResultName,
-		RimDefines::ResultCatType resultType);
+    static cvf::ref<RigResultAccessor>
+        createResultAccessor(RigCaseData* eclipseCase,
+        size_t gridIndex,
+        RifReaderInterface::PorosityModelResultType porosityModel,
+        size_t timeStepIndex,
+        const QString& uiResultName,
+        RimDefines::ResultCatType resultType);
 
-	static cvf::ref<RigResultAccessor>
-		createResultAccessor(RigCaseData* eclipseCase,
-		size_t gridIndex,
-		RifReaderInterface::PorosityModelResultType porosityModel,
-		size_t timeStepIndex,
-		size_t resultIndex);
+    static cvf::ref<RigResultAccessor>
+        createResultAccessor(RigCaseData* eclipseCase,
+        size_t gridIndex,
+        RifReaderInterface::PorosityModelResultType porosityModel,
+        size_t timeStepIndex,
+        size_t resultIndex);
 
 
 

@@ -17,6 +17,7 @@ from ert.cwrap import BaseCClass, CWrapper
 
 from ert.enkf import AnalysisConfig, EclConfig, EnkfObs, EnKFState, LocalConfig, ModelConfig, EnsembleConfig, PlotConfig, SiteConfig, ENKF_LIB, EnkfSimulationRunner, EnkfFsManager, ErtWorkflowList, PostSimulationHook
 from ert.enkf.enums import EnkfInitModeEnum
+from ert.enkf.key_manager import KeyManager
 from ert.util import SubstitutionList, Log
 
 
@@ -36,6 +37,7 @@ class EnKFMain(BaseCClass):
             self.__fs_manager = EnkfFsManager(self)
             
 
+        self.__key_manager = KeyManager(self)
 
     @staticmethod
     def loadSiteConfig():
@@ -100,10 +102,13 @@ class EnKFMain(BaseCClass):
         """ @rtype: Log """
         return EnKFMain.cNamespace().get_logh(self).setParent(self)
 
-    def local_config(self):
+    def getLocalConfig(self):
         """ @rtype: LocalConfig """
-        return EnKFMain.cNamespace().get_local_config(self).setParent(self)
-
+        config = EnKFMain.cNamespace().get_local_config(self).setParent(self)
+        config.initAttributes( self.ensembleConfig() , self.getObservations() , self.eclConfig().get_grid() )
+        return config
+    
+    
     def siteConfig(self):
         """ @rtype: SiteConfig """
         return EnKFMain.cNamespace().get_site_config(self).setParent(self)
@@ -199,6 +204,10 @@ class EnKFMain(BaseCClass):
     def getEnkfFsManager(self):
         """ @rtype: EnkfFsManager """
         return self.__fs_manager
+
+    def getKeyManager(self):
+        """ :rtype: KeyManager """
+        return self.__key_manager
 
     def getWorkflowList(self):
         """ @rtype: ErtWorkflowList """

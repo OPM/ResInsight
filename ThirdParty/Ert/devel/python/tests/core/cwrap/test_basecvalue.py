@@ -1,4 +1,4 @@
-from ctypes import c_ubyte, c_long
+from ctypes import c_ubyte, c_double
 from ert.cwrap import BaseCValue, clib, CWrapper
 from ert.test import ExtendedTestCase
 
@@ -7,8 +7,8 @@ class UnsignedByteValue(BaseCValue):
     DATA_TYPE = c_ubyte
 
 
-class TimeTValue(BaseCValue):
-    DATA_TYPE = c_long
+class MaxDouble(BaseCValue):
+    DATA_TYPE = c_double
 
 
 class BaseCValueTest(ExtendedTestCase):
@@ -17,8 +17,8 @@ class BaseCValueTest(ExtendedTestCase):
 
         self.ert_wrapper = CWrapper(ert)
 
-        self.ert_wrapper.registerType("time_t", TimeTValue)
-        self.make_date = self.ert_wrapper.prototype("time_t util_make_date(int, int, int)")
+        self.ert_wrapper.registerType("pow_double", MaxDouble)
+        self.double_max = self.ert_wrapper.prototype("pow_double util_double_max(double, double)")
 
 
     def test_illegal_type(self):
@@ -62,8 +62,8 @@ class BaseCValueTest(ExtendedTestCase):
            UnsignedByteValue.from_param("exception")
 
 
-    def test_time_t(self):
-        future = self.make_date(1, 1, 2050)
+    def test_double_max(self):
+        double_max = self.double_max(2.97, 2.98)
 
-        self.assertIsInstance(future, TimeTValue)
-        self.assertEqual(future.value(), 2524604400)
+        self.assertIsInstance(double_max, MaxDouble)
+        self.assertEqual(double_max.value(), 2.98)

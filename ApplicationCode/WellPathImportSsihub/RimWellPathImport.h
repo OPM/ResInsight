@@ -52,7 +52,7 @@ public:
     caf::PdmField<double>                           east;
     caf::PdmField<double>                           west;
 
-    caf::PdmPointersField<RimOilRegionEntry*>       regions;
+    caf::PdmChildArrayField<RimOilRegionEntry*>       regions;
 
     void updateRegions(const QStringList& regions, const QStringList& fields, const QStringList& edmIds);
 

@@ -18,9 +18,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechPropertyFilterCollection.h"
+
+#include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechCellColors.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
 
 #include "cvfAssert.h"
 
@@ -32,11 +35,13 @@ CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilterCollection, "GeoMechPropertyFilters"
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilterCollection::RimGeoMechPropertyFilterCollection()
 {
-    CAF_PDM_InitObject("GeoMech Property Filters", ":/CellFilter_Values.png", "", "");
+    CAF_PDM_InitObject("Property Filters", ":/CellFilter_Values.png", "", "");
     
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
-    CAF_PDM_InitField(&active,                   "Active", true, "Active", "", "", "");
-    active.setUiHidden(true);
+    propertyFilters.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&isActive,                   "Active", true, "Active", "", "", "");
+    isActive.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,59 +55,24 @@ RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilterCollection::setReservoirView(RimGeoMechView* reservoirView)
-{
-    m_reservoirView = reservoirView;
-
-    for (size_t i = 0; i < propertyFilters.size(); i++)
-    {
-        RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
-        propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
-
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 {
-    CVF_ASSERT(!m_reservoirView.isNull());
-    return m_reservoirView;
+    RimGeoMechView* geoMechView = NULL;
+    firstAnchestorOrThisOfType(geoMechView);
+    
+    return geoMechView;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    this->updateUiIconFromToggleField();
+    updateIconState();
+    uiCapability()->updateConnectedEditors();
 
-    ((RimView*)m_reservoirView)->scheduleGeometryRegen(PROPERTY_FILTERED);
-    m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+    updateDisplayModelNotifyManagedViews();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilter* RimGeoMechPropertyFilterCollection::createAndAppendPropertyFilter()
-{
-    RimGeoMechPropertyFilter* propertyFilter = new RimGeoMechPropertyFilter();
-    
-    propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
-
-    propertyFilter->setParentContainer(this);
-    propertyFilters.push_back(propertyFilter);
-
-    propertyFilter->resultDefinition->setResultAddress(m_reservoirView->cellResult()->resultAddress());
-    propertyFilter->resultDefinition->loadResult();
-    propertyFilter->setToDefaultValues();
-    propertyFilter->updateFilterName();
- 
-    return propertyFilter;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -112,7 +82,7 @@ void RimGeoMechPropertyFilterCollection::loadAndInitializePropertyFilters()
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
-
+        propertyFilter->resultDefinition->setGeoMechCase(reservoirView()->geoMechCase());
         propertyFilter->resultDefinition->loadResult();
         propertyFilter->computeResultValueRange();
     }
@@ -128,19 +98,11 @@ void RimGeoMechPropertyFilterCollection::initAfterRead()
         RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
 
         propertyFilter->setParentContainer(this);
-        propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
+        propertyFilter->resultDefinition->setGeoMechCase(reservoirView()->geoMechCase());
         propertyFilter->updateIconState();
     }
 
-    this->updateUiIconFromToggleField();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilterCollection::remove(RimGeoMechPropertyFilter* propertyFilter)
-{
-    propertyFilters.removeChildObject(propertyFilter);
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +110,7 @@ void RimGeoMechPropertyFilterCollection::remove(RimGeoMechPropertyFilter* proper
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilterCollection::hasActiveFilters() const
 {
-    if (!active) return false;
+    if (!isActive) return false;
 
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
@@ -167,11 +129,77 @@ bool RimGeoMechPropertyFilterCollection::hasActiveDynamicFilters() const
     return hasActiveFilters();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGeoMechPropertyFilterCollection::objectToggleField()
 {
-    return &active;
+    return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilterCollection::updateDisplayModelNotifyManagedViews()
+{
+    RimGeoMechView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
+    CVF_ASSERT(view);
+
+    view->scheduleGeometryRegen(PROPERTY_FILTERED);
+    view->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilterCollection::updateIconState()
+{
+    bool activeIcon = true;
+
+    RimGeoMechView* view = NULL;
+    this->firstAnchestorOrThisOfType(view);
+    RimViewController* viewController = view->viewController();
+    if (viewController && ( viewController->isPropertyFilterOveridden() 
+                            || viewController->isVisibleCellsOveridden()))
+    {
+        activeIcon = false;
+    }
+
+    if (!isActive)
+    {
+        activeIcon = false;
+    }
+
+    updateUiIconFromState(activeIcon);
+
+    for (size_t i = 0; i < propertyFilters.size(); i++)
+    {
+        RimGeoMechPropertyFilter* propFilter = propertyFilters[i];
+        propFilter->updateActiveState();
+        propFilter->updateIconState();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    RimView* rimView = NULL;
+    this->firstAnchestorOrThisOfType(rimView);
+    RimViewController* viewController = rimView->viewController();
+    if (viewController && (viewController->isPropertyFilterOveridden() 
+                           || viewController->isVisibleCellsOveridden()))
+    {
+        isActive.uiCapability()->setUiReadOnly(true, uiConfigName);
+    }
+    else
+    {
+        isActive.uiCapability()->setUiReadOnly(false, uiConfigName);
+    }
+
+    updateIconState();
 }

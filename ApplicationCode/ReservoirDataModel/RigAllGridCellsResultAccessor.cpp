@@ -54,3 +54,24 @@ double RigAllGridCellsResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, 
     return cellScalar(gridLocalCellIndex);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigAllGridCellsResultAccessor::cellScalarGlobIdx(size_t globCellIndex) const
+{
+    if (m_reservoirResultValues->size() == 0) return HUGE_VAL;
+
+    CVF_TIGHT_ASSERT(globCellIndex < m_reservoirResultValues->size());
+
+    return m_reservoirResultValues->at(globCellIndex);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigAllGridCellsResultAccessor::cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const
+{
+    return cellScalarGlobIdx(globCellIndex);
+}
+

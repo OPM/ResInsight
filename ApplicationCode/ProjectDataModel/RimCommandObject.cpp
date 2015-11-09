@@ -25,7 +25,7 @@
 #include "RimProject.h"
 #include "RimEclipseStatisticsCase.h"
 
-#include "cafPdmDocument.h"
+#include "cafPdmObjectGroup.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -60,16 +60,16 @@ RimCommandExecuteScript::RimCommandExecuteScript()
     CAF_PDM_InitFieldNoDefault(&name,       "Name",      "Name", "", "", "");
 
     CAF_PDM_InitField(&scriptText, "ScriptText",  QString(), "ScriptText", "", "" ,"");
-    scriptText.setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    scriptText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&isEnabled,         "IsEnabled",      true, "Enabled ", "", "", "");
     
     
     CAF_PDM_InitField(&execute,         "Execute",      true, "Execute", "", "", "");
-    execute.setIOWritable(false);
-    execute.setIOReadable(false);
-    execute.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    execute.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    execute.xmlCapability()->setIOWritable(false);
+    execute.xmlCapability()->setIOReadable(false);
+    execute.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    execute.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ void RimCommandFactory::createCommandObjects(const caf::PdmObjectGroup& selected
 {
     for (size_t i = 0; i < selectedObjects.objects.size(); i++)
     {
-        caf::PdmObject* pdmObject = selectedObjects.objects[i];
+        caf::PdmObjectHandle* pdmObject = selectedObjects.objects[i];
 
         if (dynamic_cast<RimCalcScript*>(pdmObject))
         {
@@ -219,16 +219,17 @@ void RimCommandIssueFieldChanged::redo()
     RiaApplication* app = RiaApplication::instance();
     PdmObject* project = app->project();
 
-    caf::PdmObject* pdmObject = findObjectByName(project, this->objectName);
+    caf::PdmObjectHandle* pdmObject = findObjectByName(project, this->objectName);
 
     if (pdmObject)
     {
         caf::PdmFieldHandle* fieldHandle = findFieldByKeyword(pdmObject, this->fieldName);
 
-        if (fieldHandle)
+        if (fieldHandle && fieldHandle->uiCapability())
         {
+            caf::PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
             QVariant variantValue(this->fieldValueToApply);
-            fieldHandle->setValueFromUi(variantValue);
+            uiFieldHandle->setValueFromUi(variantValue);
         }
     }
 }
@@ -252,7 +253,7 @@ caf::PdmFieldHandle* RimCommandIssueFieldChanged::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCommandIssueFieldChanged::childObjects(caf::PdmObject* pdmObject, std::vector<caf::PdmObject*>& children)
+void RimCommandIssueFieldChanged::childObjects(caf::PdmObject* pdmObject, std::vector<caf::PdmObjectHandle*>& children)
 {
     if (!pdmObject) return;
 
@@ -269,27 +270,28 @@ void RimCommandIssueFieldChanged::childObjects(caf::PdmObject* pdmObject, std::v
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObject* pdmObject, const QString& objectName)
+caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObjectHandle* pdmObject, const QString& objectName)
 {
     std::vector<caf::PdmFieldHandle*> fields;
     pdmObject->fields(fields);
 
-    if (pdmObject->uiName() == objectName)
+    caf::PdmUiObjectHandle* uiObjectHandle = uiObj(pdmObject);
+
+    if (uiObjectHandle && uiObjectHandle->uiName() == objectName)
     {
         return pdmObject;
     }
-
     
     for (size_t fIdx = 0; fIdx < fields.size(); fIdx++)
     {
         if (fields[fIdx])
         {
-            std::vector<caf::PdmObject*> children;
+            std::vector<caf::PdmObjectHandle*> children;
             fields[fIdx]->childObjects(&children);
 
             for (size_t cIdx = 0; cIdx < children.size(); cIdx++)
             {
-                PdmObject* candidateObj = findObjectByName(children[cIdx], objectName);
+                PdmObjectHandle* candidateObj = findObjectByName(children[cIdx], objectName);
                 if (candidateObj)
                 {
                     return candidateObj;
@@ -305,7 +307,7 @@ caf::PdmObject* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObject* pd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword(caf::PdmObject* pdmObject, const QString& keywordName)
+caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword(caf::PdmObjectHandle* pdmObject, const QString& keywordName)
 {
     std::vector<caf::PdmFieldHandle*> fields;
     pdmObject->fields(fields);

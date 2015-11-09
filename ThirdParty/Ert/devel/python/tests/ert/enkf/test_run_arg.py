@@ -19,11 +19,14 @@ import os
 from ert.enkf import RunArg
 from ert.enkf.enums import EnkfRunType
 from ert.test import ExtendedTestCase
-
+from ert.util import ArgPack
 
 
 class RunArgTest(ExtendedTestCase):
 
     def test_create(self):
         run_arg = RunArg.ENSEMBLE_EXPERIMENT(fs , 10 , 10 , "/path/to/run")
+        arg_pack = ArgPack( run_arg , 10 )
+
+        self.assertFalse( run_arg.isSubmitted( ) )
         

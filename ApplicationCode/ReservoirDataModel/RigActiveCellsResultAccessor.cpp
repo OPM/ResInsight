@@ -57,3 +57,26 @@ double RigActiveCellsResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, c
     return cellScalar(gridLocalCellIndex);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigActiveCellsResultAccessor::cellScalarGlobIdx(size_t reservoirCellIndex) const
+{
+    if (m_reservoirResultValues == NULL || m_reservoirResultValues->size() == 0) return HUGE_VAL;
+
+    size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
+    if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
+
+    CVF_TIGHT_ASSERT(resultValueIndex < m_reservoirResultValues->size());
+
+    return m_reservoirResultValues->at(resultValueIndex);  
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigActiveCellsResultAccessor::cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const
+{
+    return cellScalarGlobIdx(globCellIndex);
+}
+

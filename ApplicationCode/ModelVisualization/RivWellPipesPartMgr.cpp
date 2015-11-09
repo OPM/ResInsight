@@ -74,10 +74,10 @@ RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclip
     m_scalarMapper = scalarMapper;
 
     caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
-    m_scalarMapperSurfaceEffect = surfEffGen.generateEffect();
+    m_scalarMapperSurfaceEffect = surfEffGen.generateCachedEffect();
 
     caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
-    m_scalarMapperMeshEffect = meshEffGen.generateEffect();
+    m_scalarMapperMeshEffect = meshEffGen.generateCachedEffect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +97,6 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
     m_wellBranches.clear();
 
-    std::vector< size_t > pipeBranchIds;
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
@@ -143,7 +142,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWell->wellPipeColor()), caf::PO_1);
-            cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
+            cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             pbd.m_surfacePart->setEffect(eff.p());
         }
@@ -154,7 +153,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
             pbd.m_centerLinePart->setDrawable(pbd.m_centerLineDrawable.p());
 
             caf::MeshEffectGenerator gen(m_rimWell->wellPipeColor());
-            cvf::ref<cvf::Effect> eff = gen.generateEffect();
+            cvf::ref<cvf::Effect> eff = gen.generateCachedEffect();
 
             pbd.m_centerLinePart->setEffect(eff.p());
         }
@@ -315,7 +314,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
                         cvf::Vec3d outOfPrevCell(centerPreviousCell);
 
-                        int intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
+                        //int intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
                         //CVF_ASSERT(intersectionOk);
                         //CVF_ASSERT(intersectionOk);
                         if ((currentPoint - outOfPrevCell).lengthSquared() > 1e-3)
@@ -413,7 +412,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                                 cvf::Vec3d outOfPrevCell(centerPreviousCell);
 
                                 const RigCell& prevCell = rigReservoir->cellFromWellResultCell(*prevWellResPoint);
-                                bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
+                                //bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
                                 //CVF_ASSERT(intersectionOk);
                                 //CVF_ASSERT(intersectionOk);
                                 if ((intoThisCell - outOfPrevCell).lengthSquared() > 1e-3)

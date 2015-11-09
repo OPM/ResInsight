@@ -135,6 +135,8 @@ class EnkfObs(BaseCClass):
     def scaleCorrelatedStd( self , fs , local_obsdata , active_list):
         return EnkfObs.cNamespace().scale_correlated_std( self , fs , active_list , local_obsdata )
     
+    def localScaleStd( self , local_obsdata , scale_factor):
+        return EnkfObs.cNamespace().local_scale_std( self , local_obsdata, scale_factor)
 
     def load(self , config_file):
         if not os.path.isfile( config_file ):
@@ -170,3 +172,6 @@ EnkfObs.cNamespace().add_obs_vector = cwrapper.prototype("void enkf_obs_add_obs_
 EnkfObs.cNamespace().get_obs_and_measure_data = cwrapper.prototype("void enkf_obs_get_obs_and_measure_data(enkf_obs, enkf_fs, local_obsdata, enkf_state_type_enum, int_vector, meas_data, obs_data)")
 EnkfObs.cNamespace().create_all_active_obs       = cwrapper.prototype("local_obsdata_obj enkf_obs_alloc_all_active_local_obs( enkf_obs , char*)");
 EnkfObs.cNamespace().scale_correlated_std        = cwrapper.prototype("double  enkf_obs_scale_correlated_std( enkf_obs , enkf_fs , int_vector , local_obsdata)");
+EnkfObs.cNamespace().local_scale_std             = cwrapper.prototype("void  enkf_obs_local_scale_std( enkf_obs , local_obsdata , double)");
+
+

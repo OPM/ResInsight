@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'string_util.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'string_util.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <ctype.h>
@@ -27,13 +27,13 @@
 
 /*****************************************************************/
 
-/* 
+/*
    This functions parses an input string 'range_string' of the type:
 
      "0,1,8, 10 - 20 , 15,17-21"
- 
+
    I.e. integers separated by "," and "-". The integer values are
-   parsed out. 
+   parsed out.
 */
 
 //#include <stringlist.h>
@@ -47,11 +47,11 @@
 //                                                NULL  );
 //  stringlist_type * tokens;
 //  tokens = tokenize_buffer( tokenizer , range_string , true);
-//  
+//
 //  stringlist_free( tokens );
 //  tokenizer_free( tokenizer );
-//} 
-   
+//}
+
 
 
 static bool valid_characters( const char * range_string ) {
@@ -63,7 +63,7 @@ static bool valid_characters( const char * range_string ) {
       char c = range_string[offset];
       if (isspace(c) || isdigit(c) || c == ',' || c == '-')
         offset++;
-      else 
+      else
         valid = false;
       if (offset == strlen( range_string ) || !valid)
         break;
@@ -90,14 +90,14 @@ static int_vector_type * string_util_sscanf_alloc_active_list(const char * range
     int item;
     active_list = int_vector_alloc(0,0);
     tokens = basic_parser_tokenize_buffer( parser , range_string , true);
-    
+
     for (item = 0; item < stringlist_get_size( tokens ); item++) {
       const char * string_item = stringlist_iget( tokens , item );
       char * pos_ptr = (char *) string_item;
       int value1 , value2;
-      
+
       value1 = strtol( string_item , &pos_ptr , 10);
-      if (*pos_ptr == '\0') 
+      if (*pos_ptr == '\0')
         // The pos_ptr points to the end of the string, i.e. this was a single digit.
         value2 = value1;
       else {
@@ -105,20 +105,20 @@ static int_vector_type * string_util_sscanf_alloc_active_list(const char * range
         while (isspace(*pos_ptr) || *pos_ptr == '-')
           pos_ptr++;
         util_sscanf_int( pos_ptr , &value2);
-      } 
-      
+      }
+
       {
         int value;
-        for (value = value1; value <= value2; value++) 
+        for (value = value1; value <= value2; value++)
           int_vector_append( active_list , value );
       }
     }
-    
-    
+
+
     stringlist_free( tokens );
     basic_parser_free( parser );
   }
-  
+
   return active_list;
 }
 
@@ -170,7 +170,7 @@ int_vector_type *  string_util_alloc_active_list( const char * range_string ) {
 
 /*
   This is the only function which actually invokes the low level
-  string parsing in util_sscanf_alloc_active_list().  
+  string parsing in util_sscanf_alloc_active_list().
 */
 
 bool string_util_update_active_mask( const char * range_string , bool_vector_type * active_mask) {
@@ -179,7 +179,7 @@ bool string_util_update_active_mask( const char * range_string , bool_vector_typ
   if (sscanf_active) {
     for (i=0; i < int_vector_size( sscanf_active ); i++)
       bool_vector_iset( active_mask , int_vector_iget(sscanf_active , i) , true );
-    
+
     int_vector_free( sscanf_active );
     return true;
   } else
@@ -223,6 +223,6 @@ bool string_util_init_value_list( const char * range_string , int_vector_type * 
 
 int_vector_type * string_util_alloc_value_list(const char * range_string) {
   int_vector_type * value_list = int_vector_alloc(0,0);
-  string_util_init_value_list( range_string , value_list); 
+  string_util_init_value_list( range_string , value_list);
   return value_list;
 }

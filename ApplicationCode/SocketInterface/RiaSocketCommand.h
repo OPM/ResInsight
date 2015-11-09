@@ -25,7 +25,12 @@
 //////////////////////////////////////////////////////////////////////////
 
 class RiaSocketServer;
+
 class QTcpSocket;
+class QDataStream;
+class QByteArray;
+
+#include <QList>
 
 class RiaSocketCommand
 {

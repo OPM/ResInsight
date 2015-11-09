@@ -767,22 +767,32 @@ The keywords in this section are used to define a parametrization of the ECLIPSE
 
 		GEN_KW  ID  my_template.txt  my_eclipse_include.txt  my_priors.txt
 
-	Here ID is an (arbitrary) unique string, my_template.txt is the name of a template file, my_eclipse_include.txt is the name of the file which is made for each member based on my_template.txt and my_priors.txt is a file containing a list of parametrized keywords and a prior distribution for each. Note that you must manually edit the ECLIPSE data file so that my_eclipse_include.txt is included.
+	Here ID is an (arbitrary) unique string, my_template.txt is
+	the name of a template file, my_eclipse_include.txt is the
+	name of the file which is made for each member based on
+	my_template.txt and my_priors.txt is a file containing a list
+	of parametrized keywords and a prior distribution for
+	each. Note that you must manually edit the ECLIPSE data file
+	so that my_eclipse_include.txt is included.
 
-	Let us consider an example where the GEN_KW parameter type is used to estimate pore volume multipliers. We would then declare a GEN_KW instance in the main enkf configuration file:
+	Let us consider an example where the GEN_KW parameter type is
+	used to estimate pore volume multipliers. We would then
+	declare a GEN_KW instance in the main enkf configuration file:
 
 	::
 
 		GEN_KW PAR_MULTPV multpv_template.txt multpv.txt multpv_priors.txt
 
-	In the GRID or EDIT section of the ECLIPSE data file, we would insert the following include statement:
+	In the GRID or EDIT section of the ECLIPSE data file, we would
+	insert the following include statement:
 
 	::
 
 		INCLUDE
 		 'multpv.txt' /
 
-	The template file multpv_template.txt would contain some parametrized ECLIPSE statements:
+	The template file multpv_template.txt would contain some
+	parametrized ECLIPSE statements:
 
 	::
 
@@ -798,24 +808,37 @@ The keywords in this section are used to define a parametrization of the ECLIPSE
 		 300*<MULTPV_BOX2> /
 		ENDBOX
 
-	Here, <MULTPV_BOX1> and <MULTPV_BOX2> will act as magic strings. Note that the '<' '>' must be present around the magic strings. In this case, the parameter configuration file multpv_priors.txt could look like this:
+	Here, <MULTPV_BOX1> and <MULTPV_BOX2> will act as magic
+	strings. Note that the '<' '>' must be present around the
+	magic strings. In this case, the parameter configuration file
+	multpv_priors.txt could look like this:
 
 	::
 
 		MULTPV_BOX2 UNIFORM 0.98 1.03
 		MULTPV_BOX1 UNIFORM 0.85 1.00
 
-	In general, the first keyword on each line in the parameter configuration file defines a key, which when found in the template file enclosed in '<' and '>', is replaced with a value. The rest of the line defines a prior distribution for the key. See Prior distributions available in enkf for a list of available prior distributions.
+	In general, the first keyword on each line in the parameter
+	configuration file defines a key, which when found in the
+	template file enclosed in '<' and '>', is replaced with a
+	value. The rest of the line defines a prior distribution for
+	the key. See Prior distributions available in enkf for a list
+	of available prior distributions.
 	
 	**Example: Using GEN_KW to estimate fault transmissibility multipliers**
 
-	Previously enkf supported a datatype MULTFLT for estimating fault transmissibility multipliers. This has now been depreceated, as the functionality can be easily achieved with the help of GEN_KW. In th enkf config file:
+	Previously enkf supported a datatype MULTFLT for estimating
+	fault transmissibility multipliers. This has now been
+	depreceated, as the functionality can be easily achieved with
+	the help of GEN_KW. In th enkf config file:
 
 	::
 
 		GEN_KW  MY-FAULTS   MULTFLT.tmpl   MULTFLT.INC   MULTFLT.txt
 
-	Here MY-FAULTS is the (arbitrary) key assigned to the fault multiplers, MULTFLT.tmpl is the template file, which can look like this:
+	Here MY-FAULTS is the (arbitrary) key assigned to the fault
+	multiplers, MULTFLT.tmpl is the template file, which can look
+	like this:
 
 	::
 
@@ -824,22 +847,38 @@ The keywords in this section are used to define a parametrization of the ECLIPSE
 		 'FAULT2'   <FAULT2>  /
 		/
 
-	and finally the initial distribution of the parameters FAULT1 and FAULT2 are defined in the file MULTFLT.txt:
+	and finally the initial distribution of the parameters FAULT1
+	and FAULT2 are defined in the file MULTFLT.txt:
 
 	::
 
 		FAULT1   LOGUNIF   0.00001   0.1
 		FAULT2   UNIFORM   0.00      1.0
 
+        The various prior distributions available for the ``GEN_KW``
+        keyword are here :ref:`prior distributions available in ERT <prior_distributions>`
+
+                
 	Loading GEN_KW values from an external file
 
-	The default use of the GEN_KW keyword is to let the ERT application sample random values for the elements in the GEN_KW instance, but it is also possible to tell ERT to load a precreated set of data files, this can for instance be used as a component in a experimental design based workflow. When using external files to initialize the GEN_KW instances you supply an extra keyword INIT_FILE:/path/to/priors/files%d which tells where the prior files are:
+	The default use of the GEN_KW keyword is to let the ERT
+	application sample random values for the elements in the
+	GEN_KW instance, but it is also possible to tell ERT to load a
+	precreated set of data files, this can for instance be used as
+	a component in a experimental design based workflow. When
+	using external files to initialize the GEN_KW instances you
+	supply an extra keyword ``INIT_FILE:/path/to/priors/files%d``
+	which tells where the prior files are:
 
 	::
 
 		GEN_KW  MY-FAULTS   MULTFLT.tmpl   MULTFLT.INC   MULTFLT.txt    INIT_FILES:priors/multflt/faults%d
 
-	In the example above you must prepare files priors/multflt/faults0, priors/multflt/faults1, ... priors/multflt/faultsn which ert will load when you initialize the case. The format of the GEN_KW input files can be of two varieties:
+	In the example above you must prepare files
+	priors/multflt/faults0, priors/multflt/faults1,
+	... priors/multflt/faultsn which ert will load when you
+	initialize the case. The format of the GEN_KW input files can
+	be of two varieties:
 
 	1. The files can be plain ASCII text files with a list of numbers:
 

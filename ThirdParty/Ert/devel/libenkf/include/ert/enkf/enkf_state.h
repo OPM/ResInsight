@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'enkf_state.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'enkf_state.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef __ENKF_STATE_H__
@@ -32,7 +32,7 @@ extern "C" {
 
 
 #include <ert/sched/sched_file.h>
- 
+
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_file.h>
 
@@ -57,7 +57,7 @@ typedef struct enkf_state_struct    enkf_state_type;
 
   bool               enkf_state_get_pre_clear_runpath( const enkf_state_type * enkf_state );
   void               enkf_state_set_pre_clear_runpath( enkf_state_type * enkf_state , bool pre_clear_runpath );
-  
+
   keep_runpath_type  enkf_state_get_keep_runpath( const enkf_state_type * enkf_state );
   void               enkf_state_set_keep_runpath( enkf_state_type * enkf_state , keep_runpath_type keep_runpath);
   keep_runpath_type  member_config_get_keep_runpath(const member_config_type * member_config);
@@ -77,24 +77,24 @@ typedef struct enkf_state_struct    enkf_state_type;
   void             * enkf_state_run_eclipse__(void * );
   void             * enkf_state_start_forward_model__(void * );
 
-  void               enkf_state_load_from_forward_model(enkf_state_type * enkf_state , 
-                                                        run_arg_type * run_arg , 
-                                                        int * result , 
-                                                        bool interactive , 
+  void               enkf_state_load_from_forward_model(enkf_state_type * enkf_state ,
+                                                        run_arg_type * run_arg ,
+                                                        int * result ,
+                                                        bool interactive ,
                                                         stringlist_type * msg_list);
 
-  void enkf_state_forward_init(enkf_state_type * enkf_state , 
-                               run_arg_type * run_arg , 
+  void enkf_state_forward_init(enkf_state_type * enkf_state ,
+                               run_arg_type * run_arg ,
                                int * result );
 
   void enkf_state_init_eclipse(enkf_state_type *enkf_state, const run_arg_type * run_arg );
-    
+
   enkf_state_type  * enkf_state_alloc(int ,
-                                      rng_type        * main_rng , 
-                                      enkf_fs_type * fs, 
-                                      const char * casename , 
-                                      bool         pre_clear_runpath, 
-                                      keep_runpath_type , 
+                                      rng_type        * main_rng ,
+                                      enkf_fs_type * fs,
+                                      const char * casename ,
+                                      bool         pre_clear_runpath,
+                                      keep_runpath_type ,
                                       model_config_type * ,
                                       ensemble_config_type * ,
                                       const site_config_type * ,

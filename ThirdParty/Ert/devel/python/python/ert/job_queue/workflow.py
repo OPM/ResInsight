@@ -49,6 +49,10 @@ class Workflow(BaseCClass):
                 self.__current_job = job
                 if not self.__cancelled:
                     return_value = job.run(ert, args, verbose)
+                    
+                    if job.hasFailed():
+                        print(return_value)
+
                     #todo store results?
 
         self.__current_job = None

@@ -20,18 +20,24 @@
 
 #pragma once
 
-#include "RimCase.h"
-
 #include "cvfBase.h"
 #include "cvfObject.h"
+
+#include "RimCase.h"
+#include "RimEclipseView.h"
+
+
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
 #include "RifReaderInterface.h"
+
 class QString;
 
 class RigCaseData;
 class RigGridBase;
-class RimEclipseView;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
@@ -52,7 +58,7 @@ public:
 
     // Fields:                                        
     caf::PdmField<bool>                         releaseResultMemory;
-    caf::PdmPointersField<RimEclipseView*>    reservoirViews;
+    caf::PdmChildArrayField<RimEclipseView*>    reservoirViews;
     caf::PdmField<bool>                         flipXAxis;
     caf::PdmField<bool>                         flipYAxis;
     
@@ -65,7 +71,7 @@ public:
     RigCaseData*                                reservoirData();
     const RigCaseData*                          reservoirData() const;
 
-    RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RimReservoirCellResultsStorage*                results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
     RimEclipseView*                           createAndAddReservoirView();
 
@@ -79,7 +85,8 @@ public:
     RimIdenticalGridCaseGroup*                  parentGridCaseGroup();
                                                      
     virtual std::vector<RimView*>               views();
-                                                     
+    virtual QStringList                         timeStepStrings();
+
     // Overridden methods from PdmObject
 public:
 
@@ -97,8 +104,8 @@ private:
     cvf::ref<RigCaseData>                       m_rigEclipseCase;
 
 private:
-    caf::PdmField<RimReservoirCellResultsStorage*> m_matrixModelResults;
-    caf::PdmField<RimReservoirCellResultsStorage*> m_fractureModelResults;
+    caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
+    caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
 
     // Obsolete fields
 protected:

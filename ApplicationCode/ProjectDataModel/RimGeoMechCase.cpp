@@ -23,6 +23,11 @@
 #include "RiaPreferences.h"
 #include "RifOdbReader.h"
 #include "RigGeoMechCaseData.h"
+#include "RigFemPartResultsCollection.h"
+#include "RimProject.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
+
 #include <QFile>
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCase, "ResInsightGeoMechCase");
@@ -34,9 +39,9 @@ RimGeoMechCase::RimGeoMechCase(void)
     CAF_PDM_InitObject("Geomechanical Case", ":/GeoMechCase48x48.png", "", "");
 
     CAF_PDM_InitField(&m_caseFileName, "CaseFileName", QString(), "Case file name", "", "", "");
-    m_caseFileName.setUiReadOnly(true);
+    m_caseFileName.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
-
+    geoMechViews.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,6 +50,25 @@ RimGeoMechCase::RimGeoMechCase(void)
 RimGeoMechCase::~RimGeoMechCase(void)
 {
     geoMechViews.deleteAllChildObjects();
+
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (project->mainPlotCollection())
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if (plotCollection)
+            {
+                plotCollection->removeExtractors(this->geoMechData());
+            }
+        }
+    }
+
+    if (this->geoMechData())
+    {
+        // At this point, we assume that memory should be released
+        CVF_ASSERT(this->geoMechData()->refCount() == 1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,4 +152,20 @@ void RimGeoMechCase::initAfterRead()
         riv->setGeoMechCase(this);
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RimGeoMechCase::timeStepStrings()
+{
+    QStringList stringList;
+
+    std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
+    for (size_t i = 0; i < stepNames.size(); i++)
+    {
+        stringList += QString::fromStdString(stepNames[i]);
+    }
+
+    return stringList;
 }

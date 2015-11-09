@@ -18,21 +18,21 @@
 
 #include "RiuWellImportWizard.h"
 
+#include "RifJsonEncodeDecode.h"
+#include "RimWellPathImport.h"
+
+#include "cafPdmDocument.h"
+#include "cafPdmObject.h"
+#include "cafPdmObjectGroup.h"
+#include "cafPdmUiListView.h"
+#include "cafPdmUiListViewEditor.h"
+#include "cafPdmUiPropertyView.h"
+#include "cafPdmUiTreeView.h"
+#include "cafPdmUiTreeViewEditor.h"
+
 #include <QObject>
 #include <QtGui>
 #include <QtNetwork>
-
-#include "cafPdmUiPropertyView.h"
-#include "cafPdmUiTreeView.h"
-#include "cafPdmDocument.h"
-#include "cafPdmUiListViewEditor.h"
-#include "cafPdmUiListView.h"
-#include "cafUiTreeModelPdm.h"
-
-#include "RimWellPathImport.h"
-
-#include "RifJsonEncodeDecode.h"
-#include "cafPdmUiTreeViewEditor.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +64,13 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
         this, SLOT(sslErrors(QNetworkReply*,QList<QSslError>)));
 #endif
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuWellImportWizard::~RiuWellImportWizard()
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -427,38 +434,18 @@ void RiuWellImportWizard::downloadWells()
     checkDownloadQueueAndIssueRequests();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::downloadWellPaths()
 {
-    for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
+    WellSelectionPage* wellSelectionPage = dynamic_cast<WellSelectionPage*>(page(m_wellSelectionPageId));
+    std::vector<DownloadEntity> downloadEntities;
+    wellSelectionPage->selectedWellPathEntries(downloadEntities, NULL);
+
+    for (size_t i = 0; i < downloadEntities.size(); i++)
     {
-        RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
-        if (oilRegion->selected)
-        {
-            for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
-            {
-                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
-                if (oilField->selected)
-                {
-                    for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
-                    {
-                        RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
-                        if (wellPathEntry->selected && wellPathEntry->isWellPathValid())
-                        {
-                            DownloadEntity urlToFile;
-
-                            urlToFile.requestUrl = wellPathEntry->requestUrl;
-                            urlToFile.responseFilename = wellPathEntry->wellPathFilePath;
-
-                            m_wellRequestQueue.push_back(urlToFile);
-                        }
-                    }
-                }
-            }
-        }
+        m_wellRequestQueue.push_back(downloadEntities[i]);
     }
 
     m_currentDownloadState = DOWNLOAD_WELL_PATH;
@@ -543,31 +530,15 @@ QStringList RiuWellImportWizard::absoluteFilePathsToWellPaths() const
 {
     QStringList filePaths;
 
-    for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
-    {
-        RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
-        if (oilRegion->selected)
-        {
-            for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
-            {
-                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
-                if (oilField->selected)
-                {
-                    for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
-                    {
-                        RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
+    WellSelectionPage* wellSelectionPage = dynamic_cast<WellSelectionPage*>(page(m_wellSelectionPageId));
+    std::vector<DownloadEntity> downloadEntities;
+    wellSelectionPage->selectedWellPathEntries(downloadEntities, NULL);
 
-                        QString wellStatus;
-                        if (wellPathEntry->selected)
-                        {
-                            if (QFile::exists(oilField->wells[wIdx]->wellPathFilePath))
-                            {
-                                filePaths += oilField->wells[wIdx]->wellPathFilePath;
-                            }
-                        }
-                    }
-                }
-            }
+    for (size_t i = 0; i < downloadEntities.size(); i++)
+    {
+        if (QFile::exists(downloadEntities[i].responseFilename))
+        {
+            filePaths.push_back(downloadEntities[i].responseFilename);
         }
     }
 
@@ -590,7 +561,7 @@ void RiuWellImportWizard::slotCurrentIdChanged(int currentId)
             for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
             {
                 RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
-                oilField->wells.setUiHidden(hideWells);
+                oilField->wells.uiCapability()->setUiHidden(hideWells);
             }
         }
     }
@@ -708,6 +679,15 @@ void RiuWellImportWizard::setCredentials(const QString& username, const QString&
     setField("password", password);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiuWellImportWizard::wellSelectionPageId()
+{
+    return m_wellSelectionPageId;
+}
+
+
 
 
 
@@ -775,15 +755,15 @@ FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, QWidge
 
     // Tree view
     caf::PdmUiTreeView* treeView = new caf::PdmUiTreeView(this);
-    treeView->setPdmObject(wellPathImport);
+    treeView->setPdmItem(wellPathImport);
     layout->addWidget(treeView);
     layout->setStretchFactor(treeView, 10);
 
  
     // Property view
-    caf::PdmUiPropertyView* propertyView = new caf::PdmUiPropertyView(this);
-    layout->addWidget(propertyView);
-    propertyView->showProperties(wellPathImport);
+    m_propertyView = new caf::PdmUiPropertyView(this);
+    layout->addWidget(m_propertyView);
+    m_propertyView->showProperties(wellPathImport);
 
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
@@ -797,36 +777,19 @@ void FieldSelectionPage::initializePage()
     wiz->downloadFields();
 }
 
-
-
-
-
-
 //--------------------------------------------------------------------------------------------------
-/// Helper class used to define column headers
+/// 
 //--------------------------------------------------------------------------------------------------
-class ObjectGroupWithHeaders : public caf::PdmObjectGroup
+FieldSelectionPage::~FieldSelectionPage()
 {
-public:
-    ObjectGroupWithHeaders() : caf::PdmObjectGroup()
-    {
+    m_propertyView->showProperties(NULL);
+}
 
-    }
 
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
-    {
-        caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>(attribute);
-        if (myAttr)
-        {
-            QStringList colHeaders;
-            colHeaders << "Wells";
-            myAttr->columnHeaders = colHeaders;
-        }
-    }
-};
+
+
+
+
 
 
 
@@ -849,6 +812,7 @@ WellSelectionPage::WellSelectionPage(RimWellPathImport* wellPathImport, QWidget*
     m_wellPathImportObject = wellPathImport;
 
     m_regionsWithVisibleWells = new ObjectGroupWithHeaders;
+    m_regionsWithVisibleWells->objects.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -888,15 +852,17 @@ void WellSelectionPage::buildWellTreeView()
     }
 
     // Delete all temporary pdm object groups
-    m_regionsWithVisibleWells->deleteObjects();
+    m_regionsWithVisibleWells->objects.deleteAllChildObjects();
 
     for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
     {
         RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
         if (oilRegion->selected)
         {
-            caf::PdmObjectGroup* regGroup = new caf::PdmObjectGroup;
-            regGroup->setUiName(oilRegion->userDescriptionField()->uiValue().toString());
+            caf::PdmObjectCollection* regGroup = new caf::PdmObjectCollection;
+            regGroup->objects.uiCapability()->setUiHidden(true);
+
+            regGroup->setUiName(oilRegion->userDescriptionField()->uiCapability()->uiValue().toString());
 
             m_regionsWithVisibleWells->objects.push_back(regGroup);
 
@@ -905,22 +871,31 @@ void WellSelectionPage::buildWellTreeView()
                 RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
                 if (oilField->selected)
                 {
-                    caf::PdmObjectGroup* fieldGroup = new caf::PdmObjectGroup;
-                    fieldGroup->setUiName(oilField->userDescriptionField()->uiValue().toString());
+                    caf::PdmObjectCollection* fieldGroup = new caf::PdmObjectCollection;
+                    fieldGroup->objects.uiCapability()->setUiHidden(true);
+
+                    fieldGroup->setUiName(oilField->userDescriptionField()->uiCapability()->uiValue().toString());
 
                     regGroup->objects.push_back(fieldGroup);
 
                     for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
                     {
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
-                        fieldGroup->objects.push_back(wellPathEntry);
+
+                        // Create a copy of the PdmObject, as it is not supported to have multiple parents of any objects
+                        QString objStr = xmlObj(wellPathEntry)->writeObjectToXmlString();
+
+                        RimWellPathEntry* wellPathCopy = new RimWellPathEntry;
+                        xmlObj(wellPathCopy)->readObjectFromXmlString(objStr, caf::PdmDefaultObjectFactory::instance());
+
+                        fieldGroup->objects.push_back(wellPathCopy);
                     }
                 }
             }
         }
     }
 
-    m_wellSelectionTreeView->setPdmObject(m_regionsWithVisibleWells);
+    m_wellSelectionTreeView->setPdmItem(m_regionsWithVisibleWells);
     m_regionsWithVisibleWells->updateConnectedEditors();
     
     m_wellSelectionTreeView->treeView()->expandAll();
@@ -931,7 +906,53 @@ void WellSelectionPage::buildWellTreeView()
 //--------------------------------------------------------------------------------------------------
 WellSelectionPage::~WellSelectionPage()
 {
+    if (m_wellSelectionTreeView)
+    {
+        m_wellSelectionTreeView->setPdmItem(NULL);
+    }
     delete m_regionsWithVisibleWells;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void WellSelectionPage::selectedWellPathEntries(std::vector<DownloadEntity>& downloadEntities, caf::PdmObjectHandle* objHandle)
+{
+    if (objHandle == NULL)
+    {
+        objHandle = m_regionsWithVisibleWells;
+    }
+
+    std::vector<caf::PdmFieldHandle*> childFields;
+    objHandle->fields(childFields);
+    for (size_t i = 0; i < childFields.size(); i++)
+    {
+        std::vector<caf::PdmObjectHandle*> childObjects;
+        childFields[i]->childObjects(&childObjects);
+
+        for (size_t j = 0; j < childObjects.size(); j++)
+        {
+            RimWellPathEntry* wellPathEntry = (dynamic_cast<RimWellPathEntry*>(childObjects[j]));
+            if (wellPathEntry)
+            {
+                if (wellPathEntry->selected && wellPathEntry->isWellPathValid())
+                {
+                    DownloadEntity urlToFile;
+
+                    urlToFile.name = wellPathEntry->name;
+                    urlToFile.requestUrl = wellPathEntry->requestUrl;
+                    urlToFile.responseFilename = wellPathEntry->wellPathFilePath;
+
+                    downloadEntities.push_back(urlToFile);
+                }
+            }
+            else
+            {
+                selectedWellPathEntries(downloadEntities, childObjects[j]);
+            }
+        }
+    }
 }
 
 
@@ -961,7 +982,7 @@ WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* par
     layout->addWidget(m_listView);
     m_listView->hide();
 
-    m_objectGroup = new caf::PdmObjectGroup;
+    m_objectGroup = new caf::PdmObjectCollection;
 
     setButtonText(QWizard::FinishButton, "Import");
 }
@@ -987,41 +1008,30 @@ void WellSummaryPage::updateSummaryPage()
     size_t wellPathCount = 0;
     QString errorString;
 
-    for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
+    RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>(wizard());
+    WellSelectionPage* wellSelectionPage = dynamic_cast<WellSelectionPage*>(wiz->page(wiz->wellSelectionPageId()));
+    std::vector<DownloadEntity> downloadEntities;
+    wellSelectionPage->selectedWellPathEntries(downloadEntities, NULL);
+
+    for (size_t i = 0; i < downloadEntities.size(); i++)
     {
-        RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
-        if (oilRegion->selected)
+        if (QFile::exists(downloadEntities[i].responseFilename))
         {
-            for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
-            {
-                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
-                if (oilField->selected)
-                {
-                    QString oilFieldText = QString("\nRegion : %1  -  Field : %2").arg(oilRegion->name).arg(oilField->name);
-                    m_textEdit->append(oilFieldText);
-
-                    for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
-                    {
-                        RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
-                        if (wellPathEntry->selected)
-                        {
-                            if (QFile::exists(oilField->wells[wIdx]->wellPathFilePath))
-                            {
-                                wellPathCount++;
-                            }
-                            else
-                            {
-                                errorString += QString("Failed to get file '%1' from well '%2'\n").arg(oilField->wells[wIdx]->wellPathFilePath).arg(oilField->wells[wIdx]->name);
-                            }
-
-                            m_objectGroup->objects.push_back(wellPathEntry);
-                        }
-                    }
-                }
-            }
+            wellPathCount++;
         }
-    }
+        else
+        {
+            errorString += QString("Failed to get file '%1' from well '%2'\n").arg(downloadEntities[i].responseFilename).arg(downloadEntities[i].name);
+        }
 
+
+        SummaryPageDownloadEntity* sumPageEntity = new SummaryPageDownloadEntity;
+        sumPageEntity->name = downloadEntities[i].name;
+        sumPageEntity->responseFilename = downloadEntities[i].responseFilename;
+        sumPageEntity->requestUrl = downloadEntities[i].requestUrl;
+
+        m_objectGroup->objects().push_back(sumPageEntity);
+    }
 
     m_textEdit->setText(QString("Downloaded successfully %1 well paths.\nPlease push 'Import' button to import well paths into ResInsight.\n\n").arg(wellPathCount));
     if (!errorString.isEmpty())
@@ -1050,3 +1060,34 @@ void WellSummaryPage::slotShowDetails()
     }
 }
 
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ObjectGroupWithHeaders::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>(attribute);
+    if (myAttr)
+    {
+        QStringList colHeaders;
+        colHeaders << "Wells";
+        myAttr->columnHeaders = colHeaders;
+    }
+}
+
+
+
+CAF_PDM_SOURCE_INIT(SummaryPageDownloadEntity, "SummaryPageDownloadEntity");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+SummaryPageDownloadEntity::SummaryPageDownloadEntity()
+{
+    CAF_PDM_InitObject("SummaryPageDownloadEntity", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&name, "Name", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&requestUrl, "RequestUrl", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&responseFilename, "ResponseFilename", "", "", "", "");
+}

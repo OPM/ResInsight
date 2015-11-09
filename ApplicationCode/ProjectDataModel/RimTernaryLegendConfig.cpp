@@ -57,29 +57,29 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     CAF_PDM_InitField(&rangeMode, "RangeType", RangeModeEnum(USER_DEFINED), "Range type", "", "Switches between automatic and user defined range on the legend", "");
 
     CAF_PDM_InitFieldNoDefault(&applyLocalMinMax,   "m_applyLocalMinMax", "", "", "", "");
-    applyLocalMinMax.setIOWritable(false);
-    applyLocalMinMax.setIOReadable(false);
-    applyLocalMinMax.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyLocalMinMax.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    applyLocalMinMax.xmlCapability()->setIOWritable(false);
+    applyLocalMinMax.xmlCapability()->setIOReadable(false);
+    applyLocalMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    applyLocalMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     applyLocalMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&applyGlobalMinMax,   "m_applyGlobalMinMax", "", "", "", "");
-    applyGlobalMinMax.setIOWritable(false);
-    applyGlobalMinMax.setIOReadable(false);
-    applyGlobalMinMax.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyGlobalMinMax.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    applyGlobalMinMax.xmlCapability()->setIOWritable(false);
+    applyGlobalMinMax.xmlCapability()->setIOReadable(false);
+    applyGlobalMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    applyGlobalMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     applyGlobalMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&applyFullRangeMinMax,   "m_applyFullRangeMinMax", "", "", "", "");
-    applyFullRangeMinMax.setIOWritable(false);
-    applyFullRangeMinMax.setIOReadable(false);
-    applyFullRangeMinMax.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    applyFullRangeMinMax.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    applyFullRangeMinMax.xmlCapability()->setIOWritable(false);
+    applyFullRangeMinMax.xmlCapability()->setIOReadable(false);
+    applyFullRangeMinMax.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    applyFullRangeMinMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     applyFullRangeMinMax = false;
 
     CAF_PDM_InitFieldNoDefault(&ternaryRangeSummary,        "ternaryRangeSummary", "Range summary", "", "", "");
-    ternaryRangeSummary.setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    ternaryRangeSummary.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    ternaryRangeSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    ternaryRangeSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
 
     CAF_PDM_InitField(&userDefinedMaxValueSoil, "UserDefinedMaxSoil", 1.0, "Max", "", "Min value of the legend", "");
@@ -96,7 +96,7 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     m_localAutoMin.resize(3, 0.0);
     m_localAutoMax.resize(3, 1.0);
 
-	m_scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
+    m_scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
     recreateLegend();
     updateLegend();
@@ -168,7 +168,7 @@ void RimTernaryLegendConfig::updateLegend()
     double swatUpper = 1.0;
 
     ternaryRanges(soilLower, soilUpper, sgasLower, sgasUpper, swatLower, swatUpper);
-	m_scalarMapper->setTernaryRanges(soilLower, soilUpper, sgasLower, sgasUpper);
+    m_scalarMapper->setTernaryRanges(soilLower, soilUpper, sgasLower, sgasUpper);
 
     cvf::String soilRange;
     cvf::String sgasRange;
@@ -380,47 +380,47 @@ void RimTernaryLegendConfig::ternaryRanges(double& soilLower, double& soilUpper,
 void RimTernaryLegendConfig::updateLabelText()
 {
     {
-        userDefinedMinValueSoil.setUiName("Min");
-        userDefinedMaxValueSoil.setUiName("Max");
+        userDefinedMinValueSoil.uiCapability()->setUiName("Min");
+        userDefinedMaxValueSoil.uiCapability()->setUiName("Max");
 
         if (m_globalAutoMin[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSoil.setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision) + ")");
+            userDefinedMinValueSoil.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision) + ")");
         }
 
         if (m_globalAutoMax[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSoil.setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSoil.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision) + ")");
         }
     }
 
     {
-        userDefinedMinValueSgas.setUiName("Min");
-        userDefinedMaxValueSgas.setUiName("Max");
+        userDefinedMinValueSgas.uiCapability()->setUiName("Min");
+        userDefinedMaxValueSgas.uiCapability()->setUiName("Max");
 
         if (m_globalAutoMin[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSgas.setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision) + ")");
+            userDefinedMinValueSgas.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision) + ")");
         }
 
         if (m_globalAutoMax[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSgas.setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSgas.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision) + ")");
         }
     }
 
     {
-        userDefinedMinValueSwat.setUiName("Min");
-        userDefinedMaxValueSwat.setUiName("Max");
+        userDefinedMinValueSwat.uiCapability()->setUiName("Min");
+        userDefinedMaxValueSwat.uiCapability()->setUiName("Max");
 
         if (m_globalAutoMin[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSwat.setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision) + ")");
+            userDefinedMinValueSwat.uiCapability()->setUiName(QString("Min ") + "(" + QString::number(m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision) + ")");
         }
 
         if (m_globalAutoMax[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSwat.setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision) + ")");
+            userDefinedMaxValueSwat.uiCapability()->setUiName(QString("Max ") + "(" + QString::number(m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision) + ")");
         }
     }
 
@@ -449,6 +449,6 @@ void RimTernaryLegendConfig::updateLabelText()
 //--------------------------------------------------------------------------------------------------
 RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper()
 {
-	return m_scalarMapper.p();
+    return m_scalarMapper.p();
 }
 

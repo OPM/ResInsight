@@ -20,6 +20,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -54,9 +55,10 @@ protected:
     virtual caf::PdmFieldHandle*    objectToggleField();
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
-    caf::PdmField<RimEclipseCellColors*>    m_customFaultResultColors;
+    caf::PdmChildField<RimEclipseCellColors*>    m_customFaultResultColors;
     caf::PdmPointer<RimEclipseView>         m_reservoirView;
 };
 

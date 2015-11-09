@@ -64,3 +64,29 @@ double RigCellEdgeResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf:
     return HUGE_VAL;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCellEdgeResultAccessor::cellScalarGlobIdx(size_t globCellIndex) const
+{
+    // TODO: How to handle when we get here?
+    CVF_ASSERT(false);
+
+    return cvf::UNDEFINED_DOUBLE;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCellEdgeResultAccessor::cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const
+{
+    const RigResultAccessor* resultAccessObj = m_resultAccessObjects[faceId].p();
+    if (resultAccessObj != NULL)
+    {
+        return resultAccessObj->cellFaceScalarGlobIdx(globCellIndex, faceId);
+    }
+
+    return HUGE_VAL;
+}
+

@@ -41,13 +41,13 @@
 //--------------------------------------------------------------------------------------------------
 void RivScalarMapperUtils::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting)
 {
-	CVF_ASSERT(part && textureCoords && mapper);
+    CVF_ASSERT(part && textureCoords && mapper);
 
-	cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(part->drawable());
-	if (dg) dg->setTextureCoordArray(textureCoords);
+    cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(part->drawable());
+    if (dg) dg->setTextureCoordArray(textureCoords);
 
-	cvf::ref<cvf::Effect> scalarEffect = RivScalarMapperUtils::createScalarMapperEffect(mapper, opacityLevel, faceCulling, disableLighting);
-	part->setEffect(scalarEffect.p());
+    cvf::ref<cvf::Effect> scalarEffect = RivScalarMapperUtils::createScalarMapperEffect(mapper, opacityLevel, faceCulling, disableLighting);
+    part->setEffect(scalarEffect.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,55 +55,55 @@ void RivScalarMapperUtils::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2f
 //--------------------------------------------------------------------------------------------------
 void RivScalarMapperUtils::applyTernaryTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting)
 {
-	CVF_ASSERT(part && textureCoords && mapper);
+    CVF_ASSERT(part && textureCoords && mapper);
 
-	cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(part->drawable());
-	if (dg) dg->setTextureCoordArray(textureCoords);
+    cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(part->drawable());
+    if (dg) dg->setTextureCoordArray(textureCoords);
 
     cvf::ref<cvf::Effect> scalarEffect = RivScalarMapperUtils::createTernaryScalarMapperEffect(mapper, opacityLevel, faceCulling, disableLighting);
-	part->setEffect(scalarEffect.p());
+    part->setEffect(scalarEffect.p());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGeo* dg,
-	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
-	size_t gridIndex,
-	size_t timeStepIndex,
-	RimEclipseCellColors* cellResultColors,
-	RimCellEdgeColors* cellEdgeResultColors,
-	float opacityLevel,
+    const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+    size_t gridIndex,
+    size_t timeStepIndex,
+    RimEclipseCellColors* cellResultColors,
+    RimCellEdgeColors* cellEdgeResultColors,
+    float opacityLevel,
     cvf::Color3f defaultColor,
     caf::FaceCulling faceCulling,
     bool disableLighting)
 {
-	CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultColors->legendConfig()->scalarMapper());
+    CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultColors->legendConfig()->scalarMapper());
 
-	if (cellResultColors->isTernarySaturationSelected())
-	{
-		RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultColors, cellEdgeResultColors,
-			quadToCellFaceMapper, dg, gridIndex, opacityLevel);
+    if (cellResultColors->isTernarySaturationSelected())
+    {
+        RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultColors, cellEdgeResultColors,
+            quadToCellFaceMapper, dg, gridIndex, opacityLevel);
 
-		RivTernaryScalarMapper* ternaryCellScalarMapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
-		cellFaceEffectGen.setTernaryScalarMapper(ternaryCellScalarMapper);
-	}
-	else
-	{
-		RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultColors, cellEdgeResultColors,
-			quadToCellFaceMapper, dg, gridIndex, opacityLevel);
+        RivTernaryScalarMapper* ternaryCellScalarMapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
+        cellFaceEffectGen.setTernaryScalarMapper(ternaryCellScalarMapper);
+    }
+    else
+    {
+        RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultColors, cellEdgeResultColors,
+            quadToCellFaceMapper, dg, gridIndex, opacityLevel);
 
-		cvf::ScalarMapper* cellScalarMapper = cellResultColors->legendConfig()->scalarMapper();
-		cellFaceEffectGen.setScalarMapper(cellScalarMapper);
-	}
+        cvf::ScalarMapper* cellScalarMapper = cellResultColors->legendConfig()->scalarMapper();
+        cellFaceEffectGen.setScalarMapper(cellScalarMapper);
+    }
 
-	cellFaceEffectGen.setOpacityLevel(opacityLevel);
-	cellFaceEffectGen.setDefaultCellColor(defaultColor);
+    cellFaceEffectGen.setOpacityLevel(opacityLevel);
+    cellFaceEffectGen.setDefaultCellColor(defaultColor);
     cellFaceEffectGen.setFaceCulling(faceCulling);
     cellFaceEffectGen.disableLighting(disableLighting);
 
-	cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateEffect();
-	return eff;
+    cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateCachedEffect();
+    return eff;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,17 +111,17 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGe
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Effect> RivScalarMapperUtils::createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting)
 {
-	CVF_ASSERT(mapper);
+    CVF_ASSERT(mapper);
 
-	caf::PolygonOffset polygonOffset = caf::PO_1;
-	caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-	scalarEffgen.setOpacityLevel(opacityLevel);
+    caf::PolygonOffset polygonOffset = caf::PO_1;
+    caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
+    scalarEffgen.setOpacityLevel(opacityLevel);
     scalarEffgen.setFaceCulling(faceCulling);
     scalarEffgen.disableLighting(disableLighting);
 
-	cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+    cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateCachedEffect();
 
-	return scalarEffect;
+    return scalarEffect;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,15 +129,15 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createScalarMapperEffect(const cvf::
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Effect> RivScalarMapperUtils::createTernaryScalarMapperEffect(const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting)
 {
-	CVF_ASSERT(mapper);
+    CVF_ASSERT(mapper);
 
-	caf::PolygonOffset polygonOffset = caf::PO_1;
-	RivTernaryScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-	scalarEffgen.setOpacityLevel(opacityLevel);
+    caf::PolygonOffset polygonOffset = caf::PO_1;
+    RivTernaryScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
+    scalarEffgen.setOpacityLevel(opacityLevel);
     scalarEffgen.setFaceCulling(faceCulling);
     scalarEffgen.disableLighting(disableLighting);
-	cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+    cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateCachedEffect();
 
-	return scalarEffect;
+    return scalarEffect;
 }
 
