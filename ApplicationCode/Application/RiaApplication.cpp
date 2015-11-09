@@ -66,6 +66,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
+#include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "cafAppEnum.h"
@@ -607,6 +608,8 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
             return false;
         }
     }
+
+    RiuSelectionManager::instance()->deleteAllItems();
 
     mainWnd->cleanupGuiBeforeProjectClose();
 

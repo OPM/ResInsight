@@ -47,6 +47,10 @@ public:
     // SelectionManager takes ownership of the selection items
     void setSelectedItems(const std::vector<RiuSelectionItem*>& items);
 
+    // Append item to selected items in SelectionManager
+    // SelectionManager takes ownership of the item
+    void appendItemToSelection(RiuSelectionItem* item);
+
     // Deletes all items in the SelectionManager
     void deleteAllItems();
 

@@ -63,7 +63,7 @@ RiuTimeHistoryQwtPlot::~RiuTimeHistoryQwtPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
+void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
     CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
 
@@ -94,7 +94,6 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector
     plotCurve->setLineSegmentStartStopIndices(filteredIntervals);
     plotCurve->setTitle(curveName);
 
-    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
     plotCurve->setPen(QPen(QColor(curveColor.rByte(), curveColor.gByte(), curveColor.bByte())));
 
     plotCurve->attach(this);
@@ -108,7 +107,7 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues)
+void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues)
 {
     std::vector<QDateTime> dateTimes;
 
@@ -117,7 +116,7 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const std::vector
         dateTimes.push_back(QwtDate::toDateTime(frameTimes[i]));
     }
 
-    addCurve(curveName, dateTimes, timeHistoryValues);
+    addCurve(curveName, curveColor, dateTimes, timeHistoryValues);
 }
 
 //--------------------------------------------------------------------------------------------------

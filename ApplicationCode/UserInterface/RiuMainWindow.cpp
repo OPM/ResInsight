@@ -181,6 +181,8 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 
     setPdmRoot(NULL);
     setResultInfo("");
+
+    m_timeHistoryQwtPlot->deleteAllCurves();
     
     if (m_pdmUiPropertyView)
     {

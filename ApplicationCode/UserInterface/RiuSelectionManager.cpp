@@ -51,6 +51,14 @@ void RiuSelectionManager::setSelectedItems(const std::vector<RiuSelectionItem*>&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuSelectionManager::appendItemToSelection(RiuSelectionItem* item)
+{
+    m_selection.push_back(item);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuSelectionManager::deleteAllItems()
 {
     for (size_t i = 0; i < m_selection.size(); i++)

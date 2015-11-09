@@ -78,6 +78,8 @@
 #include <QMouseEvent>
 #include <QStatusBar>
 #include "RigFemTimeHistoryResultAccessor.h"
+#include "RiuSelectionManager.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 //==================================================================================================
 //
@@ -531,6 +533,11 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         {
             // Delete all curves if no cell is hit
             mainWnd->timeHistoryPlot()->deleteAllCurves();
+
+            std::vector<RiuSelectionItem*> items;
+            RiuSelectionManager::instance()->deleteAllItems();
+
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
 
@@ -567,10 +574,34 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
         curveName += timeHistResultAccessor.topologyText();
 
         std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
-
         CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
-    
-        mainWnd->timeHistoryPlot()->addCurve(curveName, timeStepDates, timeHistoryValues);
+
+        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+
+        std::vector<RiuSelectionItem*> items;
+        RiuSelectionManager::instance()->selectedItems(items);
+
+        bool isItemPartOfSelection = false;
+        for (size_t i = 0; i < items.size(); i++)
+        {
+            RiuEclipseSelectionItem* eclSelItem = dynamic_cast<RiuEclipseSelectionItem*>(items[i]);
+            if (eclSelItem &&
+                eclSelItem->m_view == eclipseView &&
+                eclSelItem->m_gridIndex == gridIndex &&
+                eclSelItem->m_cellIndex == cellIndex)
+            {
+                isItemPartOfSelection = true;
+            }
+        }
+
+        if (!isItemPartOfSelection)
+        {
+            RiuSelectionManager::instance()->appendItemToSelection(new RiuEclipseSelectionItem(eclipseView, gridIndex, cellIndex, curveColor));
+
+            mainWnd->timeHistoryPlot()->addCurve(curveName, curveColor, timeStepDates, timeHistoryValues);
+
+            eclipseView->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }
 
@@ -607,9 +638,11 @@ void RiuViewerCommands::addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t 
         }
 
         CVF_ASSERT(frameTimes.size() == timeHistoryValues.size());
+        
+        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
 
         RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        mainWnd->timeHistoryPlot()->addCurve(curveName, frameTimes, timeHistoryValues);
+        mainWnd->timeHistoryPlot()->addCurve(curveName, curveColor, frameTimes, timeHistoryValues);
     }
 }
 

@@ -24,6 +24,11 @@
 class QwtPlotCurve;
 class QwtPlotGrid;
 
+namespace cvf
+{
+    class Color3f;
+}
+
 //==================================================================================================
 //
 //
@@ -35,8 +40,8 @@ public:
     RiuTimeHistoryQwtPlot(QWidget* parent = NULL);
     virtual ~RiuTimeHistoryQwtPlot();
 
-    void addCurve(const QString& curveName, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
-    void addCurve(const QString& curveName, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues);
+    void addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
+    void addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues);
     
     void deleteAllCurves();
 

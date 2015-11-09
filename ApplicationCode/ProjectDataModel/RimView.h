@@ -33,7 +33,6 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 
-
 #include <QPointer>
 
 class Rim3dOverlayInfoConfig;
@@ -49,6 +48,7 @@ namespace cvf
     class BoundingBox;
     class ModelBasicList;
     class Scene;
+    class String;
     class Transform;
 }
 
@@ -150,6 +150,8 @@ protected:
                                                                 double characteristicCellSize, 
                                                                 const cvf::BoundingBox& wellPathClipBoundingBox, 
                                                                 cvf::Transform* scaleTransform);
+
+    static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
 
     virtual void                            createDisplayModel() = 0;
     virtual void                            updateDisplayModelVisibility() = 0;
