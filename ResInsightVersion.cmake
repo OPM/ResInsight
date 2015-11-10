@@ -1,9 +1,9 @@
 
 set(CMAKE_MAJOR_VERSION 1)
-set(CMAKE_MINOR_VERSION 3)
-set(CMAKE_PATCH_VERSION 106)
-# set(DEV_VERSION "-dev") 
-set(DEV_VERSION "-RC") 
+set(CMAKE_MINOR_VERSION 5)
+set(CMAKE_PATCH_VERSION 100)
+set(DEV_VERSION "-dev") 
+
 
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 
