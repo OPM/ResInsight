@@ -45,6 +45,10 @@ public:
     
     void deleteAllCurves();
 
+protected:
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSizeHint() const;
+
 private:
     void setDefaults();
 
