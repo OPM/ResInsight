@@ -481,12 +481,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
     QString pickInfo = "No hits";
     QString resultInfo = "";
 
-    bool addCurveToTimeHistoryPlot = false;
-    if (keyboardModifiers & Qt::ControlModifier)
-    {
-        addCurveToTimeHistoryPlot = true;
-    }
-
     if (cellIndex != cvf::UNDEFINED_SIZE_T || nncIndex != cvf::UNDEFINED_SIZE_T)
     {
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
@@ -503,7 +497,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
             pickInfo = textBuilder.topologyText(", ");
 
-            if (addCurveToTimeHistoryPlot) addTimeHistoryCurve(eclipseView, gridIndex, cellIndex);
+            addTimeHistoryCurve(eclipseView, gridIndex, cellIndex, keyboardModifiers);
         }
         else if (geomView)
         {
@@ -516,7 +510,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
             pickInfo = textBuilder.topologyText(", ");
 
-            if (addCurveToTimeHistoryPlot) addTimeHistoryCurve(geomView, gridIndex, cellIndex, localIntersectionPoint);
+            addTimeHistoryCurve(geomView, gridIndex, cellIndex, localIntersectionPoint, keyboardModifiers);
         }
     }
     
@@ -548,7 +542,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t gridIndex, size_t cellIndex)
+void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t gridIndex, size_t cellIndex, Qt::KeyboardModifiers keyboardModifiers)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (!mainWnd->timeHistoryPlot()->isVisible()) return;
@@ -596,6 +590,12 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
 
         if (!isItemPartOfSelection)
         {
+            if (!(keyboardModifiers & Qt::ControlModifier))
+            {
+                mainWnd->timeHistoryPlot()->deleteAllCurves();
+                RiuSelectionManager::instance()->deleteAllItems();
+            }
+
             RiuSelectionManager::instance()->appendItemToSelection(new RiuEclipseSelectionItem(eclipseView, gridIndex, cellIndex, curveColor));
 
             mainWnd->timeHistoryPlot()->addCurve(curveName, curveColor, timeStepDates, timeHistoryValues);
@@ -608,7 +608,7 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& localIntersectionPoint)
+void RiuViewerCommands::addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& localIntersectionPoint, Qt::KeyboardModifiers keyboardModifiers)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (!mainWnd->timeHistoryPlot()->isVisible()) return;
@@ -642,6 +642,13 @@ void RiuViewerCommands::addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t 
         cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
 
         RiuMainWindow* mainWnd = RiuMainWindow::instance();
+
+        if (!(keyboardModifiers & Qt::ControlModifier))
+        {
+            mainWnd->timeHistoryPlot()->deleteAllCurves();
+            RiuSelectionManager::instance()->deleteAllItems();
+        }
+
         mainWnd->timeHistoryPlot()->addCurve(curveName, curveColor, frameTimes, timeHistoryValues);
     }
 }
