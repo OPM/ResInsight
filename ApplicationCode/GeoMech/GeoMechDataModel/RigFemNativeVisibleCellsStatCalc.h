@@ -25,9 +25,12 @@
 //==================================================================================================
 #include "RigStatisticsCalculator.h"
 #include "RigFemResultAddress.h"
+#include "RigGeoMechCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
+
 #include "cvfArray.h"
 
-class RigGeoMechCaseData;
 class RigFemPartResultsCollection;
 
 

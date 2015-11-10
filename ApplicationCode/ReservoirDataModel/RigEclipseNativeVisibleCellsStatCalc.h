@@ -24,9 +24,12 @@
 /// 
 //==================================================================================================
 #include "RigStatisticsCalculator.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigActiveCellInfo.h"
+
 #include "cvfArray.h"
 
-class RigCaseCellResultsData;
 
 
 class RigEclipseNativeVisibleCellsStatCalc : public RigStatisticsCalculator

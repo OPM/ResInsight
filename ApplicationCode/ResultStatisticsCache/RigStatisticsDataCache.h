@@ -25,7 +25,7 @@
 #include "cvfObject.h"
 
 #include <vector>
-
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //==================================================================================================
 /// 
