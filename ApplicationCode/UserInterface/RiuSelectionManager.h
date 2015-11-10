@@ -54,6 +54,8 @@ public:
     // Deletes all items in the SelectionManager
     void deleteAllItems();
 
+    bool isEmpty() const;
+
 private:
     std::vector < RiuSelectionItem* > m_selection;
 };

@@ -21,10 +21,9 @@
 
 #include "RigCurveDataTools.h"
 
-#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
-
 #include "RiuLineSegmentQwtPlotCurve.h"
 
+#include "cvfBase.h"
 #include "cvfAssert.h"
 #include "cvfColor3.h"
 

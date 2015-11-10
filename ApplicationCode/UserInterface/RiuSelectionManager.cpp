@@ -72,6 +72,14 @@ void RiuSelectionManager::deleteAllItems()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RiuSelectionManager::isEmpty() const
+{
+    return m_selection.size() == 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RiuEclipseSelectionItem::RiuEclipseSelectionItem(RimEclipseView* view, size_t gridIndex, size_t cellIndex, cvf::Color3f color)
     :   m_view(view),
         m_gridIndex(gridIndex),

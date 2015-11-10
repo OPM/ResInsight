@@ -25,13 +25,14 @@
 #include "Commands/WellLogCommands/RicNewWellLogFileCurveFeature.h"
 #include "Commands/WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
 
-#include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigTimeHistoryResultAccessor.h"
 
+#include "RigFemTimeHistoryResultAccessor.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -50,13 +51,15 @@
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewController.h"
+#include "RimWellLogFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellLogFile.h"
 
 #include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
 #include "RiuResultTextBuilder.h"
+#include "RiuSelectionColors.h"
+#include "RiuSelectionManager.h"
 #include "RiuTimeHistoryQwtPlot.h"
 #include "RiuViewer.h"
 
@@ -77,9 +80,6 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
-#include "RigFemTimeHistoryResultAccessor.h"
-#include "RiuSelectionManager.h"
-#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 //==================================================================================================
 //
@@ -570,7 +570,6 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
         std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
         CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
 
-        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
 
         std::vector<RiuSelectionItem*> items;
         RiuSelectionManager::instance()->selectedItems(items);
@@ -594,6 +593,12 @@ void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t 
             {
                 mainWnd->timeHistoryPlot()->deleteAllCurves();
                 RiuSelectionManager::instance()->deleteAllItems();
+            }
+
+            cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
+            if (RiuSelectionManager::instance()->isEmpty())
+            {
+                curveColor = RiuSelectionColors::singleCurveColor();
             }
 
             RiuSelectionManager::instance()->appendItemToSelection(new RiuEclipseSelectionItem(eclipseView, gridIndex, cellIndex, curveColor));
@@ -639,7 +644,7 @@ void RiuViewerCommands::addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t 
 
         CVF_ASSERT(frameTimes.size() == timeHistoryValues.size());
         
-        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+        cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
 
         RiuMainWindow* mainWnd = RiuMainWindow::instance();
 

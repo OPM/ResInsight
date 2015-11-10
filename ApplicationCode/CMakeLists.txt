@@ -94,6 +94,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuTimeHistoryQwtPlot.cpp
 	UserInterface/RiuSelectionManager.h
 	UserInterface/RiuSelectionManager.cpp
+	UserInterface/RiuSelectionColors.h
+	UserInterface/RiuSelectionColors.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
