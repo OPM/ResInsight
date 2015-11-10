@@ -58,7 +58,6 @@ public:
 
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
     void zoomAllXAndZoomAllDepthOnOwnerPlot();
-    void alignDepthZoomToPlotAndZoomAllX();
     void zoomAllXAxis();
 
     RiuWellLogTrack* viewer();

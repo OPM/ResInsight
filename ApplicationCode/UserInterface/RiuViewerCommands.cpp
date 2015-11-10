@@ -528,7 +528,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             // Delete all curves if no cell is hit
             mainWnd->timeHistoryPlot()->deleteAllCurves();
 
-            std::vector<RiuSelectionItem*> items;
             RiuSelectionManager::instance()->deleteAllItems();
 
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();

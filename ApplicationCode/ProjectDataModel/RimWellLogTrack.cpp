@@ -269,29 +269,6 @@ void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::alignDepthZoomToPlotAndZoomAllX()
-{
-    if (m_wellLogTrackPlotWidget)
-    {
-        RimWellLogPlot* wellLogPlot;
-        firstAnchestorOrThisOfType(wellLogPlot);
-        if (wellLogPlot)
-        {
-            double minimumDepth, maximumDepth;
-            wellLogPlot->depthZoomMinMax(&minimumDepth, &maximumDepth);
-
-            m_wellLogTrackPlotWidget->setDepthZoom(minimumDepth, maximumDepth);
-        }
-
-        zoomAllXAxis();
-
-        m_wellLogTrackPlotWidget->replot();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::zoomAllXAxis()
 {
     double minValue = HUGE_VAL;
