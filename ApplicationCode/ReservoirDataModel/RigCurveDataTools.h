@@ -21,6 +21,7 @@
 
 #include "cvfAssert.h"
 
+#include <cstddef>
 #include <vector>
 
 
