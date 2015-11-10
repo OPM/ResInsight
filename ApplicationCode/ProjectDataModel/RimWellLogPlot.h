@@ -27,7 +27,7 @@
 #include <QPointer>
 
 class RiuWellLogPlot;
-class RimWellLogPlotTrack;
+class RimWellLogTrack;
 
 
 //==================================================================================================
@@ -56,12 +56,12 @@ public:
 
     caf::PdmField< std::vector<int> >               windowGeometry;
 
-    void                                            addTrack(RimWellLogPlotTrack* track);
-    void                                            insertTrack(RimWellLogPlotTrack* track, size_t index);
+    void                                            addTrack(RimWellLogTrack* track);
+    void                                            insertTrack(RimWellLogTrack* track, size_t index);
     size_t                                          trackCount() { return m_tracks.size();}
-    void                                            removeTrack(RimWellLogPlotTrack* track);
-    size_t                                          trackIndex(RimWellLogPlotTrack* track);
-    void                                            moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracksToMove);
+    void                                            removeTrack(RimWellLogTrack* track);
+    size_t                                          trackIndex(RimWellLogTrack* track);
+    void                                            moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove);
 
     void                                            loadDataAndUpdate();
     void                                            updateTracks();
@@ -101,7 +101,7 @@ private:
     caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >  m_depthType;
-    caf::PdmChildArrayField<RimWellLogPlotTrack*>   m_tracks;
+    caf::PdmChildArrayField<RimWellLogTrack*>   m_tracks;
 
     caf::PdmField<double>                           m_minVisibleDepth;
     caf::PdmField<double>                           m_maxVisibleDepth;

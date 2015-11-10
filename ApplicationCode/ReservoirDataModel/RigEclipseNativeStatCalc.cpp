@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigNativeStatCalc.h"
+#include "RigEclipseNativeStatCalc.h"
 
 #include "RigStatisticsMath.h"
 #include "RigCaseCellResultsData.h"
@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigNativeStatCalc::RigNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
+RigEclipseNativeStatCalc::RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
     : m_resultsData(cellResultsData),
     m_scalarResultIndex(scalarResultIndex)
 {
@@ -39,7 +39,7 @@ RigNativeStatCalc::RigNativeStatCalc(RigCaseCellResultsData* cellResultsData, si
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
+void RigEclipseNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
@@ -66,7 +66,7 @@ void RigNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
+void RigEclipseNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
@@ -94,46 +94,42 @@ void RigNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNativeStatCalc::addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator)
+void RigEclipseNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
 {
-    for (size_t tIdx = 0; tIdx < m_resultsData->timeStepCount(m_scalarResultIndex); tIdx++)
-    {
-        std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, tIdx);
+    std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
-        histogramCalculator.addData(values);
-    }
+    histogramCalculator.addData(values);
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNativeStatCalc::valueSumAndSampleCount(double& valueSum, size_t& sampleCount)
+void RigEclipseNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
-    for (size_t tIdx = 0; tIdx < m_resultsData->timeStepCount(m_scalarResultIndex); tIdx++)
+    std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+    size_t undefValueCount = 0;
+    for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
     {
-        std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, tIdx);
-        size_t undefValueCount = 0;
-        for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+        double value = values[cIdx];
+        if (value == HUGE_VAL || value != value)
         {
-            double value = values[cIdx];
-            if (value == HUGE_VAL || value != value)
-            {
-                ++undefValueCount;
-                continue;
-            }
-
-            valueSum += value;
+            ++undefValueCount;
+            continue;
         }
 
-        sampleCount += values.size();
-        sampleCount -= undefValueCount;
+        valueSum += value;
     }
+
+    sampleCount += values.size();
+    sampleCount -= undefValueCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigNativeStatCalc::timeStepCount()
+size_t RigEclipseNativeStatCalc::timeStepCount()
 {
     return m_resultsData->timeStepCount(m_scalarResultIndex);
 }

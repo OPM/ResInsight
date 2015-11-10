@@ -84,12 +84,18 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuTreeViewEventFilter.h
 	UserInterface/RiuWellLogPlot.cpp
 	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuWellLogPlotCurve.cpp
-	UserInterface/RiuWellLogPlotCurve.h
-	UserInterface/RiuWellLogTrackPlot.cpp
-	UserInterface/RiuWellLogTrackPlot.h
+	UserInterface/RiuLineSegmentQwtPlotCurve.cpp
+	UserInterface/RiuLineSegmentQwtPlotCurve.h
+	UserInterface/RiuWellLogTrack.cpp
+	UserInterface/RiuWellLogTrack.h
 	UserInterface/RiuProjectPropertyView.h
 	UserInterface/RiuProjectPropertyView.cpp
+	UserInterface/RiuTimeHistoryQwtPlot.h
+	UserInterface/RiuTimeHistoryQwtPlot.cpp
+	UserInterface/RiuSelectionManager.h
+	UserInterface/RiuSelectionManager.cpp
+	UserInterface/RiuSelectionColors.h
+	UserInterface/RiuSelectionColors.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -182,7 +188,7 @@ set ( QT_MOC_HEADERS
     UserInterface/RiuViewerCommands.h
 	UserInterface/RiuTreeViewEventFilter.h
 	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuWellLogTrackPlot.h
+	UserInterface/RiuWellLogTrack.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )

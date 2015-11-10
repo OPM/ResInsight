@@ -105,3 +105,38 @@ void RiuSimpleHistogramWidget::setHistogramData(double min, double max, const st
         if (m_maxHistogramCount < m_histogramData[colIdx]) m_maxHistogramCount = m_histogramData[colIdx] ;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSimpleHistogramWidget::setPercentiles(double pmin, double pmax)
+{
+    m_minPercentile = pmin; 
+    m_maxPercentile = pmax;
+}
+
+#define xBorder 1
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiuSimpleHistogramWidget::xPosFromColIdx(size_t colIdx)
+{
+    return  (int)(m_x + xBorder + (m_width - 2*xBorder) * colIdx/m_histogramData.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiuSimpleHistogramWidget::xPosFromDomainValue(double value)
+{
+    double range = m_max - m_min; 
+    return  (range == 0.0) ? (int)(m_x + xBorder) : (int)(m_x + xBorder + (m_width - 2*xBorder) * (value - m_min)/(m_max - m_min));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiuSimpleHistogramWidget::yPosFromCount(size_t colHeight)
+{
+    return  (int)(m_y + m_height - 1 - (m_height - 3) * colHeight/m_maxHistogramCount);
+}

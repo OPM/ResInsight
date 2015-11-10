@@ -23,7 +23,7 @@
 
 #include <vector>
 
-class RimWellLogPlotCurve;
+class RimWellLogCurve;
 
 //==================================================================================================
 /// 
@@ -39,7 +39,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    RimWellLogPlotCurve* selectedWellLogPlotCurve() const;
+    RimWellLogCurve* selectedWellLogPlotCurve() const;
 };
 
 

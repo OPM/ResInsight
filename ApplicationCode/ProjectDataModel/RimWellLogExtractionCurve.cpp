@@ -37,8 +37,8 @@
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellLogPlotCurve.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogCurve.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimEclipseView.h"
@@ -46,8 +46,8 @@
 #include "RimGeoMechView.h"
 #include "RimGeoMechCellColors.h"
 
-#include "RiuWellLogPlotCurve.h"
-#include "RiuWellLogTrackPlot.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuWellLogTrack.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
@@ -145,7 +145,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+    RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &m_case)
     {
@@ -177,7 +177,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::updatePlotData()
 {
-    RimWellLogPlotCurve::updatePlotConfiguration();
+    RimWellLogCurve::updatePlotConfiguration();
 
     if (isCurveVisible())
     {
@@ -255,7 +255,9 @@ void RimWellLogExtractionCurve::updatePlotData()
             }
         }
 
-        m_qwtPlotCurve->setCurveData(m_curveData.p());
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues().data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
+
         zoomAllOwnerTrackAndPlot();
 
         if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
@@ -378,7 +380,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::initAfterRead()
 {
-    RimWellLogPlotCurve::initAfterRead();
+    RimWellLogCurve::initAfterRead();
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());

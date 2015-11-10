@@ -19,7 +19,7 @@
 
 #include "RicDeleteWellLogPlotTrackFeature.h"
 
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogPlot.h"
 
 #include "cafSelectionManager.h"
@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT(RicDeleteWellLogPlotTrackFeature, "RicDeleteWellLogPlotTrack
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteWellLogPlotTrackFeature::isCommandEnabled()
 {
-    std::vector<RimWellLogPlotTrack*> selection;
+    std::vector<RimWellLogTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
     if (selection.size() > 0)
@@ -55,12 +55,12 @@ bool RicDeleteWellLogPlotTrackFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellLogPlotTrack*> selection;
+    std::vector<RimWellLogTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
     for (size_t i = 0; i < selection.size(); i++)
     {
-        RimWellLogPlotTrack* track = selection[i];
+        RimWellLogTrack* track = selection[i];
 
         RimWellLogPlot* wellLogPlot = NULL;
         track->firstAnchestorOrThisOfType(wellLogPlot);

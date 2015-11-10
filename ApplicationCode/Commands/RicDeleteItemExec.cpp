@@ -29,7 +29,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPathCollection.h"
 
 #include "cafNotificationCenter.h"
@@ -120,7 +120,7 @@ void RicDeleteItemExec::redo()
             wellLogPlot->zoomAllDepth();
         }
 
-        RimWellLogPlotTrack* wellLogPlotTrack;
+        RimWellLogTrack* wellLogPlotTrack;
         parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {

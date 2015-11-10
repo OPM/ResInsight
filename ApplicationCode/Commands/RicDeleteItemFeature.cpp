@@ -22,7 +22,7 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionHelper.h"

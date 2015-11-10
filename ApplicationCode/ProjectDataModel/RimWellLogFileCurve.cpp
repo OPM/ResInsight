@@ -25,11 +25,11 @@
 #include "RimWellPath.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogPlot.h"
 
-#include "RiuWellLogTrackPlot.h"
-#include "RiuWellLogPlotCurve.h"
+#include "RiuWellLogTrack.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
@@ -70,7 +70,7 @@ RimWellLogFileCurve::~RimWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::updatePlotData()
 {
-    RimWellLogPlotCurve::updatePlotConfiguration();
+    RimWellLogCurve::updatePlotConfiguration();
 
     if (isCurveVisible())
     {
@@ -114,7 +114,8 @@ void RimWellLogFileCurve::updatePlotData()
             }
         }
 
-        m_qwtPlotCurve->setCurveData(m_curveData.p());
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues().data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
         zoomAllOwnerTrackAndPlot();
 
@@ -143,7 +144,7 @@ void RimWellLogFileCurve::setWellLogChannelName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+    RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &m_wellPath)
     {

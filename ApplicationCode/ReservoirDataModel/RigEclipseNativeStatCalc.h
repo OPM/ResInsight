@@ -25,30 +25,27 @@
 #include "cvfObject.h"
 #include "cvfCollection.h"
 
-#include <vector>
-
 class RigHistogramCalculator;
 class RigCaseCellResultsData;
-
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigMultipleDatasetStatCalc : public RigStatisticsCalculator
+class RigEclipseNativeStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigMultipleDatasetStatCalc();
-    void addStatisticsCalculator(RigStatisticsCalculator* statisticsCalculator);
-    void addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndices);
+    RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex);
 
     virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
     virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
-    
-    virtual void valueSumAndSampleCount(double& valueSum, size_t& sampleCount);
-    virtual void addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator);
+
+    virtual void valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount);
+
+    virtual void addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
 
     virtual size_t  timeStepCount();
 
 private:
-    std::vector<RigStatisticsCalculator*> m_nativeStatisticsCalculators;
+    RigCaseCellResultsData* m_resultsData;
+    size_t m_scalarResultIndex;
 };

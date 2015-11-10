@@ -31,7 +31,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -128,7 +128,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
     RimView* view = NULL;
     this->firstAnchestorOrThisOfType(view);
-    RimWellLogPlotCurve* curve = NULL;
+    RimWellLogCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
 
     if (&m_resultVariableUiField == changedField)
@@ -194,7 +194,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 {
     QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(false, fieldNeedingOptions, useOptionsOnly);
 
-    RimWellLogPlotCurve* curve = NULL;
+    RimWellLogCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
 
     RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());

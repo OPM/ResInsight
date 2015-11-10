@@ -187,6 +187,8 @@ public:
     ref<DrawableGeo>    createMeshDrawable();
     ref<DrawableGeo>    createOutlineMeshDrawable(double creaseAngle);
 
+    static ref<DrawableGeo> createMeshDrawableFromSingleCell(const StructGridInterface* grid, size_t cellIndex);
+
 private:
     static ref<UIntArray> 
                         lineIndicesFromQuadVertexArray(const Vec3fArray* vertexArray);

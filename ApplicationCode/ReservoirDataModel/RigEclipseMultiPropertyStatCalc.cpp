@@ -17,21 +17,21 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigMultipleDatasetStatCalc.h"
-#include "RigNativeStatCalc.h"
+#include "RigEclipseMultiPropertyStatCalc.h"
+#include "RigEclipseNativeStatCalc.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigMultipleDatasetStatCalc::RigMultipleDatasetStatCalc()
+RigEclipseMultiPropertyStatCalc::RigEclipseMultiPropertyStatCalc()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMultipleDatasetStatCalc::addStatisticsCalculator(RigStatisticsCalculator* statisticsCalculator)
+void RigEclipseMultiPropertyStatCalc::addStatisticsCalculator(RigStatisticsCalculator* statisticsCalculator)
 {
     if (statisticsCalculator)
     {
@@ -42,7 +42,7 @@ void RigMultipleDatasetStatCalc::addStatisticsCalculator(RigStatisticsCalculator
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMultipleDatasetStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
+void RigEclipseMultiPropertyStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
     for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
     {
@@ -56,7 +56,7 @@ void RigMultipleDatasetStatCalc::minMaxCellScalarValues(size_t timeStepIndex, do
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMultipleDatasetStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
+void RigEclipseMultiPropertyStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
     for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
     {
@@ -67,16 +67,32 @@ void RigMultipleDatasetStatCalc::posNegClosestToZero(size_t timeStepIndex, doubl
     }
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMultipleDatasetStatCalc::valueSumAndSampleCount(double& valueSum, size_t& sampleCount)
+void RigEclipseMultiPropertyStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
     for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
     {
         if (m_nativeStatisticsCalculators.at(i))
         {
-            m_nativeStatisticsCalculators.at(i)->valueSumAndSampleCount(valueSum, sampleCount);
+            m_nativeStatisticsCalculators.at(i)->valueSumAndSampleCount(timeStepIndex, valueSum, sampleCount);
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigEclipseMultiPropertyStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
+{
+    for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
+    {
+        if (m_nativeStatisticsCalculators.at(i))
+        {
+            m_nativeStatisticsCalculators.at(i)->addDataToHistogramCalculator(timeStepIndex, histogramCalculator);
         }
     }
 }
@@ -84,21 +100,7 @@ void RigMultipleDatasetStatCalc::valueSumAndSampleCount(double& valueSum, size_t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMultipleDatasetStatCalc::addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator)
-{
-    for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
-    {
-        if (m_nativeStatisticsCalculators.at(i))
-        {
-            m_nativeStatisticsCalculators.at(i)->addDataToHistogramCalculator(histogramCalculator);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigMultipleDatasetStatCalc::timeStepCount()
+size_t RigEclipseMultiPropertyStatCalc::timeStepCount()
 {
     if (m_nativeStatisticsCalculators.size() > 0)
     {
@@ -111,11 +113,11 @@ size_t RigMultipleDatasetStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMultipleDatasetStatCalc::addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
+void RigEclipseMultiPropertyStatCalc::addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
 {
     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
     {
-        this->addStatisticsCalculator(new RigNativeStatCalc(cellResultsData, scalarResultIndex));
+        this->addStatisticsCalculator(new RigEclipseNativeStatCalc(cellResultsData, scalarResultIndex));
     }
 }
 

@@ -32,8 +32,8 @@ namespace caf
 
 class RimIdenticalGridCaseGroup;
 class RimWellLogPlot;
-class RimWellLogPlotTrack;
-class RimWellLogPlotCurve;
+class RimWellLogTrack;
+class RimWellLogCurve;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -57,9 +57,9 @@ protected:
 private:
     void moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
     bool handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
-    bool handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotTrack* wellLogPlotTrack);
+    bool handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogTrack* wellLogPlotTrack);
     bool handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot);
-    bool handleWellLogPlotCurveDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlotCurve* wellLogPlotCurve);
+    bool handleWellLogPlotCurveDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogCurve* wellLogPlotCurve);
 
     static void objectGroupFromModelIndexes(caf::PdmObjectGroup* objectGroup, const QModelIndexList &indexes);
     static std::vector<caf::PdmPointer<caf::PdmObjectHandle> > objectHandlesFromSelection();

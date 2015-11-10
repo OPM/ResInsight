@@ -21,29 +21,39 @@
 
 #include "qwt_plot_curve.h"
 
-#include <vector>
-
-class RigWellLogCurveData;
-
 //==================================================================================================
-///  
-///  
+//
+// If infinite data is present in the curve data, Qwt is not able to draw a nice curve.
+// This class assumes that inf data is removed, and segments to be draw are indicated by start/stop indices into curve data.
+//
+// Single values in the curve are drawn using a CrossX symbol
+//
+//  Here you can see the curve segments visualized. Curve segments are drawn between vector indices.
+//
+//  0 - 1
+//  5 - 7
+//  9 -10
+//
+//                 /                    ^
+//                /                   /   \
+//  Curve        /                   /     \       -----        X
+//
+//  Values     1.0|2.0|inf|inf|inf|1.0|2.0|1.0|inf|1.0|1.0|inf|1.0|inf
+//  Vec index   0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10| 11| 12| 13
 //==================================================================================================
-class RiuWellLogPlotCurve : public QwtPlotCurve
+class RiuLineSegmentQwtPlotCurve : public QwtPlotCurve
 {
 public:
+    explicit RiuLineSegmentQwtPlotCurve(const QString &title = QString::null);
+    virtual ~RiuLineSegmentQwtPlotCurve();
 
-    RiuWellLogPlotCurve();
-    virtual ~RiuWellLogPlotCurve();
-
-    void setCurveData(const RigWellLogCurveData* curveData);
+    void setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
 
 protected:
-
     virtual void drawCurve(QPainter* p, int style,
                             const QwtScaleMap& xMap, const QwtScaleMap& yMap,
                             const QRectF& canvasRect, int from, int to) const;
  
 private:
-    std::vector< std::pair<size_t, size_t> >    m_polyLineStartStopIndices;
+    std::vector< std::pair<size_t, size_t> > m_polyLineStartStopIndices;
 };

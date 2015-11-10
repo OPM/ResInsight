@@ -30,7 +30,7 @@ namespace NRLib
     class Well;
 }
 
-class RimWellLogPlotCurve;
+class RimWellLogCurve;
 
 //==================================================================================================
 /// 
@@ -52,7 +52,7 @@ public:
     QString depthUnit() const;
     QString wellLogChannelUnit(const QString& wellLogChannelName) const;
 
-    static bool exportToLasFile(const RimWellLogPlotCurve* curve, const QString& fileName);
+    static bool exportToLasFile(const RimWellLogCurve* curve, const QString& fileName);
 
 private:
     void close();

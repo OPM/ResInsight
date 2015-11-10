@@ -25,7 +25,7 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogFileCurve.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
@@ -37,7 +37,7 @@
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "cafSelectionManager.h"
 #include "cafPdmUiTreeView.h"
@@ -68,7 +68,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
     
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
-    RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
+    RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addTrack(plotTrack);
     plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
 

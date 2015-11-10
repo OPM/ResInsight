@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
@@ -34,7 +34,7 @@ class RimView;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogExtractionCurve : public RimWellLogPlotCurve
+class RimWellLogExtractionCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 public:

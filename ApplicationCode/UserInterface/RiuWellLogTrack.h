@@ -22,7 +22,7 @@
 #include "qwt_plot.h"
 #include "cafPdmPointer.h"
 
-class RimWellLogPlotTrack;
+class RimWellLogTrack;
 class QwtPlotGrid;
 class QwtLegend;
 
@@ -33,13 +33,13 @@ class QEvent;
 //
 //
 //==================================================================================================
-class RiuWellLogTrackPlot : public QwtPlot
+class RiuWellLogTrack : public QwtPlot
 {
     Q_OBJECT
 
 public:
-    RiuWellLogTrackPlot(RimWellLogPlotTrack* plotTrackDefinition, QWidget* parent = NULL);
-    virtual ~RiuWellLogTrackPlot();
+    RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* parent = NULL);
+    virtual ~RiuWellLogTrack();
 
     void                                    setDepthZoom(double minDepth, double maxDepth);
     void                                    setDepthTitle(const QString& title);
@@ -59,7 +59,7 @@ private:
     void                                    selectClosestCurve(const QPoint& pos);
 
 private:
-    caf::PdmPointer<RimWellLogPlotTrack>    m_plotTrackDefinition;
+    caf::PdmPointer<RimWellLogTrack>    m_plotTrackDefinition;
     QwtPlotGrid*                            m_grid;
 };
 

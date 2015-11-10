@@ -19,7 +19,7 @@
 
 #include "RigWellLogFile.h"
 
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "well.hpp"
 #include "laswell.hpp"
@@ -245,7 +245,7 @@ QString RigWellLogFile::wellLogChannelUnit(const QString& wellLogChannelName) co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QString& fileName)
+bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString& fileName)
 {
     CVF_ASSERT(curve);
 

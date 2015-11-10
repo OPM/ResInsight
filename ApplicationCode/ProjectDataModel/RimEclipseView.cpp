@@ -22,33 +22,42 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimEclipseCase.h"
 #include "RimCellEdgeColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseFaultColors.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimTernaryLegendConfig.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimFaultCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimTernaryLegendConfig.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
+
 #include "RiuMainWindow.h"
+#include "RiuSelectionManager.h"
 #include "RiuViewer.h"
+
 #include "RivReservoirPipesPartMgr.h"
+#include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathCollectionPartMgr.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafFrameAnimationControl.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfDrawable.h"
 #include "cvfModelBasicList.h"
@@ -61,9 +70,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-#include "RimViewLinker.h"
-#include "RimViewController.h"
-#include "cafPdmUiTreeOrdering.h"
 
 
 
@@ -644,20 +650,8 @@ void RimEclipseView::updateCurrentTimeStep()
             // Well pipes
             // ----------
             cvf::String wellPipeModelName = "WellPipeModel";
-            std::vector<cvf::Model*> wellPipeModels;
-            for (cvf::uint i = 0; i < frameScene->modelCount(); i++)
-            {
-                if (frameScene->model(i)->name() == wellPipeModelName)
-                {
-                    wellPipeModels.push_back(frameScene->model(i));
-                }
-            }
 
-            for (size_t i = 0; i < wellPipeModels.size(); i++)
-            {
-                //printf("updateCurrentTimeStep: Remove WellPipeModel %i from frameScene, for frame %i\n", i, m_currentTimeStep.v());
-                frameScene->removeModel(wellPipeModels[i]);
-            }
+            this->removeModelByName(frameScene, wellPipeModelName);
 
             cvf::ref<cvf::ModelBasicList> wellPipeModelBasicList = new cvf::ModelBasicList;
             wellPipeModelBasicList->setName(wellPipeModelName);
@@ -680,6 +674,51 @@ void RimEclipseView::updateCurrentTimeStep()
                                  mainGrid->characteristicIJCellSize(), 
                                  currentActiveCellInfo()->geometryBoundingBox(), 
                                  m_reservoirGridPartManager->scaleTransform());
+
+
+            {
+                // Actions related to highlight items in scene
+                //
+                // Removed highlight model by name
+                // Create new highlight model with name
+                // Create and add selected parts
+                // Modify with scaletransform()
+                // Add parts to model
+                // Add model to scene
+
+                cvf::String highlightModelName = "HighLightModel";
+
+                this->removeModelByName(frameScene, highlightModelName);
+
+                cvf::ref<cvf::ModelBasicList> highlightModelBasicList = new cvf::ModelBasicList;
+                highlightModelBasicList->setName(highlightModelName);
+
+                RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+                std::vector<RiuSelectionItem*> items;
+                riuSelManager->selectedItems(items);
+                for (size_t i = 0; i < items.size(); i++)
+                {
+                    RiuEclipseSelectionItem* eclipseSelItem = dynamic_cast<RiuEclipseSelectionItem*>(items[i]);
+                    if (eclipseSelItem &&
+                        eclipseSelItem->m_view)
+                    {
+                        CVF_ASSERT(eclipseSelItem->m_view->eclipseCase());
+                        CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->reservoirData());
+
+                        RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->reservoirData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_cellIndex);
+
+                        cvf::ref<cvf::Part> part = partGen.createPart(eclipseSelItem->m_color);
+                        part->setTransform(this->scaleTransform());
+                        part->setPriority(10000);
+
+                        highlightModelBasicList->addPart(part.p());
+                    }
+                }
+
+                highlightModelBasicList->updateBoundingBoxesRecursive();
+
+                frameScene->addModel(highlightModelBasicList.p());
+            }
         }
     }
 
@@ -1565,19 +1604,7 @@ void RimEclipseView::addWellPathsToScene(cvf::Scene* scene,
     CVF_ASSERT(scaleTransform);
 
     cvf::String wellPathModelName = "WellPathModel";
-    std::vector<cvf::Model*> wellPathModels;
-    for (cvf::uint i = 0; i < scene->modelCount(); i++)
-    {
-        if (scene->model(i)->name() == wellPathModelName)
-        {
-            wellPathModels.push_back(scene->model(i));
-        }
-    }
-
-    for (size_t i = 0; i < wellPathModels.size(); i++)
-    {
-        scene->removeModel(wellPathModels[i]);
-    }
+    this->removeModelByName(scene, wellPathModelName);
 
     // Append static Well Paths to model
     cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;

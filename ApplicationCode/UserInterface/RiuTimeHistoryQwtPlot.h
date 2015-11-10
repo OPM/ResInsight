@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
-//  Copyright (C) Ceetron Solutions AS
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,31 +19,41 @@
 
 #pragma once
 
-#include "RigStatisticsCalculator.h"
+#include "qwt_plot.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfCollection.h"
+class QwtPlotCurve;
+class QwtPlotGrid;
 
-class RigHistogramCalculator;
-class RigCaseCellResultsData;
+namespace cvf
+{
+    class Color3f;
+}
 
 //==================================================================================================
-/// 
+//
+//
+//
 //==================================================================================================
-class RigNativeStatCalc : public RigStatisticsCalculator
+class RiuTimeHistoryQwtPlot : public QwtPlot
 {
 public:
-    RigNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex);
+    RiuTimeHistoryQwtPlot(QWidget* parent = NULL);
+    virtual ~RiuTimeHistoryQwtPlot();
 
-    virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
-    virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
-    virtual void valueSumAndSampleCount(double& valueSum, size_t& sampleCount);
+    void addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
+    void addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues);
+    
+    void deleteAllCurves();
 
-    virtual void addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator);
-    virtual size_t  timeStepCount();
+protected:
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSizeHint() const;
 
 private:
-    RigCaseCellResultsData* m_resultsData;
-    size_t m_scalarResultIndex;
+    void setDefaults();
+
+private:
+    std::vector<QwtPlotCurve*>  m_plotCurves;
+    QwtPlotGrid*                m_grid;
 };
+

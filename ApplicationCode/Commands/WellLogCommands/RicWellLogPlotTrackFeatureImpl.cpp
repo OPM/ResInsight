@@ -20,8 +20,8 @@
 #include "RicWellLogPlotTrackFeatureImpl.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogTrack.h"
+#include "RimWellLogCurve.h"
 
 #include "RiuMainWindow.h"
 
@@ -30,20 +30,20 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlotTrack* destTrack, 
-                                                                  const std::vector<RimWellLogPlotCurve*>& curves, 
-                                                                  RimWellLogPlotCurve* curveToInsertAfter)
+void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrack* destTrack, 
+                                                                  const std::vector<RimWellLogCurve*>& curves, 
+                                                                  RimWellLogCurve* curveToInsertAfter)
 {
     CVF_ASSERT(destTrack );
 
-    std::set<RimWellLogPlotTrack*> srcTracks;
+    std::set<RimWellLogTrack*> srcTracks;
     std::set<RimWellLogPlot*> srcPlots;
 
     for (size_t cIdx = 0; cIdx < curves.size(); cIdx++)
     {
-        RimWellLogPlotCurve* curve = curves[cIdx];
+        RimWellLogCurve* curve = curves[cIdx];
 
-        RimWellLogPlotTrack* wellLogPlotTrack;
+        RimWellLogTrack* wellLogPlotTrack;
         curve->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
@@ -69,7 +69,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
         (*pIt)->calculateAvailableDepthRange();
     }
 
-    for (std::set<RimWellLogPlotTrack*>::iterator tIt = srcTracks.begin(); tIt != srcTracks.end(); ++tIt)
+    for (std::set<RimWellLogTrack*>::iterator tIt = srcTracks.begin(); tIt != srcTracks.end(); ++tIt)
     {
         (*tIt)->zoomAllXAndZoomAllDepthOnOwnerPlot();
     }
@@ -83,8 +83,8 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogPlot
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dstWellLogPlot, 
-                                                             const std::vector<RimWellLogPlotTrack*>& tracksToMove, 
-                                                             RimWellLogPlotTrack* trackToInsertAfter)
+                                                             const std::vector<RimWellLogTrack*>& tracksToMove, 
+                                                             RimWellLogTrack* trackToInsertAfter)
 {
     CVF_ASSERT(dstWellLogPlot);
 
@@ -92,7 +92,7 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
 
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
     {
-        RimWellLogPlotTrack* track = tracksToMove[tIdx];
+        RimWellLogTrack* track = tracksToMove[tIdx];
 
         RimWellLogPlot* srcPlot;
         track->firstAnchestorOrThisOfType(srcPlot);

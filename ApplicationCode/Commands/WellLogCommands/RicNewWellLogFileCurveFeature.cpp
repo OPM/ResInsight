@@ -23,7 +23,7 @@
 #include "RicNewWellLogPlotFeatureImpl.h"
 
 #include "RimWellLogFileCurve.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
@@ -56,7 +56,7 @@ bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogPlotTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
+    RimWellLogTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
     {
         addCurve(wellLogPlotTrack);
@@ -66,7 +66,7 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
         RimWellPath* wellPath = selectedWellPathWithLogFile();
         if (wellPath)
         {
-            RimWellLogPlotTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
             RimWellLogFileCurve* plotCurve = addCurve(wellLogPlotTrack);
             plotCurve->setWellPath(wellPath);
             plotCurve->updateConnectedEditors();
@@ -85,9 +85,9 @@ void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrack* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrack() const
+RimWellLogTrack* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrack() const
 {
-    std::vector<RimWellLogPlotTrack*> selection;
+    std::vector<RimWellLogTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     return selection.size() > 0 ? selection[0] : NULL;
 }
@@ -140,7 +140,7 @@ bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogPlotTrack* plotTrack)
+RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogTrack* plotTrack)
 {
     CVF_ASSERT(plotTrack);
 
@@ -162,7 +162,7 @@ RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogPlotTrack
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(RimWellLogPlotTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels)
+void RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels)
 {
     for (size_t cIdx = 0; cIdx < wellLogFileChannels.size(); cIdx++)
     {

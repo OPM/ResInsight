@@ -225,7 +225,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 
     if (event->button() == Qt::LeftButton)
     {
-        m_viewerCommands->handlePickAction(event->x(), event->y());
+        m_viewerCommands->handlePickAction(event->x(), event->y(), event->modifiers());
         return;
     }
     else if (event->button() == Qt::RightButton)

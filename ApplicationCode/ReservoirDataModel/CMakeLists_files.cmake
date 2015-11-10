@@ -34,9 +34,12 @@ ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.inl
 ${CEE_CURRENT_LIST_DIR}RigPipeInCellEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RigResultAccessor2d.h
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.h
-${CEE_CURRENT_LIST_DIR}RigNativeStatCalc.h
-${CEE_CURRENT_LIST_DIR}RigMultipleDatasetStatCalc.h
+${CEE_CURRENT_LIST_DIR}RigEclipseNativeStatCalc.h
+${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.h
+${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.h
+${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.h
+${CEE_CURRENT_LIST_DIR}RigCurveDataTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -65,9 +68,12 @@ ${CEE_CURRENT_LIST_DIR}RigFault.cpp
 ${CEE_CURRENT_LIST_DIR}RigNNCData.cpp
 ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.cpp
-${CEE_CURRENT_LIST_DIR}RigNativeStatCalc.cpp
-${CEE_CURRENT_LIST_DIR}RigMultipleDatasetStatCalc.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseNativeStatCalc.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.cpp
+${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.cpp
+${CEE_CURRENT_LIST_DIR}RigCurveDataTools.cpp    
 )
 
 list(APPEND CODE_HEADER_FILES
