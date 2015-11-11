@@ -49,10 +49,6 @@ public:
     void setReservoirView(RimView* ownerView);
 
     void                                        setPosition(cvf::Vec2ui position);
-    caf::PdmField<bool>                         active;
-    caf::PdmField<bool>                         showInfoText;
-    caf::PdmField<bool>                         showAnimProgress;
-    caf::PdmField<bool>                         showHistogram;
 
     enum StatisticsTimeRangeType
     {
@@ -73,6 +69,12 @@ private:
 
     void updateEclipse3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
+
+    caf::PdmField<bool>                         active;
+    caf::PdmField<bool>                         showAnimProgress;
+    caf::PdmField<bool>                         showCaseInfo;
+    caf::PdmField<bool>                         showResultInfo;
+    caf::PdmField<bool>                         showHistogram;
 
     caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;
     caf::PdmField<caf::AppEnum<StatisticsCellRangeType> > m_statisticsCellRange;
