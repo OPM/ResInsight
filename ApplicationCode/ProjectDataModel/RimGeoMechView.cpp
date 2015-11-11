@@ -34,18 +34,23 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimLegendConfig.h"
+#include "RimViewLinker.h"
 
 #include "RiuMainWindow.h"
+#include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "RivGeoMechPartMgr.h"
 #include "RivGeoMechPartMgrCache.h"
 #include "RivGeoMechVizLogic.h"
+#include "RivSingleCellPartGenerator.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafFrameAnimationControl.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
+
 #include "cvfModelBasicList.h"
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
@@ -54,9 +59,6 @@
 #include "cvfqtUtils.h"
 
 #include <QMessageBox>
-#include "RimViewLinker.h"
-#include "cafPdmUiTreeOrdering.h"
-
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechView, "GeoMechView");
@@ -282,6 +284,36 @@ void RimGeoMechView::updateCurrentTimeStep()
                                     femBBox,
                                     scaleTransform());
                 frameScene->addModel(wellPathModel.p());
+
+                {
+                    cvf::String highlightModelName = "HighLightModel";
+                    cvf::ref<cvf::ModelBasicList> highlightModelBasicList = new cvf::ModelBasicList;
+                    highlightModelBasicList->setName(highlightModelName);
+
+                    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+                    std::vector<RiuSelectionItem*> items;
+                    riuSelManager->selectedItems(items);
+                    for (size_t i = 0; i < items.size(); i++)
+                    {
+                        if (items[i]->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
+                        {
+                            RiuGeoMechSelectionItem* geomSelItem = static_cast<RiuGeoMechSelectionItem*>(items[i]);
+                            if (geomSelItem &&
+                                geomSelItem->m_view &&
+                                geomSelItem->m_view->geoMechCase())
+                            {
+                                RivSingleCellPartGenerator partGen(geomSelItem->m_view->geoMechCase(), geomSelItem->m_gridIndex, geomSelItem->m_cellIndex);
+                                cvf::ref<cvf::Part> part = partGen.createPart(geomSelItem->m_color);
+                                part->setTransform(this->scaleTransform());
+
+                                highlightModelBasicList->addPart(part.p());
+                            }
+                        }
+                    }
+
+                    highlightModelBasicList->updateBoundingBoxesRecursive();
+                    frameScene->addModel(highlightModelBasicList.p());
+                }
             }
         }
 

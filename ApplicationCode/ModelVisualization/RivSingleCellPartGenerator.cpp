@@ -20,6 +20,12 @@
 #include "RivSingleCellPartGenerator.h"
 
 #include "RigCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechCase.h"
+
+#include "RivFemPartGeometryGenerator.h"
 
 #include "cafEffectGenerator.h"
 #include "cvfPart.h"
@@ -33,7 +39,19 @@
 RivSingleCellPartGenerator::RivSingleCellPartGenerator(RigCaseData* rigCaseData, size_t gridIndex, size_t cellIndex)
     : m_rigCaseData(rigCaseData),
     m_gridIndex(gridIndex),
-    m_cellIndex(cellIndex)
+    m_cellIndex(cellIndex),
+    m_geoMechCase(NULL)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivSingleCellPartGenerator::RivSingleCellPartGenerator(RimGeoMechCase* rimGeoMechCase, size_t gridIndex, size_t cellIndex)
+    : m_geoMechCase(rimGeoMechCase),
+    m_gridIndex(gridIndex),
+    m_cellIndex(cellIndex),
+    m_rigCaseData(NULL)
 {
 }
 
@@ -56,6 +74,8 @@ cvf::ref<cvf::Part> RivSingleCellPartGenerator::createPart(const cvf::Color3f co
 
     part->setEffect(eff.p());
 
+    part->setPriority(10000);
+
     return part;
 }
 
@@ -64,10 +84,19 @@ cvf::ref<cvf::Part> RivSingleCellPartGenerator::createPart(const cvf::Color3f co
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
 {
-    if (m_rigCaseData &&
-        m_cellIndex != cvf::UNDEFINED_SIZE_T)
+    if (m_rigCaseData && m_cellIndex != cvf::UNDEFINED_SIZE_T)
     {
         return cvf::StructGridGeometryGenerator::createMeshDrawableFromSingleCell(m_rigCaseData->grid(m_gridIndex), m_cellIndex);
+    }
+    else if (m_geoMechCase && m_cellIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        CVF_ASSERT(m_geoMechCase->geoMechData());
+        CVF_ASSERT(m_geoMechCase->geoMechData()->femParts()->partCount() > m_gridIndex);
+
+        RigFemPart* femPart = m_geoMechCase->geoMechData()->femParts()->part(m_gridIndex);
+        CVF_ASSERT(femPart);
+
+        return RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement(femPart, m_cellIndex);
     }
 
     return NULL;

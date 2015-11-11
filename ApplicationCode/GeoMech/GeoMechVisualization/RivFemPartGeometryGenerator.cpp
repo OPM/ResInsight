@@ -68,7 +68,6 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface()
 //--------------------------------------------------------------------------------------------------
 ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
 {
-   
     if (!(m_quadVertices.notNull() && m_quadVertices->size() != 0)) return NULL;
 
     ref<DrawableGeo> geo = new DrawableGeo;
@@ -263,5 +262,59 @@ void RivFemPartGeometryGenerator::computeArrays()
 void RivFemPartGeometryGenerator::setElementVisibility(const cvf::UByteArray* cellVisibility)
 {
     m_elmVisibility = cellVisibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement(const RigFemPart* part, size_t elmIdx)
+{
+    cvf::ref<cvf::Vec3fArray> quadVertices;
+
+    {
+        std::vector<Vec3f> vertices;
+
+        const std::vector<cvf::Vec3f>& nodeCoordinates = part->nodes().coordinates;
+
+        RigElementType eType = part->elementType(elmIdx);
+        int faceCount = RigFemTypes::elmentFaceCount(eType);
+        int elmQuadCount = 0;
+
+        const int* elmNodeIndices = part->connectivities(elmIdx);
+
+        for (int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
+        {
+            int elmNeighbor = part->elementNeighbor(static_cast<int>(elmIdx), lfIdx);
+
+            int faceNodeCount = 0;
+            const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, lfIdx, &faceNodeCount);
+            if (faceNodeCount == 4)
+            {
+                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]]);
+                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]]);
+                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]);
+                vertices.push_back(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
+            }
+            else
+            {
+                // Handle triangles and 6 node and 8 node faces
+            }
+        }
+
+        quadVertices = new cvf::Vec3fArray;
+        quadVertices->assign(vertices);
+    }
+
+    if (!(quadVertices.notNull() && quadVertices->size() != 0)) return NULL;
+
+    ref<DrawableGeo> geo = new DrawableGeo;
+    geo->setVertexArray(quadVertices.p());
+
+    ref<UIntArray> indices = lineIndicesFromQuadVertexArray(quadVertices.p());
+    ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt(PT_LINES);
+    prim->setIndices(indices.p());
+
+    geo->addPrimitiveSet(prim.p());
+    return geo;
 }
 

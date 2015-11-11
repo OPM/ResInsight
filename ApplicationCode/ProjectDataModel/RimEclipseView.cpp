@@ -677,15 +677,6 @@ void RimEclipseView::updateCurrentTimeStep()
 
 
             {
-                // Actions related to highlight items in scene
-                //
-                // Removed highlight model by name
-                // Create new highlight model with name
-                // Create and add selected parts
-                // Modify with scaletransform()
-                // Add parts to model
-                // Add model to scene
-
                 cvf::String highlightModelName = "HighLightModel";
 
                 this->removeModelByName(frameScene, highlightModelName);
@@ -698,25 +689,26 @@ void RimEclipseView::updateCurrentTimeStep()
                 riuSelManager->selectedItems(items);
                 for (size_t i = 0; i < items.size(); i++)
                 {
-                    RiuEclipseSelectionItem* eclipseSelItem = dynamic_cast<RiuEclipseSelectionItem*>(items[i]);
-                    if (eclipseSelItem &&
-                        eclipseSelItem->m_view)
+                    if (items[i]->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
                     {
-                        CVF_ASSERT(eclipseSelItem->m_view->eclipseCase());
-                        CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->reservoirData());
+                        RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>(items[i]);
+                        if (eclipseSelItem &&
+                            eclipseSelItem->m_view)
+                        {
+                            CVF_ASSERT(eclipseSelItem->m_view->eclipseCase());
+                            CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->reservoirData());
 
-                        RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->reservoirData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_cellIndex);
+                            RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->reservoirData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_cellIndex);
 
-                        cvf::ref<cvf::Part> part = partGen.createPart(eclipseSelItem->m_color);
-                        part->setTransform(this->scaleTransform());
-                        part->setPriority(10000);
+                            cvf::ref<cvf::Part> part = partGen.createPart(eclipseSelItem->m_color);
+                            part->setTransform(this->scaleTransform());
 
-                        highlightModelBasicList->addPart(part.p());
+                            highlightModelBasicList->addPart(part.p());
+                        }
                     }
                 }
 
                 highlightModelBasicList->updateBoundingBoxesRecursive();
-
                 frameScene->addModel(highlightModelBasicList.p());
             }
         }

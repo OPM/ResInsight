@@ -64,6 +64,8 @@ public:
 
     RivFemPartTriangleToElmMapper* triangleToElementMapper() { return m_triangleMapper.p();}
 
+    static cvf::ref<cvf::DrawableGeo> createMeshDrawableFromSingleElement(const RigFemPart* grid, size_t elementIndex);
+
 private:
     static cvf::ref<cvf::UIntArray> 
                                 lineIndicesFromQuadVertexArray(const cvf::Vec3fArray* vertexArray);
