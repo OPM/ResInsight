@@ -58,7 +58,7 @@
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuResultInfoPanel.h"
-#include "RiuTimeHistoryQwtPlot.h"
+#include "RiuResultQwtPlot.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
@@ -182,7 +182,7 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
     setPdmRoot(NULL);
     setResultInfo("");
 
-    m_timeHistoryQwtPlot->deleteAllCurves();
+    m_resultQwtPlot->deleteAllCurves();
     
     if (m_pdmUiPropertyView)
     {
@@ -665,11 +665,11 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        QDockWidget* dockPanel = new QDockWidget("Time History Plot", this);
+        QDockWidget* dockPanel = new QDockWidget("Result Plot", this);
         dockPanel->setObjectName("dockTimeHistoryPanel");
         dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-        m_timeHistoryQwtPlot = new RiuTimeHistoryQwtPlot(dockPanel);
-        dockPanel->setWidget(m_timeHistoryQwtPlot);
+        m_resultQwtPlot = new RiuResultQwtPlot(dockPanel);
+        dockPanel->setWidget(m_resultQwtPlot);
 
         addDockWidget(Qt::RightDockWidgetArea, dockPanel);
     }
@@ -1170,9 +1170,9 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuTimeHistoryQwtPlot* RiuMainWindow::timeHistoryPlot()
+RiuResultQwtPlot* RiuMainWindow::resultPlot()
 {
-    return m_timeHistoryQwtPlot;
+    return m_resultQwtPlot;
 }
 
 //--------------------------------------------------------------------------------------------------

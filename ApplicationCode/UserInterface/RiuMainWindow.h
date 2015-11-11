@@ -42,7 +42,7 @@ class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuViewer;
 class RiuWellLogPlot;
-class RiuTimeHistoryQwtPlot;
+class RiuResultQwtPlot;
 
 namespace caf
 {
@@ -113,7 +113,7 @@ public:
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 
-    RiuTimeHistoryQwtPlot* timeHistoryPlot();
+    RiuResultQwtPlot* resultPlot();
 
 protected:
     virtual void    closeEvent(QCloseEvent* event);
@@ -201,7 +201,7 @@ private:
     RiuResultInfoPanel* m_resultInfoPanel;
     RiuProcessMonitor*  m_processMonitor;
     
-    RiuTimeHistoryQwtPlot* m_timeHistoryQwtPlot;
+    RiuResultQwtPlot*   m_resultQwtPlot;
     
     QMenu*              m_windowMenu;
 

@@ -39,7 +39,7 @@
 #include "RiuMainWindow.h"
 #include "RiuResultTextBuilder.h"
 #include "RiuSelectionManager.h"
-#include "RiuTimeHistoryQwtPlot.h"
+#include "RiuResultQwtPlot.h"
 
 #include <QStatusBar>
 
@@ -65,7 +65,7 @@ RiuSelectionChangedHandler::~RiuSelectionChangedHandler()
 //--------------------------------------------------------------------------------------------------
 void RiuSelectionChangedHandler::handleSelectionDeleted() const
 {
-    RiuMainWindow::instance()->timeHistoryPlot()->deleteAllCurves();
+    RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
 
     updateResultInfo(NULL);
 
@@ -89,7 +89,7 @@ void RiuSelectionChangedHandler::handleItemAppended(const RiuSelectionItem* item
 //--------------------------------------------------------------------------------------------------
 void RiuSelectionChangedHandler::handleSetSelectedItem(const RiuSelectionItem* item) const
 {
-    RiuMainWindow::instance()->timeHistoryPlot()->deleteAllCurves();
+    RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
 
     handleItemAppended(item);
 }
@@ -126,7 +126,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
         std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
         CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
 
-        RiuMainWindow::instance()->timeHistoryPlot()->addCurve(curveName, eclipseSelectionItem->m_color, timeStepDates, timeHistoryValues);
+        RiuMainWindow::instance()->resultPlot()->addCurve(curveName, eclipseSelectionItem->m_color, timeStepDates, timeHistoryValues);
     }
 }
 
@@ -164,7 +164,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
 
         CVF_ASSERT(frameTimes.size() == timeHistoryValues.size());
         
-        RiuMainWindow::instance()->timeHistoryPlot()->addCurve(curveName, geomSelectionItem->m_color, frameTimes, timeHistoryValues);
+        RiuMainWindow::instance()->resultPlot()->addCurve(curveName, geomSelectionItem->m_color, frameTimes, timeHistoryValues);
     }
 }
 

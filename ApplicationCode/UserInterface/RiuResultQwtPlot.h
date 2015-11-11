@@ -34,11 +34,11 @@ namespace cvf
 //
 //
 //==================================================================================================
-class RiuTimeHistoryQwtPlot : public QwtPlot
+class RiuResultQwtPlot : public QwtPlot
 {
 public:
-    RiuTimeHistoryQwtPlot(QWidget* parent = NULL);
-    virtual ~RiuTimeHistoryQwtPlot();
+    RiuResultQwtPlot(QWidget* parent = NULL);
+    virtual ~RiuResultQwtPlot();
 
     void addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
     void addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues);

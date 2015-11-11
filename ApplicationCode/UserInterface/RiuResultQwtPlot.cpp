@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuTimeHistoryQwtPlot.h"
+#include "RiuResultQwtPlot.h"
 
 #include "RigCurveDataTools.h"
 
@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuTimeHistoryQwtPlot::RiuTimeHistoryQwtPlot(QWidget* parent)
+RiuResultQwtPlot::RiuResultQwtPlot(QWidget* parent)
     : QwtPlot(parent)
 {
     m_grid = new QwtPlotGrid;
@@ -51,7 +51,7 @@ RiuTimeHistoryQwtPlot::RiuTimeHistoryQwtPlot(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuTimeHistoryQwtPlot::~RiuTimeHistoryQwtPlot()
+RiuResultQwtPlot::~RiuResultQwtPlot()
 {
     deleteAllCurves();
 
@@ -62,7 +62,7 @@ RiuTimeHistoryQwtPlot::~RiuTimeHistoryQwtPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
+void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
     CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
 
@@ -106,7 +106,7 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const cvf::Color3
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues)
+void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues)
 {
     std::vector<QDateTime> dateTimes;
 
@@ -121,7 +121,7 @@ void RiuTimeHistoryQwtPlot::addCurve(const QString& curveName, const cvf::Color3
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeHistoryQwtPlot::deleteAllCurves()
+void RiuResultQwtPlot::deleteAllCurves()
 {
     for (size_t i = 0; i < m_plotCurves.size(); i++)
     {
@@ -135,7 +135,7 @@ void RiuTimeHistoryQwtPlot::deleteAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize RiuTimeHistoryQwtPlot::sizeHint() const
+QSize RiuResultQwtPlot::sizeHint() const
 {
     return QSize(0, 0);
 }
@@ -143,7 +143,7 @@ QSize RiuTimeHistoryQwtPlot::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize RiuTimeHistoryQwtPlot::minimumSizeHint() const
+QSize RiuResultQwtPlot::minimumSizeHint() const
 {
     return QSize(0, 0);
 }
@@ -151,7 +151,7 @@ QSize RiuTimeHistoryQwtPlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuTimeHistoryQwtPlot::setDefaults()
+void RiuResultQwtPlot::setDefaults()
 {
     QPalette newPalette(palette());
     newPalette.setColor(QPalette::Background, Qt::white);

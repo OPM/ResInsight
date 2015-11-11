@@ -90,8 +90,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuWellLogTrack.h
 	UserInterface/RiuProjectPropertyView.h
 	UserInterface/RiuProjectPropertyView.cpp
-	UserInterface/RiuTimeHistoryQwtPlot.h
-	UserInterface/RiuTimeHistoryQwtPlot.cpp
+	UserInterface/RiuResultQwtPlot.h
+	UserInterface/RiuResultQwtPlot.cpp
 	UserInterface/RiuSelectionManager.h
 	UserInterface/RiuSelectionManager.cpp
 	UserInterface/RiuSelectionColors.h
