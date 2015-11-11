@@ -91,7 +91,7 @@ private:
 
     QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;
-    bool            m_showInfoText;; 
+    bool            m_showInfoText; 
 
     QProgressBar*   m_animationProgress;
     bool            m_showAnimProgress; 

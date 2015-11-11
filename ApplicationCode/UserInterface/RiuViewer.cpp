@@ -112,6 +112,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_InfoLabel = new QLabel();
     m_InfoLabel->setPalette(p);
     m_InfoLabel->setFrameShape(QFrame::Box);
+    m_InfoLabel->setMinimumWidth(275);
     m_showInfoText = true;
 
     // Version info label
