@@ -57,7 +57,7 @@ public:
     virtual std::vector<RimView*>           views();
 
     virtual QStringList                     timeStepStrings();
-
+    virtual QString                         timeStepName(int frameIdx);
 
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;

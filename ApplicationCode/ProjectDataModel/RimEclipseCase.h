@@ -86,6 +86,7 @@ public:
                                                      
     virtual std::vector<RimView*>               views();
     virtual QStringList                         timeStepStrings();
+    virtual QString                             timeStepName(int frameIdx);
 
     // Overridden methods from PdmObject
 public:
@@ -99,13 +100,13 @@ protected:
     void                                        computeCachedData();
     void                                        setReservoirData(RigCaseData* eclipseCase);
 
-
 private:
     cvf::ref<RigCaseData>                       m_rigEclipseCase;
 
 private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
+    QString                                     m_timeStepFormatString;
 
     // Obsolete fields
 protected:

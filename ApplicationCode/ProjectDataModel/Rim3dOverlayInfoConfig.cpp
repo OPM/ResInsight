@@ -338,8 +338,8 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * reservoirView)
             || reservoirView->cellResult()->isTernarySaturationSelected())
         {
             int currentTimeStep = reservoirView->currentTimeStep();
-            QDateTime date = reservoirView->currentGridCellResults()->cellResults()->timeStepDate(0, currentTimeStep);
-            infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(date.toString("dd.MMM yyyy"));
+            QString dateString = reservoirView->ownerCase()->timeStepName(currentTimeStep);
+            infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(dateString);
         }
 
         reservoirView->viewer()->setInfoText(infoText);
@@ -480,8 +480,8 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
             }
             {
                 int currentTimeStep = geoMechView->currentTimeStep();
-                QString stepName = QString::fromStdString(caseData->femPartResults()->stepNames()[currentTimeStep]);
-                infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(stepName);
+                QString dateString = geoMechView->ownerCase()->timeStepName(currentTimeStep);
+                infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(dateString);
             }
         }
 

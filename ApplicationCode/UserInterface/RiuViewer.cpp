@@ -47,6 +47,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QProgressBar>
+#include "RimCase.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -332,6 +333,8 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 
     if (showAnimBar && m_showAnimProgress)
     {
+        QString stepName = m_reservoirView->ownerCase()->timeStepName(currentFrameIndex());
+        m_animationProgress->setFormat("Time Step: %v/%m " + stepName);
         m_animationProgress->setMinimum(0);
         m_animationProgress->setMaximum(static_cast<int>(frameCount()) - 1);
         m_animationProgress->setValue(currentFrameIndex());

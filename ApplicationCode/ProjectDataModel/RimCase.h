@@ -41,14 +41,13 @@ public:
 
     virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseUserDescription; }
 
-    virtual QStringList                         timeStepStrings() { return QStringList(); }
+    virtual QStringList                         timeStepStrings() = 0;
+    virtual QString                             timeStepName(int frameIdx) = 0;
 
 protected:
     static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 
                                                              bool* foundFile, std::vector<QString>* searchedPaths);
-
 private:
-    
 };
 
 

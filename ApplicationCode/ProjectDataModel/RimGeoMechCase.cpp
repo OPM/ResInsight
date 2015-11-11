@@ -169,3 +169,13 @@ QStringList RimGeoMechCase::timeStepStrings()
 
     return stringList;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::timeStepName(int frameIdx)
+{
+   std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
+
+   return QString::fromStdString(stepNames[frameIdx]);
+}

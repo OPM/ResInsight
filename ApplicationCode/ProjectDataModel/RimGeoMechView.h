@@ -60,6 +60,7 @@ public:
 
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     RimGeoMechCase*                                     geoMechCase();
+    virtual RimCase*                                    ownerCase();
 
     virtual void                                        loadDataAndUpdate();
 
@@ -96,7 +97,6 @@ private:
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                        initAfterRead();
 
-    virtual RimCase*                                    ownerCase();
 
     virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
 

@@ -52,7 +52,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
 //------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase::RimEclipseCase()
+RimEclipseCase::RimEclipseCase() 
 {
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
     reservoirViews.uiCapability()->setUiHidden(true);
@@ -428,27 +428,44 @@ QStringList RimEclipseCase::timeStepStrings()
 {
     QStringList stringList;
 
-    std::vector<QDateTime> timeStepDates = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
-
-    bool showHoursAndMinutes = false;
-    for (size_t i = 0; i < timeStepDates.size(); i++)
+    int timeStepCount = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepCount(0);
+    for (size_t i = 0; i < timeStepCount; i++)
     {
-        if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
-        {
-            showHoursAndMinutes = true;
-        }
-    }
-
-    QString formatString = "dd.MMM yyyy";
-    if (showHoursAndMinutes)
-    {
-        formatString += " - hh:mm";
-    }
-
-    for (size_t i = 0; i < timeStepDates.size(); i++)
-    {
-        stringList += timeStepDates[i].toString(formatString);
+        stringList += this->timeStepName(i);
     }
 
     return stringList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+QString RimEclipseCase::timeStepName(int frameIdx)
+{
+    if (m_timeStepFormatString.isEmpty())
+    {
+        std::vector<QDateTime> timeStepDates = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
+
+        bool hasHrsAndMinutesInTimesteps = false;
+        for (size_t i = 0; i < timeStepDates.size(); i++)
+        {
+            if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+            {
+                hasHrsAndMinutesInTimesteps = true;
+                break;
+            }
+        }
+
+        m_timeStepFormatString = "dd.MMM yyyy";
+        if (hasHrsAndMinutesInTimesteps)
+        {
+            m_timeStepFormatString += " - hh:mm";
+        }
+    }
+
+
+    QDateTime date = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDate(0,frameIdx);
+    return date.toString(m_timeStepFormatString);
+
 }
