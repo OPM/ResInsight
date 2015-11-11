@@ -25,14 +25,12 @@
 #include "Commands/WellLogCommands/RicNewWellLogFileCurveFeature.h"
 #include "Commands/WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
 
-#include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigTimeHistoryResultAccessor.h"
 
-#include "RigFemTimeHistoryResultAccessor.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -46,7 +44,6 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimView.h"
@@ -55,12 +52,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
-#include "RiuResultTextBuilder.h"
 #include "RiuSelectionColors.h"
 #include "RiuSelectionManager.h"
-#include "RiuTimeHistoryQwtPlot.h"
 #include "RiuViewer.h"
 
 #include "RivFemPartGeometryGenerator.h"
@@ -347,7 +341,6 @@ void RiuViewerCommands::createSliceRangeFilter(int ijOrk)
     eclipseView->setSurfaceDrawstyle();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -458,8 +451,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 wellPath = wellPathSourceInfo->wellPath();
             }
         }
-       
-
 
         if (firstNncHitPart && firstNncHitPart->sourceInfo())
         {
@@ -474,186 +465,55 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         }
     }
 
-
-
-    // Compose a info text regarding the hit
-
-    QString pickInfo = "No hits";
-    QString resultInfo = "";
-
-    if (cellIndex != cvf::UNDEFINED_SIZE_T || nncIndex != cvf::UNDEFINED_SIZE_T)
+    if (cellIndex == cvf::UNDEFINED_SIZE_T)
     {
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-        RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-
-        if (eclipseView)
+        RiuSelectionManager::instance()->deleteAllItems();
+    }
+    else 
+    {
+        bool appendToSelection = false;
+        if (keyboardModifiers & Qt::ControlModifier)
         {
-            RiuResultTextBuilder textBuilder(eclipseView, gridIndex, cellIndex, eclipseView->currentTimeStep());
-            textBuilder.setFace(face);
-            textBuilder.setNncIndex(nncIndex);
-            textBuilder.setIntersectionPoint(localIntersectionPoint);
-
-            resultInfo = textBuilder.mainResultText();
-
-            pickInfo = textBuilder.topologyText(", ");
-
-            addTimeHistoryCurve(eclipseView, gridIndex, cellIndex, keyboardModifiers);
+            appendToSelection = true;
         }
-        else if (geomView)
+
+        cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
+        if (RiuSelectionManager::instance()->isEmpty() || !appendToSelection)
         {
-            RiuFemResultTextBuilder textBuilder(geomView, (int)gridIndex, (int)cellIndex, geomView->currentTimeStep());
-            //textBuilder.setFace(face);
-           
-            textBuilder.setIntersectionPoint(localIntersectionPoint);
+            curveColor = RiuSelectionColors::singleCurveColor();
+        }
 
-            resultInfo = textBuilder.mainResultText();
+        RiuSelectionItem* selItem = NULL;
+        {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+            if (eclipseView)
+            {
+                selItem = new RiuEclipseSelectionItem(eclipseView, gridIndex, cellIndex, nncIndex, curveColor, face, localIntersectionPoint);
+            }
 
-            pickInfo = textBuilder.topologyText(", ");
+            RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+            if (geomView)
+            {
+                selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, localIntersectionPoint);
+            }
+        }
 
-            addTimeHistoryCurve(geomView, gridIndex, cellIndex, localIntersectionPoint, keyboardModifiers);
+        if (appendToSelection)
+        {
+            RiuSelectionManager::instance()->appendItemToSelection(selItem);
+        }
+        else
+        {
+            RiuSelectionManager::instance()->setSelectedItem(selItem);
         }
     }
-    
+
     if (wellPath)
     {
-        pickInfo = QString("Well path hit: %1").arg(wellPath->name());
-    }
-
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (cellIndex == cvf::UNDEFINED_SIZE_T &&
-        !(keyboardModifiers & Qt::ControlModifier))
-    {
-        if (mainWnd->timeHistoryPlot()->isVisible())
-        {
-            // Delete all curves if no cell is hit
-            mainWnd->timeHistoryPlot()->deleteAllCurves();
-
-            RiuSelectionManager::instance()->deleteAllItems();
-
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-
-    mainWnd->statusBar()->showMessage(pickInfo);
-    mainWnd->setResultInfo(resultInfo);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::addTimeHistoryCurve(RimEclipseView* eclipseView, size_t gridIndex, size_t cellIndex, Qt::KeyboardModifiers keyboardModifiers)
-{
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd->timeHistoryPlot()->isVisible()) return;
-
-    if (eclipseView->cellResult()->hasDynamicResult() &&
-        eclipseView->eclipseCase() &&
-        eclipseView->eclipseCase()->reservoirData())
-    {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(eclipseView->cellResult()->porosityModel());
-
-        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
-        eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
-        std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(scalarIndexWithMaxTimeStepCount);
-
-        RigTimeHistoryResultAccessor timeHistResultAccessor(eclipseView->eclipseCase()->reservoirData(), gridIndex, cellIndex, eclipseView->cellResult()->scalarResultIndex(), porosityModel);
-
-        QString curveName = eclipseView->eclipseCase()->caseUserDescription();
-        curveName += ", ";
-        curveName += eclipseView->cellResult()->resultVariable();
-        curveName += ", ";
-        curveName += QString("Grid index %1").arg(gridIndex);
-        curveName += ", ";
-        curveName += timeHistResultAccessor.topologyText();
-
-        std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
-        CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
-
-
-        std::vector<RiuSelectionItem*> items;
-        RiuSelectionManager::instance()->selectedItems(items);
-
-        bool isItemPartOfSelection = false;
-        for (size_t i = 0; i < items.size(); i++)
-        {
-            RiuEclipseSelectionItem* eclSelItem = dynamic_cast<RiuEclipseSelectionItem*>(items[i]);
-            if (eclSelItem &&
-                eclSelItem->m_view == eclipseView &&
-                eclSelItem->m_gridIndex == gridIndex &&
-                eclSelItem->m_cellIndex == cellIndex)
-            {
-                isItemPartOfSelection = true;
-            }
-        }
-
-        if (!isItemPartOfSelection)
-        {
-            if (!(keyboardModifiers & Qt::ControlModifier))
-            {
-                mainWnd->timeHistoryPlot()->deleteAllCurves();
-                RiuSelectionManager::instance()->deleteAllItems();
-            }
-
-            cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
-            if (RiuSelectionManager::instance()->isEmpty())
-            {
-                curveColor = RiuSelectionColors::singleCurveColor();
-            }
-
-            RiuSelectionManager::instance()->appendItemToSelection(new RiuEclipseSelectionItem(eclipseView, gridIndex, cellIndex, curveColor));
-
-            mainWnd->timeHistoryPlot()->addCurve(curveName, curveColor, timeStepDates, timeHistoryValues);
-
-            eclipseView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& localIntersectionPoint, Qt::KeyboardModifiers keyboardModifiers)
-{
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd->timeHistoryPlot()->isVisible()) return;
-
-    if (geoMechView &&
-        geoMechView->cellResult() &&
-        geoMechView->cellResult()->hasResult() &&
-        geoMechView->geoMechCase() &&
-        geoMechView->geoMechCase()->geoMechData())
-    {
-        RigFemTimeHistoryResultAccessor timeHistResultAccessor(geoMechView->geoMechCase()->geoMechData(), geoMechView->cellResult->resultAddress(), gridIndex, cellIndex, localIntersectionPoint);
-
-        QString curveName;
-        curveName.append(geoMechView->geoMechCase()->caseUserDescription() + ", ");
-
-        caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = geoMechView->cellResult()->resultPositionType();
-        curveName.append(resPosAppEnum.uiText() + ", ");
-        curveName.append(geoMechView->cellResult()->resultFieldUiName()+ ", ") ;
-        curveName.append(geoMechView->cellResult()->resultComponentUiName() + ":\n");
-        curveName.append(timeHistResultAccessor.topologyText());
-
-        std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
-        std::vector<double> frameTimes;
-        for (size_t i = 0; i < timeHistoryValues.size(); i++)
-        {
-            frameTimes.push_back(i);
-        }
-
-        CVF_ASSERT(frameTimes.size() == timeHistoryValues.size());
-        
-        cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
+        QString pickInfo = QString("Well path hit: %1").arg(wellPath->name());
 
         RiuMainWindow* mainWnd = RiuMainWindow::instance();
-
-        if (!(keyboardModifiers & Qt::ControlModifier))
-        {
-            mainWnd->timeHistoryPlot()->deleteAllCurves();
-            RiuSelectionManager::instance()->deleteAllItems();
-        }
-
-        mainWnd->timeHistoryPlot()->addCurve(curveName, curveColor, frameTimes, timeHistoryValues);
+        mainWnd->statusBar()->showMessage(pickInfo);
     }
 }
 

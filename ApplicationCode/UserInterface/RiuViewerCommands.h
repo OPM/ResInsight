@@ -63,8 +63,6 @@ private:
     void            createSliceRangeFilter(int ijOrk);
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
     void            updateSelectionFromPickedPart(cvf::Part* part);
-    void            addTimeHistoryCurve(RimEclipseView* eclipseView, size_t gridIndex, size_t cellIndex, Qt::KeyboardModifiers keyboardModifiers);
-    void            addTimeHistoryCurve(RimGeoMechView* geoMechView, size_t gridIndex, size_t cellIndex, const cvf::Vec3d& localIntersectionPoint, Qt::KeyboardModifiers keyboardModifiers);
 
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;

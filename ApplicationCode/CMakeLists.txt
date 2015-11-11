@@ -96,6 +96,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuSelectionManager.cpp
 	UserInterface/RiuSelectionColors.h
 	UserInterface/RiuSelectionColors.cpp
+	UserInterface/RiuSelectionChangedHandler.h
+	UserInterface/RiuSelectionChangedHandler.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
