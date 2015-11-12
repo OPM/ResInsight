@@ -108,6 +108,15 @@ Rim3dOverlayInfoConfig::~Rim3dOverlayInfoConfig()
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (m_viewDef->propertyFilterCollection() && m_viewDef->propertyFilterCollection()->hasActiveDynamicFilters() &&
+        m_statisticsCellRange() == VISIBLE_CELLS && m_statisticsTimeRange() == ALL_TIMESTEPS)
+    {
+        displayPropertyFilteredStatisticsMessage(false);
+        if (changedField == &m_statisticsTimeRange) m_statisticsTimeRange = CURRENT_TIMESTEP;
+        if (changedField == &m_statisticsCellRange) m_statisticsCellRange = ALL_CELLS;
+    }
+
+
     this->update3DInfo();
 
     if (m_viewDef && m_viewDef->viewer())
@@ -148,6 +157,13 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     m_viewDef->viewer()->showAnimationProgress(showAnimProgress());
     
     m_isVisCellStatUpToDate = false;
+
+    if (m_viewDef->propertyFilterCollection() && m_viewDef->propertyFilterCollection()->hasActiveDynamicFilters() &&
+        m_statisticsCellRange() == VISIBLE_CELLS && m_statisticsTimeRange() == ALL_TIMESTEPS)
+    {
+        displayPropertyFilteredStatisticsMessage(true);
+        m_statisticsTimeRange = CURRENT_TIMESTEP;
+    }
 
     RimEclipseView * reservoirView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     if (reservoirView) updateEclipse3DInfo(reservoirView);
@@ -526,5 +542,32 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
 
         m_visibleCellStatistics = new RigStatisticsDataCache(calc.p());
         m_isVisCellStatUpToDate = true;
+    }
+}
+
+#include <QMessageBox>
+
+void Rim3dOverlayInfoConfig::displayPropertyFilteredStatisticsMessage(bool showSwitchToCurrentTimestep)
+{
+    static bool isShowing = false;
+
+    QString switchString;
+    if (showSwitchToCurrentTimestep)
+    {
+        switchString = QString("<br>"
+                               "Switching to statistics for <b>Current Time Step</b>");
+    }
+
+    if (!isShowing)
+    {
+        isShowing = true;
+        QMessageBox::information(m_viewDef->viewer()->layoutWidget(),
+                                 QString("ResInsight"),
+                                 QString("Statistics not available<br>"
+                                 "<br>"
+                                 "Statistics calculations of <b>Visible Cells</b> for <b>All Time Steps</b> is not supported<br>"
+                                 "when you have an active Property filter on a time varying result.<br>")
+                                 + switchString);
+        isShowing = false;
     }
 }

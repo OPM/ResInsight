@@ -84,7 +84,7 @@ private:
     cvf::Vec2ui                                 m_position;
     
     void updateVisCellStatsIfNeeded();
-
+    void displayPropertyFilteredStatisticsMessage(bool showSwitchToCurrentTimestep);
     bool                                        m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache>            m_visibleCellStatistics;
 
