@@ -41,8 +41,6 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilters.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
-    isActive.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,17 +60,6 @@ RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
     firstAnchestorOrThisOfType(eclipseView);
 
     return eclipseView;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
-{
-    updateIconState();
-    uiCapability()->updateConnectedEditors();
-
-    updateDisplayModelNotifyManagedViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,26 +114,6 @@ bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
     return false;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimEclipsePropertyFilterCollection::objectToggleField()
-{
-    return &isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilterCollection::updateDisplayModelNotifyManagedViews()
-{
-    RimEclipseView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
-    CVF_ASSERT(view);
-
-    view->scheduleGeometryRegen(PROPERTY_FILTERED);
-    view->scheduleCreateDisplayModelAndRedraw();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -179,25 +146,3 @@ void RimEclipsePropertyFilterCollection::updateIconState()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
-{
-    PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
-
-    RimView* rimView = NULL;
-    this->firstAnchestorOrThisOfType(rimView);
-    RimViewController* viewController = rimView->viewController();
-    if (viewController && (viewController->isPropertyFilterOveridden() 
-                           || viewController->isVisibleCellsOveridden()))
-    {
-        isActive.uiCapability()->setUiReadOnly(true, uiConfigName);
-    }
-    else
-    {
-        isActive.uiCapability()->setUiReadOnly(false, uiConfigName);
-    }
-
-    updateIconState();
-}

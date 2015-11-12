@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,37 +23,34 @@
 #include "RimEclipsePropertyFilter.h"
 
 #include "cafPdmChildArrayField.h"
+#include "RimPropertyFilterCollection.h"
+
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimEclipsePropertyFilterCollection : public caf::PdmObject
+class RimEclipsePropertyFilterCollection : public RimPropertyFilterCollection
 {
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipsePropertyFilterCollection();
     virtual ~RimEclipsePropertyFilterCollection();
 
+    RimEclipseView*         reservoirView();
+
     // Fields:
-    caf::PdmField<bool> isActive;
     caf::PdmChildArrayField<RimEclipsePropertyFilter*> propertyFilters;
 
     // Methods
     bool                    hasActiveFilters() const; 
     bool                    hasActiveDynamicFilters() const; 
 
-    RimEclipseView*         reservoirView();
-
     void                    loadAndInitializePropertyFilters();
 
-    void                    updateDisplayModelNotifyManagedViews();
     void                    updateIconState();
 
 protected:
     // Overridden methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
     virtual void                    initAfterRead();
-    virtual caf::PdmFieldHandle*    objectToggleField();
 };

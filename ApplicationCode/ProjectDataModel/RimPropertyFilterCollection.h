@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
@@ -16,42 +16,38 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
-#include "RimPropertyFilterCollection.h"
-
-class RimGeoMechPropertyFilter;
-class RimGeoMechView;
+#include "cafPdmField.h"
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechPropertyFilterCollection : public RimPropertyFilterCollection
+class RimPropertyFilterCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimGeoMechPropertyFilterCollection();
-    virtual ~RimGeoMechPropertyFilterCollection();
-
-    RimGeoMechView*       reservoirView();
+    RimPropertyFilterCollection();
+    virtual ~RimPropertyFilterCollection();
 
     // Fields:
-    caf::PdmChildArrayField<RimGeoMechPropertyFilter*> propertyFilters;
+    caf::PdmField<bool> isActive;
 
     // Methods
-    bool                    hasActiveFilters() const; 
-    bool                    hasActiveDynamicFilters() const; 
+    virtual bool                    hasActiveFilters() const = 0; 
+    virtual bool                    hasActiveDynamicFilters() const = 0; 
 
-    void                    loadAndInitializePropertyFilters();
-    void                    updateIconState();
+    virtual void                    loadAndInitializePropertyFilters() = 0;
+
+    void                            updateDisplayModelNotifyManagedViews();
+    virtual void                    updateIconState() = 0;
 
 protected:
     // Overridden methods
-    virtual void                    initAfterRead();
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    virtual caf::PdmFieldHandle*    objectToggleField();
 };
+
