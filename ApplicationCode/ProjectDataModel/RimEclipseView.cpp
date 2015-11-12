@@ -480,6 +480,8 @@ void RimEclipseView::createDisplayModel()
         m_overlayInfoConfig()->update3DInfo();
         updateLegends();
     }
+
+    m_viewer->showGridBox(true);
 }
 
 

@@ -28,6 +28,8 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
+#include "RivGridBoxGenerator.h"
+
 #include "RiuCadNavigation.h"
 #include "RiuGeoQuestNavigation.h"
 #include "RiuRmsNavigation.h"
@@ -160,6 +162,9 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     // Setting this policy will make sure the handling is not deferred to the widget's parent,
     // which solves the problem
     setContextMenuPolicy(Qt::PreventContextMenu);
+
+    m_showGridBox = true;
+    m_gridBoxGenerator = new RivGridBoxGenerator;
 }
 
 
@@ -179,6 +184,7 @@ RiuViewer::~RiuViewer()
     delete m_animationProgress;
     delete m_histogramWidget;
     delete m_progressBarStyle;
+    delete m_gridBoxGenerator;
 }
 
 
@@ -502,6 +508,11 @@ void RiuViewer::navigationPolicyUpdate()
         {
             viewLinker->updateCamera(m_reservoirView);
         }
+
+        if (m_showGridBox)
+        {
+            m_gridBoxGenerator->updateFromCamera(mainCamera());
+        }
     }
 }
 
@@ -524,4 +535,26 @@ void RiuViewer::setCurrentFrame(int frameIndex)
 RimView* RiuViewer::ownerReservoirView()
 {
     return m_reservoirView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showGridBox(bool enable)
+{
+    m_showGridBox = enable;
+
+    if (!enable)
+    {
+        currentScene()->removeModel(m_gridBoxGenerator->model());
+    }
+    else
+    {
+        m_gridBoxGenerator->setBoundingBox(mainScene()->boundingBox());
+//        m_gridBoxGenerator->setTransform();
+        m_gridBoxGenerator->updateFromCamera(mainCamera());
+        m_gridBoxGenerator->createGridBoxParts();
+
+        currentScene()->addModel(m_gridBoxGenerator->model());
+    }
 }

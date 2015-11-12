@@ -29,11 +29,13 @@
 #include "cvfStructGrid.h"
 
 class RimView;
+class RiuSimpleHistogramWidget;
+class RiuViewerCommands;
+class RivGridBoxGenerator;
+
+class QCDEStyle;
 class QLabel;
 class QProgressBar;
-class RiuSimpleHistogramWidget;
-class QCDEStyle;
-class RiuViewerCommands;
 
 namespace cvf
 {
@@ -66,6 +68,8 @@ public:
     void            showHistogram(bool enable);
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
     void            setHistogramPercentiles(double pmin, double pmax, double mean);
+
+    void            showGridBox(bool enable);
 
     void            showAnimationProgress(bool enable);
     
@@ -106,6 +110,9 @@ private:
     caf::PdmPointer<RimView> m_reservoirView;
     QPoint          m_lastMousePressPosition;
 
-    RiuViewerCommands * m_viewerCommands;
+    RiuViewerCommands* m_viewerCommands;
+
+    bool                 m_showGridBox;
+    RivGridBoxGenerator* m_gridBoxGenerator;
 };
 

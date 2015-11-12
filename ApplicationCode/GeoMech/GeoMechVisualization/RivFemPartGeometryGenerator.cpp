@@ -1,18 +1,17 @@
-#include <stdlib.h>
+
 #include "RivFemPartGeometryGenerator.h"
 
-#include "cvfBase.h"
-
 #include "RigFemPart.h"
-//#include "RigFemPartScalarDataAccess.h"
 
+#include "cvfBase.h"
+#include "cvfArray.h"
 #include "cvfDebugTimer.h"
-#include "cvfGeometryBuilderDrawableGeo.h"
+#include "cvfDrawableGeo.h"
+#include "cvfOutlineEdgeExtractor.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
 
-#include "cvfArray.h"
-#include "cvfOutlineEdgeExtractor.h"
+#include <stdlib.h>
 #include <cmath>
 
 

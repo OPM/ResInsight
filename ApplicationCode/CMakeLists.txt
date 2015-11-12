@@ -31,6 +31,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
+    ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
@@ -111,11 +112,10 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketDataTransfer.cpp
 )
 
-set( UNIT_TEST_FILES
-    ProjectDataModel/ProjectDataModel_UnitTests/RimWellLogExtractionCurveImpl-Test.cpp 
-    ProjectDataModel/ProjectDataModel_UnitTests/WellPathAsciiFileReader-Test.cpp 
+# Using GLOB here to ease adding of new unit tests
+FILE ( GLOB UNIT_TEST_FILES
+    ProjectDataModel/ProjectDataModel_UnitTests/*.cpp 
 )
-
 
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
@@ -124,16 +124,17 @@ list( APPEND CPP_SOURCES
      ${UNIT_TEST_FILES}
 )
 
-
-
 list( APPEND REFERENCED_CMAKE_FILES
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
     FileInterface/CMakeLists_files.cmake
     ProjectDataModel/CMakeLists_files.cmake
+    GeoMech/GeoMechVisualization/CMakeLists_files.cmake
+    
     ModelVisualization/CMakeLists_files.cmake
-	GeoMech/GeoMechVisualization/CMakeLists_files.cmake
-	Commands/CMakeLists_files.cmake
+    ModelVisualization/GridBox/CMakeLists_files.cmake
+	
+    Commands/CMakeLists_files.cmake
 	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
