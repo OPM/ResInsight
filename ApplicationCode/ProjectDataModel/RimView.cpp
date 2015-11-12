@@ -31,6 +31,7 @@
 #include "cvfViewport.h"
 
 #include <limits.h>
+#include "RimPropertyFilterCollection.h"
 
 
 namespace caf {
@@ -240,6 +241,10 @@ void RimView::setCurrentTimeStep(int frameIndex)
     clampCurrentTimestep();
 
     this->hasUserRequestedAnimation = true;
+    if (this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters())
+    {  
+        m_currentReservoirCellVisibility = NULL; 
+    }
     this->updateCurrentTimeStep();
 }
 //--------------------------------------------------------------------------------------------------
