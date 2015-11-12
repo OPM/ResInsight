@@ -42,6 +42,7 @@ class RimCellRangeFilterCollection;
 class RiuViewer;
 class RimViewLinker;
 class RimViewController;
+class RimPropertyFilterCollection;
 
 namespace cvf
 {
@@ -76,10 +77,11 @@ public:
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
 
+    virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
     RimCellRangeFilterCollection*           rangeFilterCollection();
     const RimCellRangeFilterCollection*     rangeFilterCollection() const;
 
-    RimCellRangeFilterCollection*           overrideRangeFilterCollection();
+    bool                                    hasOverridenRangeFilterCollection();
     void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
     void                                    replaceRangeFilterCollectionWithOverride();
 

@@ -154,7 +154,7 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.setProgressDescription("Create Display model");
    
     updateViewerWidget();
-    this->propertyFilterCollection()->loadAndInitializePropertyFilters();
+    this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
 
     this->scheduleCreateDisplayModelAndRedraw();
 
@@ -486,7 +486,7 @@ void RimGeoMechView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible()
 {
-    return this->hasUserRequestedAnimation() && (this->cellResult()->hasResult() || this->propertyFilterCollection()->hasActiveFilters());
+    return this->hasUserRequestedAnimation() && (this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -581,7 +581,21 @@ void RimGeoMechView::setOverridePropertyFilterCollection(RimGeoMechPropertyFilte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilterCollection* RimGeoMechView::propertyFilterCollection()
+RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterCollection()
+{
+    if (m_overridePropertyFilterCollection)
+    {
+        return m_overridePropertyFilterCollection;
+    }
+    else
+    {
+        return m_propertyFilterCollection;
+    }
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterCollection() const
 {
     if (m_overridePropertyFilterCollection)
     {
@@ -627,5 +641,13 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(m_propertyFilterCollection());
     
     uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() const
+{
+    return geoMechPropertyFilterCollection();
 }
 

@@ -41,7 +41,7 @@ public:
 
     virtual void                    loadAndInitializePropertyFilters() = 0;
 
-    void                            updateDisplayModelNotifyManagedViews();
+    void                            updateDisplayModelNotifyManagedViews() const;
     virtual void                    updateIconState() = 0;
 
 protected:

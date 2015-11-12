@@ -376,7 +376,7 @@ void RiuViewerCommands::slotAddEclipsePropertyFilter()
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if (eclipseView)
     {
-        RimEclipsePropertyFilterCollection* filterCollection = eclipseView->propertyFilterCollection();
+        RimEclipsePropertyFilterCollection* filterCollection = eclipseView->eclipsePropertyFilterCollection();
         RicEclipsePropertyFilterNewExec* propCmdExe = new RicEclipsePropertyFilterNewExec(filterCollection);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
     }
@@ -390,7 +390,7 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
     if (geoMechView)
     {
-        RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->propertyFilterCollection();
+        RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->geoMechPropertyFilterCollection();
         RicGeoMechPropertyFilterNewExec* propCmdExe = new RicGeoMechPropertyFilterNewExec(filterCollection);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
     }

@@ -99,9 +99,10 @@ public:
     caf::PdmField<bool>                             showMainGrid;
 
     // Access internal objects
+    virtual const RimPropertyFilterCollection*      propertyFilterCollection() const;
 
-    RimEclipsePropertyFilterCollection*             propertyFilterCollection();
-    const RimEclipsePropertyFilterCollection*       propertyFilterCollection() const;
+    RimEclipsePropertyFilterCollection*             eclipsePropertyFilterCollection();
+    const RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection() const;
     void                                            setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc);
 
     RimReservoirCellResultsStorage*                 currentGridCellResults();

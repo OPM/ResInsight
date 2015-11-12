@@ -144,7 +144,7 @@ std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMg
     {
         visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(OVERRIDDEN_CELL_VISIBILITY, -1));
     }
-    else if (timeStepIndex >= 0 && m_geomechView->propertyFilterCollection()->hasActiveFilters())
+    else if (timeStepIndex >= 0 && m_geomechView->geoMechPropertyFilterCollection()->hasActiveFilters())
     {
         visiblePartMgrs.push_back(RivGeoMechPartMgrCache::Key(PROPERTY_FILTERED, timeStepIndex));
     }
@@ -209,7 +209,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr(RivGeoMechPartMgrCache:
                                                                      caseData->femParts()->part(femPartIdx),
                                                                      pMgrKey.frameIndex(),
                                                                      rangeFiltVisibility.p(),
-                                                                     m_geomechView->propertyFilterCollection()
+                                                                     m_geomechView->geoMechPropertyFilterCollection()
                                                                      );
         }
         else if (pMgrKey.geometryType() == OVERRIDDEN_CELL_VISIBILITY)

@@ -66,7 +66,10 @@ public:
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
 
-    RimGeoMechPropertyFilterCollection*                 propertyFilterCollection();
+    virtual const RimPropertyFilterCollection*          propertyFilterCollection() const;
+
+    RimGeoMechPropertyFilterCollection*                 geoMechPropertyFilterCollection();
+    const RimGeoMechPropertyFilterCollection*           geoMechPropertyFilterCollection() const;
     void                                                setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc);
 
     bool                                                isTimeStepDependentDataVisible();

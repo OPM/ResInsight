@@ -44,7 +44,7 @@ RimPropertyFilterCollection::~RimPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPropertyFilterCollection::updateDisplayModelNotifyManagedViews()
+void RimPropertyFilterCollection::updateDisplayModelNotifyManagedViews() const
 {
     RimView* view = NULL;
     this->firstAnchestorOrThisOfType(view);

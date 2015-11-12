@@ -302,7 +302,7 @@ void RimEclipseView::createDisplayModel()
     } 
     else if (this->cellResult()->hasStaticResult() 
         || this->cellEdgeResult()->hasResult() 
-        || this->propertyFilterCollection()->hasActiveFilters())
+        || this->eclipsePropertyFilterCollection()->hasActiveFilters())
     {
         // The one and only result entry
         timeStepIndices.push_back(0);
@@ -334,7 +334,7 @@ void RimEclipseView::createDisplayModel()
     // updateCurrentTimeStep requests the actual parts
     
 
-    if (!this->propertyFilterCollection()->hasActiveFilters()
+    if (!this->eclipsePropertyFilterCollection()->hasActiveFilters()
         || this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;
@@ -394,7 +394,7 @@ void RimEclipseView::createDisplayModel()
         m_visibleGridParts = geometryTypesToAdd;
     }
 
-    if (faultCollection()->showFaultsOutsideFilters() || !this->propertyFilterCollection()->hasActiveFilters() )
+    if (faultCollection()->showFaultsOutsideFilters() || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
         forceFaultVisibilityOn();
 
@@ -524,7 +524,7 @@ void RimEclipseView::updateCurrentTimeStep()
         }
 #endif
     }
-    else if (this->propertyFilterCollection()->hasActiveFilters())
+    else if (this->eclipsePropertyFilterCollection()->hasActiveFilters())
     {
         cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
 
@@ -1413,7 +1413,7 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
             faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
         }
     }
-    else if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
+    else if (this->eclipsePropertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
     {
         faultParts.push_back(PROPERTY_FILTERED);
         faultParts.push_back(PROPERTY_FILTERED_WELL_CELLS);
@@ -1516,7 +1516,7 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
 {
     if (this->cellResult()->hasDynamicResult()) return true;
 
-    if (this->propertyFilterCollection()->hasActiveDynamicFilters()) return true;
+    if (this->eclipsePropertyFilterCollection()->hasActiveDynamicFilters()) return true;
         
     if (this->wellCollection->hasVisibleWellPipes()) return true;
 
@@ -1614,7 +1614,7 @@ void RimEclipseView::addWellPathsToScene(cvf::Scene* scene,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipsePropertyFilterCollection* RimEclipseView::propertyFilterCollection()
+RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterCollection()
 {
     if (m_overridePropertyFilterCollection)
     {
@@ -1629,7 +1629,7 @@ RimEclipsePropertyFilterCollection* RimEclipseView::propertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimEclipsePropertyFilterCollection* RimEclipseView::propertyFilterCollection() const
+const RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterCollection() const
 {
     if (m_overridePropertyFilterCollection)
     {
@@ -1691,4 +1691,12 @@ void RimEclipseView::updateIconStateForFilterCollections()
     // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_propertyFilterCollection()->updateIconState();
     m_propertyFilterCollection()->uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimPropertyFilterCollection* RimEclipseView::propertyFilterCollection() const
+{
+    return eclipsePropertyFilterCollection();
 }

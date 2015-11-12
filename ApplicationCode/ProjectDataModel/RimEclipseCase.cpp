@@ -195,7 +195,7 @@ void RimEclipseCase::removeResult(const QString& resultName)
             rebuildDisplayModel = true;
         }
 
-        RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->propertyFilterCollection();
+        RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->eclipsePropertyFilterCollection();
         for (size_t filter = 0; filter < propFilterCollection->propertyFilters().size(); filter++)
         {
             RimEclipsePropertyFilter* propertyFilter = propFilterCollection->propertyFilters()[filter];
@@ -428,8 +428,8 @@ QStringList RimEclipseCase::timeStepStrings()
 {
     QStringList stringList;
 
-    int timeStepCount = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepCount(0);
-    for (size_t i = 0; i < timeStepCount; i++)
+    int timeStepCount = static_cast<int>(results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepCount(0));
+    for (int i = 0; i < timeStepCount; i++)
     {
         stringList += this->timeStepName(i);
     }

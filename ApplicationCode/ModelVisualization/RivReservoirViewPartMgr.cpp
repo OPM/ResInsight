@@ -458,7 +458,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
             (*cellVisibility)[cellIdx] = (*rangeVisibility)[cellIdx] || (*fenceVisibility)[cellIdx];
         }
 
-        computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->propertyFilterCollection()); 
+        computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->eclipsePropertyFilterCollection()); 
 
         m_propFilteredGeometryFrames[frameIndex]->setCellVisibility(gIdx, cellVisibility.p());
     } 
@@ -542,7 +542,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
             (*cellVisibility)[cellIdx] =  (*wellFenceCells)[cellIdx] || (*rangeVisibility)[cellIdx] || (*wellCellsOutsideRange)[cellIdx];
         }
 
-        computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->propertyFilterCollection()); 
+        computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->eclipsePropertyFilterCollection()); 
 
         m_propFilteredWellGeometryFrames[frameIndex]->setCellVisibility(gIdx, cellVisibility.p());
     }

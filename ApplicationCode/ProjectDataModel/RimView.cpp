@@ -718,9 +718,9 @@ bool RimView::isMasterView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilterCollection* RimView::overrideRangeFilterCollection()
+bool RimView::hasOverridenRangeFilterCollection()
 {
-    return m_overrideRangeFilterCollection();
+    return m_overrideRangeFilterCollection() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
