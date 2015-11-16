@@ -502,8 +502,6 @@ void RiuViewer::navigationPolicyUpdate()
         {
             viewLinker->updateCamera(m_rimView);
         }
-
-        m_gridBoxGenerator->updateFromCamera(mainCamera());
     }
 }
 
@@ -587,7 +585,8 @@ void RiuViewer::optimizeClippingPlanes()
 {
     caf::Viewer::optimizeClippingPlanes();
 
-    copyCameraView(m_mainCamera.p(), m_overlayRendering->camera());
+    m_gridBoxGenerator->updateFromCamera(mainCamera());
+    copyCameraView(mainCamera(), m_overlayRendering->camera());
 }
 
 //--------------------------------------------------------------------------------------------------

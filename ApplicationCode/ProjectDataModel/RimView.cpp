@@ -271,8 +271,8 @@ void RimView::createDisplayModelAndRedraw()
         this->clampCurrentTimestep();
 
         createDisplayModel();
-        updateDisplayModelVisibility();
         createOverlayDisplayModel();
+        updateDisplayModelVisibility();
 
         if (cameraPosition().isIdentity())
         {
