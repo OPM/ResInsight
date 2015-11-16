@@ -89,27 +89,21 @@ private:
         NEG_X_NEG_Y
     };
 
+private:
+    void        createGridBoxSideParts();
+    void        createGridBoxLegendParts();
+    void        createLegend(EdgeType edge, cvf::Collection<cvf::Part>* parts);
+
+    void        computeEdgeVisibility(const std::vector<bool>& faceVisibility, std::vector<bool>& edgeVisibility);
+
+    void        computeDisplayCoords();
+    cvf::Vec3d  displayModelCoordFromDomainCoord(const cvf::Vec3d& domainCoord) const;
+
+    cvf::Vec3f  sideNormalOutwards(FaceType face);
+    cvf::Vec3d  pointOnSide(FaceType face);
+    cvf::Vec3f  cornerDirection(FaceType face1, FaceType face2);
 
 private:
-    void createGridBoxSideParts();
-    void createGridBoxLegendParts();
-
-    cvf::Vec3d displayModelCoordFromDomainCoord(const cvf::Vec3d& domainCoord) const;
-
-    void createLegend(EdgeType edge, cvf::Collection<cvf::Part>* parts);
-
-    cvf::Vec3f sideNormalOutwards(FaceType face);
-    cvf::Vec3d pointOnSide(FaceType face);
-    cvf::Vec3f cornerDirection(FaceType face1, FaceType face2);
-
-    void computeDisplayCoords();
-
-private:
-    cvf::Collection<cvf::Part> m_gridBoxSideParts;
-    cvf::Collection<cvf::Part> m_gridBoxLegendParts;
-
-    cvf::ref<cvf::ModelBasicList> m_gridBoxModel;
-
     cvf::BoundingBox    m_domainCoordsBoundingBox;
     std::vector<double> m_domainCoordsXValues;
     std::vector<double> m_domainCoordsYValues;
@@ -120,7 +114,12 @@ private:
     std::vector<double> m_displayCoordsYValues;
     std::vector<double> m_displayCoordsZValues;
 
-    double      m_scaleZ;
-    cvf::Vec3d  m_displayModelOffset;
+    double              m_scaleZ;
+    cvf::Vec3d          m_displayModelOffset;
+
+    cvf::Collection<cvf::Part>      m_gridBoxSideParts;
+    cvf::Collection<cvf::Part>      m_gridBoxLegendParts;
+
+    cvf::ref<cvf::ModelBasicList>   m_gridBoxModel;
 };
 

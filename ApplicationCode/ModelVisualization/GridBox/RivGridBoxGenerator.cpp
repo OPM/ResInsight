@@ -107,6 +107,7 @@ void RivGridBoxGenerator::updateFromCamera(const cvf::Camera* camera)
 
     if (m_gridBoxSideParts.size() == 0) return;
 
+    std::vector<bool> sideVisibility(6, false);
     for (size_t i = POS_X; i <= NEG_Z; i++)
     {
         cvf::Vec3f sideNorm = sideNormalOutwards((FaceType)i);
@@ -117,12 +118,87 @@ void RivGridBoxGenerator::updateFromCamera(const cvf::Camera* camera)
         if (sideNorm.dot(cvf::Vec3f(camToSide)) < 0.0)
         {
             m_gridBoxModel->addPart(m_gridBoxSideParts[i].p());
+            sideVisibility[i] = true;
         }
     }
 
-    for (size_t i = 0; i < m_gridBoxLegendParts.size(); i++)
+    std::vector<bool> edgeVisibility(12, false);
+    computeEdgeVisibility(sideVisibility, edgeVisibility);
+
+    // We have two parts for each edge - line and text
+    CVF_ASSERT(m_gridBoxLegendParts.size() == (NEG_X_NEG_Y + 1)*2);
+    for (size_t i = POS_Z_POS_X; i <= NEG_X_NEG_Y; i++)
     {
-        m_gridBoxModel->addPart(m_gridBoxLegendParts[i].p());
+        if (edgeVisibility[i])
+        {
+            m_gridBoxModel->addPart(m_gridBoxLegendParts[2 * i].p());
+            m_gridBoxModel->addPart(m_gridBoxLegendParts[2 * i + 1].p());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGridBoxGenerator::computeEdgeVisibility(const std::vector<bool>& faceVisibility, std::vector<bool>& edgeVisibility)
+{
+    CVF_ASSERT(faceVisibility.size() == NEG_Z);
+    CVF_ASSERT(edgeVisibility.size() == NEG_X_NEG_Y);
+
+    // POS Z
+    if (faceVisibility[POS_Z] ^ faceVisibility[POS_X])
+    {
+        edgeVisibility[POS_Z_POS_X] = true;
+    }
+    if (faceVisibility[POS_Z] ^ faceVisibility[NEG_X])
+    {
+        edgeVisibility[POS_Z_NEG_X] = true;
+    }
+    if (faceVisibility[POS_Z] ^ faceVisibility[POS_Y])
+    {
+        edgeVisibility[POS_Z_POS_Y] = true;
+    }
+    if (faceVisibility[POS_Z] ^ faceVisibility[NEG_Y])
+    {
+        edgeVisibility[POS_Z_NEG_Y] = true;
+    }
+
+    // NEG Z
+    if (faceVisibility[NEG_Z] ^ faceVisibility[POS_X])
+    {
+        edgeVisibility[NEG_Z_POS_X] = true;
+    }
+    if (faceVisibility[NEG_Z] ^ faceVisibility[NEG_X])
+    {
+        edgeVisibility[NEG_Z_NEG_X] = true;
+    }
+    if (faceVisibility[NEG_Z] ^ faceVisibility[POS_Y])
+    {
+        edgeVisibility[NEG_Z_POS_Y] = true;
+    }
+    if (faceVisibility[NEG_Z] ^ faceVisibility[NEG_Y])
+    {
+        edgeVisibility[NEG_Z_NEG_Y] = true;
+    }
+
+    // POS X
+    if (faceVisibility[POS_X] ^ faceVisibility[POS_Y])
+    {
+        edgeVisibility[POS_X_POS_Y] = true;
+    }
+    if (faceVisibility[POS_X] ^ faceVisibility[NEG_Y])
+    {
+        edgeVisibility[POS_X_NEG_Y] = true;
+    }
+    
+    // NEG X
+    if (faceVisibility[NEG_X] ^ faceVisibility[POS_Y])
+    {
+        edgeVisibility[NEG_X_POS_Y] = true;
+    }
+    if (faceVisibility[NEG_X] ^ faceVisibility[NEG_Y])
+    {
+        edgeVisibility[NEG_X_NEG_Y] = true;
     }
 }
 
