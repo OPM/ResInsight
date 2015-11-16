@@ -65,7 +65,25 @@ void RivGridBoxGenerator::setDisplayModelOffset(cvf::Vec3d offset)
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& bb)
 {
-    m_domainCoordsBoundingBox = bb;
+    cvf::BoundingBox expandedBB;
+    {
+        double expandFactor = 0.05;
+
+        cvf::Vec3d expandedMin;
+        expandedMin.x() = bb.min().x() - bb.extent().x() * expandFactor;
+        expandedMin.y() = bb.min().y() - bb.extent().y() * expandFactor;
+        expandedMin.z() = bb.min().z() - bb.extent().z() * expandFactor;
+
+        cvf::Vec3d expandedMax;
+        expandedMax.x() = bb.max().x() + bb.extent().x() * expandFactor;
+        expandedMax.y() = bb.max().y() + bb.extent().y() * expandFactor;
+        expandedMax.z() = bb.max().z() + bb.extent().z() * expandFactor;
+
+        expandedBB.add(expandedMin);
+        expandedBB.add(expandedMax);
+    }
+
+    m_domainCoordsBoundingBox = expandedBB;
 
     m_domainCoordsXValues.clear();
     m_domainCoordsYValues.clear();
