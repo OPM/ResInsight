@@ -507,6 +507,8 @@ void RiuViewer::navigationPolicyUpdate()
         {
             viewLinker->updateCamera(m_rimView);
         }
+
+        m_gridBoxGenerator->updateFromCamera(mainCamera());
     }
 }
 

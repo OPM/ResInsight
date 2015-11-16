@@ -528,14 +528,7 @@ void caf::Viewer::setView(const cvf::Vec3d& alongDirection, const cvf::Vec3d& up
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::zoomAll()
 {
-    cvf::BoundingBox bb;
-
-    cvf::Scene* scene = m_renderingSequence->firstRendering()->scene();
-    if (scene)
-    {
-        bb = scene->boundingBox();
-    }
-
+    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
     if (!bb.isValid())
     {
       return;
