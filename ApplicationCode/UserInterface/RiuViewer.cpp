@@ -39,6 +39,7 @@
 
 #include "cafCeetronPlusNavigation.h"
 #include "cafEffectGenerator.h"
+
 #include "cvfCamera.h"
 #include "cvfFont.h"
 #include "cvfOverlayAxisCross.h"
@@ -46,6 +47,7 @@
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
+#include "cvfOpenGLResourceManager.h"
 
 #include <QCDEStyle>
 #include <QLabel>
@@ -165,7 +167,12 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     // which solves the problem
     setContextMenuPolicy(Qt::PreventContextMenu);
 
-    m_gridBoxGenerator = new RivGridBoxGenerator;
+    cvf::ShaderProgram* textShaderProgram = NULL;
+    if (format.directRendering())
+    {
+        textShaderProgram = cvfOpenGLContext()->resourceManager()->getLinkedTextShaderProgram(cvfOpenGLContext());
+    }
+    m_gridBoxGenerator = new RivGridBoxGenerator(textShaderProgram);
     
     setupRenderingSequence();
 }

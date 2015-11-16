@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivGridBoxGenerator::RivGridBoxGenerator()
+RivGridBoxGenerator::RivGridBoxGenerator(cvf::ShaderProgram* textShaderProgram)
     :   m_gridColor(cvf::Color3f::LIGHT_GRAY),
         m_gridLegendColor(cvf::Color3f::BLACK)
 {
@@ -42,6 +42,12 @@ RivGridBoxGenerator::RivGridBoxGenerator()
 
     m_scaleZ = 1.0;
     m_displayModelOffset = cvf::Vec3d::ZERO;
+
+    m_textEffect = new cvf::Effect;
+    if (textShaderProgram)
+    {
+        m_textEffect->setShaderProgram(textShaderProgram);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,17 +99,18 @@ void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox(const cvf::BoundingBo
     cvf::Vec3d max = m_domainCoordsBoundingBox.max();
 
     cvf::ScalarMapperDiscreteLinear m_linDiscreteScalarMapper;
+    size_t levelCount = 6;
 
     m_linDiscreteScalarMapper.setRange(min.x(), max.x());
-    m_linDiscreteScalarMapper.setLevelCount(5, true);
+    m_linDiscreteScalarMapper.setLevelCount(levelCount, true);
     m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsXValues);
 
     m_linDiscreteScalarMapper.setRange(min.y(), max.y());
-    m_linDiscreteScalarMapper.setLevelCount(5, true);
+    m_linDiscreteScalarMapper.setLevelCount(levelCount, true);
     m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsYValues);
 
     m_linDiscreteScalarMapper.setRange(min.z(), max.z());
-    m_linDiscreteScalarMapper.setLevelCount(5, true);
+    m_linDiscreteScalarMapper.setLevelCount(levelCount, true);
     m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsZValues);
 }
 
@@ -537,7 +544,8 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         geo->setDrawBackground(false);
         geo->setDrawBorder(false);
         
-        for (size_t idx = 0; idx < domainCoordsTickValues->size(); idx++)
+        // Do not draw legend labels at first/last tick mark
+        for (size_t idx = 1; idx < domainCoordsTickValues->size() - 1; idx++)
         {
             geo->addText(cvf::String(domainCoordsTickValues->at(idx)), vertices->get(idx*2 + 1) + (0.5f * tickLength) * tickMarkDir);
         }
@@ -547,8 +555,7 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         part->setDrawable(geo.p());
         part->updateBoundingBox();
 
-        cvf::ref<cvf::Effect> eff = new cvf::Effect;
-        part->setEffect(eff.p());
+        part->setEffect(m_textEffect.p());
 
         parts->push_back(part.p());
     }
