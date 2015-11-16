@@ -146,8 +146,6 @@ protected:
     virtual void            paintOverlayItems(QPainter* painter) {};
 
     // Overridable methods to setup the render system
-    virtual void            setupMainRendering();
-    virtual void            setupRenderingSequence();
     virtual void            optimizeClippingPlanes();
 
     // Standard overrides. Not for overriding
@@ -169,6 +167,9 @@ protected:
     double                              m_maxFarPlaneDistance;
 
 private:
+    void                                setupMainRendering();
+    void                                setupRenderingSequence();
+
     void                                updateCamera(int width, int height);
 
     void                                releaseOGlResourcesForCurrentFrame();

@@ -135,7 +135,7 @@ caf::Viewer::~Viewer()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This method is supposed to setup the contents of the main rendering
+/// 
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setupMainRendering()
 {
@@ -152,9 +152,7 @@ void caf::Viewer::setupMainRendering()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This method is supposed to assemble the rendering sequence (cvf::RenderSequence) based on
-/// the Viewers renderings. THe ViewerBase has only one rendering. The m_mainRendering
-/// Reimplement to build more advanced rendering sequences
+/// 
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setupRenderingSequence()
 {
@@ -162,7 +160,6 @@ void caf::Viewer::setupRenderingSequence()
 
     updateCamera(width(), height());
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -754,9 +751,20 @@ QSize caf::Viewer::sizeHint() const
     return QSize(500, 400);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void caf::Viewer::enableForcedImmediateMode(bool enable)
 {
-    m_mainRendering->renderEngine()->enableForcedImmediateMode(enable);
+    cvf::uint rIdx = m_renderingSequence->renderingCount();
+    for (rIdx = 0; rIdx < m_renderingSequence->renderingCount(); rIdx++)
+    {
+        cvf::Rendering* rendering = m_renderingSequence->rendering(rIdx);
+        if (rendering && rendering->scene())
+        {
+            rendering->renderEngine()->enableForcedImmediateMode(enable);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
