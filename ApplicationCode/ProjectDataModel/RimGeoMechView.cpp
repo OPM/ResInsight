@@ -43,7 +43,6 @@
 #include "RivGeoMechPartMgr.h"
 #include "RivGeoMechPartMgrCache.h"
 #include "RivGeoMechVizLogic.h"
-#include "RivGridBoxGenerator.h"
 #include "RivSingleCellPartGenerator.h"
 
 #include "cafCadNavigation.h"

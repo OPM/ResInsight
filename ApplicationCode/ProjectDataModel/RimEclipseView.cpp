@@ -70,7 +70,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-#include "RivGridBoxGenerator.h"
 
 
 
@@ -1650,6 +1649,14 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseView::showActiveCellsOnly()
+{
+    return !showInactiveCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts)
 {
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
@@ -1674,32 +1681,6 @@ void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part
                 parts->push_back(part.p());
             }
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateGridBoxData()
-{
-    if (viewer())
-    {
-        RivGridBoxGenerator* gridBoxGen = viewer()->gridBoxGenerator();
-
-        gridBoxGen->setScaleZ(scaleZ);
-
-        if (showInactiveCells)
-        {
-            gridBoxGen->setGridBoxDomainCoordBoundingBox(ownerCase()->allCellsBoundingBox());
-        }
-        else
-        {
-            gridBoxGen->setGridBoxDomainCoordBoundingBox(ownerCase()->activeCellsBoundingBox());
-        }
-
-        gridBoxGen->setDisplayModelOffset(ownerCase()->displayModelOffset());
-
-        gridBoxGen->createGridBoxParts();
     }
 }
 

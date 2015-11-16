@@ -39,8 +39,9 @@ class QProgressBar;
 
 namespace cvf
 {
-    class Part;
+    class Model;
     class OverlayItem;
+    class Part;
 }
 
 //==================================================================================================
@@ -71,7 +72,8 @@ public:
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
     void            setHistogramPercentiles(double pmin, double pmax, double mean);
 
-    RivGridBoxGenerator* gridBoxGenerator() const;
+    void            updateGridBoxData();
+    cvf::Model*     gridBoxModel() const;
 
     void            showAnimationProgress(bool enable);
     
@@ -100,7 +102,6 @@ private:
 
     void            setupRenderingSequence();
     static void     copyCameraView(cvf::Camera* srcCamera, cvf::Camera* dstCamera);
-
 private:
     QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;

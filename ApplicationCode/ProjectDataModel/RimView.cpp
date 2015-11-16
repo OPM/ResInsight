@@ -19,7 +19,6 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
-#include "RivGridBoxGenerator.h"
 #include "RivWellPathCollectionPartMgr.h"
 
 #include "cafFrameAnimationControl.h"
@@ -181,7 +180,6 @@ void RimView::updateViewerWidget()
 
             m_viewer = new RiuViewer(glFormat, NULL);
             m_viewer->setOwnerReservoirView(this);
-            this->updateGridBoxData();
 
             RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), windowGeometry());
             m_viewer->setMinNearPlaneDistance(10);
@@ -198,6 +196,8 @@ void RimView::updateViewerWidget()
 
         if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+
+        this->updateGridBoxData();
 
         m_viewer->update();
     }
@@ -787,15 +787,9 @@ void RimView::removeModelByName(cvf::Scene* scene, const cvf::String& modelName)
 //--------------------------------------------------------------------------------------------------
 void RimView::updateGridBoxData()
 {
-    if (viewer())
+    if (m_viewer)
     {
-        RivGridBoxGenerator* gridBoxGen = viewer()->gridBoxGenerator();
-
-        gridBoxGen->setScaleZ(scaleZ);
-        gridBoxGen->setDisplayModelOffset(cvf::Vec3d::ZERO);
-        gridBoxGen->setGridBoxDomainCoordBoundingBox(ownerCase()->allCellsBoundingBox());
-
-        gridBoxGen->createGridBoxParts();
+        m_viewer->updateGridBoxData();
     }
 }
 
@@ -839,9 +833,17 @@ void RimView::createOverlayDisplayModel()
 
     if (showGridBox)
     {
-        overlayScene->addModel(m_viewer->gridBoxGenerator()->model());
+        overlayScene->addModel(m_viewer->gridBoxModel());
     }
 
     m_viewer->setOverlayScene(overlayScene.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimView::showActiveCellsOnly()
+{
+    return false;
 }
 

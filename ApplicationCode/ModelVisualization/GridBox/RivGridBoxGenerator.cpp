@@ -35,6 +35,8 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivGridBoxGenerator::RivGridBoxGenerator()
+    :   m_gridColor(cvf::Color3f::LIGHT_GRAY),
+        m_gridLegendColor(cvf::Color3f::BLACK)
 {
     m_gridBoxModel = new cvf::ModelBasicList;
 
@@ -94,7 +96,7 @@ void RivGridBoxGenerator::createGridBoxParts()
 {
     computeDisplayCoords();
 
-    createGridBoxSideParts();
+    createGridBoxFaceParts();
     createGridBoxLegendParts();
 }
 
@@ -105,9 +107,9 @@ void RivGridBoxGenerator::updateFromCamera(const cvf::Camera* camera)
 {
     m_gridBoxModel->removeAllParts();
 
-    if (m_gridBoxSideParts.size() == 0) return;
+    if (m_gridBoxFaceParts.size() == 0) return;
 
-    std::vector<bool> sideVisibility(6, false);
+    std::vector<bool> faceVisibility(6, false);
     for (size_t i = POS_X; i <= NEG_Z; i++)
     {
         cvf::Vec3f sideNorm = sideNormalOutwards((FaceType)i);
@@ -117,20 +119,20 @@ void RivGridBoxGenerator::updateFromCamera(const cvf::Camera* camera)
 
         if (sideNorm.dot(cvf::Vec3f(camToSide)) < 0.0)
         {
-            m_gridBoxModel->addPart(m_gridBoxSideParts[i].p());
-            sideVisibility[i] = true;
+            m_gridBoxModel->addPart(m_gridBoxFaceParts[i].p());
+            faceVisibility[i] = true;
         }
     }
 
     std::vector<bool> edgeVisibility(12, false);
-    computeEdgeVisibility(sideVisibility, edgeVisibility);
+    computeEdgeVisibility(faceVisibility, edgeVisibility);
 
-    // We have two parts for each edge - line and text
     CVF_ASSERT(m_gridBoxLegendParts.size() == (NEG_X_NEG_Y + 1)*2);
     for (size_t i = POS_Z_POS_X; i <= NEG_X_NEG_Y; i++)
     {
         if (edgeVisibility[i])
         {
+            // We have two parts for each edge - line and text
             m_gridBoxModel->addPart(m_gridBoxLegendParts[2 * i].p());
             m_gridBoxModel->addPart(m_gridBoxLegendParts[2 * i + 1].p());
         }
@@ -142,8 +144,8 @@ void RivGridBoxGenerator::updateFromCamera(const cvf::Camera* camera)
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::computeEdgeVisibility(const std::vector<bool>& faceVisibility, std::vector<bool>& edgeVisibility)
 {
-    CVF_ASSERT(faceVisibility.size() == NEG_Z);
-    CVF_ASSERT(edgeVisibility.size() == NEG_X_NEG_Y);
+    CVF_ASSERT(faceVisibility.size() == NEG_Z + 1);
+    CVF_ASSERT(edgeVisibility.size() == NEG_X_NEG_Y + 1);
 
     // POS Z
     if (faceVisibility[POS_Z] ^ faceVisibility[POS_X])
@@ -213,9 +215,9 @@ cvf::Model* RivGridBoxGenerator::model()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridBoxGenerator::createGridBoxSideParts()
+void RivGridBoxGenerator::createGridBoxFaceParts()
 {
-    m_gridBoxSideParts.clear();
+    m_gridBoxFaceParts.clear();
 
     CVF_ASSERT(m_displayCoordsBoundingBox.isValid());
     CVF_ASSERT(m_displayCoordsXValues.size() > 0);
@@ -292,12 +294,12 @@ void RivGridBoxGenerator::createGridBoxSideParts()
             part->updateBoundingBox();
 
             cvf::ref<cvf::Effect> eff;
-            caf::MeshEffectGenerator effGen(cvf::Color3f::GRAY);
+            caf::MeshEffectGenerator effGen(m_gridColor);
             eff = effGen.generateCachedEffect();
 
             part->setEffect(eff.p());
 
-            m_gridBoxSideParts.push_back(part.p());
+            m_gridBoxFaceParts.push_back(part.p());
         }
     }
 }
@@ -495,13 +497,12 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         geo->addPrimitiveSet(primSet.p());
 
         cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName("Legend lines ");
+        part->setName("Legend lines");
         part->setDrawable(geo.p());
-
         part->updateBoundingBox();
 
         cvf::ref<cvf::Effect> eff;
-        caf::MeshEffectGenerator effGen(cvf::Color3f::WHITE);
+        caf::MeshEffectGenerator effGen(m_gridLegendColor);
         eff = effGen.generateCachedEffect();
 
         part->setEffect(eff.p());
@@ -514,10 +515,9 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
 
         cvf::ref<cvf::DrawableText> geo = new cvf::DrawableText;
         geo->setFont(new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD));
-        geo->setTextColor(cvf::Color3::WHITE);
+        geo->setTextColor(m_gridLegendColor);
         geo->setDrawBackground(false);
         geo->setDrawBorder(false);
-        //textGeo->setCheckPosVisible(false);
         
         for (size_t idx = 0; idx < domainCoordsTickValues->size(); idx++)
         {
@@ -525,14 +525,12 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         }
 
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName("Legend text");
         part->setDrawable(geo.p());
         part->updateBoundingBox();
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
         part->setEffect(eff.p());
-
-        //textPart->setPriority(11);
-        part->setName("Legend text");
 
         parts->push_back(part.p());
     }
@@ -596,6 +594,23 @@ cvf::Vec3f RivGridBoxGenerator::cornerDirection(FaceType face1, FaceType face2)
     dir.normalize();
 
     return dir;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f backgroundColor)
+{
+    if (backgroundColor.r() + backgroundColor.g() + backgroundColor.b() > 1.5f)
+    {
+        m_gridColor = cvf::Color3f::LIGHT_GRAY;
+        m_gridLegendColor = cvf::Color3f::fromByteColor(10, 10, 10);
+    }
+    else
+    {
+        m_gridColor = cvf::Color3f::DARK_GRAY;
+        m_gridLegendColor = cvf::Color3f::WHITE;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

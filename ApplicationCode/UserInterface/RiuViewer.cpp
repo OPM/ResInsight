@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 
+#include "RimCase.h"
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewController.h"
@@ -529,14 +530,6 @@ RimView* RiuViewer::ownerReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivGridBoxGenerator* RiuViewer::gridBoxGenerator() const
-{
-    return m_gridBoxGenerator;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuViewer::setupRenderingSequence()
 {
     m_overlayRendering = new cvf::Rendering;
@@ -597,4 +590,39 @@ void RiuViewer::resizeGL(int width, int height)
     caf::Viewer::resizeGL(width, height);
 
     m_overlayRendering->camera()->viewport()->set(0, 0, width, height);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateGridBoxData()
+{
+    if (ownerReservoirView() && ownerReservoirView()->ownerCase())
+    {
+        RimView* rimView = ownerReservoirView();
+        RimCase* rimCase = rimView->ownerCase();
+
+        m_gridBoxGenerator->setScaleZ(rimView->scaleZ);
+        m_gridBoxGenerator->setDisplayModelOffset(rimCase->displayModelOffset());
+        m_gridBoxGenerator->updateFromBackgroundColor(rimView->backgroundColor);
+
+        if (rimView->showActiveCellsOnly())
+        {
+            m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(rimCase->activeCellsBoundingBox());
+        }
+        else
+        {
+            m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(rimCase->allCellsBoundingBox());
+        }
+
+        m_gridBoxGenerator->createGridBoxParts();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Model* RiuViewer::gridBoxModel() const
+{
+    return m_gridBoxGenerator->model();
 }

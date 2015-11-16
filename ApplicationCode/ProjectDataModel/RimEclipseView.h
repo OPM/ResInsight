@@ -126,8 +126,6 @@ public:
     const std::vector<RivCellSetEnum>&              visibleGridParts() const { return m_visibleGridParts;}
     cvf::cref<RivReservoirViewPartMgr>              reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
-    virtual void                                    updateGridBoxData();
-
     // Does this belong here, really ?
     void                                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
 
@@ -141,6 +139,7 @@ protected:
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
     virtual void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts);
+    virtual bool                                    showActiveCellsOnly();
 
 private:
     void                                            createDisplayModel();

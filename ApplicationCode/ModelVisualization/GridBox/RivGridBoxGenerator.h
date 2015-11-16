@@ -47,6 +47,8 @@ public:
     void setScaleZ(double scaleZ);
     void setDisplayModelOffset(cvf::Vec3d offset);
     void setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& boundingBox);
+    void updateFromBackgroundColor(const cvf::Color3f backgroundColor);
+
     void createGridBoxParts();
 
     void updateFromCamera(const cvf::Camera* camera);
@@ -90,7 +92,7 @@ private:
     };
 
 private:
-    void        createGridBoxSideParts();
+    void        createGridBoxFaceParts();
     void        createGridBoxLegendParts();
     void        createLegend(EdgeType edge, cvf::Collection<cvf::Part>* parts);
 
@@ -102,7 +104,6 @@ private:
     cvf::Vec3f  sideNormalOutwards(FaceType face);
     cvf::Vec3d  pointOnSide(FaceType face);
     cvf::Vec3f  cornerDirection(FaceType face1, FaceType face2);
-
 private:
     cvf::BoundingBox    m_domainCoordsBoundingBox;
     std::vector<double> m_domainCoordsXValues;
@@ -117,9 +118,12 @@ private:
     double              m_scaleZ;
     cvf::Vec3d          m_displayModelOffset;
 
-    cvf::Collection<cvf::Part>      m_gridBoxSideParts;
+    cvf::Collection<cvf::Part>      m_gridBoxFaceParts;
     cvf::Collection<cvf::Part>      m_gridBoxLegendParts;
 
     cvf::ref<cvf::ModelBasicList>   m_gridBoxModel;
+
+    cvf::Color3f        m_gridColor;
+    cvf::Color3f        m_gridLegendColor;
 };
 

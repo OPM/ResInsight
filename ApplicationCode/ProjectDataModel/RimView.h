@@ -141,7 +141,7 @@ public:
 
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
-    virtual void                            updateGridBoxData();
+    virtual bool                            showActiveCellsOnly();
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
@@ -164,6 +164,8 @@ protected:
     virtual void                            createDisplayModel() = 0;
     
     void                                    createOverlayDisplayModel();
+    void                                    updateGridBoxData();
+
     virtual void                            createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) = 0;
     
     virtual void                            updateDisplayModelVisibility() = 0;
