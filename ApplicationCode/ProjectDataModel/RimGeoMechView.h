@@ -80,7 +80,8 @@ public:
 
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-
+    
+    virtual void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts);
 
 private:
     virtual void                                        createDisplayModel();
@@ -102,6 +103,7 @@ private:
 
 
     virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
+
 
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;

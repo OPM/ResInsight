@@ -140,9 +140,10 @@ protected:
     virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
+    virtual void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts);
+
 private:
     void                                            createDisplayModel();
-    void                                            createOverlayDisplayModel();
     void                                            updateDisplayModelVisibility();
     virtual void                                    updateCurrentTimeStep();
 

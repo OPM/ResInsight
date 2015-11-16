@@ -31,6 +31,7 @@
 
 #include "cvfArray.h"
 #include "cvfBase.h"
+#include "cvfCollection.h"
 #include "cvfObject.h"
 
 #include <QPointer>
@@ -51,6 +52,7 @@ namespace cvf
     class Scene;
     class String;
     class Transform;
+    class Part;
 }
 
 //==================================================================================================
@@ -130,6 +132,7 @@ public:
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
+    void                                    createOverlayDisplayModelAndRedraw();
 
     RimViewController*                      viewController() const;
     bool                                    isMasterView() const;
@@ -158,6 +161,10 @@ protected:
     static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
 
     virtual void                            createDisplayModel() = 0;
+    
+    void                                    createOverlayDisplayModel();
+    virtual void                            createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) = 0;
+    
     virtual void                            updateDisplayModelVisibility() = 0;
     virtual void                            clampCurrentTimestep() = 0;
 

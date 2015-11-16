@@ -248,17 +248,6 @@ void RimView::setCurrentTimeStep(int frameIndex)
         m_currentReservoirCellVisibility = NULL; 
     }
     this->updateCurrentTimeStep();
-
-    cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
-    if (frameScene)
-    {
-        frameScene->removeModel(m_viewer->gridBoxGenerator()->model());
-
-        if (true)
-        {
-            frameScene->addModel(m_viewer->gridBoxGenerator()->model());
-        }
-    }
 }
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -281,6 +270,7 @@ void RimView::createDisplayModelAndRedraw()
 
         createDisplayModel();
         updateDisplayModelVisibility();
+        createOverlayDisplayModel();
 
         if (cameraPosition().isIdentity())
         {
@@ -801,5 +791,51 @@ void RimView::updateGridBoxData()
 
         gridBoxGen->createGridBoxParts();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::createOverlayDisplayModelAndRedraw()
+{
+    createOverlayDisplayModel();
+
+    if (m_viewer)
+    {
+        m_viewer->update();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::createOverlayDisplayModel()
+{
+    cvf::ref<cvf::Scene> overlayScene = new cvf::Scene;
+
+    cvf::Collection<cvf::Part> parts;
+    createPartCollectionFromSelection(&parts);
+    if (parts.size() > 0)
+    {
+        cvf::String highlightModelName = "HighLightModel";
+
+        cvf::ref<cvf::ModelBasicList> highlightModelBasicList = new cvf::ModelBasicList;
+        highlightModelBasicList->setName(highlightModelName);
+
+        for (size_t i = 0; i < parts.size(); i++)
+        {
+            highlightModelBasicList->addPart(parts[i].p());
+        }
+
+        highlightModelBasicList->updateBoundingBoxesRecursive();
+        overlayScene->addModel(highlightModelBasicList.p());
+    }
+
+    if (true)
+    {
+        overlayScene->addModel(m_viewer->gridBoxGenerator()->model());
+    }
+
+    m_viewer->setOverlayScene(overlayScene.p());
 }
 
