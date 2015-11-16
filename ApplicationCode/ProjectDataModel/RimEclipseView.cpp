@@ -483,8 +483,54 @@ void RimEclipseView::createDisplayModel()
         m_overlayInfoConfig()->update3DInfo();
         updateLegends();
     }
+
+    createOverlayDisplayModel();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::createOverlayDisplayModel()
+{
+    cvf::ref<cvf::Scene> overlayScene = new cvf::Scene;
+
+    {
+        cvf::String highlightModelName = "HighLightModel";
+
+        cvf::ref<cvf::ModelBasicList> highlightModelBasicList = new cvf::ModelBasicList;
+        highlightModelBasicList->setName(highlightModelName);
+
+        RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+        std::vector<RiuSelectionItem*> items;
+        riuSelManager->selectedItems(items);
+        for (size_t i = 0; i < items.size(); i++)
+        {
+            if (items[i]->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
+            {
+                RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>(items[i]);
+                if (eclipseSelItem &&
+                    eclipseSelItem->m_view)
+                {
+                    CVF_ASSERT(eclipseSelItem->m_view->eclipseCase());
+                    CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->reservoirData());
+
+                    RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->reservoirData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_cellIndex);
+
+                    cvf::ref<cvf::Part> part = partGen.createPart(eclipseSelItem->m_color);
+                    part->setTransform(this->scaleTransform());
+
+                    highlightModelBasicList->addPart(part.p());
+                }
+            }
+        }
+
+        highlightModelBasicList->updateBoundingBoxesRecursive();
+        overlayScene->addModel(highlightModelBasicList.p());
+    }
+
+    m_viewer->setOverlayScene(overlayScene.p());
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -678,42 +724,6 @@ void RimEclipseView::updateCurrentTimeStep()
                                  currentActiveCellInfo()->geometryBoundingBox(), 
                                  m_reservoirGridPartManager->scaleTransform());
 
-
-            {
-                cvf::String highlightModelName = "HighLightModel";
-
-                this->removeModelByName(frameScene, highlightModelName);
-
-                cvf::ref<cvf::ModelBasicList> highlightModelBasicList = new cvf::ModelBasicList;
-                highlightModelBasicList->setName(highlightModelName);
-
-                RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-                std::vector<RiuSelectionItem*> items;
-                riuSelManager->selectedItems(items);
-                for (size_t i = 0; i < items.size(); i++)
-                {
-                    if (items[i]->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
-                    {
-                        RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>(items[i]);
-                        if (eclipseSelItem &&
-                            eclipseSelItem->m_view)
-                        {
-                            CVF_ASSERT(eclipseSelItem->m_view->eclipseCase());
-                            CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->reservoirData());
-
-                            RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->reservoirData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_cellIndex);
-
-                            cvf::ref<cvf::Part> part = partGen.createPart(eclipseSelItem->m_color);
-                            part->setTransform(this->scaleTransform());
-
-                            highlightModelBasicList->addPart(part.p());
-                        }
-                    }
-                }
-
-                highlightModelBasicList->updateBoundingBoxesRecursive();
-                frameScene->addModel(highlightModelBasicList.p());
-            }
         }
     }
 

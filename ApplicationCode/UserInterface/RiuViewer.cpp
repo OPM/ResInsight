@@ -41,6 +41,7 @@
 #include "cvfCamera.h"
 #include "cvfFont.h"
 #include "cvfOverlayAxisCross.h"
+#include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
@@ -164,6 +165,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     setContextMenuPolicy(Qt::PreventContextMenu);
 
     m_gridBoxGenerator = new RivGridBoxGenerator;
+    
+    setupRenderingSequence();
 }
 
 
@@ -192,20 +195,12 @@ RiuViewer::~RiuViewer()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setDefaultView()
 {
-    cvf::BoundingBox bb;
-
-    cvf::Scene* scene = m_renderingSequence->firstRendering()->scene();
-    if (scene)
-    {
-        bb = scene->boundingBox();
-    }
-
+    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
     if (!bb.isValid())
     {
         bb.add(cvf::Vec3d(-1, -1, -1));
         bb.add(cvf::Vec3d( 1,  1,  1));
     }
-
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
@@ -539,4 +534,68 @@ RimView* RiuViewer::ownerReservoirView()
 RivGridBoxGenerator* RiuViewer::gridBoxGenerator() const
 {
     return m_gridBoxGenerator;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setupRenderingSequence()
+{
+    m_overlayRendering = new cvf::Rendering;
+    m_overlayRendering->setCamera(new cvf::Camera);
+    m_overlayRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
+    m_overlayRendering->setClearMode(cvf::Viewport::DO_NOT_CLEAR);
+
+    // Set fixed function rendering if QGLFormat does not support directRendering
+    if (!this->format().directRendering())
+    {
+        m_overlayRendering->renderEngine()->enableForcedImmediateMode(true);
+    }
+
+    m_renderingSequence->addRendering(m_overlayRendering.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setOverlayScene(cvf::Scene* scene)
+{
+    m_overlayRendering->setScene(scene);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::copyCameraView(cvf::Camera* srcCamera, cvf::Camera* dstCamera)
+{
+    if (srcCamera->projection() == cvf::Camera::PERSPECTIVE)
+    {
+        dstCamera->setProjectionAsPerspective(srcCamera->fieldOfViewYDeg(), srcCamera->nearPlane(), srcCamera->farPlane());
+    }
+    else
+    {
+        dstCamera->setProjectionAsOrtho(srcCamera->frontPlaneFrustumHeight(), srcCamera->nearPlane(), srcCamera->farPlane());
+    }
+
+    dstCamera->setViewMatrix(srcCamera->viewMatrix());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::optimizeClippingPlanes()
+{
+    caf::Viewer::optimizeClippingPlanes();
+
+    copyCameraView(m_mainCamera.p(), m_overlayRendering->camera());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::resizeGL(int width, int height)
+{
+    caf::Viewer::resizeGL(width, height);
+
+    m_overlayRendering->camera()->viewport()->set(0, 0, width, height);
 }

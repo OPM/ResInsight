@@ -142,6 +142,7 @@ protected:
 
 private:
     void                                            createDisplayModel();
+    void                                            createOverlayDisplayModel();
     void                                            updateDisplayModelVisibility();
     virtual void                                    updateCurrentTimeStep();
 
