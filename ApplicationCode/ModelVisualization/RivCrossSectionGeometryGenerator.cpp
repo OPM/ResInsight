@@ -20,7 +20,23 @@
 #include "RivCrossSectionGeometryGenerator.h"
 #include "cvfBoundingBox.h"
 #include "RigMainGrid.h"
+#include "cvfDrawableGeo.h"
+#include "RigResultAccessor.h"
+#include "cvfScalarMapper.h"
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::vector<cvf::Vec3d> &polyline, 
+                                                                   const cvf::Vec3d& extrusionDirection, 
+                                                                   const RigMainGrid* grid)
+                                                                   : m_polyLine(polyline), 
+                                                                   m_extrusionDirection(extrusionDirection), 
+                                                                   m_mainGrid(grid)
+{
+    m_triangleVxes = new cvf::Vec3fArray;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -683,41 +699,41 @@ int planeHexIntersectionMC(const cvf::Plane& plane,
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::vector<cvf::Vec3d> &polyline, 
-                                                                   const cvf::Vec3d& extrusionDirection, 
-                                                                   const RigMainGrid* grid)
+void RivCrossSectionGeometryGenerator::calculateArrays()
 {
-    cvf::BoundingBox gridBBox = grid->boundingBox();
-    cvf::Vec3d extDir = extrusionDirection.getNormalized();
+    if (m_triangleVxes->size()) return;
 
-    size_t lineCount = polyline.size();
+    std::vector<cvf::Vec3f> triangleVertices;
+
+
+    cvf::BoundingBox gridBBox = m_mainGrid->boundingBox();
+    m_extrusionDirection.normalize();
+
+    size_t lineCount = m_polyLine.size();
     for (size_t lIdx = 0; lIdx < lineCount - 1; ++lIdx)
     {
-        cvf::Vec3d p1 = polyline[lIdx];
-        cvf::Vec3d p2 = polyline[lIdx+1];
+        cvf::Vec3d p1 = m_polyLine[lIdx];
+        cvf::Vec3d p2 = m_polyLine[lIdx+1];
 
         cvf::BoundingBox sectionBBox;
         sectionBBox.add(p1);
         sectionBBox.add(p1);
         double maxSectionHeight = gridBBox.radius();
-        sectionBBox.add(p1 + extDir*maxSectionHeight);
-        sectionBBox.add(p1 - extDir*maxSectionHeight);
-        sectionBBox.add(p2 + extDir*maxSectionHeight);
-        sectionBBox.add(p2 - extDir*maxSectionHeight);
+        sectionBBox.add(p1 + m_extrusionDirection*maxSectionHeight);
+        sectionBBox.add(p1 - m_extrusionDirection*maxSectionHeight);
+        sectionBBox.add(p2 + m_extrusionDirection*maxSectionHeight);
+        sectionBBox.add(p2 - m_extrusionDirection*maxSectionHeight);
         
         std::vector<size_t> columnCellCandidates;
-        grid->findIntersectingCells(sectionBBox, &columnCellCandidates);
+        m_mainGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
 
         cvf::Plane plane;
-        plane.setFromPoints(p1, p2, p2 + extDir*maxSectionHeight);
+        plane.setFromPoints(p1, p2, p2 + m_extrusionDirection*maxSectionHeight);
 
         cvf::Plane p1Plane;
-        p1Plane.setFromPoints(p1, p1 + extDir*maxSectionHeight, p1 + plane.normal());
+        p1Plane.setFromPoints(p1, p1 + m_extrusionDirection*maxSectionHeight, p1 + plane.normal());
         cvf::Plane p2Plane;
-        p2Plane.setFromPoints(p2, p2 + extDir*maxSectionHeight, p2 + plane.normal() );
+        p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 + plane.normal() );
         
         
         std::vector<ClipVx> triangleVxes;
@@ -729,9 +745,9 @@ RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::ve
             size_t globalCellIdx = columnCellCandidates[cccIdx];
 
             cvf::Vec3d cellCorners[8];
-            grid->cellCornerVertices(globalCellIdx, cellCorners);
+            m_mainGrid->cellCornerVertices(globalCellIdx, cellCorners);
 
-            const caf::SizeTArray8& cornerIndices = grid->cells()[globalCellIdx].cornerIndices();
+            const caf::SizeTArray8& cornerIndices = m_mainGrid->cells()[globalCellIdx].cornerIndices();
             int hexCornersIds[8];
             hexCornersIds[0] = static_cast<int>(cornerIndices[0]);
             hexCornersIds[1] = static_cast<int>(cornerIndices[1]);
@@ -742,7 +758,7 @@ RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::ve
             hexCornersIds[6] = static_cast<int>(cornerIndices[6]);
             hexCornersIds[7] = static_cast<int>(cornerIndices[7]);
 
-            uint triangleCount = planeHexIntersectionMC(plane,
+            int triangleCount = planeHexIntersectionMC(plane,
                                                         cellCorners,
                                                         hexCornersIds,
                                                         &triangleVxes);
@@ -754,9 +770,9 @@ RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::ve
                 {
                     // Accumulate to geometry
                     int triVxIdx = tIdx*3;
-                    m_triangleVxes.push_back(triangleVxes[triVxIdx+0].vx);
-                    m_triangleVxes.push_back(triangleVxes[triVxIdx+1].vx);
-                    m_triangleVxes.push_back(triangleVxes[triVxIdx+2].vx);
+                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+0].vx));
+                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+1].vx));
+                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+2].vx));
 
                     m_triangleToCellIdxMap.push_back(globalCellIdx);
                 }
@@ -826,5 +842,66 @@ RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::ve
             }
         }
 
+    }
+
+    m_triangleVxes->assign(triangleVertices);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Generate surface drawable geo from the specified region
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::generateSurface()
+{
+    calculateArrays();
+
+    CVF_ASSERT(m_triangleVxes.notNull());
+
+    if (m_triangleVxes->size() == 0) return NULL;
+
+    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+    geo->setFromTriangleVertexArray(m_triangleVxes.p());
+
+    return geo;
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Calculates the texture coordinates in a "nearly" one dimentional texture. 
+/// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
+//--------------------------------------------------------------------------------------------------
+void RivCrossSectionGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, 
+                                                          const RigResultAccessor* resultAccessor, 
+                                                          const cvf::ScalarMapper* mapper) const
+{
+    if (!resultAccessor) return;
+
+    size_t numVertices = m_triangleVxes->size();
+
+    textureCoords->resize(numVertices);
+    cvf::Vec2f* rawPtr = textureCoords->ptr();
+
+    double cellScalarValue;
+    cvf::Vec2f texCoord;
+    
+    int triangleCount = static_cast<int>(m_triangleToCellIdxMap.size());
+
+#pragma omp parallel for private(texCoord, cellScalarValue)
+    for (int tIdx = 0; tIdx < triangleCount; tIdx++)
+    {
+        cellScalarValue = resultAccessor->cellScalarGlobIdx(m_triangleToCellIdxMap[tIdx]);
+        texCoord = mapper->mapToTextureCoord(cellScalarValue);
+        if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
+        {
+            texCoord[1] = 1.0f;
+        }
+
+        size_t j;
+        for (j = 0; j < 3; j++)
+        {   
+            rawPtr[tIdx*3 + j] = texCoord;
+        }
     }
 }

@@ -25,7 +25,7 @@
 #include <vector>
 
 class RigMainGrid;
-
+class RigResultAccessor;
 
 namespace cvf
 {
@@ -43,20 +43,26 @@ public:
 
     ~RivCrossSectionGeometryGenerator();
 
-    void textureCoordinates(cvf::Vec2fArray* textureCoords,  
-        const cvf::ScalarMapper* mapper, size_t scalarResultIndex) const;
+
+    void                        textureCoordinates(cvf::Vec2fArray* textureCoords, 
+                                                   const RigResultAccessor* resultAccessor,
+                                                   const cvf::ScalarMapper* mapper) const;
 
     // Mapping between cells and geometry
-    cvf::ref<cvf::Array<size_t> >   triangleToCellIndex() const;
+    const std::vector<size_t>&  triangleToCellIndex() const;
 
     // Generated geometry
-    cvf::ref<cvf::DrawableGeo>    generateSurface();
-    cvf::ref<cvf::DrawableGeo>    createMeshDrawable();
+    cvf::ref<cvf::DrawableGeo>  generateSurface();
+    //cvf::ref<cvf::DrawableGeo> createMeshDrawable();
+
 private:
-    void calculateArrays();
+    void                        calculateArrays();
 
-    std::vector<cvf::Vec3d> m_triangleVxes;
-    std::vector<size_t>     m_triangleToCellIdxMap;
+    cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
+    std::vector<size_t>         m_triangleToCellIdxMap;
 
+    cvf::cref<RigMainGrid>      m_mainGrid;
+    std::vector<cvf::Vec3d>     m_polyLine;
+    cvf::Vec3d                  m_extrusionDirection;
 };
 
