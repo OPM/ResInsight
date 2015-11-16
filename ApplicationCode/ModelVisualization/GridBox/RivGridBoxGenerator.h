@@ -44,8 +44,9 @@ class RivGridBoxGenerator
 public:
     RivGridBoxGenerator();
 
-    void setTransform(cvf::Transform* scaleTransform);
-    void setBoundingBox(const cvf::BoundingBox& boundingBox);
+    void setScaleZ(double scaleZ);
+    void setDisplayModelOffset(cvf::Vec3d offset);
+    void setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& boundingBox);
     void createGridBoxParts();
 
     void updateFromCamera(const cvf::Camera* camera);
@@ -93,12 +94,15 @@ private:
     void createGridBoxSideParts();
     void createGridBoxLegendParts();
 
+    cvf::Vec3d displayModelCoordFromDomainCoord(const cvf::Vec3d& domainCoord) const;
+
     void createLegend(EdgeType edge, cvf::Collection<cvf::Part>* parts);
 
     cvf::Vec3f sideNormalOutwards(FaceType face);
     cvf::Vec3d pointOnSide(FaceType face);
     cvf::Vec3f cornerDirection(FaceType face1, FaceType face2);
 
+    void computeDisplayCoords();
 
 private:
     cvf::Collection<cvf::Part> m_gridBoxSideParts;
@@ -106,13 +110,17 @@ private:
 
     cvf::ref<cvf::ModelBasicList> m_gridBoxModel;
 
-    cvf::ref<cvf::Transform> m_scaleTransform;
-    cvf::BoundingBox m_boundingBox;
+    cvf::BoundingBox    m_domainCoordsBoundingBox;
+    std::vector<double> m_domainCoordsXValues;
+    std::vector<double> m_domainCoordsYValues;
+    std::vector<double> m_domainCoordsZValues;
 
-    cvf::ref<cvf::ScalarMapperDiscreteLinear> m_linDiscreteScalarMapper;
+    cvf::BoundingBox    m_displayCoordsBoundingBox;
+    std::vector<double> m_displayCoordsXValues;
+    std::vector<double> m_displayCoordsYValues;
+    std::vector<double> m_displayCoordsZValues;
 
-    std::vector<double> m_xValues;
-    std::vector<double> m_yValues;
-    std::vector<double> m_zValues;
+    double      m_scaleZ;
+    cvf::Vec3d  m_displayModelOffset;
 };
 

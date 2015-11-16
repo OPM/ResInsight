@@ -69,7 +69,7 @@ public:
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
     void            setHistogramPercentiles(double pmin, double pmax, double mean);
 
-    void            showGridBox(bool enable);
+    RivGridBoxGenerator* gridBoxGenerator() const;
 
     void            showAnimationProgress(bool enable);
     
@@ -92,7 +92,6 @@ private:
     void            mouseReleaseEvent(QMouseEvent* event);
     void            mousePressEvent(QMouseEvent* event);
 
-
     QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;
     bool            m_showInfoText; 
@@ -107,12 +106,11 @@ private:
 
     cvf::Collection<cvf::OverlayItem> m_visibleLegends;
 
-    caf::PdmPointer<RimView> m_reservoirView;
-    QPoint          m_lastMousePressPosition;
+    caf::PdmPointer<RimView>    m_rimView;
+    QPoint                      m_lastMousePressPosition;
 
-    RiuViewerCommands* m_viewerCommands;
+    RiuViewerCommands*          m_viewerCommands;
 
-    bool                 m_showGridBox;
-    RivGridBoxGenerator* m_gridBoxGenerator;
+    RivGridBoxGenerator*        m_gridBoxGenerator;
 };
 

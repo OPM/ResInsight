@@ -59,6 +59,9 @@ public:
     virtual QStringList                     timeStepStrings();
     virtual QString                         timeStepName(int frameIdx);
 
+    virtual cvf::BoundingBox                activeCellsBoundingBox() const;
+    virtual cvf::BoundingBox                allCellsBoundingBox() const;
+
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 

@@ -126,6 +126,8 @@ public:
     const std::vector<RivCellSetEnum>&              visibleGridParts() const { return m_visibleGridParts;}
     cvf::cref<RivReservoirViewPartMgr>              reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
+    virtual void                                    updateGridBoxData();
+
     // Does this belong here, really ?
     void                                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
 

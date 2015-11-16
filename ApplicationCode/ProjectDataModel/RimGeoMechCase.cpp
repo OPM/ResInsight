@@ -18,14 +18,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechCase.h"
-#include "RimGeoMechView.h"
+
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RifOdbReader.h"
-#include "RigGeoMechCaseData.h"
+
+#include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
-#include "RimProject.h"
+#include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechView.h"
 #include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimWellLogPlotCollection.h"
 
 #include <QFile>
@@ -178,4 +183,27 @@ QString RimGeoMechCase::timeStepName(int frameIdx)
    std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
 
    return QString::fromStdString(stepNames[frameIdx]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimGeoMechCase::activeCellsBoundingBox() const
+{
+    return allCellsBoundingBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimGeoMechCase::allCellsBoundingBox() const
+{
+    if (m_geoMechCaseData.notNull() && m_geoMechCaseData->femParts())
+    {
+        return m_geoMechCaseData->femParts()->boundingBox();
+    }
+    else
+    {
+        return cvf::BoundingBox();
+    }
 }

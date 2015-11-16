@@ -71,9 +71,9 @@ public:
     RigCaseData*                                reservoirData();
     const RigCaseData*                          reservoirData() const;
 
-    RimReservoirCellResultsStorage*                results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
-    RimEclipseView*                           createAndAddReservoirView();
+    RimEclipseView*                             createAndAddReservoirView();
 
     void                                        removeResult(const QString& resultName);
 
@@ -87,6 +87,10 @@ public:
     virtual std::vector<RimView*>               views();
     virtual QStringList                         timeStepStrings();
     virtual QString                             timeStepName(int frameIdx);
+
+    virtual cvf::BoundingBox                    activeCellsBoundingBox() const;
+    virtual cvf::BoundingBox                    allCellsBoundingBox() const;
+    virtual cvf::Vec3d                          displayModelOffset() const;
 
     // Overridden methods from PdmObject
 public:

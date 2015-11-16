@@ -18,12 +18,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+#include "cvfVector3.h"
 
 #include <vector>
 
 class RimView;
+
+namespace cvf {
+    class BoundingBox;
+}
 
 class RimCase : public caf::PdmObject
 {
@@ -43,6 +50,11 @@ public:
 
     virtual QStringList                         timeStepStrings() = 0;
     virtual QString                             timeStepName(int frameIdx) = 0;
+
+    virtual cvf::BoundingBox                    activeCellsBoundingBox() const = 0;
+    virtual cvf::BoundingBox                    allCellsBoundingBox() const = 0;
+
+    virtual cvf::Vec3d                          displayModelOffset() const;
 
 protected:
     static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 

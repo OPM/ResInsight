@@ -163,7 +163,6 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     // which solves the problem
     setContextMenuPolicy(Qt::PreventContextMenu);
 
-    m_showGridBox = true;
     m_gridBoxGenerator = new RivGridBoxGenerator;
 }
 
@@ -173,12 +172,12 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuViewer::~RiuViewer()
 {
-    if (m_reservoirView)
+    if (m_rimView)
     {
-        m_reservoirView->showWindow = false;
-        m_reservoirView->uiCapability()->updateUiIconFromToggleField();
+        m_rimView->showWindow = false;
+        m_rimView->uiCapability()->updateUiIconFromToggleField();
 
-        m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
+        m_rimView->cameraPosition = m_mainCamera->viewMatrix();
     }
     delete m_InfoLabel;
     delete m_animationProgress;
@@ -258,7 +257,7 @@ void RiuViewer::slotEndAnimation()
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
 
-    if (m_reservoirView) m_reservoirView->endAnimation();
+    if (m_rimView) m_rimView->endAnimation();
     
     caf::Viewer::slotEndAnimation();
 
@@ -272,12 +271,12 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
 {
     setCurrentFrame(frameIndex);
 
-    if (m_reservoirView)
+    if (m_rimView)
     {
-        RimViewLinker* viewLinker = m_reservoirView->assosiatedViewLinker();
+        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if (viewLinker)
         {
-            viewLinker->updateTimeStep(m_reservoirView, frameIndex);
+            viewLinker->updateTimeStep(m_rimView, frameIndex);
         }
     }
 }
@@ -303,7 +302,7 @@ void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setOwnerReservoirView(RimView * owner)
 {
-    m_reservoirView = owner;
+    m_rimView = owner;
     m_viewerCommands->setOwnerView(owner);
 }
 
@@ -340,7 +339,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 
     if (showAnimBar && m_showAnimProgress)
     {
-        QString stepName = m_reservoirView->ownerCase()->timeStepName(currentFrameIndex());
+        QString stepName = m_rimView->ownerCase()->timeStepName(currentFrameIndex());
         m_animationProgress->setFormat("Time Step: %v/%m " + stepName);
         m_animationProgress->setMinimum(0);
         m_animationProgress->setMaximum(static_cast<int>(frameCount()) - 1);
@@ -501,17 +500,12 @@ void RiuViewer::navigationPolicyUpdate()
 {
     caf::Viewer::navigationPolicyUpdate();
 
-    if (m_reservoirView)
+    if (m_rimView)
     {
-        RimViewLinker* viewLinker = m_reservoirView->assosiatedViewLinker();
+        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if (viewLinker)
         {
-            viewLinker->updateCamera(m_reservoirView);
-        }
-
-        if (m_showGridBox)
-        {
-            m_gridBoxGenerator->updateFromCamera(mainCamera());
+            viewLinker->updateCamera(m_rimView);
         }
     }
 }
@@ -524,7 +518,7 @@ void RiuViewer::setCurrentFrame(int frameIndex)
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
 
-    if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
+    if (m_rimView) m_rimView->setCurrentTimeStep(frameIndex);
 
     caf::Viewer::slotSetCurrentFrame(frameIndex);
 }
@@ -534,27 +528,13 @@ void RiuViewer::setCurrentFrame(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 RimView* RiuViewer::ownerReservoirView()
 {
-    return m_reservoirView;
+    return m_rimView;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::showGridBox(bool enable)
+RivGridBoxGenerator* RiuViewer::gridBoxGenerator() const
 {
-    m_showGridBox = enable;
-
-    if (!enable)
-    {
-        currentScene()->removeModel(m_gridBoxGenerator->model());
-    }
-    else
-    {
-        m_gridBoxGenerator->setBoundingBox(mainScene()->boundingBox());
-//        m_gridBoxGenerator->setTransform();
-        m_gridBoxGenerator->updateFromCamera(mainCamera());
-        m_gridBoxGenerator->createGridBoxParts();
-
-        currentScene()->addModel(m_gridBoxGenerator->model());
-    }
+    return m_gridBoxGenerator;
 }

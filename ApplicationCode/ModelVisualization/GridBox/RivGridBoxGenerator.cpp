@@ -38,42 +38,53 @@ RivGridBoxGenerator::RivGridBoxGenerator()
 {
     m_gridBoxModel = new cvf::ModelBasicList;
 
-    m_linDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
+    m_scaleZ = 1.0;
+    m_displayModelOffset = cvf::Vec3d::ZERO;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridBoxGenerator::setTransform(cvf::Transform* scaleTransform)
+void RivGridBoxGenerator::setScaleZ(double scaleZ)
 {
-    m_scaleTransform = scaleTransform;
+    m_scaleZ = scaleZ;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridBoxGenerator::setBoundingBox(const cvf::BoundingBox& boundingBox)
+void RivGridBoxGenerator::setDisplayModelOffset(cvf::Vec3d offset)
 {
-    m_boundingBox = boundingBox;
+    m_displayModelOffset = offset;
+}
 
-    m_xValues.clear();
-    m_yValues.clear();
-    m_zValues.clear();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& bb)
+{
+    m_domainCoordsBoundingBox = bb;
 
-    cvf::Vec3d min = m_boundingBox.min();
-    cvf::Vec3d max = m_boundingBox.max();
+    m_domainCoordsXValues.clear();
+    m_domainCoordsYValues.clear();
+    m_domainCoordsZValues.clear();
 
-    m_linDiscreteScalarMapper->setRange(min.x(), max.x());
-    m_linDiscreteScalarMapper->setLevelCount(5, true);
-    m_linDiscreteScalarMapper->majorTickValues(&m_xValues);
+    cvf::Vec3d min = m_domainCoordsBoundingBox.min();
+    cvf::Vec3d max = m_domainCoordsBoundingBox.max();
 
-    m_linDiscreteScalarMapper->setRange(min.y(), max.y());
-    m_linDiscreteScalarMapper->setLevelCount(5, true);
-    m_linDiscreteScalarMapper->majorTickValues(&m_yValues);
+    cvf::ScalarMapperDiscreteLinear m_linDiscreteScalarMapper;
 
-    m_linDiscreteScalarMapper->setRange(min.z(), max.z());
-    m_linDiscreteScalarMapper->setLevelCount(5, true);
-    m_linDiscreteScalarMapper->majorTickValues(&m_zValues);
+    m_linDiscreteScalarMapper.setRange(min.x(), max.x());
+    m_linDiscreteScalarMapper.setLevelCount(5, true);
+    m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsXValues);
+
+    m_linDiscreteScalarMapper.setRange(min.y(), max.y());
+    m_linDiscreteScalarMapper.setLevelCount(5, true);
+    m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsYValues);
+
+    m_linDiscreteScalarMapper.setRange(min.z(), max.z());
+    m_linDiscreteScalarMapper.setLevelCount(5, true);
+    m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsZValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,6 +92,8 @@ void RivGridBoxGenerator::setBoundingBox(const cvf::BoundingBox& boundingBox)
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::createGridBoxParts()
 {
+    computeDisplayCoords();
+
     createGridBoxSideParts();
     createGridBoxLegendParts();
 }
@@ -128,9 +141,13 @@ void RivGridBoxGenerator::createGridBoxSideParts()
 {
     m_gridBoxSideParts.clear();
 
-    cvf::Vec3d min = m_boundingBox.min();
-    cvf::Vec3d max = m_boundingBox.max();
+    CVF_ASSERT(m_displayCoordsBoundingBox.isValid());
+    CVF_ASSERT(m_displayCoordsXValues.size() > 0);
+    CVF_ASSERT(m_displayCoordsYValues.size() > 0);
+    CVF_ASSERT(m_displayCoordsZValues.size() > 0);
 
+    cvf::Vec3d min = m_displayCoordsBoundingBox.min();
+    cvf::Vec3d max = m_displayCoordsBoundingBox.max();
 
     for (int face = POS_X; face <= NEG_Z; face++)
     {
@@ -141,37 +158,37 @@ void RivGridBoxGenerator::createGridBoxSideParts()
         {
             patchGen.setOrigin(cvf::Vec3d(max.x(), 0.0, 0.0));
             patchGen.setAxes(cvf::Vec3d::Y_AXIS, cvf::Vec3d::Z_AXIS);
-            patchGen.setSubdivisions(m_yValues, m_zValues);
+            patchGen.setSubdivisions(m_displayCoordsYValues, m_displayCoordsZValues);
         }
         else if (face == NEG_X)
         {
             patchGen.setOrigin(cvf::Vec3d(min.x(), 0.0, 0.0));
             patchGen.setAxes(cvf::Vec3d::Y_AXIS, cvf::Vec3d::Z_AXIS);
-            patchGen.setSubdivisions(m_yValues, m_zValues);
+            patchGen.setSubdivisions(m_displayCoordsYValues, m_displayCoordsZValues);
         }
         else if (face == POS_Y)
         {
             patchGen.setOrigin(cvf::Vec3d(0.0, max.y(), 0.0));
             patchGen.setAxes(cvf::Vec3d::X_AXIS, cvf::Vec3d::Z_AXIS);
-            patchGen.setSubdivisions(m_xValues, m_zValues);
+            patchGen.setSubdivisions(m_displayCoordsXValues, m_displayCoordsZValues);
         }
         else if (face == NEG_Y)
         {
             patchGen.setOrigin(cvf::Vec3d(0.0, min.y(), 0.0));
             patchGen.setAxes(cvf::Vec3d::X_AXIS, cvf::Vec3d::Z_AXIS);
-            patchGen.setSubdivisions(m_xValues, m_zValues);
+            patchGen.setSubdivisions(m_displayCoordsXValues, m_displayCoordsZValues);
         }
         else if (face == POS_Z)
         {
             patchGen.setOrigin(cvf::Vec3d(0.0, 0.0, max.z()));
             patchGen.setAxes(cvf::Vec3d::X_AXIS, cvf::Vec3d::Y_AXIS);
-            patchGen.setSubdivisions(m_xValues, m_yValues);
+            patchGen.setSubdivisions(m_displayCoordsXValues, m_displayCoordsYValues);
         }
         else if (face == NEG_Z)
         {
             patchGen.setOrigin(cvf::Vec3d(0.0, 0.0, min.z()));
             patchGen.setAxes(cvf::Vec3d::X_AXIS, cvf::Vec3d::Y_AXIS);
-            patchGen.setSubdivisions(m_xValues, m_yValues);
+            patchGen.setSubdivisions(m_displayCoordsXValues, m_displayCoordsYValues);
         }
         else
         {
@@ -196,7 +213,6 @@ void RivGridBoxGenerator::createGridBoxSideParts()
             part->setName("Grid box ");
             part->setDrawable(geo.p());
 
-            part->setTransform(m_scaleTransform.p());
             part->updateBoundingBox();
 
             cvf::ref<cvf::Effect> eff;
@@ -217,6 +233,11 @@ void RivGridBoxGenerator::createGridBoxLegendParts()
 {
     m_gridBoxLegendParts.clear();
 
+    CVF_ASSERT(m_displayCoordsBoundingBox.isValid());
+    CVF_ASSERT(m_displayCoordsXValues.size() > 0);
+    CVF_ASSERT(m_displayCoordsYValues.size() > 0);
+    CVF_ASSERT(m_displayCoordsZValues.size() > 0);
+
     for (int edge = POS_Z_POS_X; edge <= NEG_X_NEG_Y; edge++)
     {
         cvf::Collection<cvf::Part> parts;
@@ -233,15 +254,25 @@ void RivGridBoxGenerator::createGridBoxLegendParts()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RivGridBoxGenerator::displayModelCoordFromDomainCoord(const cvf::Vec3d& domainCoord) const
+{
+    cvf::Vec3d coord = domainCoord - m_displayModelOffset;
+    coord.z() *= m_scaleZ;
+
+    return coord;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>* parts)
 {
     cvf::Vec3d posMin;
     cvf::Vec3d posMax;
 
-    cvf::Vec3d min = m_boundingBox.min();
-    cvf::Vec3d max = m_boundingBox.max();
+    cvf::Vec3d min = m_displayCoordsBoundingBox.min();
+    cvf::Vec3d max = m_displayCoordsBoundingBox.max();
 
-    std::vector<double>* tickValues = NULL;
     AxisType axis;
 
     cvf::Vec3f tickMarkDir;
@@ -250,84 +281,72 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
     {
     case RivGridBoxGenerator::POS_Z_POS_X:
         axis = Y_AXIS;
-        tickValues = &m_yValues;
         posMin.set(max.x(), min.y(), max.z());
         posMax.set(max.x(), max.y(), max.z());
         tickMarkDir = cornerDirection(POS_Z, POS_X);
         break;
     case RivGridBoxGenerator::POS_Z_NEG_X:
         axis = Y_AXIS;
-        tickValues = &m_yValues;
         posMin.set(min.x(), min.y(), max.z());
         posMax.set(min.x(), max.y(), max.z());
         tickMarkDir = cornerDirection(POS_Z, NEG_X);
         break;
     case RivGridBoxGenerator::POS_Z_POS_Y:
         axis = X_AXIS;
-        tickValues = &m_xValues;
         posMin.set(min.x(), max.y(), max.z());
         posMax.set(max.x(), max.y(), max.z());
         tickMarkDir = cornerDirection(POS_Z, POS_Y);
         break;
     case RivGridBoxGenerator::POS_Z_NEG_Y:
         axis = X_AXIS;
-        tickValues = &m_xValues;
         posMin.set(min.x(), min.y(), max.z());
         posMax.set(max.x(), min.y(), max.z());
         tickMarkDir = cornerDirection(POS_Z, NEG_Y);
         break;
     case RivGridBoxGenerator::NEG_Z_POS_X:
         axis = Y_AXIS;
-        tickValues = &m_yValues;
         posMin.set(max.x(), min.y(), min.z());
         posMax.set(max.x(), max.y(), min.z());
         tickMarkDir = cornerDirection(NEG_Z, POS_X);
         break;
     case RivGridBoxGenerator::NEG_Z_NEG_X:
         axis = Y_AXIS;
-        tickValues = &m_yValues;
         posMin.set(min.x(), min.y(), min.z());
         posMax.set(min.x(), max.y(), min.z());
         tickMarkDir = cornerDirection(NEG_Z, NEG_X);
         break;
     case RivGridBoxGenerator::NEG_Z_POS_Y:
         axis = X_AXIS;
-        tickValues = &m_xValues;
         posMin.set(min.x(), max.y(), min.z());
         posMax.set(max.x(), max.y(), min.z());
         tickMarkDir = cornerDirection(NEG_Z, POS_Y);
         break;
     case RivGridBoxGenerator::NEG_Z_NEG_Y:
         axis = X_AXIS;
-        tickValues = &m_xValues;
         posMin.set(min.x(), min.y(), min.z());
         posMax.set(max.x(), min.y(), min.z()); 
         tickMarkDir = cornerDirection(NEG_Z, NEG_Y);
         break;
     case RivGridBoxGenerator::POS_X_POS_Y:
         axis = Z_AXIS;
-        tickValues = &m_zValues;
         posMin.set(max.x(), max.y(), min.z());
         posMax.set(max.x(), max.y(), max.z());
         tickMarkDir = cornerDirection(POS_X, POS_Y);
         break;
     case RivGridBoxGenerator::POS_X_NEG_Y:
         axis = Z_AXIS;
-        tickValues = &m_zValues;
         posMin.set(max.x(), min.y(), min.z());
         posMax.set(max.x(), min.y(), max.z());
         tickMarkDir = cornerDirection(POS_X, NEG_Y);
         break;
     case RivGridBoxGenerator::NEG_X_POS_Y:
         axis = Z_AXIS;
-        tickValues = &m_zValues;
         posMin.set(min.x(), max.y(), min.z());
         posMax.set(min.x(), max.y(), max.z());
         tickMarkDir = cornerDirection(NEG_X, POS_Y);
         break;
     case RivGridBoxGenerator::NEG_X_NEG_Y:
         axis = Z_AXIS;
-        tickValues = &m_zValues;
         posMin.set(min.x(), min.y(), min.z());
         posMax.set(min.x(), min.y(), max.z());
         tickMarkDir = cornerDirection(NEG_X, NEG_Y);
@@ -336,10 +355,30 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         break;
     }
 
-    CVF_ASSERT(tickValues);
+    std::vector<double>* displayCoordsTickValues = NULL;
+    std::vector<double>* domainCoordsTickValues = NULL;
 
-    size_t numVerts = (tickValues->size()) * 2;
-    size_t numLines = (tickValues->size()) + 1;
+    if (axis == X_AXIS)
+    {
+        displayCoordsTickValues = &m_displayCoordsXValues;
+        domainCoordsTickValues  = &m_domainCoordsXValues;
+    }
+    else if (axis == Y_AXIS)
+    {
+        displayCoordsTickValues = &m_displayCoordsYValues;
+        domainCoordsTickValues  = &m_domainCoordsYValues;
+    }
+    else if (axis == Z_AXIS)
+    {
+        displayCoordsTickValues = &m_displayCoordsZValues;
+        domainCoordsTickValues  = &m_domainCoordsZValues;
+    }
+
+    CVF_ASSERT(displayCoordsTickValues);
+    CVF_ASSERT(domainCoordsTickValues);
+
+    size_t numVerts = (displayCoordsTickValues->size()) * 2;
+    size_t numLines = (displayCoordsTickValues->size()) + 1;
 
     cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
     vertices->reserve(numVerts);
@@ -348,15 +387,15 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
     indices->reserve(2 * numLines);
 
 
-    float tickLength = static_cast<float>(m_boundingBox.extent().length() / 100.0);
+    float tickLength = static_cast<float>(m_displayCoordsBoundingBox.extent().length() / 100.0);
 
     cvf::Vec3f point = cvf::Vec3f(posMin);
     cvf::Vec3f tickPoint;
 
     // Tick marks
-    for (size_t i = 0; i < tickValues->size(); ++i)
+    for (size_t i = 0; i < displayCoordsTickValues->size(); ++i)
     {
-        point[axis] = static_cast<float>(tickValues->at(i));
+        point[axis] = static_cast<float>(displayCoordsTickValues->at(i));
 
         vertices->add(point);
         tickPoint = point + tickLength*tickMarkDir;;
@@ -383,7 +422,6 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         part->setName("Legend lines ");
         part->setDrawable(geo.p());
 
-        part->setTransform(m_scaleTransform.p());
         part->updateBoundingBox();
 
         cvf::ref<cvf::Effect> eff;
@@ -395,7 +433,6 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         parts->push_back(part.p());
     }
 
-
     {
         // Text labels
 
@@ -406,14 +443,13 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         geo->setDrawBorder(false);
         //textGeo->setCheckPosVisible(false);
         
-        for (size_t idx = 0; idx < tickValues->size(); idx++)
+        for (size_t idx = 0; idx < domainCoordsTickValues->size(); idx++)
         {
-            geo->addText(cvf::String(tickValues->at(idx)), vertices->get(idx*2 + 1) + (0.5f * tickLength) * tickMarkDir);
+            geo->addText(cvf::String(domainCoordsTickValues->at(idx)), vertices->get(idx*2 + 1) + (0.5f * tickLength) * tickMarkDir);
         }
 
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setDrawable(geo.p());
-        part->setTransform(m_scaleTransform.p());
         part->updateBoundingBox();
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
@@ -462,12 +498,12 @@ cvf::Vec3d RivGridBoxGenerator::pointOnSide(FaceType face)
     case RivGridBoxGenerator::POS_X:
     case RivGridBoxGenerator::POS_Y:
     case RivGridBoxGenerator::POS_Z:
-        return cvf::Vec3d(m_boundingBox.max());
+        return cvf::Vec3d(m_displayCoordsBoundingBox.max());
 
     case RivGridBoxGenerator::NEG_X:
     case RivGridBoxGenerator::NEG_Y:
     case RivGridBoxGenerator::NEG_Z:
-        return cvf::Vec3d(m_boundingBox.min());
+        return cvf::Vec3d(m_displayCoordsBoundingBox.min());
     default:
         break;
     }
@@ -484,4 +520,33 @@ cvf::Vec3f RivGridBoxGenerator::cornerDirection(FaceType face1, FaceType face2)
     dir.normalize();
 
     return dir;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGridBoxGenerator::computeDisplayCoords()
+{
+    m_displayCoordsBoundingBox.reset();
+    m_displayCoordsXValues.clear();
+    m_displayCoordsYValues.clear();
+    m_displayCoordsZValues.clear();
+
+    m_displayCoordsBoundingBox.add(displayModelCoordFromDomainCoord(m_domainCoordsBoundingBox.min()));
+    m_displayCoordsBoundingBox.add(displayModelCoordFromDomainCoord(m_domainCoordsBoundingBox.max()));
+
+    for (size_t i = 0; i < m_domainCoordsXValues.size(); i++)
+    {
+        m_displayCoordsXValues.push_back(m_domainCoordsXValues[i] - m_displayModelOffset.x());
+    }
+
+    for (size_t i = 0; i < m_domainCoordsYValues.size(); i++)
+    {
+        m_displayCoordsYValues.push_back(m_domainCoordsYValues[i] - m_displayModelOffset.y());
+    }
+
+    for (size_t i = 0; i < m_domainCoordsZValues.size(); i++)
+    {
+        m_displayCoordsZValues.push_back(m_scaleZ * (m_domainCoordsZValues[i] - m_displayModelOffset.z()));
+    }
 }

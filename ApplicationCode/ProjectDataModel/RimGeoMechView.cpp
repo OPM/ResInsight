@@ -250,8 +250,6 @@ void RimGeoMechView::createDisplayModel()
        m_vizLogic->updateStaticCellColors(-1);
        m_overlayInfoConfig()->update3DInfo();
    }
-
-   m_viewer->showGridBox(true);
 }
 
 //--------------------------------------------------------------------------------------------------

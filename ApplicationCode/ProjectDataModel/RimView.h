@@ -137,6 +137,8 @@ public:
 
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
+    virtual void                            updateGridBoxData();
+
 public:
     virtual void                            loadDataAndUpdate() = 0;
     virtual RimCase*                        ownerCase() = 0;

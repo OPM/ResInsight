@@ -77,7 +77,7 @@ public:
     int                         neighborFace(int elementIndex, int faceIndex) const
                                 { return m_elmNeighbors[elementIndex].faceInNeighborElm[faceIndex]; }
 
-    cvf::BoundingBox            boundingBox();
+    cvf::BoundingBox            boundingBox() const;
     float                       characteristicElementSize();
     const std::vector<int>&     possibleGridCornerElements() const { return m_possibleGridCornerElements; }
     void                        findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const;
@@ -107,7 +107,7 @@ private:
     std::vector<int> m_possibleGridCornerElements;
 
     float                       m_characteristicElementSize;
-    cvf::BoundingBox            m_boundingBox;
+    mutable cvf::BoundingBox    m_boundingBox;
 
     mutable cvf::ref<cvf::BoundingBoxTree> m_elementSearchTree;
 

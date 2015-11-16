@@ -70,6 +70,7 @@
 #include <QMessageBox>
 
 #include <limits.h>
+#include "RivGridBoxGenerator.h"
 
 
 
@@ -227,6 +228,8 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &showInactiveCells)
     {
+        this->updateGridBoxData();
+        
         this->scheduleGeometryRegen(INACTIVE);
         this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
@@ -480,8 +483,6 @@ void RimEclipseView::createDisplayModel()
         m_overlayInfoConfig()->update3DInfo();
         updateLegends();
     }
-
-    m_viewer->showGridBox(true);
 }
 
 
@@ -1679,6 +1680,32 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
                 (*totalVisibility)[grid->reservoirCellIndex(lcIdx)] |= (*visibility)[lcIdx];
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::updateGridBoxData()
+{
+    if (viewer())
+    {
+        RivGridBoxGenerator* gridBoxGen = viewer()->gridBoxGenerator();
+
+        gridBoxGen->setScaleZ(scaleZ);
+
+        if (showInactiveCells)
+        {
+            gridBoxGen->setGridBoxDomainCoordBoundingBox(ownerCase()->allCellsBoundingBox());
+        }
+        else
+        {
+            gridBoxGen->setGridBoxDomainCoordBoundingBox(ownerCase()->activeCellsBoundingBox());
+        }
+
+        gridBoxGen->setDisplayModelOffset(ownerCase()->displayModelOffset());
+
+        gridBoxGen->createGridBoxParts();
     }
 }
 

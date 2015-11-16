@@ -19,6 +19,7 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
+#include "RivGridBoxGenerator.h"
 #include "RivWellPathCollectionPartMgr.h"
 
 #include "cafFrameAnimationControl.h"
@@ -178,6 +179,7 @@ void RimView::updateViewerWidget()
 
             m_viewer = new RiuViewer(glFormat, NULL);
             m_viewer->setOwnerReservoirView(this);
+            this->updateGridBoxData();
 
             RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), windowGeometry());
             m_viewer->setMinNearPlaneDistance(10);
@@ -246,6 +248,17 @@ void RimView::setCurrentTimeStep(int frameIndex)
         m_currentReservoirCellVisibility = NULL; 
     }
     this->updateCurrentTimeStep();
+
+    cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+    if (frameScene)
+    {
+        frameScene->removeModel(m_viewer->gridBoxGenerator()->model());
+
+        if (true)
+        {
+            frameScene->addModel(m_viewer->gridBoxGenerator()->model());
+        }
+    }
 }
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -464,6 +477,8 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         if (scaleZ < 1) scaleZ = 1;
 
+        this->updateGridBoxData();
+        
         // Regenerate well paths
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
@@ -768,6 +783,23 @@ void RimView::removeModelByName(cvf::Scene* scene, const cvf::String& modelName)
     for (size_t i = 0; i < modelsToBeRemoved.size(); i++)
     {
         scene->removeModel(modelsToBeRemoved[i]);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateGridBoxData()
+{
+    if (viewer())
+    {
+        RivGridBoxGenerator* gridBoxGen = viewer()->gridBoxGenerator();
+
+        gridBoxGen->setScaleZ(scaleZ);
+        gridBoxGen->setDisplayModelOffset(cvf::Vec3d::ZERO);
+        gridBoxGen->setGridBoxDomainCoordBoundingBox(ownerCase()->allCellsBoundingBox());
+
+        gridBoxGen->createGridBoxParts();
     }
 }
 

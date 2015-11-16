@@ -87,46 +87,6 @@ void RivPatchGenerator::setWindingCCW(bool windingCCW)
 //--------------------------------------------------------------------------------------------------
 void RivPatchGenerator::generate(cvf::GeometryBuilder* builder)
 {
-/*
-    CVF_ASSERT(m_cellCountU > 0);
-    CVF_ASSERT(m_cellCountV > 0);
-
-    size_t numVertices = (m_cellCountU + 1)*(m_cellCountV + 1);
-
-    Vec3fArray vertices;
-    vertices.reserve(numVertices);
-
-    const Vec3d unitU = (m_extentU*m_axisU)/m_cellCountU;
-    const Vec3d unitV = (m_extentV*m_axisV)/m_cellCountV;
-
-    uint v;
-    for (v = 0; v <= m_cellCountV; v++)
-    {
-        Vec3d rowOrigo(m_origin + unitV*v);
-
-        uint u;
-        for (u = 0; u <= m_cellCountU; u++)
-        {
-            vertices.add(Vec3f(rowOrigo + unitU*u));
-        }
-    }
-
-    uint baseNodeIdx = builder->addVertices(vertices);
-
-    if (m_useQuads)
-    {
-        UIntArray conn;
-        GeometryUtils::tesselatePatchAsQuads(m_cellCountU + 1, m_cellCountV + 1, baseNodeIdx, m_windingCCW, &conn);
-        builder->addQuads(conn);
-    }
-    else
-    {
-        UIntArray conn;
-        GeometryUtils::tesselatePatchAsTriangles(m_cellCountU + 1, m_cellCountV + 1, baseNodeIdx, m_windingCCW, &conn);
-        builder->addTriangles(conn);
-    }
-*/
-
     CVF_ASSERT(m_uValues.size() > 0);
     CVF_ASSERT(m_vValues.size() > 0);
 

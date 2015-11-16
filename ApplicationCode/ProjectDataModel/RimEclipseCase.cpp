@@ -359,6 +359,51 @@ void RimEclipseCase::setReservoirData(RigCaseData* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimEclipseCase::activeCellsBoundingBox() const
+{
+    if (m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS))
+    {
+        return m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->geometryBoundingBox();
+    }
+    else
+    {
+        return cvf::BoundingBox();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimEclipseCase::allCellsBoundingBox() const
+{
+    if (m_rigEclipseCase.notNull() && m_rigEclipseCase->mainGrid())
+    {
+        return m_rigEclipseCase->mainGrid()->boundingBox();
+    }
+    else
+    {
+        return cvf::BoundingBox();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimEclipseCase::displayModelOffset() const
+{
+    if (m_rigEclipseCase.notNull() && m_rigEclipseCase->mainGrid())
+    {
+        return m_rigEclipseCase->mainGrid()->displayModelOffset();
+    }
+    else
+    {
+        return cvf::Vec3d::ZERO;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::PorosityModelResultType porosityModel)
 {
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
