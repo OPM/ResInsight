@@ -507,7 +507,7 @@ inline double triArea3D(const cvf::Vec3d& v0,
 
 //--------------------------------------------------------------------------------------------------
 /// Barycentric coordinates of a Quad
-/// See http://geometry.caltech.edu/pubs/MHBD02.pdf for details
+/// See http://geometry.caltech.edu/pubs/MHBD02.pdf for details Eqn. 6.
 /// W_i = a_i / Sum(a_0 ... a_3)
 /// a_i = Area(v_(i-1), v_i, v_(i+1))*Area(p, v_(i-2), v_(i-1))*Area(p, v_(i+1), v_(i+2))
 
