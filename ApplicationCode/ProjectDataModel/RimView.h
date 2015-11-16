@@ -108,6 +108,7 @@ public:
 
     caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
     caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
+    caf::PdmField<bool>                     showGridBox;
 
     void                                    setMeshOnlyDrawstyle();
     void                                    setMeshSurfDrawstyle();

@@ -101,6 +101,8 @@ RimView::RimView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
+    CAF_PDM_InitField(&showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
+
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
     CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
@@ -509,6 +511,10 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         updateDisplayModelVisibility();
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
+    else if (changedField == &showGridBox)
+    {
+        createOverlayDisplayModelAndRedraw();
+    }
     else if (changedField == &m_disableLighting)
     {
         createDisplayModel();
@@ -831,7 +837,7 @@ void RimView::createOverlayDisplayModel()
         overlayScene->addModel(highlightModelBasicList.p());
     }
 
-    if (true)
+    if (showGridBox)
     {
         overlayScene->addModel(m_viewer->gridBoxGenerator()->model());
     }

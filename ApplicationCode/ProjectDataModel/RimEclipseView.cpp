@@ -1299,6 +1299,7 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
     viewGroup->add(&name);
     viewGroup->add(&backgroundColor);
+    viewGroup->add(&showGridBox);
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Appearance");
     gridGroup->add(&scaleZ);
