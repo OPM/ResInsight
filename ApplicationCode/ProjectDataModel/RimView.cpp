@@ -100,7 +100,7 @@ RimView::RimView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
-    CAF_PDM_InitField(&showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
+    CAF_PDM_InitField(&showGridBox, "ShowGridBox", false, "Show Grid Box", "", "", "");
 
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
