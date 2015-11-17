@@ -23,6 +23,7 @@
 #include "RivPatchGenerator.h"
 
 #include "cafEffectGenerator.h"
+
 #include "cvfCamera.h"
 #include "cvfDrawableText.h"
 #include "cvfFixedAtlasFont.h"
@@ -30,6 +31,7 @@
 #include "cvfGeometryBuilderFaceList.h"
 #include "cvfMeshEdgeExtractor.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
+#include "cvfRenderStateDepth.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -528,8 +530,13 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
 
         cvf::ref<cvf::Effect> eff;
         caf::MeshEffectGenerator effGen(m_gridLegendColor);
-        eff = effGen.generateCachedEffect();
+        eff = effGen.generateUnCachedEffect();
 
+        cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+        depth->enableDepthTest(false);
+        eff->setRenderState(depth.p());
+
+        part->setPriority(1500);
         part->setEffect(eff.p());
 
         parts->push_back(part.p());
@@ -628,12 +635,12 @@ void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f backgroun
 {
     if (backgroundColor.r() + backgroundColor.g() + backgroundColor.b() > 1.5f)
     {
-        m_gridColor = cvf::Color3f::LIGHT_GRAY;
+        m_gridColor = cvf::Color3f::DARK_GRAY;
         m_gridLegendColor = cvf::Color3f::fromByteColor(10, 10, 10);
     }
     else
     {
-        m_gridColor = cvf::Color3f::DARK_GRAY;
+        m_gridColor = cvf::Color3f::LIGHT_GRAY;
         m_gridLegendColor = cvf::Color3f::WHITE;
     }
 }
