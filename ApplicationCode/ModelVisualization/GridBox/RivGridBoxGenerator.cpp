@@ -20,6 +20,8 @@
 
 #include "RivGridBoxGenerator.h"
 
+#include "RiaApplication.h"
+
 #include "RivPatchGenerator.h"
 
 #include "cafEffectGenerator.h"
@@ -540,7 +542,10 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         // Text labels
 
         cvf::ref<cvf::DrawableText> geo = new cvf::DrawableText;
-        geo->setFont(new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD));
+        
+        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+        
+        geo->setFont(standardFont);
         geo->setTextColor(m_gridLegendColor);
         geo->setCheckPosVisible(false);
         geo->setDrawBackground(false);
