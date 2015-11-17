@@ -43,7 +43,7 @@ namespace cvf
 class RivGridBoxGenerator
 {
 public:
-    RivGridBoxGenerator(cvf::ShaderProgram* textShaderProgram);
+    RivGridBoxGenerator();
 
     void setScaleZ(double scaleZ);
     void setDisplayModelOffset(cvf::Vec3d offset);
@@ -126,7 +126,5 @@ private:
 
     cvf::Color3f        m_gridColor;
     cvf::Color3f        m_gridLegendColor;
-
-    cvf::ref<cvf::Effect>           m_textEffect;
 };
 

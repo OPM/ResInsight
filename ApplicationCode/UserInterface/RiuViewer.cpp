@@ -167,12 +167,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     // which solves the problem
     setContextMenuPolicy(Qt::PreventContextMenu);
 
-    cvf::ShaderProgram* textShaderProgram = NULL;
-    if (format.directRendering())
-    {
-        textShaderProgram = cvfOpenGLContext()->resourceManager()->getLinkedTextShaderProgram(cvfOpenGLContext());
-    }
-    m_gridBoxGenerator = new RivGridBoxGenerator(textShaderProgram);
+    m_gridBoxGenerator = new RivGridBoxGenerator;
 }
 
 

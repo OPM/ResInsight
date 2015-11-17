@@ -36,7 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivGridBoxGenerator::RivGridBoxGenerator(cvf::ShaderProgram* textShaderProgram)
+RivGridBoxGenerator::RivGridBoxGenerator()
     :   m_gridColor(cvf::Color3f::LIGHT_GRAY),
         m_gridLegendColor(cvf::Color3f::BLACK)
 {
@@ -44,12 +44,6 @@ RivGridBoxGenerator::RivGridBoxGenerator(cvf::ShaderProgram* textShaderProgram)
 
     m_scaleZ = 1.0;
     m_displayModelOffset = cvf::Vec3d::ZERO;
-
-    m_textEffect = new cvf::Effect;
-    if (textShaderProgram)
-    {
-        m_textEffect->setShaderProgram(textShaderProgram);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -562,7 +556,9 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         part->setDrawable(geo.p());
         part->updateBoundingBox();
 
-        part->setEffect(m_textEffect.p());
+        caf::TextEffectGenerator textGen;
+        cvf::ref<cvf::Effect> eff = textGen.generateCachedEffect();
+        part->setEffect(eff.p());
 
         parts->push_back(part.p());
     }
