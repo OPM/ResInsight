@@ -139,3 +139,16 @@ void RivReservoirPipesPartMgr::updatePipeResultColor(size_t frameIndex)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector< std::vector <cvf::Vec3d> >* RivReservoirPipesPartMgr::centerLineOfWellBranches(int wellIdx)
+{
+    if (wellIdx < m_wellPipesPartMgrs.size())
+    {
+        return &(m_wellPipesPartMgrs[wellIdx]->centerLineOfWellBranches());
+    }
+
+    return NULL;
+}
+

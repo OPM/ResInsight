@@ -97,10 +97,10 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
     m_wellBranches.clear();
 
-    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
+    m_pipeBranchesCLCoords.clear();
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
-    calculateWellPipeCenterline(pipeBranchesCLCoords, pipeBranchesCellIds);
+    calculateWellPipeCenterline(m_pipeBranchesCLCoords, pipeBranchesCellIds);
 
     double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
@@ -119,7 +119,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
         pbd.m_pipeGeomGenerator->setPipeColor( m_rimWell->wellPipeColor());
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
-        cvfCoords->assign(pipeBranchesCLCoords[brIdx]);
+        cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
         
         // Scale the centerline coordinates using the Z-scale transform of the grid and correct for the display offset.
         const RigMainGrid* mainGrid = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid();
