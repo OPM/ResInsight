@@ -200,6 +200,8 @@ cvf::Camera* caf::Viewer::mainCamera()
 //--------------------------------------------------------------------------------------------------
 void  caf::Viewer::setMainScene(cvf::Scene* scene)
 {
+    appendAllStaticModelsToFrame(scene);
+
     m_mainScene = scene;
     m_mainRendering->setScene(scene);
 }
@@ -544,6 +546,8 @@ void caf::Viewer::zoomAll()
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::addFrame(cvf::Scene* scene)
 {
+    appendAllStaticModelsToFrame(scene);
+
     m_frameScenes.push_back(scene);
     m_animationControl->setNumFrames(static_cast<int>(m_frameScenes.size()));
 }
@@ -814,5 +818,77 @@ void caf::Viewer::updateOverlayImagePresence()
 void caf::Viewer::navigationPolicyUpdate()
 {
     update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::addStaticModel(cvf::Model* model)
+{
+    if (m_staticModels.contains(model)) return;
+
+    m_staticModels.push_back(model);
+
+    appendModelToAllFrames(model);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::removeStaticModel(cvf::Model* model)
+{
+    removeModelFromAllFrames(model);
+    
+    m_staticModels.erase(model);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::removeAllStaticModels()
+{
+    for (size_t i = 0; i < m_staticModels.size(); i++)
+    {
+        removeModelFromAllFrames(m_staticModels.at(i));
+    }
+
+    m_staticModels.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::removeModelFromAllFrames(cvf::Model* model)
+{
+    for (size_t i = 0; i < m_frameScenes.size(); i++)
+    {
+        cvf::Scene* scene = m_frameScenes.at(i);
+
+        scene->removeModel(model);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::appendModelToAllFrames(cvf::Model* model)
+{
+    for (size_t i = 0; i < m_frameScenes.size(); i++)
+    {
+        cvf::Scene* scene = m_frameScenes.at(i);
+
+        scene->addModel(model);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::appendAllStaticModelsToFrame(cvf::Scene* scene)
+{
+    for (size_t i = 0; i < m_staticModels.size(); i++)
+    {
+        scene->addModel(m_staticModels.at(i));
+    }
 }
 

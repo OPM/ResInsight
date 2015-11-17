@@ -49,19 +49,20 @@
 
 namespace cvf {
     class Camera;
-    class Scene;
-    class Rendering;
-    class RenderSequence;
-    class OverlayScalarMapperLegend;
     class HitItemCollection;
+    class Model;
     class OverlayImage;
+    class OverlayScalarMapperLegend;
+    class RenderSequence;
+    class Rendering;
+    class Scene;
     class TextureImage;
 }
 
 namespace caf {
     class FrameAnimationControl;
-    class Viewer;
     class NavigationPolicy;
+    class Viewer;
 }
 
 class QInputEvent;
@@ -92,6 +93,12 @@ public:
     size_t                  frameCount()                                                       { return m_frameScenes.size(); }
     cvf::Scene*             frame(size_t frameIndex); 
     void                    removeAllFrames();
+
+    // Static models to be shown in all frames
+    void                    addStaticModel(cvf::Model* model);
+    void                    removeStaticModel(cvf::Model* model);
+    void                    removeAllStaticModels();
+
 
     // Recursively traverse all the scenes managed by the viewer and make sure all cached values are up-to-date
     // Use when changing the contents inside the objects in the scene.
@@ -169,6 +176,10 @@ protected:
 private:
     void                                setupMainRendering();
     void                                setupRenderingSequence();
+    
+    void                                appendAllStaticModelsToFrame(cvf::Scene* scene);
+    void                                appendModelToAllFrames(cvf::Model* model);
+    void                                removeModelFromAllFrames(cvf::Model* model);
 
     void                                updateCamera(int width, int height);
 
@@ -195,6 +206,7 @@ private:
 
     caf::FrameAnimationControl*         m_animationControl;
     cvf::Collection<cvf::Scene>         m_frameScenes;
+    cvf::Collection<cvf::Model>         m_staticModels;
 };
 
 } // End namespace caf
