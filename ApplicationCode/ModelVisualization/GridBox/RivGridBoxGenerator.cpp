@@ -345,7 +345,7 @@ void RivGridBoxGenerator::createGridBoxLegendParts()
 
         createLegend((EdgeType)edge, &parts);
 
-        for (int i = 0; i < parts.size(); i++)
+        for (size_t i = 0; i < parts.size(); i++)
         {
             m_gridBoxLegendParts.push_back(parts.at(i));
         }
