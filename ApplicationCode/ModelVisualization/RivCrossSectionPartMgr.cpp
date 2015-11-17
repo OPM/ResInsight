@@ -49,17 +49,15 @@
 //--------------------------------------------------------------------------------------------------
 RivCrossSectionPartMgr::RivCrossSectionPartMgr( const RigMainGrid* grid, 
                                                 const RimCrossSectionCollection* rimCrossSectionCollection, 
-                                                const RimCrossSection* rimCrossSection)
+                                                const RimCrossSection* rimCrossSection,
+                                                const std::vector<cvf::Vec3d>& polyLine)
     :   m_grid(grid),
         m_rimCrossSectionCollection(rimCrossSectionCollection),
         m_rimCrossSection(rimCrossSection),
         m_defaultColor(cvf::Color3::WHITE)
 {
-    std::vector<cvf::Vec3d> polyLine;
-    polyLine.push_back(grid->boundingBox().max());
-    polyLine.push_back(grid->boundingBox().min());
 
-    m_nativeCrossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine, cvf::Vec3d(0,0,1.0), grid );
+    m_nativeCrossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine, cvf::Vec3d(0.0,0,1.0), grid );
 
     m_nativeCrossSectionFacesTextureCoords = new cvf::Vec2fArray;
 }
@@ -228,7 +226,7 @@ void RivCrossSectionPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model)
+void RivCrossSectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
     if (m_nativeCrossSectionFaces.isNull())
     {
@@ -237,6 +235,7 @@ void RivCrossSectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasi
 
     if (m_nativeCrossSectionFaces.notNull())
     {
+        m_nativeCrossSectionFaces->setTransform(scaleTransform);
         model->addPart(m_nativeCrossSectionFaces.p());
     }
 }
@@ -245,8 +244,17 @@ void RivCrossSectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model)
+void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
-    if (m_nativeCrossSectionGridLines.notNull())   model->addPart(m_nativeCrossSectionGridLines.p());
+    if (m_nativeCrossSectionGridLines.isNull())
+    {
+        generatePartGeometry();
+    }
+
+    if (m_nativeCrossSectionGridLines.notNull())
+    {
+        m_nativeCrossSectionGridLines->setTransform(scaleTransform);
+        model->addPart(m_nativeCrossSectionGridLines.p());
+    }
 }
 

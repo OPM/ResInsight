@@ -47,13 +47,14 @@ class RivCrossSectionPartMgr : public cvf::Object
 public:
     RivCrossSectionPartMgr(const RigMainGrid* grid, 
                           const RimCrossSectionCollection* rimCrossSectionCollection, 
-                          const RimCrossSection* rimCrossSection);
+                          const RimCrossSection* rimCrossSection,
+                          const std::vector<cvf::Vec3d>& polyLine);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
 
-    void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model);
-    void appendMeshLinePartsToModel(cvf::ModelBasicList* model);
+    void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
+    void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
 private:
     void updatePartEffect();

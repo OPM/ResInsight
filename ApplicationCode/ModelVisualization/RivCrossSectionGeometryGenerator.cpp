@@ -83,6 +83,7 @@ bool planeLineIntersect(const cvf::Plane& plane, const cvf::Vec3d& a, const cvf:
 
 struct ClipVx 
 {
+    ClipVx() : vx(cvf::Vec3d::ZERO), normDistFromEdgeVx1(HUGE_VAL), clippedEdgeVx1Id(-1), clippedEdgeVx2Id(-1) {}
     cvf::Vec3d vx;
     double normDistFromEdgeVx1;
     int clippedEdgeVx1Id;
@@ -169,39 +170,41 @@ bool planeTriangleIntersection(const cvf::Plane& plane,
         CVF_ASSERT(false);
     }
 
-    cvf::Vec3d intersection; 
-    double normDistFromP1 = 0;
-    if (topVx = 1)
+    bool ok1, ok2;
+    if (topVx == 1)
     {
-        planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
         (*newVx1).clippedEdgeVx1Id = p1Id;
-        (*newVx1).clippedEdgeVx1Id = p2Id;
-        planeLineIntersect(plane, p1, p3, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
-        (*newVx1).clippedEdgeVx1Id = p1Id;
-        (*newVx1).clippedEdgeVx1Id = p3Id;
+        (*newVx1).clippedEdgeVx2Id = p2Id;
+        ok2 = planeLineIntersect(plane, p1, p3, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        (*newVx2).clippedEdgeVx1Id = p1Id;
+        (*newVx2).clippedEdgeVx2Id = p3Id;
+        CVF_TIGHT_ASSERT(ok1 && ok2);
     }
-    else if (topVx = 2)
+    else if (topVx == 2)
     {
-        planeLineIntersect(plane, p2, p3, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p2, p3, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
         (*newVx1).clippedEdgeVx1Id = p2Id;
-        (*newVx1).clippedEdgeVx1Id = p3Id;
-        planeLineIntersect(plane, p2, p1, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
-        (*newVx1).clippedEdgeVx1Id = p2Id;
-        (*newVx1).clippedEdgeVx1Id = p1Id;
+        (*newVx1).clippedEdgeVx2Id = p3Id;
+        ok2 = planeLineIntersect(plane, p2, p1, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        (*newVx2).clippedEdgeVx1Id = p2Id;
+        (*newVx2).clippedEdgeVx2Id = p1Id;
     }
-    else if (topVx = 3)
+    else if (topVx == 3)
     {
-        planeLineIntersect(plane, p3, p1, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p3, p1, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
         (*newVx1).clippedEdgeVx1Id = p3Id;
-        (*newVx1).clippedEdgeVx1Id = p1Id;
-        planeLineIntersect(plane, p3, p2, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
-        (*newVx1).clippedEdgeVx1Id = p3Id;
-        (*newVx1).clippedEdgeVx1Id = p2Id;
+        (*newVx1).clippedEdgeVx2Id = p1Id;
+        ok2 = planeLineIntersect(plane, p3, p2, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        (*newVx2).clippedEdgeVx1Id = p3Id;
+        (*newVx2).clippedEdgeVx2Id = p2Id;
     }
     else
     {
         CVF_ASSERT(false);
     }
+
+    CVF_TIGHT_ASSERT(ok1 && ok2);
     
     return true;  
 }
@@ -703,21 +706,23 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 {
     if (m_triangleVxes->size()) return;
 
-    std::vector<cvf::Vec3f> triangleVertices;
-    cvf::Vec3d displayOffset = m_mainGrid->displayModelOffset();
-
-    cvf::BoundingBox gridBBox = m_mainGrid->boundingBox();
     m_extrusionDirection.normalize();
 
-    size_t lineCount = m_polyLine.size();
+    adjustPolyline();
+
+    std::vector<cvf::Vec3f> triangleVertices;
+    cvf::Vec3d displayOffset = m_mainGrid->displayModelOffset();
+    cvf::BoundingBox gridBBox = m_mainGrid->boundingBox();
+
+    size_t lineCount = m_adjustedPolyline.size();
     for (size_t lIdx = 0; lIdx < lineCount - 1; ++lIdx)
     {
-        cvf::Vec3d p1 = m_polyLine[lIdx];
-        cvf::Vec3d p2 = m_polyLine[lIdx+1];
+        cvf::Vec3d p1 = m_adjustedPolyline[lIdx];
+        cvf::Vec3d p2 = m_adjustedPolyline[lIdx+1];
 
         cvf::BoundingBox sectionBBox;
         sectionBBox.add(p1);
-        sectionBBox.add(p1);
+        sectionBBox.add(p2);
         double maxSectionHeight = gridBBox.radius();
         sectionBBox.add(p1 + m_extrusionDirection*maxSectionHeight);
         sectionBBox.add(p1 - m_extrusionDirection*maxSectionHeight);
@@ -733,7 +738,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
         cvf::Plane p1Plane;
         p1Plane.setFromPoints(p1, p1 + m_extrusionDirection*maxSectionHeight, p1 + plane.normal());
         cvf::Plane p2Plane;
-        p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 + plane.normal() );
+        p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 - plane.normal() );
         
         
         std::vector<ClipVx> triangleVxes;
@@ -767,7 +772,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 
             if (triangleCount)
             {
-                #if 1
+                #if 0
                 for (int tIdx = 0; tIdx < triangleCount; ++tIdx)
                 {
                     // Accumulate to geometry
@@ -782,64 +787,169 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 
                 // Clip triangles with plane 1
                 std::vector<ClipVx> clippedTriangleVxes;
-                for (int triVxIdx = 0; tIdx < triangleCount; ++tIdx)
+                for (int tIdx = 0; tIdx < triangleCount; ++tIdx)
                 {
-                    ClipVx newVx1;
-                    ClipVx newVx2;
-                    bool isMostVxesOnPositiveSide = false;
+ 
                     int triVxIdx = tIdx*3;
-                    bool isIntersecting = planeTriangleIntersection(p1Plane,
+
+                    ClipVx newVx1OnP1;
+                    ClipVx newVx2OnP1;
+                    bool isMostVxesOnPositiveSideOfP1 = false;
+                    bool isIntersectingP1 = planeTriangleIntersection(p1Plane,
                                                                     triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
                                                                     triangleVxes[triVxIdx + 1].vx, triVxIdx + 1,
                                                                     triangleVxes[triVxIdx + 2].vx, triVxIdx + 2,
-                                                                    &newVx1, &newVx2, &isMostVxesOnPositiveSide);
+                                                                    &newVx1OnP1, &newVx2OnP1, &isMostVxesOnPositiveSideOfP1);
 
-                    if (!isIntersecting && !isMostVxesOnPositiveSide)
+                    if (!isIntersectingP1 && !isMostVxesOnPositiveSideOfP1)
                     {
-                        // Discard triangle
+                        continue; // Discard triangle
                     }
-                    else if (!isIntersecting && isMostVxesOnPositiveSide)
+
+                    
+                    ClipVx newVx1OnP2;
+                    ClipVx newVx2OnP2;
+                    bool isMostVxesOnPositiveSideOfP2 = false;
+                    bool isIntersectingP2 = planeTriangleIntersection(p2Plane,
+                                                                    triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
+                                                                    triangleVxes[triVxIdx + 1].vx, triVxIdx + 1,
+                                                                    triangleVxes[triVxIdx + 2].vx, triVxIdx + 2,
+                                                                    &newVx1OnP2, &newVx2OnP2, &isMostVxesOnPositiveSideOfP2);
+
+                    if (!isIntersectingP2 && !isMostVxesOnPositiveSideOfP2)
+                    {
+                        continue; // Discard triangle
+                    }
+
+                    bool p1KeepAll = (!isIntersectingP1 && isMostVxesOnPositiveSideOfP1);
+                    bool p2KeepAll = (!isIntersectingP2 && isMostVxesOnPositiveSideOfP2);
+                    bool p1KeepQuad = (isIntersectingP1 && isMostVxesOnPositiveSideOfP1);
+                    bool p2KeepQuad = (isIntersectingP2 && isMostVxesOnPositiveSideOfP2);
+                    bool p1KeepTop = (isIntersectingP1 && !isMostVxesOnPositiveSideOfP1);
+                    bool p2KeepTop = (isIntersectingP2 && !isMostVxesOnPositiveSideOfP2);
+
+                    if (p1KeepAll && p2KeepAll)
                     {
                         // Keep the triangle
                         clippedTriangleVxes.push_back(triangleVxes[triVxIdx + 0]);
                         clippedTriangleVxes.push_back(triangleVxes[triVxIdx + 1]);
                         clippedTriangleVxes.push_back(triangleVxes[triVxIdx + 2]);
+                        continue;
                     }
-                    else if (isIntersecting && isMostVxesOnPositiveSide)
+
+                    if (p1KeepQuad && p2KeepAll)
                     {
                         // Split the resulting quad and add the two triangles
-                        clippedTriangleVxes.push_back(newVx2);
-                        clippedTriangleVxes.push_back(newVx1);
-                        clippedTriangleVxes.push_back(triangleVxes[newVx1.clippedEdgeVx2Id]);
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+                        clippedTriangleVxes.push_back(newVx1OnP1);
+                        clippedTriangleVxes.push_back(triangleVxes[newVx1OnP1.clippedEdgeVx2Id]);
 
-                        clippedTriangleVxes.push_back(triangleVxes[newVx1.clippedEdgeVx2Id]);
-                        clippedTriangleVxes.push_back(triangleVxes[newVx2.clippedEdgeVx2Id]);
-                        clippedTriangleVxes.push_back(newVx2);
-
+                        clippedTriangleVxes.push_back(triangleVxes[newVx1OnP1.clippedEdgeVx2Id]);
+                        clippedTriangleVxes.push_back(triangleVxes[newVx2OnP1.clippedEdgeVx2Id]);
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+                        continue;
                     }
-                    else if (isIntersecting && !isMostVxesOnPositiveSide)
+
+                    if (p2KeepQuad && p1KeepAll)
+                    {
+                        // Split the resulting quad and add the two triangles
+                        clippedTriangleVxes.push_back(newVx2OnP2);
+                        clippedTriangleVxes.push_back(newVx1OnP2);
+                        clippedTriangleVxes.push_back(triangleVxes[newVx2OnP2.clippedEdgeVx2Id]);
+
+                        clippedTriangleVxes.push_back(newVx1OnP2);
+                        clippedTriangleVxes.push_back(triangleVxes[newVx1OnP2.clippedEdgeVx2Id]);
+                        clippedTriangleVxes.push_back(triangleVxes[newVx2OnP2.clippedEdgeVx2Id]);
+                        continue;
+                    }
+
+                    if (p1KeepTop && p2KeepAll)
                     {
                         // Add the top triangle
-                        clippedTriangleVxes.push_back(newVx1);
-                        clippedTriangleVxes.push_back(newVx2);
-                        clippedTriangleVxes.push_back(triangleVxes[newVx1.clippedEdgeVx1Id]);
-
+                        clippedTriangleVxes.push_back(newVx1OnP1);
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+                        clippedTriangleVxes.push_back(triangleVxes[newVx1OnP1.clippedEdgeVx1Id]);
+                        continue;
                     }
+
+                    if (p2KeepTop && p1KeepAll)
+                    {
+                        // Add the top triangle
+                        clippedTriangleVxes.push_back(newVx1OnP2);
+                        clippedTriangleVxes.push_back(newVx2OnP2);
+                        clippedTriangleVxes.push_back(triangleVxes[newVx1OnP2.clippedEdgeVx1Id]);
+                        continue;
+                    }
+
+                    if (p1KeepQuad && p2KeepQuad)
+                    {
+                        // We end up with a penthagon. 
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+                        clippedTriangleVxes.push_back(newVx1OnP1);
+                        clippedTriangleVxes.push_back(newVx2OnP2);
+
+                        clippedTriangleVxes.push_back(newVx2OnP2);
+                        clippedTriangleVxes.push_back(newVx1OnP2);
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+
+                        // Two variants. The original point might be along newVx1OnP1 to newVx2OnP2 or along newVx2OnP1 to newVx1OnP2
+                        if (newVx1OnP1.clippedEdgeVx2Id == newVx2OnP2.clippedEdgeVx1Id) 
+                        {
+                            clippedTriangleVxes.push_back(newVx2OnP1);
+                            clippedTriangleVxes.push_back(newVx1OnP2);
+                            clippedTriangleVxes.push_back(triangleVxes[newVx2OnP1.clippedEdgeVx2Id]);
+                        }
+                        else
+                        {
+                            
+                            clippedTriangleVxes.push_back(newVx2OnP2);
+                            clippedTriangleVxes.push_back(newVx1OnP1);
+                            clippedTriangleVxes.push_back(triangleVxes[newVx2OnP2.clippedEdgeVx2Id]);
+                        }
+                        continue;
+                    }
+
+                    if (p1KeepQuad && p2KeepTop)
+                    {
+                        // We end up with a quad. 
+                        clippedTriangleVxes.push_back(newVx1OnP1);
+                        clippedTriangleVxes.push_back(newVx1OnP2);
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+
+                        clippedTriangleVxes.push_back(newVx1OnP2);
+                        clippedTriangleVxes.push_back(newVx2OnP2);
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+                        continue;
+                    }
+
+                    if (p2KeepQuad && p1KeepTop)
+                    {
+                        // We end up with a quad. 
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+                        clippedTriangleVxes.push_back(newVx2OnP2);
+                        clippedTriangleVxes.push_back(newVx1OnP2);
+
+                        clippedTriangleVxes.push_back(newVx2OnP1);
+                        clippedTriangleVxes.push_back(newVx1OnP2);
+                        clippedTriangleVxes.push_back(newVx1OnP1);
+
+                        continue;
+                    }
+
+                    CVF_ASSERT(false);
                 }
-                
-                // Clip triangles with plane 2
-                for (int triVxIdx = 0; tIdx < triangleCount; ++tIdx)
+
+                triangleCount = static_cast<int>(clippedTriangleVxes.size())/3;
+                for (int tIdx = 0; tIdx < triangleCount; ++tIdx)
                 {
-
-
-                }
-
-                for (int triVxIdx = 0; tIdx < triangleCount; ++tIdx)
-                {
-
                     // Accumulate to geometry
-                   
-                }
+                    int triVxIdx = tIdx*3;
+                    triangleVertices.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+0].vx - displayOffset));
+                    triangleVertices.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+1].vx - displayOffset));
+                    triangleVertices.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+2].vx - displayOffset));
+
+                    m_triangleToCellIdxMap.push_back(globalCellIdx);
+                }                     
                 #endif
             }
         }
@@ -913,6 +1023,30 @@ void RivCrossSectionGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textu
         for (j = 0; j < 3; j++)
         {   
             rawPtr[tIdx*3 + j] = texCoord;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivCrossSectionGeometryGenerator::adjustPolyline()
+{
+    size_t lineCount = m_polyLine.size();
+    if (!m_polyLine.size()) return;
+
+    m_adjustedPolyline.push_back(m_polyLine[0]);
+    cvf::Vec3d p1 = m_polyLine[0];
+
+    for (size_t lIdx = 1; lIdx < lineCount; ++lIdx)
+    {
+        cvf::Vec3d p2 = m_polyLine[lIdx];
+        cvf::Vec3d p1p2 = p2 - p1;
+
+        if ((p1p2 - (p1p2 * m_extrusionDirection)*m_extrusionDirection).length() > 0.1 )
+        {
+            m_adjustedPolyline.push_back(p2);
+            p1 = p2;
         }
     }
 }

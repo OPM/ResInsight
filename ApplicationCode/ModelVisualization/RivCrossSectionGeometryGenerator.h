@@ -57,12 +57,13 @@ public:
 
 private:
     void                        calculateArrays();
-
+    void                        adjustPolyline();
     cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
     std::vector<size_t>         m_triangleToCellIdxMap;
 
     cvf::cref<RigMainGrid>      m_mainGrid;
     std::vector<cvf::Vec3d>     m_polyLine;
     cvf::Vec3d                  m_extrusionDirection;
+    std::vector<cvf::Vec3d>     m_adjustedPolyline;
 };
 
