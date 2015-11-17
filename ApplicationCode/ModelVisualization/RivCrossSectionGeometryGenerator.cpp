@@ -704,7 +704,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
     if (m_triangleVxes->size()) return;
 
     std::vector<cvf::Vec3f> triangleVertices;
-
+    cvf::Vec3d displayOffset = m_mainGrid->displayModelOffset();
 
     cvf::BoundingBox gridBBox = m_mainGrid->boundingBox();
     m_extrusionDirection.normalize();
@@ -741,9 +741,11 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 
         for (size_t cccIdx = 0; cccIdx < columnCellCandidates.size(); ++cccIdx)
         {
-            triangleVxes.clear();
             size_t globalCellIdx = columnCellCandidates[cccIdx];
 
+            if (m_mainGrid->cells()[globalCellIdx].isInvalid()) continue;
+            
+            triangleVxes.clear();
             cvf::Vec3d cellCorners[8];
             m_mainGrid->cellCornerVertices(globalCellIdx, cellCorners);
 
@@ -770,9 +772,9 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
                 {
                     // Accumulate to geometry
                     int triVxIdx = tIdx*3;
-                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+0].vx));
-                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+1].vx));
-                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+2].vx));
+                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+0].vx - displayOffset));
+                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+1].vx - displayOffset));
+                    triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+2].vx - displayOffset));
 
                     m_triangleToCellIdxMap.push_back(globalCellIdx);
                 }
@@ -866,6 +868,15 @@ cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::generateSurface()
     return geo;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createMeshDrawable()
+{
+    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+    return geo;
+}
 
 
 //--------------------------------------------------------------------------------------------------

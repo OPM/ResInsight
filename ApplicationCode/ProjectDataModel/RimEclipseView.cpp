@@ -70,6 +70,7 @@
 #include <QMessageBox>
 
 #include <limits.h>
+#include "RivCrossSectionPartMgr.h"
 
 
 
@@ -414,6 +415,15 @@ void RimEclipseView::createDisplayModel()
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
         }
 
+    }
+
+    {
+        if (m_csPartmgr.isNull()) m_csPartmgr = new RivCrossSectionPartMgr(m_reservoir->reservoirData()->mainGrid(), NULL, NULL);
+        for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
+        {
+            m_csPartmgr->appendNativeCrossSectionFacesToModel(frameModels[frameIdx].p());
+            frameModels[frameIdx]->part(frameModels[frameIdx]->partCount()-1)->setTransform(m_reservoirGridPartManager->scaleTransform());
+        }
     }
 
     // Compute triangle count, Debug only

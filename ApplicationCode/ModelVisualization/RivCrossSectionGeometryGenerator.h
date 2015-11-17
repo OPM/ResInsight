@@ -53,7 +53,7 @@ public:
 
     // Generated geometry
     cvf::ref<cvf::DrawableGeo>  generateSurface();
-    //cvf::ref<cvf::DrawableGeo> createMeshDrawable();
+    cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
 
 private:
     void                        calculateArrays();
