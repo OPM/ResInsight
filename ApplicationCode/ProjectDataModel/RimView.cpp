@@ -811,7 +811,7 @@ void RimView::createOverlayDisplayModelAndRedraw()
 //--------------------------------------------------------------------------------------------------
 void RimView::createOverlayDisplayModel()
 {
-    cvf::ref<cvf::Scene> overlayScene = new cvf::Scene;
+    m_viewer->removeAllStaticModels();
 
     cvf::Collection<cvf::Part> parts;
     createPartCollectionFromSelection(&parts);
@@ -828,15 +828,13 @@ void RimView::createOverlayDisplayModel()
         }
 
         highlightModelBasicList->updateBoundingBoxesRecursive();
-        overlayScene->addModel(highlightModelBasicList.p());
+        m_viewer->addStaticModel(highlightModelBasicList.p());
     }
 
     if (showGridBox)
     {
-        overlayScene->addModel(m_viewer->gridBoxModel());
+        m_viewer->addStaticModel(m_viewer->gridBoxModel());
     }
-
-    m_viewer->setOverlayScene(overlayScene.p());
 }
 
 //--------------------------------------------------------------------------------------------------

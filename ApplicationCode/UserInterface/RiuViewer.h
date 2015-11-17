@@ -57,8 +57,6 @@ public:
     RiuViewer(const QGLFormat& format, QWidget* parent);
     ~RiuViewer();
 
-    void            setOverlayScene(cvf::Scene* scene);
-
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
@@ -92,7 +90,6 @@ public slots:
 
 protected:
     virtual void    optimizeClippingPlanes();
-    virtual void    resizeGL(int width, int height);
 
 private:
     void            paintOverlayItems(QPainter* painter);
@@ -100,8 +97,6 @@ private:
     void            mouseReleaseEvent(QMouseEvent* event);
     void            mousePressEvent(QMouseEvent* event);
 
-    void            setupRenderingSequence();
-    static void     copyCameraView(cvf::Camera* srcCamera, cvf::Camera* dstCamera);
 private:
     QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;
@@ -122,7 +117,5 @@ private:
     RiuViewerCommands*          m_viewerCommands;
 
     RivGridBoxGenerator*        m_gridBoxGenerator;
-
-    cvf::ref<cvf::Rendering>    m_overlayRendering;
 };
 

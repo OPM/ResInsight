@@ -173,8 +173,6 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
         textShaderProgram = cvfOpenGLContext()->resourceManager()->getLinkedTextShaderProgram(cvfOpenGLContext());
     }
     m_gridBoxGenerator = new RivGridBoxGenerator(textShaderProgram);
-    
-    setupRenderingSequence();
 }
 
 
@@ -537,66 +535,11 @@ RimView* RiuViewer::ownerReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setupRenderingSequence()
-{
-    m_overlayRendering = new cvf::Rendering;
-    m_overlayRendering->setCamera(new cvf::Camera);
-    m_overlayRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
-    m_overlayRendering->setClearMode(cvf::Viewport::DO_NOT_CLEAR);
-
-    // Set fixed function rendering if QGLFormat does not support directRendering
-    if (!this->format().directRendering())
-    {
-        m_overlayRendering->renderEngine()->enableForcedImmediateMode(true);
-    }
-
-    m_renderingSequence->addRendering(m_overlayRendering.p());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::setOverlayScene(cvf::Scene* scene)
-{
-    m_overlayRendering->setScene(scene);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::copyCameraView(cvf::Camera* srcCamera, cvf::Camera* dstCamera)
-{
-    if (srcCamera->projection() == cvf::Camera::PERSPECTIVE)
-    {
-        dstCamera->setProjectionAsPerspective(srcCamera->fieldOfViewYDeg(), srcCamera->nearPlane(), srcCamera->farPlane());
-    }
-    else
-    {
-        dstCamera->setProjectionAsOrtho(srcCamera->frontPlaneFrustumHeight(), srcCamera->nearPlane(), srcCamera->farPlane());
-    }
-
-    dstCamera->setViewMatrix(srcCamera->viewMatrix());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuViewer::optimizeClippingPlanes()
 {
     caf::Viewer::optimizeClippingPlanes();
 
     m_gridBoxGenerator->updateFromCamera(mainCamera());
-    copyCameraView(mainCamera(), m_overlayRendering->camera());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::resizeGL(int width, int height)
-{
-    caf::Viewer::resizeGL(width, height);
-
-    m_overlayRendering->camera()->viewport()->set(0, 0, width, height);
 }
 
 //--------------------------------------------------------------------------------------------------
