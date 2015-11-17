@@ -542,6 +542,7 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         cvf::ref<cvf::DrawableText> geo = new cvf::DrawableText;
         geo->setFont(new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD));
         geo->setTextColor(m_gridLegendColor);
+        geo->setCheckPosVisible(false);
         geo->setDrawBackground(false);
         geo->setDrawBorder(false);
         
