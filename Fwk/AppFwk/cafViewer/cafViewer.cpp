@@ -278,7 +278,7 @@ void caf::Viewer::optimizeClippingPlanes()
 
         double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
 
-        double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius();
+        double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
         farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
 
         double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
@@ -830,6 +830,8 @@ void caf::Viewer::addStaticModel(cvf::Model* model)
     m_staticModels.push_back(model);
 
     appendModelToAllFrames(model);
+
+    updateCachedValuesInScene();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -840,6 +842,8 @@ void caf::Viewer::removeStaticModel(cvf::Model* model)
     removeModelFromAllFrames(model);
     
     m_staticModels.erase(model);
+
+    updateCachedValuesInScene();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -853,6 +857,8 @@ void caf::Viewer::removeAllStaticModels()
     }
 
     m_staticModels.clear();
+
+    updateCachedValuesInScene();
 }
 
 //--------------------------------------------------------------------------------------------------
