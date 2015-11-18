@@ -83,7 +83,7 @@ void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& cu
     RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
 
     QPolygonF points;
-    for (int i = 0; i < filteredDateTimes.size(); i++)
+    for (size_t i = 0; i < filteredDateTimes.size(); i++)
     {
         double milliSecSinceEpoch = QwtDate::toDouble(filteredDateTimes[i]);
         points << QPointF(milliSecSinceEpoch, filteredTimeHistoryValues[i]);

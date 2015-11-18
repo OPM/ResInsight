@@ -91,7 +91,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
     else if (m_geoMechCase && m_cellIndex != cvf::UNDEFINED_SIZE_T)
     {
         CVF_ASSERT(m_geoMechCase->geoMechData());
-        CVF_ASSERT(m_geoMechCase->geoMechData()->femParts()->partCount() > m_gridIndex);
+        CVF_ASSERT(m_geoMechCase->geoMechData()->femParts()->partCount() > static_cast<int>(m_gridIndex));
 
         RigFemPart* femPart = m_geoMechCase->geoMechData()->femParts()->part(m_gridIndex);
         CVF_ASSERT(femPart);
