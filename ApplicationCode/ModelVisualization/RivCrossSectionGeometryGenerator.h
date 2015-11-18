@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include "cvfArray.h"
@@ -57,8 +58,13 @@ public:
 
 private:
     void                        calculateArrays();
+
+
+
     void                        adjustPolyline();
     cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
+    cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
+
     std::vector<size_t>         m_triangleToCellIdxMap;
 
     cvf::cref<RigMainGrid>      m_mainGrid;

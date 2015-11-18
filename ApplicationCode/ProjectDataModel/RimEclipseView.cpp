@@ -428,6 +428,7 @@ void RimEclipseView::createDisplayModel()
         for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
             m_csPartmgr->appendNativeCrossSectionFacesToModel(frameModels[frameIdx].p(), m_reservoirGridPartManager->scaleTransform());
+            m_csPartmgr->appendMeshLinePartsToModel(frameModels[frameIdx].p(), m_reservoirGridPartManager->scaleTransform());
         }
 #endif
     }
