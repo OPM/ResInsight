@@ -55,6 +55,9 @@ public:
     caf::PdmPtrField<RimWellPath*>      wellPath;
     caf::PdmPtrField<RimEclipseWell*>   simulationWell;
 
+    virtual caf::PdmFieldHandle*        userDescriptionField();
+    virtual caf::PdmFieldHandle*        objectToggleField();
+
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 //    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
@@ -62,7 +65,6 @@ protected:
 //    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-
-
 private:
+
 };

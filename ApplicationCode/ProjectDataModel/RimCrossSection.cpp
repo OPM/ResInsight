@@ -24,20 +24,19 @@
 
 namespace caf {
 
-    template<>
-    void caf::AppEnum< RimCrossSection::CrossSectionEnum >::setUp()
-    {
-        addItem(RimCrossSection::CS_WELL_PATH,       "WELL_PATH",       "Well Path");
-        addItem(RimCrossSection::CS_SIMULATION_WELL, "SIMULATION_WELL", "Simulation Well");
-        addItem(RimCrossSection::CS_USER_DEFINED,    "USER_DEFINED",    "User defined");
-        setDefault(RimCrossSection::CS_WELL_PATH);
-    }
+template<>
+void caf::AppEnum< RimCrossSection::CrossSectionEnum >::setUp()
+{
+    addItem(RimCrossSection::CS_WELL_PATH,       "WELL_PATH",       "Well Path");
+    addItem(RimCrossSection::CS_SIMULATION_WELL, "SIMULATION_WELL", "Simulation Well");
+    addItem(RimCrossSection::CS_USER_DEFINED,    "USER_DEFINED",    "User defined");
+    setDefault(RimCrossSection::CS_WELL_PATH);
+}
 
 } 
 
 
 CAF_PDM_SOURCE_INIT(RimCrossSection, "CrossSection");
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -100,4 +99,20 @@ QList<caf::PdmOptionItemInfo> RimCrossSection::calculateValueOptions(const caf::
     }
 */
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCrossSection::userDescriptionField()
+{
+    return &name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCrossSection::objectToggleField()
+{
+    return &isActive;
 }

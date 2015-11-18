@@ -23,6 +23,8 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimCrossSection.h"
+#include "RimCrossSectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -253,6 +255,15 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
             commandIds << "RicAddWellLogToPlotFeature";
+        }
+        else if (dynamic_cast<RimCrossSectionCollection*>(uiItem))
+        {
+            commandIds << "RicAppendCrossSectionFeature";
+        }
+        else if (dynamic_cast<RimCrossSection*>(uiItem))
+        {
+            commandIds << "RicAppendCrossSectionFeature";
+            commandIds << "RicDeleteItemFeature";
         }
 
         if (dynamic_cast<RimView*>(uiItem))
