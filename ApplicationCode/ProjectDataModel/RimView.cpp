@@ -7,10 +7,12 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimCrossSectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimPropertyFilterCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -31,7 +33,6 @@
 #include "cvfViewport.h"
 
 #include <limits.h>
-#include "RimPropertyFilterCollection.h"
 
 
 namespace caf {
@@ -40,8 +41,8 @@ template<>
 void caf::AppEnum< RimView::MeshModeType >::setUp()
 {
     addItem(RimView::FULL_MESH,      "FULL_MESH",       "All");
-    addItem(RimView::FAULTS_MESH,    "FAULTS_MESH",      "Faults only");
-    addItem(RimView::NO_MESH,        "NO_MESH",        "None");
+    addItem(RimView::FAULTS_MESH,    "FAULTS_MESH",     "Faults only");
+    addItem(RimView::NO_MESH,        "NO_MESH",         "None");
     setDefault(RimView::FULL_MESH);
 }
 
@@ -115,6 +116,10 @@ RimView::RimView(void)
     m_overrideRangeFilterCollection.uiCapability()->setUiHidden(true);
     m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
     m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_crossSectionCollection, "CrossSections", "Cross Sections", "", "", "");
+    m_crossSectionCollection.uiCapability()->setUiHidden(true);
+    m_crossSectionCollection = new RimCrossSectionCollection();
 
     m_previousGridModeMeshLinesWasFaults = false;
 }

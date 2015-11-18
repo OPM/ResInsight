@@ -44,6 +44,7 @@ class RiuViewer;
 class RimViewLinker;
 class RimViewController;
 class RimPropertyFilterCollection;
+class RimCrossSectionCollection;
 
 namespace cvf
 {
@@ -190,6 +191,8 @@ protected:
 
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_overrideRangeFilterCollection;
+    
+    caf::PdmChildField<RimCrossSectionCollection*>      m_crossSectionCollection;
 
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
