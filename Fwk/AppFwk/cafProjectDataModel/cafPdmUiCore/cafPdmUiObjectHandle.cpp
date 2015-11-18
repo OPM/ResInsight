@@ -195,7 +195,7 @@ void PdmUiObjectHandle::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigNa
                     }
                 }
             }
-            else if (root->isRepresentingObject())
+            else if (root->isRepresentingObject() && !root->object()->uiCapability()->isUiChildrenHidden(uiConfigName))
             {
                 uiObj(root->object())->defineUiTreeOrdering(*root, uiConfigName);
                 uiObj(root->object())->addDefaultUiTreeChildren(root);
