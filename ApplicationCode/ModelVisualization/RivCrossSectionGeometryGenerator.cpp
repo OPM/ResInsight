@@ -369,7 +369,7 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             clippedTriangleVxes->push_back(triangleVxes[newVx1OnP2.clippedEdgeVx1Id]);
 
             isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP2.clippedEdgeVx1Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP2.clippedEdgeVx2Id]);
             isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP2.clippedEdgeVx1Id]);
 
             continue;
@@ -462,7 +462,7 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             clippedTriangleVxes->push_back(newVx1OnP2);
             clippedTriangleVxes->push_back(newVx1OnP1);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP1.clippedEdgeVx1Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP1.clippedEdgeVx2Id]);
             isClippedTriEdgeCellContour->push_back(false);
             isClippedTriEdgeCellContour->push_back(false);
 
