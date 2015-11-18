@@ -19,6 +19,14 @@
 
 #include "RimCrossSection.h"
 
+#include "RiaApplication.h"
+
+#include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
 
 
 
@@ -49,7 +57,11 @@ RimCrossSection::RimCrossSection()
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&crossSectionType, "CrossSectionType", "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellPath,           "WellPath",         "Well Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&simulationWell,     "SimulationWell",   "Simulation Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&crossSectionType,   "CrossSectionType", "Type", "", "", "");
+
+    uiCapability()->setUiChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +77,23 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&name);
+    uiOrdering.add(&crossSectionType);
 
+    if (crossSectionType == CS_WELL_PATH)
+    {
+        uiOrdering.add(&wellPath);
+    }
+    else if (crossSectionType == CS_SIMULATION_WELL)
+    {
+        uiOrdering.add(&simulationWell);
+    }
+    else
+    {
+
+    }
+
+    uiOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,29 +103,46 @@ QList<caf::PdmOptionItemInfo> RimCrossSection::calculateValueOptions(const caf::
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (useOptionsOnly) (*useOptionsOnly) = true;
-
-/*
-    if (&gridIndex == fieldNeedingOptions)
+    if (fieldNeedingOptions == &wellPath)
     {
-        for (int gIdx = 0; gIdx < parentContainer()->gridCount(); ++gIdx)
+        RimProject* proj = RiaApplication::instance()->project();
+        if (proj->activeOilField()->wellPathCollection())
         {
-            QString gridName;
-
-            gridName += parentContainer()->gridName(gIdx);
-            if (gIdx == 0)
+            caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+            
+            QIcon wellIcon(":/Well.png");
+            for (size_t i = 0; i < wellPaths.size(); i++)
             {
-                if (gridName.isEmpty())
-                    gridName += "Main Grid";
-                else
-                    gridName += " (Main Grid)";
+                options.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i])), false, wellIcon));
             }
+        }
 
-            caf::PdmOptionItemInfo item(gridName, (int)gIdx);
-            options.push_back(item);
+        if (options.size() == 0)
+        {
+            options.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
         }
     }
-*/
+    else if (fieldNeedingOptions == &simulationWell)
+    {
+        RimEclipseWellCollection* coll = simulationWellCollection();
+        if (coll)
+        {
+            caf::PdmChildArrayField<RimEclipseWell*>& eclWells = coll->wells;
+
+            QIcon simWellIcon(":/Well.png");
+            for (size_t i = 0; i < eclWells.size(); i++)
+            {
+                options.push_back(caf::PdmOptionItemInfo(eclWells[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(eclWells[i])), false, simWellIcon));
+            }
+
+        }
+
+        if (options.size() == 0)
+        {
+            options.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+        }
+    }
+
     return options;
 }
 
@@ -115,4 +160,20 @@ caf::PdmFieldHandle* RimCrossSection::userDescriptionField()
 caf::PdmFieldHandle* RimCrossSection::objectToggleField()
 {
     return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseWellCollection* RimCrossSection::simulationWellCollection()
+{
+    RimEclipseView* eclipseView = NULL;
+    firstAnchestorOrThisOfType(eclipseView);
+
+    if (eclipseView)
+    {
+        return eclipseView->wellCollection;
+    }
+
+    return NULL;
 }

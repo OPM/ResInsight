@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RigSingleWellResultsData.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -30,7 +32,6 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
-class RigSingleWellResultsData;
 class RimEclipseView;
 
 //==================================================================================================

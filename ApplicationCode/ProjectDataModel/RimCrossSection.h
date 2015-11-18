@@ -26,6 +26,7 @@
 
 class RimWellPath;
 class RimEclipseWell;
+class RimEclipseWellCollection;
 
 
 //==================================================================================================
@@ -65,6 +66,7 @@ protected:
 //    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-private:
 
+private:
+    RimEclipseWellCollection* simulationWellCollection();
 };

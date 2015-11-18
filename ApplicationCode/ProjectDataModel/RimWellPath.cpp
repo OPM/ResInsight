@@ -24,7 +24,6 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
-#include "RimWellPathCollection.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
