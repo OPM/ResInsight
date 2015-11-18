@@ -22,8 +22,10 @@
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
-#include "Commands/WellLogCommands/RicNewWellLogFileCurveFeature.h"
-#include "Commands/WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
+
+#include "CrossSectionCommands/RicNewWellPathCrossSectionFeature.h"
+#include "WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
+#include "WellLogCommands/RicNewWellLogFileCurveFeature.h"
 
 #include "RigCaseData.h"
 #include "RigFemPartCollection.h"
@@ -237,6 +239,14 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 if (newExtractionCurveFeature && newExtractionCurveFeature->canFeatureBeExecuted())
                 {
                     menu.addAction(newExtractionCurveFeature->action());
+                }
+
+                RicNewWellPathCrossSectionFeature* newWellPathCrossSectionFeature = dynamic_cast<RicNewWellPathCrossSectionFeature*>(commandManager->getCommandFeature("RicNewWellPathCrossSectionFeature"));
+                if (newWellPathCrossSectionFeature)
+                {
+                    newWellPathCrossSectionFeature->setView(m_reservoirView);
+
+                    menu.addAction(newWellPathCrossSectionFeature->action());
                 }
             }
         }

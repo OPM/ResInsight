@@ -37,6 +37,15 @@ CAF_CMD_SOURCE_INIT(RicNewWellPathCrossSectionFeature, "RicNewWellPathCrossSecti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RicNewWellPathCrossSectionFeature::RicNewWellPathCrossSectionFeature()
+    : m_view(NULL)
+{
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicNewWellPathCrossSectionFeature::isCommandEnabled()
 {
     return true;
@@ -47,20 +56,16 @@ bool RicNewWellPathCrossSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathCrossSectionFeature::onActionTriggered(bool isChecked)
 {
-/*
-    std::vector<RimEclipseWell*> collection;
+    if (!m_view) return;
+
+    std::vector<RimWellPath*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
     CVF_ASSERT(collection.size() == 1);
 
-    RimEclipseWell* eclWell = collection[0];
+    RimWellPath* wellPath = collection[0];
     
-    RimEclipseView* eclView = NULL;
-    eclWell->firstAnchestorOrThisOfType(eclView);
-    CVF_ASSERT(eclView);
-
-    RicNewWellPathCrossSectionFeatureCmd* cmd = new RicNewWellPathCrossSectionFeatureCmd(eclView->crossSectionCollection, eclWell);
+    RicNewWellPathCrossSectionFeatureCmd* cmd = new RicNewWellPathCrossSectionFeatureCmd(m_view->crossSectionCollection, wellPath);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
-*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +75,14 @@ void RicNewWellPathCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 {
 //    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
     actionToSetup->setText("New Cross Section");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewWellPathCrossSectionFeature::setView(RimView* view)
+{
+    m_view = view;
 }
 
 //--------------------------------------------------------------------------------------------------
