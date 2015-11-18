@@ -90,6 +90,7 @@ public:
 
     caf::PdmField< std::vector<int> >       windowGeometry;
 
+    caf::PdmChildField<RimCrossSectionCollection*>      crossSectionCollection;
 
     // Draw style 
 
@@ -192,8 +193,6 @@ protected:
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_overrideRangeFilterCollection;
     
-    caf::PdmChildField<RimCrossSectionCollection*>      m_crossSectionCollection;
-
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
 

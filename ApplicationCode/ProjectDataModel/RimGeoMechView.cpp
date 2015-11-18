@@ -637,7 +637,7 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
-    uiTreeOrdering.add(m_crossSectionCollection());
+    uiTreeOrdering.add(crossSectionCollection());
     
     uiTreeOrdering.setForgetRemainingFields(true);
 }

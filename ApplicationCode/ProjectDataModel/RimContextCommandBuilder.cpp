@@ -34,6 +34,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -264,6 +265,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAppendCrossSectionFeature";
             commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimEclipseWell*>(uiItem))
+        {
+            commandIds << "RicNewSimWellCrossSectionFeature";
         }
 
         if (dynamic_cast<RimView*>(uiItem))

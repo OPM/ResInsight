@@ -117,9 +117,9 @@ RimView::RimView(void)
     m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
     m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_crossSectionCollection, "CrossSections", "Cross Sections", "", "", "");
-    m_crossSectionCollection.uiCapability()->setUiHidden(true);
-    m_crossSectionCollection = new RimCrossSectionCollection();
+    CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Cross Sections", "", "", "");
+    crossSectionCollection.uiCapability()->setUiHidden(true);
+    crossSectionCollection = new RimCrossSectionCollection();
 
     m_previousGridModeMeshLinesWasFaults = false;
 }
