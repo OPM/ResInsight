@@ -23,6 +23,7 @@
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
 
+#include "CrossSectionCommands/RicNewSimWellCrossSectionFeature.h"
 #include "CrossSectionCommands/RicNewWellPathCrossSectionFeature.h"
 #include "WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
 #include "WellLogCommands/RicNewWellLogFileCurveFeature.h"
@@ -40,6 +41,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -63,11 +65,13 @@
 #include "RivFemPickSourceInfo.h"
 #include "RivSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
+#include "RivWellPipeSourceInfo.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeView.h"
+#include "cafSelectionManager.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfHitItemCollection.h"
@@ -221,13 +225,14 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // Well log curve creation commands
     if (firstHitPart && firstHitPart->sourceInfo())
     {
+        caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+
         const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
         if (wellPathSourceInfo)
         {
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
-                caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
                 RicNewWellLogFileCurveFeature* newWellLogFileCurveFeature = dynamic_cast<RicNewWellLogFileCurveFeature*>(commandManager->getCommandFeature("RicNewWellLogFileCurveFeature"));
                 if (newWellLogFileCurveFeature && newWellLogFileCurveFeature->canFeatureBeExecuted())
@@ -247,6 +252,22 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                     newWellPathCrossSectionFeature->setView(m_reservoirView);
 
                     menu.addAction(newWellPathCrossSectionFeature->action());
+                }
+            }
+        }
+
+        const RivEclipseWellSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivEclipseWellSourceInfo*>(firstHitPart->sourceInfo());
+        if (eclipseWellSourceInfo)
+        {
+            RimEclipseWell* well = eclipseWellSourceInfo->well();
+            if (well)
+            {
+                caf::SelectionManager::instance()->setSelectedItem(well);
+
+                RicNewSimWellCrossSectionFeature* newSimWellCrossSectionFeature = dynamic_cast<RicNewSimWellCrossSectionFeature*>(commandManager->getCommandFeature("RicNewSimWellCrossSectionFeature"));
+                if (newSimWellCrossSectionFeature && newSimWellCrossSectionFeature->canFeatureBeExecuted())
+                {
+                    menu.addAction(newSimWellCrossSectionFeature->action());
                 }
             }
         }

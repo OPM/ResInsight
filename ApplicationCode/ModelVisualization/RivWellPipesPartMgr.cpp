@@ -20,34 +20,35 @@
 
 #include "RivWellPipesPartMgr.h"
 
-#include "cvfLibCore.h"
-#include "cvfModelBasicList.h"
-#include "cvfTransform.h"
-#include "cvfPart.h"
-#include "cvfScalarMapperDiscreteLinear.h"
-#include "cvfDrawableGeo.h"
-#include "cvfRay.h"
-
-#include "cafEffectGenerator.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-
 #include "RigCaseData.h"
 #include "RigCell.h"
-#include "RivPipeGeometryGenerator.h"
 
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellEdgeColors.h"
+#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimEclipseCellColors.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "RivPipeGeometryGenerator.h"
+#include "RivWellPathSourceInfo.h"
+#include "RivWellPipeSourceInfo.h"
 
+#include "cafEffectGenerator.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+
+#include "cvfDrawableGeo.h"
+#include "cvfLibCore.h"
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
+#include "cvfRay.h"
+#include "cvfScalarMapperDiscreteLinear.h"
+#include "cvfTransform.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +106,8 @@ void RivWellPipesPartMgr::buildWellPipeParts()
     double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
 
+    cvf::ref<RivEclipseWellSourceInfo> sourceInfo = new RivEclipseWellSourceInfo(m_rimWell);
+
     for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
     {
         m_wellBranches.push_back(RivPipeBranchData());
@@ -145,6 +148,8 @@ void RivWellPipesPartMgr::buildWellPipeParts()
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             pbd.m_surfacePart->setEffect(eff.p());
+            
+            pbd.m_surfacePart->setSourceInfo(sourceInfo.p());
         }
 
         if (pbd.m_centerLineDrawable.notNull())
