@@ -24,9 +24,12 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-class RimWellPath;
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
 class RimEclipseWell;
 class RimEclipseWellCollection;
+class RimWellPath;
 
 
 //==================================================================================================
@@ -46,24 +49,32 @@ public:
         CS_USER_DEFINED
     };
 
+    enum CrossSectionDirEnum
+    {
+        CS_VERTICAL,
+        CS_HORIZONTAL
+    };
+
 public:
     RimCrossSection();
 
     caf::PdmField<QString>  name;
     caf::PdmField<bool>     isActive;
-    caf::PdmField< caf::AppEnum< CrossSectionEnum > > crossSectionType;
+
+    caf::PdmField< caf::AppEnum< CrossSectionEnum > >    type;
+    caf::PdmField< caf::AppEnum< CrossSectionDirEnum > > direction;
 
     caf::PdmPtrField<RimWellPath*>      wellPath;
     caf::PdmPtrField<RimEclipseWell*>   simulationWell;
+
+    std::vector< std::vector <cvf::Vec3d> > polyLines() const;
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
 
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-//    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-//    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 

@@ -107,7 +107,7 @@ void RicNewWellPathCrossSectionFeatureCmd::redo()
 
     RimCrossSection* crossSection = new RimCrossSection();
     crossSection->name = m_wellPath->name;
-    crossSection->crossSectionType = RimCrossSection::CS_WELL_PATH;
+    crossSection->type = RimCrossSection::CS_WELL_PATH;
     crossSection->wellPath = m_wellPath;
 
     m_crossSectionCollection->crossSections.push_back(crossSection);

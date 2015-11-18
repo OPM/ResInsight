@@ -30,11 +30,11 @@ class RimEclipseWell;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellPathCrossSectionFeatureCmd : public caf::CmdExecuteCommand
+class RicNewSimWellCrossSectionCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewWellPathCrossSectionFeatureCmd(RimCrossSectionCollection* crossSectionCollection, RimEclipseWell* simWell);
-    virtual ~RicNewWellPathCrossSectionFeatureCmd();
+    RicNewSimWellCrossSectionCmd(RimCrossSectionCollection* crossSectionCollection, RimEclipseWell* simWell);
+    virtual ~RicNewSimWellCrossSectionCmd();
 
     virtual QString name();
     virtual void redo();

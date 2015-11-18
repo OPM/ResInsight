@@ -35,10 +35,18 @@ namespace caf {
 template<>
 void caf::AppEnum< RimCrossSection::CrossSectionEnum >::setUp()
 {
-    addItem(RimCrossSection::CS_WELL_PATH,       "WELL_PATH",       "Well Path");
-    addItem(RimCrossSection::CS_SIMULATION_WELL, "SIMULATION_WELL", "Simulation Well");
-    addItem(RimCrossSection::CS_USER_DEFINED,    "USER_DEFINED",    "User defined");
+    addItem(RimCrossSection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
+    addItem(RimCrossSection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
+    addItem(RimCrossSection::CS_USER_DEFINED,    "CS_USER_DEFINED",    "User defined");
     setDefault(RimCrossSection::CS_WELL_PATH);
+}
+
+template<>
+void caf::AppEnum< RimCrossSection::CrossSectionDirEnum >::setUp()
+{
+    addItem(RimCrossSection::CS_VERTICAL,   "CS_VERTICAL",      "Vertical");
+    addItem(RimCrossSection::CS_HORIZONTAL, "CS_HORIZONTAL",    "Horizontal");
+    setDefault(RimCrossSection::CS_VERTICAL);
 }
 
 } 
@@ -57,9 +65,10 @@ RimCrossSection::RimCrossSection()
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&wellPath,           "WellPath",         "Well Path", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&simulationWell,     "SimulationWell",   "Simulation Well", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&crossSectionType,   "CrossSectionType", "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",         "Well Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",   "Simulation Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&type,           "Type",             "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&direction,      "Direction",        "Direction", "", "", "");
 
     uiCapability()->setUiChildrenHidden(true);
 }
@@ -78,13 +87,14 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
-    uiOrdering.add(&crossSectionType);
+    uiOrdering.add(&type);
+    uiOrdering.add(&direction);
 
-    if (crossSectionType == CS_WELL_PATH)
+    if (type == CS_WELL_PATH)
     {
         uiOrdering.add(&wellPath);
     }
-    else if (crossSectionType == CS_SIMULATION_WELL)
+    else if (type == CS_SIMULATION_WELL)
     {
         uiOrdering.add(&simulationWell);
     }
@@ -177,3 +187,29 @@ RimEclipseWellCollection* RimCrossSection::simulationWellCollection()
 
     return NULL;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
+{
+    std::vector< std::vector <cvf::Vec3d> > line;
+    if (type == CS_WELL_PATH)
+    {
+        if (wellPath)
+        {
+            line.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
+        }
+    }
+    else if (type == CS_SIMULATION_WELL)
+    {
+
+    }
+    else
+    {
+
+    }
+
+    return line;
+}
+
