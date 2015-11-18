@@ -74,6 +74,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogFileChannel.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileCurve.h
 ${CEE_CURRENT_LIST_DIR}RimCrossSection.h
 ${CEE_CURRENT_LIST_DIR}RimCrossSectionCollection.h
+${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -146,6 +147,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogFileChannel.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimCrossSection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCrossSectionCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

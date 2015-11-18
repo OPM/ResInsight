@@ -20,47 +20,42 @@
 
 #include "RimProject.h"
 
-
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
 #include "RigCaseData.h"
 
-#include "RiaApplication.h"
 #include "RimCalcScript.h"
+#include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
+#include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
-#include "RimEclipseInputProperty.h"
-#include "RimEclipseInputPropertyCollection.h"
-#include "RimEclipseStatisticsCase.h"
-#include "RimEclipseStatisticsCaseCollection.h"
-#include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimViewController.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
+#include "RimView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
-#include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
 
-#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
 
 #include "cafCmdFeature.h"
+#include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QDir>
+#include <QMenu>
+
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -606,247 +601,12 @@ void RimProject::computeUtmAreaOfInterest()
     }
 }
 
-
-
-
-
-
-
-#include "cafCmdFeatureManager.h"
-#include "cafSelectionManager.h"
-
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellRangeFilter.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
-#include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechView.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseFaultColors.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
-#include "RimWellLogCurve.h"
-#include "RimWellLogFileChannel.h"
-#include <QMenu>
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
 {
-    QStringList commandIds;
-
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems(uiItems);
-
-    if (uiItems.size() == 0)
-    {
-        commandIds << "RicNewWellLogPlotFeature";
-    }
-    else if (uiItems.size() > 1)
-    {
-        caf::PdmUiItem* uiItem = uiItems[0];
-        if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
-        {
-            commandIds << "RicAddWellLogToPlotFeature";
-        }
-    }
-    else if (uiItems.size() == 1)
-    {
-        caf::PdmUiItem* uiItem = uiItems[0];
-        CVF_ASSERT(uiItem);
-
-        if (dynamic_cast<RimEclipseCaseCollection*>(uiItem))
-        {
-            commandIds << "RicImportEclipseCaseFeature";
-            commandIds << "RicImportInputEclipseCaseFeature";
-            commandIds << "RicCreateGridCaseGroupFeature";
-            commandIds << "RicEclipseCaseNewGroupFeature";
-        }
-        else if (dynamic_cast<RimGeoMechView*>(uiItem))
-        {
-            commandIds << "RicNewViewFeature";
-            commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "RicPasteGeoMechViewsFeature";
-            commandIds << "RicDeleteItemFeature";
-            commandIds << "Separator";
-        }
-        else if (dynamic_cast<RimEclipseView*>(uiItem))
-        {
-            commandIds << "RicNewViewFeature";
-            commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "RicPasteEclipseViewsFeature";
-            commandIds << "RicDeleteItemFeature";
-            commandIds << "Separator";
-        }
-        else if (dynamic_cast<RimCaseCollection*>(uiItem))
-        {
-            commandIds << "RicPasteEclipseCasesFeature";
-            commandIds << "RicNewStatisticsCaseFeature";
-        }
-        else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
-        {
-            commandIds << "RicNewViewFeature";
-            commandIds << "RicComputeStatisticsFeature";
-            commandIds << "RicCloseCaseFeature";
-            commandIds << "RicExecuteScriptForCasesFeature";
-        }
-        else if (dynamic_cast<RimEclipseCase*>(uiItem))
-        {
-            commandIds << "RicCopyReferencesToClipboardFeature";
-
-            commandIds << "RicPasteEclipseCasesFeature";
-            commandIds << "RicPasteEclipseViewsFeature";
-
-            commandIds << "RicCloseCaseFeature";
-            commandIds << "RicNewViewFeature";
-            commandIds << "RicEclipseCaseNewGroupFeature";
-            commandIds << "RicExecuteScriptForCasesFeature";
-        }
-        else if (dynamic_cast<RimGeoMechCase*>(uiItem))
-        {
-            commandIds << "RicPasteGeoMechViewsFeature";
-            commandIds << "RicNewViewFeature";
-            commandIds << "Separator";
-
-            commandIds << "RicCloseCaseFeature";
-        }
-        else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
-        {
-            commandIds << "RicEclipseCaseNewGroupFeature";
-            commandIds << "RicPasteEclipseCasesFeature";
-            commandIds << "RicDeleteItemFeature";
-        }
-        else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
-        {
-            commandIds << "RicSaveEclipseResultAsInputPropertyFeature";
-        }
-        else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem))
-        {
-            commandIds << "RicAddEclipseInputPropertyFeature";
-        }
-        else if (dynamic_cast<RimEclipseInputProperty*>(uiItem))
-        {
-            commandIds << "RicDeleteItemFeature";
-            commandIds << "RicSaveEclipseInputPropertyFeature";
-        }
-        else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
-        {
-            commandIds << "RicRangeFilterNewFeature";
-            commandIds << "RicRangeFilterNewSliceIFeature";
-            commandIds << "RicRangeFilterNewSliceJFeature";
-            commandIds << "RicRangeFilterNewSliceKFeature";
-        }
-        else if (dynamic_cast<RimCellRangeFilter*>(uiItem))
-        {
-            commandIds << "RicRangeFilterInsertFeature";
-            commandIds << "RicRangeFilterNewSliceIFeature";
-            commandIds << "RicRangeFilterNewSliceJFeature";
-            commandIds << "RicRangeFilterNewSliceKFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteItemFeature";
-        }
-        else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
-        {
-            commandIds << "RicEclipsePropertyFilterNewFeature";
-        }
-        else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
-        {
-            commandIds << "RicEclipsePropertyFilterInsertFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteItemFeature";
-        }
-        else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
-        {
-            commandIds << "RicGeoMechPropertyFilterNewFeature";
-        }
-        else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
-        {
-            commandIds << "RicGeoMechPropertyFilterInsertFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteItemFeature";
-        }
-        else if (dynamic_cast<RimWellPathCollection*>(uiItem))
-        {
-            commandIds << "RicWellPathsDeleteAllFeature";
-            commandIds << "RicWellPathsImportFileFeature";
-            commandIds << "RicWellPathsImportSsihubFeature";
-            commandIds << "RicWellLogsImportFileFeature";
-        }
-        else if (dynamic_cast<RimWellPath*>(uiItem))
-        {
-            commandIds << "RicNewWellLogFileCurveFeature";
-            commandIds << "RicNewWellLogCurveExtractionFeature";
-            commandIds << "RicWellPathDeleteFeature";
-        }
-        else if (dynamic_cast<RimCalcScript*>(uiItem))
-        {
-            commandIds << "RicEditScriptFeature";
-            commandIds << "RicNewScriptFeature";
-            commandIds << "Separator";
-            commandIds << "RicExecuteScriptFeature";
-        }
-        else if (dynamic_cast<RimScriptCollection*>(uiItem))
-        {
-            commandIds << "RicAddScriptPathFeature";
-            commandIds << "RicDeleteScriptPathFeature";
-        }
-        else if (dynamic_cast<RimViewController*>(uiItem))
-        {
-            commandIds << "RicShowAllLinkedViewsFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteItemFeature";
-        }
-        else if (dynamic_cast<RimViewLinker*>(uiItem))
-        {
-            commandIds << "RicShowAllLinkedViewsFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteAllLinkedViewsFeature";
-        }
-        else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
-        {
-            commandIds << "RicNewWellLogPlotFeature";
-        }
-        else if (dynamic_cast<RimWellLogPlot*>(uiItem))
-        {
-            commandIds << "RicNewWellLogPlotTrackFeature";
-            commandIds << "RicDeleteItemFeature";
-        }
-        else if (dynamic_cast<RimWellLogTrack*>(uiItem))
-        {
-            commandIds << "RicNewWellLogCurveExtractionFeature";
-            commandIds << "RicNewWellLogFileCurveFeature";
-            commandIds << "RicDeleteWellLogPlotTrackFeature";
-        }
-        else if (dynamic_cast<RimWellLogCurve*>(uiItem))
-        {
-            commandIds << "RicExportToLasFileFeature";
-            commandIds << "RicDeleteItemFeature";
-        }
-        else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
-        {
-            commandIds << "RicAddWellLogToPlotFeature";
-        }
-
-        if (dynamic_cast<RimView*>(uiItem))
-        {
-            commandIds << "RicLinkVisibleViewsFeature";
-            commandIds << "RicLinkViewFeature";
-            commandIds << "RicUnLinkViewFeature";
-            commandIds << "RicShowLinkOptionsFeature";
-            commandIds << "RicSetMasterViewFeature";
-        }
-    }
-    
-    if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
-    {
-        commandIds << "Separator";
-        commandIds << "RicToggleItemsOnFeature";
-        commandIds << "RicToggleItemsOffFeature";
-        commandIds << "RicToggleItemsFeature";
-    }
+    QStringList commandIds = RimContextCommandBuilder::commandsFromSelection();
 
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     for (int i = 0; i < commandIds.size(); i++)
