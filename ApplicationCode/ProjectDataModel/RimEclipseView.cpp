@@ -417,13 +417,19 @@ void RimEclipseView::createDisplayModel()
 
     }
 
+    // Hack to do testing of cross section
     {
-        if (m_csPartmgr.isNull()) m_csPartmgr = new RivCrossSectionPartMgr(m_reservoir->reservoirData()->mainGrid(), NULL, NULL);
+#if 0
+        cvf::ref<cvf::ModelBasicList> tempMod = new cvf::ModelBasicList;
+
+        m_pipesPartManager->appendDynamicGeometryPartsToModel(tempMod.p(), 3);
+        if (m_csPartmgr.isNull()) m_csPartmgr = new RivCrossSectionPartMgr(m_reservoir->reservoirData()->mainGrid(), NULL, NULL,
+        (*m_pipesPartManager->centerLineOfWellBranches(0))[0]);
         for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
-            m_csPartmgr->appendNativeCrossSectionFacesToModel(frameModels[frameIdx].p());
-            frameModels[frameIdx]->part(frameModels[frameIdx]->partCount()-1)->setTransform(m_reservoirGridPartManager->scaleTransform());
+            m_csPartmgr->appendNativeCrossSectionFacesToModel(frameModels[frameIdx].p(), m_reservoirGridPartManager->scaleTransform());
         }
+#endif
     }
 
     // Compute triangle count, Debug only
@@ -651,6 +657,11 @@ void RimEclipseView::updateCurrentTimeStep()
     }
 
     this->updateFaultColors();
+
+    // Hack to do testing of cross section
+    {
+        // this->m_csPartmgr->updateCellResultColor(m_currentTimeStep, this->cellResult());
+    }
 
     // Well pipes
     if (m_viewer)
