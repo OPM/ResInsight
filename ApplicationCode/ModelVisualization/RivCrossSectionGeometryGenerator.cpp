@@ -85,11 +85,15 @@ bool planeLineIntersect(const cvf::Plane& plane, const cvf::Vec3d& a, const cvf:
 
 struct ClipVx 
 {
-    ClipVx() : vx(cvf::Vec3d::ZERO), normDistFromEdgeVx1(HUGE_VAL), clippedEdgeVx1Id(-1), clippedEdgeVx2Id(-1) {}
-    cvf::Vec3d vx;
-    double normDistFromEdgeVx1;
-    int clippedEdgeVx1Id;
-    int clippedEdgeVx2Id;
+    ClipVx() : vx(cvf::Vec3d::ZERO), normDistFromEdgeVx1(HUGE_VAL), clippedEdgeVx1Id(-1), clippedEdgeVx2Id(-1), isVxIdsNative(true)  {}
+    
+    cvf::Vec3d  vx;
+
+    double      normDistFromEdgeVx1;
+    int         clippedEdgeVx1Id;
+    int         clippedEdgeVx2Id;
+
+    bool        isVxIdsNative;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -238,10 +242,13 @@ bool planeTriangleIntersection(const cvf::Plane& plane,
 //     All        Quad            Top          None
 //
 //
+// Clips the supplied triangles into new triangles returned in clippedTriangleVxes.
+// New vertices have set isVxIdsNative = false and their vxIds is indices into triangleVxes
+// The isTriangleEdgeCellContour bits refer to the edge after the corresponding triangle vertex.
 //--------------------------------------------------------------------------------------------------
 
 void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVxes,
-                                           const std::vector<bool> &isTriangleEdgeInternal,
+                                           const std::vector<bool> &isTriangleEdgeCellContour,
                                            const cvf::Plane& p1Plane, const cvf::Plane& p2Plane,
                                            std::vector<ClipVx> *clippedTriangleVxes, 
                                            std::vector<bool> *isClippedTriEdgeCellContour)
@@ -254,7 +261,10 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
         int triVxIdx = tIdx*3;
 
         ClipVx newVx1OnP1;
+        newVx1OnP1.isVxIdsNative = false;
         ClipVx newVx2OnP1;
+        newVx2OnP1.isVxIdsNative = false;
+
         bool isMostVxesOnPositiveSideOfP1 = false;
         bool isIntersectingP1 = planeTriangleIntersection(p1Plane,
                                                           triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
@@ -269,7 +279,9 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
 
 
         ClipVx newVx1OnP2;
+        newVx1OnP2.isVxIdsNative = false;
         ClipVx newVx2OnP2;
+        newVx2OnP2.isVxIdsNative = false;
         bool isMostVxesOnPositiveSideOfP2 = false;
         bool isIntersectingP2 = planeTriangleIntersection(p2Plane,
                                                           triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
@@ -296,9 +308,9 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             clippedTriangleVxes->push_back(triangleVxes[triVxIdx + 1]);
             clippedTriangleVxes->push_back(triangleVxes[triVxIdx + 2]);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[triVxIdx + 0]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[triVxIdx + 1]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[triVxIdx + 2]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[triVxIdx + 0]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[triVxIdx + 1]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[triVxIdx + 2]);
 
             continue;
         }
@@ -315,11 +327,11 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             clippedTriangleVxes->push_back(newVx2OnP1);
 
             isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP1.clippedEdgeVx1Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
             isClippedTriEdgeCellContour->push_back(false);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP1.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP1.clippedEdgeVx2Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx2Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP1.clippedEdgeVx2Id]);
             isClippedTriEdgeCellContour->push_back(false);
 
             continue;
@@ -338,10 +350,10 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
 
             isClippedTriEdgeCellContour->push_back(false);
             isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP2.clippedEdgeVx2Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP2.clippedEdgeVx2Id]);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP2.clippedEdgeVx1Id]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP2.clippedEdgeVx2Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx2Id]);
             isClippedTriEdgeCellContour->push_back(false);
 
             continue;
@@ -355,8 +367,8 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             clippedTriangleVxes->push_back(triangleVxes[newVx1OnP1.clippedEdgeVx1Id]);
 
             isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP1.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP1.clippedEdgeVx1Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP1.clippedEdgeVx2Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
 
             continue;
         }
@@ -369,8 +381,8 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             clippedTriangleVxes->push_back(triangleVxes[newVx1OnP2.clippedEdgeVx1Id]);
 
             isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP2.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP2.clippedEdgeVx1Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP2.clippedEdgeVx2Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
 
             continue;
         }
@@ -395,7 +407,7 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
                 clippedTriangleVxes->push_back(triangleVxes[newVx2OnP1.clippedEdgeVx2Id]);
 
                 isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP1.clippedEdgeVx1Id]);
+                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
                 isClippedTriEdgeCellContour->push_back(false);
 
                 isClippedTriEdgeCellContour->push_back(false);
@@ -403,8 +415,8 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
                 isClippedTriEdgeCellContour->push_back(false);
 
                 isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP2.clippedEdgeVx1Id]);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP1.clippedEdgeVx2Id]);
+                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
+                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP1.clippedEdgeVx2Id]);
             }
             else
             {
@@ -418,12 +430,12 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
                 isClippedTriEdgeCellContour->push_back(false);
 
                 isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP2.clippedEdgeVx1Id]);
+                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
                 isClippedTriEdgeCellContour->push_back(false);
 
                 isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP1.clippedEdgeVx1Id]);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP2.clippedEdgeVx2Id]);
+                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
+                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP2.clippedEdgeVx2Id]);
             }
 
             continue;
@@ -440,12 +452,12 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             clippedTriangleVxes->push_back(newVx2OnP2);
             clippedTriangleVxes->push_back(newVx2OnP1);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP1.clippedEdgeVx1Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
             isClippedTriEdgeCellContour->push_back(false);
             isClippedTriEdgeCellContour->push_back(false);
 
             isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP2.clippedEdgeVx2Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP2.clippedEdgeVx2Id]);
             isClippedTriEdgeCellContour->push_back(false);
 
             continue;
@@ -462,12 +474,12 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             clippedTriangleVxes->push_back(newVx1OnP2);
             clippedTriangleVxes->push_back(newVx1OnP1);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx2OnP1.clippedEdgeVx2Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP1.clippedEdgeVx2Id]);
             isClippedTriEdgeCellContour->push_back(false);
             isClippedTriEdgeCellContour->push_back(false);
 
             isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeInternal[newVx1OnP2.clippedEdgeVx1Id]);
+            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
             isClippedTriEdgeCellContour->push_back(false);
 
             continue;
@@ -1100,37 +1112,44 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 
             clipTrianglesBetweenTwoParallelPlanes(triangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane, &clippedTriangleVxes, &isClippedTriEdgeCellContour);
 
-            triangleCount = static_cast<int>(clippedTriangleVxes.size())/3;
-            for (int tIdx = 0; tIdx < triangleCount; ++tIdx)
-            {
-                // Accumulate to geometry
-                int triVxIdx = tIdx*3;
-                triangleVertices.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+0].vx - displayOffset));
-                triangleVertices.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+1].vx - displayOffset));
-                triangleVertices.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+2].vx - displayOffset));
+            int clippedTriangleCount = static_cast<int>(clippedTriangleVxes.size())/3;
 
-                m_triangleToCellIdxMap.push_back(globalCellIdx);
-            }
-
-            for (int tIdx = 0; tIdx < triangleCount; ++tIdx)
+            // Accumulate triangle vertices
+            for (int tIdx = 0; tIdx < clippedTriangleCount; ++tIdx)
             {
-                // Accumulate to geometry
                 int triVxIdx = tIdx*3;
+
+                cvf::Vec3f p0(clippedTriangleVxes[triVxIdx+0].vx - displayOffset);
+                cvf::Vec3f p1(clippedTriangleVxes[triVxIdx+1].vx - displayOffset);
+                cvf::Vec3f p2(clippedTriangleVxes[triVxIdx+2].vx - displayOffset);
+
+                triangleVertices.push_back(p0);
+                triangleVertices.push_back(p1);
+                triangleVertices.push_back(p2);
+
+
+                // Accumulate mesh lines
+
                 if (isClippedTriEdgeCellContour[triVxIdx])
                 {
-                    cellBorderLineVxes.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+0].vx - displayOffset));
-                    cellBorderLineVxes.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+1].vx - displayOffset));
+                    cellBorderLineVxes.push_back(p0);
+                    cellBorderLineVxes.push_back(p1);
                 }
                 if (isClippedTriEdgeCellContour[triVxIdx+1])
                 {
-                    cellBorderLineVxes.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+1].vx - displayOffset));
-                    cellBorderLineVxes.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+2].vx - displayOffset));
+                    cellBorderLineVxes.push_back(p1);
+                    cellBorderLineVxes.push_back(p2);
                 }
                 if (isClippedTriEdgeCellContour[triVxIdx+2])
                 {
-                    cellBorderLineVxes.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+2].vx - displayOffset));
-                    cellBorderLineVxes.push_back(cvf::Vec3f(clippedTriangleVxes[triVxIdx+0].vx - displayOffset));
+                    cellBorderLineVxes.push_back(p2);
+                    cellBorderLineVxes.push_back(p0);
                 }
+
+                // Mapping to data
+
+                m_triangleToCellIdxMap.push_back(globalCellIdx);
+
 
             }
 #endif
