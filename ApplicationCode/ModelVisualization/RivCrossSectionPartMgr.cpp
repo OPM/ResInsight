@@ -19,20 +19,16 @@
 
 #include "RivCrossSectionPartMgr.h"
 
-//#include "RiaApplication.h"
-//#include "RiaPreferences.h"
-
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
+#include "RimCrossSection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimTernaryLegendConfig.h"
-
-//#include "RimCrossSectionCollection.h"
 
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
@@ -47,19 +43,16 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionPartMgr::RivCrossSectionPartMgr( const RigMainGrid* grid, 
-                                                const RimCrossSectionCollection* rimCrossSectionCollection, 
-                                                const RimCrossSection* rimCrossSection,
-                                                const std::vector<cvf::Vec3d>& polyLine)
-    :   m_grid(grid),
-        m_rimCrossSectionCollection(rimCrossSectionCollection),
-        m_rimCrossSection(rimCrossSection),
-        m_defaultColor(cvf::Color3::WHITE)
+RivCrossSectionPartMgr::RivCrossSectionPartMgr(const RimCrossSection* rimCrossSection)
+    : m_rimCrossSection(rimCrossSection),
+     m_grid(NULL),
+    m_defaultColor(cvf::Color3::WHITE)
 {
-
-    m_nativeCrossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine, cvf::Vec3d(0.0,0,1.0), grid );
+    CVF_ASSERT(m_rimCrossSection);
 
     m_nativeCrossSectionFacesTextureCoords = new cvf::Vec2fArray;
+
+    computeData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +60,8 @@ RivCrossSectionPartMgr::RivCrossSectionPartMgr( const RigMainGrid* grid,
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::applySingleColorEffect()
 {
+    if (m_nativeCrossSectionGenerator.isNull()) return;
+
     m_defaultColor = cvf::Color3f::OLIVE;//m_rimCrossSection->CrossSectionColor();
     this->updatePartEffect();
 }
@@ -76,6 +71,8 @@ void RivCrossSectionPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
+    if (m_nativeCrossSectionGenerator.isNull()) return;
+
     CVF_ASSERT(cellResultColors);
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
@@ -106,6 +103,8 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex, RimEcli
         }
         else
         {
+            CVF_ASSERT(m_nativeCrossSectionGenerator.notNull());
+
             const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
             cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(cellResultColors->reservoirView()->eclipseCase()->reservoirData(), 
@@ -137,6 +136,7 @@ const int priMesh = 3;
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::generatePartGeometry()
 {
+    if (m_nativeCrossSectionGenerator.isNull()) return;
 
     bool useBufferObjects = true;
     // Surface geometry
@@ -199,6 +199,8 @@ void RivCrossSectionPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::updatePartEffect()
 {
+    if (m_nativeCrossSectionGenerator.isNull()) return;
+
     // Set deCrossSection effect
     caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, caf::PO_1);
   
@@ -256,5 +258,61 @@ void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
         m_nativeCrossSectionGridLines->setTransform(scaleTransform);
         model->addPart(m_nativeCrossSectionGridLines.p());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivCrossSectionPartMgr::computeData()
+{
+    m_grid = mainGrid();
+    CVF_ASSERT(m_grid.notNull());
+
+    std::vector< std::vector <cvf::Vec3d> > polyLine = m_rimCrossSection->polyLines();
+    if (polyLine.size() > 0)
+    {
+        cvf::Vec3d direction = extrusionDirection(polyLine[0]);
+        m_nativeCrossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine[0], direction, m_grid.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RivCrossSectionPartMgr::mainGrid()
+{
+    RigMainGrid* grid = NULL;
+
+    RimEclipseView* eclipseView = NULL;
+    m_rimCrossSection->firstAnchestorOrThisOfType(eclipseView);
+    if (eclipseView)
+    {
+        grid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+    }
+
+    return grid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RivCrossSectionPartMgr::extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const
+{
+    CVF_ASSERT(m_rimCrossSection);
+
+    cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
+
+    if (m_rimCrossSection->direction == RimCrossSection::CS_VERTICAL &&
+        polyline.size() > 1)
+    {
+        // Use first and last point of polyline to approximate orientation of polyline
+        // Then cross with Z axis to find extrusion direction
+        
+        cvf::Vec3d polyLineDir = polyline[polyline.size() - 1] - polyline[0];
+        cvf::Vec3d up = cvf::Vec3d::Z_AXIS;
+        dir = polyLineDir ^ up;
+    }
+
+    return dir;
 }
 

@@ -135,7 +135,7 @@ public:
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
-    void                                    createOverlayDisplayModelAndRedraw();
+    void                                    createHighlightAndGridBoxDisplayModelWithRedraw();
 
     RimViewController*                      viewController() const;
     bool                                    isMasterView() const;
@@ -165,7 +165,7 @@ protected:
 
     virtual void                            createDisplayModel() = 0;
     
-    void                                    createOverlayDisplayModel();
+    void                                    createHighlightAndGridBoxDisplayModel();
     void                                    updateGridBoxData();
 
     virtual void                            createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) = 0;
@@ -199,6 +199,9 @@ protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
+
+    cvf::ref<cvf::ModelBasicList>           m_crossSectionModel;
+    cvf::ref<cvf::ModelBasicList>           m_highlightModelBasicList;
 
 private:
     RimViewLinker*                          viewLinkerIfMasterView() const;

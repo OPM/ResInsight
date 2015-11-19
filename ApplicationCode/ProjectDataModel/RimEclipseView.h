@@ -182,7 +182,6 @@ private:
 
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>              m_pipesPartManager;
-    cvf::ref<RivCrossSectionPartMgr>                m_csPartmgr;
 
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };

@@ -18,12 +18,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "RivCrossSectionGeometryGenerator.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
-
-//#include "RimCrossSection.h"
-#include "RivCrossSectionGeometryGenerator.h"
 #include "cvfColor4.h"
+#include "cvfVector3.h"
+
 
 namespace cvf
 {
@@ -32,9 +34,9 @@ namespace cvf
     class Part;
 }
 
+class RigMainGrid;
 class RimEclipseCellColors;
 class RimCellEdgeColors;
-class RimCrossSectionCollection;
 class RimCrossSection;
 
 //==================================================================================================
@@ -45,10 +47,7 @@ class RimCrossSection;
 class RivCrossSectionPartMgr : public cvf::Object
 {
 public:
-    RivCrossSectionPartMgr(const RigMainGrid* grid, 
-                          const RimCrossSectionCollection* rimCrossSectionCollection, 
-                          const RimCrossSection* rimCrossSection,
-                          const std::vector<cvf::Vec3d>& polyLine);
+    RivCrossSectionPartMgr(const RimCrossSection* rimCrossSection);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
@@ -59,10 +58,15 @@ public:
 private:
     void updatePartEffect();
     void generatePartGeometry();
+    void computeData();
+
+    RigMainGrid*    mainGrid();
+    cvf::Vec3d      extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const;
+
+private:
 
     cvf::cref<RigMainGrid>      m_grid;
-    const RimCrossSection*             m_rimCrossSection;
-    const RimCrossSectionCollection*   m_rimCrossSectionCollection;
+    const RimCrossSection*      m_rimCrossSection;
 
     cvf::Color3f                m_defaultColor;
 

@@ -31,6 +31,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimCrossSection.h"
 #include "RimCrossSectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -71,7 +72,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-#include "RivCrossSectionPartMgr.h"
 
 
 
@@ -418,21 +418,13 @@ void RimEclipseView::createDisplayModel()
 
     }
 
-    // Hack to do testing of cross section
-    {
-#if 0
-        cvf::ref<cvf::ModelBasicList> tempMod = new cvf::ModelBasicList;
 
-        m_pipesPartManager->appendDynamicGeometryPartsToModel(tempMod.p(), 3);
-        if (m_csPartmgr.isNull()) m_csPartmgr = new RivCrossSectionPartMgr(m_reservoir->reservoirData()->mainGrid(), NULL, NULL,
-        (*m_pipesPartManager->centerLineOfWellBranches(0))[0]);
-        for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
-        {
-            m_csPartmgr->appendNativeCrossSectionFacesToModel(frameModels[frameIdx].p(), m_reservoirGridPartManager->scaleTransform());
-            m_csPartmgr->appendMeshLinePartsToModel(frameModels[frameIdx].p(), m_reservoirGridPartManager->scaleTransform());
-        }
-#endif
-    }
+    // Cross sections
+
+    m_crossSectionModel->removeAllParts();
+    crossSectionCollection->appendPartsToModel(m_crossSectionModel.p(), m_reservoirGridPartManager->scaleTransform());
+    m_viewer->addStaticModel(m_crossSectionModel.p());
+
 
     // Compute triangle count, Debug only
 /*
@@ -660,9 +652,14 @@ void RimEclipseView::updateCurrentTimeStep()
 
     this->updateFaultColors();
 
-    // Hack to do testing of cross section
+
+    if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
     {
-        // this->m_csPartmgr->updateCellResultColor(m_currentTimeStep, this->cellResult());
+        crossSectionCollection->updateCellResultColor(m_currentTimeStep, this->cellResult());
+    }
+    else
+    {
+        crossSectionCollection->applySingleColorEffect();
     }
 
     // Well pipes

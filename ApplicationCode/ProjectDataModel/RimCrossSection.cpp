@@ -28,6 +28,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
+#include "RivCrossSectionPartMgr.h"
 
 
 namespace caf {
@@ -78,7 +79,14 @@ RimCrossSection::RimCrossSection()
 //--------------------------------------------------------------------------------------------------
 void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-
+    m_crossSectionPartMgr = NULL;
+    
+    RimView* rimView = NULL;
+    this->firstAnchestorOrThisOfType(rimView);
+    if (rimView)
+    {
+        rimView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,5 +219,15 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
     }
 
     return line;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivCrossSectionPartMgr* RimCrossSection::crossSectionPartMgr()
+{
+    if (m_crossSectionPartMgr.isNull()) m_crossSectionPartMgr = new RivCrossSectionPartMgr(this);
+
+    return m_crossSectionPartMgr.p();
 }
 

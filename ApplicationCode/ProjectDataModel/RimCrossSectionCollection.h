@@ -24,6 +24,12 @@
 #include "cafPdmField.h"
 
 class RimCrossSection;
+class RimEclipseCellColors;
+
+namespace cvf {
+    class ModelBasicList;
+    class Transform;
+}
 
 //==================================================================================================
 //
@@ -39,6 +45,11 @@ public:
 
     caf::PdmField<bool> isActive;
     caf::PdmChildArrayField<RimCrossSection*> crossSections;
+
+    void applySingleColorEffect();
+    void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+
+    void appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
 protected:
     //virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

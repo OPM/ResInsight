@@ -20,6 +20,7 @@
 #include "RimCrossSectionCollection.h"
 
 #include "RimCrossSection.h"
+#include "RivCrossSectionPartMgr.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCrossSectionCollection, "CrossSectionCollection");
@@ -44,4 +45,44 @@ RimCrossSectionCollection::RimCrossSectionCollection()
 caf::PdmFieldHandle* RimCrossSectionCollection::objectToggleField()
 {
     return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSectionCollection::applySingleColorEffect()
+{
+    for (size_t csIdx = 0; csIdx < crossSections.size(); ++csIdx)
+    {
+        RimCrossSection* cs = crossSections[csIdx];
+        cs->crossSectionPartMgr()->applySingleColorEffect();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
+{
+    for (size_t csIdx = 0; csIdx < crossSections.size(); ++csIdx)
+    {
+        RimCrossSection* cs = crossSections[csIdx];
+        cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex, cellResultColors);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSectionCollection::appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+{
+    for (size_t csIdx = 0; csIdx < crossSections.size(); ++csIdx)
+    {
+        RimCrossSection* cs = crossSections[csIdx];
+        if (cs->isActive)
+        {
+            cs->crossSectionPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
+            cs->crossSectionPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
+        }
+    }
 }

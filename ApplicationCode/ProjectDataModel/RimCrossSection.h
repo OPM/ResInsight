@@ -25,12 +25,13 @@
 #include "cafPdmPtrField.h"
 
 #include "cvfBase.h"
+#include "cvfObject.h"
 #include "cvfVector3.h"
 
 class RimEclipseWell;
 class RimEclipseWellCollection;
 class RimWellPath;
-
+class RivCrossSectionPartMgr;
 
 //==================================================================================================
 //
@@ -72,6 +73,8 @@ public:
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
 
+    RivCrossSectionPartMgr*             crossSectionPartMgr();
+
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
@@ -80,4 +83,7 @@ protected:
 
 private:
     RimEclipseWellCollection* simulationWellCollection();
+
+private:
+    cvf::ref<RivCrossSectionPartMgr> m_crossSectionPartMgr;
 };

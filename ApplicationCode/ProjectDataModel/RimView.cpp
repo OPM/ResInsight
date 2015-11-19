@@ -122,6 +122,13 @@ RimView::RimView(void)
     crossSectionCollection = new RimCrossSectionCollection();
 
     m_previousGridModeMeshLinesWasFaults = false;
+
+
+    m_crossSectionModel = new cvf::ModelBasicList;
+    m_crossSectionModel->setName("CrossSectionModel");
+
+    m_highlightModelBasicList = new cvf::ModelBasicList;
+    m_highlightModelBasicList->setName("HighlightModel");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,7 +283,7 @@ void RimView::createDisplayModelAndRedraw()
         this->clampCurrentTimestep();
 
         createDisplayModel();
-        createOverlayDisplayModel();
+        createHighlightAndGridBoxDisplayModel();
         updateDisplayModelVisibility();
 
         if (cameraPosition().isIdentity())
@@ -518,7 +525,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     }
     else if (changedField == &showGridBox)
     {
-        createOverlayDisplayModelAndRedraw();
+        createHighlightAndGridBoxDisplayModelWithRedraw();
     }
     else if (changedField == &m_disableLighting)
     {
@@ -801,9 +808,9 @@ void RimView::updateGridBoxData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimView::createOverlayDisplayModelAndRedraw()
+void RimView::createHighlightAndGridBoxDisplayModelWithRedraw()
 {
-    createOverlayDisplayModel();
+    createHighlightAndGridBoxDisplayModel();
 
     if (m_viewer)
     {
@@ -814,26 +821,24 @@ void RimView::createOverlayDisplayModelAndRedraw()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimView::createOverlayDisplayModel()
+void RimView::createHighlightAndGridBoxDisplayModel()
 {
-    m_viewer->removeAllStaticModels();
+    m_viewer->removeStaticModel(m_highlightModelBasicList.p());
+    m_viewer->removeStaticModel(m_viewer->gridBoxModel());
+
+    m_highlightModelBasicList->removeAllParts();
 
     cvf::Collection<cvf::Part> parts;
     createPartCollectionFromSelection(&parts);
     if (parts.size() > 0)
     {
-        cvf::String highlightModelName = "HighLightModel";
-
-        cvf::ref<cvf::ModelBasicList> highlightModelBasicList = new cvf::ModelBasicList;
-        highlightModelBasicList->setName(highlightModelName);
-
         for (size_t i = 0; i < parts.size(); i++)
         {
-            highlightModelBasicList->addPart(parts[i].p());
+            m_highlightModelBasicList->addPart(parts[i].p());
         }
 
-        highlightModelBasicList->updateBoundingBoxesRecursive();
-        m_viewer->addStaticModel(highlightModelBasicList.p());
+        m_highlightModelBasicList->updateBoundingBoxesRecursive();
+        m_viewer->addStaticModel(m_highlightModelBasicList.p());
     }
 
     if (showGridBox)
