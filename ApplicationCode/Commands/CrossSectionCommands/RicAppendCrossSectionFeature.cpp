@@ -22,8 +22,6 @@
 #include "RimCrossSection.h"
 #include "RimCrossSectionCollection.h"
 
-#include "RiuMainWindow.h"
-
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
@@ -96,11 +94,8 @@ void RicAppendCrossSectionFeatureCmd::redo()
     CVF_ASSERT(m_crossSectionCollection);
 
     RimCrossSection* crossSection = new RimCrossSection();
-    crossSection->name = QString("Cross Section (%1)").arg(m_crossSectionCollection->crossSections.size() + 1);
-    m_crossSectionCollection->crossSections.push_back(crossSection);
-
-    m_crossSectionCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(crossSection);
+    crossSection->name = QString("Cross Section");
+    m_crossSectionCollection->appendCrossSection(crossSection);
 }
 
 //--------------------------------------------------------------------------------------------------

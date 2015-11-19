@@ -23,8 +23,6 @@
 #include "RimCrossSectionCollection.h"
 #include "RimWellPath.h"
 
-#include "RiuMainWindow.h"
-
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
@@ -123,10 +121,7 @@ void RicNewWellPathCrossSectionFeatureCmd::redo()
     crossSection->type = RimCrossSection::CS_WELL_PATH;
     crossSection->wellPath = m_wellPath;
 
-    m_crossSectionCollection->crossSections.push_back(crossSection);
-
-    m_crossSectionCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(crossSection);
+    m_crossSectionCollection->appendCrossSection(crossSection);
 }
 
 //--------------------------------------------------------------------------------------------------

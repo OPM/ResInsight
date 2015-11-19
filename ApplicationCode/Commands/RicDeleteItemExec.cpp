@@ -22,6 +22,7 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimCellRangeFilterCollection.h"
+#include "RimCrossSectionCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimProject.h"
@@ -99,6 +100,13 @@ void RicDeleteItemExec::redo()
         if (view && (eclipsePropColl || geoMechPropColl))
         {
             view->scheduleGeometryRegen(PROPERTY_FILTERED);
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+
+        RimCrossSectionCollection* crossSectionColl;
+        parentObj->firstAnchestorOrThisOfType(crossSectionColl);
+        if (view && crossSectionColl)
+        {
             view->scheduleCreateDisplayModelAndRedraw();
         }
 

@@ -24,8 +24,6 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 
-#include "RiuMainWindow.h"
-
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
 
@@ -109,10 +107,7 @@ void RicNewSimWellCrossSectionCmd::redo()
     crossSection->type = RimCrossSection::CS_SIMULATION_WELL;
     crossSection->simulationWell = m_wellPath;
 
-    m_crossSectionCollection->crossSections.push_back(crossSection);
-
-    m_crossSectionCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(crossSection);
+    m_crossSectionCollection->appendCrossSection(crossSection);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -44,15 +44,21 @@ public:
     RimCrossSectionCollection();
 
     caf::PdmField<bool> isActive;
-    caf::PdmChildArrayField<RimCrossSection*> crossSections;
+
+    void appendCrossSection(RimCrossSection* crossSection);
+
+
+    // Visualization interface
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
-
     void appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
 protected:
     //virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     //virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
     virtual caf::PdmFieldHandle*    objectToggleField();
+
+private:
+    caf::PdmChildArrayField<RimCrossSection*> m_crossSections;
 };
