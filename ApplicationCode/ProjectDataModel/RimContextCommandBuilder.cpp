@@ -57,7 +57,12 @@
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
 
+#include "cafCmdFeatureManager.h"
+#include "cafCmdFeature.h"
+
 #include <vector>
+
+#include <QMenu>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -207,6 +212,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
+            commandIds << "RicNewWellPathCrossSectionFeature";
             commandIds << "RicWellPathDeleteFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
@@ -291,3 +297,27 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
 
     return commandIds;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimContextCommandBuilder::appendCommandsToMenu(const QStringList& commandIds, QMenu* menu)
+{
+    CVF_ASSERT(menu);
+
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    for (int i = 0; i < commandIds.size(); i++)
+    {
+        caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+        CVF_ASSERT(feature);
+
+        if (feature->canFeatureBeExecuted())
+        {
+            QAction* act = commandManager->action(commandIds[i]);
+            CVF_ASSERT(act);
+
+            menu->addAction(act);
+        }
+    }
+}
+

@@ -21,6 +21,8 @@
 
 #include <QStringList>
 
+class QMenu;
+
 //==================================================================================================
 ///  
 ///  
@@ -28,5 +30,6 @@
 class RimContextCommandBuilder
 {
 public:
-    static QStringList commandsFromSelection();
+    static QStringList  commandsFromSelection();
+    static void         appendCommandsToMenu(const QStringList& commandIds, QMenu* menu);
 };

@@ -36,6 +36,7 @@
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
@@ -136,7 +137,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
     {
         extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &faceIndex, &nncFirstHitPart, NULL);
-        updateSelectionFromPickedPart(firstHitPart);
     }
 
     if (firstHitPart && faceIndex != cvf::UNDEFINED_UINT)
@@ -222,6 +222,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         }
     }
 
+    QStringList commandIds;
+
     // Well log curve creation commands
     if (firstHitPart && firstHitPart->sourceInfo())
     {
@@ -233,26 +235,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
+                caf::SelectionManager::instance()->setSelectedItem(wellPath);
 
-                RicNewWellLogFileCurveFeature* newWellLogFileCurveFeature = dynamic_cast<RicNewWellLogFileCurveFeature*>(commandManager->getCommandFeature("RicNewWellLogFileCurveFeature"));
-                if (newWellLogFileCurveFeature && newWellLogFileCurveFeature->canFeatureBeExecuted())
-                {
-                    menu.addAction(newWellLogFileCurveFeature->action());
-                }
-
-                RicNewWellLogCurveExtractionFeature* newExtractionCurveFeature = dynamic_cast<RicNewWellLogCurveExtractionFeature*>(commandManager->getCommandFeature("RicNewWellLogCurveExtractionFeature"));
-                if (newExtractionCurveFeature && newExtractionCurveFeature->canFeatureBeExecuted())
-                {
-                    menu.addAction(newExtractionCurveFeature->action());
-                }
-
-                RicNewWellPathCrossSectionFeature* newWellPathCrossSectionFeature = dynamic_cast<RicNewWellPathCrossSectionFeature*>(commandManager->getCommandFeature("RicNewWellPathCrossSectionFeature"));
-                if (newWellPathCrossSectionFeature)
-                {
-                    newWellPathCrossSectionFeature->setView(m_reservoirView);
-
-                    menu.addAction(newWellPathCrossSectionFeature->action());
-                }
+                commandIds << "RicNewWellLogFileCurveFeature";
+                commandIds << "RicNewWellLogCurveExtractionFeature";
+                commandIds << "RicNewWellPathCrossSectionFeature";
             }
         }
 
@@ -264,11 +251,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 caf::SelectionManager::instance()->setSelectedItem(well);
 
-                RicNewSimWellCrossSectionFeature* newSimWellCrossSectionFeature = dynamic_cast<RicNewSimWellCrossSectionFeature*>(commandManager->getCommandFeature("RicNewSimWellCrossSectionFeature"));
-                if (newSimWellCrossSectionFeature && newSimWellCrossSectionFeature->canFeatureBeExecuted())
-                {
-                    menu.addAction(newSimWellCrossSectionFeature->action());
-                }
+                commandIds << "RicNewSimWellCrossSectionFeature";
             }
         }
     }
@@ -276,37 +259,13 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // View Link commands
     if (!firstHitPart)
     {
-        QStringList commandIds;
-
         commandIds << "RicLinkViewFeature";
         commandIds << "RicUnLinkViewFeature";
         commandIds << "RicShowLinkOptionsFeature";
         commandIds << "RicSetMasterViewFeature";
-
-        bool firstLinkAction = true;
-
-        caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-        for (int i = 0; i < commandIds.size(); i++)
-        {
-            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
-            if (feature->canFeatureBeExecuted())
-            {
-                QAction* act = commandManager->action(commandIds[i]);
-                CVF_ASSERT(act);
-
-                if (firstLinkAction)
-                {
-                    if (menu.actions().size() > 0)
-                    {
-                        menu.addSeparator();
-                    }
-                    firstLinkAction = false;
-                }
-
-                menu.addAction(act);
-            }
-        }
     }
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
     if (menu.actions().size() > 0)
     {

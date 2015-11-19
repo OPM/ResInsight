@@ -55,8 +55,7 @@ public:
     void appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
 protected:
-    //virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    //virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*    objectToggleField();
 
 private:

@@ -19,9 +19,12 @@
 
 #include "RicNewWellPathCrossSectionFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RimCrossSection.h"
 #include "RimCrossSectionCollection.h"
 #include "RimWellPath.h"
+#include "RimView.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -36,7 +39,6 @@ CAF_CMD_SOURCE_INIT(RicNewWellPathCrossSectionFeature, "RicNewWellPathCrossSecti
 /// 
 //--------------------------------------------------------------------------------------------------
 RicNewWellPathCrossSectionFeature::RicNewWellPathCrossSectionFeature()
-    : m_view(NULL)
 {
 }
 
@@ -54,7 +56,8 @@ bool RicNewWellPathCrossSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathCrossSectionFeature::onActionTriggered(bool isChecked)
 {
-    if (!m_view) return;
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return;
 
     std::vector<RimWellPath*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
@@ -62,7 +65,7 @@ void RicNewWellPathCrossSectionFeature::onActionTriggered(bool isChecked)
 
     RimWellPath* wellPath = collection[0];
     
-    RicNewWellPathCrossSectionFeatureCmd* cmd = new RicNewWellPathCrossSectionFeatureCmd(m_view->crossSectionCollection, wellPath);
+    RicNewWellPathCrossSectionFeatureCmd* cmd = new RicNewWellPathCrossSectionFeatureCmd(activeView->crossSectionCollection, wellPath);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
@@ -73,14 +76,6 @@ void RicNewWellPathCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 {
 //    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
     actionToSetup->setText("New Cross Section");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicNewWellPathCrossSectionFeature::setView(RimView* view)
-{
-    m_view = view;
 }
 
 //--------------------------------------------------------------------------------------------------

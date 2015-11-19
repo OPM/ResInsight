@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "RimView.h"
-
 #include "cafCmdFeature.h"
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
@@ -59,16 +57,11 @@ class RicNewWellPathCrossSectionFeature : public caf::CmdFeature
 public:
     RicNewWellPathCrossSectionFeature();
 
-    void setView(RimView* view);
-
 protected:
     // Overrides
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
-
-private:
-    caf::PdmPointer<RimView> m_view;
 };
 
 
