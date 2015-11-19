@@ -302,7 +302,7 @@ cvf::Vec3d RivCrossSectionPartMgr::extrusionDirection(const std::vector<cvf::Vec
 
     cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
 
-    if (m_rimCrossSection->direction == RimCrossSection::CS_VERTICAL &&
+    if (m_rimCrossSection->direction == RimCrossSection::CS_HORIZONTAL &&
         polyline.size() > 1)
     {
         // Use first and last point of polyline to approximate orientation of polyline
