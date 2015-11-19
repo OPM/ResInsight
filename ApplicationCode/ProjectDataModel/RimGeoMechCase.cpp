@@ -97,9 +97,7 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 {
     // If read already, return
-
     if (this->m_geoMechCaseData.notNull()) return true;
-
 
     if (!QFile::exists(m_caseFileName()))
     {
@@ -108,7 +106,15 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 
     m_geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().toStdString());
 
-    return m_geoMechCaseData->openAndReadFemParts(errorMessage);
+    bool fileOpenSuccess = m_geoMechCaseData->openAndReadFemParts(errorMessage);
+    if (!fileOpenSuccess)
+    {
+        // If opening failed, release all data
+        // Also, several places is checked for this data to validate availability of data
+        m_geoMechCaseData = NULL;
+    }
+
+    return fileOpenSuccess;
 }
 
 //--------------------------------------------------------------------------------------------------
