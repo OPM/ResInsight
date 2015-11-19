@@ -78,6 +78,8 @@ void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex, RimE
 //--------------------------------------------------------------------------------------------------
 void RimCrossSectionCollection::appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
+    if (!isActive) return;
+
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
         RimCrossSection* cs = m_crossSections[csIdx];
@@ -104,5 +106,21 @@ void RimCrossSectionCollection::appendCrossSection(RimCrossSection* crossSection
     if (rimView)
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &isActive)
+    {
+        RimView* rimView = NULL;
+        firstAnchestorOrThisOfType(rimView);
+        if (rimView)
+        {
+            rimView->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }

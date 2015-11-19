@@ -37,8 +37,8 @@ template<>
 void caf::AppEnum< RimCrossSection::CrossSectionEnum >::setUp()
 {
     addItem(RimCrossSection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
-    addItem(RimCrossSection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
-    addItem(RimCrossSection::CS_USER_DEFINED,    "CS_USER_DEFINED",    "User defined");
+//    addItem(RimCrossSection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
+//    addItem(RimCrossSection::CS_USER_DEFINED,    "CS_USER_DEFINED",    "User defined");
     setDefault(RimCrossSection::CS_WELL_PATH);
 }
 
@@ -79,13 +79,20 @@ RimCrossSection::RimCrossSection()
 //--------------------------------------------------------------------------------------------------
 void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    m_crossSectionPartMgr = NULL;
-    
-    RimView* rimView = NULL;
-    this->firstAnchestorOrThisOfType(rimView);
-    if (rimView)
+    if (changedField == &isActive ||
+        changedField == &type ||
+        changedField == &direction ||
+        changedField == &wellPath ||
+        changedField == &simulationWell)
     {
-        rimView->scheduleCreateDisplayModelAndRedraw();
+        m_crossSectionPartMgr = NULL;
+    
+        RimView* rimView = NULL;
+        this->firstAnchestorOrThisOfType(rimView);
+        if (rimView)
+        {
+            rimView->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }
 
@@ -104,11 +111,11 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
     else if (type == CS_SIMULATION_WELL)
     {
-        uiOrdering.add(&simulationWell);
+        //uiOrdering.add(&simulationWell);
     }
     else
     {
-
+        // User defined poly line
     }
 
     uiOrdering.setForgetRemainingFields(true);
