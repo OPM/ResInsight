@@ -192,8 +192,6 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuSelectionIte
 //--------------------------------------------------------------------------------------------------
 void RiuSelectionChangedHandler::scheduleUpdateForAllVisibleViews() const
 {
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-
     RimProject* proj = RiaApplication::instance()->project();
     if (proj)
     {

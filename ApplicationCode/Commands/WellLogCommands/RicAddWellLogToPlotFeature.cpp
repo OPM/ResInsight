@@ -87,8 +87,6 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         wellLog->firstAnchestorOrThisOfType(wellLogFile);
         if (wellLogFile)
         {
-            size_t curveIdx = plotTrack->curveCount();
-
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
             plotTrack->addCurve(curve);
 

@@ -82,7 +82,6 @@ public:
 
 
     RimCaseCollection*                          parentCaseCollection();
-    RimIdenticalGridCaseGroup*                  parentGridCaseGroup();
                                                      
     virtual std::vector<RimView*>               views();
     virtual QStringList                         timeStepStrings();

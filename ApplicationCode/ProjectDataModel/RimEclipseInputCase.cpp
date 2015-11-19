@@ -330,36 +330,6 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::removeProperty(RimEclipseInputProperty* inputProperty)
-{
-    bool isPropertyFileReferencedByOthers = false;
-
-    m_inputPropertyCollection->removeInputProperty(inputProperty, isPropertyFileReferencedByOthers);
-    if (!isPropertyFileReferencedByOthers)
-    {
-        std::vector<QString> newList;
-        size_t i;
-        for (i = 0; i < m_additionalFileNames().size(); i++)
-        {
-            if (m_additionalFileNames()[i] != inputProperty->fileName)
-            {
-               newList.push_back(m_additionalFileNames()[i]);
-            }
-        }
-
-        m_additionalFileNames.v() = newList;
-    }
-
-    // Remove the results pointed to by this input property
-    RigCaseCellResultsData* results = reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
-    results->removeResult(inputProperty->resultName);
-
-    this->removeResult(inputProperty->resultName);
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel(QString modelName)

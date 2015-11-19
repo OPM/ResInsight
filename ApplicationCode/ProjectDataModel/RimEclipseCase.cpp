@@ -320,23 +320,6 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimEclipseCase::parentGridCaseGroup()
-{
-    RimCaseCollection* caseColl = parentCaseCollection();
-    if (caseColl) 
-    {
-        return caseColl->parentCaseGroup();
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimEclipseCase::setReservoirData(RigCaseData* eclipseCase)
 {
     m_rigEclipseCase  = eclipseCase;

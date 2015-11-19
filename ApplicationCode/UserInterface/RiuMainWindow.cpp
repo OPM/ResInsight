@@ -1024,7 +1024,7 @@ void RiuMainWindow::slotInputMockModel()
 //--------------------------------------------------------------------------------------------------
 bool RiuMainWindow::checkForDocumentModifications()
 {
-    RiaApplication* app = RiaApplication::instance();
+//    RiaApplication* app = RiaApplication::instance();
 //     RISceneManager* project = app->sceneManager();
 //     if (project && project->isModified())
 //     {

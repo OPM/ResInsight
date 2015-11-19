@@ -177,7 +177,6 @@ void RivFemPartGeometryGenerator::computeArrays()
         {
             RigElementType eType = m_part->elementType(elmIdx);
             int faceCount = RigFemTypes::elmentFaceCount(eType);
-            int elmQuadCount = 0;
 
             const int* elmNodeIndices =  m_part->connectivities(elmIdx);
 
@@ -277,14 +276,11 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
 
         RigElementType eType = part->elementType(elmIdx);
         int faceCount = RigFemTypes::elmentFaceCount(eType);
-        int elmQuadCount = 0;
 
         const int* elmNodeIndices = part->connectivities(elmIdx);
 
         for (int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
         {
-            int elmNeighbor = part->elementNeighbor(static_cast<int>(elmIdx), lfIdx);
-
             int faceNodeCount = 0;
             const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, lfIdx, &faceNodeCount);
             if (faceNodeCount == 4)

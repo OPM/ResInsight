@@ -144,8 +144,6 @@ RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogTrack* pl
 {
     CVF_ASSERT(plotTrack);
 
-    size_t curveIndex = plotTrack->curveCount();
-
     RimWellLogFileCurve* curve = new RimWellLogFileCurve();
     plotTrack->addCurve(curve);
 

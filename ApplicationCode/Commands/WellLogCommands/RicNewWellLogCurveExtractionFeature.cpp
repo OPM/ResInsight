@@ -118,9 +118,6 @@ bool RicNewWellLogCurveExtractionFeature::caseAvailable() const
 RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath)
 {
     CVF_ASSERT(plotTrack);
-
-    size_t curveIndex = plotTrack->curveCount();
-
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();

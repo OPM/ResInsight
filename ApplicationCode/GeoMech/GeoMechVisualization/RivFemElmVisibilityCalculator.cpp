@@ -119,8 +119,6 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                 // Do a "Hack" to use elm nodal and not nodal POR results
                 if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
-                size_t adjustedTimeStepIndex = timeStepIndex;
-
                 const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 
                 RigGeoMechCaseData* caseData = propFilterColl->reservoirView()->geoMechCase()->geoMechData();
