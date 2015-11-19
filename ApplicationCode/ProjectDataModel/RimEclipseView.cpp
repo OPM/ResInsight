@@ -1035,14 +1035,14 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
     {
         RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
         {
-            double globalMin = 0.0;
-            double globalMax = 1.0;
-            double localMin = 0.0;
-            double localMax = 1.0;
-
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
+                double globalMin = 0.0;
+                double globalMax = 1.0;
+                double localMin = 0.0;
+                double localMax = 1.0;
+
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
@@ -1051,14 +1051,14 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         }
 
         {
-            double globalMin = 0.0;
-            double globalMax = 1.0;
-            double localMin = 0.0;
-            double localMax = 1.0;
-
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
+                double globalMin = 0.0;
+                double globalMax = 1.0;
+                double localMin = 0.0;
+                double localMax = 1.0;
+
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
@@ -1067,14 +1067,14 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         }
 
         {
-            double globalMin = 0.0;
-            double globalMax = 1.0;
-            double localMin = 0.0;
-            double localMax = 1.0;
-
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
+                double globalMin = 0.0;
+                double globalMax = 1.0;
+                double localMin = 0.0;
+                double localMax = 1.0;
+
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
                 cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
