@@ -69,8 +69,6 @@
 #include "RivWellPipeSourceInfo.h"
 
 #include "cafCmdExecCommandManager.h"
-#include "cafCmdFeature.h"
-#include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 
@@ -227,8 +225,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // Well log curve creation commands
     if (firstHitPart && firstHitPart->sourceInfo())
     {
-        caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-
         const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
         if (wellPathSourceInfo)
         {
