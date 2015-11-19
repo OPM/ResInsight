@@ -62,14 +62,43 @@ private:
 
 
     void                        adjustPolyline();
-    cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
-    cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
-
-    std::vector<size_t>         m_triangleToCellIdxMap;
 
     cvf::cref<RigMainGrid>      m_mainGrid;
     std::vector<cvf::Vec3d>     m_polyLine;
     cvf::Vec3d                  m_extrusionDirection;
     std::vector<cvf::Vec3d>     m_adjustedPolyline;
+
+    // Output arrays
+    cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
+    cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
+    std::vector<size_t>         m_triangleToCellIdxMap;
+
+    struct VxInterPolData
+    {
+        explicit VxInterPolData(int vx1, int vx2, double normDistFrom1, 
+                                int vx3, int vx4, double normDistFrom3,
+                                double normDistFrom12)
+                       : vx1Id(vx1), 
+                       weight1((float)(1.0 - normDistFrom1 - normDistFrom12 + normDistFrom1*normDistFrom12)),
+                       vx2Id(vx2),
+                       weight2((float)(normDistFrom1 - normDistFrom1*normDistFrom12)),
+                       vx3Id(vx3),
+                       weight3((float)(normDistFrom12 - normDistFrom3*normDistFrom12)),
+                       vx4Id(vx4),
+                       weight4((float)(normDistFrom3*normDistFrom12))
+        {}
+
+        int vx1Id;
+        float weight1;
+        int vx2Id;
+        float weight2;
+    
+        int vx3Id;
+        float weight3;
+        int vx4Id;
+        float weight4;
+    };
+
+    std::vector<VxInterPolData> m_triangleVxInterPolationData;
 };
 

@@ -1060,8 +1060,8 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
         p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 - plane.normal() );
         
         
-        std::vector<ClipVx> triangleVxes;
-        triangleVxes.reserve(5*3);
+        std::vector<ClipVx> triangleClipVxes;
+        triangleClipVxes.reserve(5*3);
         std::vector<bool> isTriangleEdgeCellContour;
         isTriangleEdgeCellContour.reserve(5*3);
 
@@ -1071,7 +1071,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 
             if (m_mainGrid->cells()[globalCellIdx].isInvalid()) continue;
             
-            triangleVxes.clear();
+            triangleClipVxes.clear();
             cvf::Vec3d cellCorners[8];
             m_mainGrid->cellCornerVertices(globalCellIdx, cellCorners);
 
@@ -1089,7 +1089,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
             int triangleCount = planeHexIntersectionMC(plane,
                                                         cellCorners,
                                                         hexCornersIds,
-                                                        &triangleVxes, 
+                                                        &triangleClipVxes, 
                                                         &isTriangleEdgeCellContour);
 
 
@@ -1110,7 +1110,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
             std::vector<ClipVx> clippedTriangleVxes;
             std::vector<bool> isClippedTriEdgeCellContour;
 
-            clipTrianglesBetweenTwoParallelPlanes(triangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane, &clippedTriangleVxes, &isClippedTriEdgeCellContour);
+            clipTrianglesBetweenTwoParallelPlanes(triangleClipVxes, isTriangleEdgeCellContour, p1Plane, p2Plane, &clippedTriangleVxes, &isClippedTriEdgeCellContour);
 
             int clippedTriangleCount = static_cast<int>(clippedTriangleVxes.size())/3;
 
@@ -1150,7 +1150,28 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 
                 m_triangleToCellIdxMap.push_back(globalCellIdx);
 
+                for (int i = 0; i < 3; ++i)
+                {
+                    ClipVx cvx = clippedTriangleVxes[triVxIdx+i];
+                    if (cvx.isVxIdsNative)
+                    {
+                        m_triangleVxInterPolationData.push_back(
+                            VxInterPolData(cvx.clippedEdgeVx1Id, cvx.clippedEdgeVx2Id, cvx.normDistFromEdgeVx1,
+                            -1, -1, 0.0,
+                            0.0));
+                    }
+                    else
+                    {
+                        ClipVx cvx1 = triangleClipVxes[cvx.clippedEdgeVx1Id];
+                        ClipVx cvx2 = triangleClipVxes[cvx.clippedEdgeVx2Id];
 
+                        m_triangleVxInterPolationData.push_back(
+                            VxInterPolData(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
+                            cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
+                            cvx.normDistFromEdgeVx1));
+
+                    }
+                }
             }
 #endif
             
