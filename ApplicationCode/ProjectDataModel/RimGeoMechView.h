@@ -101,6 +101,8 @@ private:
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                        initAfterRead();
 
+    void                                                setCustomAxisCrossLabels();
+
 
     virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
 

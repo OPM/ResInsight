@@ -77,10 +77,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 : caf::Viewer(format, parent)
 {
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
-    cvf::OverlayAxisCross* axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
-    axisCross->setAxisLabels("E", "N", "Z");
-    axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
-    m_mainRendering->addOverlayItem(axisCross);
+    m_axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
+    m_axisCross->setAxisLabels("E", "N", "Z");
+    m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+    m_mainRendering->addOverlayItem(m_axisCross.p());
 
     this->enableOverlyPainting(true);
     this->setReleaseOGLResourcesEachFrame(true);
@@ -570,4 +570,28 @@ void RiuViewer::updateGridBoxData()
 cvf::Model* RiuViewer::gridBoxModel() const
 {
     return m_gridBoxGenerator->model();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel)
+{
+    m_axisCross->setAxisLabels(xLabel, yLabel, zLabel);
+
+    size_t maxAxisLabelLength = xLabel.size();
+    if (yLabel.size() > maxAxisLabelLength) maxAxisLabelLength = yLabel.size();
+    if (zLabel.size() > maxAxisLabelLength) maxAxisLabelLength = zLabel.size();
+
+    if (maxAxisLabelLength > 4)
+    {
+        if (maxAxisLabelLength < 6)
+        {
+            m_axisCross->setSize(cvf::Vec2ui(140, 140));
+        }
+        else if (maxAxisLabelLength < 8)
+        {
+            m_axisCross->setSize(cvf::Vec2ui(160, 160));
+        }
+    }
 }

@@ -42,6 +42,7 @@ namespace cvf
     class Model;
     class OverlayItem;
     class Part;
+    class OverlayAxisCross;
 }
 
 //==================================================================================================
@@ -84,6 +85,8 @@ public:
 
     void            setCurrentFrame(int frameIndex);
 
+    void            setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel);
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();
@@ -109,6 +112,7 @@ private:
 
     QCDEStyle*      m_progressBarStyle;
 
+    cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     cvf::Collection<cvf::OverlayItem> m_visibleLegends;
 
     caf::PdmPointer<RimView>    m_rimView;

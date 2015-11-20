@@ -155,6 +155,8 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.setProgressDescription("Create Display model");
    
     updateViewerWidget();
+    setCustomAxisCrossLabels();
+
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
 
     this->scheduleCreateDisplayModelAndRedraw();
@@ -481,6 +483,8 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             bool generateDisplayModel = (viewer() == NULL);
             updateViewerWidget();
+            setCustomAxisCrossLabels();
+
             if (generateDisplayModel)
             {
                 scheduleCreateDisplayModelAndRedraw();
@@ -510,6 +514,18 @@ void RimGeoMechView::initAfterRead()
     this->cellResult()->setGeoMechCase(m_geomechCase);
 
     this->updateUiIconFromToggleField();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::setCustomAxisCrossLabels()
+{
+    // Minimalistic - size of axis cross does not have to be adjusted
+    if (m_viewer) m_viewer->setAxisLabels("E-x1", "N-y2", "Z-3");
+
+    // A bit larger - size of axis cross is slightly larger
+    //if (m_viewer) m_viewer->setAxisLabels("E(x,1)", "N(y,2)", "Z(3)");
 }
 
 //--------------------------------------------------------------------------------------------------
