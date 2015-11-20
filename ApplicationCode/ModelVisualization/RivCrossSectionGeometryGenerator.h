@@ -34,6 +34,75 @@ namespace cvf
     class DrawableGeo;
 }
 
+#include "cvfBoundingBox.h"
+namespace cvf {
+
+class CrossSectionHexGridIntf : public Object
+{
+public:
+    virtual Vec3d displayOffset() const = 0;
+    virtual BoundingBox boundingBox() const = 0;
+    virtual void findIntersectingCells(const BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const = 0;
+    virtual bool useCell(size_t cellIndex) const = 0;
+    virtual void cellCornerVertices(size_t cellIndex, Vec3d cellCorners[8]) const = 0;
+    virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const = 0;
+}; 
+
+}
+
+class EclipseCrossSectionGrid : public cvf::CrossSectionHexGridIntf
+{
+public:
+    EclipseCrossSectionGrid(const RigMainGrid * mainGrid);
+    
+    virtual cvf::Vec3d displayOffset() const;
+    virtual cvf::BoundingBox boundingBox() const;
+    virtual void findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const;
+    virtual bool useCell(size_t cellIndex) const;
+    virtual void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const;
+    virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const;
+
+private:
+    cvf::cref<RigMainGrid>      m_mainGrid;
+};
+
+class RivVertexWeights
+{
+public:
+    explicit RivVertexWeights(size_t edge1Vx1, size_t edge1Vx2, double normDistFromE1V1,
+                              size_t edge2Vx1, size_t edge2Vx2, double normDistFromE2V1,
+                              double normDistFromE1Cut) : m_count(4)
+    {
+        m_vxIds[0] = (edge1Vx1);
+        m_vxIds[1] = (edge1Vx2);
+        m_vxIds[2] = (edge2Vx1);
+        m_vxIds[3] = (edge2Vx2);
+
+        m_weights[0] = ((float)(1.0 - normDistFromE1V1 - normDistFromE1Cut + normDistFromE1V1*normDistFromE1Cut));
+        m_weights[1] = ((float)(normDistFromE1V1 - normDistFromE1V1*normDistFromE1Cut));
+        m_weights[2] = ((float)(normDistFromE1Cut - normDistFromE2V1*normDistFromE1Cut));
+        m_weights[3] = ((float)(normDistFromE2V1*normDistFromE1Cut));
+    }
+
+    explicit RivVertexWeights(size_t edge1Vx1, size_t edge1Vx2, double normDistFromE1V1) : m_count(2)
+    {
+        m_vxIds[0] = (edge1Vx1);
+        m_vxIds[1] = (edge1Vx2);
+
+        m_weights[0] = ((float)(1.0 - normDistFromE1V1));
+        m_weights[1] = ((float)(normDistFromE1V1));
+    }
+
+    int     size() const            { return m_count;}
+    size_t  vxId(int idx) const     { return m_vxIds[idx];}
+    float   weight(int idx)const    { return m_weights[idx];}
+    
+private:
+
+    size_t m_vxIds[4];
+    float  m_weights[4];
+    int    m_count;
+};
 
 class RivCrossSectionGeometryGenerator : public cvf::Object
 {
@@ -51,6 +120,7 @@ public:
 
     // Mapping between cells and geometry
     const std::vector<size_t>&  triangleToCellIndex() const;
+    const std::vector<RivVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
 
     // Generated geometry
     cvf::ref<cvf::DrawableGeo>  generateSurface();
@@ -73,32 +143,6 @@ private:
     cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
     std::vector<size_t>         m_triangleToCellIdxMap;
 
-    struct VxInterPolData
-    {
-        explicit VxInterPolData(int edge1Vx1, int edge1Vx2, double normDistFromE1V1, 
-                                int edge2Vx1, int edge2Vx2, double normDistFromE2V1,
-                                double normDistFromE1Cut)
-                       : vx1Id(edge1Vx1), 
-                       weight1((float)(1.0 - normDistFromE1V1 - normDistFromE1Cut + normDistFromE1V1*normDistFromE1Cut)),
-                       vx2Id(edge1Vx2),
-                       weight2((float)(normDistFromE1V1 - normDistFromE1V1*normDistFromE1Cut)),
-                       vx3Id(edge2Vx1),
-                       weight3((float)(normDistFromE1Cut - normDistFromE2V1*normDistFromE1Cut)),
-                       vx4Id(edge2Vx2),
-                       weight4((float)(normDistFromE2V1*normDistFromE1Cut))
-        {}
-
-        int vx1Id;
-        float weight1;
-        int vx2Id;
-        float weight2;
-    
-        int vx3Id;
-        float weight3;
-        int vx4Id;
-        float weight4;
-    };
-
-    std::vector<VxInterPolData> m_triangleVxInterPolationData;
+    std::vector<RivVertexWeights> m_triVxToCellCornerWeights;
 };
 
