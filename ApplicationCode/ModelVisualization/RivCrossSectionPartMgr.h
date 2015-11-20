@@ -50,7 +50,7 @@ public:
     RivCrossSectionPartMgr(const RimCrossSection* rimCrossSection);
 
     void applySingleColorEffect();
-    void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+    void updateCellResultColor(size_t timeStepIndex);
 
     void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
@@ -60,18 +60,18 @@ private:
     void generatePartGeometry();
     void computeData();
 
-    RigMainGrid*    mainGrid();
     cvf::Vec3d      extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const;
     void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, const std::vector<size_t>& triangleToCellIdxMap, const RigResultAccessor* resultAccessor, const cvf::ScalarMapper* mapper) const;
+    cvf::ref<RivCrossSectionHexGridIntf> createHexGridInterface();
 private:
 
     const RimCrossSection*      m_rimCrossSection;
 
     cvf::Color3f                m_defaultColor;
 
-    cvf::ref<RivCrossSectionGeometryGenerator>   m_nativeCrossSectionGenerator;
-    cvf::ref<cvf::Part>         m_nativeCrossSectionFaces;
-    cvf::ref<cvf::Part>         m_nativeCrossSectionGridLines;
-    cvf::ref<cvf::Vec2fArray>   m_nativeCrossSectionFacesTextureCoords;
+    cvf::ref<RivCrossSectionGeometryGenerator>   m_crossSectionGenerator;
+    cvf::ref<cvf::Part>         m_crossSectionFaces;
+    cvf::ref<cvf::Part>         m_crossSectionGridLines;
+    cvf::ref<cvf::Vec2fArray>   m_crossSectionFacesTextureCoords;
 
 };

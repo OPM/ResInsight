@@ -64,12 +64,12 @@ void RimCrossSectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
+void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex)
 {
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
         RimCrossSection* cs = m_crossSections[csIdx];
-        cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex, cellResultColors);
+        cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
     }
 }
 

@@ -655,7 +655,7 @@ void RimEclipseView::updateCurrentTimeStep()
 
     if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
     {
-        crossSectionCollection->updateCellResultColor(m_currentTimeStep, this->cellResult());
+        crossSectionCollection->updateCellResultColor(m_currentTimeStep);
     }
     else
     {

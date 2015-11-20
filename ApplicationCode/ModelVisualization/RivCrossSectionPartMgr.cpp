@@ -38,6 +38,12 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetDirect.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
+#include "RigGeomechCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RimGeoMechCellColors.h"
+#include "RigFemPartResultsCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +55,7 @@ RivCrossSectionPartMgr::RivCrossSectionPartMgr(const RimCrossSection* rimCrossSe
 {
     CVF_ASSERT(m_rimCrossSection);
 
-    m_nativeCrossSectionFacesTextureCoords = new cvf::Vec2fArray;
+    m_crossSectionFacesTextureCoords = new cvf::Vec2fArray;
 
     computeData();
 }
@@ -59,7 +65,7 @@ RivCrossSectionPartMgr::RivCrossSectionPartMgr(const RimCrossSection* rimCrossSe
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::applySingleColorEffect()
 {
-    if (m_nativeCrossSectionGenerator.isNull()) return;
+    if (m_crossSectionGenerator.isNull()) return;
 
     m_defaultColor = cvf::Color3f::OLIVE;//m_rimCrossSection->CrossSectionColor();
     this->updatePartEffect();
@@ -68,65 +74,140 @@ void RivCrossSectionPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
+void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
 {
-    if (m_nativeCrossSectionGenerator.isNull()) return;
-
-    CVF_ASSERT(cellResultColors);
-
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-    RimEclipseView* eclipseView = cellResultColors->reservoirView();
-    RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
-
-    // CrossSections
-    if (m_nativeCrossSectionFaces.notNull())
+    RimEclipseView* eclipseView;
+    m_rimCrossSection->firstAnchestorOrThisOfType(eclipseView);
+    if (eclipseView)
     {
-        if (cellResultColors->isTernarySaturationSelected())
+        RimEclipseCellColors* cellResultColors = eclipseView->cellResult();
+
+        if (m_crossSectionGenerator.isNull()) return;
+
+        CVF_ASSERT(cellResultColors);
+
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
+        RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
+
+        // CrossSections
+        if (m_crossSectionFaces.notNull())
         {
-            //RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
-            //    timeStepIndex,
-            //    m_grid->gridIndex(),
-            //    m_nativeCrossSectionGenerator->quadToCellFaceMapper());
-            //
-            //texturer.createTextureCoords(m_nativeCrossSectionFacesTextureCoords.p());
+            if (cellResultColors->isTernarySaturationSelected())
+            {
+                //RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
+                //    timeStepIndex,
+                //    m_grid->gridIndex(),
+                //    m_nativeCrossSectionGenerator->quadToCellFaceMapper());
+                //
+                //texturer.createTextureCoords(m_nativeCrossSectionFacesTextureCoords.p());
 
-            CVF_ASSERT(false); // Todo
+                CVF_ASSERT(false); // Todo
 
-            const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_nativeCrossSectionFaces.p(), 
-                                                                    m_nativeCrossSectionFacesTextureCoords.p(), 
-                                                                    mapper, 
-                                                                    1.0, 
-                                                                    caf::FC_NONE, 
-                                                                    eclipseView->isLightingDisabled());
-        }
-        else
-        {
-            CVF_ASSERT(m_nativeCrossSectionGenerator.notNull());
+                const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
+                RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_crossSectionFaces.p(),
+                                                                       m_crossSectionFacesTextureCoords.p(),
+                                                                       mapper,
+                                                                       1.0,
+                                                                       caf::FC_NONE,
+                                                                       eclipseView->isLightingDisabled());
+            }
+            else
+            {
+                CVF_ASSERT(m_crossSectionGenerator.notNull());
 
-            const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
+                const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(cellResultColors->reservoirView()->eclipseCase()->reservoirData(), 
-                                                                                              0, 
-                                                                                              RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel()), 
-                                                                                              timeStepIndex, 
-                                                                                              cellResultColors->resultVariable());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
+                                                                                                            0,
+                                                                                                            RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel()),
+                                                                                                            timeStepIndex,
+                                                                                                            cellResultColors->resultVariable());
 
-            calculateEclipseTextureCoordinates(m_nativeCrossSectionFacesTextureCoords.p(), 
-                                               m_nativeCrossSectionGenerator->triangleToCellIndex(), 
-                                               resultAccessor.p(), 
-                                               mapper);
+                calculateEclipseTextureCoordinates(m_crossSectionFacesTextureCoords.p(),
+                                                   m_crossSectionGenerator->triangleToCellIndex(),
+                                                   resultAccessor.p(),
+                                                   mapper);
 
 
-            RivScalarMapperUtils::applyTextureResultsToPart(m_nativeCrossSectionFaces.p(), 
-                                                            m_nativeCrossSectionFacesTextureCoords.p(), 
-                                                            mapper, 
-                                                            1.0, 
-                                                            caf::FC_NONE, 
-                                                            eclipseView->isLightingDisabled());
+                RivScalarMapperUtils::applyTextureResultsToPart(m_crossSectionFaces.p(),
+                                                                m_crossSectionFacesTextureCoords.p(),
+                                                                mapper,
+                                                                1.0,
+                                                                caf::FC_NONE,
+                                                                eclipseView->isLightingDisabled());
+            }
         }
     }
 
+    RimGeoMechView* geoView;
+    m_rimCrossSection->firstAnchestorOrThisOfType(geoView);
+
+    if (geoView)
+    {
+        RimGeoMechCellColors* cellResultColors = geoView->cellResult();
+        RigGeoMechCaseData* caseData = cellResultColors->ownerCaseData();
+        
+        if (!caseData) return;
+
+        const cvf::ScalarMapper* mapper        = cellResultColors->legendConfig()->scalarMapper();
+        RigFemResultAddress      resVarAddress = cellResultColors->resultAddress();
+
+        // Do a "Hack" to show elm nodal and not nodal POR results
+        if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+
+        const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
+
+        const std::vector<RivVertexWeights> &vertexWeights = m_crossSectionGenerator->triangleVxToCellCornerInterpolationWeights();
+
+        bool isNodalResult = false;
+        RigFemPart* femPart = NULL;
+        if (resVarAddress.resultPosType == RIG_NODAL)
+        {
+            isNodalResult = true;
+            femPart = caseData->femParts()->part(0);
+        }
+
+        m_crossSectionFacesTextureCoords->resize(vertexWeights.size());
+
+        if (resultValues.size() == 0)
+        {
+            m_crossSectionFacesTextureCoords->setAll(cvf::Vec2f(0.0, 1.0f));
+        }
+        else
+        {
+            cvf::Vec2f* rawPtr = m_crossSectionFacesTextureCoords->ptr();
+
+            int vxCount = static_cast<int>(vertexWeights.size());
+
+            #pragma omp parallel for schedule(dynamic)
+            for (int triangleVxIdx = 0; triangleVxIdx < vxCount; ++triangleVxIdx)
+            {
+                float resValue = 0;
+                int weightCount = vertexWeights[triangleVxIdx].size();
+                for (int wIdx = 0; wIdx < weightCount; ++wIdx)
+                {
+                    size_t resIdx = isNodalResult ? vertexWeights[triangleVxIdx].vxId(wIdx): femPart->nodeIdxFromElementNodeResultIdx(vertexWeights[triangleVxIdx].vxId(wIdx));
+                    resValue += resultValues[vertexWeights[triangleVxIdx].vxId(wIdx)] * vertexWeights[triangleVxIdx].weight(wIdx);
+                }
+
+                if (resValue == HUGE_VAL || resValue != resValue) // a != a is true for NAN's
+                {
+                     rawPtr[triangleVxIdx][1]       = 1.0f;
+                }
+                else
+                {
+                    rawPtr[triangleVxIdx] = mapper->mapToTextureCoord(resValue);
+                }
+            }
+        }
+
+        RivScalarMapperUtils::applyTextureResultsToPart(m_crossSectionFaces.p(), 
+                                                        m_crossSectionFacesTextureCoords.p(), 
+                                                        mapper, 
+                                                        1.0, 
+                                                        caf::FC_NONE, 
+                                                        geoView->isLightingDisabled());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,12 +258,12 @@ const int priMesh = 3;
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::generatePartGeometry()
 {
-    if (m_nativeCrossSectionGenerator.isNull()) return;
+    if (m_crossSectionGenerator.isNull()) return;
 
     bool useBufferObjects = true;
     // Surface geometry
     {
-        cvf::ref<cvf::DrawableGeo> geo = m_nativeCrossSectionGenerator->generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo = m_crossSectionGenerator->generateSurface();
         if (geo.notNull())
         {
             geo->computeNormals();
@@ -205,13 +286,13 @@ void RivCrossSectionPartMgr::generatePartGeometry()
             part->setEnableMask(surfaceBit);
             part->setPriority(priCrossSectionGeo);
 
-            m_nativeCrossSectionFaces = part;
+            m_crossSectionFaces = part;
         }
     }
 
     // Mesh geometry
     {
-        cvf::ref<cvf::DrawableGeo> geoMesh = m_nativeCrossSectionGenerator->createMeshDrawable();
+        cvf::ref<cvf::DrawableGeo> geoMesh = m_crossSectionGenerator->createMeshDrawable();
         if (geoMesh.notNull())
         {
             if (useBufferObjects)
@@ -227,7 +308,7 @@ void RivCrossSectionPartMgr::generatePartGeometry()
             part->setEnableMask(meshSurfaceBit);
             part->setPriority(priMesh);
 
-            m_nativeCrossSectionGridLines = part;
+            m_crossSectionGridLines = part;
         }
     }
 
@@ -240,16 +321,16 @@ void RivCrossSectionPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::updatePartEffect()
 {
-    if (m_nativeCrossSectionGenerator.isNull()) return;
+    if (m_crossSectionGenerator.isNull()) return;
 
     // Set deCrossSection effect
     caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, caf::PO_1);
   
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
 
-    if (m_nativeCrossSectionFaces.notNull())
+    if (m_crossSectionFaces.notNull())
     {
-        m_nativeCrossSectionFaces->setEffect(geometryOnlyEffect.p());
+        m_crossSectionFaces->setEffect(geometryOnlyEffect.p());
     }
 
     // Update mesh colors as well, in case of change
@@ -259,9 +340,9 @@ void RivCrossSectionPartMgr::updatePartEffect()
     caf::MeshEffectGenerator CrossSectionEffGen(cvf::Color3::WHITE);//prefs->defaultCrossSectionGridLineColors());
     eff = CrossSectionEffGen.generateCachedEffect();
 
-    if (m_nativeCrossSectionGridLines.notNull())
+    if (m_crossSectionGridLines.notNull())
     {
-        m_nativeCrossSectionGridLines->setEffect(eff.p());
+        m_crossSectionGridLines->setEffect(eff.p());
     }
 
 }
@@ -271,15 +352,15 @@ void RivCrossSectionPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
-    if (m_nativeCrossSectionFaces.isNull())
+    if (m_crossSectionFaces.isNull())
     {
         generatePartGeometry();
     }
 
-    if (m_nativeCrossSectionFaces.notNull())
+    if (m_crossSectionFaces.notNull())
     {
-        m_nativeCrossSectionFaces->setTransform(scaleTransform);
-        model->addPart(m_nativeCrossSectionFaces.p());
+        m_crossSectionFaces->setTransform(scaleTransform);
+        model->addPart(m_crossSectionFaces.p());
     }
 }
 
@@ -289,15 +370,15 @@ void RivCrossSectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasi
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
-    if (m_nativeCrossSectionGridLines.isNull())
+    if (m_crossSectionGridLines.isNull())
     {
         generatePartGeometry();
     }
 
-    if (m_nativeCrossSectionGridLines.notNull())
+    if (m_crossSectionGridLines.notNull())
     {
-        m_nativeCrossSectionGridLines->setTransform(scaleTransform);
-        model->addPart(m_nativeCrossSectionGridLines.p());
+        m_crossSectionGridLines->setTransform(scaleTransform);
+        model->addPart(m_crossSectionGridLines.p());
     }
 }
 
@@ -306,33 +387,39 @@ void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::computeData()
 {
-    RigMainGrid* m_grid = mainGrid();
-    CVF_ASSERT(m_grid);
-
     std::vector< std::vector <cvf::Vec3d> > polyLine = m_rimCrossSection->polyLines();
     if (polyLine.size() > 0)
     {
         cvf::Vec3d direction = extrusionDirection(polyLine[0]);
-        cvf::ref<RivEclipseCrossSectionGrid> eclHexGrid = new RivEclipseCrossSectionGrid(m_grid);
-        m_nativeCrossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine[0], direction, eclHexGrid.p());
+        cvf::ref<RivCrossSectionHexGridIntf> hexGrid = createHexGridInterface();
+        m_crossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine[0], direction, hexGrid.p());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RivCrossSectionPartMgr::mainGrid()
+cvf::ref<RivCrossSectionHexGridIntf> RivCrossSectionPartMgr::createHexGridInterface()
 {
-    RigMainGrid* grid = NULL;
 
-    RimEclipseView* eclipseView = NULL;
+    RimEclipseView* eclipseView;
     m_rimCrossSection->firstAnchestorOrThisOfType(eclipseView);
     if (eclipseView)
     {
+        RigMainGrid* grid = NULL;
         grid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+        return new RivEclipseCrossSectionGrid(grid);
     }
 
-    return grid;
+    RimGeoMechView* geoView;
+    m_rimCrossSection->firstAnchestorOrThisOfType(geoView);
+    if (geoView)
+    {
+        RigFemPart* femPart = geoView->geoMechCase()->geoMechData()->femParts()->part(0);
+        return new RivFemCrossSectionGrid(femPart);
+    }
+
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

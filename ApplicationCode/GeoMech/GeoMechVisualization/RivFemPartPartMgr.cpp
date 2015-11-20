@@ -218,8 +218,6 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
 {
     CVF_ASSERT(cellResultColors);
 
-   // RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
-
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
     // Outer surface
@@ -295,7 +293,12 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         cellResultColors->firstAnchestorOrThisOfType(view);
         CVF_ASSERT(view);
 
-        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, view->isLightingDisabled());
+        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), 
+                                                        m_surfaceFacesTextureCoords.p(), 
+                                                        mapper, 
+                                                        m_opacityLevel, 
+                                                        caf::FC_NONE, 
+                                                        view->isLightingDisabled());
     }
 }
 

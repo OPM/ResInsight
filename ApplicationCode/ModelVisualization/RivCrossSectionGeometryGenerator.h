@@ -65,6 +65,24 @@ private:
     cvf::cref<RigMainGrid>      m_mainGrid;
 };
 
+class RigFemPart;
+
+class RivFemCrossSectionGrid : public RivCrossSectionHexGridIntf
+{
+public:
+    RivFemCrossSectionGrid(const RigFemPart * femPart);
+    
+    virtual cvf::Vec3d displayOffset() const;
+    virtual cvf::BoundingBox boundingBox() const;
+    virtual void findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const;
+    virtual bool useCell(size_t cellIndex) const;
+    virtual void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const;
+    virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const;
+
+private:
+    cvf::cref<RigFemPart>      m_femPart;
+};
+
 class RivVertexWeights
 {
 public:

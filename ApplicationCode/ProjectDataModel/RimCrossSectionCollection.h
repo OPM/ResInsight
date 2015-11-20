@@ -51,7 +51,7 @@ public:
     // Visualization interface
 
     void applySingleColorEffect();
-    void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+    void updateCellResultColor(size_t timeStepIndex);
     void appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
 protected:
