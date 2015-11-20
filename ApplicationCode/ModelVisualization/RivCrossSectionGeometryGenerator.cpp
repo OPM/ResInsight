@@ -489,60 +489,6 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
     }
 }
 
-
-#if 0
-static void planeHexCellIntersectionOnTriangles(const cvf::Plane& plane, 
-                                                const cvf::Vec3d hexCorners[8], 
-                                                const int hexCornersIds[8],
-                                                std::vector<ClipVx>* polygon)
-{
-    CVF_ASSERT(polygon != NULL);
-
-    int intersectionCount = 0;
-
-    std::vector<std::pair<ClipVx, ClipVx> > polygonEdges;
-    for (int face = 0; face < 6 ; ++face)
-    {
-        cvf::ubyte faceVertexIndices[4];
-        cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
-
-        ClipVx newVx1;
-        ClipVx newVx2;
-
-        bool isClipped = planeTriangleIntersection(plane,
-                                                   hexCorners[faceVertexIndices[0]], hexCornersIds[faceVertexIndices[0]],
-                                                   hexCorners[faceVertexIndices[1]], hexCornersIds[faceVertexIndices[1]],
-                                                   hexCorners[faceVertexIndices[2]], hexCornersIds[faceVertexIndices[2]],
-                                                   &newVx1, &newVx2);
-        if (isClipped)
-        {
-            polygonEdges.push_back(std::make_pair(newVx1, newVx2));
-        }
-
-        isClipped = planeTriangleIntersection(plane,
-                                                   hexCorners[faceVertexIndices[0]], hexCornersIds[faceVertexIndices[0]],
-                                                   hexCorners[faceVertexIndices[2]], hexCornersIds[faceVertexIndices[2]],
-                                                   hexCorners[faceVertexIndices[3]], hexCornersIds[faceVertexIndices[3]],
-                                                   &newVx1, &newVx2);
-        if (isClipped)
-        {
-            polygonEdges.push_back(std::make_pair(newVx1, newVx2));
-        }
-
-    }
-
-    if (polygonEdges.size >= 3)
-    {
-    // Sort polygon edges in polygon order.
-    // Do this by finding polygon vxes cutting the same edge.
-    // And grow from the first edge
-     (*polygon).push_back(polygonEdges[0].first);
-     (*polygon).push_back(polygonEdges[0].second);
-     //for ()
-   }
-}
-#endif
-
 //--------------------------------------------------------------------------------------------------
 /// Will return the intersection point. If the plane is outside the line, it returns the closest line endpoint
 //--------------------------------------------------------------------------------------------------
@@ -1091,33 +1037,20 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
                                                         hexCornersIds,
                                                         &triangleClipVxes, 
                                                         &isTriangleEdgeCellContour);
-
-
-#if 0
-            for (int tIdx = 0; tIdx < triangleCount; ++tIdx)
-            {
-                // Accumulate to geometry
-                int triVxIdx = tIdx*3;
-                triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+0].vx - displayOffset));
-                triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+1].vx - displayOffset));
-                triangleVertices.push_back(cvf::Vec3f(triangleVxes[triVxIdx+2].vx - displayOffset));
-
-                m_triangleToCellIdxMap.push_back(globalCellIdx);
-            }
-#else
-
            
             std::vector<ClipVx> clippedTriangleVxes;
             std::vector<bool> isClippedTriEdgeCellContour;
 
-            clipTrianglesBetweenTwoParallelPlanes(triangleClipVxes, isTriangleEdgeCellContour, p1Plane, p2Plane, &clippedTriangleVxes, &isClippedTriEdgeCellContour);
+            clipTrianglesBetweenTwoParallelPlanes(triangleClipVxes, isTriangleEdgeCellContour, p1Plane, p2Plane, 
+                                                  &clippedTriangleVxes, &isClippedTriEdgeCellContour);
 
             int clippedTriangleCount = static_cast<int>(clippedTriangleVxes.size())/3;
 
-            // Accumulate triangle vertices
             for (int tIdx = 0; tIdx < clippedTriangleCount; ++tIdx)
             {
                 int triVxIdx = tIdx*3;
+
+                // Accumulate triangle vertices
 
                 cvf::Vec3f p0(clippedTriangleVxes[triVxIdx+0].vx - displayOffset);
                 cvf::Vec3f p1(clippedTriangleVxes[triVxIdx+1].vx - displayOffset);
@@ -1146,10 +1079,11 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
                     cellBorderLineVxes.push_back(p0);
                 }
 
-                // Mapping to data
+                // Mapping to cell index
 
                 m_triangleToCellIdxMap.push_back(globalCellIdx);
 
+                // Interpolation from nodes
                 for (int i = 0; i < 3; ++i)
                 {
                     ClipVx cvx = clippedTriangleVxes[triVxIdx+i];
@@ -1157,8 +1091,8 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
                     {
                         m_triangleVxInterPolationData.push_back(
                             VxInterPolData(cvx.clippedEdgeVx1Id, cvx.clippedEdgeVx2Id, cvx.normDistFromEdgeVx1,
-                            -1, -1, 0.0,
-                            0.0));
+                                           -1, -1, 0.0,
+                                            0.0));
                     }
                     else
                     {
@@ -1167,16 +1101,13 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 
                         m_triangleVxInterPolationData.push_back(
                             VxInterPolData(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
-                            cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
-                            cvx.normDistFromEdgeVx1));
+                                           cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
+                                           cvx.normDistFromEdgeVx1));
 
                     }
                 }
             }
-#endif
-            
         }
-
     }
 
     m_triangleVxes->assign(triangleVertices);
