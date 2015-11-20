@@ -56,7 +56,7 @@ class PdmDocument: public PdmObject
     PdmField<QString>   fileName;
 
     void                readFile();
-    void                writeFile();
+    bool                writeFile();
 
     void                readFile(QIODevice* device);
     void                writeFile(QIODevice* device);
