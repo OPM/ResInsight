@@ -569,10 +569,19 @@ bool RiaApplication::saveProjectPromptForFileName()
 bool RiaApplication::saveProjectAs(const QString& fileName)
 {
     m_project->fileName = fileName;
-    m_project->writeFile();
+
+    if (!m_project->writeFile())
+    {
+        QMessageBox::warning(NULL, "Error when saving project file", QString("Not possible to save project file. Make sure you have sufficient access rights.\n\nProject file location : %1").arg(fileName));
+
+        return false;
+    }
 
     m_preferences->lastUsedProjectFileName = fileName;
     caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
+
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    mainWnd->addRecentFiles(fileName);
 
     return true;
 }
