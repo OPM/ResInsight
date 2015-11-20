@@ -56,7 +56,8 @@ RivCrossSectionGeometryGenerator::~RivCrossSectionGeometryGenerator()
 /// \param b            End of line segment
 /// \param intersection Returns intersection point along the infinite line defined by a-b
 /// \param normalizedDistFromA Returns the normalized (0..1) position from a to b of the intersection point. 
-///                            Will return values along the complete line, and HUGE_VAL if plane and line are parallel. 
+///                            Will return values along the infinite line defined by the a-b direcion, 
+///                            and HUGE_VAL if plane and line are parallel. 
 ///
 /// \return True if line segment intersects the plane
 //--------------------------------------------------------------------------------------------------
@@ -97,33 +98,30 @@ struct ClipVx
 };
 
 //--------------------------------------------------------------------------------------------------
-/// Returns whether the triangle was hit by the plane
-/// isMostVxesOnPositiveSide returns true if all or two of the vxes is on the positive side of the plane
-/// newVx1/2.vx1ClippedEdge returns the index of the single vx that is alone on one side
+/// Returns whether the triangle was hit by the plane.
+/// isMostVxesOnPositiveSide returns true if all or two of the vxes is on the positive side of the plane.
+/// newVx1/2.vx1ClippedEdge returns the index of the single vx that is alone on one side of the plane.
 /// Going newVx1 to newVx2 will make the top triangle same winding as the original triangle, 
-/// and thus the quad opposite winding
+/// and the quad opposite winding
 
-// Except for the trivial cases where all vertices are in front 
-// or behind plane, these are the permutations
+// The permutations except for the trivial cases where all vertices are in front or behind plane:
 //
-// Single vertex on positive side of plane 
-// => return a triangle                                
+// Single vertex on positive side of plane => isMostVxesOnPositiveSide = false                              
 //
-//  +\   /\c               /\c   /+          /\c        .
+//  +\   /\3               /\3   /+          /\3        .
 //    \ /  \              /  \  /       +   /  \   +    .
-//     \    \            /    \/        ---/----\---    .
+//     \2   \            /    \/1       __1/____\2__    .
 //    / \    \          /     /\          /      \      .
-//  a/___\____\b      a/_____/__\b      a/________\b    .
+//  1/___\1___\2      1/____2/__\2      1/________\2    .
 //       +\                 /+
 //
-// Two vertices vertex on positive side of plane 
-// => return a quad
+// Two vertices vertex on positive side of plane => isMostVxesOnPositiveSide = true
 //
-//     \+  /\c               /\c  +/        /\c         .   
+//     \+  /\3               /\3  +/        /\3         .   
 //      \ /  \              /  \  /        /  \         .  
-//       \    \            /    \/     ___/____\___     .
+//       \2   \            /    \/1    __1/____\2__     .
 //      / \    \          /     /\     + /      \ +     .
-//    a/___\____\b      a/_____/__\b   a/________\b     .        
+//    1/___\1___\2      1/____2/__\2   1/________\2     .        
 //          \+               +/                       
 //--------------------------------------------------------------------------------------------------
 
@@ -1006,8 +1004,8 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
         p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 - plane.normal() );
         
         
-        std::vector<ClipVx> triangleClipVxes;
-        triangleClipVxes.reserve(5*3);
+        std::vector<ClipVx> hexPlaneCutTriangleVxes;
+        hexPlaneCutTriangleVxes.reserve(5*3);
         std::vector<bool> isTriangleEdgeCellContour;
         isTriangleEdgeCellContour.reserve(5*3);
 
@@ -1017,7 +1015,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 
             if (m_mainGrid->cells()[globalCellIdx].isInvalid()) continue;
             
-            triangleClipVxes.clear();
+            hexPlaneCutTriangleVxes.clear();
             cvf::Vec3d cellCorners[8];
             m_mainGrid->cellCornerVertices(globalCellIdx, cellCorners);
 
@@ -1035,13 +1033,13 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
             int triangleCount = planeHexIntersectionMC(plane,
                                                         cellCorners,
                                                         hexCornersIds,
-                                                        &triangleClipVxes, 
+                                                        &hexPlaneCutTriangleVxes, 
                                                         &isTriangleEdgeCellContour);
            
             std::vector<ClipVx> clippedTriangleVxes;
             std::vector<bool> isClippedTriEdgeCellContour;
 
-            clipTrianglesBetweenTwoParallelPlanes(triangleClipVxes, isTriangleEdgeCellContour, p1Plane, p2Plane, 
+            clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane, 
                                                   &clippedTriangleVxes, &isClippedTriEdgeCellContour);
 
             int clippedTriangleCount = static_cast<int>(clippedTriangleVxes.size())/3;
@@ -1096,8 +1094,8 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
                     }
                     else
                     {
-                        ClipVx cvx1 = triangleClipVxes[cvx.clippedEdgeVx1Id];
-                        ClipVx cvx2 = triangleClipVxes[cvx.clippedEdgeVx2Id];
+                        ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
+                        ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
 
                         m_triangleVxInterPolationData.push_back(
                             VxInterPolData(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
