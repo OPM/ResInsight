@@ -35,25 +35,24 @@ namespace cvf
 }
 
 #include "cvfBoundingBox.h"
-namespace cvf {
 
-class CrossSectionHexGridIntf : public Object
+
+class RivCrossSectionHexGridIntf : public cvf::Object
 {
 public:
-    virtual Vec3d displayOffset() const = 0;
-    virtual BoundingBox boundingBox() const = 0;
-    virtual void findIntersectingCells(const BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const = 0;
+    virtual cvf::Vec3d displayOffset() const = 0;
+    virtual cvf::BoundingBox boundingBox() const = 0;
+    virtual void findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const = 0;
     virtual bool useCell(size_t cellIndex) const = 0;
-    virtual void cellCornerVertices(size_t cellIndex, Vec3d cellCorners[8]) const = 0;
+    virtual void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const = 0;
     virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const = 0;
 }; 
 
-}
 
-class EclipseCrossSectionGrid : public cvf::CrossSectionHexGridIntf
+class RivEclipseCrossSectionGrid : public RivCrossSectionHexGridIntf
 {
 public:
-    EclipseCrossSectionGrid(const RigMainGrid * mainGrid);
+    RivEclipseCrossSectionGrid(const RigMainGrid * mainGrid);
     
     virtual cvf::Vec3d displayOffset() const;
     virtual cvf::BoundingBox boundingBox() const;
@@ -109,40 +108,32 @@ class RivCrossSectionGeometryGenerator : public cvf::Object
 public:
     RivCrossSectionGeometryGenerator(const std::vector<cvf::Vec3d> &polyline, 
                                      const cvf::Vec3d& extrusionDirection, 
-                                     const RigMainGrid* grid );
+                                     const RivCrossSectionHexGridIntf* grid );
 
     ~RivCrossSectionGeometryGenerator();
-
-
-    void                        textureCoordinates(cvf::Vec2fArray* textureCoords, 
-                                                   const RigResultAccessor* resultAccessor,
-                                                   const cvf::ScalarMapper* mapper) const;
-
-    // Mapping between cells and geometry
-    const std::vector<size_t>&  triangleToCellIndex() const;
-    const std::vector<RivVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
-
-    // Generated geometry
+ 
+    // Generate geometry
     cvf::ref<cvf::DrawableGeo>  generateSurface();
     cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
 
+    // Mapping between cells and geometry
+    const std::vector<size_t>&           triangleToCellIndex() const;
+    const std::vector<RivVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
+
 private:
     void                        calculateArrays();
+    static void                 adjustPolyline(const std::vector<cvf::Vec3d>& polyLine, 
+                                               const cvf::Vec3d extrDir,
+                                               std::vector<cvf::Vec3d>* adjustedPolyline);
 
-
-
-    void                        adjustPolyline();
-
-    cvf::cref<RigMainGrid>      m_mainGrid;
+    cvf::cref<RivCrossSectionHexGridIntf>      m_hexGrid;
     std::vector<cvf::Vec3d>     m_polyLine;
     cvf::Vec3d                  m_extrusionDirection;
-    std::vector<cvf::Vec3d>     m_adjustedPolyline;
 
     // Output arrays
     cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
     cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
     std::vector<size_t>         m_triangleToCellIdxMap;
-
     std::vector<RivVertexWeights> m_triVxToCellCornerWeights;
 };
 

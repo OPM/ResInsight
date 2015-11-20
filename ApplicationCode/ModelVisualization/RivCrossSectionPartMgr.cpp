@@ -45,7 +45,6 @@
 //--------------------------------------------------------------------------------------------------
 RivCrossSectionPartMgr::RivCrossSectionPartMgr(const RimCrossSection* rimCrossSection)
     : m_rimCrossSection(rimCrossSection),
-     m_grid(NULL),
     m_defaultColor(cvf::Color3::WHITE)
 {
     CVF_ASSERT(m_rimCrossSection);
@@ -113,7 +112,10 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex, RimEcli
                                                                                               timeStepIndex, 
                                                                                               cellResultColors->resultVariable());
 
-            m_nativeCrossSectionGenerator->textureCoordinates(m_nativeCrossSectionFacesTextureCoords.p(), resultAccessor.p() ,mapper);
+            calculateEclipseTextureCoordinates(m_nativeCrossSectionFacesTextureCoords.p(), 
+                                               m_nativeCrossSectionGenerator->triangleToCellIndex(), 
+                                               resultAccessor.p(), 
+                                               mapper);
 
 
             RivScalarMapperUtils::applyTextureResultsToPart(m_nativeCrossSectionFaces.p(), 
@@ -125,6 +127,45 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex, RimEcli
         }
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Calculates the texture coordinates in a "nearly" one dimentional texture. 
+/// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
+//--------------------------------------------------------------------------------------------------
+void RivCrossSectionPartMgr::calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
+                                                          const std::vector<size_t>& triangleToCellIdxMap,
+                                                          const RigResultAccessor* resultAccessor, 
+                                                          const cvf::ScalarMapper* mapper) const
+{
+    if (!resultAccessor) return;
+
+    size_t numVertices = triangleToCellIdxMap.size()*3;
+
+    textureCoords->resize(numVertices);
+    cvf::Vec2f* rawPtr = textureCoords->ptr();
+
+    double cellScalarValue;
+    cvf::Vec2f texCoord;
+    
+    int triangleCount = static_cast<int>(triangleToCellIdxMap.size());
+
+#pragma omp parallel for private(texCoord, cellScalarValue)
+    for (int tIdx = 0; tIdx < triangleCount; tIdx++)
+    {
+        cellScalarValue = resultAccessor->cellScalarGlobIdx(triangleToCellIdxMap[tIdx]);
+        texCoord = mapper->mapToTextureCoord(cellScalarValue);
+        if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
+        {
+            texCoord[1] = 1.0f;
+        }
+
+        size_t j;
+        for (j = 0; j < 3; j++)
+        {   
+            rawPtr[tIdx*3 + j] = texCoord;
+        }
+    }
 }
 
 const int priCrossSectionGeo = 1;
@@ -265,14 +306,15 @@ void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::computeData()
 {
-    m_grid = mainGrid();
-    CVF_ASSERT(m_grid.notNull());
+    RigMainGrid* m_grid = mainGrid();
+    CVF_ASSERT(m_grid);
 
     std::vector< std::vector <cvf::Vec3d> > polyLine = m_rimCrossSection->polyLines();
     if (polyLine.size() > 0)
     {
         cvf::Vec3d direction = extrusionDirection(polyLine[0]);
-        m_nativeCrossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine[0], direction, m_grid.p());
+        cvf::ref<RivEclipseCrossSectionGrid> eclHexGrid = new RivEclipseCrossSectionGrid(m_grid);
+        m_nativeCrossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine[0], direction, eclHexGrid.p());
     }
 }
 

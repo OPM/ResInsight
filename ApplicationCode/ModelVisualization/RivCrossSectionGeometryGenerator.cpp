@@ -31,10 +31,10 @@
 //--------------------------------------------------------------------------------------------------
 RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::vector<cvf::Vec3d> &polyline, 
                                                                    const cvf::Vec3d& extrusionDirection, 
-                                                                   const RigMainGrid* grid)
+                                                                   const RivCrossSectionHexGridIntf* grid)
                                                                    : m_polyLine(polyline), 
                                                                    m_extrusionDirection(extrusionDirection), 
-                                                                   m_mainGrid(grid)
+                                                                   m_hexGrid(grid)
 {
     m_triangleVxes = new cvf::Vec3fArray;
     m_cellBorderLineVxes = new cvf::Vec3fArray;
@@ -968,17 +968,15 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
     if (m_triangleVxes->size()) return;
 
     m_extrusionDirection.normalize();
+    std::vector<cvf::Vec3d>     m_adjustedPolyline;
 
-    adjustPolyline();
+    adjustPolyline(m_polyLine, m_extrusionDirection, &m_adjustedPolyline);
 
     std::vector<cvf::Vec3f> triangleVertices;
     std::vector<cvf::Vec3f> cellBorderLineVxes;
 
-    EclipseCrossSectionGrid eclHexGrid(m_mainGrid.p());
-    cvf::CrossSectionHexGridIntf* hexGrid = &eclHexGrid;
-
-    cvf::Vec3d displayOffset = hexGrid->displayOffset();
-    cvf::BoundingBox gridBBox = hexGrid->boundingBox();
+    cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
+    cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
 
     size_t lineCount = m_adjustedPolyline.size();
     for (size_t lIdx = 0; lIdx < lineCount - 1; ++lIdx)
@@ -996,7 +994,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
         sectionBBox.add(p2 - m_extrusionDirection*maxSectionHeight);
         
         std::vector<size_t> columnCellCandidates;
-        hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
+        m_hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
 
         cvf::Plane plane;
         plane.setFromPoints(p1, p2, p2 + m_extrusionDirection*maxSectionHeight);
@@ -1018,11 +1016,11 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
         {
             size_t globalCellIdx = columnCellCandidates[cccIdx];
 
-            if (!hexGrid->useCell(globalCellIdx)) continue;
+            if (!m_hexGrid->useCell(globalCellIdx)) continue;
             
             hexPlaneCutTriangleVxes.clear();
-            hexGrid->cellCornerVertices(globalCellIdx, cellCorners);
-            hexGrid->cellCornerIndices(globalCellIdx, cornerIndices);
+            m_hexGrid->cellCornerVertices(globalCellIdx, cellCorners);
+            m_hexGrid->cellCornerIndices(globalCellIdx, cornerIndices);
 
             int triangleCount = planeHexIntersectionMC(plane,
                                                         cellCorners,
@@ -1142,69 +1140,50 @@ cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createMeshDrawable(
     return geo;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// Calculates the texture coordinates in a "nearly" one dimentional texture. 
-/// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
+/// Remove the lines from the polyline that is nearly parallel to the extrusion direction
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, 
-                                                          const RigResultAccessor* resultAccessor, 
-                                                          const cvf::ScalarMapper* mapper) const
+void RivCrossSectionGeometryGenerator::adjustPolyline(const std::vector<cvf::Vec3d>& polyLine, 
+                                                      const cvf::Vec3d extrDir,
+                                                      std::vector<cvf::Vec3d>* adjustedPolyline)
 {
-    if (!resultAccessor) return;
+    size_t lineCount = polyLine.size();
+    if (!polyLine.size()) return;
 
-    size_t numVertices = m_triangleVxes->size();
-
-    textureCoords->resize(numVertices);
-    cvf::Vec2f* rawPtr = textureCoords->ptr();
-
-    double cellScalarValue;
-    cvf::Vec2f texCoord;
-    
-    int triangleCount = static_cast<int>(m_triangleToCellIdxMap.size());
-
-#pragma omp parallel for private(texCoord, cellScalarValue)
-    for (int tIdx = 0; tIdx < triangleCount; tIdx++)
-    {
-        cellScalarValue = resultAccessor->cellScalarGlobIdx(m_triangleToCellIdxMap[tIdx]);
-        texCoord = mapper->mapToTextureCoord(cellScalarValue);
-        if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
-        {
-            texCoord[1] = 1.0f;
-        }
-
-        size_t j;
-        for (j = 0; j < 3; j++)
-        {   
-            rawPtr[tIdx*3 + j] = texCoord;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivCrossSectionGeometryGenerator::adjustPolyline()
-{
-    size_t lineCount = m_polyLine.size();
-    if (!m_polyLine.size()) return;
-
-    m_adjustedPolyline.push_back(m_polyLine[0]);
-    cvf::Vec3d p1 = m_polyLine[0];
+    adjustedPolyline->push_back(polyLine[0]);
+    cvf::Vec3d p1 = polyLine[0];
 
     for (size_t lIdx = 1; lIdx < lineCount; ++lIdx)
     {
-        cvf::Vec3d p2 = m_polyLine[lIdx];
+        cvf::Vec3d p2 = polyLine[lIdx];
         cvf::Vec3d p1p2 = p2 - p1;
 
-        if ((p1p2 - (p1p2 * m_extrusionDirection)*m_extrusionDirection).length() > 0.1 )
+        if ((p1p2 - (p1p2 * extrDir)*extrDir).length() > 0.1 )
         {
-            m_adjustedPolyline.push_back(p2);
+            adjustedPolyline->push_back(p2);
             p1 = p2;
         }
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RivCrossSectionGeometryGenerator::triangleToCellIndex() const
+{
+    CVF_ASSERT(m_triangleVxes->size());
+    return m_triangleToCellIdxMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<RivVertexWeights>& RivCrossSectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
+{
+    CVF_ASSERT(m_triangleVxes->size());
+    return m_triVxToCellCornerWeights;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1213,7 +1192,7 @@ void RivCrossSectionGeometryGenerator::adjustPolyline()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-EclipseCrossSectionGrid::EclipseCrossSectionGrid(const RigMainGrid * mainGrid) : m_mainGrid(mainGrid)
+RivEclipseCrossSectionGrid::RivEclipseCrossSectionGrid(const RigMainGrid * mainGrid) : m_mainGrid(mainGrid)
 {
 
 }
@@ -1221,7 +1200,7 @@ EclipseCrossSectionGrid::EclipseCrossSectionGrid(const RigMainGrid * mainGrid) :
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d EclipseCrossSectionGrid::displayOffset() const
+cvf::Vec3d RivEclipseCrossSectionGrid::displayOffset() const
 {
     return m_mainGrid->displayModelOffset();
 }
@@ -1229,7 +1208,7 @@ cvf::Vec3d EclipseCrossSectionGrid::displayOffset() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox EclipseCrossSectionGrid::boundingBox() const
+cvf::BoundingBox RivEclipseCrossSectionGrid::boundingBox() const
 {
     return m_mainGrid->boundingBox();
 }
@@ -1237,7 +1216,7 @@ cvf::BoundingBox EclipseCrossSectionGrid::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void EclipseCrossSectionGrid::findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const
+void RivEclipseCrossSectionGrid::findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const
 {
     m_mainGrid->findIntersectingCells(intersectingBB, intersectedCells);
 }
@@ -1245,7 +1224,7 @@ void EclipseCrossSectionGrid::findIntersectingCells(const cvf::BoundingBox& inte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool EclipseCrossSectionGrid::useCell(size_t cellIndex) const
+bool RivEclipseCrossSectionGrid::useCell(size_t cellIndex) const
 {
     const RigCell& cell = m_mainGrid->cells()[cellIndex]; 
     
@@ -1255,7 +1234,7 @@ bool EclipseCrossSectionGrid::useCell(size_t cellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void EclipseCrossSectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const
+void RivEclipseCrossSectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const
 {
     m_mainGrid->cellCornerVertices(cellIndex, cellCorners);
 }
@@ -1263,7 +1242,7 @@ void EclipseCrossSectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d ce
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void EclipseCrossSectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const
+void RivEclipseCrossSectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const
 {
     const caf::SizeTArray8& cornerIndicesSource = m_mainGrid->cells()[cellIndex].cornerIndices();
     memcpy(cornerIndices, cornerIndicesSource.data(), 8);

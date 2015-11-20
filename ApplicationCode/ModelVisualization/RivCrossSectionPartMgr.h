@@ -62,10 +62,9 @@ private:
 
     RigMainGrid*    mainGrid();
     cvf::Vec3d      extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const;
-
+    void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, const std::vector<size_t>& triangleToCellIdxMap, const RigResultAccessor* resultAccessor, const cvf::ScalarMapper* mapper) const;
 private:
 
-    cvf::cref<RigMainGrid>      m_grid;
     const RimCrossSection*      m_rimCrossSection;
 
     cvf::Color3f                m_defaultColor;
