@@ -40,7 +40,7 @@
 #include "cvfPrimitiveSetDirect.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
-#include "RigGeomechCaseData.h"
+#include "RigGeoMechCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RimGeoMechCellColors.h"
 #include "RigFemPartResultsCollection.h"
