@@ -57,7 +57,10 @@ void RimCrossSectionCollection::applySingleColorEffect()
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
         RimCrossSection* cs = m_crossSections[csIdx];
-        cs->crossSectionPartMgr()->applySingleColorEffect();
+        if (cs->isActive)
+        {
+            cs->crossSectionPartMgr()->applySingleColorEffect();
+        }
     }
 }
 
@@ -69,7 +72,10 @@ void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex)
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
         RimCrossSection* cs = m_crossSections[csIdx];
-        cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
+        if (cs->isActive)
+        {
+            cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
+        }
     }
 }
 
