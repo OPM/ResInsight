@@ -872,6 +872,11 @@ void caf::Viewer::removeModelFromAllFrames(cvf::Model* model)
 
         scene->removeModel(model);
     }
+
+    if (m_mainScene.notNull())
+    {
+        m_mainScene->removeModel(model);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -885,7 +890,12 @@ void caf::Viewer::appendModelToAllFrames(cvf::Model* model)
 
         scene->addModel(model);
     }
-}
+
+    if (m_mainScene.notNull())
+    {
+        m_mainScene->addModel(model);
+    }
+}   
 
 //--------------------------------------------------------------------------------------------------
 /// 
