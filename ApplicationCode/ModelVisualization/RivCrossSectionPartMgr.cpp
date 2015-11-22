@@ -159,11 +159,11 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
 
         const std::vector<RivVertexWeights> &vertexWeights = m_crossSectionGenerator->triangleVxToCellCornerInterpolationWeights();
 
-        bool isNodalResult = false;
+        bool isElementNodalResult = true;
         RigFemPart* femPart = NULL;
         if (resVarAddress.resultPosType == RIG_NODAL)
         {
-            isNodalResult = true;
+            isElementNodalResult = false;
             femPart = caseData->femParts()->part(0);
         }
 
@@ -186,8 +186,9 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                 int weightCount = vertexWeights[triangleVxIdx].size();
                 for (int wIdx = 0; wIdx < weightCount; ++wIdx)
                 {
-                    size_t resIdx = isNodalResult ? vertexWeights[triangleVxIdx].vxId(wIdx): femPart->nodeIdxFromElementNodeResultIdx(vertexWeights[triangleVxIdx].vxId(wIdx));
-                    resValue += resultValues[vertexWeights[triangleVxIdx].vxId(wIdx)] * vertexWeights[triangleVxIdx].weight(wIdx);
+                    size_t resIdx = isElementNodalResult ? vertexWeights[triangleVxIdx].vxId(wIdx) : 
+                                                           femPart->nodeIdxFromElementNodeResultIdx(vertexWeights[triangleVxIdx].vxId(wIdx));
+                    resValue += resultValues[resIdx] * vertexWeights[triangleVxIdx].weight(wIdx);
                 }
 
                 if (resValue == HUGE_VAL || resValue != resValue) // a != a is true for NAN's
