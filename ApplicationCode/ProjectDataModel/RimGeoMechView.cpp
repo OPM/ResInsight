@@ -239,6 +239,12 @@ void RimGeoMechView::createDisplayModel()
    mainScene->addModel(wellPathModel.p());
 
 
+       // Cross sections
+
+    m_crossSectionModel->removeAllParts();
+    crossSectionCollection->appendPartsToModel(m_crossSectionModel.p(), scaleTransform());
+    m_viewer->addStaticModel(m_crossSectionModel.p());
+
    // If the animation was active before recreating everything, make viewer view current frame
 
    if (isTimeStepDependentDataVisible())
@@ -293,6 +299,11 @@ void RimGeoMechView::updateCurrentTimeStep()
             m_vizLogic->updateCellResultColor(m_currentTimeStep(), this->cellResult());
         else
             m_vizLogic->updateStaticCellColors(m_currentTimeStep());
+
+        if (this->cellResult()->hasResult())
+            crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+        else
+            crossSectionCollection->applySingleColorEffect();
 
     }
     else
