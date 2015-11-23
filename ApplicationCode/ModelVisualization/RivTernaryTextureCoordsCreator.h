@@ -41,20 +41,31 @@ namespace cvf
 class RivTernaryTextureCoordsCreator
 {
 public:
-    RivTernaryTextureCoordsCreator(    RimEclipseCellColors* cellResultColors,
+    RivTernaryTextureCoordsCreator( RimEclipseCellColors* cellResultColors,
                                     RimTernaryLegendConfig* ternaryLegendConfig,
                                     size_t timeStepIndex,  
                                     size_t gridIndex, 
                                     const cvf::StructGridQuadToCellFaceMapper* quadMapper);
 
+    RivTernaryTextureCoordsCreator( RimEclipseCellColors* cellResultColors,
+                                    RimTernaryLegendConfig* ternaryLegendConfig,
+                                    size_t timeStepIndex);
+
     void createTextureCoords(cvf::Vec2fArray* quadTextureCoords);
+    void createTextureCoords(cvf::Vec2fArray* triTextureCoords, const std::vector<size_t>& triangleToCellIdx);
 
 private:
+    void initData(RimEclipseCellColors* cellResultColors, RimTernaryLegendConfig* ternaryLegendConfig, size_t timeStepIndex, size_t gridIndex);
+
     static void createTextureCoords(cvf::Vec2fArray* quadTextureCoords,
                                     const cvf::StructGridQuadToCellFaceMapper* quadMapper,  
                                     const RigTernaryResultAccessor* resultAccessor,
                                     const RivTernaryResultToTextureMapper* texMapper);
 
+    static void createTextureCoords(cvf::Vec2fArray* triTextureCoords,
+                                    const std::vector<size_t>& triangleToCellIdx,
+                                    const RigTernaryResultAccessor* resultAccessor,
+                                    const RivTernaryResultToTextureMapper* texMapper);
 private:
     cvf::cref<cvf::StructGridQuadToCellFaceMapper>  m_quadMapper; 
     cvf::ref<RigTernaryResultAccessor>              m_resultAccessor;

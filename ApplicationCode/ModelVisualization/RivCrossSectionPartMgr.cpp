@@ -21,6 +21,9 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
@@ -28,22 +31,20 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechView.h"
 #include "RimTernaryLegendConfig.h"
 
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryScalarMapper.h"
+#include "RivTernaryTextureCoordsCreator.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetDirect.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RimGeoMechCellColors.h"
-#include "RigFemPartResultsCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -94,14 +95,9 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
         {
             if (cellResultColors->isTernarySaturationSelected())
             {
-                //RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
-                //    timeStepIndex,
-                //    m_grid->gridIndex(),
-                //    m_nativeCrossSectionGenerator->quadToCellFaceMapper());
-                //
-                //texturer.createTextureCoords(m_nativeCrossSectionFacesTextureCoords.p());
-
-                CVF_ASSERT(false); // Todo
+                RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(), timeStepIndex);
+                
+                texturer.createTextureCoords(m_crossSectionFacesTextureCoords.p(), m_crossSectionGenerator->triangleToCellIndex());
 
                 const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
                 RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_crossSectionFaces.p(),

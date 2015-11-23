@@ -19,13 +19,15 @@
 
 #pragma once
 
-#include "RigResultAccessor2d.h"
 #include "RigResultAccessor.h"
+
+#include "cvfVector2.h"
+
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigTernaryResultAccessor : public RigResultAccessor2d
+class RigTernaryResultAccessor : public cvf::Object
 {
 public:
     RigTernaryResultAccessor();
@@ -35,8 +37,9 @@ public:
 
     /// Returns [SOIL, SGAS] regardless of which one of the three is missing. if Soil or SWat is missing, it is calculated 
     /// based on the two others
-    virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex) const;
-    virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    cvf::Vec2d cellScalar(size_t gridLocalCellIndex) const;
+    cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    cvf::Vec2d cellScalarGlobIdx(size_t globCellIndex) const;
 
 private:
     cvf::ref<RigResultAccessor> m_soilAccessor;
