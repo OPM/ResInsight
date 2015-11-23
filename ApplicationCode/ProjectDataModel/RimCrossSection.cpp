@@ -208,12 +208,12 @@ RimEclipseWellCollection* RimCrossSection::simulationWellCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
 {
-    std::vector< std::vector <cvf::Vec3d> > line;
+    std::vector< std::vector <cvf::Vec3d> > lines;
     if (type == CS_WELL_PATH)
     {
         if (wellPath)
         {
-            line.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
+            lines.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
         }
     }
     else if (type == CS_SIMULATION_WELL)
@@ -225,7 +225,20 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
 
     }
 
-    return line;
+    if (type == CS_WELL_PATH || type == CS_SIMULATION_WELL)
+    {
+        for (int lIdx = 0; lIdx < lines.size(); ++lIdx)
+        {
+            cvf::Vec3d startToEnd = (lines[lIdx].back() - lines[lIdx].front());
+            startToEnd[2] = 0.0;
+            cvf::Vec3d newStart = lines[lIdx].front() - startToEnd * 0.1;
+            cvf::Vec3d newEnd = lines[lIdx].back() + startToEnd * 0.1;
+            lines[lIdx].insert(lines[lIdx].begin(), newStart);
+            lines[lIdx].push_back(newEnd);
+        }
+    }
+
+    return lines;
 }
 
 //--------------------------------------------------------------------------------------------------
