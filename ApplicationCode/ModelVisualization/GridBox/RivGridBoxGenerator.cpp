@@ -565,7 +565,12 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         // Do not draw legend labels at first/last tick mark
         for (size_t idx = 1; idx < domainCoordsTickValues->size() - 1; idx++)
         {
-            geo->addText(cvf::String(domainCoordsTickValues->at(idx)), vertices->get(idx*2 + 1) + (0.5f * tickLength) * tickMarkDir);
+            double legendValue = domainCoordsTickValues->at(idx);
+            if (axis == Z_AXIS)
+            {
+                legendValue = -domainCoordsTickValues->at(idx);
+            }
+            geo->addText(cvf::String(legendValue), vertices->get(idx*2 + 1) + (0.5f * tickLength) * tickMarkDir);
         }
 
         cvf::ref<cvf::Part> part = new cvf::Part;
