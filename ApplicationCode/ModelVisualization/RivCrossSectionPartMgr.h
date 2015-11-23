@@ -52,6 +52,7 @@ public:
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);
 
+
     void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
@@ -61,7 +62,16 @@ private:
     void computeData();
 
     cvf::Vec3d      extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const;
-    void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, const std::vector<size_t>& triangleToCellIdxMap, const RigResultAccessor* resultAccessor, const cvf::ScalarMapper* mapper) const;
+    static void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
+                                                   const std::vector<size_t>& triangleToCellIdxMap, 
+                                                   const RigResultAccessor* resultAccessor, 
+                                                   const cvf::ScalarMapper* mapper);
+    static void calculateGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                              const std::vector<RivVertexWeights> &vertexWeights, 
+                                              const std::vector<float> &resultValues, 
+                                              bool isElementNodalResult, 
+                                              const RigFemPart* femPart, 
+                                              const cvf::ScalarMapper* mapper);
     cvf::ref<RivCrossSectionHexGridIntf> createHexGridInterface();
 private:
 

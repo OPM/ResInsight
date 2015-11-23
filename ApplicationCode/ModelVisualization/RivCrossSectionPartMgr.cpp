@@ -123,10 +123,10 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                                                                                                             timeStepIndex,
                                                                                                             cellResultColors->resultVariable());
 
-                calculateEclipseTextureCoordinates(m_crossSectionFacesTextureCoords.p(),
-                                                   m_crossSectionGenerator->triangleToCellIndex(),
-                                                   resultAccessor.p(),
-                                                   mapper);
+                RivCrossSectionPartMgr::calculateEclipseTextureCoordinates(m_crossSectionFacesTextureCoords.p(),
+                                                                           m_crossSectionGenerator->triangleToCellIndex(),
+                                                                           resultAccessor.p(),
+                                                                           mapper);
 
 
                 RivScalarMapperUtils::applyTextureResultsToPart(m_crossSectionFaces.p(),
@@ -149,58 +149,23 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
         
         if (!caseData) return;
 
-        const cvf::ScalarMapper* mapper        = cellResultColors->legendConfig()->scalarMapper();
         RigFemResultAddress      resVarAddress = cellResultColors->resultAddress();
 
         // Do a "Hack" to show elm nodal and not nodal POR results
         if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
-        const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
-
         const std::vector<RivVertexWeights> &vertexWeights = m_crossSectionGenerator->triangleVxToCellCornerInterpolationWeights();
+        const std::vector<float>& resultValues             = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
+        bool isElementNodalResult                          = !(resVarAddress.resultPosType == RIG_NODAL);
+        RigFemPart* femPart                                = caseData->femParts()->part(0);
+        const cvf::ScalarMapper* mapper                    = cellResultColors->legendConfig()->scalarMapper();
 
-        bool isElementNodalResult = true;
-        RigFemPart* femPart = NULL;
-        if (resVarAddress.resultPosType == RIG_NODAL)
-        {
-            isElementNodalResult = false;
-            femPart = caseData->femParts()->part(0);
-        }
-
-        m_crossSectionFacesTextureCoords->resize(vertexWeights.size());
-
-        if (resultValues.size() == 0)
-        {
-            m_crossSectionFacesTextureCoords->setAll(cvf::Vec2f(0.0, 1.0f));
-        }
-        else
-        {
-            cvf::Vec2f* rawPtr = m_crossSectionFacesTextureCoords->ptr();
-
-            int vxCount = static_cast<int>(vertexWeights.size());
-
-            #pragma omp parallel for schedule(dynamic)
-            for (int triangleVxIdx = 0; triangleVxIdx < vxCount; ++triangleVxIdx)
-            {
-                float resValue = 0;
-                int weightCount = vertexWeights[triangleVxIdx].size();
-                for (int wIdx = 0; wIdx < weightCount; ++wIdx)
-                {
-                    size_t resIdx = isElementNodalResult ? vertexWeights[triangleVxIdx].vxId(wIdx) : 
-                                                           femPart->nodeIdxFromElementNodeResultIdx(vertexWeights[triangleVxIdx].vxId(wIdx));
-                    resValue += resultValues[resIdx] * vertexWeights[triangleVxIdx].weight(wIdx);
-                }
-
-                if (resValue == HUGE_VAL || resValue != resValue) // a != a is true for NAN's
-                {
-                     rawPtr[triangleVxIdx][1]       = 1.0f;
-                }
-                else
-                {
-                    rawPtr[triangleVxIdx] = mapper->mapToTextureCoord(resValue);
-                }
-            }
-        }
+        RivCrossSectionPartMgr::calculateGeoMechTextureCoords(m_crossSectionFacesTextureCoords.p(), 
+                                                              vertexWeights, 
+                                                              resultValues, 
+                                                              isElementNodalResult, 
+                                                              femPart, 
+                                                              mapper);
 
         RivScalarMapperUtils::applyTextureResultsToPart(m_crossSectionFaces.p(), 
                                                         m_crossSectionFacesTextureCoords.p(), 
@@ -211,14 +176,63 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
     }
 }
 
+
 //--------------------------------------------------------------------------------------------------
-/// Calculates the texture coordinates in a "nearly" one dimentional texture. 
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivCrossSectionPartMgr::calculateGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                                           const std::vector<RivVertexWeights> &vertexWeights, 
+                                                           const std::vector<float> &resultValues, 
+                                                           bool isElementNodalResult, 
+                                                           const RigFemPart* femPart, 
+                                                           const cvf::ScalarMapper* mapper)
+{
+    textureCoords->resize(vertexWeights.size());
+
+    if (resultValues.size() == 0)
+    {
+        textureCoords->setAll(cvf::Vec2f(0.0, 1.0f));
+    }
+    else
+    {
+        cvf::Vec2f* rawPtr = textureCoords->ptr();
+
+        int vxCount = static_cast<int>(vertexWeights.size());
+
+#pragma omp parallel for schedule(dynamic)
+        for (int triangleVxIdx = 0; triangleVxIdx < vxCount; ++triangleVxIdx)
+        {
+            float resValue = 0;
+            int weightCount = vertexWeights[triangleVxIdx].size();
+            for (int wIdx = 0; wIdx < weightCount; ++wIdx)
+            {
+                size_t resIdx = isElementNodalResult ? vertexWeights[triangleVxIdx].vxId(wIdx) :
+                    femPart->nodeIdxFromElementNodeResultIdx(vertexWeights[triangleVxIdx].vxId(wIdx));
+                resValue += resultValues[resIdx] * vertexWeights[triangleVxIdx].weight(wIdx);
+            }
+
+            if (resValue == HUGE_VAL || resValue != resValue) // a != a is true for NAN's
+            {
+                rawPtr[triangleVxIdx][1]       = 1.0f;
+            }
+            else
+            {
+                rawPtr[triangleVxIdx] = mapper->mapToTextureCoord(resValue);
+            }
+        }
+    }
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Calculates the texture coordinates in a "nearly" one dimensional texture. 
 /// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
                                                           const std::vector<size_t>& triangleToCellIdxMap,
                                                           const RigResultAccessor* resultAccessor, 
-                                                          const cvf::ScalarMapper* mapper) const
+                                                          const cvf::ScalarMapper* mapper) 
 {
     if (!resultAccessor) return;
 
