@@ -635,16 +635,30 @@ cvf::Vec3f RivGridBoxGenerator::cornerDirection(FaceType face1, FaceType face2)
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f backgroundColor)
 {
+    double adjustmentFactor = 0.3;
+    
+    float gridR = 0.0;
+    float gridG = 0.0;
+    float gridB = 0.0;
+
     if (backgroundColor.r() + backgroundColor.g() + backgroundColor.b() > 1.5f)
     {
-        m_gridColor = cvf::Color3f::DARK_GRAY;
+        gridR = backgroundColor.r() - (backgroundColor.r() * adjustmentFactor);
+        gridG = backgroundColor.g() - (backgroundColor.g() * adjustmentFactor);
+        gridB = backgroundColor.b() - (backgroundColor.b() * adjustmentFactor);
+
         m_gridLegendColor = cvf::Color3f::fromByteColor(10, 10, 10);
     }
     else
     {
-        m_gridColor = cvf::Color3f::LIGHT_GRAY;
+        gridR = backgroundColor.r() + (1.0 - backgroundColor.r()) * adjustmentFactor;
+        gridG = backgroundColor.g() + (1.0 - backgroundColor.g()) * adjustmentFactor;
+        gridB = backgroundColor.b() + (1.0 - backgroundColor.b()) * adjustmentFactor;
+
         m_gridLegendColor = cvf::Color3f::WHITE;
     }
+
+    m_gridColor.set(gridR, gridG, gridB);
 }
 
 //--------------------------------------------------------------------------------------------------
