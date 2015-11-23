@@ -90,8 +90,7 @@ QString RiuResultTextBuilder::mainResultText()
         {
             text = "NNC : " + nncText;
         }
-
-        if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
+        else if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
         {
             QString faultText = faultResultText();
 
