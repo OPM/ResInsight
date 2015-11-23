@@ -53,7 +53,6 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QProgressBar>
-#include "RimCase.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -78,7 +77,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 {
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     m_axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
-    m_axisCross->setAxisLabels("E", "N", "Z");
+    m_axisCross->setAxisLabels("X", "Y", "Z");
     m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
     m_mainRendering->addOverlayItem(m_axisCross.p());
 
@@ -300,6 +299,13 @@ void RiuViewer::setOwnerReservoirView(RimView * owner)
 {
     m_rimView = owner;
     m_viewerCommands->setOwnerView(owner);
+
+    cvf::String xLabel;
+    cvf::String yLabel;
+    cvf::String zLabel;
+
+    m_rimView->axisLabels(&xLabel, &yLabel, &zLabel);
+    setAxisLabels(xLabel, yLabel, zLabel);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,19 +585,24 @@ void RiuViewer::setAxisLabels(const cvf::String& xLabel, const cvf::String& yLab
 {
     m_axisCross->setAxisLabels(xLabel, yLabel, zLabel);
 
-    size_t maxAxisLabelLength = xLabel.size();
-    if (yLabel.size() > maxAxisLabelLength) maxAxisLabelLength = yLabel.size();
-    if (zLabel.size() > maxAxisLabelLength) maxAxisLabelLength = zLabel.size();
+    // The axis cross is designed for short labels, longer labels causes clipping of text
+    // The commented out code adjust the size of the axis cross, and this makes the axis cross labels visible
+    // Side effect is also that the axis cross is zoomed (will be larger)
+    /*
+        size_t maxAxisLabelLength = xLabel.size();
+        if (yLabel.size() > maxAxisLabelLength) maxAxisLabelLength = yLabel.size();
+        if (zLabel.size() > maxAxisLabelLength) maxAxisLabelLength = zLabel.size();
 
-    if (maxAxisLabelLength > 4)
-    {
-        if (maxAxisLabelLength < 6)
+        if (maxAxisLabelLength > 4)
         {
-            m_axisCross->setSize(cvf::Vec2ui(140, 140));
+            if (maxAxisLabelLength < 6)
+            {
+                m_axisCross->setSize(cvf::Vec2ui(140, 140));
+            }
+            else if (maxAxisLabelLength < 8)
+            {
+                m_axisCross->setSize(cvf::Vec2ui(160, 160));
+            }
         }
-        else if (maxAxisLabelLength < 8)
-        {
-            m_axisCross->setSize(cvf::Vec2ui(160, 160));
-        }
-    }
+    */
 }

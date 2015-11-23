@@ -155,7 +155,6 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.setProgressDescription("Create Display model");
    
     updateViewerWidget();
-    setCustomAxisCrossLabels();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
 
@@ -483,7 +482,6 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             bool generateDisplayModel = (viewer() == NULL);
             updateViewerWidget();
-            setCustomAxisCrossLabels();
 
             if (generateDisplayModel)
             {
@@ -514,18 +512,6 @@ void RimGeoMechView::initAfterRead()
     this->cellResult()->setGeoMechCase(m_geomechCase);
 
     this->updateUiIconFromToggleField();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechView::setCustomAxisCrossLabels()
-{
-    // Minimalistic - size of axis cross does not have to be adjusted
-    if (m_viewer) m_viewer->setAxisLabels("E-x1", "N-y2", "Z-3");
-
-    // A bit larger - size of axis cross is slightly larger
-    //if (m_viewer) m_viewer->setAxisLabels("E(x,1)", "N(y,2)", "Z(3)");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -640,6 +626,18 @@ void RimGeoMechView::updateIconStateForFilterCollections()
     // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_propertyFilterCollection()->updateIconState();
     m_propertyFilterCollection()->uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel)
+{
+    CVF_ASSERT(xLabel && yLabel && zLabel);
+
+    *xLabel = "E(X,1)";
+    *yLabel = "N(Y,2)";
+    *zLabel = "Z(3)";
 }
 
 //--------------------------------------------------------------------------------------------------

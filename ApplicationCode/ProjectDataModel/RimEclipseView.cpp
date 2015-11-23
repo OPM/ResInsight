@@ -186,7 +186,6 @@ void RimEclipseView::clampCurrentTimestep()
     if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -200,6 +199,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             bool generateDisplayModel = (viewer() == NULL);
             updateViewerWidget();
+
             if (generateDisplayModel)
             {
                 updateDisplayModelForWellResults();
@@ -1716,6 +1716,18 @@ void RimEclipseView::updateIconStateForFilterCollections()
     // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_propertyFilterCollection()->updateIconState();
     m_propertyFilterCollection()->uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel)
+{
+    CVF_ASSERT(xLabel && yLabel && zLabel);
+
+    *xLabel = "E(X)";
+    *yLabel = "N(Y)";
+    *zLabel = "Z";
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -134,6 +134,8 @@ public:
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     void                                            updateIconStateForFilterCollections();
 
+    virtual void                                    axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
+
 protected:
     virtual void                                    initAfterRead();
     virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
@@ -170,7 +172,6 @@ private:
                                                                         cvf::Transform* scaleTransform);
 
     void                                            clampCurrentTimestep();
-
 
     virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
 

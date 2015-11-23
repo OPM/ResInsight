@@ -78,6 +78,8 @@ public:
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
     void                                                updateIconStateForFilterCollections();
 
+    virtual void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
+
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     
@@ -100,9 +102,6 @@ private:
 
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                        initAfterRead();
-
-    void                                                setCustomAxisCrossLabels();
-
 
     virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
 

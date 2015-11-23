@@ -144,6 +144,7 @@ public:
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
     virtual bool                            showActiveCellsOnly();
+    virtual void                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) = 0;
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
