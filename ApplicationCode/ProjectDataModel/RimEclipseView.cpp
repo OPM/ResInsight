@@ -1725,8 +1725,8 @@ void RimEclipseView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 {
     CVF_ASSERT(xLabel && yLabel && zLabel);
 
-    *xLabel = "E(X)";
-    *yLabel = "N(Y)";
+    *xLabel = "E(x)";
+    *yLabel = "N(y)";
     *zLabel = "Z";
 }
 

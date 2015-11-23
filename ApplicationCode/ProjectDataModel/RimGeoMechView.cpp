@@ -635,8 +635,8 @@ void RimGeoMechView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 {
     CVF_ASSERT(xLabel && yLabel && zLabel);
 
-    *xLabel = "E(X,1)";
-    *yLabel = "N(Y,2)";
+    *xLabel = "E(x,1)";
+    *yLabel = "N(y,2)";
     *zLabel = "Z(3)";
 }
 
