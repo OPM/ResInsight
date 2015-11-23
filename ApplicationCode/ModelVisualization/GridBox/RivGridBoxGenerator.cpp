@@ -501,8 +501,19 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         vertices->add(point);
         tickPoint = point + tickLength*tickMarkDir;;
         vertices->add(tickPoint);
-        indices->add(2 * static_cast<cvf::uint>(i));
-        indices->add(2 * static_cast<cvf::uint>(i) + 1);
+
+        if (i == 0 || i == displayCoordsTickValues->size() - 1)
+        {
+            // Do not show tick mark at ends of legend
+            // Add to list of indices to keep surrounding code unchanged
+            indices->add(2 * static_cast<cvf::uint>(i));
+            indices->add(2 * static_cast<cvf::uint>(i));
+        }
+        else
+        {
+            indices->add(2 * static_cast<cvf::uint>(i));
+            indices->add(2 * static_cast<cvf::uint>(i) + 1);
+        }
     }
 
     // Backbone of legend
