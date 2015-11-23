@@ -279,9 +279,11 @@ void RimEclipseView::createDisplayModel()
 {
     if (m_viewer.isNull()) return;
 
-     //static int callCount = 0;
-     //std::cout << "RimReservoirView::createDisplayModel() " << callCount++ << std::endl;
-     //RiuMainWindow::instance()->setResultInfo(QString ("RimReservoirView::createDisplayModel() ") + QString::number(callCount++));
+#if 0 // Debug info
+    static int callCount = 0;
+    std::cout << "RimReservoirView::createDisplayModel() " << callCount++ << std::endl;
+    RiuMainWindow::instance()->setResultInfo(QString("RimReservoirView::createDisplayModel() ") + QString::number(callCount++));
+#endif
 
     if (!(m_reservoir && m_reservoir->reservoirData())) return;
 
@@ -421,9 +423,9 @@ void RimEclipseView::createDisplayModel()
 
     // Cross sections
 
-    m_crossSectionModel->removeAllParts();
-    crossSectionCollection->appendPartsToModel(m_crossSectionModel.p(), m_reservoirGridPartManager->scaleTransform());
-    m_viewer->addStaticModel(m_crossSectionModel.p());
+    m_crossSectionVizModel->removeAllParts();
+    crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), m_reservoirGridPartManager->scaleTransform());
+    m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
 
     // Compute triangle count, Debug only
@@ -450,14 +452,22 @@ void RimEclipseView::createDisplayModel()
         }
     }
 */
+    // Well path model
+
+    RigMainGrid* mainGrid = eclipseCase()->reservoirData()->mainGrid();
+
+    m_wellPathPipeVizModel->removeAllParts();
+    addWellPathsToModel(m_wellPathPipeVizModel.p(),
+                        mainGrid->displayModelOffset(),
+                        mainGrid->characteristicIJCellSize(),
+                        currentActiveCellInfo()->geometryBoundingBox(),
+                        m_reservoirGridPartManager->scaleTransform());
+
+    m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
     // Create Scenes from the frameModels
     // Animation frames for results display, starts from frame 1
 
-    RimEclipseCase* eclCase = eclipseCase();
-    RigCaseData* caseData = eclCase ? eclCase->reservoirData() : NULL;
-    RigMainGrid* mainGrid = caseData ? caseData->mainGrid() : NULL;
-    CVF_ASSERT(mainGrid);
 
     size_t frameIndex;
     for (frameIndex = 0; frameIndex < frameModels.size(); frameIndex++)
@@ -467,12 +477,6 @@ void RimEclipseView::createDisplayModel()
 
         cvf::ref<cvf::Scene> scene = new cvf::Scene;
         scene->addModel(model);
-
-        // Add well paths, if any
-        addWellPathsToScene(scene.p(), mainGrid->displayModelOffset(), 
-                            mainGrid->characteristicIJCellSize(), 
-                            currentActiveCellInfo()->geometryBoundingBox(), 
-                            m_reservoirGridPartManager->scaleTransform());
 
         if (frameIndex == 0)
             m_viewer->setMainScene(scene.p());
@@ -506,38 +510,11 @@ void RimEclipseView::updateCurrentTimeStep()
     if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
         geometriesToRecolor.push_back(OVERRIDDEN_CELL_VISIBILITY);
-#if 0 // Experimental
-        cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
-        std::vector<size_t> gridIndices;
-        this->indicesToVisibleGrids(&gridIndices);
-
-
-        m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), OVERRIDDEN_CELL_VISIBILITY, gridIndices); 
-        std::vector<RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
-
-        for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
-        {
-            m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAppend[i]);
-        }
-
-        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
-        m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
-
-        if (m_viewer)
-        {
-            cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
-            if (frameScene)
-            {
-                frameScene->removeAllModels();
-                frameScene->addModel(frameParts.p());
-                frameParts->updateBoundingBoxesRecursive();
-            }
-        }
-#endif
     }
     else if (this->eclipsePropertyFilterCollection()->hasActiveFilters())
     {
         cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+        frameParts->setName("GridModel");
 
         std::vector<size_t> gridIndices;
         this->indicesToVisibleGrids(&gridIndices);
@@ -603,7 +580,7 @@ void RimEclipseView::updateCurrentTimeStep()
             cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
             if (frameScene)
             {
-                frameScene->removeAllModels();
+                this->removeModelByName(frameScene, frameParts->name());
                 frameScene->addModel(frameParts.p());
                 frameParts->updateBoundingBoxesRecursive();
             }
@@ -662,40 +639,25 @@ void RimEclipseView::updateCurrentTimeStep()
         crossSectionCollection->applySingleColorEffect();
     }
 
-    // Well pipes
+    // Simulation Well pipes
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            // Well pipes
-            // ----------
-            cvf::String wellPipeModelName = "WellPipeModel";
-
-            this->removeModelByName(frameScene, wellPipeModelName);
+            // Simulation Well pipes
 
             cvf::ref<cvf::ModelBasicList> wellPipeModelBasicList = new cvf::ModelBasicList;
-            wellPipeModelBasicList->setName(wellPipeModelName);
+            wellPipeModelBasicList->setName("SimWellPipeMod");
 
             m_pipesPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
-            m_pipesPartManager->updatePipeResultColor(m_currentTimeStep);
 
             wellPipeModelBasicList->updateBoundingBoxesRecursive();
-            //printf("updateCurrentTimeStep: Add WellPipeModel to frameScene\n");
+
+            this->removeModelByName(frameScene, wellPipeModelBasicList->name());
             frameScene->addModel(wellPipeModelBasicList.p());
 
-            // Add well paths, if any
-            RimEclipseCase* eclCase = eclipseCase();
-            RigCaseData* caseData = eclCase ? eclCase->reservoirData() : NULL;
-            RigMainGrid* mainGrid = caseData ? caseData->mainGrid() : NULL;
-            CVF_ASSERT(mainGrid);
-         
-            addWellPathsToScene(frameScene, 
-                                 mainGrid->displayModelOffset(), 
-                                 mainGrid->characteristicIJCellSize(), 
-                                 currentActiveCellInfo()->geometryBoundingBox(), 
-                                 m_reservoirGridPartManager->scaleTransform());
-
+            m_pipesPartManager->updatePipeResultColor(m_currentTimeStep);
         }
     }
 
@@ -1567,35 +1529,6 @@ cvf::Transform* RimEclipseView::scaleTransform()
 RimCase* RimEclipseView::ownerCase()
 {
     return eclipseCase();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::addWellPathsToScene(cvf::Scene* scene, 
-                                  const cvf::Vec3d& displayModelOffset, 
-                                  double characteristicCellSize, 
-                                  const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                  cvf::Transform* scaleTransform)
-{
-    CVF_ASSERT(scene);
-    CVF_ASSERT(scaleTransform);
-
-    cvf::String wellPathModelName = "WellPathModel";
-    this->removeModelByName(scene, wellPathModelName);
-
-    // Append static Well Paths to model
-    cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
-    wellPathModelBasicList->setName(wellPathModelName);
-
-    addWellPathsToModel(wellPathModelBasicList.p(), 
-                        displayModelOffset, 
-                        characteristicCellSize, 
-                        wellPathClipBoundingBox, 
-                        scaleTransform);
-
-    scene->addModel(wellPathModelBasicList.p());
 }
 
 //--------------------------------------------------------------------------------------------------

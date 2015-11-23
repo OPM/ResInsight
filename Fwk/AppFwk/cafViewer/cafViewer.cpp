@@ -823,7 +823,7 @@ void caf::Viewer::navigationPolicyUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::addStaticModel(cvf::Model* model)
+void caf::Viewer::addStaticModelOnce(cvf::Model* model)
 {
     if (m_staticModels.contains(model)) return;
 

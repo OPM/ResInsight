@@ -123,11 +123,14 @@ RimView::RimView(void)
 
     m_previousGridModeMeshLinesWasFaults = false;
 
-    m_crossSectionModel = new cvf::ModelBasicList;
-    m_crossSectionModel->setName("CrossSectionModel");
+    m_crossSectionVizModel = new cvf::ModelBasicList;
+    m_crossSectionVizModel->setName("CrossSectionModel");
 
-    m_highlightModelBasicList = new cvf::ModelBasicList;
-    m_highlightModelBasicList->setName("HighlightModel");
+    m_highlightVizModel = new cvf::ModelBasicList;
+    m_highlightVizModel->setName("HighlightModel");
+
+    m_wellPathPipeVizModel = new cvf::ModelBasicList;
+    m_wellPathPipeVizModel->setName("WellPathPipeModel");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -822,10 +825,10 @@ void RimView::createHighlightAndGridBoxDisplayModelWithRedraw()
 //--------------------------------------------------------------------------------------------------
 void RimView::createHighlightAndGridBoxDisplayModel()
 {
-    m_viewer->removeStaticModel(m_highlightModelBasicList.p());
+    m_viewer->removeStaticModel(m_highlightVizModel.p());
     m_viewer->removeStaticModel(m_viewer->gridBoxModel());
 
-    m_highlightModelBasicList->removeAllParts();
+    m_highlightVizModel->removeAllParts();
 
     cvf::Collection<cvf::Part> parts;
     createPartCollectionFromSelection(&parts);
@@ -833,16 +836,16 @@ void RimView::createHighlightAndGridBoxDisplayModel()
     {
         for (size_t i = 0; i < parts.size(); i++)
         {
-            m_highlightModelBasicList->addPart(parts[i].p());
+            m_highlightVizModel->addPart(parts[i].p());
         }
 
-        m_highlightModelBasicList->updateBoundingBoxesRecursive();
-        m_viewer->addStaticModel(m_highlightModelBasicList.p());
+        m_highlightVizModel->updateBoundingBoxesRecursive();
+        m_viewer->addStaticModelOnce(m_highlightVizModel.p());
     }
 
     if (showGridBox)
     {
-        m_viewer->addStaticModel(m_viewer->gridBoxModel());
+        m_viewer->addStaticModelOnce(m_viewer->gridBoxModel());
     }
 }
 

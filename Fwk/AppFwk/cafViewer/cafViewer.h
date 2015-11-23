@@ -95,7 +95,7 @@ public:
     void                    removeAllFrames();
 
     // Static models to be shown in all frames
-    void                    addStaticModel(cvf::Model* model);
+    void                    addStaticModelOnce(cvf::Model* model);
     void                    removeStaticModel(cvf::Model* model);
     void                    removeAllStaticModels();
 

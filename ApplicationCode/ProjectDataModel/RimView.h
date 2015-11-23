@@ -200,9 +200,10 @@ protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
-
-    cvf::ref<cvf::ModelBasicList>           m_crossSectionModel;
-    cvf::ref<cvf::ModelBasicList>           m_highlightModelBasicList;
+    
+    cvf::ref<cvf::ModelBasicList>           m_wellPathPipeVizModel;
+    cvf::ref<cvf::ModelBasicList>           m_crossSectionVizModel;
+    cvf::ref<cvf::ModelBasicList>           m_highlightVizModel;
 
 private:
     RimViewLinker*                          viewLinkerIfMasterView() const;

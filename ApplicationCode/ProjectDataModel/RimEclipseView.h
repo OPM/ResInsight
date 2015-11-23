@@ -165,16 +165,10 @@ private:
     void                                            updateFaultColors();
 
     void                                            syncronizeWellsWithResults();
-    void                                            addWellPathsToScene(cvf::Scene* scene,
-                                                                        const cvf::Vec3d& displayModelOffset, 
-                                                                        double characteristicCellSize, 
-                                                                        const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                                                        cvf::Transform* scaleTransform);
 
     void                                            clampCurrentTimestep();
 
     virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
-
 
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
