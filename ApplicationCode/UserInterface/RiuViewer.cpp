@@ -42,12 +42,13 @@
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
+#include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
+#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
-#include "cvfOpenGLResourceManager.h"
 
 #include <QCDEStyle>
 #include <QLabel>
@@ -459,6 +460,8 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
 
     if (legend)
     {
+        updateLegendTextAndTickMarkColor(legend);
+
         legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
         firstRendering->addOverlayItem(legend);
 
@@ -567,6 +570,8 @@ void RiuViewer::updateGridBoxData()
         }
 
         m_gridBoxGenerator->createGridBoxParts();
+
+        updateTextAndTickMarkColorForOverlayItems();
     }
 }
 
@@ -584,25 +589,63 @@ cvf::Model* RiuViewer::gridBoxModel() const
 void RiuViewer::setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel)
 {
     m_axisCross->setAxisLabels(xLabel, yLabel, zLabel);
+}
 
-    // The axis cross is designed for short labels, longer labels causes clipping of text
-    // The commented out code adjust the size of the axis cross, and this makes the axis cross labels visible
-    // Side effect is also that the axis cross is zoomed (will be larger)
-    /*
-        size_t maxAxisLabelLength = xLabel.size();
-        if (yLabel.size() > maxAxisLabelLength) maxAxisLabelLength = yLabel.size();
-        if (zLabel.size() > maxAxisLabelLength) maxAxisLabelLength = zLabel.size();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
+{
+    if (m_rimView.isNull()) return;
 
-        if (maxAxisLabelLength > 4)
+    cvf::Color3f contrastColor = computeContrastColor();
+
+    cvf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<cvf::OverlayScalarMapperLegend*>(legend);
+    if (scalarMapperLegend)
+    {
+        scalarMapperLegend->setColor(contrastColor);
+        scalarMapperLegend->setLineColor(contrastColor);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateTextAndTickMarkColorForOverlayItems()
+{
+    for (size_t i = 0; i < m_visibleLegends.size(); i++)
+    {
+        updateLegendTextAndTickMarkColor(m_visibleLegends.at(i));
+    }
+
+    updateAxisCrossTextColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateAxisCrossTextColor()
+{
+    cvf::Color3f contrastColor = computeContrastColor();
+
+    m_axisCross->setAxisLabelsColor(contrastColor);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiuViewer::computeContrastColor() const
+{
+    cvf::Color3f contrastColor = cvf::Color3f::WHITE;
+
+    if (m_rimView.notNull())
+    {
+        cvf::Color3f backgroundColor = m_rimView->backgroundColor;
+        if (backgroundColor.r() + backgroundColor.g() + backgroundColor.b() > 1.5f)
         {
-            if (maxAxisLabelLength < 6)
-            {
-                m_axisCross->setSize(cvf::Vec2ui(140, 140));
-            }
-            else if (maxAxisLabelLength < 8)
-            {
-                m_axisCross->setSize(cvf::Vec2ui(160, 160));
-            }
+            contrastColor = cvf::Color3f::BLACK;
         }
-    */
+    }
+    
+    return contrastColor;
 }

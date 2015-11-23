@@ -48,7 +48,7 @@ public:
     void setScaleZ(double scaleZ);
     void setDisplayModelOffset(cvf::Vec3d offset);
     void setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& boundingBox);
-    void updateFromBackgroundColor(const cvf::Color3f backgroundColor);
+    void updateFromBackgroundColor(const cvf::Color3f& backgroundColor);
 
     void createGridBoxParts();
 

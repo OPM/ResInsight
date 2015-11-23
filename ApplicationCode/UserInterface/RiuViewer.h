@@ -39,6 +39,7 @@ class QProgressBar;
 
 namespace cvf
 {
+    class Color3f;
     class Model;
     class OverlayItem;
     class Part;
@@ -95,6 +96,13 @@ protected:
     virtual void    optimizeClippingPlanes();
 
 private:
+    void            updateTextAndTickMarkColorForOverlayItems();
+    void            updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend);
+
+    cvf::Color3f    computeContrastColor() const;
+
+    void            updateAxisCrossTextColor();
+
     void            paintOverlayItems(QPainter* painter);
 
     void            mouseReleaseEvent(QMouseEvent* event);

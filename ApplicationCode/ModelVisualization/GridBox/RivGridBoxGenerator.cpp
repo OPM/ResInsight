@@ -649,7 +649,7 @@ cvf::Vec3f RivGridBoxGenerator::cornerDirection(FaceType face1, FaceType face2)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f backgroundColor)
+void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f& backgroundColor)
 {
     double adjustmentFactor = 0.3;
     
