@@ -32,9 +32,9 @@ CAF_PDM_SOURCE_INIT(RimCrossSectionCollection, "CrossSectionCollection");
 //--------------------------------------------------------------------------------------------------
 RimCrossSectionCollection::RimCrossSectionCollection()
 {
-    CAF_PDM_InitObject("Cross Sections", ":/undefined_image.png", "", "");
+    CAF_PDM_InitObject("Intersections", ":/undefined_image.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_crossSections, "CrossSections", "Cross Sections", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_crossSections, "CrossSections", "Intersections", "", "", "");
     m_crossSections.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");

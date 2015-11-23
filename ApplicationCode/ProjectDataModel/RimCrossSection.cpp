@@ -60,9 +60,9 @@ CAF_PDM_SOURCE_INIT(RimCrossSection, "CrossSection");
 //--------------------------------------------------------------------------------------------------
 RimCrossSection::RimCrossSection()
 {
-    CAF_PDM_InitObject("Cross Section", "", "", "");
+    CAF_PDM_InitObject("Intersection", "", "", "");
 
-    CAF_PDM_InitField(&name,        "UserDescription",  QString("Cross Section Name"), "Name", "", "", "");
+    CAF_PDM_InitField(&name,        "UserDescription",  QString("Intersection Name"), "Name", "", "", "");
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 

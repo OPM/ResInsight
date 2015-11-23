@@ -117,12 +117,11 @@ RimView::RimView(void)
     m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
     m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Cross Sections", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Intersections", "", "", "");
     crossSectionCollection.uiCapability()->setUiHidden(true);
     crossSectionCollection = new RimCrossSectionCollection();
 
     m_previousGridModeMeshLinesWasFaults = false;
-
 
     m_crossSectionModel = new cvf::ModelBasicList;
     m_crossSectionModel->setName("CrossSectionModel");

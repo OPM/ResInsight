@@ -59,7 +59,7 @@ void RicAppendCrossSectionFeature::onActionTriggered(bool isChecked)
 void RicAppendCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 {
 //    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
-    actionToSetup->setText("New Cross Section");
+    actionToSetup->setText("New Intersection");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ RicAppendCrossSectionFeatureCmd::~RicAppendCrossSectionFeatureCmd()
 //--------------------------------------------------------------------------------------------------
 QString RicAppendCrossSectionFeatureCmd::name()
 {
-    return "New Cross Section";
+    return "New Intersection";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void RicAppendCrossSectionFeatureCmd::redo()
     CVF_ASSERT(m_crossSectionCollection);
 
     RimCrossSection* crossSection = new RimCrossSection();
-    crossSection->name = QString("Cross Section");
+    crossSection->name = QString("Intersection");
     m_crossSectionCollection->appendCrossSection(crossSection);
 }
 

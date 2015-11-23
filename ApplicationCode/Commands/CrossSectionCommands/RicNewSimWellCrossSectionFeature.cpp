@@ -66,7 +66,7 @@ void RicNewSimWellCrossSectionFeature::onActionTriggered(bool isChecked)
 void RicNewSimWellCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 {
 //    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
-    actionToSetup->setText("New Cross Section");
+    actionToSetup->setText("New Intersection");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ RicNewSimWellCrossSectionCmd::~RicNewSimWellCrossSectionCmd()
 //--------------------------------------------------------------------------------------------------
 QString RicNewSimWellCrossSectionCmd::name()
 {
-    return "Create Cross Section From Well";
+    return "Create Intersection From Well";
 }
 
 //--------------------------------------------------------------------------------------------------
