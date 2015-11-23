@@ -58,11 +58,10 @@ void getDayMonthYear(const ecl_kw_type* intehead_kw, int* day, int* month, int* 
     *year = ecl_kw_iget_int(intehead_kw, INTEHEAD_YEAR_INDEX);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, bool* detectedFractionOfDay )
+void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps)
 {
     CVF_ASSERT(timeSteps);
     CVF_ASSERT(ecl_file);
@@ -73,38 +72,30 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
     // Get the number of occurrences of the DOUBHEAD keyword
     int numDOUBHEAD = ecl_file_get_num_named_kw(ecl_file, DOUBHEAD_KW);
 
-    //CVF_ASSERT(numINTEHEAD == numDOUBHEAD);
+    std::vector<double> dayFractions(numINTEHEAD, 0.0); // Init fraction to zero
 
-    bool hasFractionOfDay = false;
-    bool foundAllDayValues = false;
-    const double delta = 0.001;
-
-    // Find all days, and stop when the double value is lower than the previous
-    QList<double> days;
-    for (int i = 0; i < numDOUBHEAD; i++)
+    // Read out fraction of day if number of keywords are identical
+    if (numINTEHEAD == numDOUBHEAD)
     {
-        if (foundAllDayValues) continue;;
-
-        ecl_kw_type* kwDOUBHEAD = ecl_file_iget_named_kw(ecl_file, DOUBHEAD_KW, i);
-        if (kwDOUBHEAD)
+        for (int i = 0; i < numDOUBHEAD; i++)
         {
-            double dayValue = ecl_kw_iget_double(kwDOUBHEAD, DOUBHEAD_DAYS_INDEX);
-            double floorDayValue = cvf::Math::floor(dayValue);
-
-            if (dayValue - floorDayValue > delta)
+            ecl_kw_type* kwDOUBHEAD = ecl_file_iget_named_kw(ecl_file, DOUBHEAD_KW, i);
+            if (kwDOUBHEAD)
             {
-                hasFractionOfDay = true;
-            }
+                double dayValue = ecl_kw_iget_double(kwDOUBHEAD, DOUBHEAD_DAYS_INDEX);
+                double floorDayValue = cvf::Math::floor(dayValue);
 
-            days.push_back(dayValue);
+                double dayDelta = dayValue - floorDayValue;
+
+                dayFractions[i] = dayDelta;
+            }
         }
     }
 
-    std::vector<QDateTime> timeStepsFound;
-   
-    if (hasFractionOfDay)
+    for (int i = 0; i < numINTEHEAD; i++)
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
+        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
+        CVF_ASSERT(kwINTEHEAD);
         if (kwINTEHEAD)
         {
             int day = 0;
@@ -112,65 +103,23 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
             int year = 0;
             getDayMonthYear(kwINTEHEAD, &day, &month, &year);
             
-            QDateTime simulationStart(QDate(year, month, day));
-            for (int i = 0; i < days.size(); i++)
+            QDateTime reportDateTime(QDate(year, month, day));
+            CVF_ASSERT(reportDateTime.isValid());
+
+            double dayFraction = dayFractions[i];
+            int seconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0);
+            QTime time(0, 0);
+            time = time.addSecs(seconds);
+
+            reportDateTime.setTime(time);
+
+            if (std::find(timeSteps->begin(), timeSteps->end(), reportDateTime) == timeSteps->end())
             {
-                QDateTime reportDateTime(simulationStart);
-                CVF_ASSERT(reportDateTime.isValid());
-
-                double dayValue = days[i];
-                double floorDayValue = cvf::Math::floor(dayValue);
-                reportDateTime = reportDateTime.addDays(static_cast<int>(floorDayValue));
-
-                double dayFraction = dayValue - floorDayValue;
-                int seconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0);
-                QTime time(0, 0);
-                time = time.addSecs(seconds);
-
-                reportDateTime.setTime(time);
-
-                if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())
-                {
-                    timeStepsFound.push_back(reportDateTime);
-                }
+                timeSteps->push_back(reportDateTime);
             }
         }
-    }
-    else
-    {
-        for (int i = 0; i < numINTEHEAD; i++)
-        {
-            ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
-            if (kwINTEHEAD)
-            {
-                int day = 0;
-                int month = 0;
-                int year = 0;
-                getDayMonthYear(kwINTEHEAD, &day, &month, &year);
-
-                QDateTime reportDateTime(QDate(year, month, day));
-                QTime time(0, 0);
-                reportDateTime.setTime(time);
-
-                CVF_ASSERT(reportDateTime.isValid());
-
-                if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())
-                {
-                    timeStepsFound.push_back(reportDateTime);
-                }
-            }
-        }
-    }
-
-    // Return time step info to caller
-    *timeSteps = timeStepsFound;
-
-    if (detectedFractionOfDay)
-    {
-        *detectedFractionOfDay = hasFractionOfDay;
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -216,7 +165,6 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
     return false;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
 //--------------------------------------------------------------------------------------------------
@@ -235,7 +183,6 @@ QString RifEclipseOutputFileTools::firstFileNameOfType(const QStringList& fileSe
 
     return QString::null;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Get all files of the given type from the provided list of filenames 
@@ -284,7 +231,6 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& 
 
     return baseNameFiles->count() > 0;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
