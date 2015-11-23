@@ -83,7 +83,7 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
     m_navigationPolicyEnabled(true),
-    m_isOverlyPaintingEnabled(true)
+    m_isOverlayPaintingEnabled(true)
 {
     m_layoutWidget = parentWidget();
 
@@ -421,7 +421,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 
     // If Qt overlay painting is enabled, paint to an QImage, and set it to the cvf::OverlayImage
 
-    if (m_isOverlyPaintingEnabled || m_showPerfInfoHud)
+    if (m_isOverlayPaintingEnabled || m_showPerfInfoHud)
     {
         // Set up image to draw to, and painter 
         if (m_overlayPaintingQImage.size() != this->size())
@@ -434,7 +434,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 
         // Call virtual method to allow subclasses to paint on the OpenGlCanvas
 
-        if (m_isOverlyPaintingEnabled)
+        if (m_isOverlayPaintingEnabled)
         {
             this->paintOverlayItems(&overlyPainter); 
         }
@@ -785,7 +785,7 @@ int caf::Viewer::currentFrameIndex()
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::isOverlyPaintingEnabled() const
 {
-    return m_isOverlyPaintingEnabled;
+    return m_isOverlayPaintingEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -793,7 +793,7 @@ bool caf::Viewer::isOverlyPaintingEnabled() const
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::enableOverlyPainting(bool val)
 {
-    m_isOverlyPaintingEnabled = val;
+    m_isOverlayPaintingEnabled = val;
     updateOverlayImagePresence();
 }
 
@@ -802,7 +802,7 @@ void caf::Viewer::enableOverlyPainting(bool val)
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::updateOverlayImagePresence()
 {
-    if (m_isOverlyPaintingEnabled || m_showPerfInfoHud)
+    if (m_isOverlayPaintingEnabled || m_showPerfInfoHud)
     {
          m_mainRendering->addOverlayItem(m_overlayImage.p());
     }

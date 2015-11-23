@@ -191,7 +191,7 @@ private:
     bool                                m_releaseOGLResourcesEachFrame;
     QPointer<QWidget>                   m_layoutWidget;
 
-    bool                                m_isOverlyPaintingEnabled;
+    bool                                m_isOverlayPaintingEnabled;
     cvf::ref<cvf::TextureImage>         m_overlayTextureImage;
     cvf::ref<cvf::OverlayImage>         m_overlayImage;
     QImage                              m_overlayPaintingQImage;
