@@ -60,7 +60,7 @@ CAF_PDM_SOURCE_INIT(RimCrossSection, "CrossSection");
 //--------------------------------------------------------------------------------------------------
 RimCrossSection::RimCrossSection()
 {
-    CAF_PDM_InitObject("Intersection", "", "", "");
+    CAF_PDM_InitObject("Intersection", ":/CrossSection16x16.png", "", "");
 
     CAF_PDM_InitField(&name,        "UserDescription",  QString("Intersection Name"), "Name", "", "", "");
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
