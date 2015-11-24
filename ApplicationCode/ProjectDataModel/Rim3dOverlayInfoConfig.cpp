@@ -265,7 +265,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
         if (eclipseView->eclipseCase() && eclipseView->eclipseCase()->reservoirData() && eclipseView->eclipseCase()->reservoirData()->mainGrid())
         {
             caseName = eclipseView->eclipseCase()->caseUserDescription();
-            totCellCount = QString::number(eclipseView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
+            totCellCount = QString::number(eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray().size());
             size_t mxActCellCount = eclipseView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount();
             size_t frActCellCount = eclipseView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount();
             if (frActCellCount > 0)  activeCellCountText += "Matrix : ";

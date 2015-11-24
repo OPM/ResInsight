@@ -72,9 +72,9 @@ RigCell& RigGridBase::cell(size_t gridLocalCellIndex)
 {
      CVF_ASSERT(m_mainGrid);
 
-     CVF_ASSERT(m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->cells().size());
+     CVF_ASSERT(m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->globalCellArray().size());
 
-     return m_mainGrid->cells()[m_indexToStartOfCells + gridLocalCellIndex];
+     return m_mainGrid->globalCellArray()[m_indexToStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ const RigCell& RigGridBase::cell(size_t gridLocalCellIndex) const
 {
     CVF_ASSERT(m_mainGrid);
 
-    return m_mainGrid->cells()[m_indexToStartOfCells + gridLocalCellIndex];
+    return m_mainGrid->globalCellArray()[m_indexToStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

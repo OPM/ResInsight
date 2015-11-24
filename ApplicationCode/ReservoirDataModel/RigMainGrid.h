@@ -45,8 +45,8 @@ public:
     std::vector<cvf::Vec3d>&                nodes() {return m_nodes;}
     const std::vector<cvf::Vec3d>&          nodes() const {return m_nodes;}
 
-    std::vector<RigCell>&                   cells() {return m_cells;}
-    const std::vector<RigCell>&             cells() const {return m_cells;}
+    std::vector<RigCell>&                   globalCellArray() {return m_cells;}
+    const std::vector<RigCell>&             globalCellArray() const {return m_cells;}
 
     void                                    addLocalGrid(RigLocalGrid* localGrid);
     size_t                                  gridCount() const           { return m_localGrids.size() + 1; }

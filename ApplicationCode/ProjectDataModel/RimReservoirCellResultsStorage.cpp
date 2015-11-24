@@ -589,7 +589,7 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
     bool computeTops = false;
     bool computeBottom = false;
 
-    size_t resultValueCount = m_ownerMainGrid->cells().size();
+    size_t resultValueCount = m_ownerMainGrid->globalCellArray().size();
 
     if (depthResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
@@ -635,9 +635,9 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
     std::vector< std::vector<double> >& bottom  = m_cellResults->cellScalarResults(bottomResultGridIndex);
 
     size_t cellIdx = 0;
-    for (cellIdx = 0; cellIdx < m_ownerMainGrid->cells().size(); cellIdx++)
+    for (cellIdx = 0; cellIdx < m_ownerMainGrid->globalCellArray().size(); cellIdx++)
     {
-        const RigCell& cell = m_ownerMainGrid->cells()[cellIdx];
+        const RigCell& cell = m_ownerMainGrid->globalCellArray()[cellIdx];
 
         if (computeDepth)
         {
@@ -866,14 +866,14 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
     const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
     bool isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
-    for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->cells().size(); nativeResvCellIndex++)
+    for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->globalCellArray().size(); nativeResvCellIndex++)
     {
         // Do nothing if we are only dealing with active cells, and this cell is not active:
         size_t tranResIdx = (*riTranIdxFunc)(activeCellInfo, nativeResvCellIndex);
 
         if (tranResIdx == cvf::UNDEFINED_SIZE_T) continue;
 
-        const RigCell& nativeCell = m_ownerMainGrid->cells()[nativeResvCellIndex];
+        const RigCell& nativeCell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
         RigGridBase* grid = nativeCell.hostGrid();
 
         size_t gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
@@ -885,7 +885,7 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
         if (grid->cellIJKNeighbor(i, j, k, faceId, &gridLocalNeighborCellIdx))
         {
             size_t neighborResvCellIdx = grid->reservoirCellIndex(gridLocalNeighborCellIdx);
-            const RigCell& neighborCell = m_ownerMainGrid->cells()[neighborResvCellIdx];
+            const RigCell& neighborCell = m_ownerMainGrid->globalCellArray()[neighborResvCellIdx];
 
             // Do nothing if neighbor cell has no results
             size_t neighborCellPermResIdx = (*permIdxFunc)(activeCellInfo, neighborResvCellIdx);
@@ -1059,8 +1059,8 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
         if (neighborCellPermResIdx == cvf::UNDEFINED_SIZE_T) continue;
 
 
-        const RigCell& nativeCell = m_ownerMainGrid->cells()[nativeResvCellIndex];
-        const RigCell& neighborCell = m_ownerMainGrid->cells()[neighborResvCellIdx];
+        const RigCell& nativeCell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
+        const RigCell& neighborCell = m_ownerMainGrid->globalCellArray()[neighborResvCellIdx];
 
 
         // Connection geometry
@@ -1299,14 +1299,14 @@ void RimReservoirCellResultsStorage::computeRiTRANSbyAreaComponent(const QString
     const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
     const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
 
-    for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->cells().size(); nativeResvCellIndex++)
+    for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->globalCellArray().size(); nativeResvCellIndex++)
     {
         // Do nothing if we are only dealing with active cells, and this cell is not active:
         size_t nativeCellResValIdx = (*resValIdxFunc)(activeCellInfo, nativeResvCellIndex);
 
         if (nativeCellResValIdx == cvf::UNDEFINED_SIZE_T) continue;
 
-        const RigCell& nativeCell = m_ownerMainGrid->cells()[nativeResvCellIndex];
+        const RigCell& nativeCell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
         RigGridBase* grid = nativeCell.hostGrid();
 
         size_t gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
@@ -1318,7 +1318,7 @@ void RimReservoirCellResultsStorage::computeRiTRANSbyAreaComponent(const QString
         if (grid->cellIJKNeighbor(i, j, k, faceId, &gridLocalNeighborCellIdx))
         {
             size_t neighborResvCellIdx = grid->reservoirCellIndex(gridLocalNeighborCellIdx);
-            const RigCell& neighborCell = m_ownerMainGrid->cells()[neighborResvCellIdx];
+            const RigCell& neighborCell = m_ownerMainGrid->globalCellArray()[neighborResvCellIdx];
 
             // Connection geometry
 

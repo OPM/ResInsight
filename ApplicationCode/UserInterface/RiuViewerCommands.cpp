@@ -450,7 +450,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 {
                     size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
 
-                    const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->cells()[globalCellIndex];
+                    const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray()[globalCellIndex];
                     cellIndex = cell.gridLocalCellIndex();
                     gridIndex = cell.hostGrid()->gridIndex();
                 }

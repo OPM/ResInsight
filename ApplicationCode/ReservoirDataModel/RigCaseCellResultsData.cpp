@@ -341,7 +341,7 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex(size_t scalarResultIndex) 
     if (!m_cellScalarResults[scalarResultIndex].size()) return true;
     
     size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
-    if (firstTimeStepResultValueCount == m_ownerMainGrid->cells().size()) return false;
+    if (firstTimeStepResultValueCount == m_ownerMainGrid->globalCellArray().size()) return false;
 
     return true;
 }

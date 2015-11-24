@@ -256,7 +256,7 @@ void RimFaultCollection::syncronizeFaults()
             QString secondConnectionText;
             
             {
-                const RigCell& cell = mainGrid->cells()[nncConnections[i].m_c1GlobIdx];
+                const RigCell& cell = mainGrid->globalCellArray()[nncConnections[i].m_c1GlobIdx];
 
                 RigGridBase* hostGrid = cell.hostGrid();
                 size_t gridLocalCellIndex = cell.gridLocalCellIndex();
@@ -279,7 +279,7 @@ void RimFaultCollection::syncronizeFaults()
             }
 
             {
-                const RigCell& cell = mainGrid->cells()[nncConnections[i].m_c2GlobIdx];
+                const RigCell& cell = mainGrid->globalCellArray()[nncConnections[i].m_c2GlobIdx];
 
                 RigGridBase* hostGrid = cell.hostGrid();
                 size_t gridLocalCellIndex = cell.gridLocalCellIndex();

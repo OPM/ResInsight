@@ -1578,7 +1578,7 @@ void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilte
 void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
 {
     size_t gridCount = this->eclipseCase()->reservoirData()->gridCount();
-    size_t cellCount = this->eclipseCase()->reservoirData()->mainGrid()->cells().size();
+    size_t cellCount = this->eclipseCase()->reservoirData()->mainGrid()->globalCellArray().size();
 
     totalVisibility->resize(cellCount);
     totalVisibility->setAll(false);

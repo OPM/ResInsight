@@ -949,7 +949,7 @@ public:
             // The size of this array must match the test in RigCaseCellResultsData::isUsingGlobalActiveIndex(),
             // as it is used to determine if we have data for active cells or all cells
             // See RigCaseCellResultsData::isUsingGlobalActiveIndex()
-            size_t totalNumberOfCellsIncludingLgrCells = grid->mainGrid()->cells().size();
+            size_t totalNumberOfCellsIncludingLgrCells = grid->mainGrid()->globalCellArray().size();
 
             m_scalarResultsToAdd->at(tsId).resize(totalNumberOfCellsIncludingLgrCells, HUGE_VAL);
         }

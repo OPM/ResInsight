@@ -69,7 +69,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         cvf::Vec3d hexCorners[8];
         for (size_t cIdx = 0; cIdx < closeCells.size(); ++cIdx)
         {
-            const RigCell& cell = m_caseData->mainGrid()->cells()[closeCells[cIdx]];
+            const RigCell& cell = m_caseData->mainGrid()->globalCellArray()[closeCells[cIdx]];
             const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
 
             hexCorners[0] = nodeCoords[cornerIndices[0]];

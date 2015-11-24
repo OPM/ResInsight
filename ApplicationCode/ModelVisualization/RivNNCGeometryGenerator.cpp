@@ -79,7 +79,7 @@ void RivNNCGeometryGenerator::computeArrays()
     std::vector<RigCell>* allCells = NULL;
     if (isVisibilityCalcActive)
     {
-        allCells =  &(m_grid->mainGrid()->cells());
+        allCells =  &(m_grid->mainGrid()->globalCellArray());
     }
 
 #pragma omp parallel for ordered

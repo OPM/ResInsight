@@ -352,7 +352,7 @@ RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGrid* ma
 
     size_t cellIdx =  masterEclGrid->cellIndexFromIJK(ei, ej, ek);
 
-    bool isCollapsedCell =  masterEclGrid->cells()[cellIdx].isCollapsedCell();
+    bool isCollapsedCell =  masterEclGrid->globalCellArray()[cellIdx].isCollapsedCell();
 
     cvf::Vec3d geoMechConvertedEclCell[8];
     RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
@@ -475,7 +475,7 @@ RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart* dep
     if (globCellIdxToBestMatch != cvf::UNDEFINED_SIZE_T)
     {
         masterEclGrid->ijkFromCellIndex(globCellIdxToBestMatch, ei, ej, ek);
-        isCollapsedCell =  masterEclGrid->cells()[globCellIdxToBestMatch].isCollapsedCell();
+        isCollapsedCell =  masterEclGrid->globalCellArray()[globCellIdxToBestMatch].isCollapsedCell();
     }
     else
     {

@@ -450,7 +450,7 @@ void RigCaseData::computeActiveCellsGeometryBoundingBox()
             {
                 if (activeInfos[acIdx]->isActive(i))
                 {
-                    const RigCell& c = m_mainGrid->cells()[i];
+                    const RigCell& c = m_mainGrid->globalCellArray()[i];
                     const caf::SizeTArray8& indices = c.cornerIndices();
 
                     size_t idx;

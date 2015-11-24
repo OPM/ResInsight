@@ -1226,7 +1226,7 @@ void RivEclipseCrossSectionGrid::findIntersectingCells(const cvf::BoundingBox& i
 //--------------------------------------------------------------------------------------------------
 bool RivEclipseCrossSectionGrid::useCell(size_t cellIndex) const
 {
-    const RigCell& cell = m_mainGrid->cells()[cellIndex]; 
+    const RigCell& cell = m_mainGrid->globalCellArray()[cellIndex]; 
     
     return !(cell.isInvalid() || (cell.subGrid() != NULL));
 }
@@ -1244,7 +1244,7 @@ void RivEclipseCrossSectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d
 //--------------------------------------------------------------------------------------------------
 void RivEclipseCrossSectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const
 {
-    const caf::SizeTArray8& cornerIndicesSource = m_mainGrid->cells()[cellIndex].cornerIndices();
+    const caf::SizeTArray8& cornerIndicesSource = m_mainGrid->globalCellArray()[cellIndex].cornerIndices();
     memcpy(cornerIndices, cornerIndicesSource.data(), 8);
 }
 

@@ -34,7 +34,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigMainGrid* masterEclGrid, Rig
       m_masterFemPart(NULL),
       m_dependentFemPart(NULL)
 {
-    m_masterCellOrIntervalIndex.resize(dependentEclGrid->cells().size(), cvf::UNDEFINED_INT);
+    m_masterCellOrIntervalIndex.resize(dependentEclGrid->globalCellArray().size(), cvf::UNDEFINED_INT);
 
 }
 
@@ -47,7 +47,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper(RigFemPart* masterFemPart, RigM
       m_masterFemPart(masterFemPart),
       m_dependentFemPart(NULL)
 {
-    m_masterCellOrIntervalIndex.resize(dependentEclGrid->cells().size(), cvf::UNDEFINED_INT);
+    m_masterCellOrIntervalIndex.resize(dependentEclGrid->globalCellArray().size(), cvf::UNDEFINED_INT);
     this->calculateEclToGeomCellMapping(dependentEclGrid, masterFemPart, false);
 }
 
