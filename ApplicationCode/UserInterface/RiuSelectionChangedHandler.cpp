@@ -156,15 +156,23 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
         curveName.append(timeHistResultAccessor.topologyText());
 
         std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
-        std::vector<double> frameTimes;
-        for (size_t i = 0; i < timeHistoryValues.size(); i++)
-        {
-            frameTimes.push_back(i);
-        }
 
-        CVF_ASSERT(frameTimes.size() == timeHistoryValues.size());
-        
-        RiuMainWindow::instance()->resultPlot()->addCurve(curveName, geomSelectionItem->m_color, frameTimes, timeHistoryValues);
+        QStringList stepNames = geoMechView->geoMechCase()->timeStepStrings();
+        std::vector<QDateTime> dates = RimGeoMechCase::dateTimeVectorFromTimeStepStrings(stepNames);
+        if (dates.size() == timeHistoryValues.size())
+        {
+            RiuMainWindow::instance()->resultPlot()->addCurve(curveName, geomSelectionItem->m_color, dates, timeHistoryValues);
+        }
+        else
+        {
+            std::vector<double> dummyStepTimes;
+            for (size_t i = 0; i < timeHistoryValues.size(); i++)
+            {
+                dummyStepTimes.push_back(i);
+            }
+
+            RiuMainWindow::instance()->resultPlot()->addCurve(curveName, geomSelectionItem->m_color, dummyStepTimes, timeHistoryValues);
+        }
     }
 }
 

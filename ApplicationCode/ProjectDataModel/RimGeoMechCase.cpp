@@ -213,3 +213,58 @@ cvf::BoundingBox RimGeoMechCase::allCellsBoundingBox() const
         return cvf::BoundingBox();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings)
+{
+    std::vector<QDateTime> dates;
+
+    QString dateFormat = "ddMMyyyy";
+
+    for (int i = 0; i < timeStepStrings.size(); i++)
+    {
+        QString timeStepString = timeStepStrings[i];
+
+        QString dateStr = subStringOfDigits(timeStepString, dateFormat.size());
+
+        QDateTime dateTime = QDateTime::fromString(dateStr, dateFormat);
+        if (dateTime.isValid())
+        {
+            dates.push_back(dateTime);
+        }
+    }
+
+    return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::subStringOfDigits(const QString& inputString, int numberOfDigitsToFind)
+{
+    for (int j = 0; j < inputString.size(); j++)
+    {
+        if (inputString.at(j).isDigit())
+        {
+            QString digitString;
+
+            for (int k = 0; k < numberOfDigitsToFind; k++)
+            {
+                if (j + k < inputString.size() && inputString.at(j + k).isDigit())
+                {
+                    digitString += inputString.at(j + k);
+                }
+            }
+
+            if (digitString.size() == numberOfDigitsToFind)
+            {
+                return digitString;
+            }
+        }
+    }
+
+    return "";
+}
+
