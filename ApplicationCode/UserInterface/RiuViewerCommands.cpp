@@ -62,6 +62,7 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
+#include "RivCrossSectionSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
 #include "RivSourceInfo.h"
@@ -418,6 +419,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
             const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
+            const RivCrossSectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivCrossSectionSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
             {
@@ -438,6 +440,25 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             else if (wellPathSourceInfo)
             {
                 wellPath = wellPathSourceInfo->wellPath();
+            }
+            else if (crossSectionSourceInfo)
+            {
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+                RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+                
+                if (eclipseView)
+                {
+                    size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+
+                    const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->cells()[globalCellIndex];
+                    cellIndex = cell.gridLocalCellIndex();
+                    gridIndex = cell.hostGrid()->gridIndex();
+                }
+                else if (geomView)
+                {
+                    cellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+                    gridIndex = 0;
+                }
             }
         }
 
