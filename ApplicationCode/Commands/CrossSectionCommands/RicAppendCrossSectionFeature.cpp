@@ -44,12 +44,16 @@ bool RicAppendCrossSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAppendCrossSectionFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimCrossSectionCollection*> collection;
+    std::vector<caf::PdmObjectHandle*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
-
     CVF_ASSERT(collection.size() == 1);
 
-    RicAppendCrossSectionFeatureCmd* cmd = new RicAppendCrossSectionFeatureCmd(collection[0]);
+    RimCrossSectionCollection* crossSectionCollection = NULL;
+    collection[0]->firstAnchestorOrThisOfType(crossSectionCollection);
+
+    CVF_ASSERT(crossSectionCollection);
+
+    RicAppendCrossSectionFeatureCmd* cmd = new RicAppendCrossSectionFeatureCmd(crossSectionCollection);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
@@ -58,7 +62,7 @@ void RicAppendCrossSectionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicAppendCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 {
-//    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
+    actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Intersection");
 }
 
