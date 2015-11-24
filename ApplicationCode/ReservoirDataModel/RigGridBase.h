@@ -50,8 +50,8 @@ public:
     cvf::Vec3st                 gridPointDimensions()                                       { return m_gridPointDimensions; }
 
     size_t                      cellCount() const { return cellCountI() * cellCountJ() * cellCountK(); }
-    RigCell&                    cell(size_t gridCellIndex);
-    const RigCell&              cell(size_t gridCellIndex) const;
+    RigCell&                    cell(size_t gridLocalCellIndex);
+    const RigCell&              cell(size_t gridLocalCellIndex) const;
     
     size_t                      reservoirCellIndex(size_t gridLocalCellIndex) const;
     void                        setIndexToStartOfCells(size_t indexToStartOfCells) { m_indexToStartOfCells = indexToStartOfCells; }

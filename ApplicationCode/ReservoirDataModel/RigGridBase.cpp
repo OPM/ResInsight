@@ -68,23 +68,23 @@ std::string RigGridBase::gridName() const
 //--------------------------------------------------------------------------------------------------
 /// Do we need this ?
 //--------------------------------------------------------------------------------------------------
-RigCell& RigGridBase::cell(size_t gridCellIndex)
+RigCell& RigGridBase::cell(size_t gridLocalCellIndex)
 {
      CVF_ASSERT(m_mainGrid);
 
-     CVF_ASSERT(m_indexToStartOfCells + gridCellIndex < m_mainGrid->cells().size());
+     CVF_ASSERT(m_indexToStartOfCells + gridLocalCellIndex < m_mainGrid->cells().size());
 
-     return m_mainGrid->cells()[m_indexToStartOfCells + gridCellIndex];
+     return m_mainGrid->cells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigCell& RigGridBase::cell(size_t gridCellIndex) const
+const RigCell& RigGridBase::cell(size_t gridLocalCellIndex) const
 {
     CVF_ASSERT(m_mainGrid);
 
-    return m_mainGrid->cells()[m_indexToStartOfCells + gridCellIndex];
+    return m_mainGrid->cells()[m_indexToStartOfCells + gridLocalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
