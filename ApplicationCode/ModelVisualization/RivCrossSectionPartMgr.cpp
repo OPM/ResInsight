@@ -112,17 +112,31 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                 CVF_ASSERT(m_crossSectionGenerator.notNull());
 
                 const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
+                cvf::ref<RigResultAccessor> resultAccessor;
 
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
-                                                                                                            0,
-                                                                                                            RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel()),
-                                                                                                            timeStepIndex,
-                                                                                                            cellResultColors->resultVariable());
+                if (RimDefines::isPerCellFaceResult(cellResultColors->resultVariable()))
+                {
+                    resultAccessor = new RigHugeValResultAccessor;
+                }
+                else
+                {
+                    size_t adjustedTimeStepIndex = timeStepIndex;
+                    if (cellResultColors->hasStaticResult())
+                    {
+                        adjustedTimeStepIndex = 0;
+                    }
+
+                    resultAccessor = RigResultAccessorFactory::createResultAccessor(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
+                                                                                    0,
+                                                                                    RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel()),
+                                                                                    adjustedTimeStepIndex,
+                                                                                    cellResultColors->resultVariable());
+                }
 
                 RivCrossSectionPartMgr::calculateEclipseTextureCoordinates(m_crossSectionFacesTextureCoords.p(),
-                                                                           m_crossSectionGenerator->triangleToCellIndex(),
-                                                                           resultAccessor.p(),
-                                                                           mapper);
+                                                                            m_crossSectionGenerator->triangleToCellIndex(),
+                                                                            resultAccessor.p(),
+                                                                            mapper);
 
 
                 RivScalarMapperUtils::applyTextureResultsToPart(m_crossSectionFaces.p(),
@@ -131,7 +145,7 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                                                                 1.0,
                                                                 caf::FC_NONE,
                                                                 eclipseView->isLightingDisabled());
-            }
+                }
         }
     }
 

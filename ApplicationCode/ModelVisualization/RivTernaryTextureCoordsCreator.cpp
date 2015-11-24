@@ -47,26 +47,6 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     CVF_ASSERT(quadMapper);
     m_quadMapper = quadMapper;
 
-    initData(cellResultColors, ternaryLegendConfig, timeStepIndex, gridIndex);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
-    RimEclipseCellColors* cellResultColors, 
-    RimTernaryLegendConfig* ternaryLegendConfig, 
-    size_t timeStepIndex)
-    : m_quadMapper(NULL)
-{
-    initData(cellResultColors, ternaryLegendConfig, timeStepIndex, 0);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivTernaryTextureCoordsCreator::initData(RimEclipseCellColors* cellResultColors, RimTernaryLegendConfig* ternaryLegendConfig, size_t timeStepIndex, size_t gridIndex)
-{
     RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     size_t resTimeStepIdx = timeStepIndex;
@@ -88,6 +68,38 @@ void RivTernaryTextureCoordsCreator::initData(RimEclipseCellColors* cellResultCo
     const RivTernaryScalarMapper* mapper = ternaryLegendConfig->scalarMapper();
 
     m_texMapper = new RivTernaryResultToTextureMapper(mapper, pipeInCellEval.p());
+    CVF_ASSERT(m_texMapper.notNull());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
+    RimEclipseCellColors* cellResultColors, 
+    RimTernaryLegendConfig* ternaryLegendConfig, 
+    size_t timeStepIndex)
+    : m_quadMapper(NULL)
+{
+    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+
+    size_t resTimeStepIdx = timeStepIndex;
+
+    if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
+
+    size_t gridIndex = 0;
+    cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SOIL");
+    cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SGAS");
+    cvf::ref<RigResultAccessor> swat = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SWAT");
+
+    m_resultAccessor = new RigTernaryResultAccessor();
+    m_resultAccessor->setTernaryResultAccessors(soil.p(), sgas.p(), swat.p());
+
+    const RivTernaryScalarMapper* mapper = ternaryLegendConfig->scalarMapper();
+
+    // Create a texture mapper without detecting transparency using RigPipeInCellEvaluator
+    m_texMapper = new RivTernaryResultToTextureMapper(mapper, NULL);
     CVF_ASSERT(m_texMapper.notNull());
 }
 

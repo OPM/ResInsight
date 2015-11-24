@@ -55,8 +55,6 @@ public:
     void createTextureCoords(cvf::Vec2fArray* triTextureCoords, const std::vector<size_t>& triangleToCellIdx);
 
 private:
-    void initData(RimEclipseCellColors* cellResultColors, RimTernaryLegendConfig* ternaryLegendConfig, size_t timeStepIndex, size_t gridIndex);
-
     static void createTextureCoords(cvf::Vec2fArray* quadTextureCoords,
                                     const cvf::StructGridQuadToCellFaceMapper* quadMapper,  
                                     const RigTernaryResultAccessor* resultAccessor,

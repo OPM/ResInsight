@@ -39,7 +39,19 @@ public:
     
     cvf::Vec2f getTexCoord(double soil, double sgas, size_t cellIndex) const
     {
-        bool isTransparent = m_pipeInCellEvaluator->isWellPipeInCell(cellIndex);
+        if (soil == HUGE_VAL || soil != soil ||
+            sgas == HUGE_VAL || sgas != sgas) // a != a is true for NAN's
+        {
+            cvf::Vec2f texCoord(1.0, 1.0);
+            return texCoord;
+        }
+
+        bool isTransparent = false;
+
+        if (m_pipeInCellEvaluator.notNull())
+        {
+            isTransparent = m_pipeInCellEvaluator->isWellPipeInCell(cellIndex);
+        }
 
         return m_scalarMapper->mapToTextureCoord(soil, sgas, isTransparent);
     }
