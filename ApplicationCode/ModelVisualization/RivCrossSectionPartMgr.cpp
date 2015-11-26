@@ -78,13 +78,15 @@ void RivCrossSectionPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
 {
+    if (m_crossSectionGenerator.isNull()) return;
+
     RimEclipseView* eclipseView;
     m_rimCrossSection->firstAnchestorOrThisOfType(eclipseView);
+
     if (eclipseView)
     {
         RimEclipseCellColors* cellResultColors = eclipseView->cellResult();
 
-        if (m_crossSectionGenerator.isNull()) return;
 
         CVF_ASSERT(cellResultColors);
 
