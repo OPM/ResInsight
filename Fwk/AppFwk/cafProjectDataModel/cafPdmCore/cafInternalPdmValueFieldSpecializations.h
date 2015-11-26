@@ -1,5 +1,9 @@
 #pragma once
 
+#include "cafAppEnum.h"
+
+#include <vector>
+
 #include <QVariant>
 
 namespace caf
@@ -39,15 +43,12 @@ public:
     {
         return variantValue == variantValue2;
     }
-
 };
-} // End of namespace caf
 
-#include "cafAppEnum.h"
 
-namespace caf
-{
-
+//==================================================================================================
+/// Partial specialization for caf::AppEnum
+//==================================================================================================
 template <typename T>
 class PdmValueFieldSpecialization<caf::AppEnum<T> >
 {
@@ -67,18 +68,12 @@ public:
     {
         return variantValue == variantValue2;
     }
-
 };
 
-} // End of namespace caf
 
-
-
-#include <vector>
-
-namespace caf
-{
-
+//==================================================================================================
+/// Partial specialization for std::vector
+//==================================================================================================
 template <typename T>
 class PdmValueFieldSpecialization<std::vector<T> >
 {
@@ -89,10 +84,10 @@ public:
         typename std::vector<T>::const_iterator it;
         for (it = value.begin(); it != value.end() ; ++it)
         {
-            returnList.push_back(QVariant::fromValue(*it));
+            returnList.push_back(PdmValueFieldSpecialization<T>::convert(*it));
         }
-        return returnList;
 
+        return returnList;
     }
 
     static void setFromVariant(const QVariant& variantValue, std::vector<T>& value)
@@ -103,7 +98,10 @@ public:
             QList<QVariant> lst = variantValue.toList();
             for (int i = 0; i < lst.size(); ++i)
             {
-                value.push_back(lst[i].value<T>());
+                T val;
+                PdmValueFieldSpecialization<T>::setFromVariant(lst[i], val);
+
+                value.push_back(val);
             }
         }
     }
@@ -112,7 +110,6 @@ public:
     {
         return variantValue == variantValue2;
     }
-
 };
 
 } // End of namespace caf
