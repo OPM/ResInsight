@@ -2,6 +2,7 @@
 
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
+#include "cafInternalPdmValueFieldSpecializations.h"
 
 #include <QStringList>
 
