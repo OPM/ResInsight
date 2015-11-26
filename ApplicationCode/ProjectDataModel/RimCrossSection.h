@@ -67,22 +67,28 @@ public:
 
     caf::PdmPtrField<RimWellPath*>      wellPath;
     caf::PdmPtrField<RimEclipseWell*>   simulationWell;
-    caf::PdmField<int>                  branchIndex;
+
+
 
     std::vector< std::vector <cvf::Vec3d> > polyLines() const;
 
-    virtual caf::PdmFieldHandle*        userDescriptionField();
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    void addExtents(std::vector<cvf::Vec3d> &polyLine) const;
 
     RivCrossSectionPartMgr*             crossSectionPartMgr();
 
 protected:
+    virtual caf::PdmFieldHandle*        userDescriptionField();
+    virtual caf::PdmFieldHandle*        objectToggleField();
+
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 private:
+    caf::PdmField<int>                  m_branchIndex;
+    caf::PdmField<double>               m_extentLength;
+
     RimEclipseWellCollection* simulationWellCollection();
     void updateWellCenterline() const;
 

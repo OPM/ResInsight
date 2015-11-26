@@ -67,12 +67,13 @@ RimCrossSection::RimCrossSection()
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&type,           "Type",             "Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&direction,      "Direction",        "Direction", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",         "Well Path", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",   "Simulation Well", "", "", "");
-    CAF_PDM_InitField         (&branchIndex,    "Branch",        -1, "Branch", "", "", "");
-    
+    CAF_PDM_InitFieldNoDefault(&type,           "Type",                "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&direction,      "Direction",           "Direction", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",            "Well Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
+    CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
+    CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
+
     uiCapability()->setUiChildrenHidden(true);
 }
 
@@ -86,7 +87,8 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         changedField == &direction ||
         changedField == &wellPath ||
         changedField == &simulationWell ||
-        changedField == &branchIndex)
+        changedField == &m_branchIndex ||
+        changedField == &m_extentLength)
     {
         m_crossSectionPartMgr = NULL;
     
@@ -104,7 +106,15 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         m_wellBranchCenterlines.clear();
         updateWellCenterline();
-        branchIndex = -1;
+        if (m_wellBranchCenterlines.size())
+        {
+            cvf::Vec3d wellLength = m_wellBranchCenterlines[0].front() - m_wellBranchCenterlines[0].back();
+            if (wellLength.length() < 200)
+            {
+                
+            }
+        }
+        m_branchIndex = -1;
     }
 }
 
@@ -120,6 +130,7 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     if (type == CS_WELL_PATH)
     {
         uiOrdering.add(&wellPath);
+        uiOrdering.add(&m_extentLength);
     }
     else if (type == CS_SIMULATION_WELL)
     {
@@ -127,13 +138,15 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         updateWellCenterline();
         if (simulationWell() && m_wellBranchCenterlines.size() > 1)
         {
-            uiOrdering.add(&branchIndex);
+            uiOrdering.add(&m_branchIndex);
         }
+        uiOrdering.add(&m_extentLength);
     }
     else
     {
         // User defined poly line
     }
+
 
     uiOrdering.setForgetRemainingFields(true);
 }
@@ -184,7 +197,7 @@ QList<caf::PdmOptionItemInfo> RimCrossSection::calculateValueOptions(const caf::
             options.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
         }
     }
-    else if (fieldNeedingOptions == &branchIndex)
+    else if (fieldNeedingOptions == &m_branchIndex)
     {
         updateWellCenterline();
 
@@ -251,12 +264,12 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
         {
             updateWellCenterline();
 
-            if (0 <= branchIndex && branchIndex < m_wellBranchCenterlines.size())
+            if (0 <= m_branchIndex && m_branchIndex < m_wellBranchCenterlines.size())
             {
-                lines.push_back(m_wellBranchCenterlines[branchIndex]);
+                lines.push_back(m_wellBranchCenterlines[m_branchIndex]);
             }
 
-            if (branchIndex == -1)
+            if (m_branchIndex == -1)
             {
                 lines = m_wellBranchCenterlines;
             }
@@ -271,14 +284,10 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
     {
         for (int lIdx = 0; lIdx < lines.size(); ++lIdx)
         {
-            cvf::Vec3d startToEnd = (lines[lIdx].back() - lines[lIdx].front());
-            startToEnd[2] = 0.0;
-            
-            cvf::Vec3d newStart = lines[lIdx].front() - startToEnd * 0.1;
-            cvf::Vec3d newEnd = lines[lIdx].back() + startToEnd * 0.1;
+            std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
+            addExtents(polyLine);
 
-            lines[lIdx].insert(lines[lIdx].begin(), newStart);
-            lines[lIdx].push_back(newEnd);
+
         }
     }
 
@@ -313,5 +322,63 @@ void RimCrossSection::updateWellCenterline() const
     {
         m_wellBranchCenterlines.clear();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
+{
+    size_t lineVxCount = polyLine.size();
+    
+    if (lineVxCount == 0) return;
+
+    // Add extent at end of well
+    {
+        size_t endIdxOffset = lineVxCount > 3 ? 3: lineVxCount;
+        cvf::Vec3d endDirection = (polyLine[lineVxCount-1] - polyLine[lineVxCount-endIdxOffset]);
+        endDirection[2] = 0; // Remove z. make extent lenght be horizontally
+        if (endDirection.length() < 1e-2)
+        {
+            endDirection = polyLine.back() - polyLine.front();
+            endDirection[2] = 0;
+
+            if (endDirection.length() < 1e-2)
+            {
+                endDirection = cvf::Vec3d::X_AXIS;
+            }
+        }
+
+        endDirection.normalize();
+
+        cvf::Vec3d newEnd = polyLine.back() + endDirection * m_extentLength();
+
+        polyLine.push_back(newEnd);
+    }
+
+    // Add extent at start
+    {
+        size_t endIdxOffset = lineVxCount > 3 ? 3: lineVxCount-1;
+        cvf::Vec3d startDirection = (polyLine[0] - polyLine[endIdxOffset]);
+        startDirection[2] = 0; // Remove z. make extent lenght be horizontally
+        if (startDirection.length() < 1e-2)
+        {
+            startDirection = polyLine.front() - polyLine.back();
+            startDirection[2] = 0;
+
+            if (startDirection.length() < 1e-2)
+            {
+                startDirection = -cvf::Vec3d::X_AXIS;
+            }
+        }
+
+        startDirection.normalize();
+
+        cvf::Vec3d newStart = polyLine.front() + startDirection * m_extentLength();
+
+        polyLine.insert(polyLine.begin(), newStart);
+    }
+
+
 }
 
