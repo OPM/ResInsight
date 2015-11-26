@@ -1,7 +1,11 @@
 #pragma once
 
+
 #include "cafPdmDocument.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
+
+class TapCvfSpecialization;
 
 
 class TapProject : public caf::PdmDocument
@@ -14,4 +18,5 @@ public:
 
     caf::PdmChildArrayField< caf::PdmObjectHandle*  > m_objectList;
 
+    caf::PdmChildField< TapCvfSpecialization* > m_testSpecialization;
 };

@@ -1,12 +1,14 @@
 #pragma once
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <QAbstractItemModel>
 #include <QItemSelection>
 
-class DemoPdmObject;
 class QTreeView;
 class QUndoView;
+
+class TapProject;
+
 
 namespace caf
 {
@@ -58,6 +60,7 @@ private:
     caf::PdmUiTreeView*         m_pdmUiTreeView2;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
     caf::PdmUiTableView*        m_pdmUiTableView;
-    caf::PdmObjectCollection*        m_testRoot;
+
+    TapProject*                 m_project;
 };
 

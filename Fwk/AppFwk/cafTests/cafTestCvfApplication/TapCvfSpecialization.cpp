@@ -18,4 +18,5 @@ TapCvfSpecialization::TapCvfSpecialization()
 
     CAF_PDM_InitFieldNoDefault(&m_vecArrayField, "Points", "Selected points", "", "", "");
 
+    m_vecArrayField.v().push_back(cvf::Vec3d(1, 2, 3));
 }
