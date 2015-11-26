@@ -65,7 +65,7 @@ void RicNewSimWellCrossSectionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 {
-//    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
+    actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Intersection");
 }
 
