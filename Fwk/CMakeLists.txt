@@ -15,7 +15,7 @@ add_subdirectory(AppFwk/cafCommand)
 add_subdirectory(AppFwk/cafUserInterface)
 
 # Unit Tests
-add_subdirectory(AppFwk/cafTests/cafProjectDataModel_UnitTests)
+add_subdirectory(AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
 add_subdirectory(AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
 add_subdirectory(AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
 
