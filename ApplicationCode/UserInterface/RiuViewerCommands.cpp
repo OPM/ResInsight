@@ -240,8 +240,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             }
         }
 
-// TODO: Include when cross section from simulation wells are ready
-/*
         const RivEclipseWellSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivEclipseWellSourceInfo*>(firstHitPart->sourceInfo());
         if (eclipseWellSourceInfo)
         {
@@ -253,7 +251,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 commandIds << "RicNewSimWellCrossSectionFeature";
             }
         }
-*/
+
     }
 
     // View Link commands

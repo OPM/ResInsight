@@ -412,12 +412,12 @@ void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionPartMgr::computeData()
 {
-    std::vector< std::vector <cvf::Vec3d> > polyLine = m_rimCrossSection->polyLines();
-    if (polyLine.size() > 0)
+    std::vector< std::vector <cvf::Vec3d> > polyLines = m_rimCrossSection->polyLines();
+    if (polyLines.size() > 0)
     {
-        cvf::Vec3d direction = extrusionDirection(polyLine[0]);
+        cvf::Vec3d direction = extrusionDirection(polyLines[0]);
         cvf::ref<RivCrossSectionHexGridIntf> hexGrid = createHexGridInterface();
-        m_crossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLine[0], direction, hexGrid.p());
+        m_crossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLines, direction, hexGrid.p());
     }
 }
 

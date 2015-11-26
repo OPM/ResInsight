@@ -29,10 +29,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::vector<cvf::Vec3d> &polyline, 
+RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                                                    const cvf::Vec3d& extrusionDirection, 
                                                                    const RivCrossSectionHexGridIntf* grid)
-                                                                   : m_polyLine(polyline), 
+                                                                   : m_polyLines(polylines), 
                                                                    m_extrusionDirection(extrusionDirection), 
                                                                    m_hexGrid(grid)
 {
@@ -968,136 +968,137 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
     if (m_triangleVxes->size()) return;
 
     m_extrusionDirection.normalize();
-    std::vector<cvf::Vec3d>     m_adjustedPolyline;
-
-    adjustPolyline(m_polyLine, m_extrusionDirection, &m_adjustedPolyline);
-
     std::vector<cvf::Vec3f> triangleVertices;
     std::vector<cvf::Vec3f> cellBorderLineVxes;
-
     cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
     cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
 
-    size_t lineCount = m_adjustedPolyline.size();
-    for (size_t lIdx = 0; lIdx < lineCount - 1; ++lIdx)
+    for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
     {
-        cvf::Vec3d p1 = m_adjustedPolyline[lIdx];
-        cvf::Vec3d p2 = m_adjustedPolyline[lIdx+1];
+        const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
+        std::vector<cvf::Vec3d>     m_adjustedPolyline;
+        adjustPolyline(m_polyLine, m_extrusionDirection, &m_adjustedPolyline);
 
-        cvf::BoundingBox sectionBBox;
-        sectionBBox.add(p1);
-        sectionBBox.add(p2);
-        double maxSectionHeight = gridBBox.radius();
-        sectionBBox.add(p1 + m_extrusionDirection*maxSectionHeight);
-        sectionBBox.add(p1 - m_extrusionDirection*maxSectionHeight);
-        sectionBBox.add(p2 + m_extrusionDirection*maxSectionHeight);
-        sectionBBox.add(p2 - m_extrusionDirection*maxSectionHeight);
-        
-        std::vector<size_t> columnCellCandidates;
-        m_hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
-
-        cvf::Plane plane;
-        plane.setFromPoints(p1, p2, p2 + m_extrusionDirection*maxSectionHeight);
-
-        cvf::Plane p1Plane;
-        p1Plane.setFromPoints(p1, p1 + m_extrusionDirection*maxSectionHeight, p1 + plane.normal());
-        cvf::Plane p2Plane;
-        p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 - plane.normal() );
-        
-        
-        std::vector<ClipVx> hexPlaneCutTriangleVxes;
-        hexPlaneCutTriangleVxes.reserve(5*3);
-        std::vector<bool> isTriangleEdgeCellContour;
-        isTriangleEdgeCellContour.reserve(5*3);
-        cvf::Vec3d cellCorners[8];
-        size_t cornerIndices[8];
-
-        for (size_t cccIdx = 0; cccIdx < columnCellCandidates.size(); ++cccIdx)
+        size_t lineCount = m_adjustedPolyline.size();
+        for (size_t lIdx = 0; lIdx < lineCount - 1; ++lIdx)
         {
-            size_t globalCellIdx = columnCellCandidates[cccIdx];
+            cvf::Vec3d p1 = m_adjustedPolyline[lIdx];
+            cvf::Vec3d p2 = m_adjustedPolyline[lIdx+1];
 
-            if (!m_hexGrid->useCell(globalCellIdx)) continue;
-            
-            hexPlaneCutTriangleVxes.clear();
-            m_hexGrid->cellCornerVertices(globalCellIdx, cellCorners);
-            m_hexGrid->cellCornerIndices(globalCellIdx, cornerIndices);
+            cvf::BoundingBox sectionBBox;
+            sectionBBox.add(p1);
+            sectionBBox.add(p2);
+            double maxSectionHeight = gridBBox.radius();
+            sectionBBox.add(p1 + m_extrusionDirection*maxSectionHeight);
+            sectionBBox.add(p1 - m_extrusionDirection*maxSectionHeight);
+            sectionBBox.add(p2 + m_extrusionDirection*maxSectionHeight);
+            sectionBBox.add(p2 - m_extrusionDirection*maxSectionHeight);
 
-            int triangleCount = planeHexIntersectionMC(plane,
-                                                        cellCorners,
-                                                        cornerIndices,
-                                                        &hexPlaneCutTriangleVxes, 
-                                                        &isTriangleEdgeCellContour);
-           
-            std::vector<ClipVx> clippedTriangleVxes;
-            std::vector<bool> isClippedTriEdgeCellContour;
+            std::vector<size_t> columnCellCandidates;
+            m_hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
 
-            clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane, 
-                                                  &clippedTriangleVxes, &isClippedTriEdgeCellContour);
+            cvf::Plane plane;
+            plane.setFromPoints(p1, p2, p2 + m_extrusionDirection*maxSectionHeight);
 
-            size_t clippedTriangleCount = clippedTriangleVxes.size()/3;
+            cvf::Plane p1Plane;
+            p1Plane.setFromPoints(p1, p1 + m_extrusionDirection*maxSectionHeight, p1 + plane.normal());
+            cvf::Plane p2Plane;
+            p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 - plane.normal());
 
-            for (uint tIdx = 0; tIdx < clippedTriangleCount; ++tIdx)
+
+            std::vector<ClipVx> hexPlaneCutTriangleVxes;
+            hexPlaneCutTriangleVxes.reserve(5*3);
+            std::vector<bool> isTriangleEdgeCellContour;
+            isTriangleEdgeCellContour.reserve(5*3);
+            cvf::Vec3d cellCorners[8];
+            size_t cornerIndices[8];
+
+            for (size_t cccIdx = 0; cccIdx < columnCellCandidates.size(); ++cccIdx)
             {
-                uint triVxIdx = tIdx*3;
+                size_t globalCellIdx = columnCellCandidates[cccIdx];
 
-                // Accumulate triangle vertices
+                if (!m_hexGrid->useCell(globalCellIdx)) continue;
 
-                cvf::Vec3f p0(clippedTriangleVxes[triVxIdx+0].vx - displayOffset);
-                cvf::Vec3f p1(clippedTriangleVxes[triVxIdx+1].vx - displayOffset);
-                cvf::Vec3f p2(clippedTriangleVxes[triVxIdx+2].vx - displayOffset);
+                hexPlaneCutTriangleVxes.clear();
+                m_hexGrid->cellCornerVertices(globalCellIdx, cellCorners);
+                m_hexGrid->cellCornerIndices(globalCellIdx, cornerIndices);
 
-                triangleVertices.push_back(p0);
-                triangleVertices.push_back(p1);
-                triangleVertices.push_back(p2);
+                int triangleCount = planeHexIntersectionMC(plane,
+                                                           cellCorners,
+                                                           cornerIndices,
+                                                           &hexPlaneCutTriangleVxes,
+                                                           &isTriangleEdgeCellContour);
 
+                std::vector<ClipVx> clippedTriangleVxes;
+                std::vector<bool> isClippedTriEdgeCellContour;
 
-                // Accumulate mesh lines
+                clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane,
+                                                      &clippedTriangleVxes, &isClippedTriEdgeCellContour);
 
-                if (isClippedTriEdgeCellContour[triVxIdx])
+                size_t clippedTriangleCount = clippedTriangleVxes.size()/3;
+
+                for (uint tIdx = 0; tIdx < clippedTriangleCount; ++tIdx)
                 {
-                    cellBorderLineVxes.push_back(p0);
-                    cellBorderLineVxes.push_back(p1);
-                }
-                if (isClippedTriEdgeCellContour[triVxIdx+1])
-                {
-                    cellBorderLineVxes.push_back(p1);
-                    cellBorderLineVxes.push_back(p2);
-                }
-                if (isClippedTriEdgeCellContour[triVxIdx+2])
-                {
-                    cellBorderLineVxes.push_back(p2);
-                    cellBorderLineVxes.push_back(p0);
-                }
+                    uint triVxIdx = tIdx*3;
 
-                // Mapping to cell index
+                    // Accumulate triangle vertices
 
-                m_triangleToCellIdxMap.push_back(globalCellIdx);
+                    cvf::Vec3f p0(clippedTriangleVxes[triVxIdx+0].vx - displayOffset);
+                    cvf::Vec3f p1(clippedTriangleVxes[triVxIdx+1].vx - displayOffset);
+                    cvf::Vec3f p2(clippedTriangleVxes[triVxIdx+2].vx - displayOffset);
 
-                // Interpolation from nodes
-                for (int i = 0; i < 3; ++i)
-                {
-                    ClipVx cvx = clippedTriangleVxes[triVxIdx+i];
-                    if (cvx.isVxIdsNative)
+                    triangleVertices.push_back(p0);
+                    triangleVertices.push_back(p1);
+                    triangleVertices.push_back(p2);
+
+
+                    // Accumulate mesh lines
+
+                    if (isClippedTriEdgeCellContour[triVxIdx])
                     {
-                        m_triVxToCellCornerWeights.push_back(
-                            RivVertexWeights(cvx.clippedEdgeVx1Id, cvx.clippedEdgeVx2Id, cvx.normDistFromEdgeVx1));
+                        cellBorderLineVxes.push_back(p0);
+                        cellBorderLineVxes.push_back(p1);
                     }
-                    else
+                    if (isClippedTriEdgeCellContour[triVxIdx+1])
                     {
-                        ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
-                        ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
+                        cellBorderLineVxes.push_back(p1);
+                        cellBorderLineVxes.push_back(p2);
+                    }
+                    if (isClippedTriEdgeCellContour[triVxIdx+2])
+                    {
+                        cellBorderLineVxes.push_back(p2);
+                        cellBorderLineVxes.push_back(p0);
+                    }
 
-                        m_triVxToCellCornerWeights.push_back(
-                            RivVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
-                                           cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
-                                           cvx.normDistFromEdgeVx1));
+                    // Mapping to cell index
 
+                    m_triangleToCellIdxMap.push_back(globalCellIdx);
+
+                    // Interpolation from nodes
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        ClipVx cvx = clippedTriangleVxes[triVxIdx+i];
+                        if (cvx.isVxIdsNative)
+                        {
+                            m_triVxToCellCornerWeights.push_back(
+                                RivVertexWeights(cvx.clippedEdgeVx1Id, cvx.clippedEdgeVx2Id, cvx.normDistFromEdgeVx1));
+                        }
+                        else
+                        {
+                            ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
+                            ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
+
+                            m_triVxToCellCornerWeights.push_back(
+                                RivVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
+                                cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
+                                cvx.normDistFromEdgeVx1));
+
+                        }
                     }
                 }
             }
         }
     }
-
     m_triangleVxes->assign(triangleVertices);
     m_cellBorderLineVxes->assign(cellBorderLineVxes);
 }

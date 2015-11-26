@@ -29,6 +29,7 @@
 #include "RimWellPath.h"
 
 #include "RivCrossSectionPartMgr.h"
+#include "RigSimulationWellCenterLineCalculator.h"
 
 
 namespace caf {
@@ -37,7 +38,7 @@ template<>
 void caf::AppEnum< RimCrossSection::CrossSectionEnum >::setUp()
 {
     addItem(RimCrossSection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
-//    addItem(RimCrossSection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
+    addItem(RimCrossSection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
 //    addItem(RimCrossSection::CS_USER_DEFINED,    "CS_USER_DEFINED",    "User defined");
     setDefault(RimCrossSection::CS_WELL_PATH);
 }
@@ -111,7 +112,7 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
     else if (type == CS_SIMULATION_WELL)
     {
-        //uiOrdering.add(&simulationWell);
+        uiOrdering.add(&simulationWell);
     }
     else
     {
@@ -211,14 +212,18 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
     std::vector< std::vector <cvf::Vec3d> > lines;
     if (type == CS_WELL_PATH)
     {
-        if (wellPath)
+        if (wellPath())
         {
             lines.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
         }
     }
     else if (type == CS_SIMULATION_WELL)
     {
-
+        if (simulationWell())
+        {
+            std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(simulationWell(), lines, pipeBranchesCellIds);
+        }
     }
     else
     {
@@ -231,8 +236,10 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
         {
             cvf::Vec3d startToEnd = (lines[lIdx].back() - lines[lIdx].front());
             startToEnd[2] = 0.0;
+            
             cvf::Vec3d newStart = lines[lIdx].front() - startToEnd * 0.1;
             cvf::Vec3d newEnd = lines[lIdx].back() + startToEnd * 0.1;
+
             lines[lIdx].insert(lines[lIdx].begin(), newStart);
             lines[lIdx].push_back(newEnd);
         }

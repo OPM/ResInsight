@@ -124,7 +124,7 @@ private:
 class RivCrossSectionGeometryGenerator : public cvf::Object
 {
 public:
-    RivCrossSectionGeometryGenerator(const std::vector<cvf::Vec3d> &polyline, 
+    RivCrossSectionGeometryGenerator(const std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                      const cvf::Vec3d& extrusionDirection, 
                                      const RivCrossSectionHexGridIntf* grid );
 
@@ -145,7 +145,7 @@ private:
                                                std::vector<cvf::Vec3d>* adjustedPolyline);
 
     cvf::cref<RivCrossSectionHexGridIntf>      m_hexGrid;
-    std::vector<cvf::Vec3d>     m_polyLine;
+    const std::vector<std::vector<cvf::Vec3d> >     m_polyLines;
     cvf::Vec3d                  m_extrusionDirection;
 
     // Output arrays
