@@ -39,8 +39,10 @@
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiListEditor.h"
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiLineEditor, cvf::Vec3d);
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiListEditor, std::vector<cvf::Vec3d>);
 
 //--------------------------------------------------------------------------------------------------
 // If the macro for registering the editor is put as the single statement
