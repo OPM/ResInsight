@@ -18,21 +18,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RivCrossSectionGeometryGenerator.h"
-#include "cvfBoundingBox.h"
+
 #include "RigMainGrid.h"
-#include "cvfDrawableGeo.h"
 #include "RigResultAccessor.h"
-#include "cvfScalarMapper.h"
+
+#include "RimCrossSection.h"
+
+#include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSetDirect.h"
+#include "cvfScalarMapper.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const std::vector<std::vector<cvf::Vec3d> > &polylines, 
-                                                                   const cvf::Vec3d& extrusionDirection, 
-                                                                   const RivCrossSectionHexGridIntf* grid)
-                                                                   : m_polyLines(polylines), 
+RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const RimCrossSection* crossSection,
+                                                                    std::vector<std::vector<cvf::Vec3d> > &polylines, 
+                                                                    const cvf::Vec3d& extrusionDirection, 
+                                                                    const RivCrossSectionHexGridIntf* grid)
+                                                                   : m_crossSection(crossSection),
+                                                                   m_polyLines(polylines), 
                                                                    m_extrusionDirection(extrusionDirection), 
                                                                    m_hexGrid(grid)
 {
@@ -1185,6 +1190,13 @@ const std::vector<RivVertexWeights>& RivCrossSectionGeometryGenerator::triangleV
     return m_triVxToCellCornerWeights;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimCrossSection* RivCrossSectionGeometryGenerator::crossSection() const
+{
+    return m_crossSection;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

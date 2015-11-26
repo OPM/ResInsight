@@ -24,6 +24,7 @@
 #include "cvfArray.h"
 
 class RivCrossSectionGeometryGenerator;
+class RimCrossSection;
 
 class RivCrossSectionSourceInfo : public cvf::Object
 {
@@ -31,6 +32,8 @@ public:
     RivCrossSectionSourceInfo(RivCrossSectionGeometryGenerator* geometryGenerator);
 
     const std::vector<size_t>& triangleToCellIndex() const;
+
+    const RimCrossSection* crossSection() const;
 
 private:
     cvf::cref<RivCrossSectionGeometryGenerator> m_crossSectionGeometryGenerator;

@@ -417,7 +417,7 @@ void RivCrossSectionPartMgr::computeData()
     {
         cvf::Vec3d direction = extrusionDirection(polyLines[0]);
         cvf::ref<RivCrossSectionHexGridIntf> hexGrid = createHexGridInterface();
-        m_crossSectionGenerator = new RivCrossSectionGeometryGenerator(polyLines, direction, hexGrid.p());
+        m_crossSectionGenerator = new RivCrossSectionGeometryGenerator(m_rimCrossSection, polyLines, direction, hexGrid.p());
     }
 }
 

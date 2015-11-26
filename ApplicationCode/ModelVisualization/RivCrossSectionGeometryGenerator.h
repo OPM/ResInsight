@@ -18,15 +18,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "cafPdmPointer.h"
+
+#include "cvfArray.h"
 #include "cvfBase.h"
+#include "cvfBoundingBox.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-#include "cvfArray.h"
 
 #include <vector>
 
 class RigMainGrid;
 class RigResultAccessor;
+class RimCrossSection;
 
 namespace cvf
 {
@@ -34,7 +39,6 @@ namespace cvf
     class DrawableGeo;
 }
 
-#include "cvfBoundingBox.h"
 
 
 class RivCrossSectionHexGridIntf : public cvf::Object
@@ -124,7 +128,8 @@ private:
 class RivCrossSectionGeometryGenerator : public cvf::Object
 {
 public:
-    RivCrossSectionGeometryGenerator(const std::vector<std::vector<cvf::Vec3d> > &polylines, 
+    RivCrossSectionGeometryGenerator(const RimCrossSection* crossSection,
+                                     std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                      const cvf::Vec3d& extrusionDirection, 
                                      const RivCrossSectionHexGridIntf* grid );
 
@@ -137,6 +142,8 @@ public:
     // Mapping between cells and geometry
     const std::vector<size_t>&           triangleToCellIndex() const;
     const std::vector<RivVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
+
+    const RimCrossSection* crossSection() const;
 
 private:
     void                        calculateArrays();
@@ -153,5 +160,7 @@ private:
     cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
     std::vector<size_t>         m_triangleToCellIdxMap;
     std::vector<RivVertexWeights> m_triVxToCellCornerWeights;
+
+    const RimCrossSection*      m_crossSection;
 };
 

@@ -40,3 +40,11 @@ const std::vector<size_t>& RivCrossSectionSourceInfo::triangleToCellIndex() cons
 
     return m_crossSectionGeometryGenerator->triangleToCellIndex();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimCrossSection* RivCrossSectionSourceInfo::crossSection() const
+{
+    return m_crossSectionGeometryGenerator->crossSection();
+}

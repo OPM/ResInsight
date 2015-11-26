@@ -408,6 +408,8 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
 {
     CVF_ASSERT(m_faultsPrCellAcc.notNull());
 
+    if (face == cvf::StructGridInterface::NO_FACE) return NULL;
+
     int faultIdx = m_faultsPrCellAcc->faultIdx(reservoirCellIndex, face);
     if (faultIdx !=  RigFaultsPrCellAccumulator::NO_FAULT )
     {
