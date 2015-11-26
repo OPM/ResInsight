@@ -65,13 +65,6 @@ private:
     void buildWellPipeParts();
  
 
-    //void calculateWellPipeCenterline(std::vector<cvf::Vec3d>& coords) const;
-
-    void calculateWellPipeCenterline(std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
-                                     std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds ) const;
-
-    void finishPipeCenterLine( std::vector< std::vector<cvf::Vec3d> > &pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter ) const;
-
     struct RivPipeBranchData
     {
         std::vector <RigWellResultPoint>     m_cellIds;
