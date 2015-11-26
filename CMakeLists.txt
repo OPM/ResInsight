@@ -208,7 +208,7 @@ add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 add_subdirectory(Fwk/AppFwk/CommonCode)
 
-add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
+#add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 
