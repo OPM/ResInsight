@@ -91,6 +91,7 @@ private:
 
     RimEclipseWellCollection* simulationWellCollection();
     void updateWellCenterline() const;
+    void updateWellExtentDefaultValue();
 
 private:
     cvf::ref<RivCrossSectionPartMgr> m_crossSectionPartMgr;

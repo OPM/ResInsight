@@ -30,6 +30,7 @@
 
 #include "RivCrossSectionPartMgr.h"
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RimCase.h"
 
 
 namespace caf {
@@ -106,14 +107,6 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         m_wellBranchCenterlines.clear();
         updateWellCenterline();
-        if (m_wellBranchCenterlines.size())
-        {
-            cvf::Vec3d wellLength = m_wellBranchCenterlines[0].front() - m_wellBranchCenterlines[0].back();
-            if (wellLength.length() < 200)
-            {
-                
-            }
-        }
         m_branchIndex = -1;
     }
 }
@@ -147,6 +140,7 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         // User defined poly line
     }
 
+    updateWellExtentDefaultValue();
 
     uiOrdering.setForgetRemainingFields(true);
 }
@@ -380,5 +374,23 @@ void RimCrossSection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
     }
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::updateWellExtentDefaultValue()
+{
+    RimCase* ownerCase = NULL;
+    firstAnchestorOrThisOfType(ownerCase);
+
+    if (ownerCase)
+    {
+        cvf::BoundingBox caseBB = ownerCase->activeCellsBoundingBox();
+        if (m_extentLength == m_extentLength.defaultValue() && caseBB.radius() < 1000)
+        {
+            m_extentLength = caseBB.radius() * 0.1;
+        }
+    }
 }
 
