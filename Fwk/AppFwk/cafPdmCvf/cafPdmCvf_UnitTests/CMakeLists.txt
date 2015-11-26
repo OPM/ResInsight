@@ -1,31 +1,28 @@
 cmake_minimum_required (VERSION 2.8)
 
-find_package ( Qt4 COMPONENTS QtCore QtGui  )
+find_package ( Qt4 COMPONENTS QtCore  )
 include (${QT_USE_FILE})
 
-project ( cafPdmCore_UnitTests )
+project ( cafPdmCvf_UnitTests )
 
 include_directories (
 	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/..
+	${cafPdmCore_SOURCE_DIR}
+	${cafPdmXml_SOURCE_DIR}
+	${cafPdmCvf_SOURCE_DIR}
+	
+    ${LibCore_SOURCE_DIR}
 )
 
 
 set( PROJECT_FILES
 
-	cafPdmCore_UnitTests.cpp
+	cafPdmCvf_UnitTests.cpp
 	gtest/gtest-all.cpp
 
-	cafPdmCoreBasicTest.cpp
-    cafPdmReferenceHelperTest.cpp
-    cafPdmChildArrayFieldHandleTest.cpp
-
-	Child.cpp
-	Child.h
-	Parent.cpp
-	Parent.h
-	TestObj.cpp
-	TestObj.h
+	cafPdmCoreVec3dTest.cpp
+	cafPdmCoreColor3fTest.cpp
+    cafPdmCoreMat4dTest.cpp
 )
 
 # add the executable 
@@ -39,13 +36,15 @@ message(STATUS ${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
 
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore
+    cafPdmXml
+    LibCore
+    cafPdmCvf
     ${QT_LIBRARIES}
 )
 
-
 # Copy Qt Dlls
 if (MSVC)
-    set (QTLIBLIST QtCore )
+    set (QTLIBLIST QtCore QtGui)
     foreach (qtlib ${QTLIBLIST})
         
         # Debug

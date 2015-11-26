@@ -35,7 +35,9 @@ if (USE_CEE_VIZ)
     add_subdirectory(VizFwk/LibCore)
     add_subdirectory(AppFwk/cafPdmCvf)
 
+    add_subdirectory(AppFwk/cafPdmCvf/cafPdmCvf_UnitTests)
+
     add_subdirectory(AppFwk/cafTests/cafTestCvfApplication)
 
-    set_property(TARGET LibCore cafPdmCvf cafTestCvfApplication PROPERTY FOLDER "CeeViz")
+    set_property(TARGET LibCore cafPdmCvf cafPdmCvf_UnitTests cafTestCvfApplication PROPERTY FOLDER "CeeViz")
 endif()

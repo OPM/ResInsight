@@ -1,10 +1,6 @@
 #include "TapCvfSpecialization.h"
 
 
-#include "cafPdmCoreVec3d.h"
-#include "cafPdmXmlVec3d.h"
-#include "cafPdmUiCoreVec3d.h"
-
 
 CAF_PDM_SOURCE_INIT(TapCvfSpecialization, "TapCvfSpecialization");
 

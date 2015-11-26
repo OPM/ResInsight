@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
@@ -42,5 +41,5 @@
 
 class QTextStream;
 
-void operator >> (QTextStream& str, cvf::Vec3d& value);
-void operator << (QTextStream& str, const cvf::Vec3d& value);
+QTextStream& operator >> (QTextStream& str, cvf::Vec3d& value);
+QTextStream& operator << (QTextStream& str, const cvf::Vec3d& value);

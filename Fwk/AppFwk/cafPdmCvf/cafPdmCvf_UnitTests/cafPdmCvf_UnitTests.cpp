@@ -34,37 +34,23 @@
 //
 //##################################################################################################
 
-#include "cafPdmXmlMat4d.h"
 
-#include <QTextStream>
+#include "gtest/gtest.h"
+#include <stdio.h>
+#include <iostream>
+#include <string>
 
-QTextStream& operator >> (QTextStream& str, cvf::Mat4d& value)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int main(int argc, char **argv) 
 {
-    for (int r = 0; r < 4; ++r)
-    {
-        for (int c = 0; c < 4; ++c)
-        {
-            str >> value(r, c);
-        }
-    }
+ 
+    testing::InitGoogleTest(&argc, argv);
+    int result = RUN_ALL_TESTS();
 
-    return str;
-}
+    char text[5];
+    std::cin.getline(text, 5);
 
-QTextStream& operator << (QTextStream& str, const cvf::Mat4d& value)
-{
-    for (int r = 0; r < 4; ++r)
-    {
-        for (int c = 0; c < 4; ++c)
-        {
-            str << value(r, c);
-            
-            if (r * c < 9)
-            {
-                str << " ";
-            }
-        }
-    }
-
-    return str;
+    return result;
 }

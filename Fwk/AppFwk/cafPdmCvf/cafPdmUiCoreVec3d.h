@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,17 +34,17 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfVector3.h"
+#include "cafPdmCoreVec3d.h"
 
 #include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmUiFieldSpecialization.h"
 #include "cafPdmUiItem.h"
 
-#include "cafPdmCoreVec3d.h"
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
 
 class Vec3dDummy
 {
