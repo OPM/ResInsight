@@ -6,12 +6,13 @@
 #include "cvfVector3.h"
 #include "cvfMatrix4.h"
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldCvfMat4d.h"
+
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
+
 
 #include <vector>
 
@@ -29,6 +30,6 @@ public:
     caf::PdmField<cvf::Vec3d>  m_vectorField;
     caf::PdmField<cvf::Mat4d>  m_matrixField;
 
-    //caf::PdmField< std::vector< cvf::Vec3d> >  m_vecArrayField;
+    caf::PdmField< std::vector< cvf::Vec3d> >  m_vecArrayField;
 };
 

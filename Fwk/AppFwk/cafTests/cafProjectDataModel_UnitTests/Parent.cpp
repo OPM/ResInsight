@@ -1,6 +1,8 @@
 #include "Child.h"
 #include "Parent.h"
 
+#include "gtest/gtest.h"
+
 CAF_PDM_SOURCE_INIT(Parent, "Parent");
 
 
@@ -23,8 +25,6 @@ Parent::~Parent()
       //TestObj* to = c->m_testObj();
    }
 }
-
-#include <gtest/gtest.h>
 
  TEST(IncludeTest, Basic)
  {

@@ -6,14 +6,16 @@ include (${QT_USE_FILE})
 project ( cafProjectDataModel_UnitTests )
 
 include_directories (
-	${CMAKE_SOURCE_DIR}/cafProjectDataModel 
-	${CMAKE_SOURCE_DIR}/cafTests
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
 include_directories (
     ${cafPdmCore_SOURCE_DIR}
     ${cafPdmUiCore_SOURCE_DIR}
     ${cafPdmXml_SOURCE_DIR}
+    
+    ${cafProjectDataModel_SOURCE_DIR}
 )
 
 set( PROJECT_FILES
@@ -28,7 +30,7 @@ set( PROJECT_FILES
 # add the executable 
 add_executable (${PROJECT_NAME}
 	${PROJECT_FILES}
-	${CMAKE_SOURCE_DIR}/cafTests/gtest/gtest-all.cpp
+	gtest/gtest-all.cpp
 )
 message(${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
 
