@@ -67,11 +67,12 @@ RimCrossSection::RimCrossSection()
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",         "Well Path", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",   "Simulation Well", "", "", "");
     CAF_PDM_InitFieldNoDefault(&type,           "Type",             "Type", "", "", "");
     CAF_PDM_InitFieldNoDefault(&direction,      "Direction",        "Direction", "", "", "");
-
+    CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",         "Well Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",   "Simulation Well", "", "", "");
+    CAF_PDM_InitField         (&branchIndex,    "Branch",        -1, "Branch", "", "", "");
+    
     uiCapability()->setUiChildrenHidden(true);
 }
 
@@ -84,7 +85,8 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         changedField == &type ||
         changedField == &direction ||
         changedField == &wellPath ||
-        changedField == &simulationWell)
+        changedField == &simulationWell ||
+        changedField == &branchIndex)
     {
         m_crossSectionPartMgr = NULL;
     
@@ -94,6 +96,15 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         {
             rimView->scheduleCreateDisplayModelAndRedraw();
         }
+    }
+
+    if (changedField == &simulationWell 
+        || changedField == &isActive 
+        || changedField == &type)
+    {
+        m_wellBranchCenterlines.clear();
+        updateWellCenterline();
+        branchIndex = -1;
     }
 }
 
@@ -113,6 +124,11 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     else if (type == CS_SIMULATION_WELL)
     {
         uiOrdering.add(&simulationWell);
+        updateWellCenterline();
+        if (simulationWell() && m_wellBranchCenterlines.size() > 1)
+        {
+            uiOrdering.add(&branchIndex);
+        }
     }
     else
     {
@@ -168,7 +184,19 @@ QList<caf::PdmOptionItemInfo> RimCrossSection::calculateValueOptions(const caf::
             options.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
         }
     }
+    else if (fieldNeedingOptions == &branchIndex)
+    {
+        updateWellCenterline();
 
+        size_t branchCount = m_wellBranchCenterlines.size();
+        
+        options.push_back(caf::PdmOptionItemInfo("All", -1));
+
+        for (int bIdx = 0; bIdx < branchCount; ++bIdx)
+        {
+            options.push_back(caf::PdmOptionItemInfo(QString::number(bIdx + 1), QVariant::fromValue(bIdx)));
+        }
+    }
     return options;
 }
 
@@ -221,8 +249,17 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
     {
         if (simulationWell())
         {
-            std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
-            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(simulationWell(), lines, pipeBranchesCellIds);
+            updateWellCenterline();
+
+            if (0 <= branchIndex && branchIndex < m_wellBranchCenterlines.size())
+            {
+                lines.push_back(m_wellBranchCenterlines[branchIndex]);
+            }
+
+            if (branchIndex == -1)
+            {
+                lines = m_wellBranchCenterlines;
+            }
         }
     }
     else
@@ -256,5 +293,25 @@ RivCrossSectionPartMgr* RimCrossSection::crossSectionPartMgr()
     if (m_crossSectionPartMgr.isNull()) m_crossSectionPartMgr = new RivCrossSectionPartMgr(this);
 
     return m_crossSectionPartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::updateWellCenterline() const
+{
+    if (isActive() && type == CS_SIMULATION_WELL && simulationWell())
+    {
+        if (m_wellBranchCenterlines.size() == 0)
+        {
+            std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+
+            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(simulationWell(), m_wellBranchCenterlines, pipeBranchesCellIds);
+        }
+    }
+    else
+    {
+        m_wellBranchCenterlines.clear();
+    }
 }
 

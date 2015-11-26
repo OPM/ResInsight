@@ -67,6 +67,7 @@ public:
 
     caf::PdmPtrField<RimWellPath*>      wellPath;
     caf::PdmPtrField<RimEclipseWell*>   simulationWell;
+    caf::PdmField<int>                  branchIndex;
 
     std::vector< std::vector <cvf::Vec3d> > polyLines() const;
 
@@ -83,7 +84,9 @@ protected:
 
 private:
     RimEclipseWellCollection* simulationWellCollection();
+    void updateWellCenterline() const;
 
 private:
     cvf::ref<RivCrossSectionPartMgr> m_crossSectionPartMgr;
+    mutable std::vector< std::vector <cvf::Vec3d> > m_wellBranchCenterlines;
 };
