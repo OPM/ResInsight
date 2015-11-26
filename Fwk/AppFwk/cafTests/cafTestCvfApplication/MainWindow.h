@@ -10,7 +10,7 @@ class QUndoView;
 
 namespace caf
 {
-    class PdmObjectGroup;
+    class PdmObjectCollection;
     class PdmObjectHandle;
     class UiTreeModelPdm;
     class PdmUiPropertyView;
@@ -43,7 +43,7 @@ private slots:
     void slotInsert();
     void slotRemove();
     void slotRemoveAll();
-    void slotSelectionChanged(const QItemSelection &, const QItemSelection & );
+
     void slotSimpleSelectionChanged();
     void slotShowTableView();
 
@@ -52,15 +52,12 @@ private:
     static MainWindow* sm_mainWindowInstance;
 
 private:
-    QTreeView*                  m_treeView;
     QUndoView*                  undoView;
 
-    caf::UiTreeModelPdm*        m_treeModelPdm;
     caf::PdmUiTreeView*         m_pdmUiTreeView;
     caf::PdmUiTreeView*         m_pdmUiTreeView2;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
     caf::PdmUiTableView*        m_pdmUiTableView;
-    caf::PdmObjectGroup*        m_testRoot;
-
+    caf::PdmObjectCollection*        m_testRoot;
 };
 

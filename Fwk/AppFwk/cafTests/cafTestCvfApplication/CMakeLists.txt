@@ -6,6 +6,9 @@ include (${QT_USE_FILE})
 
 project ( cafTestCvfApplication )
 
+
+option(USE_COMMAND_FRAMEWORK "Use Caf Command Framework" ON)
+
 # Qt MOC
 set ( QT_MOC_HEADERS 
 	MainWindow.h 
@@ -27,32 +30,39 @@ qt4_add_resources( QRC_FILES_CPP
 )
 
 include_directories (
-	${LibCore_SOURCE_DIR}
+    ${LibCore_SOURCE_DIR}
     ${LibGeometry_SOURCE_DIR}
     ${LibGuiQt_SOURCE_DIR}
     ${LibRender_SOURCE_DIR}
     ${LibViewing_SOURCE_DIR}
+    
+    ${cafProjectDataModel_SOURCE_DIR}
+    ${cafUserInterface_SOURCE_DIR}
+)
 
-	${cafPdmCore_SOURCE_DIR}
+if (USE_COMMAND_FRAMEWORK)
+    include_directories (
+        ${cafCommand_SOURCE_DIR}
+    )
+    ADD_DEFINITIONS(-DTAP_USE_COMMAND_FRAMEWORK)
+endif(USE_COMMAND_FRAMEWORK)
+
+
+include_directories (
+    ${cafPdmCore_SOURCE_DIR}
     ${cafPdmUiCore_SOURCE_DIR}
     ${cafPdmXml_SOURCE_DIR}
-	${cafProjectDataModel_SOURCE_DIR}
-	
-	${cafCommand_SOURCE_DIR}
-#	${cafViewer_SOURCE_DIR}
-	${cafUserInterface_SOURCE_DIR}
-	${cafPdmCvf_SOURCE_DIR}
-#	${CommonCode_SOURCE_DIR}
-
+    
+    ${cafPdmCvf_SOURCE_DIR}
 )
 
 set( PROJECT_FILES
     Main.cpp
     MainWindow.cpp
     WidgetLayoutTest.cpp
-
-	TapCvfSpecialization.cpp
-	TapProject.cpp
+    
+    TapCvfSpecialization.cpp
+    TapProject.cpp
 )
 
 
@@ -63,21 +73,23 @@ add_executable ( ${PROJECT_NAME}
     ${QRC_FILES_CPP}
 )
 
-target_link_libraries ( ${PROJECT_NAME}
-
-	LibCore
-
-    cafPdmCore
-    cafPdmUiCore
+set (TAP_LINK_LIBRARIES
+    cafUserInterface
     cafPdmXml
-    cafProjectDataModel
-
-	cafCommand
-	cafUserInterface
-
-	cafPdmCvf
-
+    cafPdmCvf
     ${QT_LIBRARIES}
+    )
+
+if (USE_COMMAND_FRAMEWORK)
+    set (TAP_LINK_LIBRARIES
+        ${TAP_LINK_LIBRARIES}
+        cafCommand
+    )
+endif(USE_COMMAND_FRAMEWORK)
+
+
+target_link_libraries ( ${PROJECT_NAME}
+    ${TAP_LINK_LIBRARIES}
 )
 
 source_group("" FILES ${PROJECT_FILES})

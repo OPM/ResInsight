@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cafPdmDocument.h"
-
+#include "cafPdmChildArrayField.h"
 
 
 class TapProject : public caf::PdmDocument

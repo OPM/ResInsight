@@ -1,34 +1,5 @@
 #include "TapCvfSpecialization.h"
-/*
 
-#include "MainWindow.h"
-#include "WidgetLayoutTest.h"
-
-#include <QDockWidget>
-#include <QTreeView>
-#include <QAction>
-#include <QMenuBar>
-#include <QUndoView>
-
-
-#include "cafAppEnum.h"
-#include "cafAppExecCommandManager.h"
-#include "cafCommandFeaturesCore.h"
-#include "cafCommandFeatureManager.h"
-#include "cafPdmDocument.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiFilePathEditor.h"
-#include "cafPdmUiListEditor.h"
-#include "cafPdmUiPropertyView.h"
-#include "cafPdmUiTableView.h"
-#include "cafPdmUiTextEditor.h"
-#include "cafPdmUiTreeView.h"
-#include "cafPdmReferenceHelper.h"
-#include "cafSelectionManager.h"
-#include "cafUiTreeModelPdm.h"
-#include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
-*/
 
 CAF_PDM_SOURCE_INIT(TapCvfSpecialization, "TapCvfSpecialization");
 
