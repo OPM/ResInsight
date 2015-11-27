@@ -981,6 +981,9 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
     for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
     {
         const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
+
+        if (m_polyLine.size() < 2) continue;
+
         std::vector<cvf::Vec3d>     m_adjustedPolyline;
         adjustPolyline(m_polyLine, m_extrusionDirection, &m_adjustedPolyline);
 
