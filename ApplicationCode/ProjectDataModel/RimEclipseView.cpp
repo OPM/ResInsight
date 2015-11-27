@@ -1308,10 +1308,10 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
+    uiTreeOrdering.add(crossSectionCollection());
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
-    uiTreeOrdering.add(crossSectionCollection());
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }
