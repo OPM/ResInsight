@@ -435,7 +435,7 @@ cvf::ref<RivCrossSectionHexGridIntf> RivCrossSectionPartMgr::createHexGridInterf
     {
         RigMainGrid* grid = NULL;
         grid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
-        return new RivEclipseCrossSectionGrid(grid);
+        return new RivEclipseCrossSectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimCrossSection->showInactiveCells());
     }
 
     RimGeoMechView* geoView;

@@ -30,6 +30,7 @@
 #include <vector>
 
 class RigMainGrid;
+class RigActiveCellInfo;
 class RigResultAccessor;
 class RimCrossSection;
 
@@ -56,7 +57,7 @@ public:
 class RivEclipseCrossSectionGrid : public RivCrossSectionHexGridIntf
 {
 public:
-    RivEclipseCrossSectionGrid(const RigMainGrid * mainGrid);
+    RivEclipseCrossSectionGrid(const RigMainGrid * mainGrid, const RigActiveCellInfo* activeCellInfo,  bool showInactiveCells);
     
     virtual cvf::Vec3d displayOffset() const;
     virtual cvf::BoundingBox boundingBox() const;
@@ -66,7 +67,9 @@ public:
     virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const;
 
 private:
-    cvf::cref<RigMainGrid>      m_mainGrid;
+    cvf::cref<RigMainGrid>       m_mainGrid;
+    cvf::cref<RigActiveCellInfo> m_activeCellInfo;
+    bool m_showInactiveCells; 
 };
 
 class RigFemPart;

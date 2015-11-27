@@ -64,6 +64,7 @@ public:
 
     caf::PdmField< caf::AppEnum< CrossSectionEnum > >    type;
     caf::PdmField< caf::AppEnum< CrossSectionDirEnum > > direction;
+    caf::PdmField< bool >                                showInactiveCells;
 
     caf::PdmPtrField<RimWellPath*>                       wellPath;
     caf::PdmPtrField<RimEclipseWell*>                    simulationWell;

@@ -74,6 +74,8 @@ RimCrossSection::RimCrossSection()
     CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
     CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
+    CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Inactive Cells", "", "", "");
+    
 
     uiCapability()->setUiChildrenHidden(true);
 }
@@ -89,7 +91,8 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         changedField == &wellPath ||
         changedField == &simulationWell ||
         changedField == &m_branchIndex ||
-        changedField == &m_extentLength)
+        changedField == &m_extentLength ||
+        changedField == &showInactiveCells)
     {
         m_crossSectionPartMgr = NULL;
     
@@ -148,6 +151,8 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     {
         // User defined poly line
     }
+
+    uiOrdering.add(&showInactiveCells);
 
     updateWellExtentDefaultValue();
 

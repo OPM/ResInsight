@@ -1201,11 +1201,17 @@ const RimCrossSection* RivCrossSectionGeometryGenerator::crossSection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+#include "RigActiveCellInfo.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivEclipseCrossSectionGrid::RivEclipseCrossSectionGrid(const RigMainGrid * mainGrid) : m_mainGrid(mainGrid)
+RivEclipseCrossSectionGrid::RivEclipseCrossSectionGrid(const RigMainGrid * mainGrid, 
+                                                       const RigActiveCellInfo* activeCellInfo, 
+                                                       bool showInactiveCells) 
+                                                       : m_mainGrid(mainGrid), 
+                                                       m_activeCellInfo(activeCellInfo),
+                                                       m_showInactiveCells(showInactiveCells)
 {
 
 }
@@ -1240,8 +1246,10 @@ void RivEclipseCrossSectionGrid::findIntersectingCells(const cvf::BoundingBox& i
 bool RivEclipseCrossSectionGrid::useCell(size_t cellIndex) const
 {
     const RigCell& cell = m_mainGrid->globalCellArray()[cellIndex]; 
-    
-    return !(cell.isInvalid() || (cell.subGrid() != NULL));
+    if (m_showInactiveCells)
+        return !(cell.isInvalid() || (cell.subGrid() != NULL));
+    else
+        return m_activeCellInfo->isActive(cellIndex) && (cell.subGrid() == NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
