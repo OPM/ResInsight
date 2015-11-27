@@ -10,6 +10,7 @@
 #include "RimCrossSectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimGridCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
@@ -120,6 +121,10 @@ RimView::RimView(void)
     CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Intersections", "", "", "");
     crossSectionCollection.uiCapability()->setUiHidden(true);
     crossSectionCollection = new RimCrossSectionCollection();
+
+    CAF_PDM_InitFieldNoDefault(&m_gridCollection, "GridCollection", "GridCollection", "", "", "");
+    m_gridCollection.uiCapability()->setUiHidden(true);
+    m_gridCollection = new RimGridCollection();
 
     m_previousGridModeMeshLinesWasFaults = false;
 
@@ -478,6 +483,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         createDisplayModel();
         updateDisplayModelVisibility();
         RiuMainWindow::instance()->refreshDrawStyleActions();
+        RiuMainWindow::instance()->refreshAnimationActions();
     }
     else if (changedField == &scaleZ)
     {
@@ -524,6 +530,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         createDisplayModel();
         updateDisplayModelVisibility();
         RiuMainWindow::instance()->refreshDrawStyleActions();
+        RiuMainWindow::instance()->refreshAnimationActions();
     }
     else if (changedField == &showGridBox)
     {
@@ -533,6 +540,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         createDisplayModel();
         RiuMainWindow::instance()->refreshDrawStyleActions();
+        RiuMainWindow::instance()->refreshAnimationActions();
     }
     else if (changedField == &name)
     {

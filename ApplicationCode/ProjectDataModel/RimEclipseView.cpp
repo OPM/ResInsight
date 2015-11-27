@@ -1299,6 +1299,7 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(m_overlayInfoConfig());
+    uiTreeOrdering.add(m_gridCollection());
 
     uiTreeOrdering.add(cellResult());
     uiTreeOrdering.add(cellEdgeResult());

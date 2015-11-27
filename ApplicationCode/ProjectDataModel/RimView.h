@@ -40,11 +40,11 @@ class Rim3dOverlayInfoConfig;
 class RimCase;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
-class RiuViewer;
-class RimViewLinker;
-class RimViewController;
-class RimPropertyFilterCollection;
 class RimCrossSectionCollection;
+class RimPropertyFilterCollection;
+class RimViewController;
+class RimViewLinker;
+class RiuViewer;
 
 namespace cvf
 {
@@ -193,6 +193,8 @@ protected:
 
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_overrideRangeFilterCollection;
+    
+    caf::PdmChildField<caf::PdmObjectHandle*>           m_gridCollection;
     
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();

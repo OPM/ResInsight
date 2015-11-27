@@ -650,6 +650,7 @@ void RimGeoMechView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(m_overlayInfoConfig());
+    uiTreeOrdering.add(m_gridCollection());
 
     uiTreeOrdering.add(cellResult());
     
