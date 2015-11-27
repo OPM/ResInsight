@@ -570,7 +570,11 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
             {
                 legendValue = -domainCoordsTickValues->at(idx);
             }
-            geo->addText(cvf::String(legendValue), vertices->get(idx*2 + 1) + (0.5f * tickLength) * tickMarkDir);
+
+            cvf::int64 integerValue = static_cast<cvf::int64>(legendValue);
+            cvf::String numberText = cvf::String("%1").arg(integerValue);
+
+            geo->addText(numberText, vertices->get(idx*2 + 1) + (0.5f * tickLength) * tickMarkDir);
         }
 
         cvf::ref<cvf::Part> part = new cvf::Part;
