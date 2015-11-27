@@ -70,7 +70,7 @@ RimCrossSection::RimCrossSection()
 
     CAF_PDM_InitFieldNoDefault(&type,           "Type",                "Type", "", "", "");
     CAF_PDM_InitFieldNoDefault(&direction,      "Direction",           "Direction", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",            "Well Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",            "Well Path        ", "", "", "");
     CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
     CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
@@ -129,30 +129,32 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
-    uiOrdering.add(&type);
-    uiOrdering.add(&direction);
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Intersecting Geometry");
+    geometryGroup->add(&type);
 
     if (type == CS_WELL_PATH)
     {
-        uiOrdering.add(&wellPath);
-        uiOrdering.add(&m_extentLength);
+        geometryGroup->add(&wellPath);
     }
     else if (type == CS_SIMULATION_WELL)
     {
-        uiOrdering.add(&simulationWell);
+        geometryGroup->add(&simulationWell);
         updateWellCenterline();
         if (simulationWell() && m_wellBranchCenterlines.size() > 1)
         {
-            uiOrdering.add(&m_branchIndex);
+            geometryGroup->add(&m_branchIndex);
         }
-        uiOrdering.add(&m_extentLength);
     }
     else
     {
         // User defined poly line
     }
 
-    uiOrdering.add(&showInactiveCells);
+    caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
+
+    optionsGroup->add(&direction);
+    optionsGroup->add(&m_extentLength);
+    optionsGroup->add(&showInactiveCells);
 
     updateWellExtentDefaultValue();
 
