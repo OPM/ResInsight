@@ -302,7 +302,7 @@ void RivCrossSectionPartMgr::generatePartGeometry()
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Cross Section ");
+            part->setName("Cross Section");
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
@@ -310,7 +310,7 @@ void RivCrossSectionPartMgr::generatePartGeometry()
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
-            part->setEnableMask(surfaceBit);
+            part->setEnableMask(faultBit);
             part->setPriority(priCrossSectionGeo);
 
             m_crossSectionFaces = part;
@@ -328,11 +328,11 @@ void RivCrossSectionPartMgr::generatePartGeometry()
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Cross Section mesh" );
+            part->setName("Cross Section mesh");
             part->setDrawable(geoMesh.p());
 
             part->updateBoundingBox();
-            part->setEnableMask(meshSurfaceBit);
+            part->setEnableMask(meshFaultBit);
             part->setPriority(priMesh);
 
             m_crossSectionGridLines = part;
