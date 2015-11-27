@@ -109,6 +109,15 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateWellCenterline();
         m_branchIndex = -1;
     }
+
+
+    if (changedField == &simulationWell 
+        || changedField == &wellPath
+        || changedField == &m_branchIndex)
+    {
+        updateName();
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -392,5 +401,25 @@ void RimCrossSection::updateWellExtentDefaultValue()
             m_extentLength = caseBB.radius() * 0.1;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::updateName()
+{
+    if (type == CS_SIMULATION_WELL && simulationWell())
+    {
+        name = simulationWell()->name();
+        if (m_branchIndex() != -1)
+        { 
+            name = name() + " Branch " + QString::number(m_branchIndex() + 1);
+        }
+    }
+    else if (type() == CS_WELL_PATH && wellPath())
+    {
+        name = wellPath()->name();
+    }
+
 }
 

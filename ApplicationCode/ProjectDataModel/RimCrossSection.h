@@ -59,41 +59,39 @@ public:
 public:
     RimCrossSection();
 
-    caf::PdmField<QString>  name;
-    caf::PdmField<bool>     isActive;
+    caf::PdmField<QString>                               name;
+    caf::PdmField<bool>                                  isActive;
 
     caf::PdmField< caf::AppEnum< CrossSectionEnum > >    type;
     caf::PdmField< caf::AppEnum< CrossSectionDirEnum > > direction;
 
-    caf::PdmPtrField<RimWellPath*>      wellPath;
-    caf::PdmPtrField<RimEclipseWell*>   simulationWell;
+    caf::PdmPtrField<RimWellPath*>                       wellPath;
+    caf::PdmPtrField<RimEclipseWell*>                    simulationWell;
 
-
-
-    std::vector< std::vector <cvf::Vec3d> > polyLines() const;
-
-    void addExtents(std::vector<cvf::Vec3d> &polyLine) const;
-
-    RivCrossSectionPartMgr*             crossSectionPartMgr();
+    std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
+    RivCrossSectionPartMgr*                              crossSectionPartMgr();
 
 protected:
-    virtual caf::PdmFieldHandle*        userDescriptionField();
-    virtual caf::PdmFieldHandle*        objectToggleField();
-
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-
-private:
-    caf::PdmField<int>                  m_branchIndex;
-    caf::PdmField<double>               m_extentLength;
-
-    RimEclipseWellCollection* simulationWellCollection();
-    void updateWellCenterline() const;
-    void updateWellExtentDefaultValue();
-
-private:
-    cvf::ref<RivCrossSectionPartMgr> m_crossSectionPartMgr;
-    mutable std::vector< std::vector <cvf::Vec3d> > m_wellBranchCenterlines;
+    virtual caf::PdmFieldHandle*            userDescriptionField();
+    virtual caf::PdmFieldHandle*            objectToggleField();
+                                            
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+                                            
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+                                            
+private:                                    
+    caf::PdmField<int>                      m_branchIndex;
+    caf::PdmField<double>                   m_extentLength;
+                                            
+    RimEclipseWellCollection*               simulationWellCollection();
+    void                                    updateWellCenterline() const;
+    void                                    updateWellExtentDefaultValue();
+    void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
+    void                                    updateName();
+private:                                    
+    cvf::ref<RivCrossSectionPartMgr>        m_crossSectionPartMgr;
+    
+    mutable 
+    std::vector< std::vector <cvf::Vec3d> > m_wellBranchCenterlines;
 };
