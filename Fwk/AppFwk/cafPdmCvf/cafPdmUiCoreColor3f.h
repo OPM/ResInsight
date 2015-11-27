@@ -45,11 +45,6 @@
 
 #include "cafPdmCoreColor3f.h"
 
-class Color3fDummy
-{
-public:
-    Color3fDummy();
-};
 
 namespace caf 
 {
@@ -61,8 +56,6 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert(const cvf::Color3f& value)
     {
-        static Color3fDummy dummy;
-
         return PdmValueFieldSpecialization< cvf::Color3f >::convert(value);
     }
 
@@ -92,3 +85,15 @@ public:
 
 } // end namespace caf
 
+
+//--------------------------------------------------------------------------------------------------
+// If the macro for registering the editor is put as the single statement
+// in a cpp file, a dummy static class must be used to make sure the compile unit
+// is included
+//--------------------------------------------------------------------------------------------------
+class Color3fDummy
+{
+public:
+    Color3fDummy();
+};
+static Color3fDummy cafPdmColor3fDummy;
