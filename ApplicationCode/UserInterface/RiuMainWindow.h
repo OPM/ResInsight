@@ -240,7 +240,7 @@ private slots:
     void    slotScaleChanged(int scaleValue);
 
     void slotDrawStyleChanged(QAction* activatedAction);
-    void slotToggleFaultsAction(bool);
+    void slotToggleHideGridCellsAction(bool);
     void slotToggleFaultLabelsAction(bool);
     void slotDisableLightingAction(bool);
 

@@ -432,9 +432,9 @@ void RimView::setSurfOnlyDrawstyle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimView::setShowFaultsOnly(bool showFaults)
+void RimView::showGridCells(bool enableGridCells)
 {
-    if (showFaults)
+    if (!enableGridCells)
     {
         m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
         if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(FAULTS);
@@ -445,6 +445,10 @@ void RimView::setShowFaultsOnly(bool showFaults)
         if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(SURFACE);
         if (meshMode() != NO_MESH) meshMode.uiCapability()->setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
     }
+
+    m_gridCollection->isActive = enableGridCells;
+    m_gridCollection->updateConnectedEditors();
+    m_gridCollection->updateUiIconFromState(enableGridCells);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -40,6 +40,7 @@
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimGridCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTernaryLegendConfig.h"

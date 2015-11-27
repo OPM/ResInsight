@@ -350,9 +350,9 @@ void RiuMainWindow::createActions()
     connect(m_disableLightingAction,    SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
 
 
-    m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
+    m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Hide Grid Cells", this);
     m_drawStyleToggleFaultsAction->setCheckable(true);
-    connect(m_drawStyleToggleFaultsAction,    SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
+    connect(m_drawStyleToggleFaultsAction,    SIGNAL(toggled(bool)), SLOT(slotToggleHideGridCellsAction(bool)));
 
     m_toggleFaultsLabelAction             = new QAction( QIcon(":/draw_style_faults_label_24x24.png"), "&Show Fault Labels", this);
     m_toggleFaultsLabelAction->setCheckable(true);
@@ -1861,11 +1861,11 @@ void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotToggleFaultsAction(bool showFaults)
+void RiuMainWindow::slotToggleHideGridCellsAction(bool hideGridCells)
 {
     if (!RiaApplication::instance()->activeReservoirView()) return;
 
-    RiaApplication::instance()->activeReservoirView()->setShowFaultsOnly(showFaults);
+    RiaApplication::instance()->activeReservoirView()->showGridCells(!hideGridCells);
 }
 
 

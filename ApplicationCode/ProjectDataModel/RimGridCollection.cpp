@@ -30,8 +30,8 @@ RimGridCollection::RimGridCollection()
 {
     CAF_PDM_InitObject("Grids", ":/draw_style_faults_24x24.png", "", "");
 
-    CAF_PDM_InitField(&m_isActive, "IsActive", true, "Show grid cells", "", "", "");
-    m_isActive.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&isActive, "IsActive", true, "Show grid cells", "", "", "");
+    isActive.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ RimGridCollection::~RimGridCollection()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGridCollection::objectToggleField()
 {
-    return &m_isActive;
+    return &isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,15 +55,15 @@ caf::PdmFieldHandle* RimGridCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_isActive)
+    if (changedField == &isActive)
     {
         RimView* rimView = NULL;
         this->firstAnchestorOrThisOfType(rimView);
         CVF_ASSERT(rimView);
 
-        rimView->setShowFaultsOnly(!m_isActive);
+        rimView->showGridCells(isActive);
 
-        updateUiIconFromState(m_isActive);
+        updateUiIconFromState(isActive);
     }
 }
 
@@ -72,5 +72,5 @@ void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimGridCollection::initAfterRead()
 {
-    updateUiIconFromState(m_isActive);
+    updateUiIconFromState(isActive);
 }

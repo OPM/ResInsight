@@ -36,10 +36,10 @@ public:
 
     virtual caf::PdmFieldHandle*        objectToggleField();
 
+    caf::PdmField<bool>                 isActive;
+
 protected:
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                        initAfterRead();
 
-private:
-    caf::PdmField<bool>                 m_isActive;
 };

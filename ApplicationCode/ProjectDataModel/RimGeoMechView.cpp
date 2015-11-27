@@ -34,6 +34,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGridCollection.h"
 #include "RimLegendConfig.h"
 #include "RimViewLinker.h"
 

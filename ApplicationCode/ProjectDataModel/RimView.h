@@ -39,6 +39,7 @@
 class Rim3dOverlayInfoConfig;
 class RimCase;
 class RimCellRangeFilter;
+class RimGridCollection;
 class RimCellRangeFilterCollection;
 class RimCrossSectionCollection;
 class RimPropertyFilterCollection;
@@ -121,7 +122,7 @@ public:
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
    
-    void                                    setShowFaultsOnly(bool showFaults);
+    void                                    showGridCells(bool enableHideGridCells);
     bool                                    isGridVisualizationMode() const;
 
     void                                    setScaleZAndUpdate(double scaleZ);
@@ -194,7 +195,7 @@ protected:
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_overrideRangeFilterCollection;
     
-    caf::PdmChildField<caf::PdmObjectHandle*>           m_gridCollection;
+    caf::PdmChildField<RimGridCollection*>              m_gridCollection;
     
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
