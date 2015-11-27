@@ -88,6 +88,7 @@ private:
     void                                    updateWellCenterline() const;
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
+    void                                    clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const;
     void                                    updateName();
 private:                                    
     cvf::ref<RivCrossSectionPartMgr>        m_crossSectionPartMgr;

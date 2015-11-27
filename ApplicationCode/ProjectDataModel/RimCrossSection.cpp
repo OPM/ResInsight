@@ -259,6 +259,7 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
         if (wellPath())
         {
             lines.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
+            clipToReservoir(lines[0]);
         }
     }
     else if (type == CS_SIMULATION_WELL)
@@ -289,8 +290,6 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
         {
             std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
             addExtents(polyLine);
-
-
         }
     }
 
@@ -421,5 +420,51 @@ void RimCrossSection::updateName()
         name = wellPath()->name();
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
+{
+    RimCase* ownerCase = NULL;
+    firstAnchestorOrThisOfType(ownerCase);
+    
+    std::vector<cvf::Vec3d> clippedPolyLine;
+
+    if (ownerCase)
+    {
+        cvf::BoundingBox caseBB = ownerCase->activeCellsBoundingBox();
+        bool hasEnteredReservoirBB = false;
+        for (size_t vxIdx = 0 ; vxIdx < polyLine.size(); ++vxIdx)
+        {
+            if (!caseBB.contains(polyLine[vxIdx]))
+            { 
+                continue;
+            }
+
+            if (!hasEnteredReservoirBB)
+            {
+                if (vxIdx > 0)
+                {
+                    // clip line, and add vx to start
+                    cvf::Plane topPlane;
+                    topPlane.setFromPointAndNormal(caseBB.max(), cvf::Vec3d::Z_AXIS);
+                    cvf::Vec3d intersection;
+                
+                    if (topPlane.intersect(polyLine[vxIdx-1], polyLine[vxIdx], &intersection))
+                    {
+                        clippedPolyLine.push_back(intersection);
+                    }
+                }
+
+                hasEnteredReservoirBB = true;
+            }
+
+            clippedPolyLine.push_back(polyLine[vxIdx]);
+        }
+    }
+ 
+    polyLine.swap(clippedPolyLine);
 }
 
