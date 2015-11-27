@@ -198,7 +198,7 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect(
        }
 
        double normDist32 =  e12*p32 / length34;
-       double normDist31 = -e12*p13 / length34;
+       //double normDist31 = -e12*p13 / length34;
 
        // Set up fractions along lines to the edge2 vertex actually touching edge 1.
        /// if two, select the one furthest from the start
@@ -471,8 +471,8 @@ cvf::Vec3d GeometryTools::barycentricCoords(const cvf::Vec3d&  t0, const cvf::Ve
     cvf::Vec3d m = (t1 - t0 ^ t2 - t0);
 
     // Absolute components for determining projection plane
-    int X = 0, Y = 1, Z = 2;
-    Z = findClosestAxis(m);
+    int X = 0, Y = 1;
+    int Z = findClosestAxis(m);
     switch (Z)
     {
     case 0: X = 1; Y = 2; break; // x is largest, project to the yz plane
@@ -590,6 +590,8 @@ void GeometryTools::addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* poly
             polygon->insert(polygon->end(), std::make_pair((cvf::uint)midPointIndex, true));
 
         ++it;
+
+        if (it == polygon->end()) break;
     }
 }
 
@@ -745,7 +747,7 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
     while (numVertices > 2)
     {
         // if we loop, it is probably a non-simple polygon 
-        if (count <= 0 )
+        if (count == 0 )
         {
             // Triangulate: ERROR - probable bad polygon!
             return false;
@@ -877,7 +879,7 @@ double EarClipTesselator::calculateProjectedPolygonArea() const
         A += (*m_nodeCoords)[*p][m_X] * (*m_nodeCoords)[*q][m_Y] - (*m_nodeCoords)[*q][m_X]*(*m_nodeCoords)[*p][m_Y];
 
         p = q;
-        q++;
+        ++q;
     }
 
     return A*0.5;
@@ -975,10 +977,10 @@ bool FanEarClipTesselator::calculateTriangles(std::vector<size_t>* triangles)
     std::list< std::list<size_t> > restPolygons;
     bool wasPreviousTriangleValid = true;
 
-    for (it1 = m_polygonIndices.begin(); it1 != m_polygonIndices.end(); it1++)
+    for (it1 = m_polygonIndices.begin(); it1 != m_polygonIndices.end(); ++it1)
     {
         it2 = it1;
-        it2++;
+        ++it2;
 
         if (it2 == m_polygonIndices.end()) it2 = m_polygonIndices.begin();
 

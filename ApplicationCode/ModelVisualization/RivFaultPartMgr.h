@@ -83,7 +83,6 @@ private:
     float                       m_opacityLevel;
     cvf::Color3f                m_defaultColor;
 
-    bool                        m_showNativeFaces;
     bool                        m_showOppositeFaces;
     bool                        m_showLabel;
 

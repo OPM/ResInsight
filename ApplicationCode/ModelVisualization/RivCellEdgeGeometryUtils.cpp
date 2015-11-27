@@ -144,10 +144,9 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
         }
 
 
-        float edgeColor;
         for (size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
         {
-            edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
+            float edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
 
             double scalarValue = cellEdgeResultAccessor->cellFaceScalar(cellIndex, static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx));
 
@@ -244,10 +243,9 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
 
         size_t cellIndex = quadToCellFaceMapper->cellIndex(quadIdx);
 
-        float edgeColor;
         for (size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
         {
-            edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
+            float edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
 
             double scalarValue = cellEdgeResultAccessor->cellFaceScalar(cellIndex, static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx));
 

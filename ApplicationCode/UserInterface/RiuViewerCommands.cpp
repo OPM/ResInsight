@@ -91,7 +91,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer) : QObject(ownerViewer), m_viewer(ownerViewer)
+RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer) 
+    : QObject(ownerViewer), 
+      m_viewer(ownerViewer), 
+      m_currentGridIdx(-1),
+      m_currentCellIndex(-1)  
 {
 
 }

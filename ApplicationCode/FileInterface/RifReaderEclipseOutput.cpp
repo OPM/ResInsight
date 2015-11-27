@@ -920,7 +920,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
 /// Inverse distance interpolation of the supplied points and distance weights for 
 /// the contributing points which are closest above, and closest below
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> positions)
+cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution>& positions)
 {
     std::vector<SegmentPositionContribution> filteredPositions;
     filteredPositions.reserve(positions.size());
@@ -1480,7 +1480,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                 while (posContribIt != segmentIdToPositionContrib.end())
                 {
                     bottomPositions[posContribIt->first] = interpolate3DPosition(posContribIt->second);
-                    posContribIt++;
+                    ++posContribIt;
                 }
 
                 // Distribute the positions to the resultpoints stored in the wellResultBranch.m_branchResultPoints

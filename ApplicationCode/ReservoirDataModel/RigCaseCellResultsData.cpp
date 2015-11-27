@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData::RigCaseCellResultsData(RigMainGrid* ownerGrid)
+RigCaseCellResultsData::RigCaseCellResultsData(RigMainGrid* ownerGrid) : m_activeCellInfo(NULL)
 {
     CVF_ASSERT(ownerGrid != NULL);
     m_ownerMainGrid = ownerGrid;
@@ -182,7 +182,7 @@ std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResu
 size_t RigCaseCellResultsData::findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const
 {
     std::vector<ResultInfo>::const_iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_resultType == type && it->m_resultName == resultName)
         {
@@ -313,7 +313,7 @@ QStringList RigCaseCellResultsData::resultNames(RimDefines::ResultCatType resTyp
 {
     QStringList varList;
     std::vector<ResultInfo>::const_iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_resultType == resType )
         {
@@ -497,7 +497,7 @@ RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromP
 bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 {
     std::vector<ResultInfo>::const_iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_gridScalarResultIndex == scalarResultIndex)
         {
@@ -514,7 +514,7 @@ bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 {
     std::vector<ResultInfo>::iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_gridScalarResultIndex == scalarResultIndex)
         {

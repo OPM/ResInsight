@@ -1028,11 +1028,11 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
                 m_hexGrid->cellCornerVertices(globalCellIdx, cellCorners);
                 m_hexGrid->cellCornerIndices(globalCellIdx, cornerIndices);
 
-                int triangleCount = planeHexIntersectionMC(plane,
-                                                           cellCorners,
-                                                           cornerIndices,
-                                                           &hexPlaneCutTriangleVxes,
-                                                           &isTriangleEdgeCellContour);
+                planeHexIntersectionMC(plane,
+                                       cellCorners,
+                                       cornerIndices,
+                                       &hexPlaneCutTriangleVxes,
+                                       &isTriangleEdgeCellContour);
 
                 std::vector<ClipVx> clippedTriangleVxes;
                 std::vector<bool> isClippedTriEdgeCellContour;

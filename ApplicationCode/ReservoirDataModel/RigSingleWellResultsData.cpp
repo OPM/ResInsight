@@ -156,14 +156,14 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
             std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchId];
             std::list< RigWellResultPoint >::iterator sEndIt;
-            size_t  rStartIdx;
-            size_t  rEndIdx;
+            size_t  rStartIdx = -1;
+            size_t  rEndIdx = -1;
 
             // First detect if we have cells on the start of the result frame, that is not in the static frame
             {
                 sEndIt = stBranch.begin();
                 bool found = false;
-                if (stBranch.size())
+                if (!stBranch.empty())
                 {
                     for (rEndIdx = 0; !found && rEndIdx < resBranch.size(); ++rEndIdx)
                     {

@@ -1346,7 +1346,7 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     }
 
     // If multiple cases are present, invoke launchProcess() which will set next current case, and run script on this case 
-    if (m_currentCaseIds.size() > 0)
+    if (!m_currentCaseIds.empty())
     {
         launchProcess(m_currentProgram, m_currentArguments);
     }
@@ -1365,7 +1365,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
     if (m_workerProcess == NULL)
     {
         // If multiple cases are present, pop the first case ID from the list and set as current case
-        if (m_currentCaseIds.size() > 0)
+        if (!m_currentCaseIds.empty())
         {
             int nextCaseId = m_currentCaseIds.front();
             m_currentCaseIds.pop_front();
@@ -2170,16 +2170,16 @@ void RiaApplication::executeCommandObjects()
         {
             toBeRemoved->redo();
 
-            it++;
+            ++it;
             m_commandQueue.remove(toBeRemoved);
         }
         else
         {
-            it++;
+            ++it;
         }
     }
 
-    if (m_commandQueue.size() > 0)
+    if (!m_commandQueue.empty())
     {
         std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
 

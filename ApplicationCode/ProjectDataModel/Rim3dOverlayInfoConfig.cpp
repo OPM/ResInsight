@@ -93,6 +93,8 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
     CAF_PDM_InitFieldNoDefault(&m_statisticsTimeRange, "StatisticsTimeRange", "Statistics Time Range", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_statisticsCellRange, "StatisticsCellRange", "Statistics Cell Range", "", "", "");
     //m_statisticsCellRange.uiCapability()->setUiHidden(true);
+
+    m_isVisCellStatUpToDate = false;
 }
 
 //--------------------------------------------------------------------------------------------------

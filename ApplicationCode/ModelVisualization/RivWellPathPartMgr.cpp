@@ -244,7 +244,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     }
  
     std::list<RivPipeBranchData>::iterator it;
-    for (it = m_wellBranches.begin(); it != m_wellBranches.end(); it++)
+    for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
     {
         if (it->m_surfacePart.notNull())
         {
