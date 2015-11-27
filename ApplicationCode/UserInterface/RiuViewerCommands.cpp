@@ -23,6 +23,7 @@
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
 
+#include "CrossSectionCommands/RicNewPolylineCrossSectionFeature.h"
 #include "CrossSectionCommands/RicNewSimWellCrossSectionFeature.h"
 #include "CrossSectionCommands/RicNewWellPathCrossSectionFeature.h"
 #include "WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
@@ -277,6 +278,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         commandIds << "RicSetMasterViewFeature";
     }
 
+    commandIds << "RicNewPolylineCrossSectionFeature";
+
     RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
     if (menu.actions().size() > 0)
@@ -439,6 +442,17 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
         {
             extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &firstNncHitPart, &nncPartTriangleIndex);
+
+            if (!m_activeUiCommandFeature.isNull())
+            {
+                cvf::ref<RicPolylineUiEvent> uiEventObj = new RicPolylineUiEvent(localIntersectionPoint);
+
+                if (m_activeUiCommandFeature->handleUiEvent(uiEventObj.p()))
+                {
+                    return;
+                }
+            }
+
             updateSelectionFromPickedPart(firstHitPart);
         }
 
@@ -562,6 +576,22 @@ void RiuViewerCommands::findCellAndGridIndex(const RivCrossSectionSourceInfo* cr
         *cellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
         *gridIndex = 0;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::setActiveUiCommandFeature(RicCommandFeature* uiCommandFeature)
+{
+    m_activeUiCommandFeature = uiCommandFeature;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicCommandFeature* RiuViewerCommands::activeUiCommandFeature() const
+{
+    return m_activeUiCommandFeature;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -8,12 +8,14 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicAppendCrossSectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellCrossSectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathCrossSectionFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewPolylineCrossSectionFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicAppendCrossSectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellCrossSectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathCrossSectionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewPolylineCrossSectionFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

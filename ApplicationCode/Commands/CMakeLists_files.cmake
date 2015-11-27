@@ -49,6 +49,8 @@ ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
+
+${CEE_CURRENT_LIST_DIR}RicCommandFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES

@@ -28,6 +28,7 @@
 #include "cafMouseState.h"
 #include "cvfStructGrid.h"
 
+class RicCommandFeature;
 class RimView;
 class RiuSimpleHistogramWidget;
 class RiuViewerCommands;
@@ -87,6 +88,9 @@ public:
     void            setCurrentFrame(int frameIndex);
 
     void            setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel);
+
+    void               setActiveUiCommandFeature(RicCommandFeature* uiCommandFeature);
+    RicCommandFeature* activeUiCommandFeature() const;
 
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);

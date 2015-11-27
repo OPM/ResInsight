@@ -649,3 +649,20 @@ cvf::Color3f RiuViewer::computeContrastColor() const
     
     return contrastColor;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setActiveUiCommandFeature(RicCommandFeature* uiCommandFeature)
+{
+    CVF_ASSERT(m_viewerCommands);
+    m_viewerCommands->setActiveUiCommandFeature(uiCommandFeature);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicCommandFeature* RiuViewer::activeUiCommandFeature() const
+{
+    return m_viewerCommands->activeUiCommandFeature();
+}

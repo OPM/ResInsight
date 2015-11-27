@@ -21,16 +21,25 @@
 
 #include "RiaApplication.h"
 
+#include "RicCommandFeature.h"
+
+#include "RigSimulationWellCenterLineCalculator.h"
+
+#include "RimCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimView.h"
 #include "RimWellPath.h"
 
+#include "RiuViewer.h"
 #include "RivCrossSectionPartMgr.h"
-#include "RigSimulationWellCenterLineCalculator.h"
-#include "RimCase.h"
+
+#include "cafCmdFeature.h"
+#include "cafCmdFeatureManager.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 
 namespace caf {
@@ -40,7 +49,7 @@ void caf::AppEnum< RimCrossSection::CrossSectionEnum >::setUp()
 {
     addItem(RimCrossSection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
     addItem(RimCrossSection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
-//    addItem(RimCrossSection::CS_USER_DEFINED,    "CS_USER_DEFINED",    "User defined");
+    addItem(RimCrossSection::CS_POLYLINE,        "CS_POLYLINE",        "Polyline");
     setDefault(RimCrossSection::CS_WELL_PATH);
 }
 
@@ -72,10 +81,18 @@ RimCrossSection::RimCrossSection()
     CAF_PDM_InitFieldNoDefault(&direction,      "Direction",           "Direction", "", "", "");
     CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",            "Well Path        ", "", "", "");
     CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_userDefinedPolyline, "Points",              "Selected points", "", "", "");
     CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Inactive Cells", "", "", "");
-    
+
+    CAF_PDM_InitFieldNoDefault(&m_activateUiAppendPointsCommand, "m_activateUiAppendPointsCommand", "", "", "", "");
+    m_activateUiAppendPointsCommand.xmlCapability()->setIOWritable(false);
+    m_activateUiAppendPointsCommand.xmlCapability()->setIOReadable(false);
+    m_activateUiAppendPointsCommand.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_activateUiAppendPointsCommand.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    m_activateUiAppendPointsCommand = false;
 
     uiCapability()->setUiChildrenHidden(true);
 }
@@ -94,14 +111,7 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         changedField == &m_extentLength ||
         changedField == &showInactiveCells)
     {
-        m_crossSectionPartMgr = NULL;
-    
-        RimView* rimView = NULL;
-        this->firstAnchestorOrThisOfType(rimView);
-        if (rimView)
-        {
-            rimView->scheduleCreateDisplayModelAndRedraw();
-        }
+        rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
     if (changedField == &simulationWell 
@@ -121,6 +131,17 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateName();
     }
 
+    if (changedField == &m_activateUiAppendPointsCommand)
+    {
+        updateActiveUiCommandFeature();
+
+        m_activateUiAppendPointsCommand = false;
+    }
+
+    if (changedField == &m_userDefinedPolyline)
+    {
+        rebuildGeometryAndScheduleCreateDisplayModel();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,9 +166,10 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
             geometryGroup->add(&m_branchIndex);
         }
     }
-    else
+    else if (type == CS_POLYLINE)
     {
-        // User defined poly line
+        uiOrdering.add(&m_userDefinedPolyline);
+        uiOrdering.add(&m_activateUiAppendPointsCommand);
     }
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
@@ -286,9 +308,9 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
             }
         }
     }
-    else
+    else if (type == CS_POLYLINE)
     {
-
+        lines.push_back(m_userDefinedPolyline);
     }
 
     if (type == CS_WELL_PATH || type == CS_SIMULATION_WELL)
@@ -387,8 +409,6 @@ void RimCrossSection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
 
         polyLine.insert(polyLine.begin(), newStart);
     }
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -473,5 +493,85 @@ void RimCrossSection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
     }
  
     polyLine.swap(clippedPolyLine);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_activateUiAppendPointsCommand)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+
+        RimView* rimView = NULL;
+        this->firstAnchestorOrThisOfType(rimView);
+        CVF_ASSERT(rimView);
+
+        if (rimView->viewer()->activeUiCommandFeature())
+        {
+            attrib->m_buttonText = "End point input";
+        }
+        else
+        {
+            attrib->m_buttonText = "Start point input";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::appendPointToPolyLine(const cvf::Vec3d& point)
+{
+    m_userDefinedPolyline.v().push_back(point);
+
+    m_userDefinedPolyline.uiCapability()->updateConnectedEditors();
+
+    rebuildGeometryAndScheduleCreateDisplayModel();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::updateActiveUiCommandFeature()
+{
+    RimView* rimView = NULL;
+    this->firstAnchestorOrThisOfType(rimView);
+    CVF_ASSERT(rimView);
+
+    if (!rimView->viewer()) return;
+
+    if (rimView->viewer()->activeUiCommandFeature())
+    {
+        rimView->viewer()->setActiveUiCommandFeature(NULL);
+    }
+    else
+    {
+        caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineCrossSectionFeature");
+        CVF_ASSERT(cmdFeature);
+
+        RicCommandFeature* riCommandFeature = dynamic_cast<RicCommandFeature*>(cmdFeature);
+        CVF_ASSERT(riCommandFeature);
+
+        rimView->viewer()->setActiveUiCommandFeature(riCommandFeature);
+    }
+
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCrossSection::rebuildGeometryAndScheduleCreateDisplayModel()
+{
+    m_crossSectionPartMgr = NULL;
+
+    RimView* rimView = NULL;
+    this->firstAnchestorOrThisOfType(rimView);
+    if (rimView)
+    {
+        rimView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 

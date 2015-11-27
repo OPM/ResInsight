@@ -31,6 +31,7 @@ class RimGeoMechView;
 class RimView;
 class RiuViewer;
 class RivCrossSectionSourceInfo;
+class RicCommandFeature;
 
 class QMouseEvent;
 
@@ -53,6 +54,9 @@ public:
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
 
     void            findCellAndGridIndex(const RivCrossSectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
+
+    void                setActiveUiCommandFeature(RicCommandFeature* uiCommandFeature);
+    RicCommandFeature*  activeUiCommandFeature() const;
 
 
 private slots:
@@ -78,6 +82,8 @@ private:
     caf::PdmPointer<RimCrossSection> m_currentCrossSection;
 
     QPointer<RiuViewer> m_viewer;
+
+    QPointer<RicCommandFeature> m_activeUiCommandFeature;
 };
 
 

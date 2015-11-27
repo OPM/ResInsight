@@ -21,6 +21,7 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
@@ -47,7 +48,7 @@ public:
     {
         CS_WELL_PATH,
         CS_SIMULATION_WELL,
-        CS_USER_DEFINED
+        CS_POLYLINE
     };
 
     enum CrossSectionDirEnum
@@ -72,18 +73,27 @@ public:
     std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
     RivCrossSectionPartMgr*                              crossSectionPartMgr();
 
+    void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
+    void                                                 updateActiveUiCommandFeature();
+
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
     virtual caf::PdmFieldHandle*            objectToggleField();
                                             
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
                                             
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
                                             
 private:                                    
     caf::PdmField<int>                      m_branchIndex;
     caf::PdmField<double>                   m_extentLength;
+
+    caf::PdmField< std::vector< cvf::Vec3d> >  m_userDefinedPolyline;
+    caf::PdmField< bool >                      m_activateUiAppendPointsCommand;
                                             
     RimEclipseWellCollection*               simulationWellCollection();
     void                                    updateWellCenterline() const;
@@ -91,6 +101,7 @@ private:
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
     void                                    clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const;
     void                                    updateName();
+    void                                    rebuildGeometryAndScheduleCreateDisplayModel();
 private:                                    
     cvf::ref<RivCrossSectionPartMgr>        m_crossSectionPartMgr;
     
