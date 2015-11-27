@@ -47,7 +47,7 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiColorEditor, cvf::Color3f);
 // in a cpp file, a dummy static class must be used to make sure the compile unit
 // is included
 //--------------------------------------------------------------------------------------------------
-Color3fDummy::Color3fDummy()
+PdmColor3fInitializer::PdmColor3fInitializer()
 {
 
 }

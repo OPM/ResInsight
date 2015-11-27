@@ -90,9 +90,9 @@ public:
 // in a cpp file, a dummy static class must be used to make sure the compile unit
 // is included
 //--------------------------------------------------------------------------------------------------
-class Vec3dDummy
+class PdmVec3dInitializer
 {
 public:
-    Vec3dDummy();
+    PdmVec3dInitializer();
 };
-static Vec3dDummy cafPdmVec3dDummy;
+static PdmVec3dInitializer pdmVec3dInitializer;

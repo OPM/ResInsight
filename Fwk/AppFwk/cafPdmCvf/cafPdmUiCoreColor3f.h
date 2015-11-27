@@ -91,9 +91,9 @@ public:
 // in a cpp file, a dummy static class must be used to make sure the compile unit
 // is included
 //--------------------------------------------------------------------------------------------------
-class Color3fDummy
+class PdmColor3fInitializer
 {
 public:
-    Color3fDummy();
+    PdmColor3fInitializer();
 };
-static Color3fDummy cafPdmColor3fDummy;
+static PdmColor3fInitializer pdmColor3fInitializer;
