@@ -26,6 +26,7 @@
 
 #include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSetDirect.h"
+#include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
 
 
@@ -1147,6 +1148,50 @@ cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createMeshDrawable(
 
     geo->addPrimitiveSet(prim.p());
     return geo;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createLineAlongPolylineDrawable()
+{
+    std::vector<cvf::uint> lineIndices;
+    std::vector<cvf::Vec3f> vertices;
+
+    cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
+
+    for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
+    {
+        const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
+        if (m_polyLine.size() < 2) continue;
+
+        for (size_t i = 0; i < m_polyLine.size(); ++i)
+        {
+            vertices.push_back(cvf::Vec3f(m_polyLine[i] - displayOffset));
+            if (i < m_polyLine.size() - 1)
+            {
+                lineIndices.push_back(static_cast<cvf::uint>(i));
+                lineIndices.push_back(static_cast<cvf::uint>(i + 1));
+            }
+        }
+    }
+
+    if (vertices.size() == 0) return NULL;
+
+    cvf::ref<cvf::Vec3fArray> vx = new cvf::Vec3fArray;
+    vx->assign(vertices);
+    cvf::ref<cvf::UIntArray> idxes = new cvf::UIntArray;
+    idxes->assign(lineIndices);
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt(cvf::PT_LINES);
+    prim->setIndices(idxes.p());
+
+    cvf::ref<cvf::DrawableGeo> polylineGeo = new cvf::DrawableGeo;
+    polylineGeo->setVertexArray(vx.p());
+    polylineGeo->addPrimitiveSet(prim.p());
+
+    return polylineGeo;
 }
 
 //--------------------------------------------------------------------------------------------------

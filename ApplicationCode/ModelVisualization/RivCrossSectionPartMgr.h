@@ -84,4 +84,5 @@ private:
     cvf::ref<cvf::Part>         m_crossSectionGridLines;
     cvf::ref<cvf::Vec2fArray>   m_crossSectionFacesTextureCoords;
 
+    cvf::ref<cvf::Part>         m_highlightLineAlongPolyline;
 };
