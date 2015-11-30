@@ -89,16 +89,18 @@ public:
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     void                                addWellLogs(const QStringList& filePaths);
 
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
     void                                scheduleGeometryRegenAndRedrawViews();
     void                                updateFilePathsFromProjectPath();
+protected:
+    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
 private:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     virtual caf::PdmFieldHandle*        objectToggleField();
 
     void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
+    void                                sortWellsByName();
 
     caf::PdmPointer<RimProject>         m_project;
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;

@@ -164,6 +164,8 @@ void RimWellPathCollection::readWellPathFiles()
         progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name));
         progress.incrementProgress();
     }
+
+    this->sortWellsByName();
 }
 
 
@@ -258,6 +260,8 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
 
         progress.incrementProgress();
     }
+
+    this->sortWellsByName();
 }
 
 
@@ -282,6 +286,8 @@ void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
             wellPath->setLogFileInfo(logFileInfo);
         }
     }
+
+    this->sortWellsByName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,6 +385,19 @@ void RimWellPathCollection::removeWellPath(RimWellPath* wellPath)
         // If no other well paths are referencing the filepath, remove cached data from the file reader
         m_asciiFileReader->removeFilePath(wellPath->filepath);
     }
+}
+
+bool lessWellPath(const caf::PdmPointer<RimWellPath>& w1,  const caf::PdmPointer<RimWellPath>& w2)
+{
+    return (w1->name() < w2->name());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::sortWellsByName()
+{
+    std::sort(wellPaths.begin(), wellPaths.end(), lessWellPath);
 }
 
 //--------------------------------------------------------------------------------------------------
