@@ -172,6 +172,15 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     optionsGroup->add(&m_extentLength);
     optionsGroup->add(&showInactiveCells);
 
+    if (type == CS_POLYLINE)
+    {
+        m_extentLength.uiCapability()->setUiReadOnly(true);
+    }
+    else
+    {
+        m_extentLength.uiCapability()->setUiReadOnly(false);
+    }
+
     updateWellExtentDefaultValue();
 
     uiOrdering.setForgetRemainingFields(true);
