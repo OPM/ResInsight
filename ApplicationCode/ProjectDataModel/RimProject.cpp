@@ -139,7 +139,11 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
-    if (mainPlotCollection()) delete mainPlotCollection();
+    if (mainPlotCollection() && mainPlotCollection()->wellLogPlotCollection()) 
+    {
+         mainPlotCollection()->wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
+    }
+
     oilFields.deleteAllChildObjects();
     oilFields.push_back(new RimOilField);
 
@@ -723,10 +727,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
     {
         if (mainPlotCollection->wellLogPlotCollection())
         {
-            if (mainPlotCollection->wellLogPlotCollection()->wellLogPlots().size() > 0)
-            {
-                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
-            }
+            uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
         }
     }
 

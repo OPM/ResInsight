@@ -37,6 +37,7 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
     
     analysisModels = new RimEclipseCaseCollection();
+    wellPathCollection = new RimWellPathCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
