@@ -333,3 +333,16 @@ void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
         m_isWellPipesVisible[frameIndex][i] = wells[i]->calculateWellPipeVisibility(frameIndex);
     }
 }
+
+bool lessEclipseWell(const caf::PdmPointer<RimEclipseWell>& w1,  const caf::PdmPointer<RimEclipseWell>& w2)
+{
+    return (w1->name() < w2->name());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWellCollection::sortWellsByName()
+{
+   std::sort(wells.begin(), wells.end(), lessEclipseWell);
+}

@@ -1138,6 +1138,8 @@ void RimEclipseView::syncronizeWellsWithResults()
     {
         this->wellCollection()->wells()[wIdx]->setReservoirView(this);
     }
+
+    this->wellCollection()->sortWellsByName();
 }
 
 //--------------------------------------------------------------------------------------------------
