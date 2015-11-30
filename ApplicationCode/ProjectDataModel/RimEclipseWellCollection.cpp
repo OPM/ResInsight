@@ -336,7 +336,12 @@ void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
 
 bool lessEclipseWell(const caf::PdmPointer<RimEclipseWell>& w1,  const caf::PdmPointer<RimEclipseWell>& w2)
 {
-    return (w1->name() < w2->name());
+    if (w1.notNull() && w2.notNull())
+        return (w1->name() < w2->name());
+    else if (w1.notNull())
+        return true;
+    else
+        return false;
 }
 
 //--------------------------------------------------------------------------------------------------
