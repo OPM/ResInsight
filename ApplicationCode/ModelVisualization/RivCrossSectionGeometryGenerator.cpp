@@ -1195,6 +1195,40 @@ cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createLineAlongPoly
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createPointsFromPolylineDrawable()
+{
+    std::vector<cvf::Vec3f> vertices;
+
+    cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
+
+    for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
+    {
+        const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
+        for (size_t i = 0; i < m_polyLine.size(); ++i)
+        {
+            vertices.push_back(cvf::Vec3f(m_polyLine[i] - displayOffset));
+        }
+    }
+
+    if (vertices.size() == 0) return NULL;
+
+    cvf::ref<cvf::PrimitiveSetDirect> primSet = new cvf::PrimitiveSetDirect(cvf::PT_POINTS);
+    primSet->setStartIndex(0);
+    primSet->setIndexCount(vertices.size());
+
+    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+
+    cvf::ref<cvf::Vec3fArray> vx = new cvf::Vec3fArray(vertices);
+    geo->setVertexArray(vx.p());
+    geo->addPrimitiveSet(primSet.p());
+
+    return geo;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Remove the lines from the polyline that is nearly parallel to the extrusion direction
 //--------------------------------------------------------------------------------------------------
 void RivCrossSectionGeometryGenerator::adjustPolyline(const std::vector<cvf::Vec3d>& polyLine, 

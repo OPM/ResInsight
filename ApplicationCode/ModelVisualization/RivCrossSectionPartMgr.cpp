@@ -48,6 +48,7 @@
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateDepth.h"
+#include "cvfRenderStatePoint.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -342,18 +343,56 @@ void RivCrossSectionPartMgr::generatePartGeometry()
     }
 
     // Highlight line
+
+    m_highlightLineAlongPolyline = NULL;
+    m_highlightPointsForPolyline = NULL;
+
+    if (m_rimCrossSection->type == RimCrossSection::CS_POLYLINE)
     {
-        cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongPolylineDrawable();
-        if (polylineGeo.notNull())
+        {
+            cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongPolylineDrawable();
+            if (polylineGeo.notNull())
+            {
+                if (useBufferObjects)
+                {
+                    polylineGeo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+                }
+
+                cvf::ref<cvf::Part> part = new cvf::Part;
+                part->setName("Cross Section Polyline");
+                part->setDrawable(polylineGeo.p());
+
+                part->updateBoundingBox();
+                part->setPriority(10000);
+
+                // Always show this part, also when mesh is turned off
+                //part->setEnableMask(meshFaultBit);
+
+                cvf::ref<cvf::Effect> eff;
+                caf::MeshEffectGenerator lineEffGen(cvf::Color3::MAGENTA);
+                eff = lineEffGen.generateUnCachedEffect();
+
+                cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+                depth->enableDepthTest(false);
+                eff->setRenderState(depth.p());
+
+                part->setEffect(eff.p());
+
+                m_highlightLineAlongPolyline = part;
+            }
+        }
+
+        cvf::ref<cvf::DrawableGeo> polylinePointsGeo = m_crossSectionGenerator->createPointsFromPolylineDrawable();
+        if (polylinePointsGeo.notNull())
         {
             if (useBufferObjects)
             {
-                polylineGeo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+                polylinePointsGeo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("Cross Section Polyline");
-            part->setDrawable(polylineGeo.p());
+            part->setDrawable(polylinePointsGeo.p());
 
             part->updateBoundingBox();
             part->setPriority(10000);
@@ -369,9 +408,13 @@ void RivCrossSectionPartMgr::generatePartGeometry()
             depth->enableDepthTest(false);
             eff->setRenderState(depth.p());
 
+            cvf::ref<cvf::RenderStatePoint> pointRendState = new  cvf::RenderStatePoint(cvf::RenderStatePoint::FIXED_SIZE);
+            pointRendState->setSize(5.0f);
+            eff->setRenderState(pointRendState.p());
+
             part->setEffect(eff.p());
 
-            m_highlightLineAlongPolyline = part;
+            m_highlightPointsForPolyline = part;
         }
     }
 
@@ -443,11 +486,23 @@ void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
         m_crossSectionGridLines->setTransform(scaleTransform);
         model->addPart(m_crossSectionGridLines.p());
     }
+}
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivCrossSectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+{
     if (m_highlightLineAlongPolyline.notNull())
     {
         m_highlightLineAlongPolyline->setTransform(scaleTransform);
         model->addPart(m_highlightLineAlongPolyline.p());
+    }
+    if (m_highlightPointsForPolyline.notNull())
+    {
+        m_highlightPointsForPolyline->setTransform(scaleTransform);
+        model->addPart(m_highlightPointsForPolyline.p());
     }
 }
 

@@ -142,6 +142,7 @@ public:
     cvf::ref<cvf::DrawableGeo>  generateSurface();
     cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
     cvf::ref<cvf::DrawableGeo>  createLineAlongPolylineDrawable();
+    cvf::ref<cvf::DrawableGeo>  createPointsFromPolylineDrawable();
 
     // Mapping between cells and geometry
     const std::vector<size_t>&           triangleToCellIndex() const;

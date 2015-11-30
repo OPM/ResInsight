@@ -55,6 +55,7 @@ public:
 
     void appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
     void appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
+    void appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
 
 private:
     void updatePartEffect();
@@ -85,4 +86,5 @@ private:
     cvf::ref<cvf::Vec2fArray>   m_crossSectionFacesTextureCoords;
 
     cvf::ref<cvf::Part>         m_highlightLineAlongPolyline;
+    cvf::ref<cvf::Part>         m_highlightPointsForPolyline;
 };

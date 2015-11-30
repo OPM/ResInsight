@@ -131,12 +131,8 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateName();
     }
 
-    if (changedField == &inputFromViewerEnabled)
-    {
-        // TODO rebuild geo and div
-    }
-
-    if (changedField == &m_userPolyline)
+    if (changedField == &inputFromViewerEnabled
+        || changedField == &m_userPolyline)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
