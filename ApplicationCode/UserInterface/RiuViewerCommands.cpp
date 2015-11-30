@@ -57,6 +57,7 @@
 #include "RivWellPipeSourceInfo.h"
 
 #include "cafCmdExecCommandManager.h"
+#include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 
@@ -83,7 +84,13 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
       m_currentGridIdx(-1),
       m_currentCellIndex(-1)  
 {
+    caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineCrossSectionFeature");
+    CVF_ASSERT(cmdFeature);
 
+    RicCommandFeature* riCommandFeature = dynamic_cast<RicCommandFeature*>(cmdFeature);
+    CVF_ASSERT(riCommandFeature);
+
+    m_activeUiCommandFeature = riCommandFeature;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -561,22 +568,6 @@ void RiuViewerCommands::findCellAndGridIndex(const RivCrossSectionSourceInfo* cr
         *cellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
         *gridIndex = 0;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::setActiveUiCommandFeature(RicCommandFeature* uiCommandFeature)
-{
-    m_activeUiCommandFeature = uiCommandFeature;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RicCommandFeature* RiuViewerCommands::activeUiCommandFeature() const
-{
-    return m_activeUiCommandFeature;
 }
 
 //--------------------------------------------------------------------------------------------------

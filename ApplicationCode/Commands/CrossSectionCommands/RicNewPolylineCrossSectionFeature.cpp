@@ -89,15 +89,17 @@ bool RicNewPolylineCrossSectionFeature::handleUiEvent(cvf::Object* uiEventObject
         if (polylineUiEvent)
         {
             RimCrossSection* crossSection = selection[0];
+            if (crossSection->inputFromViewerEnabled())
+            {
+                RimCase* rimCase = NULL;
+                crossSection->firstAnchestorOrThisOfType(rimCase);
+                CVF_ASSERT(rimCase);
 
-            RimCase* rimCase = NULL;
-            crossSection->firstAnchestorOrThisOfType(rimCase);
-            CVF_ASSERT(rimCase);
+                crossSection->appendPointToPolyLine(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
 
-            crossSection->appendPointToPolyLine(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
-
-            // Further Ui processing is stopped when true is returned
-            return true;
+                // Further Ui processing is stopped when true is returned
+                return true;
+            }
         }
     }
 
@@ -138,9 +140,9 @@ void RicNewPolylineCrossSectionFeatureCmd::redo()
     RimCrossSection* crossSection = new RimCrossSection();
     crossSection->name = "Polyline";
     crossSection->type = RimCrossSection::CS_POLYLINE;
-    m_crossSectionCollection->appendCrossSection(crossSection);
+    crossSection->inputFromViewerEnabled = true;
 
-    crossSection->updateActiveUiCommandFeature();
+    m_crossSectionCollection->appendCrossSection(crossSection);
 
     RiuSelectionManager::instance()->deleteAllItems();
 

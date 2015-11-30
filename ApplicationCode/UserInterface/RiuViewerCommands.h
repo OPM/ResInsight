@@ -55,10 +55,6 @@ public:
 
     void            findCellAndGridIndex(const RivCrossSectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
-    void                setActiveUiCommandFeature(RicCommandFeature* uiCommandFeature);
-    RicCommandFeature*  activeUiCommandFeature() const;
-
-
 private slots:
     void            slotRangeFilterI();
     void            slotRangeFilterJ();

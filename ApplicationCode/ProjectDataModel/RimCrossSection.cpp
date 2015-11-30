@@ -86,13 +86,13 @@ RimCrossSection::RimCrossSection()
     CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Inactive Cells", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_activateAppendPointsCommand, "m_activateUiAppendPointsCommand", "", "", "", "");
-    m_activateAppendPointsCommand.xmlCapability()->setIOWritable(false);
-    m_activateAppendPointsCommand.xmlCapability()->setIOReadable(false);
-    m_activateAppendPointsCommand.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_activateAppendPointsCommand.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitFieldNoDefault(&inputFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "");
+    inputFromViewerEnabled.xmlCapability()->setIOWritable(false);
+    inputFromViewerEnabled.xmlCapability()->setIOReadable(false);
+    inputFromViewerEnabled.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    inputFromViewerEnabled.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_activateAppendPointsCommand = false;
+    inputFromViewerEnabled = false;
 
     uiCapability()->setUiChildrenHidden(true);
 }
@@ -131,11 +131,9 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateName();
     }
 
-    if (changedField == &m_activateAppendPointsCommand)
+    if (changedField == &inputFromViewerEnabled)
     {
-        updateActiveUiCommandFeature();
-
-        m_activateAppendPointsCommand = false;
+        // TODO rebuild geo and div
     }
 
     if (changedField == &m_userPolyline)
@@ -169,7 +167,7 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     else if (type == CS_POLYLINE)
     {
         geometryGroup->add(&m_userPolyline);
-        geometryGroup->add(&m_activateAppendPointsCommand);
+        geometryGroup->add(&inputFromViewerEnabled);
     }
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
@@ -221,7 +219,6 @@ QList<caf::PdmOptionItemInfo> RimCrossSection::calculateValueOptions(const caf::
             {
                 options.push_back(caf::PdmOptionItemInfo(eclWells[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(eclWells[i])), false, simWellIcon));
             }
-
         }
 
         if (options.size() == 0)
@@ -500,21 +497,17 @@ void RimCrossSection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
 //--------------------------------------------------------------------------------------------------
 void RimCrossSection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &m_activateAppendPointsCommand)
+    if (field == &inputFromViewerEnabled)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        RimView* rimView = NULL;
-        this->firstAnchestorOrThisOfType(rimView);
-        CVF_ASSERT(rimView);
-
-        if (rimView->viewer()->activeUiCommandFeature())
+        if (inputFromViewerEnabled)
         {
-            attrib->m_buttonText = "End point input";
+            attrib->m_buttonText = "Stop picking points";
         }
         else
         {
-            attrib->m_buttonText = "Start point input";
+            attrib->m_buttonText = "Start picking points";
         }
     }
 }
@@ -529,35 +522,6 @@ void RimCrossSection::appendPointToPolyLine(const cvf::Vec3d& point)
     m_userPolyline.uiCapability()->updateConnectedEditors();
 
     rebuildGeometryAndScheduleCreateDisplayModel();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCrossSection::updateActiveUiCommandFeature()
-{
-    RimView* rimView = NULL;
-    this->firstAnchestorOrThisOfType(rimView);
-    CVF_ASSERT(rimView);
-
-    if (!rimView->viewer()) return;
-
-    if (rimView->viewer()->activeUiCommandFeature())
-    {
-        rimView->viewer()->setActiveUiCommandFeature(NULL);
-    }
-    else
-    {
-        caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineCrossSectionFeature");
-        CVF_ASSERT(cmdFeature);
-
-        RicCommandFeature* riCommandFeature = dynamic_cast<RicCommandFeature*>(cmdFeature);
-        CVF_ASSERT(riCommandFeature);
-
-        rimView->viewer()->setActiveUiCommandFeature(riCommandFeature);
-    }
-
-    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

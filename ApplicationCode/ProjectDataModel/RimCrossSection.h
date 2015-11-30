@@ -70,11 +70,12 @@ public:
     caf::PdmPtrField<RimWellPath*>                       wellPath;
     caf::PdmPtrField<RimEclipseWell*>                    simulationWell;
 
+    caf::PdmField< bool >                                inputFromViewerEnabled;
+
     std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
     RivCrossSectionPartMgr*                              crossSectionPartMgr();
 
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
-    void                                                 updateActiveUiCommandFeature();
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
@@ -93,7 +94,6 @@ private:
     caf::PdmField<double>                   m_extentLength;
 
     caf::PdmField< std::vector< cvf::Vec3d> >  m_userPolyline;
-    caf::PdmField< bool >                      m_activateAppendPointsCommand;
                                             
     RimEclipseWellCollection*               simulationWellCollection();
     void                                    updateWellCenterline() const;
