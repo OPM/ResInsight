@@ -356,8 +356,10 @@ void RivCrossSectionPartMgr::generatePartGeometry()
             part->setDrawable(polylineGeo.p());
 
             part->updateBoundingBox();
+            part->setPriority(10000);
+
+            // Always show this part, also when mesh is turned off
             //part->setEnableMask(meshFaultBit);
-            //part->setPriority(priMesh);
 
             cvf::ref<cvf::Effect> eff;
             caf::MeshEffectGenerator lineEffGen(cvf::Color3::MAGENTA);
