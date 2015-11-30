@@ -1,5 +1,7 @@
 #include "TapCvfSpecialization.h"
 
+#include "cafPdmUiListEditor.h"
+
 
 
 CAF_PDM_SOURCE_INIT(TapCvfSpecialization, "TapCvfSpecialization");
@@ -20,3 +22,30 @@ TapCvfSpecialization::TapCvfSpecialization()
 
     m_vecArrayField.v().push_back(cvf::Vec3d(1, 2, 3));
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TapCvfSpecialization::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_colorField)
+    {
+        updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TapCvfSpecialization::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_vecArrayField)
+    {
+        caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_backgroundColor.setRgbF(m_colorField().r(), m_colorField().g(), m_colorField().b());
+        }
+    }
+}
+

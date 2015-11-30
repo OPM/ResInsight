@@ -39,6 +39,7 @@
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
+#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
 
@@ -513,6 +514,14 @@ void RimCrossSection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
         else
         {
             attrib->m_buttonText = "Start picking points";
+        }
+    }
+    else if (field == &m_userPolyline)
+    {
+        caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
+        if (myAttr && inputFromViewerEnabled)
+        {
+            myAttr->m_baseColor.setRgb(255, 220, 255);
         }
     }
 }

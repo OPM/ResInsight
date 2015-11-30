@@ -139,9 +139,17 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_listView->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_listView->setToolTip(field()->uiToolTip(uiConfigName));
 
-    /// Demo code Not used yet
-    // PdmUiListEditorAttribute attributes;
-    // field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
+    PdmUiListEditorAttribute attributes;
+    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+        
+        QPalette myPalette(m_listView->palette());
+        myPalette.setColor(QPalette::Base, attributes.m_baseColor);
+
+        m_listView->setPalette(myPalette);
+    }
 
     MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());
 

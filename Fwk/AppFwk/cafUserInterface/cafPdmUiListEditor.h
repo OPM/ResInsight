@@ -54,6 +54,17 @@ namespace caf
 //==================================================================================================
 class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 {
+public:
+    PdmUiListEditorAttribute()
+        : m_baseColor(Qt::white)
+    {
+        QPalette myPalette;
+
+        m_baseColor = myPalette.color(QPalette::Active, QPalette::Base);
+    }
+
+public:
+    QColor m_baseColor;
 };
 
 
