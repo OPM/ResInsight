@@ -85,7 +85,7 @@ bool RicNewPolylineCrossSectionFeature::handleUiEvent(cvf::Object* uiEventObject
 
     if (selection.size() == 1)
     {
-        RicPolylineUiEvent* polylineUiEvent = dynamic_cast<RicPolylineUiEvent*>(uiEventObject);
+        RicLocalIntersectionUiEvent* polylineUiEvent = dynamic_cast<RicLocalIntersectionUiEvent*>(uiEventObject);
         if (polylineUiEvent)
         {
             RimCrossSection* crossSection = selection[0];

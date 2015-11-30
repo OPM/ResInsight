@@ -21,13 +21,25 @@
 
 #include "cafCmdFeature.h"
 
-namespace cvf
-{
-    class Object;
-}
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
 
 class RicCommandFeature : public caf::CmdFeature
 {
 public:
     virtual bool handleUiEvent(cvf::Object* uiEventObject) = 0;
 };
+
+class RicLocalIntersectionUiEvent : public cvf::Object
+{
+public:
+    RicLocalIntersectionUiEvent(cvf::Vec3d localIntersectionPoint)
+        : localIntersectionPoint(localIntersectionPoint)
+    {
+    }
+
+    cvf::Vec3d localIntersectionPoint;
+};
+

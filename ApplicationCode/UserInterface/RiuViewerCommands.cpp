@@ -19,45 +19,30 @@
 
 #include "RiuViewerCommands.h"
 
+#include "RicCommandFeature.h"
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
 
-#include "CrossSectionCommands/RicNewPolylineCrossSectionFeature.h"
-#include "CrossSectionCommands/RicNewSimWellCrossSectionFeature.h"
-#include "CrossSectionCommands/RicNewWellPathCrossSectionFeature.h"
-#include "WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
-#include "WellLogCommands/RicNewWellLogFileCurveFeature.h"
-
 #include "RigCaseData.h"
+#include "RigFault.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
-#include "RigTimeHistoryResultAccessor.h"
 
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimContextCommandBuilder.h"
 #include "RimCrossSection.h"
+#include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
-#include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RimView.h"
 #include "RimViewController.h"
-#include "RimWellLogFile.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionColors.h"
@@ -445,7 +430,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
             if (!m_activeUiCommandFeature.isNull())
             {
-                cvf::ref<RicPolylineUiEvent> uiEventObj = new RicPolylineUiEvent(localIntersectionPoint);
+                cvf::ref<RicLocalIntersectionUiEvent> uiEventObj = new RicLocalIntersectionUiEvent(localIntersectionPoint);
 
                 if (m_activeUiCommandFeature->handleUiEvent(uiEventObj.p()))
                 {

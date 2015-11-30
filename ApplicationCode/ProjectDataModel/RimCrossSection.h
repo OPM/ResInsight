@@ -92,8 +92,8 @@ private:
     caf::PdmField<int>                      m_branchIndex;
     caf::PdmField<double>                   m_extentLength;
 
-    caf::PdmField< std::vector< cvf::Vec3d> >  m_userDefinedPolyline;
-    caf::PdmField< bool >                      m_activateUiAppendPointsCommand;
+    caf::PdmField< std::vector< cvf::Vec3d> >  m_userPolyline;
+    caf::PdmField< bool >                      m_activateAppendPointsCommand;
                                             
     RimEclipseWellCollection*               simulationWellCollection();
     void                                    updateWellCenterline() const;

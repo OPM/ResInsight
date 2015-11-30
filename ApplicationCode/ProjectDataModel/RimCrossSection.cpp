@@ -81,18 +81,18 @@ RimCrossSection::RimCrossSection()
     CAF_PDM_InitFieldNoDefault(&direction,      "Direction",           "Direction", "", "", "");
     CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",            "Well Path        ", "", "", "");
     CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_userDefinedPolyline, "Points",              "Selected points", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points",              "Points", "", "", "");
     CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Inactive Cells", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_activateUiAppendPointsCommand, "m_activateUiAppendPointsCommand", "", "", "", "");
-    m_activateUiAppendPointsCommand.xmlCapability()->setIOWritable(false);
-    m_activateUiAppendPointsCommand.xmlCapability()->setIOReadable(false);
-    m_activateUiAppendPointsCommand.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_activateUiAppendPointsCommand.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitFieldNoDefault(&m_activateAppendPointsCommand, "m_activateUiAppendPointsCommand", "", "", "", "");
+    m_activateAppendPointsCommand.xmlCapability()->setIOWritable(false);
+    m_activateAppendPointsCommand.xmlCapability()->setIOReadable(false);
+    m_activateAppendPointsCommand.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_activateAppendPointsCommand.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_activateUiAppendPointsCommand = false;
+    m_activateAppendPointsCommand = false;
 
     uiCapability()->setUiChildrenHidden(true);
 }
@@ -131,14 +131,14 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateName();
     }
 
-    if (changedField == &m_activateUiAppendPointsCommand)
+    if (changedField == &m_activateAppendPointsCommand)
     {
         updateActiveUiCommandFeature();
 
-        m_activateUiAppendPointsCommand = false;
+        m_activateAppendPointsCommand = false;
     }
 
-    if (changedField == &m_userDefinedPolyline)
+    if (changedField == &m_userPolyline)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -168,8 +168,8 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
     else if (type == CS_POLYLINE)
     {
-        uiOrdering.add(&m_userDefinedPolyline);
-        uiOrdering.add(&m_activateUiAppendPointsCommand);
+        geometryGroup->add(&m_userPolyline);
+        geometryGroup->add(&m_activateAppendPointsCommand);
     }
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
@@ -310,7 +310,7 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
     }
     else if (type == CS_POLYLINE)
     {
-        lines.push_back(m_userDefinedPolyline);
+        lines.push_back(m_userPolyline);
     }
 
     if (type == CS_WELL_PATH || type == CS_SIMULATION_WELL)
@@ -500,7 +500,7 @@ void RimCrossSection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
 //--------------------------------------------------------------------------------------------------
 void RimCrossSection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &m_activateUiAppendPointsCommand)
+    if (field == &m_activateAppendPointsCommand)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
@@ -524,9 +524,9 @@ void RimCrossSection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
 //--------------------------------------------------------------------------------------------------
 void RimCrossSection::appendPointToPolyLine(const cvf::Vec3d& point)
 {
-    m_userDefinedPolyline.v().push_back(point);
+    m_userPolyline.v().push_back(point);
 
-    m_userDefinedPolyline.uiCapability()->updateConnectedEditors();
+    m_userPolyline.uiCapability()->updateConnectedEditors();
 
     rebuildGeometryAndScheduleCreateDisplayModel();
 }

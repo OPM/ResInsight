@@ -30,17 +30,6 @@
 
 class RimCrossSectionCollection;
 
-class RicPolylineUiEvent : public cvf::Object
-{
-public:
-    RicPolylineUiEvent(cvf::Vec3d localIntersectionPoint)
-        : localIntersectionPoint(localIntersectionPoint)
-    {
-    }
-
-    cvf::Vec3d localIntersectionPoint;
-};
-
 
 //==================================================================================================
 /// 
