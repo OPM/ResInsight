@@ -402,14 +402,17 @@ void RifWellPathAsciiFileReader::readAllWellData(QString filePath)
 
     // Create the data container
     std::vector<WellData>& fileWellDataArray = m_fileNameToWellDataGroupMap[filePath];
-    
+
     std::ifstream stream(filePath.toLatin1().data());
     double x(HUGE_VAL), y(HUGE_VAL), tvd(HUGE_VAL), md(HUGE_VAL);
 
-    while(stream.good())
+    bool hasReadWellPointInCurrentWell = false;
+
+    while (stream.good())
     {
+        // First check if we can read a number
         stream >> x;
-        if (stream.good())
+        if (stream.good()) // If we can, assume this line is a well point entry
         {
             stream >> y >> tvd >> md;
             if (!stream.good())
@@ -424,7 +427,7 @@ void RifWellPathAsciiFileReader::readAllWellData(QString filePath)
             }
             else
             {
-                if (!fileWellDataArray.size() )
+                if (!fileWellDataArray.size())
                 {
                     fileWellDataArray.push_back(WellData());
                     fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();
@@ -438,6 +441,8 @@ void RifWellPathAsciiFileReader::readAllWellData(QString filePath)
                 y = HUGE_VAL;
                 tvd = HUGE_VAL;
                 md = HUGE_VAL;
+
+                hasReadWellPointInCurrentWell = true;
             }
         }
         else
@@ -448,50 +453,85 @@ void RifWellPathAsciiFileReader::readAllWellData(QString filePath)
 
             std::string line;
             std::getline(stream, line, '\n');
-            size_t quoteStartIdx = line.find_first_of("'`´’‘");
-            size_t quoteEndIdx = line.find_last_of("'`´’‘");
-
-            std::string wellName;
-
-            if (quoteStartIdx < line.size() -1 )
+            // Skip possible comment lines (-- is used in eclipse, so Haakon Høgstøl considered it smart to skip these here as well)
+            // The first "-" is eaten by the stream >> x above
+            if (line.find("-") == 0 || line.find("#") == 0)
             {
-                // Extract the text between the quotes
-                wellName = line.substr(quoteStartIdx + 1, quoteEndIdx - 1 - quoteStartIdx);
+                // Comment line, just ignore
             }
-            else if (quoteStartIdx > line.length() && quoteEndIdx > line.length())
+            else
             {
-                // Did not find any quotes
-                // Supported alternatives are 
-                // name WellNameA
-                // wellname: WellNameA
-                std::string lineLowerCase = line;
-                transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), ::tolower );
+                // Find the first and the last position of any quotes (and do not care to match quotes)
+                size_t quoteStartIdx = line.find_first_of("'`´’‘");
+                size_t quoteEndIdx = line.find_last_of("'`´’‘");
 
-                std::string tokenName = "name";
-                std::size_t foundNameIdx = lineLowerCase.find(tokenName);
-                if (foundNameIdx != std::string::npos)
+                std::string wellName;
+                bool haveAPossibleWellStart = false;
+
+                if (quoteStartIdx < line.size() -1)
                 {
-                    std::string tokenColon = ":";
-                    std::size_t foundColonIdx = lineLowerCase.find(tokenColon, foundNameIdx);
-                    if (foundColonIdx != std::string::npos)
+                    // Extract the text between the quotes
+                    wellName = line.substr(quoteStartIdx + 1, quoteEndIdx - 1 - quoteStartIdx);
+                    haveAPossibleWellStart = true;
+                }
+                else if (quoteStartIdx > line.length())
+                {
+                    // We did not find any quotes
+
+                    // Supported alternatives are 
+                    // name <WellNameA>
+                    // wellname: <WellNameA>
+                    std::string lineLowerCase = line;
+                    transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), ::tolower);
+
+                    std::string tokenName = "name";
+                    std::size_t foundNameIdx = lineLowerCase.find(tokenName);
+                    if (foundNameIdx != std::string::npos)
                     {
-                        wellName = line.substr(foundColonIdx + tokenColon.length());
+                        std::string tokenColon = ":";
+                        std::size_t foundColonIdx = lineLowerCase.find(tokenColon, foundNameIdx);
+                        if (foundColonIdx != std::string::npos)
+                        {
+                            wellName = line.substr(foundColonIdx + tokenColon.length());
+                        }
+                        else
+                        {
+                            wellName = line.substr(foundNameIdx + tokenName.length());
+                        }
+
+                        haveAPossibleWellStart = true;
                     }
                     else
                     {
-                        wellName = line.substr(foundNameIdx + tokenName.length());
+                        // Interpret the whole line as the well name.
+
+                        QString name = line.c_str();
+                        if (!name.trimmed().isEmpty())
+                        {
+                            wellName = name.trimmed().toStdString();
+                            haveAPossibleWellStart = true;
+                        }
                     }
                 }
-            }
 
-            if (wellName.size() > 0)
-            {
-                // Create a new Well data 
-                fileWellDataArray.push_back(WellData());
-                fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();
+                if (haveAPossibleWellStart)
+                {
+                    // Create a new Well data if we have read some data into the previous one.
+                    // if not, just overwrite the name
+                    if (hasReadWellPointInCurrentWell || fileWellDataArray.size() == 0)
+                    {
+                        fileWellDataArray.push_back(WellData());
+                        fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();
+                    }
 
-                QString name = wellName.c_str();
-                fileWellDataArray.back().m_name = name.trimmed();
+                    QString name = wellName.c_str();
+                    if (!name.trimmed().isEmpty())
+                    {
+                        // Do not overwrite the name aquired from a line above, if this line is empty
+                        fileWellDataArray.back().m_name = name.trimmed();
+                    }
+                    hasReadWellPointInCurrentWell = false;
+                }
             }
         }
     }
