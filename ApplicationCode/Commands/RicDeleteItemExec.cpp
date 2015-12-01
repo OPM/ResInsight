@@ -132,7 +132,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            wellLogPlotTrack->zoomAllXAxis();
+            wellLogPlotTrack->zoomAllXAxisIfAutoScale();
         }
         
         // Update due to delete plots

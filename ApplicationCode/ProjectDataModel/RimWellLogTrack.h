@@ -58,7 +58,7 @@ public:
 
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
     void zoomAllXAndZoomAllDepthOnOwnerPlot();
-    void zoomAllXAxis();
+    void zoomAllXAxisIfAutoScale();
 
     RiuWellLogTrack* viewer();
     
@@ -79,6 +79,7 @@ private:
     caf::PdmChildArrayField<RimWellLogCurve*> curves;
     caf::PdmField<double> m_visibleXRangeMin;
     caf::PdmField<double> m_visibleXRangeMax;
+    caf::PdmField<bool>   m_isAutoScaleXEnabled;
 
     QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
 };

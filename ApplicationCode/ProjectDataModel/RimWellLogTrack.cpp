@@ -54,7 +54,9 @@ RimWellLogTrack::RimWellLogTrack()
     curves.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "");
-    CAF_PDM_InitField(&m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "");   
+    CAF_PDM_InitField(&m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "");
+
+    CAF_PDM_InitField(&m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale", "", "", "");  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,6 +100,15 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
         m_wellLogTrackPlotWidget->replot();
+        m_isAutoScaleXEnabled = false;
+    }
+    else if (changedField == &m_isAutoScaleXEnabled )
+    {
+        if (m_isAutoScaleXEnabled())
+        { 
+            this->zoomAllXAxisIfAutoScale();
+            if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->replot();
+        }
     }
 }
 
@@ -260,7 +271,7 @@ void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
            wellLogPlot->zoomAllDepth();
         }
 
-        zoomAllXAxis();
+        zoomAllXAxisIfAutoScale();
 
         m_wellLogTrackPlotWidget->replot();
     }
@@ -269,8 +280,10 @@ void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::zoomAllXAxis()
+void RimWellLogTrack::zoomAllXAxisIfAutoScale()
 {
+    if (!m_isAutoScaleXEnabled()) return;
+
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
@@ -331,8 +344,10 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.add(&m_userName);
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
+    gridGroup->add(&m_isAutoScaleXEnabled);
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
+
 }
 
 //--------------------------------------------------------------------------------------------------
