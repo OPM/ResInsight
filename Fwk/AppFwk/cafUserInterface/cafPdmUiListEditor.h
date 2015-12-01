@@ -91,6 +91,10 @@ protected slots:
     void                slotListItemEdited(const QModelIndex&, const QModelIndex&);
 
 private:
+    QString             contentAsString() const;
+    void                pasteFromString(const QString& content);
+
+private:
     QPointer<QListView>         m_listView;
     QPointer<QLabel>            m_label;
     QPointer<QStringListModel>  m_model;

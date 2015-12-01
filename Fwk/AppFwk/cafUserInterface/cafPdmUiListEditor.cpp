@@ -44,18 +44,21 @@
 
 #include "cafFactory.h"
 
-#include <QLineEdit>
+#include <QApplication>
+#include <QBoxLayout>
+#include <QClipboard>
+#include <QDebug>
+#include <QEvent>
+#include <QKeyEvent>
 #include <QLabel>
+#include <QLineEdit>
+#include <QListView>
 #include <QListView>
 #include <QStringListModel>
-#include <QBoxLayout>
-#include <QListView>
-#include <QDebug>
 
 
 #include <assert.h>
-#include <QEvent>
-#include <QKeyEvent>
+
 
 //==================================================================================================
 /// Helper class used to override flags to disable editable items
@@ -315,6 +318,33 @@ void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString PdmUiListEditor::contentAsString() const
+{
+    QString str;
+
+    if (m_model)
+    {
+        QStringList uiList = m_model->stringList();
+
+        str = uiList.join("\n");
+    }
+
+    return str;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::pasteFromString(const QString& content)
+{
+    QStringList strList = content.split("\n");
+
+    this->setValueToField(strList);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool PdmUiListEditor::eventFilter(QObject * listView, QEvent * event)
 {
     if (listView == m_listView && event->type() == QEvent::KeyPress)
@@ -348,6 +378,31 @@ bool PdmUiListEditor::eventFilter(QObject * listView, QEvent * event)
                 this->setValueToField(result);
             }
             return true;
+        }
+        else if (keyEv->modifiers() & Qt::ControlModifier)
+        {
+            if (keyEv->key() == Qt::Key_C)
+            {
+                QClipboard* clipboard = QApplication::clipboard();
+                if (clipboard)
+                {
+                    QString content = contentAsString();
+                    clipboard->setText(content);
+
+                    return true;
+                }
+            }
+            else if (keyEv->key() == Qt::Key_V)
+            {
+                QClipboard* clipboard = QApplication::clipboard();
+                if (clipboard)
+                {
+                    QString content = clipboard->text();
+                    pasteFromString(content);
+                    
+                    return true;
+                }
+            }
         }
     }
 
