@@ -239,7 +239,7 @@ QList<caf::PdmOptionItemInfo> RimCrossSection::calculateValueOptions(const caf::
         
         options.push_back(caf::PdmOptionItemInfo("All", -1));
 
-        for (int bIdx = 0; bIdx < branchCount; ++bIdx)
+        for (size_t bIdx = 0; bIdx < branchCount; ++bIdx)
         {
             options.push_back(caf::PdmOptionItemInfo(QString::number(bIdx + 1), QVariant::fromValue(bIdx)));
         }
@@ -299,7 +299,7 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
         {
             updateWellCenterline();
 
-            if (0 <= m_branchIndex && m_branchIndex < m_wellBranchCenterlines.size())
+            if (0 <= m_branchIndex && m_branchIndex < static_cast<int>(m_wellBranchCenterlines.size()))
             {
                 lines.push_back(m_wellBranchCenterlines[m_branchIndex]);
             }
@@ -317,7 +317,7 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
 
     if (type == CS_WELL_PATH || type == CS_SIMULATION_WELL)
     {
-        for (int lIdx = 0; lIdx < lines.size(); ++lIdx)
+        for (size_t lIdx = 0; lIdx < lines.size(); ++lIdx)
         {
             std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
             addExtents(polyLine);
