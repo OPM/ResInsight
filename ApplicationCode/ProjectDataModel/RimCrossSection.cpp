@@ -91,7 +91,6 @@ RimCrossSection::RimCrossSection()
     inputFromViewerEnabled.xmlCapability()->setIOWritable(false);
     inputFromViewerEnabled.xmlCapability()->setIOReadable(false);
     inputFromViewerEnabled.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    inputFromViewerEnabled.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     inputFromViewerEnabled = false;
 
