@@ -26,6 +26,8 @@
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
+#include "cafPdmUiComboBoxEditor.h"
+
 #include "cvfAssert.h"
 
 // NB! Special macro for pure virtual class
@@ -48,6 +50,9 @@ RimWellLogCurve::RimWellLogCurve()
     CAF_PDM_InitField(&m_autoName, "AutoName", true, "Auto Name", "", "", "");
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
+
+    CAF_PDM_InitField(&m_curveThickness, "Thickness", 1.0f, "Thickness", "", "", "");
+    m_curveThickness.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
     m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
     m_qwtPlotCurve->setXAxis(QwtPlot::xTop);
@@ -84,9 +89,10 @@ void RimWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         m_customCurveName = m_curveName;
         updatePlotTitle();
     }
-    else if (&m_curveColor == changedField)
+    else if (&m_curveColor == changedField
+            || &m_curveThickness == changedField)
     {
-        m_qwtPlotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
+        updateCurvePen();
     }
     else if (changedField == &m_autoName)
     {
@@ -150,7 +156,7 @@ void RimWellLogCurve::updatePlotConfiguration()
     this->updateCurveName();
     this->updatePlotTitle();
 
-    m_qwtPlotCurve->setPen(QPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte())));
+    updateCurvePen();
     // Todo: Rest of the curve setup controlled from this class
 }
 
@@ -312,3 +318,31 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 {
     return m_curveData.p();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::updateCurvePen()
+{
+    CVF_ASSERT(m_qwtPlotCurve);
+    m_qwtPlotCurve->setPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte()), m_curveThickness);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellLogCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_curveThickness)
+    {
+        for (size_t i = 0; i < 10; i++)
+        {
+            options.push_back(caf::PdmOptionItemInfo(QString::number(i + 1), QVariant::fromValue(i + 1)));
+        }
+    }
+
+    return options;
+}
+

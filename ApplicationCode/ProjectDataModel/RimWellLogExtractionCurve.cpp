@@ -271,6 +271,9 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
 {
    QList<caf::PdmOptionItemInfo> optionList;
 
+   optionList = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+   if (optionList.size() > 0) return optionList;
+
     if (fieldNeedingOptions == &m_wellPath)
     {
         RimProject* proj = RiaApplication::instance()->project();
@@ -360,6 +363,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     appearanceGroup->add(&m_curveColor);
+    appearanceGroup->add(&m_curveThickness);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_autoName);
     if (m_autoName)

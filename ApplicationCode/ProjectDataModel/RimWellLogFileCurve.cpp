@@ -169,6 +169,7 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     appearanceGroup->add(&m_curveColor);
+    appearanceGroup->add(&m_curveThickness);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_autoName);
 }
@@ -187,6 +188,9 @@ void RimWellLogFileCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
 QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> optionList;
+
+    optionList = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    if (optionList.size() > 0) return optionList;
 
     if (fieldNeedingOptions == &m_wellPath)
     {

@@ -73,12 +73,14 @@ protected:
     void                            updateCurveVisibility();
     void                            zoomAllOwnerTrackAndPlot();
     void                            updateOptionSensitivity();
+    void                            updateCurvePen();
 
     // Overridden PDM methods
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*    objectToggleField();
     virtual caf::PdmFieldHandle*    userDescriptionField();
     virtual void                    initAfterRead();
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
 
 
     QPointer<RiuWellLogTrack>   m_ownerQwtTrack;
@@ -91,4 +93,5 @@ protected:
 
     caf::PdmField<bool>             m_autoName;
     caf::PdmField<cvf::Color3f>     m_curveColor;
+    caf::PdmField<float>            m_curveThickness;
 };
