@@ -131,15 +131,16 @@ public:
     ~WellSelectionPage();
 
     virtual void initializePage();
-    void buildWellTreeView();
+    void         buildWellTreeView();
 
-
-    void selectedWellPathEntries(std::vector<DownloadEntity>& downloadEntities, caf::PdmObjectHandle* objHandle);
+    void        selectedWellPathEntries(std::vector<DownloadEntity>& downloadEntities, caf::PdmObjectHandle* objHandle);
+private:
+    void        sortObjectsByDescription(caf::PdmObjectCollection* objects);
 
 private:
-    ObjectGroupWithHeaders*  m_regionsWithVisibleWells;
-    RimWellPathImport*  m_wellPathImportObject;
-    caf::PdmUiTreeView* m_wellSelectionTreeView;
+    ObjectGroupWithHeaders* m_regionsWithVisibleWells;
+    RimWellPathImport*      m_wellPathImportObject;
+    caf::PdmUiTreeView*     m_wellSelectionTreeView;
 
 };
 
