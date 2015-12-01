@@ -82,7 +82,6 @@ RimWellPathCollection::RimWellPathCollection()
     wellPaths.uiCapability()->setUiHidden(true);
 
     m_wellPathCollectionPartManager = new RivWellPathCollectionPartMgr(this);
-    m_project = NULL;
 
     m_asciiFileReader = new RifWellPathAsciiFileReader;
 }
@@ -108,20 +107,6 @@ void RimWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::setProject( RimProject* project )
-{
-    m_project = project;
-    for (size_t wellPathIdx = 0; wellPathIdx < wellPaths.size(); wellPathIdx++)
-    {
-        wellPaths[wellPathIdx]->setProject(m_project);
-        wellPaths[wellPathIdx]->setCollection(this);
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
 /// Read JSON files containing well path data
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::readWellPathFiles()
@@ -133,7 +118,7 @@ void RimWellPathCollection::readWellPathFiles()
         if (!wellPaths[wpIdx]->filepath().isEmpty())
         {
             QString errorMessage;
-            if (!wellPaths[wpIdx]->readWellPathFile(&errorMessage))
+            if (!wellPaths[wpIdx]->readWellPathFile(&errorMessage, this->asciiFileReader()))
             {
                 QMessageBox::warning(RiuMainWindow::instance(),
                                      "File open error",
@@ -203,8 +188,6 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
             if (fi.suffix().compare("json") == 0)
             {
                 RimWellPath* wellPath = new RimWellPath();
-                wellPath->setProject(m_project);
-                wellPath->setCollection(this);
                 wellPath->filepath = filePath;
                 wellPathArray.push_back(wellPath);
             }
@@ -215,8 +198,6 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
                 for (size_t i = 0; i < wellPathCount; ++i)
                 {
                     RimWellPath* wellPath = new RimWellPath();
-                    wellPath->setProject(m_project);
-                    wellPath->setCollection(this);
                     wellPath->filepath = filePath;
                     wellPath->wellPathIndexInFile = static_cast<int>(i);
                     wellPathArray.push_back(wellPath);
@@ -239,7 +220,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimWellPath* wellPath = wellPathArray[wpIdx];
-        wellPath->readWellPathFile(NULL);
+        wellPath->readWellPathFile(NULL, this->asciiFileReader());
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name));
 
@@ -249,7 +230,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         {
             existingWellPath->filepath = wellPath->filepath;
             existingWellPath->wellPathIndexInFile = wellPath->wellPathIndexInFile;
-            existingWellPath->readWellPathFile(NULL);
+            existingWellPath->readWellPathFile(NULL, this->asciiFileReader());
 
             delete wellPath;
         }
@@ -279,7 +260,6 @@ void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
             if (!wellPath)
             {
                 wellPath = new RimWellPath();
-                wellPath->setCollection(this);
                 wellPaths.push_back(wellPath);
             }
 
@@ -322,7 +302,9 @@ caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
 void RimWellPathCollection::scheduleGeometryRegenAndRedrawViews()
 {
     m_wellPathCollectionPartManager->scheduleGeometryRegen();
-    if (m_project) m_project->createDisplayModelAndRedrawAllViews();
+    RimProject* proj;
+    this->firstAnchestorOrThisOfType(proj);
+    if (proj) proj->createDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

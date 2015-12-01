@@ -306,7 +306,6 @@ void RimProject::initAfterRead()
     {
         RimOilField* oilField = oilFields[oilFieldIdx];
         if (oilField == NULL || oilField->wellPathCollection == NULL) continue;
-        oilField->wellPathCollection->setProject(this);
     }
 }
 

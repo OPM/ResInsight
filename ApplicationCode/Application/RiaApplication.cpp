@@ -351,7 +351,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         {
             //printf("Create well path collection for oil field %i in loadProject.\n", oilFieldIdx);
             oilField->wellPathCollection = new RimWellPathCollection();
-            oilField->wellPathCollection->setProject(m_project);
         }
 
         if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
@@ -474,7 +473,6 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
     {
         //printf("Create well path collection.\n");
         oilField->wellPathCollection = new RimWellPathCollection();
-        oilField->wellPathCollection->setProject(m_project);
 
         m_project->updateConnectedEditors();
     }
@@ -497,7 +495,6 @@ void RiaApplication::addWellLogsToModel(const QList<QString>& wellLogFilePaths)
     if (oilField->wellPathCollection == NULL)
     {
         oilField->wellPathCollection = new RimWellPathCollection();
-        oilField->wellPathCollection->setProject(m_project);
 
         m_project->updateConnectedEditors();
     }

@@ -102,7 +102,6 @@ private:
     void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
     void                                sortWellsByName();
 
-    caf::PdmPointer<RimProject>         m_project;
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 
     RifWellPathAsciiFileReader*         m_asciiFileReader;
