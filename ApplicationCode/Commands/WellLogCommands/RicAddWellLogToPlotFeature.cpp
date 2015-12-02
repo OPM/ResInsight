@@ -93,6 +93,12 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFile();
             CVF_ASSERT(wellLogDataFile);
 
+            if (wlIdx == 0)
+            {
+                // Initialize plot with depth unit from the first log file
+                plot->setDepthUnit(wellLogDataFile->depthUnit());
+            }
+
             cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
             curve->setColor(curveColor);
             curve->setWellPath(wellPath);

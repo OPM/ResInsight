@@ -560,3 +560,13 @@ size_t RimWellLogPlot::trackIndex(RimWellLogTrack* track)
     return m_tracks.index(track);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setDepthUnit(RimDefines::DepthUnitType depthUnit)
+{
+    m_depthUnit = depthUnit;
+
+    updateTracks();
+}
+

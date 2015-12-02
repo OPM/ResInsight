@@ -22,12 +22,13 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 
-#include "RimWellLogTrack.h"
+#include "RimProject.h"
+#include "RimView.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimView.h"
-#include "RimProject.h"
 
 #include "RiuMainWindow.h"
 #include "RiaApplication.h"
@@ -66,6 +67,13 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
         {
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
             RimWellLogExtractionCurve* plotCurve = addCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath);
+
+            RimWellLogPlot* plot = NULL;
+            wellLogPlotTrack->firstAnchestorOrThisOfType(plot);
+            if (plot)
+            {
+                plot->setDepthUnit(plotCurve->curveData()->depthUnit());
+            }
  
             plotCurve->updatePlotData();
             plotCurve->updateConnectedEditors();

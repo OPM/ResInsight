@@ -38,7 +38,6 @@ public:
     virtual ~RimMainPlotCollection();
 
     RimWellLogPlotCollection* wellLogPlotCollection();
-    void recreateWellLogPlotCollection();
 
 protected:
 

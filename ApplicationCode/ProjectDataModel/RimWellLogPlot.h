@@ -53,7 +53,10 @@ public:
     void                                            setDescription(const QString& description);
 
     DepthTypeEnum                                   depthType() const;
+
     RimDefines::DepthUnitType                       depthUnit() const;
+    void                                            setDepthUnit(RimDefines::DepthUnitType depthUnit);
+
     QString                                         depthPlotTitle() const;
 
     caf::PdmField< std::vector<int> >               windowGeometry;

@@ -735,14 +735,3 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
     uiTreeOrdering.setForgetRemainingFields(true);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimProject::recreateMainPlotCollection()
-{
-    if (!mainPlotCollection())
-    {
-        mainPlotCollection = new RimMainPlotCollection();
-    }
-}
-
