@@ -51,7 +51,7 @@ public:
     std::vector<double> depthValues() const;
     std::vector<double> values(const QString& name) const;
 
-    QString wellLogChannelUnitString(const QString& wellLogChannelName) const;
+    QString wellLogChannelUnitString(const QString& wellLogChannelName, RimDefines::DepthUnitType displayDepthUnit) const;
     RimDefines::DepthUnitType depthUnit() const;
 
     static bool exportToLasFile(const RimWellLogCurve* curve, const QString& fileName);

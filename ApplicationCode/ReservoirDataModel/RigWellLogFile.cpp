@@ -206,7 +206,7 @@ QString RigWellLogFile::depthUnitString() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelName) const
+QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelName, RimDefines::DepthUnitType displayDepthUnit) const
 {
     QString unit;
 
@@ -216,10 +216,19 @@ QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelNa
         unit = QString::fromStdString(lasWell->unitName(wellLogChannelName.toStdString()));
     }
 
-    // Special handling of depth unit - we convert depth to meter 
     if (unit == depthUnitString())
     {
-        return "m";
+        if (displayDepthUnit != depthUnit())
+        {
+            if (displayDepthUnit == RimDefines::UNIT_METER)
+            {
+                return "M";
+            }
+            else if (displayDepthUnit == RimDefines::UNIT_FEET)
+            {
+                return "FT";
+            }
+        }
     }
 
     return unit;

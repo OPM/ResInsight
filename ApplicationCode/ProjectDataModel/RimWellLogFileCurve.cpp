@@ -263,7 +263,11 @@ QString RimWellLogFileCurve::createCurveName()
         RigWellLogFile* wellLogFile = logFileInfo ? logFileInfo->wellLogFile() : NULL;
         if (wellLogFile)
         {
-            QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannnelName);
+            RimWellLogPlot* wellLogPlot;
+            firstAnchestorOrThisOfType(wellLogPlot);
+            CVF_ASSERT(wellLogPlot);
+
+            QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannnelName, wellLogPlot->depthUnit());
             if (!unitName.isEmpty())
             {
                 txt += QString(" [%1]").arg(unitName);
