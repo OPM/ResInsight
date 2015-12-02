@@ -54,6 +54,8 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
         QString defaultFileName = curve->name().trimmed();
         defaultFileName.replace(".", "_");
         defaultFileName.replace(",", "_");
+        defaultFileName.replace(":", "_");
+        defaultFileName.replace(";", "_");
         defaultFileName.replace(" ", "_");
         defaultFileName.replace(QRegExp("_+"), "_");
         defaultFileName.append(".las");
