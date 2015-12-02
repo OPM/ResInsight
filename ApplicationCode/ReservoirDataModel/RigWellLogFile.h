@@ -51,14 +51,14 @@ public:
     std::vector<double> depthValues() const;
     std::vector<double> values(const QString& name) const;
 
-    QString depthUnitString() const;
     QString wellLogChannelUnitString(const QString& wellLogChannelName) const;
     RimDefines::DepthUnitType depthUnit() const;
 
     static bool exportToLasFile(const RimWellLogCurve* curve, const QString& fileName);
 
 private:
-    void close();
+    void    close();
+    QString depthUnitString() const;
 
     NRLib::Well*    m_wellLogFile;
     QStringList     m_wellLogChannelNames;

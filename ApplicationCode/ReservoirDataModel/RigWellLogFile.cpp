@@ -30,8 +30,6 @@
 #include <exception>
 #include <cmath> // Needed for HUGE_VAL on Linux
 
-#define RIG_WELL_FOOTPERMETER 3.2808399
-
 
 //--------------------------------------------------------------------------------------------------
 /// Find the largest possible "ususal" value to use for absent data (-999.25, -9999.25, etc.)
@@ -172,33 +170,18 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 
     if (m_wellLogFile->HasContLog(name.toStdString()))
     {
-        if (name == m_depthLogName && (depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT"))
-        {
-            std::vector<double> footValues = m_wellLogFile->GetContLog(name.toStdString());
-            
-            std::vector<double> meterValues;
-            meterValues.reserve(footValues.size());
-
-            for (size_t vIdx = 0; vIdx < footValues.size(); vIdx++)
-            {
-                meterValues.push_back(footValues[vIdx]/RIG_WELL_FOOTPERMETER);
-            }
-
-            return meterValues;
-        }
-
-        std::vector<double> values = m_wellLogFile->GetContLog(name.toStdString());
+        std::vector<double> logValues = m_wellLogFile->GetContLog(name.toStdString());
         
-        for (size_t vIdx = 0; vIdx < values.size(); vIdx++)
+        for (size_t vIdx = 0; vIdx < logValues.size(); vIdx++)
         {
-            if (m_wellLogFile->IsMissing(values[vIdx]))
+            if (m_wellLogFile->IsMissing(logValues[vIdx]))
             {
                 // Convert missing ("NULL") values to HUGE_VAL
-                values[vIdx] = HUGE_VAL;
+                logValues[vIdx] = HUGE_VAL;
             }
         }
 
-        return values;
+        return logValues;
     }
 
     return std::vector<double>();
@@ -279,7 +262,16 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
     NRLib::LasWell lasFile;
     lasFile.addWellInfo("WELL", curve->wellName().trimmed().toStdString());
     lasFile.addWellInfo("DATE", wellLogDate.toStdString());
-    lasFile.AddLog("DEPTH", "M", "Depth in meters", curveData->measuredDepths());
+
+    if (curveData->depthUnit() == RimDefines::UNIT_METER)
+    {
+        lasFile.AddLog("DEPTH", "M", "Depth in meters", curveData->measuredDepths());
+    }
+    else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
+    {
+        lasFile.AddLog("DEPTH", "FT", "Depth in feet", curveData->measuredDepths());
+    }
+
     lasFile.AddLog(wellLogChannelName.trimmed().toStdString(), "NO_UNIT", "", wellLogValues);
     lasFile.SetMissing(absentValue);
 
@@ -289,7 +281,15 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
 
     lasFile.setStartDepth(minDepth);
     lasFile.setStopDepth(maxDepth);
-    lasFile.setDepthUnit("M");
+
+    if (curveData->depthUnit() == RimDefines::UNIT_METER)
+    {
+        lasFile.setDepthUnit("M");
+    }
+    else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
+    {
+        lasFile.setDepthUnit("FT");
+    }
 
     lasFile.setVersionInfo("2.0");
 

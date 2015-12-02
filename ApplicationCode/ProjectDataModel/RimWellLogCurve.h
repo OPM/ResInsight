@@ -83,8 +83,8 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
 
 
-    QPointer<RiuWellLogTrack>   m_ownerQwtTrack;
-    RiuLineSegmentQwtPlotCurve*            m_qwtPlotCurve;
+    QPointer<RiuWellLogTrack>       m_ownerQwtTrack;
+    RiuLineSegmentQwtPlotCurve*     m_qwtPlotCurve;
     cvf::ref<RigWellLogCurveData>   m_curveData;
 
     caf::PdmField<bool>             m_showCurve;
