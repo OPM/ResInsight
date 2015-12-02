@@ -126,14 +126,6 @@ void RimEclipseFaultColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipseFaultColors::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
-{
-    return m_customFaultResultColors->calculateValueOptionsForSpecifiedDerivedListPosition(true, fieldNeedingOptions, useOptionsOnly);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RimEclipseFaultColors::hasValidCustomResult()
 {
     if (this->showCustomFaultResult())

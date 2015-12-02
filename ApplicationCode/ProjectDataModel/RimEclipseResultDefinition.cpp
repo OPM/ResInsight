@@ -192,7 +192,13 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(false, fieldNeedingOptions, useOptionsOnly);
+    bool showPerFaceResultsFirst = false;
+
+    RimEclipseFaultColors* rimEclipseFaultColors = NULL;
+    this->firstAnchestorOrThisOfType(rimEclipseFaultColors);
+    if (rimEclipseFaultColors) showPerFaceResultsFirst = true;
+
+    QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(showPerFaceResultsFirst, fieldNeedingOptions, useOptionsOnly);
 
     RimWellLogCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
@@ -215,42 +221,53 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptionsF
     {
         if (this->currentGridCellResults())
         {
-            QStringList varList = getResultVariableListForCurrentUIFieldSettings();
-
             QList<caf::PdmOptionItemInfo> optionList;
-            QList<caf::PdmOptionItemInfo> perCellFaceOptionList;
-            for (int i = 0; i < varList.size(); ++i)
+  
+            QStringList cellCenterResultNames;
+            QStringList cellFaceResultNames;
+    
+            foreach(QString s, getResultVariableListForCurrentUIFieldSettings())
             {
-                if (RimDefines::isPerCellFaceResult(varList[i]))
+                if (RimDefines::isPerCellFaceResult(s))
                 {
-                    // Move combined per cell face results to top of list
-                    perCellFaceOptionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
+                    cellFaceResultNames.push_back(s);
                 }
                 else
                 {
-                    optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
+                    cellCenterResultNames.push_back(s);
                 }
             }
 
+            cellCenterResultNames.sort();
+            cellFaceResultNames.sort();
+
+            // Cell Center result names
+            foreach(QString s, cellCenterResultNames)
+            {
+                optionList.push_back(caf::PdmOptionItemInfo(s, s));
+            }
+
+            // Ternary Result
             bool hasAtLeastOneTernaryComponent = false;
-            if (varList.contains("SOIL")) hasAtLeastOneTernaryComponent = true;
-            else if (varList.contains("SGAS")) hasAtLeastOneTernaryComponent = true;
-            else if (varList.contains("SWAT")) hasAtLeastOneTernaryComponent = true;
+            if (cellCenterResultNames.contains("SOIL")) hasAtLeastOneTernaryComponent = true;
+            else if (cellCenterResultNames.contains("SGAS")) hasAtLeastOneTernaryComponent = true;
+            else if (cellCenterResultNames.contains("SWAT")) hasAtLeastOneTernaryComponent = true;
 
             if (m_resultTypeUiField == RimDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
             {
                 optionList.push_front(caf::PdmOptionItemInfo(RimDefines::ternarySaturationResultName(), RimDefines::ternarySaturationResultName()));
             }
 
-            for (int i = 0; i < perCellFaceOptionList.size(); i++)
+            // Cell Face result names
+            foreach(QString s, cellFaceResultNames)
             {
                 if (showDerivedResultsFirstInList)
                 {
-                    optionList.push_front(perCellFaceOptionList[i]);
+                    optionList.push_front(caf::PdmOptionItemInfo(s, s));
                 }
                 else
                 {
-                    optionList.push_back(perCellFaceOptionList[i]);
+                    optionList.push_back(caf::PdmOptionItemInfo(s, s));
                 }
             }
 
@@ -294,7 +311,6 @@ void RimEclipseResultDefinition::loadResult()
 
     updateFieldVisibility();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Returns whether the result requested by the definition is a single frame result 
