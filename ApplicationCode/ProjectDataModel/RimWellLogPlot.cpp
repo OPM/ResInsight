@@ -66,6 +66,9 @@ RimWellLogPlot::RimWellLogPlot()
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
     CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Depth type",   "", "", "");
 
+    caf::AppEnum< RimDefines::DepthUnitType > depthUnit = RimDefines::UNIT_METER;
+    CAF_PDM_InitField(&m_depthUnit, "DepthUnit", depthUnit, "Depth unit", "", "", "");
+
     CAF_PDM_InitField(&m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
 
@@ -150,7 +153,8 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateViewerWidgetWindowTitle();
     }
-    if (changedField == &m_depthType)
+    if (changedField == &m_depthType ||
+        changedField == &m_depthUnit)
     {
         updateTracks();
     }
@@ -366,6 +370,7 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_depthType);
+    uiOrdering.add(&m_depthUnit);
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
     gridGroup->add(&m_minVisibleDepth);
@@ -512,6 +517,14 @@ RimWellLogPlot::DepthTypeEnum RimWellLogPlot::depthType() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimDefines::DepthUnitType RimWellLogPlot::depthUnit() const
+{
+    return m_depthUnit.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogPlot::depthPlotTitle() const
 {
     QString depthTitle = "Depth";
@@ -527,7 +540,15 @@ QString RimWellLogPlot::depthPlotTitle() const
             break;
     }
 
-    depthTitle += " [m]";
+    if (m_depthUnit == RimDefines::UNIT_METER)
+    {
+        depthTitle += " [m]";
+    }
+    else if (m_depthUnit == RimDefines::UNIT_FEET)
+    {
+        depthTitle += " [ft]";
+    }
+
     return depthTitle;
 }
 

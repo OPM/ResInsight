@@ -265,7 +265,16 @@ void RimWellLogExtractionCurve::updatePlotData()
             }
         }
 
-        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues().data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
+
+        RimWellLogPlot* wellLogPlot;
+        firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+            displayUnit = wellLogPlot->depthUnit();
+        }
+
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
         zoomAllOwnerTrackAndPlot();

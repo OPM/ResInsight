@@ -54,7 +54,7 @@ public:
     RimDefines::DepthUnitType                 depthUnit() const;
 
     std::vector<double>                       xPlotValues() const;
-    std::vector<double>                       depthPlotValues() const;
+    std::vector<double>                       depthPlotValues(RimDefines::DepthUnitType displayDepthUnit) const;
     std::vector< std::pair<size_t, size_t> >  polylineStartStopIndices() const;
 
 private:
@@ -63,6 +63,12 @@ private:
     static void                               splitIntervalAtEmptySpace(const std::vector<double>& depthValues, 
                                                                         size_t startIdx, size_t stopIdx, 
                                                                         std::vector< std::pair<size_t, size_t> >* intervals);
+
+    std::vector<double>                       convertDepthValues(RimDefines::DepthUnitType destinationDepthUnit, const std::vector<double>& originalValues) const;
+
+    static std::vector<double>                convertFromMeterToFeet(const std::vector<double>& valuesInMeter);
+    static std::vector<double>                convertFromFeetToMeter(const std::vector<double>& valuesInFeet);
+
 private:
     std::vector<double>                       m_xValues;
     std::vector<double>                       m_measuredDepths;

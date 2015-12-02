@@ -77,5 +77,6 @@ public:
         UNIT_FEET
     };
 
+    static double feetPerMeter()                    { return 3.2808399; }
 };
 
