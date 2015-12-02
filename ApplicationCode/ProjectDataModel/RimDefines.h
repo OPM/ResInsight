@@ -71,5 +71,11 @@ public:
     static QString mockModelCustomized()            { return "Result Mock Debug Model Customized"; }
     static QString mockModelBasicInputCase()        { return "Input Mock Debug Model Simple"; }
 
+    enum DepthUnitType
+    {
+        UNIT_METER,
+        UNIT_FEET
+    };
+
 };
 

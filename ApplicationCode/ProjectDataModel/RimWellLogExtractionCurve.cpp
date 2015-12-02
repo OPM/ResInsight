@@ -199,6 +199,8 @@ void RimWellLogExtractionCurve::updatePlotData()
         std::vector<double> measuredDepthValues;
         std::vector<double> tvDepthValues;
 
+        RimDefines::DepthUnitType depthUnit = RimDefines::UNIT_METER;
+
         if (eclExtractor.notNull())
         {
             RimWellLogPlot* wellLogPlot;
@@ -224,6 +226,14 @@ void RimWellLogExtractionCurve::updatePlotData()
             {
                 eclExtractor->curveData(resAcc.p(), &values);
             }
+
+            RigCaseData::UnitsType eclipseUnitsType = eclipseCase->reservoirData()->unitsType();
+            if (eclipseUnitsType == RigCaseData::UNITS_FIELD)
+            {
+                // See https://github.com/OPM/ResInsight/issues/538
+                
+                depthUnit = RimDefines::UNIT_FEET;
+            }
         }
         else if (geomExtractor.notNull()) // geomExtractor
         {
@@ -247,11 +257,11 @@ void RimWellLogExtractionCurve::updatePlotData()
         {
             if (!tvDepthValues.size())
             {
-                m_curveData->setValuesAndMD(values, measuredDepthValues, true);
+                m_curveData->setValuesAndMD(values, measuredDepthValues, depthUnit, true);
             }
             else
             {
-                m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues);
+                m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues, depthUnit);
             }
         }
 

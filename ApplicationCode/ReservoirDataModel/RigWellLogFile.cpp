@@ -172,7 +172,7 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 
     if (m_wellLogFile->HasContLog(name.toStdString()))
     {
-        if (name == m_depthLogName && (depthUnit().toUpper() == "F" || depthUnit().toUpper() == "FT"))
+        if (name == m_depthLogName && (depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT"))
         {
             std::vector<double> footValues = m_wellLogFile->GetContLog(name.toStdString());
             
@@ -207,7 +207,7 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::depthUnit() const
+QString RigWellLogFile::depthUnitString() const
 {
     QString unit;
 
@@ -223,7 +223,7 @@ QString RigWellLogFile::depthUnit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellLogChannelUnit(const QString& wellLogChannelName) const
+QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelName) const
 {
     QString unit;
 
@@ -234,7 +234,7 @@ QString RigWellLogFile::wellLogChannelUnit(const QString& wellLogChannelName) co
     }
 
     // Special handling of depth unit - we convert depth to meter 
-    if (unit == depthUnit())
+    if (unit == depthUnitString())
     {
         return "m";
     }
@@ -297,4 +297,19 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
     lasFile.WriteToFile(fileName.toStdString(), commentHeader);
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDefines::DepthUnitType RigWellLogFile::depthUnit() const
+{
+    RimDefines::DepthUnitType unitType = RimDefines::UNIT_METER;
+
+    if (depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT")
+    {
+        unitType = RimDefines::UNIT_FEET;
+    }
+
+    return unitType;
 }

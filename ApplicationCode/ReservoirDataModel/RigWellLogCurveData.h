@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimDefines.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
@@ -37,14 +39,19 @@ public:
 
     void                                      setValuesAndMD(const std::vector<double>& xValues, 
                                                              const std::vector<double>& measuredDepths,
+                                                             RimDefines::DepthUnitType depthUnit,
                                                              bool isExtractionCurve);
+
     void                                      setValuesWithTVD(const std::vector<double>& xValues, 
                                                                const std::vector<double>& measuredDepths, 
-                                                               const std::vector<double>& tvDepths );
+                                                               const std::vector<double>& tvDepths,
+                                                               RimDefines::DepthUnitType depthUnit);
 
     const std::vector<double>&                xValues() const;
     const std::vector<double>&                measuredDepths() const;
     bool                                      calculateMDRange(double* minMD, double* maxMD) const;
+
+    RimDefines::DepthUnitType                 depthUnit() const;
 
     std::vector<double>                       xPlotValues() const;
     std::vector<double>                       depthPlotValues() const;
@@ -63,5 +70,7 @@ private:
     bool                                      m_isExtractionCurve;
 
     std::vector< std::pair<size_t, size_t> >  m_intervalsOfContinousValidValues;
+    
+    RimDefines::DepthUnitType                 m_depthUnit;
 };
 

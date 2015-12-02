@@ -32,6 +32,7 @@
 RigWellLogCurveData::RigWellLogCurveData()
 {
     m_isExtractionCurve = false;
+    m_depthUnit = RimDefines::UNIT_METER;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +47,7 @@ RigWellLogCurveData::~RigWellLogCurveData()
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues, 
                                          const std::vector<double>& measuredDepths,
+                                         RimDefines::DepthUnitType depthUnit,
                                          bool isExtractionCurve)
 {
     CVF_ASSERT(xValues.size() == measuredDepths.size());
@@ -53,6 +55,7 @@ void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues,
     m_xValues = xValues;
     m_measuredDepths = measuredDepths;
     m_tvDepths.clear();
+    m_depthUnit = depthUnit;
 
     // Disable depth value filtering is intended to be used for 
     // extraction curve data
@@ -66,13 +69,15 @@ void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues,
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setValuesWithTVD(const std::vector<double>& xValues, 
                                            const std::vector<double>& measuredDepths, 
-                                           const std::vector<double>& tvDepths)
+                                           const std::vector<double>& tvDepths,
+                                           RimDefines::DepthUnitType depthUnit)
 {
     CVF_ASSERT(xValues.size() == measuredDepths.size());
 
     m_xValues = xValues;
     m_measuredDepths = measuredDepths;
     m_tvDepths = tvDepths;
+    m_depthUnit = depthUnit;
 
     // Always use value filtering when TVD is present
     m_isExtractionCurve = true;
@@ -242,4 +247,12 @@ bool RigWellLogCurveData::calculateMDRange(double* minimumDepth, double* maximum
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDefines::DepthUnitType RigWellLogCurveData::depthUnit() const
+{
+    return m_depthUnit;
 }
