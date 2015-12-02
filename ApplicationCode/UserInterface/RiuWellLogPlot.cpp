@@ -291,8 +291,8 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
                     realTrackWidth += 1;
                     --trackWidthExtra;
                 }
-
-                m_legends[tIdx]->setGeometry(trackX, 0, realTrackWidth, maxLegendHeight);
+                int realLegendWidth = std::max(realTrackWidth, m_legends[tIdx]->sizeHint().width()); 
+                m_legends[tIdx]->setGeometry(trackX, 0, realLegendWidth, maxLegendHeight);
                 m_trackPlots[tIdx]->setGeometry(trackX, maxLegendHeight, realTrackWidth, trackHeight);
 
                 trackX += realTrackWidth;
@@ -301,7 +301,6 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
     }
 
     if (m_scrollBar->isVisible()) m_scrollBar->setGeometry(trackX, maxLegendHeight, scrollBarWidth, trackHeight);
-
 }
 
 //--------------------------------------------------------------------------------------------------
