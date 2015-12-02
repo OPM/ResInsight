@@ -432,7 +432,7 @@ void RimWellLogPlot::zoomAllDepth()
 {
     if (hasAvailableDepthRange())
     {
-        setDepthZoomMinMax(m_minAvailableDepth, m_maxAvailableDepth);
+        setDepthZoomMinMax(m_minAvailableDepth, m_maxAvailableDepth + 0.01*(m_maxAvailableDepth - m_minAvailableDepth));
     }
     else
     {
