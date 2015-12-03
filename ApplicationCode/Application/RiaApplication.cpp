@@ -209,6 +209,35 @@ RiaApplication* RiaApplication::instance()
 
 
 //--------------------------------------------------------------------------------------------------
+/// Return -1 if unit test is not executed, returns 0 if test passed, returns 1 if tests failed
+//--------------------------------------------------------------------------------------------------
+int RiaApplication::parseArgumentsAndRunUnitTestsIfRequested()
+{
+    cvf::ProgramOptions progOpt;
+    progOpt.registerOption("unittest", "", "Execute unit tests");
+    progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
+
+    QStringList arguments = QCoreApplication::arguments();
+
+    bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
+    if (!parseOk)
+    {
+        return -1;
+    }
+
+    // Unit testing
+    // --------------------------------------------------------
+    if (cvf::Option o = progOpt.option("unittest"))
+    {
+        int testReturnValue = launchUnitTestsWithConsole();
+
+        return testReturnValue;
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::setWindowCaptionFromAppState()
@@ -1149,34 +1178,32 @@ bool RiaApplication::parseArguments()
         return false;
     }
 
-    // Unit testing
-    // --------------------------------------------------------
-    if (cvf::Option o = progOpt.option("unittest"))
-    {
-        launchUnitTests();
-    }
-
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::launchUnitTests()
+int RiaApplication::launchUnitTests()
 {
     cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
 
     int argc = QCoreApplication::argc();
     testing::InitGoogleTest(&argc, QCoreApplication::argv());
 
-    //int result = RUN_ALL_TESTS();
-    RUN_ALL_TESTS();
+    // Use this macro in main() to run all tests.  It returns 0 if all
+    // tests are successful, or 1 otherwise.
+    //
+    // RUN_ALL_TESTS() should be invoked after the command line has been
+    // parsed by InitGoogleTest().
+
+    return RUN_ALL_TESTS();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::launchUnitTestsWithConsole()
+int RiaApplication::launchUnitTestsWithConsole()
 {
     // Following code is taken from cvfAssert.cpp
 #ifdef WIN32
@@ -1224,7 +1251,7 @@ void RiaApplication::launchUnitTestsWithConsole()
     }
 #endif
 
-    launchUnitTests();
+    return launchUnitTests();
 }
 
 //--------------------------------------------------------------------------------------------------

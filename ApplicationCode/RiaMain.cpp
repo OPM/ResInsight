@@ -26,6 +26,12 @@ int main(int argc, char *argv[])
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
     setlocale(LC_NUMERIC,"C");
 
+    int unitTestResult = app.parseArgumentsAndRunUnitTestsIfRequested();
+    if (unitTestResult > -1)
+    {
+        return unitTestResult;
+    }
+
     RiuMainWindow window;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     window.setWindowTitle("ResInsight " + platform);
