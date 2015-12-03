@@ -256,19 +256,6 @@ add_subdirectory(ApplicationCode)
 add_subdirectory(OctavePlugin)
 
 ################################################################################
-# Unit tests
-################################################################################
-add_subdirectory(ApplicationCode/ReservoirDataModel/ReservoirDataModel_UnitTests)
-#add_subdirectory(ApplicationCode/FileInterface/FileInterface_UnitTests)
-
-set_property(TARGET  
-#	FileInterface_UnitTests 
-	RigReservoirDataModel_UnitTests 
-	PROPERTY FOLDER "UnitTests"
-)
-
-
-################################################################################
 # Code documentation using Doxygen
 ################################################################################
 option(RESINSIGHT_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
