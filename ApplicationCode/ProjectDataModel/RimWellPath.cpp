@@ -129,7 +129,6 @@ caf::PdmFieldHandle* RimWellPath::userDescriptionField()
     return &name;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -142,19 +141,20 @@ void RimWellPath::setSurveyType(QString surveyType)
         wellPathColor = cvf::Color3f(0.0f, 0.333f, 0.999f);
 }
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RivWellPathPartMgr* RimWellPath::partMgr()
 {
     if (m_wellPathPartMgr.isNull()) 
     {
         RimWellPathCollection* wpColl;
         this->firstAnchestorOrThisOfType(wpColl);
-        if (wpColl) m_wellPathPartMgr = new RivWellPathPartMgr(wpColl, this);
+        if (wpColl) m_wellPathPartMgr = new RivWellPathPartMgr(this);
     }
 
     return m_wellPathPartMgr.p();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -168,7 +168,6 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     if (proj) proj->createDisplayModelAndRedrawAllViews();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -176,7 +175,6 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
 {
     return &showWellPath;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Read JSON or ascii file containing well path data

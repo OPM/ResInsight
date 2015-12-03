@@ -22,7 +22,6 @@
 
 #include "cafPdmPointer.h"
 #include "cvfBoundingBox.h"
-#include <list>
 
 namespace cvf
 {
@@ -37,12 +36,11 @@ namespace cvf
 class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
-class RimWellPathCollection;
 
 class RivWellPathPartMgr : public cvf::Object
 {
 public:
-    RivWellPathPartMgr(RimWellPathCollection* wellPathCollection, RimWellPath* wellPath);
+    RivWellPathPartMgr(RimWellPath* wellPath);
     ~RivWellPathPartMgr();
 
     void                                    setScaleTransform(cvf::Transform * scaleTransform);
@@ -53,7 +51,6 @@ public:
                                                                              double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
 
 private:
-    caf::PdmPointer<RimWellPathCollection>  m_wellPathCollection;
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
     
     cvf::ref<cvf::Transform>                m_scaleTransform; 

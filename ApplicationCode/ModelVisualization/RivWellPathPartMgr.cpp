@@ -19,47 +19,35 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 
-#include "cvfLibCore.h"
+#include "RivWellPathPartMgr.h"
 
 #include "RiaApplication.h"
-#include "RimEclipseCase.h"
-#include "RimProject.h"
-#include "RimWellPathCollection.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimScriptCollection.h"
-#include "RimCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimEclipseView.h"
-#include "RigCaseData.h"
-#include "RigCell.h"
-#include "RivWellPathPartMgr.h"
-#include "RivWellPathSourceInfo.h"
+
+#include "RigWellPath.h"
+
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
 #include "RivPipeGeometryGenerator.h"
-#include "cvfModelBasicList.h"
-#include "cvfTransform.h"
-#include "cvfPart.h"
-#include "cvfScalarMapperDiscreteLinear.h"
+#include "RivWellPathSourceInfo.h"
+
+#include "cafEffectGenerator.h"
+
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
-#include "cvfRay.h"
-#include "cafEffectGenerator.h"
+#include "cvfFont.h"
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
+#include "cvfScalarMapperDiscreteLinear.h"
+#include "cvfTransform.h"
 #include "cvfqtUtils.h"
-#include "RimOilField.h"
-#include "RimEclipseCaseCollection.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPathPartMgr::RivWellPathPartMgr(RimWellPathCollection* wellPathCollection, RimWellPath* wellPath)
+RivWellPathPartMgr::RivWellPathPartMgr(RimWellPath* wellPath)
 {
-    m_wellPathCollection = wellPathCollection;
     m_rimWellPath      = wellPath;
 
     m_needsTransformUpdate = true;
@@ -99,7 +87,9 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, 
                                             cvf::BoundingBox wellPathClipBoundingBox)
 {
-    if (m_wellPathCollection.isNull()) return;
+    RimWellPathCollection* wellPathCollection = NULL;
+    m_rimWellPath->firstAnchestorOrThisOfType(wellPathCollection);
+    if (!wellPathCollection) return;
 
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
     if (!wellPathGeometry) return;
@@ -107,7 +97,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     if (wellPathGeometry->m_wellPathPoints.size() < 2) return;
 
     clearAllBranchData();
-    double wellPathRadius = m_wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
+    double wellPathRadius = wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
 
     cvf::Vec3d textPosition = wellPathGeometry->m_wellPathPoints[0];
 
@@ -118,17 +108,17 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         pbd.m_pipeGeomGenerator = new RivPipeGeometryGenerator;
 
         pbd.m_pipeGeomGenerator->setRadius(wellPathRadius);
-        pbd.m_pipeGeomGenerator->setCrossSectionVertexCount(m_wellPathCollection->wellPathCrossSectionVertexCount());
+        pbd.m_pipeGeomGenerator->setCrossSectionVertexCount(wellPathCollection->wellPathCrossSectionVertexCount());
         pbd.m_pipeGeomGenerator->setPipeColor( m_rimWellPath->wellPathColor());
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
-        if (m_wellPathCollection->wellPathClip)
+        if (wellPathCollection->wellPathClip)
         {
             std::vector<cvf::Vec3d> clippedPoints;
             for (size_t idx = 0; idx < wellPathGeometry->m_wellPathPoints.size(); idx++)
             {
                 cvf::Vec3d point = wellPathGeometry->m_wellPathPoints[idx];
-                if (point.z() < (wellPathClipBoundingBox.max().z() + m_wellPathCollection->wellPathClipZDistance))
+                if (point.z() < (wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance))
                     clippedPoints.push_back(point);
             }
             if (clippedPoints.size() < 2) return;
@@ -188,7 +178,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     textPosition.z() += 1.2 * characteristicCellSize;
 
     m_wellLabelPart = NULL;
-    if (m_wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
+    if (wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
     {
         cvf::Font* standardFont = RiaApplication::instance()->standardFont();
 
@@ -198,7 +188,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
-        drawableText->setTextColor(m_wellPathCollection->wellPathLabelColor());
+        drawableText->setTextColor(wellPathCollection->wellPathLabelColor());
 
         cvf::String cvfString = cvfqt::Utils::toString(m_rimWellPath->name());
 
@@ -227,13 +217,16 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
                                                           double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
 {
-    if (m_wellPathCollection.isNull()) return;
+    RimWellPathCollection* wellPathCollection = NULL;
+    m_rimWellPath->firstAnchestorOrThisOfType(wellPathCollection);
+    if (!wellPathCollection) return;
+
     if (m_rimWellPath.isNull()) return;
 
-    if (m_wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF)
+    if (wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF)
         return;
 
-    if (m_wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false )
+    if (wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false )
         return;
 
     if (m_needsTransformUpdate) 
