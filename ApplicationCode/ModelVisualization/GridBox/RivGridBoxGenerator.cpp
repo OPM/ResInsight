@@ -160,6 +160,8 @@ void RivGridBoxGenerator::updateFromCamera(const cvf::Camera* camera)
             m_gridBoxModel->addPart(m_gridBoxLegendParts[2 * i + 1].p());
         }
     }
+
+    m_gridBoxModel->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -541,9 +541,9 @@ RimView* RiuViewer::ownerReservoirView()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::optimizeClippingPlanes()
 {
-    caf::Viewer::optimizeClippingPlanes();
-
     m_gridBoxGenerator->updateFromCamera(mainCamera());
+
+    caf::Viewer::optimizeClippingPlanes();
 }
 
 //--------------------------------------------------------------------------------------------------
