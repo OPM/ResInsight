@@ -114,7 +114,7 @@ set( SOCKET_INTERFACE_FILES
 
 # Using GLOB here to ease adding of new unit tests
 FILE ( GLOB UNIT_TEST_FILES
-    ProjectDataModel/ProjectDataModel_UnitTests/*.cpp 
+    UnitTests/*.cpp 
 )
 
 list( APPEND CPP_SOURCES
