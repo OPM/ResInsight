@@ -48,41 +48,44 @@ TEST(TernaryScalarMapperTest, TextureMapping)
 {
     cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
+    // See RivTernaryScalarMapper::mapToTextureCoord
+    double edgeClampDelta = 1.1 * 0.001;
+
     // Without opacity
     {
         cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 0.0, false);
-        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-        EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+        EXPECT_NEAR(0.0, texCoord.x(), edgeClampDelta);
+        EXPECT_NEAR(0.0, texCoord.y(), edgeClampDelta);
     }
 
     {
         cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(1.0, 0.0, false);
-        EXPECT_DOUBLE_EQ(1.0, texCoord.x());
-        EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+        EXPECT_NEAR(1.0, texCoord.x(), edgeClampDelta);
+        EXPECT_NEAR(0.0, texCoord.y(), edgeClampDelta);
     }
 
     {
         cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 1.0, false);
-        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-        EXPECT_DOUBLE_EQ(0.5, texCoord.y());
+        EXPECT_NEAR(0.0, texCoord.x(), edgeClampDelta);
+        EXPECT_NEAR(0.5, texCoord.y(), edgeClampDelta);
     }
 
     {
         cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(3.0, 3.0, false);
-        EXPECT_DOUBLE_EQ(1.0, texCoord.x());
-        EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+        EXPECT_NEAR(1.0, texCoord.x(), edgeClampDelta);
+        EXPECT_NEAR(0.0, texCoord.y(), edgeClampDelta);
     }
 
     {
         cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(-1.0, -1.0, false);
-        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-        EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+        EXPECT_NEAR(0.0, texCoord.x(), edgeClampDelta);
+        EXPECT_NEAR(0.0, texCoord.y(), edgeClampDelta);
     }
 
     {
         cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.5, 3.0, false);
-        EXPECT_DOUBLE_EQ(0.5, texCoord.x());
-        EXPECT_DOUBLE_EQ(0.25, texCoord.y());
+        EXPECT_NEAR(0.5, texCoord.x(), edgeClampDelta);
+        EXPECT_NEAR(0.25, texCoord.y(), edgeClampDelta);
     }
 
 
@@ -91,13 +94,13 @@ TEST(TernaryScalarMapperTest, TextureMapping)
     // Opacity
     {
         cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 0.0, true);
-        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-        EXPECT_DOUBLE_EQ(0.5, texCoord.y());
+        EXPECT_NEAR(0.0, texCoord.x(), edgeClampDelta);
+        EXPECT_NEAR(0.5, texCoord.y(), edgeClampDelta);
     }
 
     {
         cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 1.0, true);
-        EXPECT_DOUBLE_EQ(0.0, texCoord.x());
-        EXPECT_DOUBLE_EQ(1.0, texCoord.y());
+        EXPECT_NEAR(0.0, texCoord.x(), edgeClampDelta);
+        EXPECT_NEAR(1.0, texCoord.y(), edgeClampDelta);
     }
 }
