@@ -44,6 +44,14 @@ RimCrossSectionCollection::RimCrossSectionCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimCrossSectionCollection::~RimCrossSectionCollection()
+{
+    m_crossSections.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCrossSectionCollection::objectToggleField()
 {
     return &isActive;

@@ -174,6 +174,7 @@ RimView::~RimView(void)
 
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;
+    delete crossSectionCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

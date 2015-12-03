@@ -42,6 +42,7 @@ class RimCrossSectionCollection : public caf::PdmObject
 
 public:
     RimCrossSectionCollection();
+    ~RimCrossSectionCollection();
 
     caf::PdmField<bool> isActive;
 

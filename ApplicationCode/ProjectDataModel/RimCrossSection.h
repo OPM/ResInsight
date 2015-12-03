@@ -59,6 +59,7 @@ public:
 
 public:
     RimCrossSection();
+    ~RimCrossSection();
 
     caf::PdmField<QString>                               name;
     caf::PdmField<bool>                                  isActive;
