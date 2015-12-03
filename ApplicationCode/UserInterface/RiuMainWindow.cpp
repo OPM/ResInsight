@@ -350,9 +350,9 @@ void RiuMainWindow::createActions()
     connect(m_disableLightingAction,    SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
 
 
-    m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Hide Grid Cells", this);
-    m_drawStyleToggleFaultsAction->setCheckable(true);
-    connect(m_drawStyleToggleFaultsAction,    SIGNAL(toggled(bool)), SLOT(slotToggleHideGridCellsAction(bool)));
+    m_drawStyleHideGridCellsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Hide Grid Cells", this);
+    m_drawStyleHideGridCellsAction->setCheckable(true);
+    connect(m_drawStyleHideGridCellsAction,    SIGNAL(toggled(bool)), SLOT(slotToggleHideGridCellsAction(bool)));
 
     m_toggleFaultsLabelAction             = new QAction( QIcon(":/draw_style_faults_label_24x24.png"), "&Show Fault Labels", this);
     m_toggleFaultsLabelAction->setCheckable(true);
@@ -549,7 +549,7 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
     m_viewToolBar->addAction(m_drawStyleFaultLinesSolidAction);
     m_viewToolBar->addAction(m_disableLightingAction);
-    m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
+    m_viewToolBar->addAction(m_drawStyleHideGridCellsAction);
     m_viewToolBar->addAction(m_toggleFaultsLabelAction);
     m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
 
@@ -1905,7 +1905,7 @@ void RiuMainWindow::refreshDrawStyleActions()
 
     if (enable)
     {
-        m_drawStyleToggleFaultsAction->setEnabled(true);
+        m_drawStyleHideGridCellsAction->setEnabled(true);
     }
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
@@ -1916,9 +1916,9 @@ void RiuMainWindow::refreshDrawStyleActions()
 
     if (enable) 
     {   
-        m_drawStyleToggleFaultsAction->blockSignals(true);
-        m_drawStyleToggleFaultsAction->setChecked(!eclView->isGridVisualizationMode());
-        m_drawStyleToggleFaultsAction->blockSignals(false);
+        m_drawStyleHideGridCellsAction->blockSignals(true);
+        m_drawStyleHideGridCellsAction->setChecked(!eclView->isGridVisualizationMode());
+        m_drawStyleHideGridCellsAction->blockSignals(false);
 
         m_toggleFaultsLabelAction->blockSignals(true);
         m_toggleFaultsLabelAction->setChecked(eclView->faultCollection()->showFaultLabel());

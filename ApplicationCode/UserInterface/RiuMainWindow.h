@@ -300,7 +300,7 @@ private:
 
     QActionGroup*               m_dsActionGroup;
     QAction*                    m_disableLightingAction;
-    QAction*                    m_drawStyleToggleFaultsAction;
+    QAction*                    m_drawStyleHideGridCellsAction;
     QAction*                    m_toggleFaultsLabelAction;
     QAction*                    m_drawStyleLinesAction;
     QAction*                    m_drawStyleLinesSolidAction;
