@@ -60,6 +60,7 @@ private:
     bool                                    m_needsTransformUpdate;
 
     void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+    void                                    clearAllBranchData();
 
     struct RivPipeBranchData
     {
@@ -71,7 +72,6 @@ private:
     };
 
     RivPipeBranchData                       m_pipeBranchData;
-    std::list<RivPipeBranchData>            m_wellBranches;
     cvf::ref<cvf::Part>                     m_wellLabelPart;
 
     cvf::ref<cvf::ScalarMapper>             m_scalarMapper;

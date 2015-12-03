@@ -90,7 +90,7 @@ RivWellPathPartMgr::RivWellPathPartMgr(RimWellPathCollection* wellPathCollection
 //--------------------------------------------------------------------------------------------------
 RivWellPathPartMgr::~RivWellPathPartMgr()
 {
-
+    clearAllBranchData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,15 +106,14 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 
     if (wellPathGeometry->m_wellPathPoints.size() < 2) return;
 
-    m_wellBranches.clear();
+    clearAllBranchData();
     double wellPathRadius = m_wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
 
     cvf::Vec3d textPosition = wellPathGeometry->m_wellPathPoints[0];
 
     // Generate the well path geometry as a line and pipe structure
     {
-        m_wellBranches.push_back(RivPipeBranchData());
-        RivPipeBranchData& pbd = m_wellBranches.back();
+        RivPipeBranchData& pbd = m_pipeBranchData;
 
         pbd.m_pipeGeomGenerator = new RivPipeGeometryGenerator;
 
@@ -243,17 +242,14 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
         buildWellPathParts(displayModelOffset, characteristicCellSize, wellPathClipBoundingBox);
     }
  
-    std::list<RivPipeBranchData>::iterator it;
-    for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
+    if (m_pipeBranchData.m_surfacePart.notNull())
     {
-        if (it->m_surfacePart.notNull())
-        {
-            model->addPart(it->m_surfacePart.p());
-        }
-        if (it->m_centerLinePart.notNull())
-        {
-            model->addPart(it->m_centerLinePart.p());
-        }
+        model->addPart(m_pipeBranchData.m_surfacePart.p());
+    }
+
+    if (m_pipeBranchData.m_centerLinePart.notNull())
+    {
+        model->addPart(m_pipeBranchData.m_centerLinePart.p());
     }
 
     if (m_wellLabelPart.notNull())
@@ -262,6 +258,9 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::setScaleTransform( cvf::Transform * scaleTransform )
 {
     if (m_scaleTransform.isNull() || m_scaleTransform.p() != scaleTransform) 
@@ -269,4 +268,16 @@ void RivWellPathPartMgr::setScaleTransform( cvf::Transform * scaleTransform )
         m_scaleTransform = scaleTransform; 
         scheduleGeometryRegen(); 
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::clearAllBranchData()
+{
+    m_pipeBranchData.m_pipeGeomGenerator = NULL;
+    m_pipeBranchData.m_surfacePart = NULL;
+    m_pipeBranchData.m_surfaceDrawable = NULL;
+    m_pipeBranchData.m_centerLinePart = NULL;
+    m_pipeBranchData.m_centerLineDrawable = NULL;
 }
