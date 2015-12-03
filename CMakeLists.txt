@@ -260,10 +260,8 @@ add_subdirectory(OctavePlugin)
 ################################################################################
 add_subdirectory(ApplicationCode/ReservoirDataModel/ReservoirDataModel_UnitTests)
 #add_subdirectory(ApplicationCode/FileInterface/FileInterface_UnitTests)
-add_subdirectory(ApplicationCode/ModelVisualization/ModelVisualization_UnitTests)
 
 set_property(TARGET  
-	ModelVisualization_UnitTests 
 #	FileInterface_UnitTests 
 	RigReservoirDataModel_UnitTests 
 	PROPERTY FOLDER "UnitTests"
