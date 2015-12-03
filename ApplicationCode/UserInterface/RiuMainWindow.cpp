@@ -1897,19 +1897,21 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleFaultLinesSolidAction->setEnabled(enable);
     m_disableLightingAction->setEnabled(enable);
 
-    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
     bool lightingDisabledInView = view ? view->isLightingDisabled() : false;
 
     m_disableLightingAction->blockSignals(true);
     m_disableLightingAction->setChecked(lightingDisabledInView);
     m_disableLightingAction->blockSignals(false);
 
+    if (enable)
+    {
+        m_drawStyleToggleFaultsAction->setEnabled(true);
+    }
+
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
     enable = enable && eclView;
 
-    m_drawStyleToggleFaultsAction->setEnabled(enable);
     m_toggleFaultsLabelAction->setEnabled(enable);
-
     m_addWellCellsToRangeFilterAction->setEnabled(enable);
 
     if (enable) 
