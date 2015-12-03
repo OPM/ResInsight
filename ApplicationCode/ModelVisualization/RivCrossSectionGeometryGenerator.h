@@ -137,6 +137,8 @@ public:
                                      const RivCrossSectionHexGridIntf* grid );
 
     ~RivCrossSectionGeometryGenerator();
+
+    bool                        isAnyGeometryPresent() const;
  
     // Generate geometry
     cvf::ref<cvf::DrawableGeo>  generateSurface();

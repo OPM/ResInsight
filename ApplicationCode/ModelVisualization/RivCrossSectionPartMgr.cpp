@@ -83,14 +83,14 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
 {
     if (m_crossSectionGenerator.isNull()) return;
 
+    if (!m_crossSectionGenerator->isAnyGeometryPresent()) return;
+
     RimEclipseView* eclipseView;
     m_rimCrossSection->firstAnchestorOrThisOfType(eclipseView);
 
     if (eclipseView)
     {
         RimEclipseCellColors* cellResultColors = eclipseView->cellResult();
-
-
         CVF_ASSERT(cellResultColors);
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
