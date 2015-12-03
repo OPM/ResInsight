@@ -1186,6 +1186,7 @@ bool RiaApplication::parseArguments()
 //--------------------------------------------------------------------------------------------------
 int RiaApplication::launchUnitTests()
 {
+#ifdef USE_UNIT_TESTS
     cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
 
     int argc = QCoreApplication::argc();
@@ -1198,6 +1199,9 @@ int RiaApplication::launchUnitTests()
     // parsed by InitGoogleTest().
 
     return RUN_ALL_TESTS();
+#else
+    return -1;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

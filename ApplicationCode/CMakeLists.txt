@@ -61,8 +61,6 @@ set( APPLICATION_FILES
     Application/RiaImageCompareReporter.cpp
     Application/RiaProjectModifier.cpp
     Application/RiaRegressionTest.cpp
-    
-    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc	
 )
 
 set( USER_INTERFACE_FILES
@@ -112,11 +110,6 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketDataTransfer.cpp
 )
 
-# Using GLOB here to ease adding of new unit tests
-FILE ( GLOB UNIT_TEST_FILES
-    UnitTests/*.cpp 
-)
-
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
      ${USER_INTERFACE_FILES}
@@ -143,6 +136,21 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/WellPathCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
 )
+
+option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
+if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
+	add_definitions(-DUSE_UNIT_TESTS)
+
+    list( APPEND REFERENCED_CMAKE_FILES
+        UnitTests/CMakeLists_files.cmake
+        )
+    
+    list( APPEND CPP_SOURCES 
+        ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc	
+        )
+    
+endif()
+
 
 # Include source file lists from *.cmake files
 foreach (referencedfile ${REFERENCED_CMAKE_FILES})
