@@ -50,6 +50,8 @@ public:
     void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
                                                                              double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
 
+    size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
+
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
     
@@ -58,7 +60,6 @@ private:
 
     void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
     void                                    clearAllBranchData();
-
     struct RivPipeBranchData
     {
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;

@@ -114,13 +114,29 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
         if (wellPathCollection->wellPathClip)
         {
-            std::vector<cvf::Vec3d> clippedPoints;
+            size_t firstVisibleSegmentIndex = cvf::UNDEFINED_SIZE_T;
             for (size_t idx = 0; idx < wellPathGeometry->m_wellPathPoints.size(); idx++)
             {
                 cvf::Vec3d point = wellPathGeometry->m_wellPathPoints[idx];
                 if (point.z() < (wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance))
-                    clippedPoints.push_back(point);
+                {
+                    firstVisibleSegmentIndex = idx;
+                    break;
+                }
             }
+
+            std::vector<cvf::Vec3d> clippedPoints;
+
+            if (firstVisibleSegmentIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                for (size_t idx = firstVisibleSegmentIndex; idx < wellPathGeometry->m_wellPathPoints.size(); idx++)
+                {
+                    clippedPoints.push_back(wellPathGeometry->m_wellPathPoints[idx]);
+                }
+
+                pbd.m_pipeGeomGenerator->setFirstSegmentIndex(firstVisibleSegmentIndex);
+            }
+
             if (clippedPoints.size() < 2) return;
 
             textPosition = clippedPoints[0];
@@ -273,4 +289,12 @@ void RivWellPathPartMgr::clearAllBranchData()
     m_pipeBranchData.m_surfaceDrawable = NULL;
     m_pipeBranchData.m_centerLinePart = NULL;
     m_pipeBranchData.m_centerLineDrawable = NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RivWellPathPartMgr::segmentIndexFromTriangleIndex(size_t triangleIndex)
+{
+    return m_pipeBranchData.m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
 }

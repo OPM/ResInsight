@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -35,6 +37,7 @@ RivPipeGeometryGenerator::RivPipeGeometryGenerator()
     m_crossSectionNodeCount = 8;
     m_minimumBendAngle = 80.0;
     m_bendScalingFactor = 0.00001;
+    m_firstSegmentIndex = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -580,5 +583,23 @@ void RivPipeGeometryGenerator::clearComputedData()
 {
     m_filteredPipeCenterCoords.clear();
     m_filteredPipeSegmentToResult.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RivPipeGeometryGenerator::segmentIndexFromTriangleIndex(size_t triangleIndex) const
+{
+    size_t filteredIndex = triangleIndex / (m_crossSectionNodeCount * 2);
+
+    return filteredIndex + m_firstSegmentIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Well pipes are clipped, set index to first segment in visible well path
+//--------------------------------------------------------------------------------------------------
+void RivPipeGeometryGenerator::setFirstSegmentIndex(size_t segmentIndex)
+{
+    m_firstSegmentIndex = segmentIndex;
 }
 
