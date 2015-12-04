@@ -19,27 +19,17 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfVector3.h"
+#include "RicViewerEventInterface.h"
 
 
-class RicCommandFeature : public caf::CmdFeature
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicWellPathViewerEventHandler : public RicViewerEventInterface
 {
 public:
-    virtual bool handleUiEvent(cvf::Object* uiEventObject) = 0;
-};
+    static RicWellPathViewerEventHandler* instance();
 
-class RicLocalIntersectionUiEvent : public cvf::Object
-{
-public:
-    RicLocalIntersectionUiEvent(cvf::Vec3d localIntersectionPoint)
-        : localIntersectionPoint(localIntersectionPoint)
-    {
-    }
-
-    cvf::Vec3d localIntersectionPoint;
+    virtual bool handleEvent(cvf::Object* eventObject);
 };
 

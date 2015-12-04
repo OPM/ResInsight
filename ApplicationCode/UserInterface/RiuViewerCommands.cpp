@@ -19,7 +19,7 @@
 
 #include "RiuViewerCommands.h"
 
-#include "RicCommandFeature.h"
+#include "RicViewerEventInterface.h"
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
@@ -65,9 +65,12 @@
 #include "cvfHitItemCollection.h"
 #include "cvfPart.h"
 
+#include "WellPathCommands/RicWellPathViewerEventHandler.h"
+
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
+
 
 //==================================================================================================
 //
@@ -84,13 +87,16 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
       m_currentGridIdx(-1),
       m_currentCellIndex(-1)  
 {
-    caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineCrossSectionFeature");
-    CVF_ASSERT(cmdFeature);
+    {
+        caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineCrossSectionFeature");
+        CVF_ASSERT(cmdFeature);
 
-    RicCommandFeature* riCommandFeature = dynamic_cast<RicCommandFeature*>(cmdFeature);
-    CVF_ASSERT(riCommandFeature);
+        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(cmdFeature));
+    }
 
-    m_activeUiCommandFeature = riCommandFeature;
+    {
+        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(RicWellPathViewerEventHandler::instance()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +114,6 @@ void RiuViewerCommands::setOwnerView(RimView * owner)
 {
     m_reservoirView = owner;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -434,11 +439,10 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         {
             extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &firstNncHitPart, &nncPartTriangleIndex);
 
-            if (!m_activeUiCommandFeature.isNull())
+            cvf::ref<RicViewerEventObject> eventObj = new RicViewerEventObject(localIntersectionPoint, firstHitPart, firstPartTriangleIndex);
+            for (size_t i = 0; i < m_viewerEventHandlers.size(); i++)
             {
-                cvf::ref<RicLocalIntersectionUiEvent> uiEventObj = new RicLocalIntersectionUiEvent(localIntersectionPoint);
-
-                if (m_activeUiCommandFeature->handleUiEvent(uiEventObj.p()))
+                if (m_viewerEventHandlers[i]->handleEvent(eventObj.p()))
                 {
                     return;
                 }
@@ -451,7 +455,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         {
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
-            const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
             const RivCrossSectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivCrossSectionSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
@@ -469,37 +472,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             {
                 gridIndex = femSourceInfo->femPartIndex();
                 cellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(firstPartTriangleIndex);
-            }
-            else if (wellPathSourceInfo)
-            {
-                cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
-
-                RimCase* rimCase = NULL;
-                m_reservoirView->firstAnchestorOrThisOfType(rimCase);
-                if (rimCase)
-                {
-                    displayModelOffset = rimCase->displayModelOffset();
-                }
-
-                cvf::Vec3d unscaledIntersection = localIntersectionPoint;
-                unscaledIntersection.z() /= m_reservoirView->scaleZ;
-
-                size_t wellSegmentIndex = wellPathSourceInfo->segmentIndex(firstPartTriangleIndex);
-                double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, unscaledIntersection + displayModelOffset);
-                cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, unscaledIntersection + displayModelOffset);
-
-                QString wellPathText;
-                wellPathText += wellPathSourceInfo->wellPath()->name;
-                wellPathText += "\n";
-                wellPathText += QString("Well path segment index : %1\n").arg(wellSegmentIndex);
-                wellPathText += QString("Measured depth : %1\n").arg(measuredDepth);
-
-                QString formattedText;
-                formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", trueVerticalDepth.x(), trueVerticalDepth.y(), -trueVerticalDepth.z());
-                wellPathText += formattedText;
-
-                RiuMainWindow::instance()->setResultInfo(wellPathText);
-
             }
             else if (crossSectionSourceInfo)
             {

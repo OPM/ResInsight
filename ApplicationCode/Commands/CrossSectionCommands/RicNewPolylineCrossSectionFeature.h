@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RicCommandFeature.h"
+#include "RicViewerEventInterface.h"
 
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
@@ -53,7 +53,7 @@ private:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewPolylineCrossSectionFeature : public RicCommandFeature
+class RicNewPolylineCrossSectionFeature : public caf::CmdFeature, public RicViewerEventInterface
 {
     CAF_CMD_HEADER_INIT;
 
@@ -66,7 +66,7 @@ protected:
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
 
-    virtual bool handleUiEvent(cvf::Object* uiEventObject);
+    virtual bool handleEvent(cvf::Object* eventObject);
 };
 
 

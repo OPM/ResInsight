@@ -21,8 +21,6 @@
 
 #include "RiaApplication.h"
 
-#include "RicCommandFeature.h"
-
 #include "RigSimulationWellCenterLineCalculator.h"
 
 #include "RimCase.h"

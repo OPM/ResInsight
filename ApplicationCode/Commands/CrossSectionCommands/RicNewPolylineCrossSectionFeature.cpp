@@ -78,14 +78,14 @@ void RicNewPolylineCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewPolylineCrossSectionFeature::handleUiEvent(cvf::Object* uiEventObject)
+bool RicNewPolylineCrossSectionFeature::handleEvent(cvf::Object* eventObject)
 {
     std::vector<RimCrossSection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
     if (selection.size() == 1)
     {
-        RicLocalIntersectionUiEvent* polylineUiEvent = dynamic_cast<RicLocalIntersectionUiEvent*>(uiEventObject);
+        RicViewerEventObject* polylineUiEvent = dynamic_cast<RicViewerEventObject*>(eventObject);
         if (polylineUiEvent)
         {
             RimCrossSection* crossSection = selection[0];

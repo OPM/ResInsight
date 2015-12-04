@@ -31,7 +31,7 @@ class RimGeoMechView;
 class RimView;
 class RiuViewer;
 class RivCrossSectionSourceInfo;
-class RicCommandFeature;
+class RicViewerEventInterface;
 
 class QMouseEvent;
 
@@ -79,7 +79,7 @@ private:
 
     QPointer<RiuViewer> m_viewer;
 
-    QPointer<RicCommandFeature> m_activeUiCommandFeature;
+    std::vector<RicViewerEventInterface*> m_viewerEventHandlers;
 };
 
 
