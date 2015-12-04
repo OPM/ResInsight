@@ -327,7 +327,31 @@ GeometryTools::inPlaneLineIntersect3D(  const cvf::Vec3d& planeNormal,
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Compute projection of point p3 on the line p1 - p2
+//  If projection is out side the line segment, the end of line is returned
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d GeometryTools::projectPointOnLine(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, double* normalizedIntersection)
+{
+    cvf::Vec3d v31 = p3 - p1;
+    cvf::Vec3d v21 = p2 - p1;
+
+    double u = (v31*v21) / (v21*v21);
+    cvf::Vec3d projectedPoint(0, 0, 0);
+    if (0 < u && u < 1) projectedPoint = p1 + u*v21;
+    else if (u <= 0) projectedPoint = p1;
+    else projectedPoint = p2;
+
+    if (normalizedIntersection)
+    {
+        *normalizedIntersection = u;
+    }
+
+    return projectedPoint;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: Use GeometryTools::projectPointOnLine
 //--------------------------------------------------------------------------------------------------
 double    GeometryTools::linePointSquareDist(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3)
 {
