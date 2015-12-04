@@ -19,25 +19,32 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
 #include "cafPdmPointer.h"
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
 class RimWellPath;
-//class RivPipeQuadToSegmentMapper;
 
 //==================================================================================================
 ///  
-///  TODO: Implement and add RivPipeQuadToSegmentMapper
 //==================================================================================================
 class RivWellPathSourceInfo : public cvf::Object
 {
 public:
-    RivWellPathSourceInfo(RimWellPath* wellPath/*, RivPipeQuadToSegmentMapper* quadToSegmentMapper*/);
+    RivWellPathSourceInfo(RimWellPath* wellPath);
 
     RimWellPath* wellPath() const;
 
-private:    
-    caf::PdmPointer<RimWellPath>    m_wellPath;
-    //RivPipeQuadToSegmentMapper*     m_quadToSegmentMapper;
+    size_t segmentIndex(size_t triangleIndex) const;
+    double measuredDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const;
+    cvf::Vec3d trueVerticalDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const;
+
+private:
+    void normalizedIntersection(size_t triangleIndex, const cvf::Vec3d& globalIntersection,
+        size_t* firstSegmentIndex, double* normalizedSegmentIntersection) const;
+
+private:
+    caf::PdmPointer<RimWellPath> m_wellPath;
 };

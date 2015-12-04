@@ -417,7 +417,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
     size_t gridIndex = cvf::UNDEFINED_SIZE_T;
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
     size_t nncIndex = cvf::UNDEFINED_SIZE_T;
-    RimWellPath* wellPath = NULL;
     cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::NO_FACE;
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
 
@@ -473,7 +472,34 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             }
             else if (wellPathSourceInfo)
             {
-                wellPath = wellPathSourceInfo->wellPath();
+                cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
+
+                RimCase* rimCase = NULL;
+                m_reservoirView->firstAnchestorOrThisOfType(rimCase);
+                if (rimCase)
+                {
+                    displayModelOffset = rimCase->displayModelOffset();
+                }
+
+                cvf::Vec3d unscaledIntersection = localIntersectionPoint;
+                unscaledIntersection.z() /= m_reservoirView->scaleZ;
+
+                size_t wellSegmentIndex = wellPathSourceInfo->segmentIndex(firstPartTriangleIndex);
+                double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, unscaledIntersection + displayModelOffset);
+                cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, unscaledIntersection + displayModelOffset);
+
+                QString wellPathText;
+                wellPathText += wellPathSourceInfo->wellPath()->name;
+                wellPathText += "\n";
+                wellPathText += QString("Well path segment index : %1\n").arg(wellSegmentIndex);
+                wellPathText += QString("Measured depth : %1\n").arg(measuredDepth);
+
+                QString formattedText;
+                formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", trueVerticalDepth.x(), trueVerticalDepth.y(), -trueVerticalDepth.z());
+                wellPathText += formattedText;
+
+                RiuMainWindow::instance()->setResultInfo(wellPathText);
+
             }
             else if (crossSectionSourceInfo)
             {
@@ -535,14 +561,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         {
             RiuSelectionManager::instance()->setSelectedItem(selItem);
         }
-    }
-
-    if (wellPath)
-    {
-        QString pickInfo = QString("Well path hit: %1").arg(wellPath->name());
-
-        RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        mainWnd->statusBar()->showMessage(pickInfo);
     }
 }
 
