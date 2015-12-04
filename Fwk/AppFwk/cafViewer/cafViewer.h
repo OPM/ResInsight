@@ -116,6 +116,9 @@ public:
     void                    enableNavigationPolicy(bool enable); 
     void                    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     void                    zoomAll();
+    void                    enableParallelProjection(bool enable);
+    void                    updateParallelProjectionHeight(const cvf::Vec3d& pointOfInterest);
+    virtual void            navigationPolicyUpdate();
 
     void                    setMinNearPlaneDistance(double dist);
     void                    setMaxFarPlaneDistance(double dist);
@@ -140,7 +143,6 @@ public:
     // Find out whether the system supports shaders
     static bool             isShadersSupported();
 
-    virtual void            navigationPolicyUpdate();
 
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);
@@ -174,6 +176,7 @@ protected:
 
     double                              m_minNearPlaneDistance;
     double                              m_maxFarPlaneDistance;
+    double                              m_cameraFieldOfViewYDeg;
 
 private:
     void                                setupMainRendering();

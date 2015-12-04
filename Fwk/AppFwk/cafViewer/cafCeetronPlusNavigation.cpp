@@ -257,6 +257,7 @@ void caf::CeetronPlusNavigation::zoomAlongRay(cvf::Ray* ray, int delta)
         cvf::Vec3d newVrp = vrp + trans;
 
         m_viewer->mainCamera()->setFromLookAt(newPos, newVrp, up );
+        m_viewer->updateParallelProjectionHeight(m_pointOfInterest);
         m_viewer->navigationPolicyUpdate();
     }
 }

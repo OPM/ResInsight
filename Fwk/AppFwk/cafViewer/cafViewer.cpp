@@ -80,6 +80,7 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_navigationPolicy(NULL),
     m_minNearPlaneDistance(0.05),
     m_maxFarPlaneDistance(cvf::UNDEFINED_DOUBLE),
+    m_cameraFieldOfViewYDeg(40.0),
     m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
     m_navigationPolicyEnabled(true),
@@ -233,15 +234,11 @@ void caf::Viewer::updateCamera(int width, int height)
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
-        m_mainCamera->setProjectionAsPerspective(40, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
     }
     else
     {
-        cvf::BoundingBox bb = m_renderingSequence->boundingBox();
-        if (bb.isValid())
-        {
-            m_mainCamera->setProjectionAsOrtho(bb.extent().length(), m_mainCamera->nearPlane(), m_mainCamera->farPlane());
-        }
+        m_mainCamera->setProjectionAsOrtho(m_mainCamera->frontPlaneFrustumHeight(), m_mainCamera->nearPlane(), m_mainCamera->farPlane());
     }
 }
 
@@ -266,32 +263,36 @@ bool caf::Viewer::canRender() const
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::optimizeClippingPlanes()
 {
+    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
+    if (!bb.isValid()) return;
+
+    cvf::Vec3d eye, vrp, up;
+    m_mainCamera->toLookAt(&eye, &vrp, &up);
+
+    cvf::Vec3d viewdir = (vrp - eye).getNormalized();
+
+    double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
+
+    double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
+    farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
+
+    double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
+    if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
+    if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
+    {
+        double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
+        nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
+    }
+
+    if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
+
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
-        cvf::BoundingBox bb = m_renderingSequence->boundingBox();
-        if (!bb.isValid()) return;
-
-        cvf::Vec3d eye, vrp, up;
-        m_mainCamera->toLookAt(&eye, &vrp, &up);
-
-        cvf::Vec3d viewdir = (vrp - eye).getNormalized();
-
-        double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
-
-        double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
-        farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
-
-        double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
-        if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
-        if ( m_navigationPolicy.notNull())
-        {
-            double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
-            nearPlaneDist = CVF_MIN( nearPlaneDist, pointOfInterestDist*0.2);
-        }
-
-        if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
-
-        m_mainCamera->setProjectionAsPerspective(m_mainCamera->fieldOfViewYDeg(), nearPlaneDist, farPlaneDist);
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, nearPlaneDist, farPlaneDist);
+    }
+    else
+    {
+        m_mainCamera->setProjectionAsOrtho(m_mainCamera->frontPlaneFrustumHeight(), nearPlaneDist, farPlaneDist);
     }
 }
 
@@ -514,7 +515,7 @@ void caf::Viewer::setMaxFarPlaneDistance(double dist)
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setView(const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection)
 {
-    if (m_navigationPolicy.notNull())
+    if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
     {
         m_navigationPolicy->setView(alongDirection, upDirection); 
 
@@ -921,3 +922,80 @@ cvf::OverlayItem* caf::Viewer::overlayItem(int winPosX, int winPosY)
     return m_mainRendering->overlayItemFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::enableParallelProjection(bool enableOrtho)
+{
+    if (enableOrtho && m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
+    {
+        cvf::Vec3d pointOfInterest;
+
+        if (m_navigationPolicy.isNull() || !m_navigationPolicyEnabled)
+        {
+            using namespace cvf;
+
+            Vec3d eye, vrp, up;
+            m_mainCamera->toLookAt(&eye, &vrp, &up);
+
+            Vec3d eyeToFocus = pointOfInterest - eye;
+            Vec3d camDir = vrp - eye;
+            camDir.normalize();
+
+            double distToFocusPlane =  0.5*(m_mainCamera->farPlane() - m_mainCamera->nearPlane());
+            pointOfInterest = camDir *distToFocusPlane;
+        }
+        else
+        {
+            pointOfInterest = m_navigationPolicy->pointOfInterest();
+        }
+        m_mainCamera->setProjectionAsOrtho(1.0, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        this->updateParallelProjectionHeight(pointOfInterest);
+
+        this->update();
+    }
+    else if (!enableOrtho && m_mainCamera->projection() == cvf::Camera::ORTHO)
+    {
+        // We currently expect all the navigation policies to do walk-based navigation and not fiddle with the field of view
+        // so we do not need to update the camera position based on orthoHeight and fieldOfView. 
+        // We assume the camera is in a sensible position.
+
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        this->update();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+double calculateOrthoHeight(double perspectiveViewAngleYDeg, double focusPlaneDist)
+{
+   return 2 * (cvf::Math::tan( cvf::Math::toRadians(0.5 * perspectiveViewAngleYDeg) ) * focusPlaneDist);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Update the ortho projection view height from a walk based camera manipulation.
+/// Using pointOfInterest, the perspective Y-field Of View along with the camera position
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::updateParallelProjectionHeight(const cvf::Vec3d& pointOfInterest)
+{
+    using namespace cvf;
+    cvf::Camera* camera = m_mainCamera.p();
+
+    if (!camera || camera->projection() != Camera::ORTHO) return;
+
+    Vec3d eye, vrp, up;
+    camera->toLookAt(&eye, &vrp, &up);
+
+    Vec3d eyeToFocus = pointOfInterest - eye;
+    Vec3d camDir = vrp - eye;
+    camDir.normalize();
+
+    double distToFocusPlane = eyeToFocus*camDir;
+
+    double orthoHeight = calculateOrthoHeight(m_cameraFieldOfViewYDeg, distToFocusPlane);
+
+    camera->setProjectionAsOrtho(orthoHeight, camera->nearPlane(), camera->farPlane());
+}

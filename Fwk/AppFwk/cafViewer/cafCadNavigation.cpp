@@ -172,6 +172,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                         cvf::Vec3d newVrp = vrp + trans;
 
                         m_viewer->mainCamera()->setFromLookAt(newPos,newVrp, up );
+                        m_viewer->updateParallelProjectionHeight(m_pointOfInterest);
                         m_viewer->navigationPolicyUpdate();
                     }
                 }

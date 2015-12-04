@@ -77,6 +77,8 @@ RimView::RimView(void)
     showWindow.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     cameraPosition.uiCapability()->setUiHidden(true);
+    
+    CAF_PDM_InitField(&isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "");
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ;
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
@@ -490,6 +492,10 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         updateDisplayModelVisibility();
         RiuMainWindow::instance()->refreshDrawStyleActions();
         RiuMainWindow::instance()->refreshAnimationActions();
+    }
+    else if (changedField == &isPerspectiveView)
+    {
+        if (m_viewer) m_viewer->enableParallelProjection(!isPerspectiveView());
     }
     else if (changedField == &scaleZ)
     {

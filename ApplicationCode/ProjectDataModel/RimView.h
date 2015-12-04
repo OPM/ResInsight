@@ -76,6 +76,7 @@ public:
 
     caf::PdmField<bool>                     showWindow;
     caf::PdmField<cvf::Mat4d>               cameraPosition;
+    caf::PdmField<bool>                     isPerspectiveView;
     caf::PdmField< cvf::Color3f >           backgroundColor;
 
     caf::PdmField<int>                      maximumFrameRate;

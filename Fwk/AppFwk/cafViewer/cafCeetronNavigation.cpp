@@ -196,17 +196,12 @@ void caf::CeetronNavigation::wheelEvent(QWheelEvent* event)
 
     int posY = m_viewer->height() - event->y();
 
-    if (m_viewer->mainCamera()->projection() == cvf::Camera::PERSPECTIVE)
-    {
-        m_trackball->startNavigation(ManipulatorTrackball::WALK, event->x(), posY);
-    }
-    else
-    {
-        m_trackball->startNavigation(ManipulatorTrackball::ZOOM, event->x(), posY);
-    }
+    m_trackball->startNavigation(ManipulatorTrackball::WALK, event->x(), posY);
 
     m_trackball->updateNavigation(event->x(), posY + navDelta);
     m_trackball->endNavigation();
+
+    m_viewer->updateParallelProjectionHeight( m_pointOfInterest);
 
     m_viewer->navigationPolicyUpdate();
 
@@ -229,14 +224,7 @@ ManipulatorTrackball::NavigationType caf::CeetronNavigation::getNavigationTypeFr
     }
     else if (mouseButtons == Qt::MidButton || mouseButtons == (Qt::LeftButton | Qt::RightButton))
     {
-        if (m_viewer->mainCamera()->projection() == cvf::Camera::PERSPECTIVE)
-        {
-            return ManipulatorTrackball::WALK;
-        }
-        else
-        {
-            return ManipulatorTrackball::ZOOM;
-        }
+        return ManipulatorTrackball::WALK;
     }
     else
     {
