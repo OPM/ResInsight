@@ -68,6 +68,7 @@
 #include <QInputEvent>
 #include <QHBoxLayout>
 #include <QDebug>
+#include "cvfTrace.h"
 
 std::list<caf::Viewer*> caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
@@ -951,7 +952,7 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
             pointOfInterest = m_navigationPolicy->pointOfInterest();
         }
         m_mainCamera->setProjectionAsOrtho(1.0, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
-        this->updateParallelProjectionHeight(pointOfInterest);
+        this->updateParallelProjectionHeightFromMoveZoom(pointOfInterest);
 
         this->update();
     }
@@ -974,28 +975,84 @@ double calculateOrthoHeight(double perspectiveViewAngleYDeg, double focusPlaneDi
 {
    return 2 * (cvf::Math::tan( cvf::Math::toRadians(0.5 * perspectiveViewAngleYDeg) ) * focusPlaneDist);
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+double calculateDistToPlaneOfInterest(double perspectiveViewAngleYDeg, double orthoHeight)
+{
+   return orthoHeight / (2 * (cvf::Math::tan( cvf::Math::toRadians(0.5 * perspectiveViewAngleYDeg) )));
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+double distToPlaneOfInterest(const cvf::Camera* camera, const cvf::Vec3d& pointOfInterest)
+{
+    using namespace cvf;
+    CVF_ASSERT(camera);
+
+    Vec3d eye, vrp, up;
+    camera->toLookAt(&eye, &vrp, &up);
+
+    Vec3d camDir = vrp - eye;
+    camDir.normalize();
+
+    Vec3d eyeToFocus = pointOfInterest - eye;
+    double distToFocusPlane = eyeToFocus*camDir;
+
+    return distToFocusPlane;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Update the ortho projection view height from a walk based camera manipulation.
 /// Using pointOfInterest, the perspective Y-field Of View along with the camera position
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::updateParallelProjectionHeight(const cvf::Vec3d& pointOfInterest)
+void caf::Viewer::updateParallelProjectionHeightFromMoveZoom(const cvf::Vec3d& pointOfInterest)
 {
     using namespace cvf;
     cvf::Camera* camera = m_mainCamera.p();
 
     if (!camera || camera->projection() != Camera::ORTHO) return;
 
-    Vec3d eye, vrp, up;
-    camera->toLookAt(&eye, &vrp, &up);
 
-    Vec3d eyeToFocus = pointOfInterest - eye;
-    Vec3d camDir = vrp - eye;
-    camDir.normalize();
-
-    double distToFocusPlane = eyeToFocus*camDir;
+    double distToFocusPlane = distToPlaneOfInterest(camera, pointOfInterest);
 
     double orthoHeight = calculateOrthoHeight(m_cameraFieldOfViewYDeg, distToFocusPlane);
 
     camera->setProjectionAsOrtho(orthoHeight, camera->nearPlane(), camera->farPlane());
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Update the camera eye position from point of interest, keeping the ortho height fixed and in sync 
+/// with distToPlaneOfInterest  from a walk based camera manipulation in ortho projection.
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const cvf::Vec3d& pointOfInterest)
+{
+    using namespace cvf;
+    cvf::Camera* camera = m_mainCamera.p();
+
+    if (!camera || camera->projection() != Camera::ORTHO) return;
+
+    
+    double orthoHeight = camera->frontPlaneFrustumHeight();
+    Trace::show(String::number(orthoHeight));
+
+    double neededDistToFocusPlane = calculateDistToPlaneOfInterest(m_cameraFieldOfViewYDeg, orthoHeight);
+
+    Vec3d eye, vrp, up;
+    camera->toLookAt(&eye, &vrp, &up);
+    Vec3d camDir = vrp - eye;
+    camDir.normalize();
+
+    double existingDistToFocusPlane = distToPlaneOfInterest(camera, pointOfInterest);
+
+    Vec3d newEye = eye + (existingDistToFocusPlane - neededDistToFocusPlane) * camDir;
+
+    Trace::show(String::number(newEye.x()) + ", " + String::number(newEye.y()) + ", " +String::number(newEye.z()));
+    camera->setFromLookAt(newEye, newEye + 10.0*camDir, up);
+
+}
+

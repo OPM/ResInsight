@@ -117,9 +117,14 @@ public:
     void                    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     void                    zoomAll();
     void                    enableParallelProjection(bool enable);
-    void                    updateParallelProjectionHeight(const cvf::Vec3d& pointOfInterest);
+
+    // Interface for navigation policies
+    void                    updateParallelProjectionHeightFromMoveZoom(const cvf::Vec3d& pointOfInterest);
+    void                    updateParallelProjectionCameraPosFromPointOfInterestMove(const cvf::Vec3d& pointOfInterest);
+
     virtual void            navigationPolicyUpdate();
 
+    // Min max near far plane. 
     void                    setMinNearPlaneDistance(double dist);
     void                    setMaxFarPlaneDistance(double dist);
 

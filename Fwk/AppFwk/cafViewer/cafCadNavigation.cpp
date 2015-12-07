@@ -92,8 +92,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     if (hitSomething)
                     { 
                         cvf::Vec3d pointOfInterest = hic.firstItem()->intersectionPoint();
-                        m_trackball->setRotationPoint(pointOfInterest);
-                        m_pointOfInterest = pointOfInterest;
+                        this->setPointOfInterest(pointOfInterest);
                     }
                     else
                     {
@@ -172,7 +171,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                         cvf::Vec3d newVrp = vrp + trans;
 
                         m_viewer->mainCamera()->setFromLookAt(newPos,newVrp, up );
-                        m_viewer->updateParallelProjectionHeight(m_pointOfInterest);
+                        m_viewer->updateParallelProjectionHeightFromMoveZoom(m_pointOfInterest);
                         m_viewer->navigationPolicyUpdate();
                     }
                 }
@@ -190,11 +189,16 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
 //--------------------------------------------------------------------------------------------------
 void caf::CadNavigation::initializeRotationCenter()
 {
-    if(m_isRotCenterInitialized || m_trackball.isNull() || !m_viewer->mainScene() || !m_viewer->currentScene()->boundingBox().isValid()) return;
-    m_pointOfInterest = m_viewer->currentScene()->boundingBox().center();
+    if (m_isRotCenterInitialized
+        || m_trackball.isNull()
+        || !m_viewer->currentScene()->boundingBox().isValid())
+    {
+        return;
+    }
 
-    m_trackball->setRotationPoint(m_pointOfInterest);
-    m_isRotCenterInitialized = true;
+    cvf::Vec3d pointOfInterest = m_viewer->currentScene()->boundingBox().center();
+
+    this->setPointOfInterest(pointOfInterest);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,4 +243,5 @@ void caf::CadNavigation::setPointOfInterest(cvf::Vec3d poi)
     m_pointOfInterest = poi;
     m_trackball->setRotationPoint(poi);
     m_isRotCenterInitialized = true;
+    m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
 }

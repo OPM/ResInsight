@@ -201,7 +201,7 @@ void caf::CeetronNavigation::wheelEvent(QWheelEvent* event)
     m_trackball->updateNavigation(event->x(), posY + navDelta);
     m_trackball->endNavigation();
 
-    m_viewer->updateParallelProjectionHeight( m_pointOfInterest);
+    m_viewer->updateParallelProjectionHeightFromMoveZoom( m_pointOfInterest);
 
     m_viewer->navigationPolicyUpdate();
 
@@ -263,15 +263,16 @@ void caf::CeetronNavigation::setCursorFromCurrentState()
 //--------------------------------------------------------------------------------------------------
 void caf::CeetronNavigation::initializeRotationCenter()
 {
-    if(m_isRotCenterInitialized || m_trackball.isNull() || !m_viewer->mainScene()) return;
-
-    cvf::BoundingBox bb = m_viewer->mainScene()->boundingBox();
-    if(bb.isValid())
+    if (m_isRotCenterInitialized
+        || m_trackball.isNull()
+        || !m_viewer->currentScene()->boundingBox().isValid())
     {
-        m_pointOfInterest = bb.center();
-        m_trackball->setRotationPoint(m_pointOfInterest);
-        m_isRotCenterInitialized = true;
+        return;
     }
+
+   cvf::Vec3d pointOfInterest = m_viewer->currentScene()->boundingBox().center();
+
+   this->setPointOfInterest(pointOfInterest);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,6 +292,8 @@ void caf::CeetronNavigation::setPointOfInterest(cvf::Vec3d poi)
     m_pointOfInterest = poi;
     m_trackball->setRotationPoint(poi);
     m_isRotCenterInitialized = true;
+    m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
+
 }
 
 
