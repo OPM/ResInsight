@@ -30,17 +30,20 @@
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 
+#include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
 #include "RimCrossSection.h"
 #include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimWellPath.h"
 
@@ -53,6 +56,7 @@
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
 #include "RivSourceInfo.h"
+#include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathSourceInfo.h"
 #include "RivWellPipeSourceInfo.h"
 
@@ -63,6 +67,8 @@
 
 #include "cvfDrawableGeo.h"
 #include "cvfHitItemCollection.h"
+#include "cvfOverlayAxisCross.h"
+#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 
 #include "WellPathCommands/RicWellPathViewerEventHandler.h"
@@ -419,6 +425,11 @@ void RiuViewerCommands::slotHideIntersection()
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers)
 {
+    if (handleOverlayItemPicking(winPosX, winPosY))
+    {
+        return;
+    }
+
     size_t gridIndex = cvf::UNDEFINED_SIZE_T;
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
     size_t nncIndex = cvf::UNDEFINED_SIZE_T;
@@ -434,7 +445,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         uint nncPartTriangleIndex = cvf::UNDEFINED_UINT;
 
         cvf::HitItemCollection hitItems;
-
         if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
         {
             extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &firstNncHitPart, &nncPartTriangleIndex);
@@ -714,4 +724,53 @@ void RiuViewerCommands::updateSelectionFromPickedPart(cvf::Part* part)
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
+{
+    cvf::OverlayItem* pickedOverlayItem = m_viewer->overlayItem(winPosX, winPosY);
+    if (pickedOverlayItem)
+    {
+        caf::PdmObject* objToSelect = NULL;
+
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+        if (eclipseView)
+        {
+            if (eclipseView->cellResult()->legendConfig()->legend() == pickedOverlayItem
+                || eclipseView->cellResult()->ternaryLegendConfig->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->cellResult();
+            }
+            else if (eclipseView->faultResultSettings()->customFaultResult()->legendConfig()->legend() == pickedOverlayItem
+                || eclipseView->faultResultSettings()->customFaultResult()->ternaryLegendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->faultResultSettings();
+            }
+            else if (eclipseView->cellEdgeResult()->legendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->cellEdgeResult();
+            }
+        }
+
+        RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+        if (geomView)
+        {
+            if (geomView->cellResult()->legendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = geomView->cellResult();
+            }
+        }
+
+        if (objToSelect)
+        {
+            RiuMainWindow::instance()->setCurrentObjectInTreeView(objToSelect);
+
+            return true;
+        }
+    }
+
+    return false;
 }

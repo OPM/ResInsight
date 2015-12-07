@@ -115,10 +115,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     p.setColor(QPalette::Dark, progressAndHistogramColor);
 
     // Info Text
-    m_InfoLabel = new QLabel();
-    m_InfoLabel->setPalette(p);
-    m_InfoLabel->setFrameShape(QFrame::Box);
-    m_InfoLabel->setMinimumWidth(275);
+    m_infoLabel = new QLabel();
+    m_infoLabel->setPalette(p);
+    m_infoLabel->setFrameShape(QFrame::Box);
+    m_infoLabel->setMinimumWidth(275);
     m_showInfoText = true;
 
     // Version info label
@@ -152,10 +152,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 
     if (RiaApplication::instance()->isRunningRegressionTests())
     {
-        QFont regTestFont = m_InfoLabel->font();
+        QFont regTestFont = m_infoLabel->font();
         regTestFont.setPixelSize(11);
 
-        m_InfoLabel->setFont(regTestFont);
+        m_infoLabel->setFont(regTestFont);
         m_versionInfoLabel->setFont(regTestFont);
         m_animationProgress->setFont(regTestFont);
         m_histogramWidget->setFont(regTestFont);
@@ -183,7 +183,7 @@ RiuViewer::~RiuViewer()
 
         m_rimView->cameraPosition = m_mainCamera->viewMatrix();
     }
-    delete m_InfoLabel;
+    delete m_infoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
     delete m_progressBarStyle;
@@ -228,6 +228,16 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 
     if (event->button() == Qt::LeftButton)
     {
+        if (!m_infoLabelOverlayArea.isNull())
+        {
+            if (m_infoLabelOverlayArea.contains(event->x(), event->y()))
+            {
+                m_rimView->selectOverlayInfoConfig();
+
+                return;
+            }
+        }
+
         m_viewerCommands->handlePickAction(event->x(), event->y(), event->modifiers());
         return;
     }
@@ -336,7 +346,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
     if (isAnimationActive() && frameCount() > 1) showAnimBar = true;
 
     //if (showAnimBar)       columnWidth = CVF_MAX(columnWidth, m_animationProgress->width());
-    if (m_showInfoText) columnWidth = CVF_MAX(columnWidth, m_InfoLabel->sizeHint().width());
+    if (m_showInfoText) columnWidth = CVF_MAX(columnWidth, m_infoLabel->sizeHint().width());
 
     int columnPos = this->width() - columnWidth - margin;
 
@@ -356,9 +366,19 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 
     if (m_showInfoText)
     {
-        m_InfoLabel->resize(columnWidth, m_InfoLabel->sizeHint().height());
-        m_InfoLabel->render(painter, QPoint(columnPos, yPos));
-        yPos +=  m_InfoLabel->height() + margin;
+        QPoint topLeft = QPoint(columnPos, yPos);
+        m_infoLabel->resize(columnWidth, m_infoLabel->sizeHint().height());
+        m_infoLabel->render(painter, topLeft);
+
+        m_infoLabelOverlayArea.setTopLeft(topLeft);
+        m_infoLabelOverlayArea.setBottom(yPos + m_infoLabel->height());
+        m_infoLabelOverlayArea.setRight(columnPos + columnWidth);
+
+        yPos +=  m_infoLabel->height() + margin;
+    }
+    else
+    {
+        m_infoLabelOverlayArea = QRect();
     }
 
     if (m_showHistogram)
@@ -383,7 +403,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setInfoText(QString text)
 {
-    m_InfoLabel->setText(text);
+    m_infoLabel->setText(text);
 }
 
 //--------------------------------------------------------------------------------------------------

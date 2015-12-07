@@ -57,6 +57,7 @@ namespace cvf {
     class Rendering;
     class Scene;
     class TextureImage;
+    class OverlayItem;
 }
 
 namespace caf {
@@ -123,6 +124,7 @@ public:
     bool                    canRender() const;
 
     bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints) ;
+    cvf::OverlayItem*       overlayItem(int winPosX, int winPosY);
 
     // QPainter based drawing on top of the OpenGL graphics
 

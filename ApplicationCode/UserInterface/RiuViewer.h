@@ -110,7 +110,9 @@ private:
     void            mousePressEvent(QMouseEvent* event);
 
 private:
-    QLabel*         m_InfoLabel;
+    QLabel*         m_infoLabel;
+    QRect           m_infoLabelOverlayArea;
+
     QLabel*         m_versionInfoLabel;
     bool            m_showInfoText; 
 

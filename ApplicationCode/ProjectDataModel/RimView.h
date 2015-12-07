@@ -147,6 +147,8 @@ public:
     virtual bool                            showActiveCellsOnly();
     virtual void                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) = 0;
 
+    void                                    selectOverlayInfoConfig();
+
 public:
     virtual void                            loadDataAndUpdate() = 0;
     virtual RimCase*                        ownerCase() = 0;
@@ -210,7 +212,6 @@ protected:
 
 private:
     RimViewLinker*                          viewLinkerIfMasterView() const;
-
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;

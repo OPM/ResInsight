@@ -908,3 +908,16 @@ void caf::Viewer::appendAllStaticModelsToFrame(cvf::Scene* scene)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::OverlayItem* caf::Viewer::overlayItem(int winPosX, int winPosY)
+{
+    if (m_mainRendering.isNull()) return NULL;
+
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
+
+    return m_mainRendering->overlayItemFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+}
+

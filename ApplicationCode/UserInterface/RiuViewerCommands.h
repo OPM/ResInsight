@@ -70,6 +70,8 @@ private:
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
     void            updateSelectionFromPickedPart(cvf::Part* part);
 
+    bool            handleOverlayItemPicking(int winPosX, int winPosY);
+
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;
     cvf::StructGridInterface::FaceType m_currentFaceIndex;
