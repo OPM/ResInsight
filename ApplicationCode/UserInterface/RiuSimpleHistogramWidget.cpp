@@ -13,6 +13,7 @@ QWidget(parent, f)
     m_mean = HUGE_VAL;
     m_min = HUGE_VAL;
     m_max = -HUGE_VAL;
+    m_maxHistogramCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -74,8 +74,6 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 
     plot->loadDataAndUpdate();
 
-    caf::PdmUiItem* uiItem = NULL;
-
     for (size_t wlIdx = 0; wlIdx < selection.size(); wlIdx++)
     {
         RimWellLogFileChannel* wellLog = selection[wlIdx];

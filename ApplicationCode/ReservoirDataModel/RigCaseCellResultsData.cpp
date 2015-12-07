@@ -198,9 +198,7 @@ size_t RigCaseCellResultsData::findScalarResultIndex(RimDefines::ResultCatType t
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) const
 {
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-
-    scalarResultIndex = this->findScalarResultIndex(RimDefines::STATIC_NATIVE, resultName);
+    size_t scalarResultIndex = this->findScalarResultIndex(RimDefines::STATIC_NATIVE, resultName);
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {

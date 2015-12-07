@@ -69,7 +69,6 @@ bool RicWellPathViewerEventHandler::handleEvent(cvf::Object* eventObject)
             cvf::Vec3d unscaledIntersection = uiEvent->localIntersectionPoint;
             unscaledIntersection.z() /= activeView->scaleZ;
 
-            size_t wellSegmentIndex = wellPathSourceInfo->segmentIndex(uiEvent->firstPartTriangleIndex);
             double measuredDepth = wellPathSourceInfo->measuredDepth(uiEvent->firstPartTriangleIndex, unscaledIntersection + displayModelOffset);
             cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(uiEvent->firstPartTriangleIndex, unscaledIntersection + displayModelOffset);
 
