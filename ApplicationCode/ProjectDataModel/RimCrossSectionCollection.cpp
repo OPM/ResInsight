@@ -118,7 +118,7 @@ void RimCrossSectionCollection::appendCrossSection(RimCrossSection* crossSection
     m_crossSections.push_back(crossSection);
 
     updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(crossSection);
+    RiuMainWindow::instance()->selectAsCurrentItem(crossSection);
 
     RimView* rimView = NULL;
     firstAnchestorOrThisOfType(rimView);

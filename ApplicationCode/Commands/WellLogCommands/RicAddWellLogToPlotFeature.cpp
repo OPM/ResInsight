@@ -105,11 +105,6 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             curve->setWellLogChannelName(wellLog->name());
 
             curve->updatePlotData();
-
-            if (wlIdx == selection.size() - 1)
-            {
-                uiItem = curve;
-            }
         }        
     }
 
@@ -119,10 +114,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    if (uiItem)
-    {
-        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(uiItem);
-    }
+    RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(selection.back());
 }
 
 //--------------------------------------------------------------------------------------------------

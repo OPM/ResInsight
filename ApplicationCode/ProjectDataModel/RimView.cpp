@@ -875,6 +875,6 @@ bool RimView::showActiveCellsOnly()
 //--------------------------------------------------------------------------------------------------
 void RimView::selectOverlayInfoConfig()
 {
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(m_overlayInfoConfig);
+    RiuMainWindow::instance()->selectAsCurrentItem(m_overlayInfoConfig);
 }
 

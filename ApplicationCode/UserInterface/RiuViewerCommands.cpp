@@ -62,7 +62,6 @@
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
-#include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 
 #include "cvfDrawableGeo.h"
@@ -720,7 +719,7 @@ void RiuViewerCommands::updateSelectionFromPickedPart(cvf::Part* part)
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
-                RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(wellPath);
+                RiuMainWindow::instance()->selectAsCurrentItem(wellPath);
             }
         }
     }
@@ -766,7 +765,7 @@ bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
 
         if (objToSelect)
         {
-            RiuMainWindow::instance()->setCurrentObjectInTreeView(objToSelect);
+            RiuMainWindow::instance()->selectAsCurrentItem(objToSelect);
 
             return true;
         }

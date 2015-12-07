@@ -152,7 +152,7 @@ RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogTrack* pl
 
     plotTrack->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
+    RiuMainWindow::instance()->selectAsCurrentItem(curve);
 
     return curve;
 }

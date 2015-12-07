@@ -146,7 +146,7 @@ void RicNewPolylineCrossSectionFeatureCmd::redo()
 
     RiuSelectionManager::instance()->deleteAllItems();
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(crossSection);
+    RiuMainWindow::instance()->selectAsCurrentItem(crossSection);
 }
 
 //--------------------------------------------------------------------------------------------------

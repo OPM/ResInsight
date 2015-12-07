@@ -136,7 +136,7 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
     plotTrack->addCurve(curve);
 
     plotTrack->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
+    RiuMainWindow::instance()->selectAsCurrentItem(curve);
 
     return curve;
 }

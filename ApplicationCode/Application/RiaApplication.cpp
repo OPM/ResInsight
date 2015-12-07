@@ -759,7 +759,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     analysisModels->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
 
 
     return true;
@@ -795,7 +795,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 
     analysisModels->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
 
     return true;
 }
@@ -841,7 +841,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 
     m_project->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
     
     return true;
 }
@@ -1965,7 +1965,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
     if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
     {
-        RiuMainWindow::instance()->setCurrentObjectInTreeView(gridCaseGroup->statisticsCaseCollection()->reservoirs[0]);
+        RiuMainWindow::instance()->selectAsCurrentItem(gridCaseGroup->statisticsCaseCollection()->reservoirs[0]);
     }
 
     return true;

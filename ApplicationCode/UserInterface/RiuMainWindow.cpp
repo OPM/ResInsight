@@ -1990,7 +1990,7 @@ void RiuMainWindow::restoreTreeViewState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
+void RiuMainWindow::selectAsCurrentItem(caf::PdmObject* object)
 {
     m_projectTreeView->selectAsCurrentItem(object);
 }

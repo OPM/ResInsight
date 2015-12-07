@@ -93,7 +93,7 @@ public:
     void            loadWinGeoAndDockToolBarLayout();
     void            showWindow();
 
-    void            setCurrentObjectInTreeView(caf::PdmObject* object);
+    void            selectAsCurrentItem(caf::PdmObject* object);
 
     void            selectedCases(std::vector<RimCase*>& cases);
 

@@ -25,22 +25,20 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmUiTreeView.h"
-
-#include "qwt_plot_grid.h"
 #include "qwt_legend.h"
-#include "qwt_scale_engine.h"
+#include "qwt_plot_curve.h"
+#include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
 #include "qwt_scale_draw.h"
+#include "qwt_scale_engine.h"
 #include "qwt_text.h"
-#include "qwt_plot_curve.h"
 
-#include <QWheelEvent>
-#include <QMouseEvent>
 #include <QFont>
+#include <QMouseEvent>
+#include <QScrollArea>
+#include <QWheelEvent>
 
 #include <float.h>
-#include <QScrollArea>
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
 #define RIU_SCROLLWHEEL_PANFACTOR   0.1
@@ -222,7 +220,7 @@ void RiuWellLogTrack::focusInEvent(QFocusEvent* event)
 {
     if (m_plotTrackDefinition)
     {
-        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(m_plotTrackDefinition);
+        RiuMainWindow::instance()->selectAsCurrentItem(m_plotTrackDefinition);
         clearFocus();
     }
 }
@@ -256,7 +254,7 @@ void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
         RimWellLogCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve(closestCurve);
         if (selectedCurve)
         {
-            RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(selectedCurve);
+            RiuMainWindow::instance()->selectAsCurrentItem(selectedCurve);
         }
     }
 }
