@@ -108,7 +108,7 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
     {
         (*pIt)->calculateAvailableDepthRange();
         (*pIt)->updateTrackNames();
-        (*pIt)->zoomAllDepth();
+        (*pIt)->updateDepthZoom();
         (*pIt)->updateConnectedEditors();
     }
 

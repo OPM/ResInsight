@@ -125,7 +125,7 @@ void RicDeleteItemExec::redo()
         if (wellLogPlot)
         {
             wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->zoomAllDepth();
+            wellLogPlot->updateDepthZoom();
         }
 
         RimWellLogTrack* wellLogPlotTrack;

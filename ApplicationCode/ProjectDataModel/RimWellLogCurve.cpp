@@ -277,7 +277,7 @@ void RimWellLogCurve::zoomAllOwnerTrackAndPlot()
     if (wellLogPlot)
     {
         wellLogPlot->calculateAvailableDepthRange();
-        wellLogPlot->zoomAllDepth();
+        wellLogPlot->updateDepthZoom();
     }
 
     RimWellLogTrack* plotTrack;

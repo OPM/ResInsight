@@ -71,6 +71,7 @@ RimWellLogPlot::RimWellLogPlot()
 
     CAF_PDM_InitField(&m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
+    CAF_PDM_InitField(&m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
     m_tracks.uiCapability()->setUiHidden(true);
@@ -147,7 +148,13 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth)
     {
-        updateDepthZoomInQwt();
+        applyDepthZoomFromVisibleDepth();
+
+        m_isAutoScaleDepthEnabled = false;
+    }
+    else if (changedField == &m_isAutoScaleDepthEnabled)
+    {
+        updateDepthZoom();
     }
     else if (changedField == &m_userName)
     {
@@ -279,7 +286,7 @@ void RimWellLogPlot::setDepthZoomMinMax(double minimumDepth, double maximumDepth
     m_minVisibleDepth.uiCapability()->updateConnectedEditors();
     m_maxVisibleDepth.uiCapability()->updateConnectedEditors();
 
-    updateDepthZoomInQwt();
+    applyDepthZoomFromVisibleDepth();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,6 +380,7 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_depthUnit);
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
+    gridGroup->add(&m_isAutoScaleDepthEnabled);
     gridGroup->add(&m_minVisibleDepth);
     gridGroup->add(&m_maxVisibleDepth);
 }
@@ -400,7 +408,7 @@ void RimWellLogPlot::updateTracks()
         }
 
         calculateAvailableDepthRange();
-        updateDepthZoomInQwt();
+        updateDepthZoom();
     }
 }
 
@@ -418,7 +426,22 @@ void RimWellLogPlot::updateTrackNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateDepthZoomInQwt()
+void RimWellLogPlot::updateDepthZoom()
+{
+    if (m_isAutoScaleDepthEnabled)
+    {
+        applyZoomAllDepths();
+    }
+    else
+    {
+        applyDepthZoomFromVisibleDepth();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::applyDepthZoomFromVisibleDepth()
 {
     if (m_viewer)
     {
@@ -433,7 +456,7 @@ void RimWellLogPlot::updateDepthZoomInQwt()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::zoomAllDepth()
+void RimWellLogPlot::applyZoomAllDepths()
 {
     if (hasAvailableDepthRange())
     {

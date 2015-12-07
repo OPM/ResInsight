@@ -92,7 +92,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         if (wellLogPlot)
         {
             wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->zoomAllDepth();
+            wellLogPlot->updateDepthZoom();
             if (wellLogPlot->viewer()) wellLogPlot->viewer()->updateChildrenLayout();
         }
     }
@@ -268,7 +268,7 @@ void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
         firstAnchestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
-           wellLogPlot->zoomAllDepth();
+           wellLogPlot->updateDepthZoom();
         }
 
         zoomAllXAxisIfAutoScale();

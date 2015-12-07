@@ -74,7 +74,7 @@ public:
 
     RiuWellLogPlot*                                 viewer();
 
-    void                                            zoomAllDepth();
+    void                                            updateDepthZoom();
     void                                            setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter);
     void                                            panDepth(double panFactor);
     void                                            setDepthZoomMinMax(double minimumDepth, double maximumDepth);
@@ -96,13 +96,13 @@ protected:
 private:
     void                                            updateViewerWidget();
     void                                            updateViewerWidgetWindowTitle();
-    void                                            updateDepthZoomInQwt();
+    void                                            applyZoomAllDepths();
+    void                                            applyDepthZoomFromVisibleDepth();
     void                                            recreateTrackPlots();
     void                                            detachAllCurves();
     void                                            handleViewerDeletion();
 
 private:
-    
     caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
     
@@ -113,6 +113,7 @@ private:
 
     caf::PdmField<double>                           m_minVisibleDepth;
     caf::PdmField<double>                           m_maxVisibleDepth;
+    caf::PdmField<bool>                             m_isAutoScaleDepthEnabled;
 
     double                                          m_minAvailableDepth;
     double                                          m_maxAvailableDepth;

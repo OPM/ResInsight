@@ -71,7 +71,7 @@ void RicDeleteWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
             delete track;
 
             wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->zoomAllDepth();
+            wellLogPlot->updateDepthZoom();
             wellLogPlot->uiCapability()->updateConnectedEditors();
         }
     }
