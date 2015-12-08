@@ -90,8 +90,6 @@ void RivWellPathSourceInfo::normalizedIntersection(size_t triangleIndex, const c
 
     double norm = 0.0;
     cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine(segmentStart, segmentEnd, globalIntersection, &norm);
-    CVF_ASSERT(0.0 < norm && norm < 1.0);
-
     cvf::Math::clamp(norm, 0.0, 1.0);
 
     *firstSegmentIndex = segIndex;
