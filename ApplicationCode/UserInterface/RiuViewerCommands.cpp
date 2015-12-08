@@ -738,19 +738,25 @@ bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
         if (eclipseView)
         {
-            if (eclipseView->cellResult()->legendConfig()->legend() == pickedOverlayItem
-                || eclipseView->cellResult()->ternaryLegendConfig->legend() == pickedOverlayItem)
+            if (eclipseView->cellResult()->legendConfig()->legend() == pickedOverlayItem)
             {
-                objToSelect = eclipseView->cellResult();
+                objToSelect = eclipseView->cellResult()->legendConfig();
             }
-            else if (eclipseView->faultResultSettings()->customFaultResult()->legendConfig()->legend() == pickedOverlayItem
-                || eclipseView->faultResultSettings()->customFaultResult()->ternaryLegendConfig()->legend() == pickedOverlayItem)
+            else if (eclipseView->cellResult()->ternaryLegendConfig()->legend() == pickedOverlayItem)
             {
-                objToSelect = eclipseView->faultResultSettings();
+                objToSelect = eclipseView->cellResult()->ternaryLegendConfig();
+            }
+            else if (eclipseView->faultResultSettings()->customFaultResult()->legendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->faultResultSettings()->customFaultResult()->legendConfig();
+            }
+            else if (eclipseView->faultResultSettings()->customFaultResult()->ternaryLegendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->faultResultSettings()->customFaultResult()->ternaryLegendConfig();
             }
             else if (eclipseView->cellEdgeResult()->legendConfig()->legend() == pickedOverlayItem)
             {
-                objToSelect = eclipseView->cellEdgeResult();
+                objToSelect = eclipseView->cellEdgeResult()->legendConfig();
             }
         }
 
@@ -759,7 +765,7 @@ bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
         {
             if (geomView->cellResult()->legendConfig()->legend() == pickedOverlayItem)
             {
-                objToSelect = geomView->cellResult();
+                objToSelect = geomView->cellResult()->legendConfig();
             }
         }
 
