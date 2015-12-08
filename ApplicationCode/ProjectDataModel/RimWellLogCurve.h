@@ -24,13 +24,17 @@
 #include "cafPdmObject.h"
 
 #include "RigWellLogCurveData.h"
+
 #include <QPointer>
+
 #include <vector>
 
 class RigWellLogCurveData;
 class RiuWellLogTrack;
 class RiuLineSegmentQwtPlotCurve;
+
 class QwtPlotCurve;
+
 class QString;
 
 //==================================================================================================
@@ -40,6 +44,14 @@ class QString;
 class RimWellLogCurve : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+public:
+    enum CurvePlotTypeEnum
+    {
+        LINE,
+        SYMBOL,
+        LINE_AND_SYMBOL
+    };
+
 public:
     RimWellLogCurve();
     virtual ~RimWellLogCurve();
@@ -94,4 +106,6 @@ protected:
     caf::PdmField<bool>             m_autoName;
     caf::PdmField<cvf::Color3f>     m_curveColor;
     caf::PdmField<float>            m_curveThickness;
+
+    caf::PdmField< caf::AppEnum< CurvePlotTypeEnum > > m_curvePlotStyle;
 };

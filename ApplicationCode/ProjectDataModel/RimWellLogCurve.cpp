@@ -30,8 +30,22 @@
 
 #include "cvfAssert.h"
 
+#include "qwt_symbol.h"
+
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimWellLogCurve, "WellLogPlotCurve");
+
+namespace caf
+{
+    template<>
+    void caf::AppEnum< RimWellLogCurve::CurvePlotTypeEnum >::setUp()
+    {
+        addItem(RimWellLogCurve::LINE, "LINE", "Line");
+        addItem(RimWellLogCurve::SYMBOL, "SYMBOL", "Symbol");
+        addItem(RimWellLogCurve::LINE_AND_SYMBOL, "LINE_AND_SYMBOL", "Line and Symbol");
+        setDefault(RimWellLogCurve::LINE);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -53,6 +67,9 @@ RimWellLogCurve::RimWellLogCurve()
 
     CAF_PDM_InitField(&m_curveThickness, "Thickness", 1.0f, "Thickness", "", "", "");
     m_curveThickness.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+
+    caf::AppEnum< RimWellLogCurve::CurvePlotTypeEnum > curvePlotType = LINE;
+    CAF_PDM_InitField(&m_curvePlotStyle, "CurvePlotStyle", curvePlotType, "Curve style", "", "", "");
 
     m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
     m_qwtPlotCurve->setXAxis(QwtPlot::xTop);
@@ -90,7 +107,8 @@ void RimWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updatePlotTitle();
     }
     else if (&m_curveColor == changedField
-            || &m_curveThickness == changedField)
+            || &m_curveThickness == changedField
+            || &m_curvePlotStyle == changedField)
     {
         updateCurvePen();
     }
@@ -326,6 +344,24 @@ void RimWellLogCurve::updateCurvePen()
 {
     CVF_ASSERT(m_qwtPlotCurve);
     m_qwtPlotCurve->setPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte()), m_curveThickness);
+
+    QwtSymbol* symbol = NULL;
+
+    if (m_curvePlotStyle == LINE_AND_SYMBOL || m_curvePlotStyle == SYMBOL)
+    {
+        // QwtPlotCurve will take ownership of the symbol
+        symbol = new QwtSymbol(QwtSymbol::XCross);
+        symbol->setSize(6, 6);
+    }
+
+    QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::Lines;
+    if (m_curvePlotStyle == SYMBOL)
+    {
+        curveStyle = QwtPlotCurve::NoCurve;
+    }
+
+    m_qwtPlotCurve->setStyle(curveStyle);
+    m_qwtPlotCurve->setSymbol(symbol);
 }
 
 //--------------------------------------------------------------------------------------------------
