@@ -398,12 +398,19 @@ void RimWellLogTrack::updateAxisScaleEngine()
     if (m_isLogarithmicScaleEnabled)
     {
         m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xTop, new QwtLogScaleEngine);
+        
+        // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xBottom, new QwtLogScaleEngine);
     }
     else
     {
         m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xTop, new QwtLinearScaleEngine);
+
+        // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
