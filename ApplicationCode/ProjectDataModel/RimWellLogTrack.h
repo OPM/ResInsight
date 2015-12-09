@@ -68,7 +68,7 @@ protected:
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
-    void clampMinimumXRangeForLogarithmicScale();
+    void computeAndSetXRangeMinForLogarithmicScale();
 
     virtual caf::PdmFieldHandle* objectToggleField();
     virtual caf::PdmFieldHandle* userDescriptionField();

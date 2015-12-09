@@ -19,6 +19,8 @@
 
 #include "RimWellLogTrack.h"
 
+#include "RigStatisticsCalculator.h"
+
 #include "RimWellLogPlot.h"
 #include "RimWellLogCurve.h"
 
@@ -104,8 +106,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
-        clampMinimumXRangeForLogarithmicScale();
-
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
         m_wellLogTrackPlotWidget->replot();
         m_isAutoScaleXEnabled = false;
@@ -115,7 +115,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         if (m_isAutoScaleXEnabled())
         { 
             this->zoomAllXAxisIfAutoScale();
-            clampMinimumXRangeForLogarithmicScale();
+            computeAndSetXRangeMinForLogarithmicScale();
 
             if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->replot();
         }
@@ -125,7 +125,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateAxisScaleEngine();
 
         this->zoomAllXAxisIfAutoScale();
-        clampMinimumXRangeForLogarithmicScale();
+        computeAndSetXRangeMinForLogarithmicScale();
 
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
 
@@ -337,7 +337,7 @@ void RimWellLogTrack::zoomAllXAxisIfAutoScale()
     m_visibleXRangeMin = minValue;
     m_visibleXRangeMax = maxValue;
 
-    clampMinimumXRangeForLogarithmicScale();
+    computeAndSetXRangeMinForLogarithmicScale();
 
     if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
 
@@ -408,14 +408,24 @@ void RimWellLogTrack::updateAxisScaleEngine()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::clampMinimumXRangeForLogarithmicScale()
+void RimWellLogTrack::computeAndSetXRangeMinForLogarithmicScale()
 {
-    if (m_isLogarithmicScaleEnabled)
+    if (m_isAutoScaleXEnabled && m_isLogarithmicScaleEnabled)
     {
-        double minValue = m_visibleXRangeMin;
-        
-        minValue = cvf::Math::clamp(minValue, 0.01, m_visibleXRangeMax());
+        double pos = HUGE_VAL;
+        double neg = -HUGE_VAL;
 
-        m_visibleXRangeMin = minValue;
+        for (size_t cIdx = 0; cIdx < curves.size(); cIdx++)
+        {
+            if (curves[cIdx]->isCurveVisible() && curves[cIdx]->curveData())
+            {
+                RigStatisticsCalculator::posNegClosestToZero(curves[cIdx]->curveData()->xPlotValues(), pos, neg);
+            }
+        }
+
+        if (pos != HUGE_VAL)
+        {
+            m_visibleXRangeMin = pos;
+        }
     }
 }
