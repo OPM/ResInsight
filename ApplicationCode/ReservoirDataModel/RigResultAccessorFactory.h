@@ -21,14 +21,23 @@
 
 #include "RifReaderInterface.h"
 #include "RigResultAccessor.h"
+
 #include "RimDefines.h"
 
 class RigActiveCellInfo;
 class RigGridBase;
 
+class RimEclipseResultDefinition;
+
 class RigResultAccessorFactory
 {
 public:
+    static cvf::ref<RigResultAccessor>
+        createResultAccessor(RigCaseData* eclipseCase,
+        size_t gridIndex,
+        size_t timeStepIndex,
+        RimEclipseResultDefinition* resultDefinition);
+
     static cvf::ref<RigResultAccessor> 
         createResultAccessor(RigCaseData* eclipseCase,
         size_t gridIndex,
@@ -51,8 +60,6 @@ public:
         size_t timeStepIndex,
         size_t resultIndex);
 
-
-
 private:
     static cvf::ref<RigResultAccessor> 
         createNativeResultAccessor(RigCaseData* eclipseCase,
@@ -60,7 +67,6 @@ private:
                                         RifReaderInterface::PorosityModelResultType porosityModel,
                                         size_t timeStepIndex,
                                         const QString& resultName);
-
 
 };
 

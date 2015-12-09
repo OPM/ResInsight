@@ -213,14 +213,11 @@ void RimWellLogExtractionCurve::updatePlotData()
                 tvDepthValues = eclExtractor->trueVerticalDepth();
             }
 
-            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-            m_eclipseResultDefinition->loadResult();
-
             cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
-                eclipseCase->reservoirData(), 0,
-                porosityModel,
+                eclipseCase->reservoirData(),
+                0,
                 m_timeStep,
-                m_eclipseResultDefinition->resultVariable());
+                m_eclipseResultDefinition);
 
             if (resAcc.notNull())
             {

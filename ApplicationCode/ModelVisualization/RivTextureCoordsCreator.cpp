@@ -39,13 +39,7 @@ RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResul
     m_quadMapper = quadMapper;
     CVF_ASSERT(quadMapper && eclipseCase );
 
-    size_t resTimeStepIdx = timeStepIndex;
-
-    if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
-
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-
-    m_resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, cellResultColors->resultVariable());
+    m_resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, timeStepIndex, cellResultColors);
 
     cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
         eclipseCase->gridCellToWellIndex(gridIndex));

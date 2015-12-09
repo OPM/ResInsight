@@ -126,17 +126,10 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                 }
                 else
                 {
-                    size_t adjustedTimeStepIndex = timeStepIndex;
-                    if (cellResultColors->hasStaticResult())
-                    {
-                        adjustedTimeStepIndex = 0;
-                    }
-
                     resultAccessor = RigResultAccessorFactory::createResultAccessor(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
                                                                                     0,
-                                                                                    RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel()),
-                                                                                    adjustedTimeStepIndex,
-                                                                                    cellResultColors->resultVariable());
+                                                                                    timeStepIndex,
+                                                                                    cellResultColors);
                 }
 
                 RivCrossSectionPartMgr::calculateEclipseTextureCoordinates(m_crossSectionFacesTextureCoords.p(),
