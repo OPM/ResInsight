@@ -69,6 +69,7 @@ RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilter::~RimGeoMechPropertyFilter()
 {
+    delete resultDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------

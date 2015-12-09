@@ -99,7 +99,8 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve::~RimWellLogExtractionCurve()
 {
-
+    delete m_geomResultDefinition;
+    delete m_eclipseResultDefinition;
 }
 
 

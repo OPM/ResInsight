@@ -40,7 +40,6 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
     propertyFilters.uiCapability()->setUiHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +47,7 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 {
-
+    propertyFilters.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

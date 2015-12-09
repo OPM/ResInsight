@@ -96,6 +96,9 @@ RimGeoMechView::RimGeoMechView(void)
 RimGeoMechView::~RimGeoMechView(void)
 {
     m_geomechCase = NULL;
+
+    delete cellResult;
+    delete m_propertyFilterCollection;
 }
 
 

@@ -47,7 +47,7 @@ RimGeoMechPropertyFilterCollection::RimGeoMechPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
 {
-
+    propertyFilters.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

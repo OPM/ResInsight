@@ -89,7 +89,10 @@ RimWellLogPlot::RimWellLogPlot()
 RimWellLogPlot::~RimWellLogPlot()
 {
     RiuMainWindow::instance()->removeViewer(m_viewer);
+    
     detachAllCurves();
+    m_tracks.deleteAllChildObjects();
+
     delete m_viewer;
 }
 
