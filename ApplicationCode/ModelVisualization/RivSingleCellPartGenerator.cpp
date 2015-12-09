@@ -61,7 +61,7 @@ RivSingleCellPartGenerator::RivSingleCellPartGenerator(RimGeoMechCase* rimGeoMec
 cvf::ref<cvf::Part> RivSingleCellPartGenerator::createPart(const cvf::Color3f color)
 {
     cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setName("Hightlight part for cell index " + m_cellIndex);
+    part->setName(cvf::String("Hightlight part for cell index ") + cvf::String((cvf::int64)m_cellIndex));
     part->setDrawable(createMeshDrawable().p());
 
     cvf::ref<cvf::Effect> eff;

@@ -144,7 +144,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Grid mesh " + m_gridIdx);
+            part->setName("Grid mesh " + cvf::String(m_gridIdx));
             part->setDrawable(geoMesh.p());
 
             part->setTransform(m_scaleTransform.p());
