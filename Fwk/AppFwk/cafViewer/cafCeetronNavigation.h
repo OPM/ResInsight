@@ -48,6 +48,9 @@ namespace caf
 
 class CeetronNavigation : public NavigationPolicy
 {
+public:
+    CeetronNavigation();
+    virtual ~CeetronNavigation();
 protected:
     // General navigation policy reimplememtation
     virtual void    init();

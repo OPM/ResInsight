@@ -44,6 +44,9 @@ namespace caf
 
 class CadNavigation : public TrackBallBasedNavigation
 {
+public:
+    CadNavigation();
+    virtual ~CadNavigation();
 protected:
     virtual void    init();
     virtual bool    handleInputEvent(QInputEvent* inputEvent);

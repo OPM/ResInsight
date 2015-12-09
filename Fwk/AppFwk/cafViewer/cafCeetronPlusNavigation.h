@@ -42,6 +42,9 @@ namespace caf
 
 class CeetronPlusNavigation : public TrackBallBasedNavigation
 {
+public:
+    CeetronPlusNavigation();
+    virtual ~CeetronPlusNavigation();
 protected:
     virtual bool  handleInputEvent(QInputEvent* inputEvent);
 };

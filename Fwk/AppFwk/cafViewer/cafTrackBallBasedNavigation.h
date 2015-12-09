@@ -47,6 +47,9 @@ namespace caf
 
 class TrackBallBasedNavigation: public NavigationPolicy
 {
+public:
+    TrackBallBasedNavigation();
+    virtual ~TrackBallBasedNavigation();
 protected:
     // General navigation policy overrides
     virtual void                        init();
