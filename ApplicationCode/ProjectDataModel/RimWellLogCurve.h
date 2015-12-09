@@ -45,11 +45,24 @@ class RimWellLogCurve : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    enum CurvePlotTypeEnum
+    enum LineStyleEnum
     {
-        LINE,
-        SYMBOL,
-        LINE_AND_SYMBOL
+        STYLE_NONE,
+        STYLE_SOLID,
+        STYLE_DASH,
+        STYLE_DOT,
+        STYLE_DASH_DOT
+    };
+
+    enum PointSymbolEnum
+    {
+        SYMBOL_NONE,
+        SYMBOL_ELLIPSE,
+        SYMBOL_RECT,
+        SYMBOL_DIAMOND,
+        SYMBOL_TRIANGLE,
+        SYMBOL_CROSS,
+        SYMBOL_XCROSS
     };
 
 public:
@@ -85,7 +98,7 @@ protected:
     void                            updateCurveVisibility();
     void                            zoomAllOwnerTrackAndPlot();
     void                            updateOptionSensitivity();
-    void                            updateCurvePen();
+    void                            updateCurveAppearance();
 
     // Overridden PDM methods
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -107,5 +120,6 @@ protected:
     caf::PdmField<cvf::Color3f>     m_curveColor;
     caf::PdmField<float>            m_curveThickness;
 
-    caf::PdmField< caf::AppEnum< CurvePlotTypeEnum > > m_curvePlotStyle;
+    caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
+    caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
 };

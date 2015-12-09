@@ -38,12 +38,30 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimWellLogCurve, "WellLogPlotCurve");
 namespace caf
 {
     template<>
-    void caf::AppEnum< RimWellLogCurve::CurvePlotTypeEnum >::setUp()
+    void caf::AppEnum< RimWellLogCurve::LineStyleEnum >::setUp()
     {
-        addItem(RimWellLogCurve::LINE, "LINE", "Line");
-        addItem(RimWellLogCurve::SYMBOL, "SYMBOL", "Symbol");
-        addItem(RimWellLogCurve::LINE_AND_SYMBOL, "LINE_AND_SYMBOL", "Line and Symbol");
-        setDefault(RimWellLogCurve::LINE);
+        addItem(RimWellLogCurve::STYLE_NONE,    "STYLE_NONE",       "None");
+        addItem(RimWellLogCurve::STYLE_SOLID,   "STYLE_SOLID",      "Solid");
+        addItem(RimWellLogCurve::STYLE_DASH,    "STYLE_DASH",       "Dashes");
+        addItem(RimWellLogCurve::STYLE_DOT,     "STYLE_DOT",        "Dots");
+        addItem(RimWellLogCurve::STYLE_DASH_DOT,"STYLE_DASH_DOT",   "Dashes and Dots");
+
+        setDefault(RimWellLogCurve::STYLE_SOLID);
+    }
+
+
+    template<>
+    void caf::AppEnum< RimWellLogCurve::PointSymbolEnum >::setUp()
+    {
+        addItem(RimWellLogCurve::SYMBOL_NONE,       "SYMBOL_NONE",      "None");
+        addItem(RimWellLogCurve::SYMBOL_ELLIPSE,    "SYMBOL_ELLIPSE",   "Ellipse");
+        addItem(RimWellLogCurve::SYMBOL_RECT,       "SYMBOL_RECT",      "Rect");
+        addItem(RimWellLogCurve::SYMBOL_DIAMOND,    "SYMBOL_DIAMOND",   "Diamond");
+        addItem(RimWellLogCurve::SYMBOL_TRIANGLE,   "SYMBOL_TRIANGLE",  "Triangle");
+        addItem(RimWellLogCurve::SYMBOL_CROSS,      "SYMBOL_CROSS",     "Cross");
+        addItem(RimWellLogCurve::SYMBOL_XCROSS,     "SYMBOL_XCROSS",    "X Cross");
+
+        setDefault(RimWellLogCurve::SYMBOL_NONE);
     }
 }
 
@@ -68,8 +86,11 @@ RimWellLogCurve::RimWellLogCurve()
     CAF_PDM_InitField(&m_curveThickness, "Thickness", 1.0f, "Thickness", "", "", "");
     m_curveThickness.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
-    caf::AppEnum< RimWellLogCurve::CurvePlotTypeEnum > curvePlotType = LINE;
-    CAF_PDM_InitField(&m_curvePlotStyle, "CurvePlotStyle", curvePlotType, "Curve style", "", "", "");
+    caf::AppEnum< RimWellLogCurve::LineStyleEnum > lineStyle = STYLE_SOLID;
+    CAF_PDM_InitField(&m_lineStyle, "LineStyle", lineStyle, "Line style", "", "", "");
+
+    caf::AppEnum< RimWellLogCurve::PointSymbolEnum > pointSymbol = SYMBOL_NONE;
+    CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Point style", "", "", "");
 
     m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
     m_qwtPlotCurve->setXAxis(QwtPlot::xTop);
@@ -108,9 +129,10 @@ void RimWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (&m_curveColor == changedField
             || &m_curveThickness == changedField
-            || &m_curvePlotStyle == changedField)
+            || &m_pointSymbol == changedField
+            || &m_lineStyle == changedField)
     {
-        updateCurvePen();
+        updateCurveAppearance();
     }
     else if (changedField == &m_autoName)
     {
@@ -174,7 +196,7 @@ void RimWellLogCurve::updatePlotConfiguration()
     this->updateCurveName();
     this->updatePlotTitle();
 
-    updateCurvePen();
+    updateCurveAppearance();
     // Todo: Rest of the curve setup controlled from this class
 }
 
@@ -340,28 +362,78 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::updateCurvePen()
+void RimWellLogCurve::updateCurveAppearance()
 {
     CVF_ASSERT(m_qwtPlotCurve);
 
     QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
-    m_qwtPlotCurve->setPen(curveColor, m_curveThickness);
 
     QwtSymbol* symbol = NULL;
-    if (m_curvePlotStyle == LINE_AND_SYMBOL || m_curvePlotStyle == SYMBOL)
+
+    if (m_pointSymbol() != SYMBOL_NONE)
     {
+        QwtSymbol::Style style = QwtSymbol::NoSymbol;
+    
+        switch (m_pointSymbol())
+        {
+            case SYMBOL_ELLIPSE :
+                style = QwtSymbol::Ellipse;
+                break;
+            case SYMBOL_RECT:
+                style = QwtSymbol::Rect;
+                break;
+            case SYMBOL_DIAMOND:
+                style = QwtSymbol::Diamond;
+                break;
+            case SYMBOL_TRIANGLE:
+                style = QwtSymbol::Triangle;
+                break;
+            case SYMBOL_CROSS:
+                style = QwtSymbol::Cross;
+                break;
+            case SYMBOL_XCROSS:
+                style = QwtSymbol::XCross;
+                break;
+
+            default:
+                break;
+        }
+
         // QwtPlotCurve will take ownership of the symbol
-        symbol = new QwtSymbol(QwtSymbol::XCross);
+        symbol = new QwtSymbol(style);
+        
         symbol->setSize(6, 6);
         symbol->setColor(curveColor);
     }
 
-    QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::Lines;
-    if (m_curvePlotStyle == SYMBOL)
+    QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
+    Qt::PenStyle penStyle = Qt::SolidLine;
+
+    if (m_lineStyle() != STYLE_NONE)
     {
-        curveStyle = QwtPlotCurve::NoCurve;
+        curveStyle = QwtPlotCurve::Lines;
+
+        switch (m_lineStyle())
+        {
+        case STYLE_SOLID:
+            penStyle = Qt::SolidLine;
+            break;
+        case STYLE_DASH:
+            penStyle = Qt::DashLine;
+            break;
+        case STYLE_DOT:
+            penStyle = Qt::DotLine;
+            break;
+        case STYLE_DASH_DOT:
+            penStyle = Qt::DashDotLine;
+            break;
+
+        default:
+            break;
+        }
     }
 
+    m_qwtPlotCurve->setPen(curveColor, m_curveThickness, penStyle);
     m_qwtPlotCurve->setStyle(curveStyle);
     m_qwtPlotCurve->setSymbol(symbol);
 }
