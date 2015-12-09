@@ -370,15 +370,15 @@ cvf::Vec3d RivGridBoxGenerator::displayModelCoordFromDomainCoord(const cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>* parts)
 {
-    cvf::Vec3d posMin;
-    cvf::Vec3d posMax;
+    cvf::Vec3d posMin = cvf::Vec3d::ZERO;
+    cvf::Vec3d posMax = cvf::Vec3d::ZERO;
 
     cvf::Vec3d min = m_displayCoordsBoundingBox.min();
     cvf::Vec3d max = m_displayCoordsBoundingBox.max();
 
-    AxisType axis;
+    AxisType axis = X_AXIS;
 
-    cvf::Vec3f tickMarkDir;
+    cvf::Vec3f tickMarkDir = cvf::Vec3f::X_AXIS;
 
     switch (edge)
     {
@@ -455,6 +455,7 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         tickMarkDir = cornerDirection(NEG_X, NEG_Y);
         break;
     default:
+        CVF_TIGHT_ASSERT(false);
         break;
     }
 
