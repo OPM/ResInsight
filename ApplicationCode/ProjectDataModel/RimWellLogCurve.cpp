@@ -343,15 +343,17 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 void RimWellLogCurve::updateCurvePen()
 {
     CVF_ASSERT(m_qwtPlotCurve);
-    m_qwtPlotCurve->setPen(QColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte()), m_curveThickness);
+
+    QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
+    m_qwtPlotCurve->setPen(curveColor, m_curveThickness);
 
     QwtSymbol* symbol = NULL;
-
     if (m_curvePlotStyle == LINE_AND_SYMBOL || m_curvePlotStyle == SYMBOL)
     {
         // QwtPlotCurve will take ownership of the symbol
         symbol = new QwtSymbol(QwtSymbol::XCross);
         symbol->setSize(6, 6);
+        symbol->setColor(curveColor);
     }
 
     QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::Lines;
