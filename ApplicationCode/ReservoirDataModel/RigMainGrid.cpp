@@ -116,6 +116,8 @@ void RigMainGrid::computeCachedData()
 {
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
+
+    buildCellSearchTree();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -450,6 +452,16 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices) const
 {
+    CVF_ASSERT(m_cellSearchTree.notNull());
+
+    m_cellSearchTree->findIntersections(inputBB, cellIndices);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::buildCellSearchTree()
+{
     if (m_cellSearchTree.isNull())
     {
         // build tree
@@ -476,8 +488,6 @@ void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::ve
         m_cellSearchTree = new cvf::BoundingBoxTree;
         m_cellSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, NULL);
     }
-
-    m_cellSearchTree->findIntersections(inputBB, cellIndices);
 }
 
 //--------------------------------------------------------------------------------------------------
