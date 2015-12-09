@@ -65,14 +65,18 @@ public:
     RimWellLogCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;
 
 protected:
-
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+    void clampMinimumXRangeForLogarithmicScale();
+
     virtual caf::PdmFieldHandle* objectToggleField();
     virtual caf::PdmFieldHandle* userDescriptionField();
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
+    void updateAxisScaleEngine();
+
 private:
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;
@@ -80,6 +84,7 @@ private:
     caf::PdmField<double> m_visibleXRangeMin;
     caf::PdmField<double> m_visibleXRangeMax;
     caf::PdmField<bool>   m_isAutoScaleXEnabled;
+    caf::PdmField<bool>   m_isLogarithmicScaleEnabled;
 
     QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
 };
