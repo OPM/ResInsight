@@ -70,26 +70,8 @@ void RigEclipseNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double&
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
 
-    size_t i;
-    for (i = 0; i < values.size(); i++)
-    {
-        if (values[i] == HUGE_VAL)
-        {
-            continue;
-        }
-
-        if (values[i] < pos && values[i] > 0)
-        {
-            pos = values[i];
-        }
-
-        if (values[i] > neg && values[i] < 0)
-        {
-            neg = values[i];
-        }
-    }
+    RigStatisticsCalculator::posNegClosestToZero(values, pos, neg);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -100,8 +82,6 @@ void RigEclipseNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex
 
     histogramCalculator.addData(values);
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

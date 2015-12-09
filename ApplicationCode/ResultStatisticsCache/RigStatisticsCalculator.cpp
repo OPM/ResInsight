@@ -87,3 +87,28 @@ void RigStatisticsCalculator::addDataToHistogramCalculator(RigHistogramCalculato
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsCalculator::posNegClosestToZero(const std::vector<double>& values, double& pos, double& neg)
+{
+    size_t i;
+    for (i = 0; i < values.size(); i++)
+    {
+        if (values[i] == HUGE_VAL)
+        {
+            continue;
+        }
+
+        if (values[i] < pos && values[i] > 0)
+        {
+            pos = values[i];
+        }
+
+        if (values[i] > neg && values[i] < 0)
+        {
+            neg = values[i];
+        }
+    }
+}
+
