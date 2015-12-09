@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2015 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -35,16 +35,44 @@
 //##################################################################################################
 #pragma once
 
-#include "cafTrackBallBasedNavigation.h"
+#include "cafNavigationPolicy.h"
+
+namespace cvf {
+    class ManipulatorTrackball;
+    class Ray;
+}
 
 namespace caf
 {
 
-class CeetronPlusNavigation : public TrackBallBasedNavigation
+class TrackBallBasedNavigation: public NavigationPolicy
 {
 protected:
-    virtual bool  handleInputEvent(QInputEvent* inputEvent);
+    // General navigation policy overrides
+    virtual void                        init();
+
+    virtual void                        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
+    virtual cvf::Vec3d                  pointOfInterest(); 
+    virtual void                        setPointOfInterest(cvf::Vec3d poi);
+
+    // Track ball navigation specific
+    void                                initializeRotationCenter();
+    cvf::ref<cvf::ManipulatorTrackball> m_trackball;
+    bool                                m_isRotCenterInitialized; 
+    cvf::Vec3d                          m_pointOfInterest;
+
+    bool                                m_isNavigating;
+    bool                                m_hasMovedMouseDuringNavigation;
+
+    // Zooming towards cursor
+    void                                zoomAlongRay( cvf::Ray* ray, int delta );
+    bool                                m_isZooming;
+    cvf::ref<cvf::Ray>                  m_zoomRay;
+    int                                 m_lastPosX;  /// Previous mouse position
+    int                                 m_lastPosY;
+
 };
 
 } // End namespace caf
+
 

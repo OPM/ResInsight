@@ -33,6 +33,8 @@ add_library( ${PROJECT_NAME}
 	cafCeetronNavigation.h
 	cafCeetronPlusNavigation.cpp
 	cafCeetronPlusNavigation.h
+    cafTrackBallBasedNavigation.cpp
+    cafTrackBallBasedNavigation.h
 	cafNavigationPolicy.cpp
 	cafNavigationPolicy.h
 	cafOpenGLWidget.cpp

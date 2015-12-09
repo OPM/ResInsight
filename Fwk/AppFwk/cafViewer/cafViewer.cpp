@@ -56,6 +56,7 @@
 #include "cvfTransform.h"
 #include "cvfRayIntersectSpec.h"
 #include "cvfHitItemCollection.h"
+#include "cvfManipulatorTrackball.h"
 
 #include "cvfDebugTimer.h"
 #include "cvfqtPerformanceInfoHud.h"

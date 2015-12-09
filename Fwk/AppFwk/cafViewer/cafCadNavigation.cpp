@@ -38,26 +38,20 @@
 #include "cafCadNavigation.h"
 #include "cafViewer.h"
 #include "cvfCamera.h"
-#include "cvfScene.h"
-#include "cvfModel.h"
 #include "cvfViewport.h"
 #include "cvfHitItemCollection.h"
 #include "cvfRay.h"
+#include "cvfManipulatorTrackball.h"
 
 #include <QInputEvent>
-#include <QHBoxLayout>
-
-using cvf::ManipulatorTrackball;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void caf::CadNavigation::init()
 {
-    m_trackball = new cvf::ManipulatorTrackball;
-    m_trackball->setCamera(m_viewer->mainCamera());
-    m_isRotCenterInitialized = false;
-    m_isRotating = false;
+    caf::TrackBallBasedNavigation::init();
+    m_navigationUpdated = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +75,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 if (me->modifiers() & Qt::ShiftModifier)
                 {
                      m_trackball->startNavigation(cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY);
-                     m_isRotating = true;
+                     m_isNavigating = true;
                      isEventHandled = true;
                 }
                 else if (me->modifiers() == Qt::NoModifier)
@@ -101,23 +95,30 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
 
                     m_trackball->startNavigation(cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY);
                     //m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));
-                    m_isRotating = true;
+                    m_isNavigating = true;
                     isEventHandled = true;
                 }
+            }
+
+            if (isEventHandled)
+            {
+                m_navigationUpdated = false;
             }
         }
         break;
     case QEvent::MouseButtonRelease: 
         {
-            if (m_isRotating)
+            if (m_isNavigating)
             {
                 QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
                 if (me->button() == Qt::MidButton)
                 {
                     m_trackball->endNavigation();
                     //m_viewer->setCursor(RiuCursors::get(RiuCursors::PICK));
-                    m_isRotating = false;
-                    isEventHandled = true;
+                    m_isNavigating = false;
+                    
+                    isEventHandled = m_navigationUpdated;
+                    m_navigationUpdated = false;
                 }
             }
         }
@@ -131,12 +132,13 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 int translatedMousePosX = me->x();
                 int translatedMousePosY = m_viewer->height() - me->y();
 
-                if (m_isRotating)
+                if (m_isNavigating)
                 {
                     bool needRedraw = m_trackball->updateNavigation(translatedMousePosX, translatedMousePosY);
                     if (needRedraw)
                     {
                         m_viewer->navigationPolicyUpdate();
+                        m_navigationUpdated = true;
                     }
                     isEventHandled = true;
                 }
@@ -171,6 +173,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                         cvf::Vec3d newVrp = vrp + trans;
 
                         m_viewer->mainCamera()->setFromLookAt(newPos,newVrp, up );
+
                         m_viewer->updateParallelProjectionHeightFromMoveZoom(m_pointOfInterest);
                         m_viewer->navigationPolicyUpdate();
                     }
@@ -182,66 +185,4 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
     }
 
     return isEventHandled;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void caf::CadNavigation::initializeRotationCenter()
-{
-    if (m_isRotCenterInitialized
-        || m_trackball.isNull()
-        || !m_viewer->currentScene()->boundingBox().isValid())
-    {
-        return;
-    }
-
-    cvf::Vec3d pointOfInterest = m_viewer->currentScene()->boundingBox().center();
-
-    this->setPointOfInterest(pointOfInterest);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Repositions and orients the camera to view the rotation point along the 
-/// direction "alongDirection". The distance to the rotation point is maintained.
-///
-//--------------------------------------------------------------------------------------------------
-void caf::CadNavigation::setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection )
-{
-    m_trackball->setView(alongDirection, upDirection);
-    /*
-    if (m_camera.isNull()) return;
-
-    Vec3d dir = alongDirection;
-    if (!dir.normalize()) return;
-    Vec3d up = upDirection;
-    if(!up.normalize()) up = Vec3d::Z_AXIS;
-
-    if((up * dir) < 1e-2) up = dir.perpendicularVector();
-
-    Vec3d cToE = m_camera->position() - m_rotationPoint;
-    Vec3d newEye = m_rotationPoint - cToE.length() * dir;
-
-    m_camera->setFromLookAt(newEye, m_rotationPoint, upDirection);
-    */
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d caf::CadNavigation::pointOfInterest()
-{
-   initializeRotationCenter();     
-   return m_pointOfInterest;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void caf::CadNavigation::setPointOfInterest(cvf::Vec3d poi)
-{
-    m_pointOfInterest = poi;
-    m_trackball->setRotationPoint(poi);
-    m_isRotCenterInitialized = true;
-    m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
 }
