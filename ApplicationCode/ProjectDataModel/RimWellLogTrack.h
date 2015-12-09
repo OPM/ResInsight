@@ -64,6 +64,8 @@ public:
     
     RimWellLogCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;
 
+    void setLogarithmicScale(bool enable);
+
 protected:
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

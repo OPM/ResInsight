@@ -276,6 +276,8 @@ void RimWellLogExtractionCurve::updatePlotData()
 
         zoomAllOwnerTrackAndPlot();
 
+        setLogScaleFromSelectedResult();
+
         if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
     }
 }
@@ -418,6 +420,26 @@ void RimWellLogExtractionCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiT
     uiTreeOrdering.setForgetRemainingFields(true);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
+{
+    QString resVar = m_eclipseResultDefinition->resultVariable();
+
+    if (resVar.toUpper().contains("PERM"))
+    {
+        RimWellLogTrack* track = NULL;
+        this->firstAnchestorOrThisOfType(track);
+        if (track)
+        {
+            if (track->curveCount() == 1)
+            {
+                track->setLogarithmicScale(true);
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

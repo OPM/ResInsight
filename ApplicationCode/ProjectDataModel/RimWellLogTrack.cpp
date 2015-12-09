@@ -436,3 +436,14 @@ void RimWellLogTrack::computeAndSetXRangeMinForLogarithmicScale()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setLogarithmicScale(bool enable)
+{
+    m_isLogarithmicScaleEnabled = enable;
+
+    updateAxisScaleEngine();
+    computeAndSetXRangeMinForLogarithmicScale();
+}

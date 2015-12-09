@@ -27,8 +27,8 @@
 class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
-class RimWellPath;
 class RimView;
+class RimWellPath;
 
 //==================================================================================================
 ///  
@@ -62,6 +62,10 @@ protected:
 
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
+private:
+    void setLogScaleFromSelectedResult();
+
+private:
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
@@ -74,5 +78,4 @@ protected:
     caf::PdmField<bool>                             m_addTimestepToCurveName;
     caf::PdmField<bool>                             m_addDateToCurveName;
 };
-
 
