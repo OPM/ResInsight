@@ -93,19 +93,20 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
         rimReservoirView->name = nameOfCopy;
         eclipseCase->reservoirViews().push_back(rimReservoirView);
 
-        // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
+        // Delete all wells to be able to copy/paste between cases, as the wells can be different between cases
+        // Wells are read from file in loadDataAndUpdate -> syncronizeWellsWithResults
         rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
 
         rimReservoirView->setEclipseCase(eclipseCase);
+        rimReservoirView->loadDataAndUpdate();
 
         // Resolve references after reservoir view has been inserted into Rim structures
-        // Intersections referencing a well path requires this
+        // Intersections referencing a well path/ simulation well requires this
+        // TODO: initAfterReadRecursively can probably be removed
         rimReservoirView->initAfterReadRecursively();
         rimReservoirView->resolveReferencesRecursively();
 
         caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
-
-        rimReservoirView->loadDataAndUpdate();
 
         eclipseCase->updateConnectedEditors();
     }
