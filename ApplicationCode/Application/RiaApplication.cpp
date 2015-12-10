@@ -1771,21 +1771,6 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     // Open HTML report
     QDesktopServices::openUrl(htmlReportFileName);
 
-    // Keep current preferences values to be able to restore when regression tests are completed
-    std::vector<QVariant> preferencesValues;
-    {
-        std::vector<caf::PdmFieldHandle*> fields;
-        this->preferences()->fields(fields);
-        for (size_t i = 0; i < fields.size(); i++)
-        {
-            QVariant v = fields[i]->uiCapability()->uiValue();
-            preferencesValues.push_back(v);
-        }
-    }
-    
-    // Set preferences to make sure regression tests behave identical
-    this->preferences()->configureForRegressionTests();
-
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
@@ -1824,18 +1809,6 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              }
 
              closeProject(false);
-        }
-
-        // Restore preferences
-        {
-            std::vector<caf::PdmFieldHandle*> fields;
-            this->preferences()->fields(fields);
-            CVF_ASSERT(fields.size() == preferencesValues.size());
-
-            for (size_t i = 0; i < preferencesValues.size(); i++)
-            {
-                fields[i]->uiCapability()->setValueFromUi(preferencesValues[i]);
-            }
         }
     }
 
