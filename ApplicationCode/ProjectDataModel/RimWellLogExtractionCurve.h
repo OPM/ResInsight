@@ -64,6 +64,7 @@ protected:
 
 private:
     void setLogScaleFromSelectedResult();
+    void clampTimestep();
 
 private:
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;

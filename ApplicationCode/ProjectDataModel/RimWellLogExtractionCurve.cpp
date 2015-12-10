@@ -140,6 +140,19 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::clampTimestep()
+{
+    if (m_case)
+    {
+        if (m_timeStep > m_case->timeStepStrings().size() - 1)
+        {
+            m_timeStep = m_case->timeStepStrings().size() - 1;
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -150,6 +163,8 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 
     if (changedField == &m_case)
     {
+        clampTimestep();
+
         this->updatePlotData();
     }    
     else if (changedField == &m_wellPath)
