@@ -166,21 +166,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     else
                         ray = m_viewer->mainCamera()->rayFromWindowCoordinates((int)(1.0*translatedMousePosX), (int)(1.0*translatedMousePosY));
 
-                    if (ray.notNull() && abs(we->delta()) > 0)
-                    {
-                        cvf::Vec3d pos, vrp, up;
-                        m_viewer->mainCamera()->toLookAt(&pos, &vrp, &up);
-
-                        double scale = -we->delta()/8.0 * 1.0/150 * (pos - m_pointOfInterest).length();
-                        cvf::Vec3d trans = scale * ray->direction();
-                        cvf::Vec3d newPos = pos + trans;
-                        cvf::Vec3d newVrp = vrp + trans;
-
-                        m_viewer->mainCamera()->setFromLookAt(newPos,newVrp, up );
-
-                        m_viewer->updateParallelProjectionHeightFromMoveZoom(m_pointOfInterest);
-                        m_viewer->navigationPolicyUpdate();
-                    }
+                    zoomAlongRay(ray.p(), -we->delta());
                 }
                 isEventHandled = true;
             }
