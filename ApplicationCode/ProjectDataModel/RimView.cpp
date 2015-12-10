@@ -79,6 +79,7 @@ RimView::RimView(void)
     cameraPosition.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitField(&isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "");
+    isPerspectiveView.uiCapability()->setUiHidden(true); // For now as this is experimental
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ;
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
