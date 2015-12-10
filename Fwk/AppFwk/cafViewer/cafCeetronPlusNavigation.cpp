@@ -43,6 +43,7 @@
 #include "cvfManipulatorTrackball.h"
 
 #include <QInputEvent>
+#include "cvfTrace.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -208,5 +209,8 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
         break;
     }
 
-    return false;//isEventHandled;
+    if (isSupposedToConsumeEvents())
+        return isEventHandled;
+    else
+        return false;
 }

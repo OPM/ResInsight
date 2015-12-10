@@ -228,6 +228,13 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 
     if (event->button() == Qt::LeftButton)
     {
+        QPoint diffPoint = event->pos() - m_lastMousePressPosition;
+        if (diffPoint.manhattanLength() > 3)
+        {
+            // We are possibly in navigation mode, only clean press event will launch
+            return;
+        }
+
         if (!m_infoLabelOverlayArea.isNull())
         {
             if (m_infoLabelOverlayArea.contains(event->x(), event->y()))
@@ -239,7 +246,9 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
         }
 
         m_viewerCommands->handlePickAction(event->x(), event->y(), event->modifiers());
+
         return;
+
     }
     else if (event->button() == Qt::RightButton)
     {

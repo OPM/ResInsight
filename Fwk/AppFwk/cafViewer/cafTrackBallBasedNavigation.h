@@ -44,12 +44,22 @@ namespace cvf {
 
 namespace caf
 {
+//--------------------------------------------------------------------------------------------------
+/// This class is a work in progress to consolidate the different navigation policies that are similar.
+/// It is not yet finished. We need to extract the Pan, Rotation, ... etc. codes from the 
+/// special input event handlers and invoke those general methods from the event handlers instead.
+///  Some of the protected variables in this class is used by the 
+/// derived classes, and should rather be used from the general methods in this class and thus be private
+///
+//--------------------------------------------------------------------------------------------------
 
 class TrackBallBasedNavigation: public NavigationPolicy
 {
 public:
     TrackBallBasedNavigation();
     virtual ~TrackBallBasedNavigation();
+    void enableEventEating(bool enable) { m_consumeEvents = enable; }
+
 protected:
     // General navigation policy overrides
     virtual void                        init();
@@ -74,6 +84,10 @@ protected:
     int                                 m_lastPosX;  /// Previous mouse position
     int                                 m_lastPosY;
 
+    bool                                isSupposedToConsumeEvents() { return m_consumeEvents; }
+
+private:
+    bool                                m_consumeEvents;
 };
 
 } // End namespace caf
