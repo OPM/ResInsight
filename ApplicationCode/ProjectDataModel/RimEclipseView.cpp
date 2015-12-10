@@ -1108,10 +1108,9 @@ void RimEclipseView::syncronizeWellsWithResults()
         {
             well = new RimEclipseWell;
             well->name = wellResults[wIdx]->m_wellName;
-            
         }
         newWells.push_back(well);
-        well->setWellIndex(wIdx);
+
         well->setWellResults(wellResults[wIdx].p());
     }
 
@@ -1140,6 +1139,13 @@ void RimEclipseView::syncronizeWellsWithResults()
     }
 
     this->wellCollection()->sortWellsByName();
+
+    for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
+    {
+        this->wellCollection()->wells()[wIdx]->setWellIndex(wIdx);
+    }
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
