@@ -171,7 +171,8 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
     }
 
     return RigResultAccessorFactory::createResultAccessor(
-        eclipseCase, 0,
+        eclipseCase, 
+        gridIndex,
         porosityModel,
         adjustedTimeStepIndex,
         resultDefinition->resultVariable());
