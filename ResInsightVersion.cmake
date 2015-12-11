@@ -1,8 +1,8 @@
 
 set(CMAKE_MAJOR_VERSION 1)
 set(CMAKE_MINOR_VERSION 5)
-set(CMAKE_PATCH_VERSION 103)
-set(DEV_VERSION "-dev") 
+set(CMAKE_PATCH_VERSION 104)
+set(DEV_VERSION "-RC") 
 
 
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib
