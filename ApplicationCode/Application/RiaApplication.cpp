@@ -1659,6 +1659,10 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
                 clearViewsScheduledForUpdate();
 
+                //riv->updateCurrentTimeStepAndRedraw();
+                riv->createDisplayModelAndRedraw();
+                viewer->repaint();
+
                 QString fileName = cas->caseUserDescription() + "-" + riv->name();
                 fileName.replace(" ", "_");
 
@@ -2257,19 +2261,6 @@ void RiaApplication::regressionTestConfigureProject()
 
                 // This size is set to match the regression test reference images
                 riv->viewer()->setFixedSize(1000, 745);
-            }
-
-            RimEclipseView* resvView = dynamic_cast<RimEclipseView*>(riv);
-
-            if (resvView)
-            {
-                resvView->faultCollection->setShowFaultsOutsideFilters(false);
-
-                caf::PdmUiFieldHandle* uiFieldHandle = resvView->faultResultSettings->showCustomFaultResult.uiCapability();
-                if (uiFieldHandle)
-                {
-                    uiFieldHandle->setValueFromUi(false);
-                }
             }
         }
     }
