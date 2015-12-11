@@ -41,8 +41,9 @@ RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResul
 
     m_resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, timeStepIndex, cellResultColors);
 
-    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
-        eclipseCase->gridCellToWellIndex(gridIndex));
+    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = 
+        new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->resultWellPipeVisibilities(timeStepIndex),
+                                   eclipseCase->gridCellToResultWellIndex(gridIndex));
 
     const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 

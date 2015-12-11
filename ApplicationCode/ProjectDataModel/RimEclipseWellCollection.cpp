@@ -301,10 +301,10 @@ caf::PdmFieldHandle* RimEclipseWellCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::ubyte>& RimEclipseWellCollection::isWellPipesVisible(size_t frameIndex)
+const std::vector<cvf::ubyte>& RimEclipseWellCollection::resultWellPipeVisibilities(size_t frameIndex)
 {
     calculateIsWellPipesVisible(frameIndex);
-    return m_isWellPipesVisible[frameIndex];
+    return m_framesOfResultWellPipeVisibilities[frameIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,7 +312,7 @@ const std::vector<cvf::ubyte>& RimEclipseWellCollection::isWellPipesVisible(size
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWellCollection::scheduleIsWellPipesVisibleRecalculation()
 {
-    m_isWellPipesVisible.clear();
+    m_framesOfResultWellPipeVisibilities.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,17 +320,17 @@ void RimEclipseWellCollection::scheduleIsWellPipesVisibleRecalculation()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
 {
-    if (m_isWellPipesVisible.size() > frameIndex && m_isWellPipesVisible[frameIndex].size()) return;
+    if (m_framesOfResultWellPipeVisibilities.size() > frameIndex && m_framesOfResultWellPipeVisibilities[frameIndex].size()) return;
 
-    if (m_isWellPipesVisible.size() <= frameIndex)
-        m_isWellPipesVisible.resize(frameIndex+1);
+    if (m_framesOfResultWellPipeVisibilities.size() <= frameIndex)
+        m_framesOfResultWellPipeVisibilities.resize(frameIndex+1);
 
-    if (m_isWellPipesVisible[frameIndex].size() <= wells().size())
-        m_isWellPipesVisible[frameIndex].resize(wells().size(), false); 
+    if (m_framesOfResultWellPipeVisibilities[frameIndex].size() <= wells().size())
+        m_framesOfResultWellPipeVisibilities[frameIndex].resize(wells().size(), false); 
     
     for (size_t i = 0; i < wells().size(); ++i)
     {
-        m_isWellPipesVisible[frameIndex][wells[i]->resultWellIndex()] = wells[i]->calculateWellPipeVisibility(frameIndex);
+        m_framesOfResultWellPipeVisibilities[frameIndex][wells[i]->resultWellIndex()] = wells[i]->calculateWellPipeVisibility(frameIndex);
     }
 }
 

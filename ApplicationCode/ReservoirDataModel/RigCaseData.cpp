@@ -143,7 +143,7 @@ void RigCaseData::computeWellCellsPrGrid()
     //  Allocate and initialize the arrays
 
     m_wellCellsInGrid.resize(grids.size());
-    m_gridCellToWellIndex.resize(grids.size());
+    m_gridCellToResultWellIndex.resize(grids.size());
 
     for (gIdx = 0; gIdx < grids.size(); ++gIdx)
     {
@@ -152,11 +152,11 @@ void RigCaseData::computeWellCellsPrGrid()
             m_wellCellsInGrid[gIdx] = new cvf::UByteArray;
             m_wellCellsInGrid[gIdx]->resize(grids[gIdx]->cellCount());
 
-            m_gridCellToWellIndex[gIdx] = new cvf::UIntArray;
-            m_gridCellToWellIndex[gIdx]->resize(grids[gIdx]->cellCount());
+            m_gridCellToResultWellIndex[gIdx] = new cvf::UIntArray;
+            m_gridCellToResultWellIndex[gIdx]->resize(grids[gIdx]->cellCount());
         }
         m_wellCellsInGrid[gIdx]->setAll(false);
-        m_gridCellToWellIndex[gIdx]->setAll(cvf::UNDEFINED_UINT);
+        m_gridCellToResultWellIndex[gIdx]->setAll(cvf::UNDEFINED_UINT);
     }
 
     // Fill arrays with data
@@ -178,7 +178,7 @@ void RigCaseData::computeWellCellsPrGrid()
                     || m_fractureActiveCellInfo->isActive(reservoirCellIndex))
                 {
                     m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
-                    m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+                    m_gridCellToResultWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
                 }
             }
 
@@ -195,7 +195,7 @@ void RigCaseData::computeWellCellsPrGrid()
                     if(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
                     {
                         m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
-                        m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+                        m_gridCellToResultWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
                     }
                 }
             }
@@ -210,7 +210,7 @@ void RigCaseData::setWellResults(const cvf::Collection<RigSingleWellResultsData>
 {
     m_wellResults = data;
     m_wellCellsInGrid.clear();
-    m_gridCellToWellIndex.clear();
+    m_gridCellToResultWellIndex.clear();
 
     computeWellCellsPrGrid();
 }
@@ -218,7 +218,7 @@ void RigCaseData::setWellResults(const cvf::Collection<RigSingleWellResultsData>
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::UByteArray* RigCaseData::wellCellsInGrid(size_t gridIndex)
+const cvf::UByteArray* RigCaseData::wellCellsInGrid(size_t gridIndex)
 {
     computeWellCellsPrGrid();
     CVF_ASSERT(gridIndex < m_wellCellsInGrid.size());
@@ -230,12 +230,12 @@ cvf::UByteArray* RigCaseData::wellCellsInGrid(size_t gridIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::UIntArray* RigCaseData::gridCellToWellIndex(size_t gridIndex)
+const cvf::UIntArray* RigCaseData::gridCellToResultWellIndex(size_t gridIndex)
 {
     computeWellCellsPrGrid();
-    CVF_ASSERT(gridIndex < m_gridCellToWellIndex.size());
+    CVF_ASSERT(gridIndex < m_gridCellToResultWellIndex.size());
 
-    return m_gridCellToWellIndex[gridIndex].p();
+    return m_gridCellToResultWellIndex[gridIndex].p();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -257,7 +257,7 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
     CVF_ASSERT(m_resultWellIndex != cvf::UNDEFINED_SIZE_T);
 
     // Return the possibly cached value
-    return m_reservoirView->wellCollection()->isWellPipesVisible(frameIndex)[m_resultWellIndex];
+    return m_reservoirView->wellCollection()->resultWellPipeVisibilities(frameIndex)[m_resultWellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

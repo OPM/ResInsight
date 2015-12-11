@@ -86,12 +86,12 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
     double ignoredScalarValue = cellEdgeResultColors->ignoredScalarValue();
 
     const std::vector<cvf::ubyte>* isWellPipeVisible = NULL;
-    cvf::ref<cvf::UIntArray>       gridCellToWellindexMap;
+    cvf::cref<cvf::UIntArray>      gridCellToWellindexMap;
 
     if (opacityLevel < 1.0f)
     {
-        isWellPipeVisible = &(cellResultColors->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex));
-        gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(gridIndex);
+        isWellPipeVisible = &(cellResultColors->reservoirView()->wellCollection()->resultWellPipeVisibilities(timeStepIndex));
+        gridCellToWellindexMap = eclipseCase->gridCellToResultWellIndex(gridIndex);
     }
 
 #pragma omp parallel for
