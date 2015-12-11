@@ -330,7 +330,7 @@ void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
     
     for (size_t i = 0; i < wells().size(); ++i)
     {
-        m_isWellPipesVisible[frameIndex][i] = wells[i]->calculateWellPipeVisibility(frameIndex);
+        m_isWellPipesVisible[frameIndex][wells[i]->resultWellIndex()] = wells[i]->calculateWellPipeVisibility(frameIndex);
     }
 }
 

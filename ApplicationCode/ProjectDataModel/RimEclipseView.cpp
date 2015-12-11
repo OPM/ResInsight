@@ -1095,7 +1095,7 @@ void RimEclipseView::syncronizeWellsWithResults()
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimEclipseWell* well = this->wellCollection()->wells()[wIdx];
-        well->setWellResults(NULL);
+        well->setWellResults(NULL, -1);
     }
 
     // Find corresponding well from well result, or create a new
@@ -1111,7 +1111,7 @@ void RimEclipseView::syncronizeWellsWithResults()
         }
         newWells.push_back(well);
 
-        well->setWellResults(wellResults[wIdx].p());
+        well->setWellResults(wellResults[wIdx].p(), wIdx);
     }
 
     // Delete all wells that does not have a result
@@ -1139,13 +1139,6 @@ void RimEclipseView::syncronizeWellsWithResults()
     }
 
     this->wellCollection()->sortWellsByName();
-
-    for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
-    {
-        this->wellCollection()->wells()[wIdx]->setWellIndex(wIdx);
-    }
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
