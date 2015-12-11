@@ -162,7 +162,6 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCaseData* eclipseCase, size_t gridIndex, size_t timeStepIndex, RimEclipseResultDefinition* resultDefinition)
 {
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultDefinition->porosityModel());
-    resultDefinition->loadResult();
 
     size_t adjustedTimeStepIndex = timeStepIndex;
     if (resultDefinition->hasStaticResult())

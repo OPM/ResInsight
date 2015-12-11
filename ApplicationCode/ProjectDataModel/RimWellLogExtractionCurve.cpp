@@ -229,6 +229,8 @@ void RimWellLogExtractionCurve::updatePlotData()
                 tvDepthValues = eclExtractor->trueVerticalDepth();
             }
 
+            m_eclipseResultDefinition->loadResult();
+
             cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
                 eclipseCase->reservoirData(),
                 0,
