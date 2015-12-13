@@ -77,7 +77,10 @@ protected:
     bool                                m_isNavigating;
     bool                                m_hasMovedMouseDuringNavigation;
 
+    void                                cvfEventPos(int qtX, int qtY, int* x, int* y);
+
     // Zooming towards cursor
+    cvf::ref<cvf::Ray>                  createZoomRay(int cvfXPos, int cvfYPos);
     void                                zoomAlongRay( cvf::Ray* ray, int delta );
     bool                                m_isZooming;
     cvf::ref<cvf::Ray>                  m_zoomRay;

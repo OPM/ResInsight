@@ -265,16 +265,45 @@ void caf::Viewer::optimizeClippingPlanes()
     cvf::BoundingBox bb = m_renderingSequence->boundingBox();
     if (!bb.isValid()) return;
 
-    cvf::Vec3d eye, vrp, up;
-    m_mainCamera->toLookAt(&eye, &vrp, &up);
+    cvf::Vec3d eye = m_mainCamera->position();
+    cvf::Vec3d viewdir = m_mainCamera->direction();
 
-    cvf::Vec3d viewdir = (vrp - eye).getNormalized();
+    cvf::Vec3d bboxCorners[8]; 
+    bb.cornerVertices(bboxCorners);
 
+    double maxDistEyeToCornerAlongViewDir = -HUGE_VAL;
+    double minDistEyeToCornerAlongViewDir = HUGE_VAL;
+    for (int bcIdx = 0; bcIdx < 8; ++bcIdx )
+    {
+        double distEyeBoxCornerAlongViewDir = (bboxCorners[bcIdx] - eye)*viewdir;
+        if (distEyeBoxCornerAlongViewDir > maxDistEyeToCornerAlongViewDir)
+            maxDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir;
+        if (distEyeBoxCornerAlongViewDir < minDistEyeToCornerAlongViewDir)
+            minDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir;
+    }
+
+    double farPlaneDist = CVF_MIN(maxDistEyeToCornerAlongViewDir, m_maxFarPlaneDistance);
+    double nearPlaneDist = minDistEyeToCornerAlongViewDir;
+    
+    bool isOrthoNearPlaneFollowingCamera = false;
+
+    if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera)
+    {
+        if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
+        if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
+        {
+            double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
+            nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
+        }
+
+    }
+
+    #if 0
     double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
 
     double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
     farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
-
+ 
     double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
     if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
     if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
@@ -282,6 +311,7 @@ void caf::Viewer::optimizeClippingPlanes()
         double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
         nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
     }
+#endif
 
     if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
 
@@ -954,7 +984,9 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         // so we do not need to update the camera position based on orthoHeight and fieldOfView. 
         // We assume the camera is in a sensible position.
 
-        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        // Set a dummy near plane to be > 0 and < farPlane. These wll be updated by the optimize clipping planes
+        double dummyNearPlane = m_mainCamera->farPlane() *0.1;
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, dummyNearPlane, m_mainCamera->farPlane());
         this->update();
     }
 }
@@ -995,7 +1027,7 @@ double distToPlaneOfInterest(const cvf::Camera* camera, const cvf::Vec3d& pointO
     Vec3d eyeToFocus = pointOfInterest - eye;
     double distToFocusPlane = eyeToFocus*camDir;
 
-    return distToFocusPlane;
+    return cvf::Math::abs(distToFocusPlane);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -162,3 +162,38 @@ void caf::TrackBallBasedNavigation::zoomAlongRay(cvf::Ray* ray, int delta)
         m_viewer->navigationPolicyUpdate();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::TrackBallBasedNavigation::cvfEventPos(int qtX, int qtY, int* cvfX, int* cvfY)
+{
+    *cvfX = qtX;
+    *cvfY = m_viewer->height() - qtY;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Ray> caf::TrackBallBasedNavigation::createZoomRay(int cvfXPos, int cvfYPos)
+{
+    cvf::ref<cvf::Ray> ray;
+    cvf::Camera* cam = m_viewer->mainCamera();
+    ray = cam->rayFromWindowCoordinates(cvfXPos, cvfYPos);
+
+    if (cam->projection() == cvf::Camera::ORTHO)
+    {
+        cvf::Vec3d camDir = cam->direction();
+        cvf::Plane focusPlane;
+        focusPlane.setFromPointAndNormal(m_pointOfInterest, -camDir);
+        cvf::Vec3d intersectionPoint;
+        ray->planeIntersect(focusPlane, &intersectionPoint);
+
+        cvf::ref<cvf::Ray> orthoZoomRay = new cvf::Ray();
+        orthoZoomRay->setOrigin(cam->position());
+        orthoZoomRay->setDirection((intersectionPoint - cam->position()).getNormalized());
+        ray = orthoZoomRay;
+    }
+
+    return ray;
+}

@@ -189,7 +189,10 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
                 initializeRotationCenter();
                 if (m_isRotCenterInitialized)
                 {
+
+                    
                     QWheelEvent* we = static_cast<QWheelEvent*> ( inputEvent);
+                    #if 0
                     int translatedMousePosX = we->x();
                     int translatedMousePosY = m_viewer->height() - we->y();
                     int delta = we->delta();
@@ -199,8 +202,13 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
                         ray = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
                     else
                         ray = m_viewer->mainCamera()->rayFromWindowCoordinates((int)(1.0*translatedMousePosX), (int)(1.0*translatedMousePosY));
+                    #endif
 
-                    zoomAlongRay(ray.p(), delta);
+                    int cvfEvPosX, cvfEvPosY;
+                    cvfEventPos(we->x(), we->y(), &cvfEvPosX, &cvfEvPosY);
+                    cvf::ref<cvf::Ray> ray = createZoomRay(cvfEvPosX, cvfEvPosY);
+
+                    zoomAlongRay(ray.p(), we->delta());
 
                 }
                 isEventHandled = true;
