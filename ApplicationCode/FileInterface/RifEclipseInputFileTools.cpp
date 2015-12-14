@@ -811,7 +811,7 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
                     QFile includeFile(absoluteFilename);
                     if (includeFile.open(QFile::ReadOnly))
                     {
-                        qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
+                        //qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
 
                         if (!readFaultsAndParseIncludeStatementsRecursively(includeFile, 0, faults, filenamesWithFaults, isEditKeywordDetected))
                         {
@@ -875,7 +875,7 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         return;
     }
 
-    qDebug() << "Reading faults from\n  " << data.fileName();
+    // qDebug() << "Reading faults from\n  " << data.fileName();
 
     RigFault* fault = NULL;
 

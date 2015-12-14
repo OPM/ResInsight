@@ -1039,7 +1039,7 @@ void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const
 
     
     double orthoHeight = camera->frontPlaneFrustumHeight();
-    Trace::show(String::number(orthoHeight));
+    //Trace::show(String::number(orthoHeight));
 
     double neededDistToFocusPlane = calculateDistToPlaneOfInterest(m_cameraFieldOfViewYDeg, orthoHeight);
 
@@ -1052,7 +1052,7 @@ void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const
 
     Vec3d newEye = eye + (existingDistToFocusPlane - neededDistToFocusPlane) * camDir;
 
-    Trace::show(String::number(newEye.x()) + ", " + String::number(newEye.y()) + ", " +String::number(newEye.z()));
+    //Trace::show(String::number(newEye.x()) + ", " + String::number(newEye.y()) + ", " +String::number(newEye.z()));
     camera->setFromLookAt(newEye, newEye + 10.0*camDir, up);
 
 }
