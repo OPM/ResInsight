@@ -56,7 +56,7 @@ class PdmUiItemInfo
 {
 public:  
     PdmUiItemInfo()
-        : m_editorTypeName(""), m_isHidden(-1), m_isChildrenHidden(-1), m_isReadOnly(-1)
+        : m_editorTypeName(""), m_isHidden(-1), m_isChildrenHidden(-1), m_isReadOnly(-1), m_labelAlignment(LEFT)
     {}
 
     PdmUiItemInfo( QString  uiName,   QIcon icon = QIcon(), QString  toolTip = "", QString  whatsThis = "")
