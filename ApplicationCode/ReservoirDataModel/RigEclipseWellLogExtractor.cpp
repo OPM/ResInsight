@@ -70,6 +70,9 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         for (size_t cIdx = 0; cIdx < closeCells.size(); ++cIdx)
         {
             const RigCell& cell = m_caseData->mainGrid()->globalCellArray()[closeCells[cIdx]];
+
+            if (cell.isInvalid()) continue;
+
             const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
 
             hexCorners[0] = nodeCoords[cornerIndices[0]];
