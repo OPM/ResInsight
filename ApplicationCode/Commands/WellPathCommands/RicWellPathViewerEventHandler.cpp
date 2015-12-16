@@ -82,6 +82,8 @@ bool RicWellPathViewerEventHandler::handleEvent(cvf::Object* eventObject)
 
             RiuMainWindow::instance()->setResultInfo(wellPathText);
 
+            RiuMainWindow::instance()->selectAsCurrentItem(wellPathSourceInfo->wellPath());
+
             return true;
         }
     }

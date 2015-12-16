@@ -456,8 +456,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                     return;
                 }
             }
-
-            updateSelectionFromPickedPart(firstHitPart);
         }
 
         if (firstHitPart && firstHitPart->sourceInfo())
@@ -703,25 +701,6 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
     if (geomView && geomView->geoMechCase())
     {
         geomView->geoMechCase()->geoMechData()->femParts()->part(gridIdx)->structGrid()->ijkFromCellIndex(cellIndex, i, j, k);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::updateSelectionFromPickedPart(cvf::Part* part)
-{
-    if (part && part->sourceInfo())
-    {
-        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
-        if (wellPathSourceInfo)
-        {
-            RimWellPath* wellPath = wellPathSourceInfo->wellPath();
-            if (wellPath)
-            {
-                RiuMainWindow::instance()->selectAsCurrentItem(wellPath);
-            }
-        }
     }
 }
 

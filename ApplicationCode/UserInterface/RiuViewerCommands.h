@@ -68,7 +68,6 @@ private:
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
     void            createSliceRangeFilter(int ijOrk);
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
-    void            updateSelectionFromPickedPart(cvf::Part* part);
 
     bool            handleOverlayItemPicking(int winPosX, int winPosY);
 
