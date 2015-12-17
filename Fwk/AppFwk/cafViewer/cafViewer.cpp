@@ -37,39 +37,36 @@
 
 #include "cafViewer.h"
 
+#include "cafCadNavigation.h"
+#include "cafFrameAnimationControl.h"
+#include "cafNavigationPolicy.h"
+
 #include "cvfCamera.h"
-#include "cvfRendering.h"
-#include "cvfRenderSequence.h"
-#include "cvfOpenGLResourceManager.h"
-#include "cvfRenderQueueSorter.h"
-#include "cvfScene.h"
-#include "cvfModel.h"
-#include "cvfTextureImage.h"
-#include "cvfOverlayImage.h"
-
-#include "cvfqtOpenGLContext.h"
-
-#include "cvfRay.h"
-#include "cvfPart.h"
+#include "cvfDebugTimer.h"
 #include "cvfDrawable.h"
 #include "cvfDrawableGeo.h"
-#include "cvfTransform.h"
-#include "cvfRayIntersectSpec.h"
 #include "cvfHitItemCollection.h"
 #include "cvfManipulatorTrackball.h"
+#include "cvfModel.h"
+#include "cvfOpenGLResourceManager.h"
+#include "cvfOverlayImage.h"
+#include "cvfPart.h"
+#include "cvfRay.h"
+#include "cvfRayIntersectSpec.h"
+#include "cvfRenderQueueSorter.h"
+#include "cvfRenderSequence.h"
+#include "cvfRendering.h"
+#include "cvfScene.h"
+#include "cvfTextureImage.h"
+#include "cvfTransform.h"
 
-#include "cvfDebugTimer.h"
+#include "cvfqtOpenGLContext.h"
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfqtUtils.h"
 
-#include "cafNavigationPolicy.h"
-#include "cafCadNavigation.h"
-#include "cafFrameAnimationControl.h"
-
-#include <QInputEvent>
-#include <QHBoxLayout>
 #include <QDebug>
-#include "cvfTrace.h"
+#include <QHBoxLayout>
+#include <QInputEvent>
 
 std::list<caf::Viewer*> caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
@@ -593,17 +590,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 {
     if (m_frameScenes.size() == 0) return;
 
-    int clampedFrameIndex = frameIndex;
-
-    if (static_cast<size_t>(frameIndex) >= m_frameScenes.size())
-    {
-        clampedFrameIndex = static_cast<int>(m_frameScenes.size()) - 1;
-    }
-
-    if (clampedFrameIndex < 0)
-    {
-        clampedFrameIndex = 0;
-    }
+    int clampedFrameIndex = clampFrameIndex(frameIndex);
 
     if (m_frameScenes.at(clampedFrameIndex) == NULL) return;
 
@@ -777,9 +764,13 @@ void caf::Viewer::enableForcedImmediateMode(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int caf::Viewer::currentFrameIndex()
+int caf::Viewer::currentFrameIndex() const
 {
-    if (m_animationControl) return m_animationControl->currentFrame();
+    if (m_animationControl)
+    {
+        int clampedFrameIndex = clampFrameIndex(m_animationControl->currentFrame());
+        return clampedFrameIndex;
+    }
     else return 0;
 }
 
@@ -1055,5 +1046,24 @@ void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const
     //Trace::show(String::number(newEye.x()) + ", " + String::number(newEye.y()) + ", " +String::number(newEye.z()));
     camera->setFromLookAt(newEye, newEye + 10.0*camDir, up);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int caf::Viewer::clampFrameIndex(int frameIndex) const
+{
+    size_t clampedFrameIndex = static_cast<size_t>(frameIndex);
+
+    if (clampedFrameIndex >= frameCount())
+    {
+        clampedFrameIndex = frameCount() - 1;
+    }
+    else if (clampedFrameIndex < 0)
+    {
+        clampedFrameIndex = 0;
+    }
+
+    return static_cast<int>(clampedFrameIndex);
 }
 

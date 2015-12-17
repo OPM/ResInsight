@@ -91,9 +91,10 @@ public:
 
     // Frame scenes for animation control
     void                    addFrame(cvf::Scene* scene);
-    size_t                  frameCount()                                                       { return m_frameScenes.size(); }
+    size_t                  frameCount() const { return m_frameScenes.size(); }
     cvf::Scene*             frame(size_t frameIndex); 
     void                    removeAllFrames();
+    int                     currentFrameIndex() const;
 
     // Static models to be shown in all frames
     void                    addStaticModelOnce(cvf::Model* model);
@@ -152,7 +153,6 @@ public:
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);
     virtual void            slotEndAnimation();
-    int                     currentFrameIndex();
 
 public:
     virtual QSize           sizeHint() const;
@@ -195,6 +195,8 @@ private:
 
     void                                releaseOGlResourcesForCurrentFrame();
     void                                debugShowRenderingSequencePartNames();
+
+    int                                 clampFrameIndex(int frameIndex) const;
 
     bool                                m_showPerfInfoHud;
     size_t                              m_paintCounter;
