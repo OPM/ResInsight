@@ -114,8 +114,17 @@ void CmdExecCommandManager::activateCommandSystem()
     if (!m_commandFeatureInterface)
     {
         m_commandFeatureInterface = new CmdUiCommandSystemImpl;
-        PdmUiCommandSystemProxy::instance()->setCommandInterface(m_commandFeatureInterface);
     }
+
+    PdmUiCommandSystemProxy::instance()->setCommandInterface(m_commandFeatureInterface);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CmdExecCommandManager::deactivateCommandSystem()
+{
+    PdmUiCommandSystemProxy::instance()->setCommandInterface(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,18 +150,7 @@ QUndoStack* CmdExecCommandManager::undoStack()
 //--------------------------------------------------------------------------------------------------
 void CmdExecCommandManager::processExecuteCommand(CmdExecuteCommand* executeCommand)
 {
-    bool useUndo = false;
-
-    if (dynamic_cast<CmdFieldChangeExec*>(executeCommand) && m_commandFeatureInterface->disableUndoForFieldChange())
-    {
-        useUndo = false;
-    }
-    else if (m_commandFeatureInterface && m_commandFeatureInterface->isUndoEnabled())
-    {
-        useUndo = true;
-    }
-
-    if (useUndo)
+    if (isUndoEnabledForCurrentCommand(executeCommand))
     {
         // Transfer ownership of execute command to wrapper object
         UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper(executeCommand);
@@ -178,7 +176,7 @@ void CmdExecCommandManager::processExecuteCommandsAsMacro(const QString& macroNa
         return;
     }
 
-    if (m_commandFeatureInterface && m_commandFeatureInterface->isUndoEnabled())
+    if (isUndoEnabledForCurrentCommand(commands[0]))
     {
         m_undoStack->beginMacro(macroName);
         for (size_t i = 0; i < commands.size(); i++)
@@ -200,6 +198,25 @@ void CmdExecCommandManager::processExecuteCommandsAsMacro(const QString& macroNa
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool CmdExecCommandManager::isUndoEnabledForCurrentCommand(CmdExecuteCommand* command)
+{
+    bool useUndo = false;
+
+    if (dynamic_cast<CmdFieldChangeExec*>(command) && m_commandFeatureInterface->disableUndoForFieldChange())
+    {
+        useUndo = false;
+    }
+    else if (m_commandFeatureInterface && m_commandFeatureInterface->isUndoEnabled())
+    {
+        useUndo = true;
+    }
+
+    return useUndo;
 }
 
 
