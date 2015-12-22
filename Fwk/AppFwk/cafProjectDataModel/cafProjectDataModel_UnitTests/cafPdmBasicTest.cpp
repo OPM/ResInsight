@@ -140,6 +140,7 @@ public:
 
     ~DemoPdmObject() 
     {
+        delete m_simpleObjPtrField();
         delete m_simpleObjPtrField2();
     }
 
@@ -174,6 +175,11 @@ public:
 
     }
 
+    ~InheritedDemoObj()
+    {
+        m_simpleObjectsField.deleteAllChildObjects();
+    }
+
     caf::PdmField<std::vector<QString> >        m_texts;
     caf::PdmField< caf::AppEnum<TestEnumType> > m_testEnumField;
     caf::PdmChildArrayField<SimpleObj*>         m_simpleObjectsField;
@@ -190,6 +196,11 @@ public:
     {
         CAF_PDM_InitObject("PdmObjectCollection", "", "", "");
         CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+    }
+
+    ~MyPdmDocument()
+    {
+        objects.deleteAllChildObjects();
     }
 
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
@@ -519,6 +530,8 @@ TEST(BaseTest, ReadWrite)
             EXPECT_EQ(size_t(1), demoObjs.size());
         }
 
+        d2->m_simpleObjPtrField = NULL;
+        xmlDoc.objects.deleteAllChildObjects();
     }
 
     {

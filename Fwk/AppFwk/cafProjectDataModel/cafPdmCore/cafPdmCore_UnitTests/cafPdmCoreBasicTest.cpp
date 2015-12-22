@@ -436,6 +436,11 @@ TEST(BaseTest, PdmChildField)
     public:
         A(Child* a) :field2(a) {}
 
+        ~A()
+        {
+            delete field2();
+        }
+
         caf::PdmChildField<Child*> field2;
         int b;
     };

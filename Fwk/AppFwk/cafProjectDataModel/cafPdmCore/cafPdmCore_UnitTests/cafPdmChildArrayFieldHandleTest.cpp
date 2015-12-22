@@ -64,6 +64,7 @@ public:
     ~ContainerObj()
     {
         derivedObjs.deleteAllChildObjects();
+        derivedOtherObjs.deleteAllChildObjects();
     }
 
     caf::PdmChildArrayField<SimpleObjDerived*> derivedObjs;
