@@ -241,7 +241,7 @@ public:
         CAF_PDM_InitField(&m_doubleField,   "BigNumber",    0.0,        "Big Number",   "", "Enter a big number here", "This is a place you can enter a big real value if you want");
         CAF_PDM_InitField(&m_intField,      "IntNumber",    0,          "Small Number", "", "Enter some small number here",  "This is a place you can enter a small integer value if you want" );
         CAF_PDM_InitField(&m_boolField,     "BooleanValue", false,      "Boolean:" ,    "", "Boolean:Enter some small number here", "Boolean:This is a place you can enter a small integer value if you want");
-        CAF_PDM_InitField(&m_textField,     "TextField",    QString("Demo Object Description Field"), "",            "", "", "");
+        CAF_PDM_InitField(&m_textField,     "TextField",    QString("Demo Object Description Field"), "Description Field",            "", "", "");
         CAF_PDM_InitField(&m_filePath,      "FilePath",    QString(""),  "Filename",            "", "", "");
         CAF_PDM_InitField(&m_longText,      "LongText",    QString("Test text"),  "Long Text",            "", "", "");
 
