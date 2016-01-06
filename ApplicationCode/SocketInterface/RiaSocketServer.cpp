@@ -22,35 +22,37 @@
 #include "RiaSocketCommand.h"
 #include "RiaSocketTools.h"
 
+#include "RiaApplication.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RigGridBase.h"
+
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCaseCollection.h"
+#include "RimCellEdgeColors.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimScriptCollection.h"
+
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
+
+#include "cafFactory.h"
+
 #include <QtGui>
 #include <QtNetwork>
 
 #include <stdlib.h>
-
-#include "RiaApplication.h"
-#include "RiuMainWindow.h"
-#include "RimEclipseView.h"
-#include "RimProject.h"
-#include "RimEclipseCase.h"
-
-#include "RimEclipseCellColors.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimScriptCollection.h"
-#include "RimCaseCollection.h"
-#include "RimReservoirCellResultsStorage.h"
-
-#include "RigCaseData.h"
-#include "RigCaseCellResultsData.h"
-
-#include "cafFactory.h"
-#include "RigGridBase.h"
-#include "RimOilField.h"
-#include "RimEclipseCaseCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -155,6 +157,22 @@ RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
         {
             return riv->eclipseCase();
         }
+
+        // If the active mdi window is different from an Eclipse view, search through available mdi windows to find the last activated
+        // Eclipse view. The sub windows are returned with the most recent activated window at the back.
+        QList<QMdiSubWindow*> subWindows = RiuMainWindow::instance()->subWindowList(QMdiArea::ActivationHistoryOrder);
+		for (int i = subWindows.size() - 1; i > -1; i--)
+		{
+			RiuViewer* viewer = subWindows[i]->widget()->findChild<RiuViewer*>();
+			if (viewer)
+			{
+                RimEclipseView* riv = dynamic_cast<RimEclipseView*>(viewer->ownerReservoirView());
+                if (riv)
+                {
+                    return riv->eclipseCase();
+                }
+			}
+		}
     }
     else
     {

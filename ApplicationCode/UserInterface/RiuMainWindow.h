@@ -23,6 +23,7 @@
 #include <QEvent>
 #include <QMainWindow>
 #include <QPointer>
+#include <QMdiArea>
 
 class QActionGroup;
 class QComboBox;
@@ -30,7 +31,6 @@ class QFrame;
 class QItemSelection;
 class QLabel;
 class QLineEdit;
-class QMdiArea;
 class QMdiSubWindow;
 class QSpinBox;
 class QTreeView;
@@ -112,6 +112,7 @@ public:
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
+	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
     RiuResultQwtPlot* resultPlot();
 
