@@ -1179,6 +1179,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     if (ert_wellhead)
                     {
                         wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+
+                        // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
+                        // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
+                        wellResFrame.m_wellHead.m_isOpen = false; 
                         break;
                     }
                 }
@@ -1528,6 +1532,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     if (ert_wellhead)
                     {
                         wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
+                        // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
+                        wellResFrame.m_wellHead.m_isOpen = false; 
+
                         //std::cout << "Wellhead YES at timeIdx: " << timeIdx <<  " wellIdx: " << wellIdx << " Grid: " << gridNr << std::endl;
                     }
                     else
