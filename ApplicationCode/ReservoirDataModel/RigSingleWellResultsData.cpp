@@ -283,11 +283,6 @@ const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, s
 {
     CVF_ASSERT(gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T);
 
-    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
-    {
-        return &m_wellHead;
-    }
-
     for (size_t wb = 0; wb < m_wellResultBranches.size(); ++wb)
     {
         for (size_t wc = 0; wc < m_wellResultBranches[wb].m_branchResultPoints.size(); ++wc)
@@ -298,6 +293,15 @@ const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, s
                 return &(m_wellResultBranches[wb].m_branchResultPoints[wc]);
             }
         }
+    }
+
+    // If we could not find the cell among the real connections, we try the wellhead.
+    // The wellhead does however not have a real connection state, and is thereby always rendered as closed
+    // If we have a real connection in the wellhead, we should not end here. See Github issue #712
+
+    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
+    {
+        return &m_wellHead;
     }
 
     return NULL;
